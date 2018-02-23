@@ -14,6 +14,8 @@ import java.util.stream.Stream;
 public class StandardLearningPipeline extends Pipeline {
     @Override
     public void execute(Settings settings) {
-        {Pair<Optional<Template>, Stream<LearningSample>> resources = initLearningPipeline(settings);
+        {
+            Pair<Optional<Template>, Stream<LearningSample>> resources = initLearningPipeline(settings);
+        }
     }
 }

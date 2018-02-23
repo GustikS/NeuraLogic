@@ -9,6 +9,7 @@ import settings.Settings;
 import utils.Utilities;
 
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -32,12 +33,17 @@ public abstract class Pipeline {
         Stream<LearningSample> samples = settings.sf.queriesPath == null ? streamLearningSamples(settings.sf.examplesFileReader, settings)
                 : streamLearningSamples(settings.sf.examplesFileReader, settings.sf.queriesFileReader, settings);
 
-        Optional<Template> template = Optional.of(settings.templatePath.isEmpty() ? null : getTemplate(settings.sf.templateFileReader, settings));
+        Optional<Template> template = null;
+        try {
+            template = Optional.of(settings.templatePath.isEmpty() ? null : getTemplate(settings.sf.templateFileReader, settings));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return new Pair<>(template, samples);
     }
 
 
-    Template getTemplate(FileReader templatePath, Settings settings) {
+    Template getTemplate(FileReader templatePath, Settings settings) throws IOException {
 
         Template template = settings.sf.tp.parseTemplate(templatePath).preprocess(settings);
         return template;
@@ -57,7 +63,12 @@ public abstract class Pipeline {
     Stream<LearningSample> streamLearningSamples(FileReader examplesPath, FileReader queriesPath, Settings settings) {
 
         Stream<Example> exampleStream = settings.sf.ep.parseExamples(examplesPath);
-        Stream<List<Query>> queryStream = settings.sf.qp.parseQueries(queriesPath);
+        Stream<List<Query>> queryStream = null;
+        try {
+            queryStream = settings.sf.qp.parseQueries(queriesPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Stream<LearningSample> zipStream = Utilities.zipStreams(exampleStream, queryStream, (example, queries) -> mergeQueriesWithExample(example, queries)).flatMap(Collection::stream);
 
         return zipStream;

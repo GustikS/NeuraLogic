@@ -13,6 +13,6 @@ public class HerbrandModel {
      * @return
      */
     NeuralNetwork getCompleteNeuralNetwork(){
-
+        return null;
     }
 }

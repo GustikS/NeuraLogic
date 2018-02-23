@@ -2,11 +2,12 @@ package settings;
 
 import constructs.template.transforming.TemplateReducing;
 import ida.utils.tuples.Pair;
-import parsing.*;
+import parsing.PlainTextExampleParser;
+import parsing.PlainTextQueryParser;
+import parsing.PlainTextTemplateParser;
 import utils.Utilities;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Map;
@@ -23,6 +24,7 @@ public class Settings {
 
     public TemplateReducing templateReducer;
     public boolean reduceTemplate;
+    public String templatePath;
 
     private Settings(){
         reduceTemplate = true;
@@ -48,6 +50,8 @@ public class Settings {
         } else {
             throw new UnknownFormatFlagsException("File type of input queries not recognized!");
         }
+
+        return null;
     }
 
     public void importFromCSV(String inPath){
@@ -70,6 +74,6 @@ public class Settings {
 
 
     public Pair<Boolean, String> validate() {
-
+        return null;
     }
 }

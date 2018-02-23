@@ -1,2 +1,2 @@
 # NeuraLogic
-LRNN 2.0
+LRNN 2.0 reimplementation

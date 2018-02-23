@@ -14,7 +14,7 @@ public abstract class Training {
     void initTraining() {
     }
 
-    abstract void train(NeuralModel model, List<NeuralSample> sampleList);
+    protected abstract void train(NeuralModel model, List<NeuralSample> sampleList);
 
     Results finishTraining() {
         return null;
