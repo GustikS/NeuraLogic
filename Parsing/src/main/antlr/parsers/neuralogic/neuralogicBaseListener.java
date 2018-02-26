@@ -251,6 +251,30 @@ public class neuralogicBaseListener implements neuralogicListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitOffset(neuralogicParser.OffsetContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNumber(neuralogicParser.NumberContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNumber(neuralogicParser.NumberContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterVector(neuralogicParser.VectorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitVector(neuralogicParser.VectorContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

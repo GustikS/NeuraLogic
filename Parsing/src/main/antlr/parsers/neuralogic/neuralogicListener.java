@@ -207,4 +207,24 @@ public interface neuralogicListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitOffset(neuralogicParser.OffsetContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link neuralogicParser#number}.
+	 * @param ctx the parse tree
+	 */
+	void enterNumber(neuralogicParser.NumberContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link neuralogicParser#number}.
+	 * @param ctx the parse tree
+	 */
+	void exitNumber(neuralogicParser.NumberContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link neuralogicParser#vector}.
+	 * @param ctx the parse tree
+	 */
+	void enterVector(neuralogicParser.VectorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link neuralogicParser#vector}.
+	 * @param ctx the parse tree
+	 */
+	void exitVector(neuralogicParser.VectorContext ctx);
 }

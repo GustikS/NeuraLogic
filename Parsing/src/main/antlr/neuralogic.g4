@@ -38,9 +38,13 @@ predicate_metadata: predicate SLASH INT metadata_list;
 //weight: fixed_weight | SEPARATOR (INT | FLOAT) SEPARATOR;
 //SEPARATOR: (' ' | BOL | EOF);
 
-weight: fixed_weight | (INT | FLOAT);
-fixed_weight: LANGLE (INT | FLOAT) RANGLE;
+// weight may have identifiers for sharing
+weight: (DOLLAR ATOMIC_NAME '=')? (fixed_weight | number | LBRACKET vector RBRACKET);
+fixed_weight: LANGLE (number | vector) RANGLE;
 offset: weight;
+
+number: INT | FLOAT;
+vector: number (COMMA number)*;
 
 VARIABLE: UCASE_LETTER ALPHANUMERIC* | '_' ALPHANUMERIC+ | '_';
 
@@ -63,9 +67,10 @@ COMMA: ',';
 SLASH: '/';
 CARET: '^';
 TRUE: 'true';
+DOLLAR: '$';
 
-ALPHANUMERIC: ALPHA | DIGIT ;
-ALPHA: '_' | '-' | LCASE_LETTER | UCASE_LETTER ;
+fragment ALPHANUMERIC: ALPHA | DIGIT ;
+fragment ALPHA: '_' | '-' | LCASE_LETTER | UCASE_LETTER ;
 
 fragment LCASE_LETTER: [a-z];
 fragment UCASE_LETTER: [A-Z];
