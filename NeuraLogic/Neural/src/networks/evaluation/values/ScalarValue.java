@@ -20,4 +20,8 @@ public class ScalarValue extends Value {
     protected Value multiplyByVector(VectorValue val2) {
         return null;
     }
+
+    public ScalarValue(double val) {
+        value = val;
+    }
 }

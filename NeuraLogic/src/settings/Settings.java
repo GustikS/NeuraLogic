@@ -2,9 +2,9 @@ package settings;
 
 import constructs.template.transforming.TemplateReducing;
 import ida.utils.tuples.Pair;
-import parsing.PlainTextExampleParser;
-import parsing.PlainTextQueryParser;
-import parsing.PlainTextTemplateParser;
+import neuralogic.ParseTreeProcessor;
+import parsing.alternatives.PlainTextExampleParser;
+import parsing.alternatives.PlainTextQueryParser;
 import utils.Utilities;
 
 import java.io.IOException;
@@ -20,23 +20,25 @@ import java.util.UnknownFormatFlagsException;
 public class Settings {
     NumberFormat nf = new DecimalFormat("#.##########");
 
-    public SourceFiles sf;
+    //public SourceFiles sf;
 
     public TemplateReducing templateReducer;
     public boolean reduceTemplate;
     public String templatePath;
 
-    private Settings(){
+    private Settings() {
         reduceTemplate = true;
     }
 
     public static Settings constructFrom(Map<String, String> params) throws IOException {
         Settings settings = new Settings();
         //TODO fill all the settings
-        if (settings.sf.examplesPath.toFile().exists()) throw new MissingResourceException("Need some examples to learn!","Example","");
+        if (settings.sf.examplesPath.toFile().exists())
+            throw new MissingResourceException("Need some examples to learn!", "Example", "");
 
         if (Utilities.identifyFileTypeUsingFilesProbeContentType(settings.sf.templatePath.toString()).equals("text/plain")) {
-            settings.sf.tp = new PlainTextTemplateParser();
+            //TODO add more detailed scan of the file to recognize what parser will be appropriate
+            settings.sf.tp = new ParseTreeProcessor();
         } else {
             throw new UnknownFormatFlagsException("File type of input template/rules not recognized!");
         }
@@ -54,23 +56,22 @@ public class Settings {
         return null;
     }
 
-    public void importFromCSV(String inPath){
+    public void importFromCSV(String inPath) {
 
     }
 
-    public void importFromJson(String inPath){
+    public void importFromJson(String inPath) {
 
 
     }
 
-    public void exportToCSV(String outPath){
+    public void exportToCSV(String outPath) {
 
     }
 
-    public void exportToJson(String outPath){
+    public void exportToJson(String outPath) {
 
     }
-
 
 
     public Pair<Boolean, String> validate() {

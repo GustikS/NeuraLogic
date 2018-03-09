@@ -4,7 +4,7 @@ apply plugin: 'java'
 apply plugin: 'antlr'
 apply plugin: 'idea'
 
-sourceCompatibility = 1.5
+sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()

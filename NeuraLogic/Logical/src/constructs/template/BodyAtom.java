@@ -7,11 +7,13 @@ import networks.structure.Weight;
  * Created by gusta on 13.3.17.
  */
 public class BodyAtom {
-    Weight weight;
-    Atom atom;
-    Activation negation;    //may be null (or identity function) if not negated
+    public ida.ilp.logic.Literal literal;
 
-    public boolean isNegated() {
-        return negation != null;
-    }
+    public WeightedPredicate weightedPredicate;
+    public Weight weight;
+
+    public boolean isNegated;
+    Activation negation;
+    public String originalString;
+
 }

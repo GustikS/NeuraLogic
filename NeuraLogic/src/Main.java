@@ -1,12 +1,10 @@
-import utils.CommandLine;
 import ida.utils.tuples.Pair;
 import pipelines.Pipeline;
 import settings.Settings;
-import utils.Logger;
+import utils.CommandLine;
 
 import java.io.IOException;
 import java.util.Map;
-
 /**
  * Created by gusta on 8.3.17.
  */

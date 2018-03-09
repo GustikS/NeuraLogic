@@ -1,5 +1,6 @@
 package constructs.template;
 
+import constructs.template.metadata.RuleMetadata;
 import ida.ilp.logic.Clause;
 import ida.ilp.logic.HornClause;
 import ida.ilp.logic.Literal;
@@ -18,15 +19,19 @@ public class WeightedRule {
     /**
      * changable by structure learning?
      */
-    boolean isChangable = false;
+    boolean isEditable = false;
 
     Weight weight;
+    public Weight offset;
 
-    Atom head;
-    List<BodyAtom> body;
+    public Atom head;
+    public List<BodyAtom> body;
 
     Activation aggregationFcn;
     Activation activationFcn;
+
+    public RuleMetadata metadata;
+    public String originalString;
 
     HornClause toHornClause(){
         List<Literal> collected = body.stream().map(bodyLit -> bodyLit.atom.literal).collect(Collectors.toList());

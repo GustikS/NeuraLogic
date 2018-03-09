@@ -1,22 +1,19 @@
 package constructs.template;
 
-import ida.ilp.logic.Literal;
 import networks.evaluation.functions.Activation;
-import networks.structure.Weight;
 
 /**
  * Created by gusta on 8.3.17.
  */
 public class Atom {
-    Literal literal;
-    Activation activation;
+    public ida.ilp.logic.Literal literal;
 
     /**
-     * //the disjunction's offset needs to be explicit since adding a disjunctive "offset literal" would change the semantics (would force the head to be always true)
+     * The predicate carries the disjunction offset weight.
+     * Disjunction's offset needs to be explicit since adding a disjunctive "offset literal" would change the semantics (would force the head to be always true)
      */
-    Weight offset;
+    public WeightedPredicate weightedPredicate;
+    Activation activation;
 
-    public void setOffset(Weight offset) {
-        this.offset = offset;
-    }
+    public String originalString;
 }
