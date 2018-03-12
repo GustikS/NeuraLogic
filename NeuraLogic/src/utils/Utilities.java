@@ -8,15 +8,16 @@ import java.util.Objects;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.BiFunction;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-import static java.lang.System.out;
 
 /**
  * Created by gusta on 26.3.17.
  */
 public class Utilities {
+
+    private static final Logger LOG = Logger.getLogger(Utilities.class.getName());
 
     public static long getAppRemainingMemory() {
         long allocatedMemory = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
@@ -30,9 +31,7 @@ public class Utilities {
         try {
             fileType = Files.probeContentType(file.toPath());
         } catch (IOException ioException) {
-            out.println(
-                    "ERROR: Unable to determine file type for " + fileName
-                            + " due to exception " + ioException);
+            LOG.severe("ERROR: Unable to determine file type for " + fileName + " due to exception " + ioException);
         }
         return fileType;
     }

@@ -1,57 +1,70 @@
 package settings;
 
 import constructs.template.transforming.TemplateReducing;
+import grounding.Grounder;
+import grounding.bottomUp.BottomUp;
+import grounding.topDown.TopDown;
 import ida.utils.tuples.Pair;
-import neuralogic.ParseTreeProcessor;
-import parsing.alternatives.PlainTextExampleParser;
-import parsing.alternatives.PlainTextQueryParser;
-import utils.Utilities;
+import org.apache.commons.cli.CommandLine;
 
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.UnknownFormatFlagsException;
+import java.util.Random;
 
 /**
  * Created by gusta on 8.3.17.
  */
 public class Settings {
+    Random random;
     NumberFormat nf = new DecimalFormat("#.##########");
 
-    //public SourceFiles sf;
+    DefaultSettings defaults = new DefaultSettings();
+
+    public SourceFiles sourceFiles;
 
     public TemplateReducing templateReducer;
     public boolean reduceTemplate;
-    public String templatePath;
 
-    private Settings() {
+    String _grounding;
+    public Grounder grounder;
+
+    String _seed;
+    public boolean structureLearning;
+    public boolean testFile;
+    public boolean training;
+    public boolean foldFiles;
+
+    /**
+     * TODO Setup globally default settings here
+     */
+    public Settings() {
         reduceTemplate = true;
     }
 
-    public static Settings constructFrom(Map<String, String> params) throws IOException {
-        Settings settings = new Settings();
-        //TODO fill all the settings
-        if (settings.sf.examplesPath.toFile().exists())
-            throw new MissingResourceException("Need some examples to learn!", "Example", "");
+    public void setupFromCommandline(CommandLine cmd) throws NumberFormatException, FileNotFoundException {
 
-        if (Utilities.identifyFileTypeUsingFilesProbeContentType(settings.sf.templatePath.toString()).equals("text/plain")) {
-            //TODO add more detailed scan of the file to recognize what parser will be appropriate
-            settings.sf.tp = new ParseTreeProcessor();
-        } else {
-            throw new UnknownFormatFlagsException("File type of input template/rules not recognized!");
+        sourceFiles = new SourceFiles(this, cmd);
+        sourceFiles.validate(this);
+
+        _grounding = cmd.getOptionValue("grounding", defaults.grounding);
+        switch (_grounding) {
+            case "up":
+                grounder = new BottomUp();
+                break;
+            case "down":
+                grounder = new TopDown();
+                break;
         }
-        if (Utilities.identifyFileTypeUsingFilesProbeContentType(settings.sf.examplesPath.toString()).equals("text/plain")) {
-            settings.sf.ep = new PlainTextExampleParser();
-        } else {
-            throw new UnknownFormatFlagsException("File type of input examples not recognized!");
-        }
-        if (Utilities.identifyFileTypeUsingFilesProbeContentType(settings.sf.queriesPath.toString()).equals("text/plain")) {
-            settings.sf.qp = new PlainTextQueryParser();
-        } else {
-            throw new UnknownFormatFlagsException("File type of input queries not recognized!");
-        }
+
+        _seed = cmd.getOptionValue("seed", defaults.seed);
+        random = new Random(Integer.parseInt(_seed));
+        //TODO fill all the settings
+
+    }
+
+
+    public Pair<Boolean, String> validate() {
 
         return null;
     }
@@ -71,10 +84,5 @@ public class Settings {
 
     public void exportToJson(String outPath) {
 
-    }
-
-
-    public Pair<Boolean, String> validate() {
-        return null;
     }
 }

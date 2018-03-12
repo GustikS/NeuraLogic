@@ -8,7 +8,10 @@ template_line: lrnn_rule | fact | predicate_metadata | predicate_offset | weight
 //labeled: label query literal :- conjunction of atoms
 //unlabeled: one big conjunction
 //           or one fact or conjunction per line (label query literals in separate file)
-examples_file: lrnn_rule+ | fact+ | conjunction+;
+examples_file: lrnn_rule+ | fact+ | (conjunction '.')+;
+
+// simple labeled queries, one per line
+queries_file: fact+;
 
 fact: atom '.';
 

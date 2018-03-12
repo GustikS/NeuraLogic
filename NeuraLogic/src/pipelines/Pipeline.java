@@ -30,12 +30,12 @@ public abstract class Pipeline {
 
     public Pair<Optional<Template>, Stream<LearningSample>> initLearningPipeline(Settings settings) {
 
-        Stream<LearningSample> samples = settings.sf.queriesPath == null ? streamLearningSamples(settings.sf.examplesFileReader, settings)
-                : streamLearningSamples(settings.sf.examplesFileReader, settings.sf.queriesFileReader, settings);
+        Stream<LearningSample> samples = settings.sourceFiles.queriesPath == null ? streamLearningSamples(settings.sourceFiles.examplesFileReader, settings)
+                : streamLearningSamples(settings.sourceFiles.examplesFileReader, settings.sourceFiles.queriesFileReader, settings);
 
         Optional<Template> template = null;
         try {
-            template = Optional.of(settings.templatePath.isEmpty() ? null : getTemplate(settings.sf.templateFileReader, settings));
+            template = Optional.of(settings.templatePath.isEmpty() ? null : getTemplate(settings.sourceFiles.templateFileReader, settings));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -45,7 +45,7 @@ public abstract class Pipeline {
 
     Template getTemplate(FileReader templatePath, Settings settings) throws IOException {
 
-        Template template = settings.sf.tp.parseTemplate(templatePath).preprocess(settings);
+        Template template = settings.sourceFiles.tp.parseTemplate(templatePath).preprocess(settings);
         return template;
     }
 
@@ -62,10 +62,10 @@ public abstract class Pipeline {
      */
     Stream<LearningSample> streamLearningSamples(FileReader examplesPath, FileReader queriesPath, Settings settings) {
 
-        Stream<Example> exampleStream = settings.sf.ep.parseExamples(examplesPath);
+        Stream<Example> exampleStream = settings.sourceFiles.ep.parseExamples(examplesPath);
         Stream<List<Query>> queryStream = null;
         try {
-            queryStream = settings.sf.qp.parseQueries(queriesPath);
+            queryStream = settings.sourceFiles.qp.parseQueries(queriesPath);
         } catch (IOException e) {
             e.printStackTrace();
         }

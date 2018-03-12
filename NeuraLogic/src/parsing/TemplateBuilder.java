@@ -6,7 +6,11 @@ import constructs.template.WeightedPredicate;
 import constructs.template.WeightedRule;
 import ida.utils.tuples.Pair;
 import networks.structure.Weight;
-import neuralogic.ParseTreeProcessor;
+import neuralogic.grammarVisitors.PlainGrammarVisitor;
+import neuralogic.template.PlainTemplateParseTree;
+import neuralogic.template.PlainTemplateParseTreeExtractor;
+import neuralogic.ParseTree;
+import neuralogic.template.TemplateParseTreeExtractor;
 import parsers.neuralogic.NeuralogicParser;
 import settings.Settings;
 
@@ -27,25 +31,36 @@ public class TemplateBuilder extends Builder<Template> {
 
     }
 
+    @Override
+    public Template buildFrom(Reader reader, Settings settings) throws IOException {
+        //TODO switch to different Parsers and Extractors based on file types/structures/settings
+
+        // Plain text grammar-based version of template building
+        ParseTree parseTree = new PlainTemplateParseTree(reader);
+        PlainGrammarVisitor plainGrammarVisitor = new PlainGrammarVisitor(this);
+        TemplateParseTreeExtractor templateParseTreeExtractor = new PlainTemplateParseTreeExtractor(plainGrammarVisitor);
+
+        return buildFrom(parseTree, templateParseTreeExtractor, settings);
+
+    }
+
     /**
      * Build template from a given parse tree and settings
      *
      * @return
      */
-    public Template buildFrom(NeuralogicParser parseTree, Settings settings) {
+    public Template buildFrom(ParseTree<NeuralogicParser.Template_fileContext> parseTree, TemplateParseTreeExtractor templateParseTreeExtractor, Settings settings) {
 
-        ParseTreeProcessor parseTreeProcessor = new ParseTreeProcessor(this);
+        List<WeightedRule> weightedRules = templateParseTreeExtractor.getWeightedRules(parseTree.getRoot());
+        List<WeightedFact> weightedFacts = templateParseTreeExtractor.getWeightedFacts(parseTree.getRoot());
 
-        List<WeightedRule> weightedRules = parseTreeProcessor.new RuleLinesVisitor().visitTemplate_file(parseTree.template_file());
-        List<WeightedFact> weightedFacts = parseTreeProcessor.new FactsVisitor().visitTemplate_file(parseTree.template_file());
-
-        List<Pair<WeightedPredicate, Map<String, Object>>> predicatesMetadata = parseTreeProcessor.new PredicatesMetadataVisitor().visitTemplate_file(parseTree.template_file());
-        List<Pair<Weight, Map<String, Object>>> weightsMetadata = parseTreeProcessor.new WeightsMetadataVisitor().visitTemplate_file(parseTree.template_file());
+        List<Pair<WeightedPredicate, Map<String, Object>>> predicatesMetadata = templateParseTreeExtractor.getPredicatesMetadata(parseTree.getRoot());
+        List<Pair<Weight, Map<String, Object>>> weightsMetadata = templateParseTreeExtractor.getWeightsMetadata(parseTree.getRoot());
 
         //TODO create template and post-process template
     }
 
-    public Template extendTemplateWith(Reader reader, Settings settings){
+    public Template extendTemplateWith(Reader reader, Settings settings) {
 
     }
 }

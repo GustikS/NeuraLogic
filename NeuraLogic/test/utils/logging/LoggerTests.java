@@ -14,7 +14,7 @@ public class LoggerTests {
 
     @Test
     public void BasicLoggerTest() {
-        GLogger gl;
+        Logging gl;
         // set the LogLevel to Severe, only severe Messages will be written
         LOGGER.setLevel(Level.SEVERE);
         LOGGER.severe("Info Log");

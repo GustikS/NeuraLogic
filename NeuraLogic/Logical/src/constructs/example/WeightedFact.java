@@ -12,4 +12,6 @@ public class WeightedFact {
     public Weight value;
     public String originalString;
     public WeightedPredicate weightedPredicate;
+    public boolean isNegated;
 }
+

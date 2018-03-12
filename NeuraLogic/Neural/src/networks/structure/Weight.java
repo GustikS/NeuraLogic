@@ -7,7 +7,7 @@ import networks.evaluation.values.Value;
  */
 public class Weight {
     public String name;
-    Value value;
+    public Value value;
     public boolean isLearnable = true;
 
     double learningRate;

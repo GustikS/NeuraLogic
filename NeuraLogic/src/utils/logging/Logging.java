@@ -9,11 +9,11 @@ package utils.logging;
 import java.io.IOException;
 import java.util.logging.*;
 
-public class GLogger {
-    static private FileHandler fileTxt;
-    static private SimpleFormatter formatterTxt;
+public class Logging {
+     private FileHandler fileTxt;
+     private SimpleFormatter formatterTxt;
 
-    static public void setup() throws IOException {
+    public void initialize() throws IOException {
 
         // get the global logger to configure it
         Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);

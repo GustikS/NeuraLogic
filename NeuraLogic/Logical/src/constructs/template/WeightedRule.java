@@ -21,7 +21,7 @@ public class WeightedRule {
      */
     boolean isEditable = false;
 
-    Weight weight;
+    public Weight weight;
     public Weight offset;
 
     public Atom head;

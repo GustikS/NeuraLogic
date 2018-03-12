@@ -1,4 +1,4 @@
-package neuralogic;
+package neuralogic.grammarVisitors;
 
 import com.sun.istack.internal.NotNull;
 import constructs.example.WeightedFact;
@@ -17,8 +17,6 @@ import networks.evaluation.values.VectorValue;
 import networks.structure.Weight;
 import parsers.neuralogic.NeuralogicBaseVisitor;
 import parsers.neuralogic.NeuralogicParser;
-import parsers.neuralogic.NeuralogicParser.Template_fileContext;
-import parsers.neuralogic.NeuralogicParser.Template_lineContext;
 import parsing.Builder;
 
 import java.util.ArrayList;
@@ -28,100 +26,17 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-/**
- * Parsing text files for contained template given a antlr4 grammar, using generated Lexer and Parser
- * Processing of the parse tree implemented using the Visitor pattern as inspired by http://jakubdziworski.github.io/java/2016/04/01/antlr_visitor_vs_listener.html
- * <p>
- * STATE: contains factories
- * Created by gusta on 1.3.18.
- */
-public class ParseTreeProcessor {
+public class PlainGrammarVisitor extends GrammarVisitor{
+    private static final Logger LOG = Logger.getLogger(PlainGrammarVisitor.class.getName());
 
-    private static final Logger LOG = Logger.getLogger(ParseTreeProcessor.class.getName());
-
-    Builder builder;
-
-    public ParseTreeProcessor(Builder templateBuilder) {
-        this.builder = templateBuilder;
-    }
-
-    public class WeightsMetadataVisitor extends NeuralogicBaseVisitor<List<Pair<Weight, Map<String, Object>>>> {
-
-        @Override
-        public List<Pair<Weight, Map<String, Object>>> visitTemplate_file(@NotNull Template_fileContext ctx) {
-
-            List<Template_lineContext> template_lines = ctx.template_line();
-
-            WeightMetadataVisitor weightMetadataVisitor = new WeightMetadataVisitor();
-            List<Pair<Weight, Map<String, Object>>> weightMetadataList = template_lines.stream()
-                    .filter(line -> line.weight_metadata() != null)
-                    .map(line -> line.lrnn_rule().accept(weightMetadataVisitor))
-                    .collect(Collectors.toList());
-
-            return weightMetadataList;
-        }
-    }
-
-    public class PredicatesMetadataVisitor extends NeuralogicBaseVisitor<List<Pair<WeightedPredicate, Map<String, Object>>>> {
-
-        @Override
-        public List<Pair<WeightedPredicate, Map<String, Object>>> visitTemplate_file(@NotNull Template_fileContext ctx) {
-
-            List<Template_lineContext> template_lines = ctx.template_line();
-
-            PredicateOffsetVisitor predicateOffsetVisitor = new PredicateOffsetVisitor();
-            template_lines.stream()
-                    .filter(line -> line.predicate_offset() != null)
-                    .map(line -> line.predicate_offset().accept(predicateOffsetVisitor))
-                    .collect(Collectors.toList());
-            //no need to do anything, offsets are being set during visiting
-
-            PredicateMetadataVisitor predicateMetadataVisitor = new PredicateMetadataVisitor();
-            List<Pair<WeightedPredicate, Map<String, Object>>> predicateMetadataList = template_lines.stream()
-                    .filter(line -> line.predicate_metadata() != null)
-                    .map(line -> line.lrnn_rule().accept(predicateMetadataVisitor))
-                    .collect(Collectors.toList());
-
-            return predicateMetadataList;
-        }
-    }
-
-    public class FactsVisitor extends NeuralogicBaseVisitor<List<WeightedFact>> {
-
-        @Override
-        public List<WeightedFact> visitTemplate_file(@NotNull Template_fileContext ctx) {
-
-            List<Template_lineContext> template_lines = ctx.template_line();
-
-            FactVisitor factVisitor = new FactVisitor();
-            List<WeightedFact> facts = template_lines.stream()
-                    .filter(line -> line.fact() != null)
-                    .map(line -> line.fact().accept(factVisitor))
-                    .collect(Collectors.toList());
-
-            return facts;
-        }
-    }
-
-    public class RuleLinesVisitor extends NeuralogicBaseVisitor<List<WeightedRule>> {
-
-        @Override
-        public List<WeightedRule> visitTemplate_file(@NotNull Template_fileContext ctx) {
-
-            List<Template_lineContext> template_lines = ctx.template_line();
-
-            RuleLineVisitor ruleLineVisitor = new RuleLineVisitor();
-            List<WeightedRule> rules = template_lines.stream()
-                    .filter(line -> line.lrnn_rule() != null)
-                    .map(line -> line.lrnn_rule().accept(ruleLineVisitor))
-                    .collect(Collectors.toList());
-
-            return rules;
-        }
+    public PlainGrammarVisitor(Builder builder) {
+        super(builder);
     }
 
 
-    private class RuleLineVisitor extends NeuralogicBaseVisitor<WeightedRule> {
+
+
+    public class RuleLineVisitor extends NeuralogicBaseVisitor<WeightedRule> {
         // Variable factory gets initialized here - variable scope is per rule
         VariableFactory variableFactory = new VariableFactory();
 
@@ -132,9 +47,15 @@ public class ParseTreeProcessor {
 
             rule.originalString = ctx.getText();
 
-            HeadAtomVisitor headVisitor = new HeadAtomVisitor();
+            AtomVisitor headVisitor = new AtomVisitor();
             headVisitor.variableFactory = this.variableFactory;
-            rule.head = ctx.atom().accept(headVisitor);
+            BodyAtom headAtom = ctx.atom().accept(headVisitor);
+
+            rule.head = new Atom();
+            rule.head.weightedPredicate = headAtom.weightedPredicate;
+            rule.head.literal = headAtom.literal;
+
+            rule.weight = headAtom.weight;
 
             ConjunctionVisitor bodyVisitor = new ConjunctionVisitor();
             bodyVisitor.variableFactory = this.variableFactory;
@@ -147,45 +68,24 @@ public class ParseTreeProcessor {
         }
     }
 
-    private class HeadAtomVisitor extends NeuralogicBaseVisitor<Atom> {
-        VariableFactory variableFactory;
 
-        @Override
-        public Atom visitAtom(@NotNull NeuralogicParser.AtomContext ctx) {
-            Atom atom = new Atom();
-            atom.originalString = ctx.getText();
-
-            WeightedPredicate predicate = ctx.predicate().accept(new PredicateVisitor());
-            atom.weightedPredicate = predicate;
-            TermVisitor termVisitor = new TermVisitor();
-            termVisitor.variableFactory = this.variableFactory;
-            List<Term> terms = ctx.term_list().term()
-                    .stream()
-                    .map(term -> term.accept(termVisitor))
-                    .collect(Collectors.toList());
-            atom.literal = new Literal(predicate.predicate.name, terms);
-
-            return atom;
-        }
-    }
-
-    private class ConjunctionVisitor extends NeuralogicBaseVisitor<List<BodyAtom>> {
+    public class ConjunctionVisitor extends NeuralogicBaseVisitor<List<BodyAtom>> {
         VariableFactory variableFactory;
 
         @Override
         public List<BodyAtom> visitConjunction(@NotNull NeuralogicParser.ConjunctionContext ctx) {
             List<BodyAtom> body = new ArrayList<>();
-            BodyAtomVisitor bodyAtomVisitor = new BodyAtomVisitor();
-            bodyAtomVisitor.variableFactory = this.variableFactory;
+            AtomVisitor atomVisitor = new AtomVisitor();
+            atomVisitor.variableFactory = this.variableFactory;
             List<BodyAtom> atomList = ctx.atom()
                     .stream()
-                    .map(atom -> atom.accept(bodyAtomVisitor))
+                    .map(atom -> atom.accept(atomVisitor))
                     .collect(Collectors.toList());
             return body;
         }
     }
 
-    private class BodyAtomVisitor extends NeuralogicBaseVisitor<BodyAtom> {
+    public class AtomVisitor extends NeuralogicBaseVisitor<BodyAtom> {
         VariableFactory variableFactory;
 
         @Override
@@ -206,12 +106,11 @@ public class ParseTreeProcessor {
             bodyAtom.literal = new Literal(predicate.predicate.name, bodyAtom.isNegated, terms);
             bodyAtom.weight = ctx.weight().accept(new WeightVisitor());
 
-
             return bodyAtom;
         }
     }
 
-    private class FactVisitor extends NeuralogicBaseVisitor<WeightedFact> {
+    public class FactVisitor extends NeuralogicBaseVisitor<WeightedFact> {
         VariableFactory variableFactory = new VariableFactory();
 
         @Override
@@ -307,7 +206,7 @@ public class ParseTreeProcessor {
         }
     }
 
-    private class PredicateMetadataVisitor extends NeuralogicBaseVisitor<Pair<WeightedPredicate, Map<String, Object>>> {
+    public class PredicateMetadataVisitor extends NeuralogicBaseVisitor<Pair<WeightedPredicate, Map<String, Object>>> {
         @Override
         public Pair<WeightedPredicate, Map<String, Object>> visitPredicate_metadata(@NotNull NeuralogicParser.Predicate_metadataContext ctx) {
             int arity = -1;
@@ -322,7 +221,7 @@ public class ParseTreeProcessor {
         }
     }
 
-    private class WeightMetadataVisitor extends NeuralogicBaseVisitor<Pair<Weight, Map<String, Object>>> {
+    public class WeightMetadataVisitor extends NeuralogicBaseVisitor<Pair<Weight, Map<String, Object>>> {
         @Override
         public Pair<Weight, Map<String, Object>> visitWeight_metadata(@NotNull NeuralogicParser.Weight_metadataContext ctx) {
             Weight weight = builder.weightFactory.construct(ctx.ATOMIC_NAME().getText());
@@ -331,7 +230,7 @@ public class ParseTreeProcessor {
         }
     }
 
-    private class PredicateOffsetVisitor extends NeuralogicBaseVisitor<Pair<WeightedPredicate, Weight>> {
+    public class PredicateOffsetVisitor extends NeuralogicBaseVisitor<Pair<WeightedPredicate, Weight>> {
         @Override
         public Pair<WeightedPredicate, Weight> visitPredicate_offset(@NotNull NeuralogicParser.Predicate_offsetContext ctx) {
             int arity = -1;

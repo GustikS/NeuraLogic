@@ -3,6 +3,8 @@ package learning;
 import networks.evaluation.values.Value;
 
 /**
+ * Represents highest level abstraction for supervised learning methods.
+ *
  * Created by gusta on 8.3.17.
  */
 public class LearningSample {
