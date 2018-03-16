@@ -26,7 +26,7 @@ public class StandardPipeline extends Pipeline<Sources, Results> {
         this.settings = settings;
 
         Pipe<Sources, Sources> start;
-        starts = Collections.singletonList(register(start = new SourceGenPipe<>("SourceGenPipe")));
+        starts = Collections.singletonList(register(start = new IdentityGenPipe<>("IdentityGenPipe")));
 
         Branch<Sources, PlainTemplateParseTree, PlainQueriesParseTree> sourceBrach = register(new Branch<Sources, PlainTemplateParseTree, PlainQueriesParseTree>("SourceBranch") {
             @Override
@@ -35,9 +35,9 @@ public class StandardPipeline extends Pipeline<Sources, Results> {
             }
         });
         start.output = sourceBrach;
-
         sourceBrach.input = start;  //not necessary
-        sourceBrach.output1 = register(new Pipe<PlainTemplateParseTree, Template>("TemplateProcessingPipe") {
+        Pipe<PlainTemplateParseTree, Template> templateProcessingPipe;
+        sourceBrach.output1 = register(templateProcessingPipe = new Pipe<PlainTemplateParseTree, Template>("TemplateProcessingPipe") {
 
             @Override
             public Template apply(PlainTemplateParseTree plainTemplateParseTree) {
@@ -47,12 +47,13 @@ public class StandardPipeline extends Pipeline<Sources, Results> {
             }
         });
 
-        sourceBrach.output2 = register(new Pipe<PlainQueriesParseTree, Stream<LearningSample>>("QueriesProcessingPipe") {
+        Pipe<PlainQueriesParseTree, Stream<LearningSample>> queriesProcessingPipe;
+        sourceBrach.output2 = register(queriesProcessingPipe = new Pipe<PlainQueriesParseTree, Stream<LearningSample>>("QueriesProcessingPipe") {
 
             @Override
             public Stream<LearningSample> apply(PlainQueriesParseTree plainQueriesParseTree) {
                 LearningSamplesBuilder learningSamplesBuilder = new LearningSamplesBuilder(settings);
-                learningSamplesBuilder.buildFrom();
+                //learningSamplesBuilder.buildFrom();
                 //TODO create queries/examples
                 return null;
             }
@@ -67,13 +68,21 @@ public class StandardPipeline extends Pipeline<Sources, Results> {
             }
         });
 
-        mergeGround.output = register(new Pipe<Pair<Template,Stream<LearningSample>>, Results>("TrainingPipe") {
+        mergeGround.input1 = queriesProcessingPipe;
+        mergeGround.input2 = templateProcessingPipe;
+        queriesProcessingPipe.output = mergeGround;
+        templateProcessingPipe.output = mergeGround;
+
+        Pipe<Pair<Template, Stream<LearningSample>>, Results> trainingPipe;
+        mergeGround.output = register(trainingPipe = new Pipe<Pair<Template, Stream<LearningSample>>, Results>("TrainingPipe") {
             @Override
             public Results apply(Pair<Template, Stream<LearningSample>> templateStreamPair) {
                 //TODO train
                 return null;
             }
         });
+
+        terminals.add(trainingPipe);
 
     }
 }

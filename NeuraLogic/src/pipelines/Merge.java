@@ -11,7 +11,7 @@ import java.util.logging.Logger;
  * @param <I2>
  * @param <O>
  */
-public abstract class Merge<I1, I2, O> implements Supplier<O>, Executable {
+public abstract class Merge<I1, I2, O> implements Supplier<O>, Consumer, Executable {
     private static final Logger LOG = Logger.getLogger(Merge.class.getName());
 
     Supplier<I1> input1;
@@ -28,7 +28,7 @@ public abstract class Merge<I1, I2, O> implements Supplier<O>, Executable {
     public Merge(String id) {
         ID = id;
     }
-    
+
     @Override
     public void run() {
         I1 i1 = input1.get();
@@ -43,6 +43,20 @@ public abstract class Merge<I1, I2, O> implements Supplier<O>, Executable {
             System.exit(3);
         }
         return outputReady;
+    }
+
+    /**
+     * Call by either one of the inputs
+     *
+     * @param o
+     */
+    public void accept(Object o) {
+        I1 i1;
+        I2 i2;
+        if ((i1 = input1.get()) != null && (i2 = input2.get()) != null)
+            accept(i1, i2);
+        else
+            LOG.warning("Trying to run a Merge " + ID + " by Object " + o + " without both inputs provided");
     }
 
     public void accept(I1 input1, I2 input2) {
