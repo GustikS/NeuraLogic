@@ -1,84 +1,62 @@
 package pipelines;
 
-import constructs.template.Template;
 import ida.utils.tuples.Pair;
-import learning.Example;
-import learning.LearningSample;
-import learning.Query;
 import settings.Settings;
-import utils.Utilities;
 
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
 
 /**
+ * Execution pipeline DAG with nodes as Tasks and edges as Pipes.
+ * This is a custom implementation with some hacks but also customization,
+ * possible, more generic, 3rd party library : https://dexecutor.github.io/
+ * <p>
  * Created by gusta on 14.3.17.
  */
-public abstract class Pipeline {
+public abstract class Pipeline<S, T> {
 
+    Settings settings;
+    List<Pipe<S, S>> starts;
+    List<Pipe<?, T>> terminals;
 
-    public static Pipeline buildFrom(Settings settings) {
-        //TODO build different pipeline based on settings
-    }
-
-    public abstract void execute(Settings settings);
-
-    public Pair<Optional<Template>, Stream<LearningSample>> initLearningPipeline(Settings settings) {
-
-        Stream<LearningSample> samples = settings.sourceFiles.queriesPath == null ? streamLearningSamples(settings.sourceFiles.examplesFileReader, settings)
-                : streamLearningSamples(settings.sourceFiles.examplesFileReader, settings.sourceFiles.queriesFileReader, settings);
-
-        Optional<Template> template = null;
-        try {
-            template = Optional.of(settings.templatePath.isEmpty() ? null : getTemplate(settings.sourceFiles.templateFileReader, settings));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return new Pair<>(template, samples);
-    }
-
-
-    Template getTemplate(FileReader templatePath, Settings settings) throws IOException {
-
-        Template template = settings.sourceFiles.tp.parseTemplate(templatePath).preprocess(settings);
-        return template;
-    }
-
-    private Stream<LearningSample> streamLearningSamples(FileReader examplesPath, Settings settings) {
-    }
+    ConcurrentHashMap<String, Branch> branches;
+    ConcurrentHashMap<String, Merge> merges;
+    ConcurrentHashMap<String, Pipe> pipes;
 
     /**
-     * zipStreams
-     *
-     * @param examplesPath
-     * @param queriesPath
-     * @param settings
-     * @return
+     * List of points in the pipeline that need to be called externally, i.e. where streams are terminated.
      */
-    Stream<LearningSample> streamLearningSamples(FileReader examplesPath, FileReader queriesPath, Settings settings) {
+    ConcurrentLinkedQueue<Executable> executionQueue;
 
-        Stream<Example> exampleStream = settings.sourceFiles.ep.parseExamples(examplesPath);
-        Stream<List<Query>> queryStream = null;
-        try {
-            queryStream = settings.sourceFiles.qp.parseQueries(queriesPath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Stream<LearningSample> zipStream = Utilities.zipStreams(exampleStream, queryStream, (example, queries) -> mergeQueriesWithExample(example, queries)).flatMap(Collection::stream);
-
-        return zipStream;
+    Pipeline buildFrom(Settings settings) {
+        //TODO build different pipeline based on settings
+        return new StandardPipeline(settings);
     }
 
-    private List<LearningSample> mergeQueriesWithExample(Example example, List<Query> queries) {
-        List<LearningSample> list = new ArrayList<>();
-        for (Query query : queries) {
-            list.add(new LearningSample(query, example));
+    public List<Pair<String, T>> execute(S source) {
+        starts.parallelStream().forEach(start -> start.accept(source));
+        while (!executionQueue.isEmpty()) {
+            Executable poll = executionQueue.poll();
+            poll.run();
         }
-        return list;
+        return terminals.stream().map(term -> new Pair<>(term.ID, term.get())).collect(Collectors.toList());
+    }
+
+    <I, O> Pipe<I, O> register(Pipe<I, O> p) {
+        pipes.put(p.ID, p);
+        return p;
+    }
+
+    <I, O1, O2> Branch<I, O1, O2> register(Branch<I, O1, O2> b) {
+        branches.put(b.ID, b);
+        return b;
+    }
+
+    <I1, I2, O> Merge<I1, I2, O> register(Merge<I1, I2, O> p) {
+        merges.put(p.ID, p);
+        executionQueue.add(p);
+        return p;
     }
 }

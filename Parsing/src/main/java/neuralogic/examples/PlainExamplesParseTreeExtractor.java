@@ -4,7 +4,7 @@ import com.sun.istack.internal.NotNull;
 import constructs.example.WeightedFact;
 import constructs.template.BodyAtom;
 import constructs.template.WeightedRule;
-import neuralogic.grammarVisitors.PlainGrammarVisitor;
+import neuralogic.grammarParsing.PlainGrammarVisitor;
 import parsers.neuralogic.NeuralogicParser;
 
 import java.util.List;

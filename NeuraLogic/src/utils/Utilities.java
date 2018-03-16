@@ -1,14 +1,15 @@
 package utils;
 
+import ida.utils.tuples.Pair;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Spliterator;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -34,6 +35,22 @@ public class Utilities {
             LOG.severe("ERROR: Unable to determine file type for " + fileName + " due to exception " + ioException);
         }
         return fileType;
+    }
+
+    public static <A, B> List<Pair<A, B>> zipLists(ArrayList<A> as, ArrayList<B> bs) {
+        return IntStream.range(0, Math.min(as.size(), bs.size()))
+                .mapToObj(i -> new Pair<>(as.get(i), bs.get(i)))
+                .collect(Collectors.toList());
+    }
+
+    public static <A, B> List<Pair<A, B>> zipLists(List<A> as, List<B> bs) {
+        Iterator<A> it1 = as.iterator();
+        Iterator<B> it2 = bs.iterator();
+        List<Pair<A, B>> result = new LinkedList<>();
+        while (it1.hasNext() && it2.hasNext()) {
+            result.add(new Pair<A, B>(it1.next(), it2.next()));
+        }
+        return result;
     }
 
     public static <A, B, C> Stream<C> zipStreams(Stream<? extends A> a,

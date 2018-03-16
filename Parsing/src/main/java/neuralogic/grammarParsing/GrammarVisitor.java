@@ -1,4 +1,4 @@
-package neuralogic.grammarVisitors;
+package neuralogic.grammarParsing;
 
 import parsing.Builder;
 

@@ -3,7 +3,6 @@ package parsing;
 import constructs.factories.ConstantFactory;
 import constructs.factories.PredicateFactory;
 import constructs.factories.WeightFactory;
-import settings.Settings;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -19,5 +18,5 @@ public abstract class Builder<T> {
     // Weights are shared over the whole template
     public WeightFactory weightFactory = new WeightFactory();
 
-    abstract T buildFrom(Reader reader, Settings settings) throws IOException;
+    abstract T buildFrom(Reader reader) throws IOException;
 }

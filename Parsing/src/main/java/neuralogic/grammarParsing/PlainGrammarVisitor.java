@@ -1,4 +1,4 @@
-package neuralogic.grammarVisitors;
+package neuralogic.grammarParsing;
 
 import com.sun.istack.internal.NotNull;
 import constructs.example.WeightedFact;

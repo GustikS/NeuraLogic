@@ -1,0 +1,73 @@
+package pipelines;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.logging.Logger;
+
+public abstract class Pipe<I, O> implements Function<I, O>, Consumer<I>, Supplier<O> {
+    private static final Logger LOG = Logger.getLogger(Pipe.class.getName());
+
+    Pipe(String id) {
+        ID = id;
+    }
+
+    public String ID;
+    /**
+     * Storage of the (intermediate) result of calculation of this Pipe. It will only be not null once someone has
+     * actually run (called accept) this Pipe.
+     */
+    O outputReady;
+
+    Supplier<I> input;
+    Consumer<O> output;
+
+    /**
+     * Do not use much, it won't be executed by the run method
+     *
+     * @param pipe
+     */
+    private void prepend(Supplier<I> pipe) {
+        this.input = pipe;
+    }
+
+    public void append(Consumer<O> pipe) {
+        this.output = pipe;
+    }
+
+    public void insertBefore(Pipe<?, I> before, Pipe<I, I> insert) {
+        before.output = insert;
+        insert.input = before;
+        this.input = insert;
+        insert.output = this;
+    }
+
+    public void insertAfter(Pipe<O, ?> after, Pipe<O, O> insert) {
+        after.input = insert;
+        insert.output = after;
+        this.output = insert;
+        insert.input = this;
+    }
+
+    public O get() {
+        if (outputReady == null) {
+            LOG.severe("The result of pipe " + ID + " is requested but not yet calculated");
+            LOG.severe("Pipeline is broken");
+            System.exit(3);
+        }
+        return outputReady;
+    }
+
+    public void accept(I input) {
+        O output = transform(input);
+        if (this.output != null) {
+            this.output.accept(output);
+        } else {//there is no consumer of my output -> someone has to take on it manually!
+            outputReady = output;
+        }
+    }
+
+    O transform(I input) {
+        return apply(input);
+    }
+}

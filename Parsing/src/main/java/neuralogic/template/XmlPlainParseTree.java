@@ -1,16 +1,16 @@
 package neuralogic.template;
 
-import neuralogic.ParseTree;
+import neuralogic.grammarParsing.PlainParseTree;
 import parsers.neuralogic.NeuralogicParser;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.util.logging.Logger;
 
-public class XmlParseTree extends ParseTree {
-    private static final Logger LOG = Logger.getLogger(XmlParseTree.class.getName());
+public class XmlPlainParseTree extends PlainParseTree {
+    private static final Logger LOG = Logger.getLogger(XmlPlainParseTree.class.getName());
 
-    public XmlParseTree(Reader reader) throws IOException {
+    public XmlPlainParseTree(Reader reader) throws IOException {
         super(reader);
     }
 

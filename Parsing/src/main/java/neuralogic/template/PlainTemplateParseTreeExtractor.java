@@ -6,7 +6,7 @@ import constructs.template.WeightedPredicate;
 import constructs.template.WeightedRule;
 import ida.utils.tuples.Pair;
 import networks.structure.Weight;
-import neuralogic.grammarVisitors.PlainGrammarVisitor;
+import neuralogic.grammarParsing.PlainGrammarVisitor;
 import parsers.neuralogic.NeuralogicBaseVisitor;
 import parsers.neuralogic.NeuralogicParser;
 import parsers.neuralogic.NeuralogicParser.Template_fileContext;

@@ -11,7 +11,7 @@ import networks.structure.Weight;
 import neuralogic.examples.ExamplesParseTreeExtractor;
 import neuralogic.examples.PlainExamplesParseTree;
 import neuralogic.examples.PlainExamplesParseTreeExtractor;
-import neuralogic.grammarVisitors.PlainGrammarVisitor;
+import neuralogic.grammarParsing.PlainGrammarVisitor;
 import settings.Settings;
 
 import java.io.IOException;
@@ -28,7 +28,7 @@ public class LearningSamplesBuilder extends Builder<Stream<LearningSample>> {
     }
 
     @Override
-    Stream<LearningSample> buildFrom(Reader reader, Settings settings) throws IOException {
+    Stream<LearningSample> buildFrom(Reader reader) throws IOException {
         // Plain text grammar-based version of building
         PlainExamplesParseTree parseTree = new PlainExamplesParseTree(reader);
         PlainGrammarVisitor plainGrammarVisitor = new PlainGrammarVisitor(this);

@@ -3,6 +3,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 import pipelines.Pipeline;
 import settings.Settings;
+import settings.Sources;
 import utils.CommandLineHandler;
 import utils.logging.Logging;
 
@@ -27,22 +28,31 @@ public class Main {
 
         CommandLineHandler cmdh = new CommandLineHandler();
         Settings settings = new Settings();
+        Sources sources = null;
         try {
-            CommandLine cmd = cmdh.parseParams(args);
+            CommandLine cmd = cmdh.parseParams(args, settings);
             settings.setupFromCommandline(cmd);
+            sources = Sources.setupFromCommandline(settings, cmd);
         } catch (ParseException ex) {
             LOG.severe("Unable to parse Commandline arguments into settings\n" + ex.getMessage());
             System.exit(1);
         }
 
         //place for external changes in setting object for non-standard pipelines
+
         Pair<Boolean, String> validation = settings.validate();
         if (!validation.r) {
-            LOG.severe("Invalid pipeline setting, unable to run due to: " + validation.s);
+            LOG.severe("Invalid pipeline setting.\n" + validation.s);
+            System.exit(2);
+        }
+        validation = sources.validate(settings);
+        if (!validation.r) {
+            LOG.severe("Invalid source files configuration.\n" + validation.s);
             System.exit(2);
         }
 
-        Pipeline pipeline = Pipeline.buildFrom(settings);
-        pipeline.execute(settings);
+        Pipeline<Sources> pipeline = new Pipeline(settings);
+        if (pipeline.execute(sources))
+            LOG.info("Pipeline " + pipeline + " has been successfully executed.");
     }
 }
