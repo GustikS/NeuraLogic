@@ -1,6 +1,7 @@
 package constructs.example;
 
 import constructs.template.Atom;
+import constructs.template.Template;
 import ida.utils.tuples.Pair;
 import learning.Example;
 import learning.Query;
@@ -12,6 +13,7 @@ import java.util.List;
 /**
  * Created by gusta on 13.3.17.
  */
+@Deprecated
 public class CompositeQuery implements Query{
     /**
      * list of query atoms with possible negations
@@ -22,7 +24,7 @@ public class CompositeQuery implements Query{
     Activation activationFcn;
 
     @Override
-    public Example getExample() {
+    public Example getEvidence() {
         return null;
     }
 
@@ -32,7 +34,7 @@ public class CompositeQuery implements Query{
     }
 
     @Override
-    public Value evaluate() {
+    public Value evaluate(Template template) {
         return null;
     }
 

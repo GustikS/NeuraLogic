@@ -1,4 +1,4 @@
-package pipelines;
+package pipeline;
 
 import ida.utils.tuples.Pair;
 
@@ -9,9 +9,11 @@ import java.util.logging.Logger;
 public abstract class Branch<I, O1, O2> implements Consumer<I> {
     private static final Logger LOG = Logger.getLogger(Branch.class.getName());
 
-    Supplier<I> input;
-    Consumer<O1> output1;
-    Consumer<O2> output2;
+    public Supplier<I> input;
+    public Consumer<O1> output1;
+    public Consumer<O2> output2;
+
+    Pair<O1,O2> outputReady;
 
     public String ID;
 
@@ -20,9 +22,9 @@ public abstract class Branch<I, O1, O2> implements Consumer<I> {
     }
 
     public void accept(I outputFromInputPipe) {
-        Pair<O1,O2> state =  branch(outputFromInputPipe);
-        output1.accept(state.r);
-        output2.accept(state.s);
+        outputReady =  branch(outputFromInputPipe);
+        output1.accept(outputReady.r);
+        output2.accept(outputReady.s);
     }
 
     protected abstract Pair<O1,O2> branch(I outputFromInputPipe);

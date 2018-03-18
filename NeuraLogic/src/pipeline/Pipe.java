@@ -1,14 +1,20 @@
-package pipelines;
+package pipeline;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
+/**
+ * The input can also be a Stream and this pipe can be just a non-terminating mapping Stream<I> -> Stream<O>,
+ * but also a mapping (function) between arbitrary kinds of Objects
+ * @param <I>
+ * @param <O>
+ */
 public abstract class Pipe<I, O> implements Function<I, O>, Consumer<I>, Supplier<O> {
     private static final Logger LOG = Logger.getLogger(Pipe.class.getName());
 
-    Pipe(String id) {
+    protected Pipe(String id) {
         ID = id;
     }
 
@@ -20,7 +26,7 @@ public abstract class Pipe<I, O> implements Function<I, O>, Consumer<I>, Supplie
     O outputReady;
 
     Supplier<I> input;
-    Consumer<O> output;
+    public Consumer<O> output;
 
     /**
      * Do not use much, it won't be executed by the run method
@@ -58,12 +64,14 @@ public abstract class Pipe<I, O> implements Function<I, O>, Consumer<I>, Supplie
         return outputReady;
     }
 
+    /**
+     *
+     * @param input - can be a Stream!
+     */
     public void accept(I input) {
-        O output = transform(input);
+        outputReady = transform(input);
         if (this.output != null) {
-            this.output.accept(output);
-        } else {//there is no consumer of my output -> someone has to take on it manually!
-            outputReady = output;
+            this.output.accept(outputReady);
         }
     }
 

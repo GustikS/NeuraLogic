@@ -1,4 +1,4 @@
-package pipelines;
+package pipeline;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -14,9 +14,9 @@ import java.util.logging.Logger;
 public abstract class Merge<I1, I2, O> implements Supplier<O>, Consumer, Executable {
     private static final Logger LOG = Logger.getLogger(Merge.class.getName());
 
-    Supplier<I1> input1;
-    Supplier<I2> input2;
-    Consumer<O> output;
+    public Supplier<I1> input1;
+    public Supplier<I2> input2;
+    public Consumer<O> output;
 
     public String ID;
     /**
@@ -60,12 +60,9 @@ public abstract class Merge<I1, I2, O> implements Supplier<O>, Consumer, Executa
     }
 
     public void accept(I1 input1, I2 input2) {
-        O merging = merge(input1, input2);
+        outputReady = merge(input1, input2);
         if (output != null)
-            output.accept(merging);
-        else {
-            outputReady = merging;
-        }
+            output.accept(outputReady);
     }
 
     protected abstract O merge(I1 input1, I2 input2);

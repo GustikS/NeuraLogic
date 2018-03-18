@@ -1,6 +1,7 @@
 package constructs.example;
 
 import constructs.template.Atom;
+import constructs.template.Template;
 import learning.Example;
 import learning.Query;
 import networks.evaluation.values.Value;
@@ -10,16 +11,16 @@ import networks.evaluation.values.Value;
  */
 public class AtomQuery implements Query {
     Atom query;
-    GroundExample example;
+    GroundExample evidence;
 
-    public AtomQuery(Atom query, GroundExample example){
+    public AtomQuery(Atom query, GroundExample evidence){
         this.query = query;
-        this.example = example;
+        this.evidence = evidence;
     }
 
     @Override
-    public Example getExample() {
-        return null;
+    public Example getEvidence() {
+        return evidence;
     }
 
     @Override
@@ -28,9 +29,10 @@ public class AtomQuery implements Query {
     }
 
     @Override
-    public Value evaluate() {
+    public Value evaluate(Template template) {
         return null;
     }
+
 
     public static AtomQuery parse(String s){
         return null;

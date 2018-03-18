@@ -5,7 +5,7 @@ import networks.evaluation.values.Value;
 
 /**
  * Query is like an output (Y) in supervised learning. It always connects to a particular example, just like we're given data in normal learning (Y->X).
- * It can be evaluated upn this example given some template (model).
+ * It can be evaluated upon this example given some template (model).
  *
  * Created by Gusta on 04.10.2016.
  */
@@ -14,7 +14,7 @@ public interface Query {
      * Returns a particular example that this query corresponds to
      * @return
      */
-    Example getExample();
+    Example getEvidence();
     /**
      * Uniquely identifies this query, i.e. logical atom or neural network output
      * @return

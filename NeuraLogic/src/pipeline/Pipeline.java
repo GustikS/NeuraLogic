@@ -1,6 +1,7 @@
-package pipelines;
+package pipeline;
 
 import ida.utils.tuples.Pair;
+import pipeline.pipelines.TrainingPipeline;
 import settings.Settings;
 
 import java.util.List;
@@ -18,9 +19,9 @@ import java.util.stream.Collectors;
  */
 public abstract class Pipeline<S, T> {
 
-    Settings settings;
-    List<Pipe<S, S>> starts;
-    List<Pipe<?, T>> terminals;
+    protected Settings settings;
+    protected List<Pipe<S, S>> starts;
+    protected List<Pipe<?, T>> terminals;
 
     ConcurrentHashMap<String, Branch> branches;
     ConcurrentHashMap<String, Merge> merges;
@@ -33,7 +34,7 @@ public abstract class Pipeline<S, T> {
 
     Pipeline buildFrom(Settings settings) {
         //TODO build different pipeline based on settings
-        return new StandardPipeline(settings);
+        return new TrainingPipeline(settings);
     }
 
     public List<Pair<String, T>> execute(S source) {
@@ -45,17 +46,17 @@ public abstract class Pipeline<S, T> {
         return terminals.stream().map(term -> new Pair<>(term.ID, term.get())).collect(Collectors.toList());
     }
 
-    <I, O> Pipe<I, O> register(Pipe<I, O> p) {
+    protected <I, O> Pipe<I, O> register(Pipe<I, O> p) {
         pipes.put(p.ID, p);
         return p;
     }
 
-    <I, O1, O2> Branch<I, O1, O2> register(Branch<I, O1, O2> b) {
+    protected <I, O1, O2> Branch<I, O1, O2> register(Branch<I, O1, O2> b) {
         branches.put(b.ID, b);
         return b;
     }
 
-    <I1, I2, O> Merge<I1, I2, O> register(Merge<I1, I2, O> p) {
+    protected <I1, I2, O> Merge<I1, I2, O> register(Merge<I1, I2, O> p) {
         merges.put(p.ID, p);
         //executionQueue.add(p);
         return p;

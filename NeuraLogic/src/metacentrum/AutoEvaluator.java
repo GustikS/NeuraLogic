@@ -1,6 +1,6 @@
 package metacentrum;
 
-import pipelines.Pipeline;
+import pipeline.Pipeline;
 import settings.Settings;
 
 /**

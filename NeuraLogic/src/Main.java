@@ -1,7 +1,7 @@
 import ida.utils.tuples.Pair;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
-import pipelines.Pipeline;
+import pipeline.Pipeline;
 import settings.Settings;
 import settings.Sources;
 import utils.CommandLineHandler;
@@ -38,7 +38,7 @@ public class Main {
             System.exit(1);
         }
 
-        //place for external changes in setting object for non-standard pipelines
+        //place for external changes in setting object for non-standard pipeline
 
         Pair<Boolean, String> validation = settings.validate();
         if (!validation.r) {

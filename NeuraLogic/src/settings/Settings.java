@@ -28,6 +28,7 @@ public class Settings {
     NumberFormat nf = new DecimalFormat("#.##########");
 
 
+
     public enum groundingAlgo {
         BUP, TDOWN
     }
@@ -38,7 +39,7 @@ public class Settings {
     public String sourcePath = ".";
     public String foldsPrefix = "fold";
     public String testFile = "test.txt";
-    public int folds = 5;
+    public int foldsCount = 5;
     public String queriesFile = "queries.txt";
     public String templateFile = "template.txt";
     public String examplesFile = "examples.txt";
