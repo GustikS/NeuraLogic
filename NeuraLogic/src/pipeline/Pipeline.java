@@ -9,8 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
- * Execution pipeline DAG with nodes as Tasks and edges as Pipes. It is your responsibility to create and connect the Pipes
- * correctly, and register the Executable (non-streaming) Pipes in topological order for scheduling.
+ * Execution pipeline DAG with nodes as Tasks and edges as pipes. It is your responsibility to create and connect the pipes
+ * correctly, and register the Executable (non-streaming) pipes in topological order for scheduling.
  *
  * This is a custom implementation with some hacks but also customization,
  * possible, more generic, 3rd party library : https://dexecutor.github.io/

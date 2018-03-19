@@ -12,6 +12,7 @@ import neuralogic.template.TemplateParseTreeExtractor;
 import parsing.LearningSamplesBuilder;
 import parsing.TemplateBuilder;
 import pipeline.*;
+import pipeline.pipelines.pipes.IdentityGenPipe;
 import settings.Settings;
 import settings.Sources;
 import training.results.Results;

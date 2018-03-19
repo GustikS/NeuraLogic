@@ -4,7 +4,6 @@ import ida.utils.tuples.Pair;
 import neuralogic.examples.PlainExamplesParseTree;
 import neuralogic.examples.PlainQueriesParseTree;
 import neuralogic.template.PlainTemplateParseTree;
-import neuralogic.template.XmlPlainParseTree;
 import org.apache.commons.cli.CommandLine;
 import utils.Utilities;
 
@@ -122,7 +121,7 @@ public class SourceFiles extends Sources {
                         templateParseTree = new PlainTemplateParseTree(templateFileReader);
                         break;
                     case "application/xml":
-                        templateParseTree = new XmlPlainParseTree(templateFileReader);
+                        //templateParseTree = new XmlPlainParseTree(templateFileReader);
                         break;
                     case "application/json":
                         break;

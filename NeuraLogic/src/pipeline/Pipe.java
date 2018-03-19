@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  * The input can also be a Stream and this pipe can be just a non-terminating mapping Stream<I> -> Stream<O>,

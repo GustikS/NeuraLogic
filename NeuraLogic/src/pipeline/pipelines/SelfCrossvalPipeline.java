@@ -12,6 +12,7 @@ import neuralogic.template.TemplateParseTreeExtractor;
 import parsing.LearningSamplesBuilder;
 import parsing.TemplateBuilder;
 import pipeline.*;
+import pipeline.pipelines.pipes.IdentityGenPipe;
 import settings.Settings;
 import settings.Sources;
 import training.results.Results;
@@ -23,10 +24,11 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class CrossvalPipeline extends Pipeline<Sources, Results> {
-    private static final Logger LOG = Logger.getLogger(CrossvalPipeline.class.getName());
+public class SelfCrossvalPipeline extends Pipeline<Sources, Results> {
+    // TODO - create pipeline within pipeline - for each fold !? reuse existing pipeline and just aggregate their terminals at the end
+    private static final Logger LOG = Logger.getLogger(SelfCrossvalPipeline.class.getName());
 
-    public CrossvalPipeline(@NotNull Settings settings) {
+    public SelfCrossvalPipeline(@NotNull Settings settings) {
         this.settings = settings;
 
         Pipe<Sources, Sources> start;

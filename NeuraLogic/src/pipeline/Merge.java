@@ -64,7 +64,18 @@ public abstract class Merge<I1, I2, O> implements Supplier<O>, Consumer, Executa
         if (output != null)
             output.accept(outputReady);
     }
+/*
+    private Stream<O> merge(Stream<I1> input1, I2 input2) {
+        return input1.map(i1 -> merge(i1, input2));
+    }
 
+    private Stream<O> merge(I1 input1, Stream<I2> input2) {
+        return input2.map(i2 -> merge(input1, i2));
+    }
+
+    private Stream<O> merge(Stream<I1> input1, Stream<I2> input2) {
+        return Utilities.zipStreams(input1, input2, this::merge);
+    }
+*/
     protected abstract O merge(I1 input1, I2 input2);
-
 }

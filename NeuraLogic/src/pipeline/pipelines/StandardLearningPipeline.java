@@ -1,10 +1,11 @@
-package pipeline;
+package pipeline.pipelines;
 
 import constructs.template.Template;
 import ida.utils.tuples.Pair;
 import learning.Example;
 import learning.LearningSample;
 import learning.Query;
+import pipeline.Pipeline;
 import settings.Settings;
 import utils.Utilities;
 
