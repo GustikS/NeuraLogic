@@ -4,18 +4,18 @@ grammar Neuralogic;
 template_file: template_line*;
 template_line: lrnn_rule | fact | predicate_metadata | predicate_offset | weight_metadata;
 
-// examples may come in following formats:
+// trainExamples may come in following formats:
 //labeled: label query literal :- conjunction of atoms
 //unlabeled: one big conjunction
 //           or one fact or conjunction per line (label query literals in separate file)
 examples_file: lrnn_rule+ | fact+ | (conjunction '.')+;
 
-// simple labeled queries, one per line
+// simple labeled trainQueries, one per line
 queries_file: fact+;
 
 fact: atom '.';
 
-atom: weight? (negation)? predicate term_list?;
+atom: weight? negation? predicate term_list?;
 
 term_list: LPAREN (term (COMMA term)*)? RPAREN;
 

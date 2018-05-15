@@ -38,11 +38,12 @@ public class Settings {
     public int seed = 1;
     public String sourcePath = ".";
     public String foldsPrefix = "fold";
-    public String testFile = "test.txt";
     public int foldsCount = 5;
-    public String queriesFile = "queries.txt";
     public String templateFile = "template.txt";
-    public String examplesFile = "examples.txt";
+    public String trainExamplesFile = "trainExamples.txt";
+    public String testExamplesFile = "testExamples.txt";
+    public String trainQueriesFile = "trainQueries.txt";
+    public String testQueriesFile = "testQueries.txt";
 
 
     public TemplateReducing templateReducer;

@@ -12,7 +12,7 @@ import neuralogic.template.TemplateParseTreeExtractor;
 import parsing.LearningSamplesBuilder;
 import parsing.TemplateBuilder;
 import pipeline.*;
-import pipeline.pipelines.pipes.IdentityGenPipe;
+import pipeline.pipelines.prepared.IdentityGenPipe;
 import settings.Settings;
 import settings.Sources;
 import training.results.Results;
@@ -60,7 +60,7 @@ public class SelfCrossvalPipeline extends Pipeline<Sources, Results> {
             public Stream<LearningSample> apply(PlainQueriesParseTree plainQueriesParseTree) {
                 LearningSamplesBuilder learningSamplesBuilder = new LearningSamplesBuilder(settings);
                 //learningSamplesBuilder.buildFrom();
-                //TODO create queries/examples
+                //TODO create trainQueries/trainExamples
                 return null;
             }
         });

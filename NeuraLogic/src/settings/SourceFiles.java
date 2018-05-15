@@ -25,7 +25,8 @@ public class SourceFiles extends Sources {
     private SourceFiles parent;
 
     public File template;
-    public File examples;
+    public File trainExamples;
+    public File testExamples;
     public File trainQueries;
     public File testQueries;
 
@@ -51,18 +52,18 @@ public class SourceFiles extends Sources {
         if (folds == null) {
             // settings for the regular case (without given xval folds)
             settings.structureLearning = templateFileReader == null ? true : null;
-            settings.testFileProvided = testQueriesFileReader != null ? true : false;
-            settings.training = trainQueriesFileReader == null ? false : true;
+            settings.testFileProvided = testQueriesReader != null ? true : false;
+            settings.training = trainQueriesReader == null ? false : true;
         } else {
             settings.crossvalidation = true;
             settings.foldFiles = true;
         }
 
-        if (trainQueriesFileReader == null && testQueriesFileReader == null && folds == null) {
+        if (trainQueriesReader == null && testQueriesReader == null && folds == null) {
             LOG.severe(msg = "Invalid learning setup - no training nor testing samples provided");
             valid = false;
         }
-        if (templateFileReader == null && trainQueriesFileReader == null && testQueriesFileReader == null) {
+        if (templateFileReader == null && trainQueriesReader == null && testQueriesReader == null) {
             LOG.severe(msg = "Invalid learning setup - no template nor training or testing samples provided");
             valid = false;
         }
@@ -121,6 +122,7 @@ public class SourceFiles extends Sources {
                         templateParseTree = new PlainTemplateParseTree(templateFileReader);
                         break;
                     case "application/xml":
+                        //TODO
                         //templateParseTree = new XmlPlainParseTree(templateFileReader);
                         break;
                     case "application/json":
@@ -136,11 +138,11 @@ public class SourceFiles extends Sources {
         }
 
         try {
-            this.examplesFileReader = new FileReader(this.examples = Paths.get(foldDir.toString(), cmd.getOptionValue("examples", settings.examplesFile)).toFile());
+            this.trainExamplesReader = new FileReader(this.trainExamples = Paths.get(foldDir.toString(), cmd.getOptionValue("trainExamples", settings.trainExamplesFile)).toFile());
             try {
-                switch (Utilities.identifyFileTypeUsingFilesProbeContentType(examples.toString())) {
+                switch (Utilities.identifyFileTypeUsingFilesProbeContentType(trainExamples.toString())) {
                     case "text/plain":
-                        examplesParseTree = new PlainExamplesParseTree(examplesFileReader);
+                        trainExamplesParseTree = new PlainExamplesParseTree(trainExamplesReader);
                         break;
                     default:
                         throw new UnknownFormatFlagsException("File type of input examples not recognized!");
@@ -153,37 +155,54 @@ public class SourceFiles extends Sources {
         }
 
         try {
-            this.trainQueriesFileReader = new FileReader(this.trainQueries = Paths.get(foldDir.toString(), cmd.getOptionValue("queries", settings.queriesFile)).toFile());
+            this.testExamplesReader = new FileReader(this.testExamples = Paths.get(foldDir.toString(), cmd.getOptionValue("testExamples", settings.testExamplesFile)).toFile());
+            try {
+                switch (Utilities.identifyFileTypeUsingFilesProbeContentType(testExamples.toString())) {
+                    case "text/plain":
+                        testExamplesParseTree = new PlainExamplesParseTree(testExamplesReader);
+                        break;
+                    default:
+                        throw new UnknownFormatFlagsException("File type of input test examples not recognized!");
+                }
+            } catch (IOException ex) {
+                LOG.severe("The test examples file is not readable");
+            }
+        } catch (FileNotFoundException e) {
+            LOG.info("There are no test examples");
+        }
+
+        try {
+            this.trainQueriesReader = new FileReader(this.trainQueries = Paths.get(foldDir.toString(), cmd.getOptionValue("trainQueries", settings.trainQueriesFile)).toFile());
             try {
                 switch (Utilities.identifyFileTypeUsingFilesProbeContentType(trainQueries.toString())) {
                     case "text/plain":
-                        trainQueriesParseTree = new PlainQueriesParseTree(trainQueriesFileReader);
+                        trainQueriesParseTree = new PlainQueriesParseTree(trainQueriesReader);
                         break;
                     default:
                         throw new UnknownFormatFlagsException("File type of input train queries not recognized!");
                 }
             } catch (IOException ex) {
-                LOG.severe("The train queriest file is not readable");
+                LOG.severe("The train queries file is not readable");
             }
         } catch (FileNotFoundException e) {
             LOG.warning("There are no training queries");
         }
 
         try {
-            this.testQueriesFileReader = new FileReader(this.testQueries = Paths.get(foldDir.toString(), cmd.getOptionValue("queries", settings.testFile)).toFile());
+            this.testQueriesReader = new FileReader(this.testQueries = Paths.get(foldDir.toString(), cmd.getOptionValue("trainQueries", settings.testQueriesFile)).toFile());
             try {
                 switch (Utilities.identifyFileTypeUsingFilesProbeContentType(testQueries.toString())) {
                     case "text/plain":
-                        testQueriesParseTree = new PlainQueriesParseTree(testQueriesFileReader);
+                        testQueriesParseTree = new PlainQueriesParseTree(testQueriesReader);
                         break;
                     default:
-                        throw new UnknownFormatFlagsException("File type of input train queries not recognized!");
+                        throw new UnknownFormatFlagsException("File type of input test queries not recognized!");
                 }
             } catch (IOException ex) {
-                LOG.severe("The examples file is not readable");
+                LOG.severe("The test queries file is not readable");
             }
         } catch (FileNotFoundException e) {
-            LOG.info("There are no testing queries");
+            LOG.info("There are no test queries");
         }
 
         return this;

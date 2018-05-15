@@ -27,16 +27,16 @@ public class CommandLineHandler {
     public Options getOptions(Settings settings) {
         Options options = new Options();
 
-        options.addRequiredOption("q", "queries", true, "queries file (" + settings.queriesFile + ")");
+        options.addRequiredOption("q", "trainQueries", true, "trainQueries file (" + settings.trainQueriesFile + ")");
         options.addOption("t", "template", true, "template file (" + settings.templateFile + ")");
-        options.addOption("e", "examples", true, "examples file containing facts (" + settings.examplesFile + ")");
+        options.addOption("e", "trainExamples", true, "trainExamples file containing facts (" + settings.trainExamplesFile + ")");
 
         options.addOption("path", "sourcePath", true, "path to source files (" + settings.sourcePath + ")");
 
         // Selection of one of evaluation modes
         OptionGroup evalGroup = new OptionGroup();
         // with test file given
-        evalGroup.addOption(new Option("test", "testQueries", true, "file with test queries (" + settings.testFile + ")"));
+        evalGroup.addOption(new Option("test", "testQueries", true, "file with test trainQueries (" + settings.testFile + ")"));
         // with crossvalidation folds given
         evalGroup.addOption(Option.builder("folds").optionalArg(true).longOpt("foldPrefix").numberOfArgs(1).desc("folds folder names prefix (" + settings.foldsPrefix + ")").build());
         // with single file to split given

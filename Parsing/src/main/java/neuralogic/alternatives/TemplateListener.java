@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 /**
  * Created by gusta on 27.2.18.
  */
-public class TemplateListener implements NeuralogicListener {
+public abstract class TemplateListener implements NeuralogicListener {
 
     private static final Logger LOG = Logger.getLogger(TemplateListener.class.getName());
 

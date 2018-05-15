@@ -28,7 +28,6 @@ public class TemplateBuilder extends Builder<Template> {
 
     Settings settings;
 
-
     public TemplateBuilder(Settings settings) {
         this.settings = settings;
     }
@@ -67,6 +66,7 @@ public class TemplateBuilder extends Builder<Template> {
     }
 
     public Template extendTemplateWith(Reader reader, Settings settings) {
-
+        //TODO
+        return null;
     }
 }

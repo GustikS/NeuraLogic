@@ -4,10 +4,12 @@ import org.apache.commons.cli.ParseException;
 import pipeline.Pipeline;
 import settings.Settings;
 import settings.Sources;
+import training.results.Results;
 import utils.CommandLineHandler;
 import utils.logging.Logging;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -51,8 +53,10 @@ public class Main {
             System.exit(2);
         }
 
-        Pipeline<Sources> pipeline = new Pipeline(settings);
-        if (pipeline.execute(sources))
-            LOG.info("Pipeline " + pipeline + " has been successfully executed.");
+        Pipeline<Sources, Results> pipeline = Pipeline.getPipeline(settings);
+        List<Pair<String, Results>> targets = pipeline.execute(sources);
+
+        targets.forEach(stringResultsPair -> LOG.info(stringResultsPair.r + " : " + stringResultsPair.s));
+        LOG.info("Pipeline " + pipeline + " has been successfully executed.");
     }
 }

@@ -26,6 +26,9 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+/**
+ * Contains logic of construction of logical elements while walking/visiting parse trees of logic programs (templates or samples)
+ */
 public class PlainGrammarVisitor extends GrammarVisitor{
     private static final Logger LOG = Logger.getLogger(PlainGrammarVisitor.class.getName());
 

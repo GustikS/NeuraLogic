@@ -24,11 +24,13 @@ public class LearningSamplesBuilder extends Builder<Stream<LearningSample>> {
     private static final Logger LOG = Logger.getLogger(LearningSamplesBuilder.class.getName());
 
     public LearningSamplesBuilder(Settings settings) {
-        //TODO extract from settings what version/format of examples this will be (single vs. multiple files)
+        //TODO extract from settings what version/format of trainExamples this will be (single vs. multiple files)
     }
 
     @Override
     Stream<LearningSample> buildFrom(Reader reader) throws IOException {
+        //TODO switch to different Parsers and Extractors based on file types/structures/settings
+
         // Plain text grammar-based version of building
         PlainExamplesParseTree parseTree = new PlainExamplesParseTree(reader);
         PlainGrammarVisitor plainGrammarVisitor = new PlainGrammarVisitor(this);

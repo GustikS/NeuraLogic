@@ -20,7 +20,6 @@ public abstract class ExamplesParseTreeExtractor<T extends GrammarVisitor> {
 
     public abstract Stream<List<BodyAtom>> getUnlabeledExamples(@NotNull NeuralogicParser.Examples_fileContext ctx);
     public abstract List<WeightedFact> getOneBigExample(@NotNull NeuralogicParser.Examples_fileContext ctx);
-
     public abstract Stream<WeightedRule> getLabeledSamples(@NotNull NeuralogicParser.Examples_fileContext ctx);
 
     public abstract Stream<WeightedFact> getQueries(@NotNull NeuralogicParser.Queries_fileContext ctx);

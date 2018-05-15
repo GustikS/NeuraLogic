@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * If the queries are not explicitly specified but rather each example itself is labeled
+ * If the trainQueries are not explicitly specified but rather each example itself is labeled
  * Created by gusta on 26.3.17.
  */
 public class DefaultQueryExampleParser implements QueryParser,ExampleParser {

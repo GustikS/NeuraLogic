@@ -9,8 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
- * Execution pipeline DAG with nodes as Tasks and edges as pipes. It is your responsibility to create and connect the pipes
- * correctly, and register the Executable (non-streaming) pipes in topological order for scheduling.
+ * Execution pipeline DAG with nodes as Tasks and edges as prepared. It is your responsibility to create and connect the prepared
+ * correctly, and register the Executable (non-streaming) prepared in topological order for scheduling.
  *
  * This is a custom implementation with some hacks but also customization,
  * possible, more generic, 3rd party library : https://dexecutor.github.io/
@@ -60,5 +60,10 @@ public abstract class Pipeline<S, T> {
         merges.put(p.ID, p);
         //executionQueue.add(p);
         return p;
+    }
+
+    public static <S,T> Pipeline getPipeline(Settings settings) {
+        //TODO switch on settings
+        return new TrainingPipeline(settings);
     }
 }

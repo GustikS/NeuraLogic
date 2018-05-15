@@ -5,7 +5,7 @@ import networks.evaluation.values.Value;
 
 /**
  * Query is like an output (Y) in supervised learning. It always connects to a particular example, just like we're given data in normal learning (Y->X).
- * It can be evaluated upon this example given some template (model).
+ * Without the context of example it makes no sense. It can be evaluated upon this example given some template (model).
  *
  * Created by Gusta on 04.10.2016.
  */

@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 public class PlainExamplesParseTreeExtractor extends ExamplesParseTreeExtractor<PlainGrammarVisitor> {
     private static final Logger LOG = Logger.getLogger(PlainExamplesParseTreeExtractor.class.getName());
 
-    PlainExamplesParseTreeExtractor(PlainGrammarVisitor v) {
+    public PlainExamplesParseTreeExtractor(PlainGrammarVisitor v) {
         super(v);
     }
 
@@ -26,7 +26,7 @@ public class PlainExamplesParseTreeExtractor extends ExamplesParseTreeExtractor<
             Stream<List<BodyAtom>> listStream = ctx.conjunction().stream().map(rule -> rule.accept(conjunctionVisitor));
             return listStream;
         } else
-            LOG.severe("Could not extract any Unlabeled examples (conjunctions of atoms)");
+            LOG.severe("Could not extract any Unlabeled trainExamples (conjunctions of atoms)");
         return null;
     }
 
@@ -56,7 +56,7 @@ public class PlainExamplesParseTreeExtractor extends ExamplesParseTreeExtractor<
         if (ctx.fact() != null)
             return ctx.fact().stream().map(fact -> fact.accept(factVisitor));
         else
-            LOG.severe("Could not extract any queries (weighted facts)");
+            LOG.severe("Could not extract any trainQueries (weighted facts)");
         return null;
     }
 }
