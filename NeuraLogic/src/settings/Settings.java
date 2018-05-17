@@ -19,38 +19,52 @@ import java.util.logging.Logger;
 public class Settings {
     private static final Logger LOG = Logger.getLogger(Settings.class.getName());
 
+    //------------------Global structures
     /**
-     * are the data sources files? (not e.g. streams from memory/internet)
+     * Global random generator
      */
-    public boolean sourceFiles = true;
-
     Random random;
+    public int seed = 1;
+    /**
+     * Global number format for all printing
+     */
     NumberFormat nf = new DecimalFormat("#.##########");
 
-
-
+    //------------------Grounding
+    public Grounder grounder;
+    /**
+     * Type of grounder
+     */
+    public groundingAlgo grounding = groundingAlgo.BUP;
     public enum groundingAlgo {
         BUP, TDOWN
     }
 
-    public groundingAlgo grounding = groundingAlgo.BUP;
-
-    public int seed = 1;
+    //-----------------Source files
+    /**
+     * Are the data sources files? (not e.g. streams from memory/internet)
+     */
+    public boolean sourceFiles = true;
     public String sourcePath = ".";
-    public String foldsPrefix = "fold";
-    public int foldsCount = 5;
     public String templateFile = "template.txt";
     public String trainExamplesFile = "trainExamples.txt";
     public String testExamplesFile = "testExamples.txt";
     public String trainQueriesFile = "trainQueries.txt";
     public String testQueriesFile = "testQueries.txt";
 
+    public String foldsPrefix = "fold";
 
+    //----------------Crossvaldiation
+    public int foldsCount = 5;
+
+
+    //----------------Template Transformations
+    public boolean reduceTemplate = true;
     public TemplateReducing templateReducer;
 
 
-    public Grounder grounder;
 
+    //----------------INFERRED SETTINGS
     public boolean structureLearning;
     public boolean testFileProvided;
     public boolean training;
@@ -59,14 +73,11 @@ public class Settings {
     public boolean crossvalidation;
     public boolean stratification = true;
 
-    public boolean reduceTemplate = true;
 
     /**
      * TODO Setup globally default settings here
      */
     public Settings() {
-        reduceTemplate = true;
-
     }
 
     public void setupFromCommandline(CommandLine cmd) {

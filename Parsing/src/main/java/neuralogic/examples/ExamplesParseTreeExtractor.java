@@ -1,26 +1,25 @@
 package neuralogic.examples;
 
 import com.sun.istack.internal.NotNull;
-import constructs.example.WeightedFact;
-import constructs.template.BodyAtom;
-import constructs.template.WeightedRule;
+import constructs.Conjunction;
+import constructs.example.LiftedExample;
+import ida.utils.tuples.Pair;
 import neuralogic.grammarParsing.GrammarVisitor;
 import parsers.neuralogic.NeuralogicParser;
 
-import java.util.List;
 import java.util.stream.Stream;
 
 public abstract class ExamplesParseTreeExtractor<T extends GrammarVisitor> {
 
     T visitor;
 
-    ExamplesParseTreeExtractor(T v) {
+    protected ExamplesParseTreeExtractor(T v) {
         this.visitor = v;
     }
 
-    public abstract Stream<List<BodyAtom>> getUnlabeledExamples(@NotNull NeuralogicParser.Examples_fileContext ctx);
-    public abstract List<WeightedFact> getOneBigExample(@NotNull NeuralogicParser.Examples_fileContext ctx);
-    public abstract Stream<WeightedRule> getLabeledSamples(@NotNull NeuralogicParser.Examples_fileContext ctx);
+    public abstract Stream<LiftedExample> getUnlabeledExamples(@NotNull NeuralogicParser.ExamplesFileContext ctx);
 
-    public abstract Stream<WeightedFact> getQueries(@NotNull NeuralogicParser.Queries_fileContext ctx);
+    public abstract Stream<Pair<Conjunction, LiftedExample>> getLabeledSamples(@NotNull NeuralogicParser.ExamplesFileContext ctx);
+
+    public abstract Stream<Conjunction> getQueries(@NotNull NeuralogicParser.ExamplesFileContext ctx);
 }

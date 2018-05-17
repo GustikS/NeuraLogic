@@ -2,7 +2,7 @@ package settings;
 
 import ida.utils.tuples.Pair;
 import neuralogic.examples.PlainExamplesParseTree;
-import neuralogic.examples.PlainQueriesParseTree;
+import neuralogic.queries.PlainQueriesParseTree;
 import neuralogic.template.PlainTemplateParseTree;
 import org.apache.commons.cli.CommandLine;
 import utils.Utilities;
@@ -10,19 +10,11 @@ import utils.Utilities;
 import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UnknownFormatFlagsException;
 import java.util.logging.Logger;
 
 public class SourceFiles extends Sources {
     private static final Logger LOG = Logger.getLogger(SourceFiles.class.getName());
-
-    /**
-     * Source files may be further (even recursively) split into folds
-     * TODO - test this behavior
-     */
-    public List<SourceFiles> folds;
-    private SourceFiles parent;
 
     public File template;
     public File trainExamples;
@@ -37,7 +29,7 @@ public class SourceFiles extends Sources {
     public Pair<Boolean, String> validate(Settings settings) {
         Pair<Boolean, String> basePair = isValid(settings);
         String msg = "";
-        for (SourceFiles fold : folds) {
+        for (Sources fold : folds) {
             Pair<Boolean, String> foldpair = fold.validate(settings);
             basePair.r &= foldpair.r;
             basePair.s += "due to fold: " + foldpair.s;
@@ -51,7 +43,7 @@ public class SourceFiles extends Sources {
 
         if (folds == null) {
             // settings for the regular case (without given xval folds)
-            settings.structureLearning = templateFileReader == null ? true : null;
+            settings.structureLearning = templateReader == null ? true : null;
             settings.testFileProvided = testQueriesReader != null ? true : false;
             settings.training = trainQueriesReader == null ? false : true;
         } else {
@@ -63,7 +55,7 @@ public class SourceFiles extends Sources {
             LOG.severe(msg = "Invalid learning setup - no training nor testing samples provided");
             valid = false;
         }
-        if (templateFileReader == null && trainQueriesReader == null && testQueriesReader == null) {
+        if (templateReader == null && trainQueriesReader == null && testQueriesReader == null) {
             LOG.severe(msg = "Invalid learning setup - no template nor training or testing samples provided");
             valid = false;
         }
@@ -111,19 +103,19 @@ public class SourceFiles extends Sources {
     private SourceFiles setupFromDir(Settings settings, CommandLine cmd, File foldDir) {
         try {
             if ((this.template = Paths.get(foldDir.toString(), cmd.getOptionValue("template", settings.templateFile)).toFile()).exists()) {
-                this.templateFileReader = new FileReader(this.template);
+                this.templateReader = new FileReader(this.template);
             } else {
                 // if no template is provided in current folder, take the one from the parent folder
-                this.templateFileReader = parent.templateFileReader;
+                this.templateReader = parent.templateReader;
             }
             try {
                 switch (Utilities.identifyFileTypeUsingFilesProbeContentType(template.toString())) {
                     case "text/plain":
-                        templateParseTree = new PlainTemplateParseTree(templateFileReader);
+                        templateParseTree = new PlainTemplateParseTree(templateReader);
                         break;
                     case "application/xml":
                         //TODO
-                        //templateParseTree = new XmlPlainParseTree(templateFileReader);
+                        //templateParseTree = new XmlPlainParseTree(templateReader);
                         break;
                     case "application/json":
                         break;

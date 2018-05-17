@@ -1,29 +1,26 @@
 package constructs.example;
 
 
-import constructs.template.BodyAtom;
+import constructs.Conjunction;
 import learning.Example;
 
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
- * Created by Gusta on 06.10.2016.
+ * Ground example is simply a collection of facts, potentially separated into conjunctions
  */
 public class GroundExample implements Example {
-    Set<WeightedFact> facts;
+    LinkedHashSet<Conjunction> conjunctions;
 
-    public GroundExample(List<BodyAtom> body) {
-        facts = new LinkedHashSet<>();
-        for (BodyAtom bodyAtom : body) {
-            WeightedFact weightedFact = new WeightedFact();
-            weightedFact.weightedPredicate = bodyAtom.weightedPredicate;
-            weightedFact.literal = bodyAtom.literal;
-            weightedFact.value = bodyAtom.weight;
-            weightedFact.isNegated = bodyAtom.isNegated;
-            facts.add(weightedFact);
-        }
+    LinkedHashSet<ValuedFact> flatFacts;
+
+    public GroundExample(List<Conjunction> body) {
+        conjunctions = new LinkedHashSet<>();
+        conjunctions.addAll(body);
+        flatFacts = new LinkedHashSet<>();
+        flatFacts.addAll(body.stream().flatMap(conj -> conj.facts.stream()).collect(Collectors.toList()));
     }
 
     @Override

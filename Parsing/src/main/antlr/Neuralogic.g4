@@ -1,23 +1,30 @@
 grammar Neuralogic;
 
 //beware of changes - the antlr4 lexer is greedy and it's not easy to write the grammar correctly!
-template_file: template_line*;
-template_line: lrnn_rule | fact | predicate_metadata | predicate_offset | weight_metadata;
+templateFile: templateLine*;
+// format : valid line is either normal rule, or simple true fact, or conjunction of facts (constraint - for future)
+// the rest of lines is metadata
+templateLine: lrnnRule | fact | (conjunction '.') | predicateMetadata | predicateOffset | weightMetadata;
 
-// trainExamples may come in following formats:
-//labeled: label query literal :- conjunction of atoms
-//unlabeled: one big conjunction
-//           or one fact or conjunction per line (label query literals in separate file)
-examples_file: lrnn_rule+ | fact+ | (conjunction '.')+;
+//trainExamples may come in following formats (overloading the lrnn_rule):
+//labeled: label query literals :- lifted examples, where the label query literal may also be a <link> to the queries file
+//unlabeled: one big lifted example or one example per line (label query literals in separate queries file then)
+examplesFile: (label IMPLIED_BY liftedExample)+ | liftedExample+ ;
+//Examples may also contain rules (separated by whitespace, rules must end with '.' as well as example)
+liftedExample: ((lrnnRule | conjunction)+ '.');
+//label can be either <link> or one or more valued query literals themselves
+label: conjunction;
 
-// simple labeled trainQueries, one per line
-queries_file: fact+;
+// format with <link> :- query literals (lrnn_rule)
+// or simple labeled trainQueries, one or more per line (line-to-line correspondence with example file)
+queriesFile: (atom IMPLIED_BY conjunction)+ | (conjunction '.')+;
 
+// atomic true statement
 fact: atom '.';
 
-atom: weight? negation? predicate term_list?;
+atom: weight? negation? predicate termList?;
 
-term_list: LPAREN (term (COMMA term)*)? RPAREN;
+termList: LPAREN (term (COMMA term)*)? RPAREN;
 
 //no function symbols support just yet
 term: constant | variable;
@@ -29,21 +36,21 @@ predicate: SPECIAL? ATOMIC_NAME (SLASH INT)?; //predicates also begin with lower
 
 conjunction: atom (COMMA atom)*;
 
-metadata_val: ATOMIC_NAME '=' DOLLAR? ATOMIC_NAME;
-metadata_list: LBRACKET (metadata_val (COMMA metadata_val)*)? RBRACKET;
+metadataVal: ATOMIC_NAME ASSIGN DOLLAR? ATOMIC_NAME;
+metadataList: LBRACKET (metadataVal (COMMA metadataVal)*)? RBRACKET;
 
-lrnn_rule: atom IMPLIED_BY conjunction offset? '.' metadata_list?;
+lrnnRule: atom IMPLIED_BY conjunction offset? '.' metadataList?;
 
-predicate_offset: predicate weight;
-predicate_metadata: predicate metadata_list;
-weight_metadata: DOLLAR ATOMIC_NAME metadata_list;
+predicateOffset: predicate weight;
+predicateMetadata: predicate metadataList;
+weightMetadata: DOLLAR ATOMIC_NAME metadataList;
 
 //weight: fixed_weight | SEPARATOR (INT | FLOAT) SEPARATOR;
 //SEPARATOR: (' ' | BOL | EOF);
 
 // weight may have identifiers for sharing
-weight: (DOLLAR ATOMIC_NAME '=')? (fixed_value | value);
-fixed_value: LANGLE value RANGLE;
+weight: (DOLLAR ATOMIC_NAME ASSIGN)? (fixedValue | value);
+fixedValue: LANGLE value RANGLE;
 offset: weight;
 
 value: number | vector;
@@ -64,6 +71,7 @@ ATOMIC_NAME: LCASE_LETTER ALPHANUMERIC*;
 
 // generic chars
 IMPLIED_BY: ':-';
+ASSIGN: '=';
 LANGLE: '<';
 RANGLE: '>';
 LBRACKET: '[';

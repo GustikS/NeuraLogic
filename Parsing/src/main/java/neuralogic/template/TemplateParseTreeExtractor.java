@@ -1,8 +1,9 @@
 package neuralogic.template;
 
 import com.sun.istack.internal.NotNull;
-import constructs.example.WeightedFact;
-import constructs.template.WeightedPredicate;
+import constructs.Conjunction;
+import constructs.WeightedPredicate;
+import constructs.example.ValuedFact;
 import constructs.template.WeightedRule;
 import ida.utils.tuples.Pair;
 import networks.structure.Weight;
@@ -20,11 +21,13 @@ public abstract class TemplateParseTreeExtractor<T extends GrammarVisitor> {
         this.visitor = v;
     }
 
-    public abstract List<WeightedRule> getWeightedRules(@NotNull NeuralogicParser.Template_fileContext ctx);
+    public abstract List<WeightedRule> getWeightedRules(@NotNull NeuralogicParser.TemplateFileContext ctx);
 
-    public abstract List<WeightedFact> getWeightedFacts(@NotNull NeuralogicParser.Template_fileContext ctx);
+    public abstract List<ValuedFact> getWeightedFacts(@NotNull NeuralogicParser.TemplateFileContext ctx);
 
-    public abstract List<Pair<Weight, Map<String, Object>>> getWeightsMetadata(@NotNull NeuralogicParser.Template_fileContext ctx);
+    public abstract List<Conjunction> getWeightedConjunctions(@NotNull NeuralogicParser.TemplateFileContext ctx);
 
-    public abstract List<Pair<WeightedPredicate, Map<String, Object>>> getPredicatesMetadata(@NotNull NeuralogicParser.Template_fileContext ctx);
+    public abstract List<Pair<Weight, Map<String, Object>>> getWeightsMetadata(@NotNull NeuralogicParser.TemplateFileContext ctx);
+
+    public abstract List<Pair<WeightedPredicate, Map<String, Object>>> getPredicatesMetadata(@NotNull NeuralogicParser.TemplateFileContext ctx);
 }

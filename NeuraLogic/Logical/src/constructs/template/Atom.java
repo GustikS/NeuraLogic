@@ -1,5 +1,6 @@
 package constructs.template;
 
+import constructs.WeightedPredicate;
 import networks.evaluation.functions.Activation;
 
 /**

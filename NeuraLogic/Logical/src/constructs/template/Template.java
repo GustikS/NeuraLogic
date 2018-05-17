@@ -1,6 +1,7 @@
 package constructs.template;
 
-import constructs.example.WeightedFact;
+import constructs.Conjunction;
+import constructs.example.ValuedFact;
 import settings.Settings;
 
 import java.util.LinkedHashSet;
@@ -11,12 +12,13 @@ import java.util.Set;
  */
 public class Template {
     public LinkedHashSet<WeightedRule> rules;
-    public LinkedHashSet<WeightedFact> facts;
+    public LinkedHashSet<ValuedFact> facts;
+    public LinkedHashSet<Conjunction> constraints;
 
     public Template() {
     }
 
-    public Template(Set<WeightedRule> rules, Set<WeightedFact> facts) {
+    public Template(Set<WeightedRule> rules, Set<ValuedFact> facts) {
         this.rules = new LinkedHashSet<>(rules);
         this.facts = new LinkedHashSet<>(facts);
     }

@@ -6,7 +6,7 @@ import grounding.Grounder;
 import grounding.bottomUp.BottomUp;
 import ida.utils.tuples.Pair;
 import learning.LearningSample;
-import neuralogic.examples.PlainQueriesParseTree;
+import neuralogic.queries.PlainQueriesParseTree;
 import neuralogic.template.PlainTemplateParseTree;
 import neuralogic.template.TemplateParseTreeExtractor;
 import parsing.LearningSamplesBuilder;

@@ -1,6 +1,6 @@
 package constructs.factories;
 
-import constructs.template.WeightedPredicate;
+import constructs.WeightedPredicate;
 import ida.utils.tuples.Pair;
 import networks.structure.Weight;
 

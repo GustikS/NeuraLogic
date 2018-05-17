@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.logging.Logger;
 
-public class PlainTemplateParseTree extends PlainParseTree<NeuralogicParser.Template_fileContext> {
+public class PlainTemplateParseTree extends PlainParseTree<NeuralogicParser.TemplateFileContext> {
     private static final Logger LOG = Logger.getLogger(PlainTemplateParseTree.class.getName());
 
     public PlainTemplateParseTree(Reader reader) throws IOException {
@@ -16,7 +16,7 @@ public class PlainTemplateParseTree extends PlainParseTree<NeuralogicParser.Temp
 
 
     @Override
-    public NeuralogicParser.Template_fileContext getRoot() {
-        return parseTree.template_file();
+    public NeuralogicParser.TemplateFileContext getRoot() {
+        return parseTree.templateFile();
     }
 }

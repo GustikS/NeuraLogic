@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.logging.Logger;
 
-public class PlainExamplesParseTree extends PlainParseTree<NeuralogicParser.Examples_fileContext> {
+public class PlainExamplesParseTree extends PlainParseTree<NeuralogicParser.ExamplesFileContext> {
     private static final Logger LOG = Logger.getLogger(PlainExamplesParseTree.class.getName());
 
     public PlainExamplesParseTree(Reader reader) throws IOException {
@@ -15,7 +15,7 @@ public class PlainExamplesParseTree extends PlainParseTree<NeuralogicParser.Exam
     }
 
     @Override
-    public NeuralogicParser.Examples_fileContext getRoot() {
-        return parseTree.examples_file();
+    public NeuralogicParser.ExamplesFileContext getRoot() {
+        return parseTree.examplesFile();
     }
 }

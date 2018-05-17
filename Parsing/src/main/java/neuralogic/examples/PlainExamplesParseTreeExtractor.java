@@ -1,16 +1,16 @@
 package neuralogic.examples;
 
 import com.sun.istack.internal.NotNull;
-import constructs.example.WeightedFact;
-import constructs.template.BodyAtom;
-import constructs.template.WeightedRule;
+import constructs.Conjunction;
+import constructs.example.LiftedExample;
+import ida.utils.tuples.Pair;
 import neuralogic.grammarParsing.PlainGrammarVisitor;
 import parsers.neuralogic.NeuralogicParser;
 
-import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static utils.Utilities.zipStreams;
 
 public class PlainExamplesParseTreeExtractor extends ExamplesParseTreeExtractor<PlainGrammarVisitor> {
     private static final Logger LOG = Logger.getLogger(PlainExamplesParseTreeExtractor.class.getName());
@@ -20,41 +20,34 @@ public class PlainExamplesParseTreeExtractor extends ExamplesParseTreeExtractor<
     }
 
     @Override
-    public Stream<List<BodyAtom>> getUnlabeledExamples(@NotNull NeuralogicParser.Examples_fileContext ctx) {
-        PlainGrammarVisitor.ConjunctionVisitor conjunctionVisitor = visitor.new ConjunctionVisitor();
-        if (ctx.conjunction() != null) {
-            Stream<List<BodyAtom>> listStream = ctx.conjunction().stream().map(rule -> rule.accept(conjunctionVisitor));
+    public Stream<LiftedExample> getUnlabeledExamples(@NotNull NeuralogicParser.ExamplesFileContext ctx) {
+        PlainGrammarVisitor.LiftedExampleVisitor liftedExampleVisitor = visitor.new LiftedExampleVisitor();
+        if (ctx.liftedExample() != null) {
+            Stream<LiftedExample> listStream = ctx.liftedExample().stream().map(rule -> rule.accept(liftedExampleVisitor));
             return listStream;
         } else
-            LOG.severe("Could not extract any Unlabeled trainExamples (conjunctions of atoms)");
+            LOG.severe("Could not extract any Unlabeled trainExamples");
         return null;
     }
 
     @Override
-    public List<WeightedFact> getOneBigExample(@NotNull NeuralogicParser.Examples_fileContext ctx) {
-        PlainGrammarVisitor.FactVisitor factVisitor = visitor.new FactVisitor();
-        if (ctx.fact() != null)
-            return ctx.fact().stream().map(fact -> fact.accept(factVisitor)).collect(Collectors.toList());
-        else
-            LOG.severe("Could not extract any weighted facts");
+    public Stream<Pair<Conjunction, LiftedExample>> getLabeledSamples(@NotNull NeuralogicParser.ExamplesFileContext ctx) {
+        PlainGrammarVisitor.LiftedExampleVisitor liftedExampleVisitor = visitor.new LiftedExampleVisitor();
+        PlainGrammarVisitor.FactConjunctionVisitor factConjunctionVisitor = visitor.new FactConjunctionVisitor();
+        if (ctx.label() != null) {
+            Stream<LiftedExample> exampleStream = ctx.liftedExample().stream().map(line -> line.accept(liftedExampleVisitor));
+            Stream<Conjunction> labelStream = ctx.liftedExample().stream().map(line -> line.accept(factConjunctionVisitor));
+            return zipStreams(exampleStream, labelStream, (ex, lab) -> new Pair(ex, lab));
+        } else
+            LOG.severe("Could not extract any labeled trainExamples");
         return null;
     }
 
     @Override
-    public Stream<WeightedRule> getLabeledSamples(@NotNull NeuralogicParser.Examples_fileContext ctx) {
-        PlainGrammarVisitor.RuleLineVisitor ruleLineVisitor = visitor.new RuleLineVisitor();
-        if (ctx.lrnn_rule() != null)
-            return ctx.lrnn_rule().stream().map(rule -> rule.accept(ruleLineVisitor));
-        else
-            LOG.severe("Could not extract any Labeled Samples (weighted rules)");
-        return null;
-    }
-
-    @Override
-    public Stream<WeightedFact> getQueries(@NotNull NeuralogicParser.Queries_fileContext ctx) {
-        PlainGrammarVisitor.FactVisitor factVisitor = visitor.new FactVisitor();
-        if (ctx.fact() != null)
-            return ctx.fact().stream().map(fact -> fact.accept(factVisitor));
+    public Stream<Conjunction> getQueries(@NotNull NeuralogicParser.ExamplesFileContext ctx) {
+        PlainGrammarVisitor.FactConjunctionVisitor factConjunctionVisitor = visitor.new FactConjunctionVisitor();
+        if (ctx.label() != null)
+            return ctx.liftedExample().stream().map(line -> line.accept(factConjunctionVisitor));
         else
             LOG.severe("Could not extract any trainQueries (weighted facts)");
         return null;
