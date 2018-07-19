@@ -1,5 +1,6 @@
 package constructs.template.metadata;
 
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -7,6 +8,10 @@ import java.util.logging.Logger;
  */
 public class PredicateMetadata extends Metadata {
     private static final Logger LOG = Logger.getLogger(PredicateMetadata.class.getName());
+
+    public PredicateMetadata(Map<String, Object> pairs){
+        super(pairs);
+    }
 
     @Override
     public boolean addValidateMetadatum(String parameter, Object Value) {

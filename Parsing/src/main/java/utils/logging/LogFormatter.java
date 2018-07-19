@@ -9,7 +9,7 @@ import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
-// this custom formatter formats parts of a log record to a single line
+// this custom formatter formats pipes of a log record to a single line
 class LogFormatter extends Formatter {
     // this method is called for every log records
     public String format(LogRecord rec) {

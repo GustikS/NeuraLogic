@@ -8,8 +8,10 @@ import parsers.neuralogic.NeuralogicParser;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.logging.Logger;
 
 public abstract class PlainParseTree<T extends ParserRuleContext> extends ParseTree<NeuralogicParser> {
+    private static final Logger LOG = Logger.getLogger(PlainParseTree.class.getName());
 
     public PlainParseTree(Reader reader) throws IOException {
         super(reader);
@@ -28,5 +30,13 @@ public abstract class PlainParseTree<T extends ParserRuleContext> extends ParseT
     }
 
     public abstract T getRoot();
+
+    public boolean isEmpty(){
+        boolean empty = getRoot().isEmpty();
+        if (empty) {
+            LOG.warning("Parse tree from file is EMPTY! (i.e. some effectively empty file was provided)");
+        }
+        return empty;
+    }
 
 }

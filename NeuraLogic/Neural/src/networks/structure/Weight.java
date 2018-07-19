@@ -1,5 +1,6 @@
 package networks.structure;
 
+import constructs.template.metadata.WeightMetadata;
 import networks.evaluation.values.Value;
 
 /**
@@ -13,10 +14,13 @@ public class Weight {
     double learningRate;
     public String originalString;
 
+    WeightMetadata metadata;
+
     public void init() {
 
     }
 
+    @Deprecated
     public static Weight construct(String name, Value value, boolean fixed) {
         //TODO weak factory method
         Weight weight = new Weight();

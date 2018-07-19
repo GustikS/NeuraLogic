@@ -1,4 +1,4 @@
-package pipeline.pipelines;
+package pipeline.prepared.full;
 
 import java.util.logging.Logger;
 

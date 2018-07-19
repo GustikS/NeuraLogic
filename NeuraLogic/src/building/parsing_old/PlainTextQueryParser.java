@@ -1,4 +1,4 @@
-package parsing.alternatives;
+package building.parsing_old;
 
 import constructs.example.AtomQuery;
 import constructs.example.CompositeQuery;

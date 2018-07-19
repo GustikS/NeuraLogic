@@ -2,15 +2,15 @@ package constructs.template;
 
 import constructs.Conjunction;
 import constructs.example.ValuedFact;
-import settings.Settings;
+import constructs.template.templates.ParsedTemplate;
 
 import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
 
 /**
  * Created by Gusta on 04.10.2016.
  */
-public class Template {
+public class Template extends ParsedTemplate {
     public LinkedHashSet<WeightedRule> rules;
     public LinkedHashSet<ValuedFact> facts;
     public LinkedHashSet<Conjunction> constraints;
@@ -18,14 +18,13 @@ public class Template {
     public Template() {
     }
 
-    public Template(Set<WeightedRule> rules, Set<ValuedFact> facts) {
+    public Template(List<WeightedRule> rules, List<ValuedFact> facts) {
         this.rules = new LinkedHashSet<>(rules);
         this.facts = new LinkedHashSet<>(facts);
     }
 
-    public Template preprocess(Settings settings) {
-        Template preprocessed = this;
-        if (settings.reduceTemplate) preprocessed = settings.templateReducer.reduce(preprocessed);
-        return preprocessed;
+    public void addConstraints(List<Conjunction> constr){
+        this.constraints = new LinkedHashSet<>(constr);
     }
+
 }

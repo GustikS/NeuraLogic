@@ -1,4 +1,4 @@
-package parsing;
+package building;
 
 import constructs.example.AtomQuery;
 import constructs.example.GroundExample;
@@ -13,6 +13,7 @@ import neuralogic.examples.PlainExamplesParseTree;
 import neuralogic.examples.PlainExamplesParseTreeExtractor;
 import neuralogic.grammarParsing.PlainGrammarVisitor;
 import settings.Settings;
+import settings.Sources;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -20,15 +21,17 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class LearningSamplesBuilder extends Builder<Stream<LearningSample>> {
+public class LearningSamplesBuilder extends LogicBuilder<Stream<LearningSample>> {
     private static final Logger LOG = Logger.getLogger(LearningSamplesBuilder.class.getName());
 
     public LearningSamplesBuilder(Settings settings) {
+
+        this.settings = settings;
         //TODO extract from settings what version/format of trainExamples this will be (single vs. multiple files)
     }
 
     @Override
-    Stream<LearningSample> buildFrom(Reader reader) throws IOException {
+    public Stream<LearningSample> buildFrom(Reader reader) throws IOException {
         //TODO switch to different Parsers and Extractors based on file types/structures/settings
 
         // Plain text grammar-based version of building
@@ -42,6 +45,11 @@ public class LearningSamplesBuilder extends Builder<Stream<LearningSample>> {
         } else if (parseTree.getRoot().conjunction() != null) {
 
         }
+    }
+
+    @Override
+    public Stream<LearningSample> buildFrom(Sources sources) throws IOException {
+        sources.trainExamplesParseTree
     }
 
     public Stream<LearningSample> buildFrom(PlainExamplesParseTree parseTree, ExamplesParseTreeExtractor examplesParseTreeExtractor) {
@@ -58,10 +66,15 @@ public class LearningSamplesBuilder extends Builder<Stream<LearningSample>> {
     /**
      * Parsing separate example facts
      */
-    public class ExampleBuilder extends Builder<List<GroundExample>> {
+    public class ExampleBuilder extends LogicBuilder<Stream<GroundExample>> {
 
         @Override
-        List<GroundExample> buildFrom(Reader reader, Settings settings) throws IOException {
+        public Stream<GroundExample> buildFrom(Reader reader) throws IOException {
+            return null;
+        }
+
+        @Override
+        public Stream<GroundExample> buildFrom(Sources sources) throws IOException {
             return null;
         }
     }
@@ -69,10 +82,15 @@ public class LearningSamplesBuilder extends Builder<Stream<LearningSample>> {
     /**
      * Parsing separate query-labels
      */
-    public class QueryBuilder extends Builder<List<Query>> {
+    public class QueryBuilder extends LogicBuilder<Stream<Query>> {
 
         @Override
-        List<Query> buildFrom(Reader reader, Settings settings) throws IOException {
+        public Stream<Query> buildFrom(Reader reader) throws IOException {
+            return null;
+        }
+
+        @Override
+        public Stream<Query> buildFrom(Sources sources) throws IOException {
             return null;
         }
     }

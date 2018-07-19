@@ -1,15 +1,19 @@
-package parsing;
+package building;
 
 import constructs.factories.ConstantFactory;
 import constructs.factories.PredicateFactory;
 import constructs.factories.WeightFactory;
+import settings.Settings;
+import settings.Sources;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.util.logging.Logger;
 
-public abstract class Builder<T> {
-    private static final Logger LOG = Logger.getLogger(Builder.class.getName());
+public abstract class LogicBuilder<T> {
+    private static final Logger LOG = Logger.getLogger(LogicBuilder.class.getName());
+
+    Settings settings;
 
     // Constants are shared over the whole template
     public ConstantFactory constantFactory = new ConstantFactory();
@@ -18,5 +22,8 @@ public abstract class Builder<T> {
     // Weights are shared over the whole template
     public WeightFactory weightFactory = new WeightFactory();
 
-    abstract T buildFrom(Reader reader) throws IOException;
+    @Deprecated
+    public abstract T buildFrom(Reader reader) throws IOException;
+
+    public abstract T buildFrom(Sources sources) throws IOException;
 }

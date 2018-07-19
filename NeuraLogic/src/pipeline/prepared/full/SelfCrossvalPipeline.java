@@ -1,4 +1,4 @@
-package pipeline.pipelines;
+package pipeline.prepared.full;
 
 import com.sun.istack.internal.NotNull;
 import constructs.template.Template;
@@ -9,22 +9,26 @@ import learning.LearningSample;
 import neuralogic.queries.PlainQueriesParseTree;
 import neuralogic.template.PlainTemplateParseTree;
 import neuralogic.template.TemplateParseTreeExtractor;
-import parsing.LearningSamplesBuilder;
-import parsing.TemplateBuilder;
+import building.LearningSamplesBuilder;
+import building.TemplateBuilder;
 import pipeline.*;
-import pipeline.pipelines.prepared.IdentityGenPipe;
+import pipeline.prepared.pipes.IdentityGenPipe;
 import settings.Settings;
 import settings.Sources;
 import training.results.Results;
 
 import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class TrainingPipeline extends Pipeline<Sources, Results> {
-    private static final Logger LOG = Logger.getLogger(TrainingPipeline.class.getName());
+public class SelfCrossvalPipeline extends Pipeline<Sources, Results> {
+    // TODO - create pipeline within pipeline - for each fold !? reuse existing pipeline and just aggregate their terminals at the end
+    private static final Logger LOG = Logger.getLogger(SelfCrossvalPipeline.class.getName());
 
-    public TrainingPipeline(@NotNull Settings settings) {
+    public SelfCrossvalPipeline(@NotNull Settings settings) {
         this.settings = settings;
 
         Pipe<Sources, Sources> start;
@@ -61,26 +65,41 @@ public class TrainingPipeline extends Pipeline<Sources, Results> {
             }
         });
 
-        Merge<Stream<LearningSample>, Template, Pair<Template, Stream<LearningSample>>> mergeGround =
-                register(new Merge<Stream<LearningSample>, Template, Pair<Template, Stream<LearningSample>>>("MergingGrounding") {
+        MultiBranch<Stream<LearningSample>, Stream<LearningSample>> crossvalBranch;
+        queriesProcessingPipe.output = register(crossvalBranch = new MultiBranch<Stream<LearningSample>, Stream<LearningSample>>("CrossvalBranch") {
+
             @Override
-            protected Pair<Template, Stream<LearningSample>> merge(Stream<LearningSample> input1, Template input2) {
-                Grounder grounder = new BottomUp();
-                //TODO ground
-                return null;
+            public Stream<Stream<LearningSample>> apply(Stream<LearningSample> learningSampleStream) {
+                List<LearningSample> originalList = learningSampleStream.collect(Collectors.toList());
+                int partitionSize = settings.foldsCount;
+                List<Stream<LearningSample>> partitions = new LinkedList<>();
+                for (int i = 0; i < originalList.size(); i += partitionSize) {
+                    partitions.add(originalList.subList(i, Math.min(i + partitionSize, originalList.size())).stream());
+                }
+                Stream<Stream<LearningSample>> stream = partitions.stream();
+                return stream;
             }
         });
 
-        mergeGround.input1 = queriesProcessingPipe;
+        Merge<Stream<Stream<LearningSample>>, Template, Pair<Stream<Stream<LearningSample>>, Template>> mergeGround =
+                register(new Merge<Stream<Stream<LearningSample>>, Template, Pair<Stream<Stream<LearningSample>>, Template>>("MergingGrounding") {
+                    @Override
+                    protected Pair<Stream<Stream<LearningSample>>, Template> merge(Stream<Stream<LearningSample>> sampleFolds, Template template) {
+                        Grounder grounder = new BottomUp();
+                        Stream<Stream<LearningSample>> streamStream = sampleFolds.map(fold -> fold.map(sample -> grounder.ground(sample, template)));
+                        return new Pair<>(streamStream, template);
+                    }
+                });
+
+        mergeGround.input1 = crossvalBranch;
         mergeGround.input2 = templateProcessingPipe;
         queriesProcessingPipe.output = mergeGround;
         templateProcessingPipe.output = mergeGround;
 
-        Pipe<Pair<Template, Stream<LearningSample>>, Results> trainingPipe;
-        mergeGround.output = register(trainingPipe = new Pipe<Pair<Template, Stream<LearningSample>>, Results>("TrainingPipe") {
+        Pipe<Pair<Stream<Stream<LearningSample>>, Template>, Results> trainingPipe;
+        mergeGround.output = register(trainingPipe = new Pipe<Pair<Stream<Stream<LearningSample>>,Template>, Results>("TrainingPipe") {
             @Override
-            public Results apply(Pair<Template, Stream<LearningSample>> templateStreamPair) {
-                //TODO train
+            public Results apply(Pair<Stream<Stream<LearningSample>>, Template> streamTemplatePair) {
                 return null;
             }
         });

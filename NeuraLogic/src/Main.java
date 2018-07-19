@@ -2,6 +2,7 @@ import ida.utils.tuples.Pair;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 import pipeline.Pipeline;
+import pipeline.PipelineBuilder;
 import settings.Settings;
 import settings.Sources;
 import training.results.Results;
@@ -36,7 +37,7 @@ public class Main {
             settings.setupFromCommandline(cmd);
             sources = Sources.setupFromCommandline(settings, cmd);
         } catch (ParseException ex) {
-            LOG.severe("Unable to parse Commandline arguments into settings\n" + ex.getMessage());
+            LOG.severe("Unable to parse Commandline arguments into settings/sources\n" + ex.getMessage());
             System.exit(1);
         }
 
@@ -47,13 +48,14 @@ public class Main {
             LOG.severe("Invalid pipeline setting.\n" + validation.s);
             System.exit(2);
         }
-        validation = sources.validate(settings);
+        validation = sources.isValid(settings);
         if (!validation.r) {
             LOG.severe("Invalid source files configuration.\n" + validation.s);
             System.exit(2);
         }
 
-        Pipeline<Sources, Results> pipeline = Pipeline.getPipeline(settings);
+        PipelineBuilder pipelineBuilder = new PipelineBuilder(settings, sources);
+        Pipeline<Sources, Results> pipeline = pipelineBuilder.buildPipeline();
         List<Pair<String, Results>> targets = pipeline.execute(sources);
 
         targets.forEach(stringResultsPair -> LOG.info(stringResultsPair.r + " : " + stringResultsPair.s));

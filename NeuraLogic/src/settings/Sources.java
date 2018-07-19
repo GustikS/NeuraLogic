@@ -41,7 +41,93 @@ public abstract class Sources {
     public Reader testQueriesReader;
 
 
+    //----------------INFERRED SETTINGS
+    public boolean templateProvided;
+
+    public boolean trainExamplesSeparate;
+    public boolean testExamplesSeparate;
+    public boolean trainQueriesSeparate;
+    public boolean testQueriesSeparate;
+
+    public boolean trainExamplesProvided;
+    public boolean trainQueriesProvided;
+    public boolean testExamplesProvided;
+    public boolean testQueriesProvided;
+
+    public boolean trainQueriesLinkedById;
+    public boolean testQueriesLinkedById;
+
+    public boolean foldFiles;   //i.e. external x-val files
+
+
     public abstract Pair<Boolean, String> validate(Settings settings);
+
+    public void infer(Settings settings) {
+        if (folds != null) {
+            foldFiles = true;
+            settings.crossvalidation = true;
+        } else {
+            foldFiles = false;
+        }
+
+        if (templateReader == null) {
+            templateProvided = false;
+            settings.structureLearning = true;
+        } else {
+            if (templateParseTree.getRoot().templateLine() == null)
+                templateProvided = false;
+            templateProvided = true;
+        }
+
+        trainExamplesSeparate = trainExamplesReader == null ? false : !trainExamplesParseTree.isEmpty();
+        testExamplesSeparate = testExamplesReader != null ? !testExamplesParseTree.isEmpty() : false;
+        trainQueriesSeparate = trainQueriesReader == null ? false : !trainQueriesParseTree.isEmpty();
+        testQueriesSeparate = testQueriesReader != null ? !testQueriesParseTree.isEmpty() : false;
+
+        if (trainExamplesSeparate) {
+            trainExamplesProvided = true;
+            if (trainExamplesParseTree.getRoot().label() != null) {
+                trainQueriesProvided = true;
+            }
+        } else {
+            trainExamplesProvided = false;
+        }
+
+        if (testExamplesSeparate) {
+            testExamplesProvided = true;
+            if (testExamplesParseTree.getRoot().label() != null) {
+                testQueriesProvided = true;
+            }
+        } else {
+            testExamplesProvided = false;
+        }
+        if (trainQueriesSeparate) {
+            trainQueriesProvided = true;
+            if (trainQueriesParseTree.getRoot().atom() != null) {
+                trainQueriesLinkedById = true;
+            }
+        }
+        if (testQueriesSeparate) {
+            testQueriesProvided = true;
+            if (testQueriesParseTree.getRoot().atom() != null) {
+                testQueriesLinkedById = true;
+            }
+        }
+    }
+
+    /**
+     * Validation
+     *
+     * @param settings
+     * @return
+     */
+    public Pair<Boolean, String> isValid(Settings settings) {
+        boolean valid = true;
+        String msg = "";
+        infer(settings);
+        return validate(settings);
+    }
+
 
     public static Sources setupFromCommandline(Settings settings, CommandLine cmd) {
         Sources sources;
@@ -51,7 +137,6 @@ public abstract class Sources {
             LOG.severe("Input streams other than from source files not implemented yet");
             throw new NotImplementedException();
         }
-        sources.validate(settings);
         return sources;
     }
 }

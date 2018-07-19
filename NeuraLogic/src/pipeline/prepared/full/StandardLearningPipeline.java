@@ -1,4 +1,4 @@
-package pipeline.pipelines;
+package pipeline.prepared.full;
 
 import constructs.template.Template;
 import ida.utils.tuples.Pair;

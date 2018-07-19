@@ -2,6 +2,7 @@ package constructs.template.transforming;
 
 import constructs.template.Template;
 import constructs.template.metadata.*;
+import settings.Settings;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.logging.Logger;
@@ -11,6 +12,9 @@ import java.util.logging.Logger;
  */
 public class MetadataProcessor {
     private static final Logger LOG = Logger.getLogger(MetadataProcessor.class.getName());
+
+    public MetadataProcessor(Settings settings) {
+    }
 
     public Template processMetadata(Template template, TemplateMetadata metadata) {
         throw new NotImplementedException();
@@ -26,5 +30,9 @@ public class MetadataProcessor {
 
     public Template processMetadata(Template template, RuleMetadata metadata) {
 
+    }
+
+    public Template processMetadata(Template template) {
+        //TODO process all metadata for all elements
     }
 }

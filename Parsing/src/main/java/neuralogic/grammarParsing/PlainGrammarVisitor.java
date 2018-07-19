@@ -1,12 +1,14 @@
 package neuralogic.grammarParsing;
 
 import com.sun.istack.internal.NotNull;
-import constructs.WeightedPredicate;
 import constructs.Conjunction;
+import constructs.WeightedPredicate;
 import constructs.example.LiftedExample;
 import constructs.example.ValuedFact;
 import constructs.factories.VariableFactory;
-import constructs.template.*;
+import constructs.template.Atom;
+import constructs.template.BodyAtom;
+import constructs.template.WeightedRule;
 import constructs.template.metadata.RuleMetadata;
 import ida.ilp.logic.Literal;
 import ida.ilp.logic.Term;
@@ -17,7 +19,7 @@ import networks.evaluation.values.VectorValue;
 import networks.structure.Weight;
 import parsers.neuralogic.NeuralogicBaseVisitor;
 import parsers.neuralogic.NeuralogicParser;
-import parsing.Builder;
+import building.LogicBuilder;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -28,10 +30,10 @@ import java.util.stream.Collectors;
 /**
  * Contains logic of construction of logical structures while walking/visiting parse trees of logic programs (templates or samples)
  */
-public class PlainGrammarVisitor extends GrammarVisitor{
+public class PlainGrammarVisitor extends GrammarVisitor {
     private static final Logger LOG = Logger.getLogger(PlainGrammarVisitor.class.getName());
 
-    public PlainGrammarVisitor(Builder builder) {
+    public PlainGrammarVisitor(LogicBuilder builder) {
         super(builder);
     }
 
@@ -129,7 +131,7 @@ public class PlainGrammarVisitor extends GrammarVisitor{
                     .map(conj -> conj.accept(ruleLineVisitor))
                     .collect(Collectors.toList());
 
-            LiftedExample liftedExample = new LiftedExample(conjunctions,rules);
+            LiftedExample liftedExample = new LiftedExample(conjunctions, rules);
             return liftedExample;
         }
     }
@@ -220,7 +222,7 @@ public class PlainGrammarVisitor extends GrammarVisitor{
                 LOG.severe("Value is neither number nor vector: Could not parse numeric value from " + ctx.getText());
             }
             if (value == null) {
-                LOG.severe("Error during parsing numeric value from " + ctx.getText());
+                LOG.severe("Error during building numeric value from " + ctx.getText());
             }
             return value;
         }
@@ -294,9 +296,9 @@ public class PlainGrammarVisitor extends GrammarVisitor{
                 String valueText = paramVal.ATOMIC_NAME(1).getText();
                 Object value;
                 if (paramVal.DOLLAR() != null) {
-                    value = builder.weightFactory.construct(valueText);
+                    value = builder.weightFactory.construct(valueText); //why we need weight object as a parameter?
                 } else {
-                    value = builder.constantFactory.construct(valueText);
+                    value = builder.constantFactory.construct(valueText); //check if general enough - supports generic parameters?
                 }
                 metadata.put(parameter, value);
             }

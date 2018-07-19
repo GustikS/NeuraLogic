@@ -41,22 +41,12 @@ public class SourceFiles extends Sources {
         boolean valid = true;
         String msg = "";
 
-        if (folds == null) {
-            // settings for the regular case (without given xval folds)
-            settings.structureLearning = templateReader == null ? true : null;
-            settings.testFileProvided = testQueriesReader != null ? true : false;
-            settings.training = trainQueriesReader == null ? false : true;
-        } else {
-            settings.crossvalidation = true;
-            settings.foldFiles = true;
-        }
-
         if (trainQueriesReader == null && testQueriesReader == null && folds == null) {
-            LOG.severe(msg = "Invalid learning setup - no training nor testing samples provided");
+            LOG.severe(msg = "Invalid learning setup - no trainQueriesSeparate nor testing samples provided");
             valid = false;
         }
         if (templateReader == null && trainQueriesReader == null && testQueriesReader == null) {
-            LOG.severe(msg = "Invalid learning setup - no template nor training or testing samples provided");
+            LOG.severe(msg = "Invalid learning setup - no template nor trainQueriesSeparate or testing samples provided");
             valid = false;
         }
         //TODO is complete?
@@ -76,7 +66,6 @@ public class SourceFiles extends Sources {
             setupFromDir(settings, cmd, Paths.get(".").toAbsolutePath().toFile());
 
             crawlFolds(settings, cmd, sourcePath, foldPrefix);
-            settings.foldFiles = true;
         } else {
             setupFromDir(settings, cmd, Paths.get(".").toAbsolutePath().toFile());
         }
@@ -177,7 +166,7 @@ public class SourceFiles extends Sources {
                 LOG.severe("The train queries file is not readable");
             }
         } catch (FileNotFoundException e) {
-            LOG.warning("There are no training queries");
+            LOG.warning("There are no trainQueriesSeparate queries");
         }
 
         try {

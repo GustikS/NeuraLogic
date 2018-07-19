@@ -1,12 +1,10 @@
 package settings;
 
-import constructs.template.transforming.TemplateReducing;
 import grounding.Grounder;
 import grounding.bottomUp.BottomUp;
 import grounding.topDown.TopDown;
 import ida.utils.tuples.Pair;
 import org.apache.commons.cli.CommandLine;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -31,14 +29,18 @@ public class Settings {
     NumberFormat nf = new DecimalFormat("#.##########");
 
     //------------------Grounding
-    public Grounder grounder;
+    public Grounder grounder;   //TODO vyhodit, nechat v Settings jen primitivni typy
     /**
      * Type of grounder
      */
     public groundingAlgo grounding = groundingAlgo.BUP;
+
     public enum groundingAlgo {
         BUP, TDOWN
     }
+
+    //-----------------Structure Learning
+    public boolean structureLearning;
 
     //-----------------Source files
     /**
@@ -55,23 +57,15 @@ public class Settings {
     public String foldsPrefix = "fold";
 
     //----------------Crossvaldiation
-    public int foldsCount = 5;
 
+    public boolean crossvalidation = true;
+    public int foldsCount = 5;
+    public boolean stratification = true;
 
     //----------------Template Transformations
     public boolean reduceTemplate = true;
-    public TemplateReducing templateReducer;
 
 
-
-    //----------------INFERRED SETTINGS
-    public boolean structureLearning;
-    public boolean testFileProvided;
-    public boolean training;
-
-    public boolean foldFiles;
-    public boolean crossvalidation;
-    public boolean stratification = true;
 
 
     /**
@@ -103,13 +97,14 @@ public class Settings {
         boolean valid = true;
         StringBuilder message = new StringBuilder();
 
-        Pair<Boolean, String> sv = sources.validate(this);
-        valid &= sv.r;
-        message.append(sv.s);
 
         //TODO more validation and inference of settings
 
         return new Pair(valid, message);
+    }
+
+    public void infer(){
+        //TODO
     }
 
     public void importFromCSV(String inPath) {
