@@ -32,6 +32,7 @@ public abstract class Pipeline<S, T> {
      */
     //ConcurrentLinkedQueue<Executable> executionQueue;
 
+    @Deprecated
     Pipeline buildFrom(Settings settings) {
         //TODO build different pipeline based on settings
         return new TrainingPipeline(settings);

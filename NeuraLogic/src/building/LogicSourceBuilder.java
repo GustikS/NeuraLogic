@@ -3,15 +3,17 @@ package building;
 import constructs.factories.ConstantFactory;
 import constructs.factories.PredicateFactory;
 import constructs.factories.WeightFactory;
+import neuralogic.grammarParsing.PlainParseTree;
+import org.antlr.v4.runtime.ParserRuleContext;
 import settings.Settings;
-import settings.Sources;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.util.logging.Logger;
 
-public abstract class LogicBuilder<T> {
-    private static final Logger LOG = Logger.getLogger(LogicBuilder.class.getName());
+//TODO move to Logic package to the factories?
+public abstract class LogicSourceBuilder<I extends ParserRuleContext, O> {
+    private static final Logger LOG = Logger.getLogger(LogicSourceBuilder.class.getName());
 
     Settings settings;
 
@@ -23,7 +25,7 @@ public abstract class LogicBuilder<T> {
     public WeightFactory weightFactory = new WeightFactory();
 
     @Deprecated
-    public abstract T buildFrom(Reader reader) throws IOException;
+    public abstract O buildFrom(Reader reader) throws IOException;
 
-    public abstract T buildFrom(Sources sources) throws IOException;
+    public abstract O buildFrom(PlainParseTree<I> parseTree) throws IOException;
 }

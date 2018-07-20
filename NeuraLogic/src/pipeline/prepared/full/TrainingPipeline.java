@@ -1,6 +1,6 @@
 package pipeline.prepared.full;
 
-import building.LearningSamplesBuilder;
+import building.SamplesBuilder;
 import building.TemplateBuilder;
 import com.sun.istack.internal.NotNull;
 import constructs.example.LiftedExample;
@@ -81,7 +81,7 @@ public class TrainingPipeline extends Pipeline<Sources, Results> {
 
             @Override
             public Stream<LearningSample> apply(PlainQueriesParseTree plainQueriesParseTree) {
-                LearningSamplesBuilder learningSamplesBuilder = new LearningSamplesBuilder(settings);
+                SamplesBuilder learningSamplesBuilder = new SamplesBuilder(settings);
                 //learningSamplesBuilder.buildFrom();
                 //TODO create trainQueries/trainExamples
                 return null;

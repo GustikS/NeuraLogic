@@ -10,4 +10,8 @@ import java.util.Map;
  */
 public class Results {
     Map<NeuralSample, Value> outputs;
+
+    public String toString(){
+        //TODO override intelligently in subclasses
+    }
 }

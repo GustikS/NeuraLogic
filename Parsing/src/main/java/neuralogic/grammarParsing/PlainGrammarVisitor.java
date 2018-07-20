@@ -19,7 +19,7 @@ import networks.evaluation.values.VectorValue;
 import networks.structure.Weight;
 import parsers.neuralogic.NeuralogicBaseVisitor;
 import parsers.neuralogic.NeuralogicParser;
-import building.LogicBuilder;
+import building.LogicSourceBuilder;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 public class PlainGrammarVisitor extends GrammarVisitor {
     private static final Logger LOG = Logger.getLogger(PlainGrammarVisitor.class.getName());
 
-    public PlainGrammarVisitor(LogicBuilder builder) {
+    public PlainGrammarVisitor(LogicSourceBuilder builder) {
         super(builder);
     }
 

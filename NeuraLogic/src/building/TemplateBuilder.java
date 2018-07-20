@@ -7,9 +7,9 @@ import constructs.template.Template;
 import constructs.template.WeightedRule;
 import constructs.template.metadata.PredicateMetadata;
 import constructs.template.metadata.WeightMetadata;
-import constructs.template.transforming.MetadataProcessor;
 import ida.utils.tuples.Pair;
 import networks.structure.Weight;
+import neuralogic.grammarParsing.ParseTree;
 import neuralogic.grammarParsing.PlainGrammarVisitor;
 import neuralogic.grammarParsing.PlainParseTree;
 import neuralogic.template.PlainTemplateParseTree;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 /**
  * Builds template given some prescribed strategy, output from a parser and some general setting
  */
-public class TemplateBuilder extends LogicBuilder<Template> {
+public class TemplateBuilder extends LogicSourceBuilder<NeuralogicParser.TemplateFileContext, Template> {
     private static final Logger LOG = Logger.getLogger(TemplateBuilder.class.getName());
 
     public TemplateBuilder(Settings settings) {
@@ -42,7 +42,6 @@ public class TemplateBuilder extends LogicBuilder<Template> {
         return buildFrom(plainParseTree);
     }
 
-    @Override
     public Template buildFrom(Sources sources) throws IOException {
         if (sources.templateParseTree != null)
             return buildFrom(sources.templateParseTree);

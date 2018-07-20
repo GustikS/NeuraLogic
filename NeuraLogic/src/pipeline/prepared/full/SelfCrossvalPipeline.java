@@ -9,7 +9,7 @@ import learning.LearningSample;
 import neuralogic.queries.PlainQueriesParseTree;
 import neuralogic.template.PlainTemplateParseTree;
 import neuralogic.template.TemplateParseTreeExtractor;
-import building.LearningSamplesBuilder;
+import building.SamplesBuilder;
 import building.TemplateBuilder;
 import pipeline.*;
 import pipeline.prepared.pipes.IdentityGenPipe;
@@ -58,7 +58,7 @@ public class SelfCrossvalPipeline extends Pipeline<Sources, Results> {
 
             @Override
             public Stream<LearningSample> apply(PlainQueriesParseTree plainQueriesParseTree) {
-                LearningSamplesBuilder learningSamplesBuilder = new LearningSamplesBuilder(settings);
+                SamplesBuilder learningSamplesBuilder = new SamplesBuilder(settings);
                 //learningSamplesBuilder.buildFrom();
                 //TODO create trainQueries/trainExamples
                 return null;
