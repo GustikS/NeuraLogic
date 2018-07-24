@@ -39,8 +39,9 @@ public class Settings {
         BUP, TDOWN
     }
 
-    //-----------------Structure Learning
+    //-----------------Global Learning Modes
     public boolean structureLearning;
+    public boolean onlineGrounding;
 
     //-----------------Source files
     /**
@@ -61,6 +62,9 @@ public class Settings {
     public boolean crossvalidation = true;
     public int foldsCount = 5;
     public boolean stratification = true;
+    public boolean exportFolds = true;
+    public boolean isolatedFoldsGrounding = false;
+
 
     //----------------Template Transformations
     public boolean reduceTemplate = true;

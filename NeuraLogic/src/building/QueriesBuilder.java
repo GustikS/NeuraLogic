@@ -18,7 +18,7 @@ public class QueriesBuilder extends LogicSourceBuilder<NeuralogicParser.QueriesF
     }
 
     @Override
-    public Stream<Query> buildFrom(PlainParseTree<NeuralogicParser.QueriesFileContext> parseTree) throws IOException {
+    public Stream<Query> buildFrom(PlainParseTree<NeuralogicParser.QueriesFileContext> parseTree) {
         //TODO
         return null;
     }

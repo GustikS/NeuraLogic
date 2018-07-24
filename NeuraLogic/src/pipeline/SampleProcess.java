@@ -10,6 +10,7 @@ import java.util.stream.Stream;
  */
 
 @FunctionalInterface
+@Deprecated
 public interface SampleProcess<T extends LearningSample> {
     Stream<T> process(Stream<T> input);
 

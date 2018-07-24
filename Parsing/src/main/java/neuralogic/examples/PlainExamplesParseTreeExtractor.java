@@ -32,15 +32,8 @@ public class PlainExamplesParseTreeExtractor extends ExamplesParseTreeExtractor<
 
     @Override
     public Stream<Pair<Conjunction, LiftedExample>> getLabeledSamples(@NotNull NeuralogicParser.ExamplesFileContext ctx) {
-        PlainGrammarVisitor.LiftedExampleVisitor liftedExampleVisitor = visitor.new LiftedExampleVisitor();
-        PlainGrammarVisitor.FactConjunctionVisitor factConjunctionVisitor = visitor.new FactConjunctionVisitor();
-        if (ctx.label() != null) {
-            Stream<LiftedExample> exampleStream = ctx.liftedExample().stream().map(line -> line.accept(liftedExampleVisitor));
-            Stream<Conjunction> labelStream = ctx.liftedExample().stream().map(line -> line.accept(factConjunctionVisitor));
-            return zipStreams(exampleStream, labelStream, (ex, lab) -> new Pair(ex, lab));  //TODO check synchronization of labels and examples, what happens if some label is missing?
-        } else
-            LOG.severe("Could not extract any labeled trainExamples");
-        return null;
+        return zipStreams(getQueries(ctx), getUnlabeledExamples(ctx), (q, e) -> new Pair(q, e));  //TODO check synchronization of labels and examples, what happens if some label is missing? (it should return null value)
+
     }
 
     @Override

@@ -30,6 +30,7 @@ public abstract class Merge<I1, I2, O> implements Supplier<O>, Consumer, Executa
     }
 
     @Override
+    @Deprecated
     public void run() {
         I1 i1 = input1.get();
         I2 i2 = input2.get();

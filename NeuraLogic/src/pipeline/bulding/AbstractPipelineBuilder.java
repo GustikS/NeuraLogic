@@ -13,10 +13,7 @@ public abstract class AbstractPipelineBuilder<S, T> {
         this.settings = settings;
     }
 
-    public abstract Pipeline<S, T> buildPipeline(S sourcePipe);
+    public abstract Pipeline<S, T> buildPipeline(S sourceType);
 
-    public Pipeline connect(Process p){
-
-    }
 
 }

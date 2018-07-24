@@ -125,6 +125,7 @@ public abstract class Sources {
         boolean valid = true;
         String msg = "";
         infer(settings);
+        //TODO add some general validation
         return validate(settings);
     }
 

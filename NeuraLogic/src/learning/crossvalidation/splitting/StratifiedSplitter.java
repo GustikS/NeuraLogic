@@ -1,15 +1,14 @@
 package learning.crossvalidation.splitting;
 
-import learning.LearningSample;
-
 import java.util.Collection;
 
 /**
  * Created by gusta on 14.3.17.
  */
-public class StratifiedSplitter implements SplittingStrategy {
+public class StratifiedSplitter<T> extends SplittingStrategy<T> {
+
     @Override
-    public Collection<Collection<LearningSample>> splitIntoFolds(Collection<LearningSample> samples) {
+    Collection<Collection<T>> splitIntoFolds(Collection<T> samples) {
         return null;
     }
 }

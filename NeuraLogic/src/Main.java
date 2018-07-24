@@ -2,8 +2,7 @@ import ida.utils.tuples.Pair;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 import pipeline.Pipeline;
-import pipeline.bulding.AbstractPipelineBuilder;
-import pipeline.bulding.LearningPipelineBuilder;
+import pipeline.bulding.LearningResultsPipelineBuilder;
 import settings.Settings;
 import settings.Sources;
 import training.results.Results;
@@ -55,7 +54,7 @@ public class Main {
             System.exit(2);
         }
 
-        AbstractPipelineBuilder pipelineBuilder = new LearningPipelineBuilder(settings);
+        LearningResultsPipelineBuilder pipelineBuilder = new LearningResultsPipelineBuilder(settings);
         Pipeline<Sources, Results> pipeline = pipelineBuilder.buildPipeline(sources);
         List<Pair<String, Results>> targets = pipeline.execute(sources);
 
