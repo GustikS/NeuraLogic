@@ -4,7 +4,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 /**
  * The input can also be a Stream and this pipe can be just a non-terminating mapping Stream<I> -> Stream<O>,
@@ -26,7 +25,7 @@ public abstract class Pipe<I, O> implements Function<I, O>, Consumer<I>, Supplie
      */
     O outputReady;
 
-    Supplier<I> input;
+    public Supplier<I> input;
     public Consumer<O> output;
 
     /**

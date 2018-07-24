@@ -1,10 +1,6 @@
 package building;
 
-import constructs.Conjunction;
-import constructs.example.GroundExample;
 import constructs.example.LiftedExample;
-import ida.utils.tuples.Pair;
-import neuralogic.examples.ExamplesParseTreeExtractor;
 import neuralogic.examples.PlainExamplesParseTreeExtractor;
 import neuralogic.grammarParsing.PlainGrammarVisitor;
 import neuralogic.grammarParsing.PlainParseTree;
@@ -15,26 +11,24 @@ import java.io.Reader;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class ExamplesBuilder extends LogicSourceBuilder<NeuralogicParser.ExamplesFileContext, Stream<GroundExample>> {
+public class ExamplesBuilder extends LogicSourceBuilder<NeuralogicParser.ExamplesFileContext, Stream<LiftedExample>> {
     private static final Logger LOG = Logger.getLogger(ExamplesBuilder.class.getName());
 
-
     @Override
-    public Stream<GroundExample> buildFrom(Reader reader) throws IOException {
+    public Stream<LiftedExample> buildFrom(Reader reader) throws IOException {
         return null;
     }
 
     @Override
-    public Stream<GroundExample> buildFrom(PlainParseTree<NeuralogicParser.ExamplesFileContext> parseTree) {
+    public Stream<LiftedExample> buildFrom(PlainParseTree<NeuralogicParser.ExamplesFileContext> parseTree) {
 
         PlainGrammarVisitor plainGrammarVisitor = new PlainGrammarVisitor(this);
-        ExamplesParseTreeExtractor examplesParseTreeExtractor = new PlainExamplesParseTreeExtractor(plainGrammarVisitor);
+        PlainExamplesParseTreeExtractor examplesParseTreeExtractor = new PlainExamplesParseTreeExtractor(plainGrammarVisitor);
         return buildFrom(parseTree, examplesParseTreeExtractor);
     }
 
-    private Stream<GroundExample> buildFrom(PlainParseTree<NeuralogicParser.ExamplesFileContext> parseTree, ExamplesParseTreeExtractor examplesParseTreeExtractor) {
-        Stream<Pair<Conjunction, LiftedExample>> labeledSamples = examplesParseTreeExtractor.getLabeledSamples(parseTree.getRoot());
-        labeledSamples.peek()
-
+    private Stream<LiftedExample> buildFrom(PlainParseTree<NeuralogicParser.ExamplesFileContext> parseTree, PlainExamplesParseTreeExtractor examplesParseTreeExtractor) {
+        Stream<LiftedExample> unlabeledExamples = examplesParseTreeExtractor.getUnlabeledExamples(parseTree.getRoot());
+        return unlabeledExamples;
     }
 }

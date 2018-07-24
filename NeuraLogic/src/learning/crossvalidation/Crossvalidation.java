@@ -11,8 +11,8 @@ import java.util.List;
  */
 public class Crossvalidation {
 
-    List<FoldRunStats> crossvalidate(){return null;}
-    FoldRunStats aggregate(List<FoldRunStats> foldRunStatsList){return null;}
+    List<TrainTestResults> crossvalidate(){return null;}
+    TrainTestResults aggregate(List<TrainTestResults> foldRunStatsList){return null;}
     Results train(Learner learner, List<LearningSample> learningSamples){return null;}
     Results test(Learner learner, List<LearningSample> learningSamples){return null;}
 

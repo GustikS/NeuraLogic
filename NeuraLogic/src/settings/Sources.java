@@ -59,13 +59,19 @@ public abstract class Sources {
 
     public boolean foldFiles;   //i.e. external x-val files
 
+    //-----------------Learning modes
+    public boolean crossvalidation = true;
+    public boolean trainTest = false;
+    public boolean trainOnly = false;
+    public boolean testOnly = false;
+
 
     public abstract Pair<Boolean, String> validate(Settings settings);
 
     public void infer(Settings settings) {
         if (folds != null) {
             foldFiles = true;
-            settings.crossvalidation = true;
+            crossvalidation = true;
         } else {
             foldFiles = false;
         }
@@ -111,6 +117,28 @@ public abstract class Sources {
             testQueriesProvided = true;
             if (testQueriesParseTree.getRoot().atom() != null) {
                 testQueriesLinkedById = true;
+            }
+        }
+
+        /*
+        if (testQueriesProvided) {
+            settings.crossvalidation = false;
+            LOG.info("Turning off crossvalidation because test queries are provided.");
+        }
+        */
+
+        if (!crossvalidation) {
+            if (trainQueriesProvided && testQueriesProvided) {
+                trainTest = true;
+            } else if (trainQueriesProvided) {
+                trainOnly = true;
+            } else if (testQueriesProvided) {
+                if (!templateProvided) {
+                    LOG.warning("Incosistent learning mode inference for this Source (missing template).");
+                }
+                testOnly = true;
+            } else {
+                LOG.warning("Incosistent learning mode inference for this Source.");
             }
         }
     }

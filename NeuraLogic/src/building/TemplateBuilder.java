@@ -9,7 +9,6 @@ import constructs.template.metadata.PredicateMetadata;
 import constructs.template.metadata.WeightMetadata;
 import ida.utils.tuples.Pair;
 import networks.structure.Weight;
-import neuralogic.grammarParsing.ParseTree;
 import neuralogic.grammarParsing.PlainGrammarVisitor;
 import neuralogic.grammarParsing.PlainParseTree;
 import neuralogic.template.PlainTemplateParseTree;
@@ -83,8 +82,6 @@ public class TemplateBuilder extends LogicSourceBuilder<NeuralogicParser.Templat
         template.templateMetadata = null; //TODO add support for this in the template file
         template.predicatesMetadata = predicatesMetadata.stream().map(pair -> new Pair<>(pair.r, new PredicateMetadata(pair.s))).collect(Collectors.toList());
         template.weightsMetadata = weightsMetadata.stream().map(pair -> new Pair<>(pair.r, new WeightMetadata(pair.s))).collect(Collectors.toList());
-
-        template = postprocessTemplate(template);   //TODO turn this into a new inner template processing pipeline!!
 
         return template;
     }

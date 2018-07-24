@@ -1,7 +1,6 @@
 package pipeline;
 
 import ida.utils.tuples.Pair;
-import pipeline.prepared.full.TrainingPipeline;
 import settings.Settings;
 
 import java.io.IOException;
@@ -41,15 +40,14 @@ public class Pipeline<S, T> implements Consumer<List<S>>, Supplier<List<T>> {
     public Supplier<List<S>> input;
     public Consumer<List<T>> output;
 
+    public Pipeline(String id) {
+        this.ID = id;
+    }
+
     /**
      * List of points in the pipeline that need to be called externally, i.e. where streams are terminated.
      */
     //ConcurrentLinkedQueue<Executable> executionQueue;
-    @Deprecated
-    Pipeline buildFrom(Settings settings) {
-        //TODO build different pipeline based on settings
-        return new TrainingPipeline(settings);
-    }
 
     public List<Pair<String, T>> execute(S source) {
         //start the whole pipeline
@@ -63,7 +61,7 @@ public class Pipeline<S, T> implements Consumer<List<S>>, Supplier<List<T>> {
         return terminals.stream().map(term -> new Pair<>(term.ID, term.get())).collect(Collectors.toList());
     }
 
-    protected <I, O> Pipe<I, O> register(Pipe<I, O> p) {
+    public <I, O> Pipe<I, O> register(Pipe<I, O> p) {
         pipes.put(p.ID, p);
         return p;
     }
@@ -84,16 +82,23 @@ public class Pipeline<S, T> implements Consumer<List<S>>, Supplier<List<T>> {
         return p;
     }
 
-    @Deprecated
-    public <U> Pipeline<S, U> connectBehind(Pipeline<T, U> next) throws IOException {
-        if (this.terminals.size() != next.starts.size()){
+    public <U> Pipeline<S, U> connectAfter(Pipeline<T, U> next) throws IOException {
+        if (this.terminals.size() != next.starts.size()) {
             throw new IOException("Pipeline dimensions not matching!");
         }
         for (int i = 0; i < terminals.size(); i++) {
             terminals.get(i).output = next.starts.get(i);
         }
-        Pipeline pipeline = new Pipeline();
-        return null;//TODO
+        Pipeline<S, U> pipeline = new Pipeline(this.ID + "+" + next.ID);
+        pipeline.starts.addAll(this.starts);
+        pipeline.terminals.addAll(next.terminals);
+        pipeline.settings = this.settings; //TODO
+        pipeline.input = this.input;
+        pipeline.output = next.output;
+
+        pipeline.pipelines.put(this.ID, this);
+        pipeline.pipelines.put(next.ID, next);
+        return pipeline;
     }
 
     @Override

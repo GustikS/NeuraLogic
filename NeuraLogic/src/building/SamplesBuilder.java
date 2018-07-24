@@ -57,7 +57,7 @@ public class SamplesBuilder extends LogicSourceBuilder<NeuralogicParser.Examples
         PlainGrammarVisitor plainGrammarVisitor = new PlainGrammarVisitor(this);
         ExamplesParseTreeExtractor examplesParseTreeExtractor = new PlainExamplesParseTreeExtractor(plainGrammarVisitor);
         ExamplesBuilder examplesBuilder = new ExamplesBuilder();
-        Stream<GroundExample> groundExampleStream = examplesBuilder.buildFrom(examplesTree);
+        Stream<LiftedExample> groundExampleStream = examplesBuilder.buildFrom(examplesTree);
         QueriesBuilder queriesBuilder = new QueriesBuilder();
         Stream<Query> queryStream = queriesBuilder.buildFrom(queriesTree);
 

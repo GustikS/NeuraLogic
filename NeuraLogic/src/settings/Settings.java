@@ -30,6 +30,8 @@ public class Settings {
 
     //------------------Grounding
     public Grounder grounder;   //TODO vyhodit, nechat v Settings jen primitivni typy
+    public boolean onlineGrounding;
+
     /**
      * Type of grounder
      */
@@ -39,9 +41,8 @@ public class Settings {
         BUP, TDOWN
     }
 
-    //-----------------Global Learning Modes
+    //-----------------Structure Learning
     public boolean structureLearning;
-    public boolean onlineGrounding;
 
     //-----------------Source files
     /**
@@ -59,7 +60,7 @@ public class Settings {
 
     //----------------Crossvaldiation
 
-    public boolean crossvalidation = true;
+
     public int foldsCount = 5;
     public boolean stratification = true;
     public boolean exportFolds = true;
@@ -67,8 +68,8 @@ public class Settings {
 
 
     //----------------Template Transformations
+    public boolean processMetadata = true;
     public boolean reduceTemplate = true;
-
 
 
 
