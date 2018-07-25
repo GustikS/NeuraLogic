@@ -1,11 +1,11 @@
 package neuralogic.grammarParsing;
 
-import building.LogicSourceBuilder;
+import constructs.building.LogicSourceBuilder;
 
 public abstract class GrammarVisitor {
 
     /**
-     * LogicSourceBuilder creates basic logic building blocks (variables, predicates, contants) as the visitor walks the parse tree
+     * LogicSourceBuilder creates basic logic constructs.building blocks (variables, predicates, contants) as the visitor walks the parse tree
      */
     LogicSourceBuilder builder;
 

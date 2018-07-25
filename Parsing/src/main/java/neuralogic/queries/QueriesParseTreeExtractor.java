@@ -2,7 +2,7 @@ package neuralogic.queries;
 
 import com.sun.istack.internal.NotNull;
 import constructs.Conjunction;
-import constructs.template.Atom;
+import constructs.example.ValuedFact;
 import ida.utils.tuples.Pair;
 import neuralogic.grammarParsing.GrammarVisitor;
 import parsers.neuralogic.NeuralogicParser;
@@ -19,5 +19,5 @@ public abstract class QueriesParseTreeExtractor<T extends GrammarVisitor> {
 
     public abstract Stream<Conjunction> getQueries(@NotNull NeuralogicParser.QueriesFileContext ctx);
 
-    public abstract Stream<Pair<Atom, Conjunction>> getLabeledQueries(@NotNull NeuralogicParser.QueriesFileContext ctx);
+    public abstract Stream<Pair<ValuedFact, Conjunction>> getLabeledQueries(@NotNull NeuralogicParser.QueriesFileContext ctx);
 }

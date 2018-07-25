@@ -77,7 +77,7 @@ public class Pipeline<S, T> implements Consumer<List<S>>, Supplier<List<T>> {
         return m;
     }
 
-    protected <I, O> Pipeline<I, O> register(Pipeline<I, O> p) {
+    public <I, O> Pipeline<I, O> register(Pipeline<I, O> p) {
         pipelines.put(p.ID, p);
         return p;
     }

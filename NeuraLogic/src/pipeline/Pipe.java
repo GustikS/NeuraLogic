@@ -55,6 +55,16 @@ public abstract class Pipe<I, O> implements Function<I, O>, Consumer<I>, Supplie
         insert.input = this;
     }
 
+    public void connectAfter(Pipe<O,?> after){
+        this.output = after;
+        after.input = this;
+    }
+
+    public void connectBefore(Pipe<?,I> before){
+        this.input = before;
+        before.output = this;
+    }
+
     public O get() {
         if (outputReady == null) {
             LOG.severe("The result of pipe " + ID + " is requested but not yet calculated");

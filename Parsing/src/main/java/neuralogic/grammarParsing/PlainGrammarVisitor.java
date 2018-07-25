@@ -5,7 +5,7 @@ import constructs.Conjunction;
 import constructs.WeightedPredicate;
 import constructs.example.LiftedExample;
 import constructs.example.ValuedFact;
-import constructs.factories.VariableFactory;
+import constructs.building.factories.VariableFactory;
 import constructs.template.Atom;
 import constructs.template.BodyAtom;
 import constructs.template.WeightedRule;
@@ -19,7 +19,7 @@ import networks.evaluation.values.VectorValue;
 import networks.structure.Weight;
 import parsers.neuralogic.NeuralogicBaseVisitor;
 import parsers.neuralogic.NeuralogicParser;
-import building.LogicSourceBuilder;
+import constructs.building.LogicSourceBuilder;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -222,7 +222,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
                 LOG.severe("Value is neither number nor vector: Could not parse numeric value from " + ctx.getText());
             }
             if (value == null) {
-                LOG.severe("Error during building numeric value from " + ctx.getText());
+                LOG.severe("Error during constructs.building numeric value from " + ctx.getText());
             }
             return value;
         }

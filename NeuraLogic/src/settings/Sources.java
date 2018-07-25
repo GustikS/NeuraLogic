@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  * <p>
  * Created by gusta on 26.3.17.
  */
-public abstract class Sources {
+public abstract class Sources { //TODO split this class to carry 2 separate Source objects (train a test) (?)
 
     private static final Logger LOG = Logger.getLogger(Sources.class.getName());
 

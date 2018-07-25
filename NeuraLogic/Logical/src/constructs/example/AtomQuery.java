@@ -11,9 +11,9 @@ import networks.evaluation.values.Value;
  */
 public class AtomQuery implements Query {
     Atom query;
-    GroundExample evidence;
+    LiftedExample evidence;
 
-    public AtomQuery(Atom query, GroundExample evidence){
+    public AtomQuery(Atom query, LiftedExample evidence){
         this.query = query;
         this.evidence = evidence;
     }

@@ -13,5 +13,6 @@ public class Results {
 
     public String toString(){
         //TODO override intelligently in subclasses
+        return null;
     }
 }

@@ -1,7 +1,7 @@
 package pipeline.prepared.full;
 
-import building.SamplesBuilder;
-import building.TemplateBuilder;
+import constructs.building.SamplesBuilder;
+import constructs.building.TemplateBuilder;
 import com.sun.istack.internal.NotNull;
 import constructs.example.LiftedExample;
 import constructs.template.Template;

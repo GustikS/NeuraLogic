@@ -92,6 +92,9 @@ public class SourceFiles extends Sources {
     private SourceFiles setupFromDir(Settings settings, CommandLine cmd, File foldDir) {
         try {
             if ((this.template = Paths.get(foldDir.toString(), cmd.getOptionValue("template", settings.templateFile)).toFile()).exists()) {
+                if (parent.templateReader != null){
+                    LOG.warning("Inconsistent setting - there are templates both in parent folder and fold folder (don't know which one to use)");
+                }
                 this.templateReader = new FileReader(this.template);
             } else {
                 // if no template is provided in current folder, take the one from the parent folder

@@ -1,4 +1,4 @@
-package constructs.factories;
+package constructs.building.factories;
 
 import constructs.WeightedPredicate;
 import ida.utils.tuples.Pair;

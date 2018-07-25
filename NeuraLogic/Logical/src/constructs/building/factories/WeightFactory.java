@@ -1,4 +1,4 @@
-package constructs.factories;
+package constructs.building.factories;
 
 import networks.evaluation.values.Value;
 import networks.structure.Weight;

@@ -2,7 +2,6 @@ package neuralogic.queries;
 
 import constructs.Conjunction;
 import constructs.example.ValuedFact;
-import constructs.template.Atom;
 import ida.utils.tuples.Pair;
 import neuralogic.grammarParsing.PlainGrammarVisitor;
 import parsers.neuralogic.NeuralogicParser;
@@ -31,7 +30,7 @@ public class PlainQueriesParseTreeExtractor extends QueriesParseTreeExtractor<Pl
     }
 
     @Override
-    public Stream<Pair<Atom, Conjunction>> getLabeledQueries(NeuralogicParser.QueriesFileContext ctx) {
+    public Stream<Pair<ValuedFact, Conjunction>> getLabeledQueries(NeuralogicParser.QueriesFileContext ctx) {
         PlainGrammarVisitor.FactVisitor factVisitor = visitor.new FactVisitor();
         PlainGrammarVisitor.FactConjunctionVisitor factConjunctionVisitor = visitor.new FactConjunctionVisitor();
         if (ctx.atom() != null) {

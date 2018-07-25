@@ -1,16 +1,18 @@
 package pipeline.bulding.pipes;
 
-import building.TemplateBuilder;
+import constructs.building.TemplateBuilder;
 import constructs.template.Template;
 import constructs.template.transforming.MetadataProcessor;
 import constructs.template.transforming.TemplateReducing;
 import pipeline.Pipe;
+import pipeline.Pipeline;
+import pipeline.bulding.AbstractPipelineBuilder;
 import settings.Settings;
 import settings.Sources;
 
 import java.util.logging.Logger;
 
-public class TemplateProcessor {
+public class TemplateProcessor extends AbstractPipelineBuilder<Sources, Template> {
     private static final Logger LOG = Logger.getLogger(TemplateProcessor.class.getName());
     private final Settings settings;
 
@@ -20,8 +22,23 @@ public class TemplateProcessor {
     TemplateReducing templateReducer;
 
     public TemplateProcessor(Settings settings) {
+        super(settings);
         this.settings = settings;
         templateBuilder = new TemplateBuilder(settings);
+    }
+
+    @Override
+    public Pipeline<Sources, Template> buildPipeline(Sources sources) {
+        Pipeline<Sources, Template> templateProcessingPipeline = new Pipeline<>("TemplateProcessingPipeline");
+        if (sources.templateProvided) {
+            Pipe<Sources, Template> sourcesTemplatePipe = templateProcessingPipeline.register(extractTemplate(sources));
+            Pipe<Template, Template> templateTemplatePipe = templateProcessingPipeline.register(postProcessTemplate());
+            sourcesTemplatePipe.connectAfter(templateTemplatePipe);
+            return templateProcessingPipeline;
+        } else {
+            LOG.warning("Template extraction from sources requested but no template provided.");
+            return null;
+        }
     }
 
     public Pipe<Sources, Template> extractTemplate(Sources sources) {
