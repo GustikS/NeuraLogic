@@ -3,7 +3,7 @@ package pipeline.prepared.full;
 import constructs.template.Template;
 import ida.utils.tuples.Pair;
 import learning.Example;
-import learning.LearningSample;
+import constructs.example.LogicSample;
 import learning.Query;
 import pipeline.Pipeline;
 import settings.Settings;
@@ -24,7 +24,7 @@ public class StandardLearningPipeline extends Pipeline {
     @Override
     public void execute(Settings settings) {
         {
-            Pair<Optional<Template>, Stream<LearningSample>> resources = initLearningPipeline(settings);
+            Pair<Optional<Template>, Stream<LogicSample>> resources = initLearningPipeline(settings);
         }
     }
 
@@ -34,9 +34,9 @@ public class StandardLearningPipeline extends Pipeline {
 
 
 
-    public Pair<Optional<Template>, Stream<LearningSample>> initLearningPipeline(Settings settings) {
+    public Pair<Optional<Template>, Stream<LogicSample>> initLearningPipeline(Settings settings) {
 
-        Stream<LearningSample> samples = settings.sources.queriesPath == null ? streamLearningSamples(settings.sources.examplesFileReader, settings)
+        Stream<LogicSample> samples = settings.sources.queriesPath == null ? streamLearningSamples(settings.sources.examplesFileReader, settings)
                 : streamLearningSamples(settings.sources.examplesFileReader, settings.sources.queriesFileReader, settings);
 
         Optional<Template> template = null;
@@ -55,7 +55,7 @@ public class StandardLearningPipeline extends Pipeline {
         return template;
     }
 
-    private Stream<LearningSample> streamLearningSamples(FileReader examplesPath, Settings settings) {
+    private Stream<LogicSample> streamLearningSamples(FileReader examplesPath, Settings settings) {
     }
 
     /**
@@ -66,7 +66,7 @@ public class StandardLearningPipeline extends Pipeline {
      * @param settings
      * @return
      */
-    Stream<LearningSample> streamLearningSamples(FileReader examplesPath, FileReader queriesPath, Settings settings) {
+    Stream<LogicSample> streamLearningSamples(FileReader examplesPath, FileReader queriesPath, Settings settings) {
 
         Stream<Example> exampleStream = settings.sources.ep.parseExamples(examplesPath);
         Stream<List<Query>> queryStream = null;
@@ -75,15 +75,15 @@ public class StandardLearningPipeline extends Pipeline {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Stream<LearningSample> zipStream = Utilities.zipStreams(exampleStream, queryStream, (example, queries) -> mergeQueriesWithExample(example, queries)).flatMap(Collection::stream);
+        Stream<LogicSample> zipStream = Utilities.zipStreams(exampleStream, queryStream, (example, queries) -> mergeQueriesWithExample(example, queries)).flatMap(Collection::stream);
 
         return zipStream;
     }
 
-    private List<LearningSample> mergeQueriesWithExample(Example example, List<Query> queries) {
-        List<LearningSample> list = new ArrayList<>();
+    private List<LogicSample> mergeQueriesWithExample(Example example, List<Query> queries) {
+        List<LogicSample> list = new ArrayList<>();
         for (Query query : queries) {
-            list.add(new LearningSample(query, example));
+            list.add(new LogicSample(query, example));
         }
         return list;
     }

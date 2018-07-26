@@ -1,9 +1,10 @@
 package networks.structure.lrnnTypes;
 
-import constructs.template.Template;
 import learning.Example;
+import learning.Model;
 import learning.Query;
 import networks.evaluation.values.Value;
+import networks.structure.NeuralNetwork;
 import networks.structure.Neuron;
 
 /**
@@ -11,9 +12,11 @@ import networks.structure.Neuron;
  */
 public class QueryNeuron extends Neuron implements Query{
 
+    NeuralNetwork context;
+
     @Override
     public Example getEvidence() {
-        return null;
+        return context;
     }
 
     @Override
@@ -22,7 +25,7 @@ public class QueryNeuron extends Neuron implements Query{
     }
 
     @Override
-    public Value evaluate(Template template) {
+    public Value evaluate(Model template) {
         return null;
     }
 

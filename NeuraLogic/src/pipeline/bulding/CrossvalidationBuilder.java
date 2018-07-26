@@ -1,6 +1,6 @@
 package pipeline.bulding;
 
-import learning.LearningSample;
+import constructs.example.LogicSample;
 import pipeline.MultiBranch;
 import pipeline.Pipeline;
 import pipeline.bulding.pipes.SamplesProcessor;
@@ -27,10 +27,10 @@ public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Res
         if (sources.foldFiles) {
             //load external folds sources.folds, perfrom crossvalidation
 
-            MultiBranch<List<Sources>, Stream<LearningSample>> crossvalTrainBranch;
-            crossvalTrainBranch = new MultiBranch<List<Sources>, Stream<LearningSample>>(ExternalTrainingCrossvalSplit) {
+            MultiBranch<List<Sources>, Stream<LogicSample>> crossvalTrainBranch;
+            crossvalTrainBranch = new MultiBranch<List<Sources>, Stream<LogicSample>>(ExternalTrainingCrossvalSplit) {
                 @Override
-                public Stream<Stream<LearningSample>> apply(List<Sources> sources) {
+                public Stream<Stream<LogicSample>> apply(List<Sources> sources) {
 
 
                 }

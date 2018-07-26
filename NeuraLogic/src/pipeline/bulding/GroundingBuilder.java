@@ -2,7 +2,7 @@ package pipeline.bulding;
 
 import constructs.template.Template;
 import ida.utils.tuples.Pair;
-import learning.LearningSample;
+import constructs.example.LogicSample;
 import pipeline.Pipeline;
 import settings.Settings;
 import training.NeuralSample;
@@ -10,7 +10,7 @@ import training.NeuralSample;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Stream<LearningSample>,Template>,Stream<NeuralSample>> {
+public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Stream<LogicSample>,Template>,Stream<NeuralSample>> {
     private static final Logger LOG = Logger.getLogger(GroundingBuilder.class.getName());
 
     public GroundingBuilder(Settings settings) {
@@ -18,7 +18,7 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Stream<Learni
     }
 
     @Override
-    public Pipeline<Pair<Stream<LearningSample>, Template>, Stream<NeuralSample>> buildPipeline(Pair<Stream<LearningSample>, Template> sourceType) {
+    public Pipeline<Pair<Stream<LogicSample>, Template>, Stream<NeuralSample>> buildPipeline(Pair<Stream<LogicSample>, Template> sourceType) {
         return null;
     }
 }

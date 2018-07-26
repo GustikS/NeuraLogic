@@ -8,7 +8,7 @@ import constructs.template.Template;
 import grounding.Grounder;
 import grounding.bottomUp.BottomUp;
 import ida.utils.tuples.Pair;
-import learning.LearningSample;
+import constructs.example.LogicSample;
 import neuralogic.examples.PlainExamplesParseTree;
 import neuralogic.examples.PlainExamplesParseTreeExtractor;
 import neuralogic.queries.PlainQueriesParseTree;
@@ -75,11 +75,11 @@ public class TrainingPipeline extends Pipeline<Sources, Results> {
         })
 
 
-        Merge<PlainExamplesParseTree, PlainQueriesParseTree, Stream<LearningSample>> samplesMerge;
-        samplesBranch.output2 = register(samplesMerge = new Pipe<PlainQueriesParseTree, Stream<LearningSample>>("QueriesProcessingPipe") {
+        Merge<PlainExamplesParseTree, PlainQueriesParseTree, Stream<LogicSample>> samplesMerge;
+        samplesBranch.output2 = register(samplesMerge = new Pipe<PlainQueriesParseTree, Stream<LogicSample>>("QueriesProcessingPipe") {
 
             @Override
-            public Stream<LearningSample> apply(PlainQueriesParseTree plainQueriesParseTree) {
+            public Stream<LogicSample> apply(PlainQueriesParseTree plainQueriesParseTree) {
                 SamplesBuilder learningSamplesBuilder = new SamplesBuilder(settings);
                 //learningSamplesBuilder.buildFrom();
                 //TODO create trainQueries/trainExamples
@@ -87,10 +87,10 @@ public class TrainingPipeline extends Pipeline<Sources, Results> {
             }
         });
 
-        Merge<Stream<LearningSample>, Template, Pair<Template, Stream<LearningSample>>> mergeGround =
-                register(new Merge<Stream<LearningSample>, Template, Pair<Template, Stream<LearningSample>>>("MergingGrounding") {
+        Merge<Stream<LogicSample>, Template, Pair<Template, Stream<LogicSample>>> mergeGround =
+                register(new Merge<Stream<LogicSample>, Template, Pair<Template, Stream<LogicSample>>>("MergingGrounding") {
                     @Override
-                    protected Pair<Template, Stream<LearningSample>> merge(Stream<LearningSample> input1, Template input2) {
+                    protected Pair<Template, Stream<LogicSample>> merge(Stream<LogicSample> input1, Template input2) {
                         Grounder grounder = new BottomUp();
                         //TODO ground
                         return null;
@@ -102,10 +102,10 @@ public class TrainingPipeline extends Pipeline<Sources, Results> {
         queriesProcessingPipe.output = mergeGround;
         templateBuildingPipe.output = mergeGround;
 
-        Pipe<Pair<Template, Stream<LearningSample>>, Results> trainingPipe;
-        mergeGround.output = register(trainingPipe = new Pipe<Pair<Template, Stream<LearningSample>>, Results>("TrainingPipe") {
+        Pipe<Pair<Template, Stream<LogicSample>>, Results> trainingPipe;
+        mergeGround.output = register(trainingPipe = new Pipe<Pair<Template, Stream<LogicSample>>, Results>("TrainingPipe") {
             @Override
-            public Results apply(Pair<Template, Stream<LearningSample>> templateStreamPair) {
+            public Results apply(Pair<Template, Stream<LogicSample>> templateStreamPair) {
                 //TODO train
                 return null;
             }

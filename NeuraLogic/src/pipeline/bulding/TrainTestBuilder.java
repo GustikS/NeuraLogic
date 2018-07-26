@@ -1,6 +1,6 @@
 package pipeline.bulding;
 
-import learning.LearningSample;
+import constructs.example.LogicSample;
 import learning.crossvalidation.TrainTestResults;
 import pipeline.Pipe;
 import pipeline.Pipeline;
@@ -25,12 +25,12 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
     public Pipeline<Sources, TrainTestResults> buildPipeline(Sources sources) {
         Pipeline<Sources, TrainTestResults> pipeline = new Pipeline<>("TrainTestPipeline");
         SamplesProcessor samplesExtractor = new SamplesProcessor(settings);
-        Pipe<Sources, Stream<LearningSample>> trainingSamplesPipe = samplesExtractor.extractTrainingSamplesPipe(sources);
+        Pipe<Sources, Stream<LogicSample>> trainingSamplesPipe = samplesExtractor.extractTrainingSamplesPipe(sources);
         pipeline.register(trainingSamplesPipe);
 
         learningBuilder.buildPipeline()
 
-        Pipe<Sources, Stream<LearningSample>> testingSamplesPipe = samplesExtractor.extractTestingSamplesPipe(sources);
+        Pipe<Sources, Stream<LogicSample>> testingSamplesPipe = samplesExtractor.extractTestingSamplesPipe(sources);
         pipeline.register(testingSamplesPipe);
 
     }

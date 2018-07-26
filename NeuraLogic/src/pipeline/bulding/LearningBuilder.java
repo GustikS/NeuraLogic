@@ -2,7 +2,7 @@ package pipeline.bulding;
 
 import constructs.template.Template;
 import ida.utils.tuples.Pair;
-import learning.LearningSample;
+import constructs.example.LogicSample;
 import pipeline.Pipeline;
 import settings.Settings;
 import training.results.Results;
@@ -18,26 +18,26 @@ public class LearningBuilder {
         this.settings = settings;
     }
 
-    public class NormalLearningBuilder extends AbstractPipelineBuilder<Pair<Template, Stream<LearningSample>>,Pair<Template,Results>> {
+    public class NormalLearningBuilder extends AbstractPipelineBuilder<Pair<Template, Stream<LogicSample>>,Pair<Template,Results>> {
 
         public NormalLearningBuilder(Settings settings) {
             super(settings);
         }
 
         @Override
-        public Pipeline<Pair<Template, Stream<LearningSample>>, Pair<Template, Results>> buildPipeline(Pair<Template, Stream<LearningSample>> sourceType) {
+        public Pipeline<Pair<Template, Stream<LogicSample>>, Pair<Template, Results>> buildPipeline(Pair<Template, Stream<LogicSample>> sourceType) {
             GroundingBuilder groundingBuilder = new GroundingBuilder(settings);
         }
     }
 
-    public class StructureLearningBuilder extends AbstractPipelineBuilder<Stream<LearningSample>,Pair<Template,Results>> {
+    public class StructureLearningBuilder extends AbstractPipelineBuilder<Stream<LogicSample>,Pair<Template,Results>> {
 
         public StructureLearningBuilder(Settings settings) {
             super(settings);
         }
 
         @Override
-        public Pipeline<Stream<LearningSample>, Pair<Template, Results>> buildPipeline(Stream<LearningSample> sourceType) {
+        public Pipeline<Stream<LogicSample>, Pair<Template, Results>> buildPipeline(Stream<LogicSample> sourceType) {
             return null;
         }
     }

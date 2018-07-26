@@ -2,20 +2,15 @@ package learning;
 
 import networks.evaluation.values.Value;
 
-/**
- * Represents highest level abstraction for supervised learning methods.
- *
- * Created by gusta on 8.3.17.
- */
-public class LearningSample {
-    double importance;
-    Query query;
-    Value target;
+public interface LearningSample {
+    //TODO should learning samples contain reference to Model?
 
-    public LearningSample(Query q, Value v){
+    Double getImportance();
+    String getId();
+    Value getTarget();
+    Query getQuery();
 
-    }
-
-    public LearningSample(Query query, Example example) {
+    default Value getValue(Model model) {
+        return getQuery().evaluate(model);
     }
 }

@@ -5,4 +5,5 @@ package learning;
  */
 public interface Example {
     String getId();
+    Integer getSize();
 }

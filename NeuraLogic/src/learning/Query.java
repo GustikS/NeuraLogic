@@ -1,6 +1,5 @@
 package learning;
 
-import constructs.template.Template;
 import networks.evaluation.values.Value;
 
 /**
@@ -11,7 +10,7 @@ import networks.evaluation.values.Value;
  */
 public interface Query {
     /**
-     * Returns a particular example that this query corresponds to
+     * Returns a particular example (logic clauses OR neural network) that this query corresponds to
      * @return
      */
     Example getEvidence();
@@ -22,8 +21,8 @@ public interface Query {
     String getId();
 
     /**
-     * Return an evaluate result of this query, this might be boolean (for logical query) or any numerical value
+     * Return an getValue result of this query, this might be boolean (for logical query) or any numerical value
      * @return
      */
-    Value evaluate(Template template);
+    Value evaluate(Model model);
 }

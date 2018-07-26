@@ -5,7 +5,7 @@ import constructs.template.Template;
 import grounding.Grounder;
 import grounding.bottomUp.BottomUp;
 import ida.utils.tuples.Pair;
-import learning.LearningSample;
+import constructs.example.LogicSample;
 import neuralogic.queries.PlainQueriesParseTree;
 import neuralogic.template.PlainTemplateParseTree;
 import neuralogic.template.TemplateParseTreeExtractor;
@@ -53,11 +53,11 @@ public class SelfCrossvalPipeline extends Pipeline<Sources, Results> {
             }
         });
 
-        Pipe<PlainQueriesParseTree, Stream<LearningSample>> queriesProcessingPipe;
-        sourceBrach.output2 = register(queriesProcessingPipe = new Pipe<PlainQueriesParseTree, Stream<LearningSample>>("QueriesProcessingPipe") {
+        Pipe<PlainQueriesParseTree, Stream<LogicSample>> queriesProcessingPipe;
+        sourceBrach.output2 = register(queriesProcessingPipe = new Pipe<PlainQueriesParseTree, Stream<LogicSample>>("QueriesProcessingPipe") {
 
             @Override
-            public Stream<LearningSample> apply(PlainQueriesParseTree plainQueriesParseTree) {
+            public Stream<LogicSample> apply(PlainQueriesParseTree plainQueriesParseTree) {
                 SamplesBuilder learningSamplesBuilder = new SamplesBuilder(settings);
                 //learningSamplesBuilder.buildFrom();
                 //TODO create trainQueries/trainExamples
@@ -65,28 +65,28 @@ public class SelfCrossvalPipeline extends Pipeline<Sources, Results> {
             }
         });
 
-        MultiBranch<Stream<LearningSample>, Stream<LearningSample>> crossvalBranch;
-        queriesProcessingPipe.output = register(crossvalBranch = new MultiBranch<Stream<LearningSample>, Stream<LearningSample>>("CrossvalBranch") {
+        MultiBranch<Stream<LogicSample>, Stream<LogicSample>> crossvalBranch;
+        queriesProcessingPipe.output = register(crossvalBranch = new MultiBranch<Stream<LogicSample>, Stream<LogicSample>>("CrossvalBranch") {
 
             @Override
-            public Stream<Stream<LearningSample>> apply(Stream<LearningSample> learningSampleStream) {
-                List<LearningSample> originalList = learningSampleStream.collect(Collectors.toList());
+            public Stream<Stream<LogicSample>> apply(Stream<LogicSample> learningSampleStream) {
+                List<LogicSample> originalList = learningSampleStream.collect(Collectors.toList());
                 int partitionSize = settings.foldsCount;
-                List<Stream<LearningSample>> partitions = new LinkedList<>();
+                List<Stream<LogicSample>> partitions = new LinkedList<>();
                 for (int i = 0; i < originalList.size(); i += partitionSize) {
                     partitions.add(originalList.subList(i, Math.min(i + partitionSize, originalList.size())).stream());
                 }
-                Stream<Stream<LearningSample>> stream = partitions.stream();
+                Stream<Stream<LogicSample>> stream = partitions.stream();
                 return stream;
             }
         });
 
-        Merge<Stream<Stream<LearningSample>>, Template, Pair<Stream<Stream<LearningSample>>, Template>> mergeGround =
-                register(new Merge<Stream<Stream<LearningSample>>, Template, Pair<Stream<Stream<LearningSample>>, Template>>("MergingGrounding") {
+        Merge<Stream<Stream<LogicSample>>, Template, Pair<Stream<Stream<LogicSample>>, Template>> mergeGround =
+                register(new Merge<Stream<Stream<LogicSample>>, Template, Pair<Stream<Stream<LogicSample>>, Template>>("MergingGrounding") {
                     @Override
-                    protected Pair<Stream<Stream<LearningSample>>, Template> merge(Stream<Stream<LearningSample>> sampleFolds, Template template) {
+                    protected Pair<Stream<Stream<LogicSample>>, Template> merge(Stream<Stream<LogicSample>> sampleFolds, Template template) {
                         Grounder grounder = new BottomUp();
-                        Stream<Stream<LearningSample>> streamStream = sampleFolds.map(fold -> fold.map(sample -> grounder.ground(sample, template)));
+                        Stream<Stream<LogicSample>> streamStream = sampleFolds.map(fold -> fold.map(sample -> grounder.ground(sample, template)));
                         return new Pair<>(streamStream, template);
                     }
                 });
@@ -96,10 +96,10 @@ public class SelfCrossvalPipeline extends Pipeline<Sources, Results> {
         queriesProcessingPipe.output = mergeGround;
         templateProcessingPipe.output = mergeGround;
 
-        Pipe<Pair<Stream<Stream<LearningSample>>, Template>, Results> trainingPipe;
-        mergeGround.output = register(trainingPipe = new Pipe<Pair<Stream<Stream<LearningSample>>,Template>, Results>("TrainingPipe") {
+        Pipe<Pair<Stream<Stream<LogicSample>>, Template>, Results> trainingPipe;
+        mergeGround.output = register(trainingPipe = new Pipe<Pair<Stream<Stream<LogicSample>>,Template>, Results>("TrainingPipe") {
             @Override
-            public Results apply(Pair<Stream<Stream<LearningSample>>, Template> streamTemplatePair) {
+            public Results apply(Pair<Stream<Stream<LogicSample>>, Template> streamTemplatePair) {
                 return null;
             }
         });

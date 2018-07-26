@@ -3,6 +3,9 @@ package constructs.template;
 import constructs.Conjunction;
 import constructs.example.ValuedFact;
 import constructs.template.templates.ParsedTemplate;
+import learning.Model;
+import learning.Query;
+import networks.evaluation.values.Value;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -10,7 +13,7 @@ import java.util.List;
 /**
  * Created by Gusta on 04.10.2016.
  */
-public class Template extends ParsedTemplate {
+public class Template extends ParsedTemplate implements Model {
     public LinkedHashSet<WeightedRule> rules;
     public LinkedHashSet<ValuedFact> facts;
     public LinkedHashSet<Conjunction> constraints;
@@ -27,4 +30,8 @@ public class Template extends ParsedTemplate {
         this.constraints = new LinkedHashSet<>(constr);
     }
 
+    @Override
+    public <T extends Query> Value evaluate(T query) {
+        return null;
+    }
 }

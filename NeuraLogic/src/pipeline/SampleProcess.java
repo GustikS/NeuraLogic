@@ -1,6 +1,6 @@
 package pipeline;
 
-import learning.LearningSample;
+import constructs.example.LogicSample;
 
 import java.util.Collection;
 import java.util.stream.Stream;
@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 
 @FunctionalInterface
 @Deprecated
-public interface SampleProcess<T extends LearningSample> {
+public interface SampleProcess<T extends LogicSample> {
     Stream<T> process(Stream<T> input);
 
     default Stream<T> process(Collection<T> input) {

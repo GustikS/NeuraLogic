@@ -2,7 +2,7 @@ package pipeline.bulding;
 
 import constructs.template.Template;
 import ida.utils.tuples.Pair;
-import learning.LearningSample;
+import constructs.example.LogicSample;
 import learning.crossvalidation.TrainTestResults;
 import pipeline.Pipeline;
 import pipeline.bulding.pipes.SamplesProcessor;
@@ -37,11 +37,11 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
             Pipeline<Sources, TrainTestResults> pipeline = trainTestBuilder.buildPipeline(sources);
         } else if (sources.trainOnly) {
             SamplesProcessor.TrainingSamplesProcessor trainingSamplesProcessor = (new SamplesProcessor(settings)).new TrainingSamplesProcessor(settings);
-            Pipeline<Sources, Stream<LearningSample>> sourcesStreamPipeline = trainingSamplesProcessor.buildPipeline(sources);
+            Pipeline<Sources, Stream<LogicSample>> sourcesStreamPipeline = trainingSamplesProcessor.buildPipeline(sources);
             TemplateProcessor templateProcessor = new TemplateProcessor(settings);
             Pipeline<Sources, Template> sourcesTemplatePipeline = templateProcessor.buildPipeline(sources);
             LearningBuilder learningBuilder = new LearningBuilder(settings);
-            Pipeline<Pair<Template, Stream<LearningSample>>, Pair<Template, Results>> trainingPipeline = learningBuilder.buildPipeline(sources);
+            Pipeline<Pair<Template, Stream<LogicSample>>, Pair<Template, Results>> trainingPipeline = learningBuilder.buildPipeline(sources);
 
         } else if (sources.testOnly) {
             TestingBuilder testingBuilder = new TestingBuilder(settings);

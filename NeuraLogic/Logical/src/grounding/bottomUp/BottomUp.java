@@ -1,7 +1,7 @@
 package grounding.bottomUp;
 
 import grounding.Grounder;
-import learning.LearningSample;
+import constructs.example.LogicSample;
 
 import java.util.stream.Stream;
 
@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 public class BottomUp extends Grounder {
 
     @Override
-    public Stream<LearningSample> process(Stream<LearningSample> input) {
+    public Stream<LogicSample> process(Stream<LogicSample> input) {
         return null;
     }
 }

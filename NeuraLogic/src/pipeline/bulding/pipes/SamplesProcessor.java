@@ -2,7 +2,7 @@ package pipeline.bulding.pipes;
 
 import constructs.building.SamplesBuilder;
 import constructs.example.LiftedExample;
-import learning.LearningSample;
+import constructs.example.LogicSample;
 import learning.Query;
 import pipeline.Pipe;
 import pipeline.Pipeline;
@@ -24,7 +24,7 @@ public class SamplesProcessor {
         samplesBuilder = new constructs.building.SamplesBuilder(settings);
     }
 
-    public class TrainingSamplesProcessor extends AbstractPipelineBuilder<Sources, Stream<LearningSample>> {
+    public class TrainingSamplesProcessor extends AbstractPipelineBuilder<Sources, Stream<LogicSample>> {
 
 
         public TrainingSamplesProcessor(Settings settings) {
@@ -39,10 +39,10 @@ public class SamplesProcessor {
             return null;
         }
 
-        public Pipe<Sources, Stream<LearningSample>> extractTrainingSamplesPipe(Sources sources) {
-            Pipe<Sources, Stream<LearningSample>> pipe = new Pipe<Sources, Stream<LearningSample>>("TrainingSamplesExtractionPipe") {
+        public Pipe<Sources, Stream<LogicSample>> extractTrainingSamplesPipe(Sources sources) {
+            Pipe<Sources, Stream<LogicSample>> pipe = new Pipe<Sources, Stream<LogicSample>>("TrainingSamplesExtractionPipe") {
                 @Override
-                public Stream<LearningSample> apply(Sources sources) {
+                public Stream<LogicSample> apply(Sources sources) {
                     if (sources.trainQueriesSeparate) {
                         return samplesBuilder.buildFrom(sources.trainExamplesParseTree, sources.trainQueriesParseTree);
                     } else if (sources.trainQueriesProvided) {
@@ -57,11 +57,11 @@ public class SamplesProcessor {
         }
 
         @Override
-        public Pipeline<Sources, Stream<LearningSample>> buildPipeline(Sources sources) {
-            Pipeline<Sources, Stream<LearningSample>> samplesProcessingPipeline = new Pipeline<>("TrainingSamplesProcessingPipeline");
+        public Pipeline<Sources, Stream<LogicSample>> buildPipeline(Sources sources) {
+            Pipeline<Sources, Stream<LogicSample>> samplesProcessingPipeline = new Pipeline<>("TrainingSamplesProcessingPipeline");
             if (sources.trainQueriesProvided) {
-                Pipe<Sources, Stream<LearningSample>> sourcesSamplesPipe = samplesProcessingPipeline.register(extractTrainingSamplesPipe(sources));
-                Pipe<Stream<LearningSample>, Stream<LearningSample>> samplesPostprocessPipe = samplesProcessingPipeline.register(postprocessSamples());
+                Pipe<Sources, Stream<LogicSample>> sourcesSamplesPipe = samplesProcessingPipeline.register(extractTrainingSamplesPipe(sources));
+                Pipe<Stream<LogicSample>, Stream<LogicSample>> samplesPostprocessPipe = samplesProcessingPipeline.register(postprocessSamples());
                 sourcesSamplesPipe.connectAfter(samplesPostprocessPipe);
                 return samplesProcessingPipeline;
             } else {
@@ -71,7 +71,7 @@ public class SamplesProcessor {
         }
     }
 
-    public class TestingSamplesProcessor extends AbstractPipelineBuilder<Sources, Stream<LearningSample>> {
+    public class TestingSamplesProcessor extends AbstractPipelineBuilder<Sources, Stream<LogicSample>> {
 
         public TestingSamplesProcessor(Settings settings) {
             super(settings);
@@ -85,10 +85,10 @@ public class SamplesProcessor {
             return null;
         }
 
-        public Pipe<Sources, Stream<LearningSample>> extractTestingSamplesPipe(Sources sources) {
-            Pipe<Sources, Stream<LearningSample>> pipe = new Pipe<Sources, Stream<LearningSample>>("TrainingSamplesExtractionPipe") {
+        public Pipe<Sources, Stream<LogicSample>> extractTestingSamplesPipe(Sources sources) {
+            Pipe<Sources, Stream<LogicSample>> pipe = new Pipe<Sources, Stream<LogicSample>>("TrainingSamplesExtractionPipe") {
                 @Override
-                public Stream<LearningSample> apply(Sources sources) {
+                public Stream<LogicSample> apply(Sources sources) {
                     if (sources.testQueriesSeparate) {
                         return samplesBuilder.buildFrom(sources.testExamplesParseTree, sources.testQueriesParseTree);
                     } else if (sources.trainQueriesProvided) {
@@ -103,11 +103,11 @@ public class SamplesProcessor {
         }
 
         @Override
-        public Pipeline<Sources, Stream<LearningSample>> buildPipeline(Sources sources) {
-            Pipeline<Sources, Stream<LearningSample>> samplesProcessingPipeline = new Pipeline<>("TestingSamplesProcessingPipeline");
+        public Pipeline<Sources, Stream<LogicSample>> buildPipeline(Sources sources) {
+            Pipeline<Sources, Stream<LogicSample>> samplesProcessingPipeline = new Pipeline<>("TestingSamplesProcessingPipeline");
             if (sources.testQueriesProvided) {
-                Pipe<Sources, Stream<LearningSample>> sourcesSamplesPipe = samplesProcessingPipeline.register(extractTestingSamplesPipe(sources));
-                Pipe<Stream<LearningSample>, Stream<LearningSample>> samplesPostprocessPipe = samplesProcessingPipeline.register(postprocessSamples());
+                Pipe<Sources, Stream<LogicSample>> sourcesSamplesPipe = samplesProcessingPipeline.register(extractTestingSamplesPipe(sources));
+                Pipe<Stream<LogicSample>, Stream<LogicSample>> samplesPostprocessPipe = samplesProcessingPipeline.register(postprocessSamples());
                 sourcesSamplesPipe.connectAfter(samplesPostprocessPipe);
                 return samplesProcessingPipeline;
             } else {
@@ -117,7 +117,7 @@ public class SamplesProcessor {
         }
     }
 
-    public Pipe<Stream<LearningSample>, Stream<LearningSample>> postprocessSamples() {
+    public Pipe<Stream<LogicSample>, Stream<LogicSample>> postprocessSamples() {
         //TODO
         return null;
     }

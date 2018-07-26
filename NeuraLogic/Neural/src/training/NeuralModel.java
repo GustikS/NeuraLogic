@@ -1,5 +1,8 @@
 package training;
 
+import learning.Model;
+import learning.Query;
+import networks.evaluation.values.Value;
 import networks.structure.Weight;
 
 import java.io.Reader;
@@ -9,7 +12,7 @@ import java.util.Map;
 /**
  * Created by gusta on 8.3.17.
  */
-public class NeuralModel {
+public class NeuralModel implements Model {
     List<Weight> weights;
 
     public  NeuralModel(List<Weight> weights){
@@ -40,5 +43,10 @@ public class NeuralModel {
      */
     public void importWeights(Reader tensorflow, Map<String, Weight> mapping){
 
+    }
+
+    @Override
+    public <T extends Query> Value evaluate(T query) {
+        return null;
     }
 }
