@@ -3,12 +3,12 @@ package constructs.example;
 import constructs.template.Atom;
 import constructs.template.Template;
 import ida.utils.tuples.Pair;
-import learning.Example;
 import learning.Query;
 import networks.evaluation.functions.Activation;
 import networks.evaluation.values.Value;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by gusta on 13.3.17.
@@ -24,7 +24,7 @@ public class CompositeQuery implements Query{
     Activation activationFcn;
 
     @Override
-    public Example getEvidence() {
+    public Optional<LiftedExample> getEvidence() {
         return null;
     }
 

@@ -1,6 +1,9 @@
 package learning;
 
+import constructs.example.LiftedExample;
 import networks.evaluation.values.Value;
+
+import java.util.Optional;
 
 /**
  * Query is like an output (Y) in supervised learning. It always connects to a particular example, just like we're given data in normal learning (Y->X).
@@ -13,7 +16,7 @@ public interface Query {
      * Returns a particular example (logic clauses OR neural network) that this query corresponds to
      * @return
      */
-    Example getEvidence();
+    Optional<LiftedExample> getEvidence();
     /**
      * Uniquely identifies this query, i.e. logical atom or neural network output
      * @return

@@ -2,24 +2,25 @@ package constructs.example;
 
 import constructs.template.Atom;
 import constructs.template.Template;
-import learning.Example;
 import learning.Query;
 import networks.evaluation.values.Value;
+
+import java.util.Optional;
 
 /**
  * Created by Gusta on 04.10.2016.
  */
 public class AtomQuery implements Query {
     Atom query;
-    LiftedExample evidence;
+    Optional<LiftedExample> evidence;
 
     public AtomQuery(Atom query, LiftedExample evidence){
         this.query = query;
-        this.evidence = evidence;
+        this.evidence = Optional.ofNullable(evidence);
     }
 
     @Override
-    public Example getEvidence() {
+    public Optional<LiftedExample> getEvidence() {
         return evidence;
     }
 
