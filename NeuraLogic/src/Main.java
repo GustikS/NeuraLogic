@@ -10,7 +10,6 @@ import utils.CommandLineHandler;
 import utils.logging.Logging;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -48,17 +47,17 @@ public class Main {
             LOG.severe("Invalid pipeline setting.\n" + validation.s);
             System.exit(2);
         }
-        validation = sources.isValid(settings);
+        validation = sources.validate(settings);
         if (!validation.r) {
             LOG.severe("Invalid source files configuration.\n" + validation.s);
             System.exit(2);
         }
 
-        LearningSchemeBuilder pipelineBuilder = new LearningSchemeBuilder(settings);
-        Pipeline<Sources, Results> pipeline = pipelineBuilder.buildPipeline(sources);
-        List<Pair<String, Results>> targets = pipeline.execute(sources);
+        LearningSchemeBuilder pipelineBuilder = new LearningSchemeBuilder(settings,sources);
+        Pipeline<Sources, Results> pipeline = pipelineBuilder.buildPipeline();
+        Pair<String, Results> target = pipeline.execute(sources);
 
-        targets.forEach(stringResultsPair -> LOG.info(stringResultsPair.r + " : " + stringResultsPair.s));
+        LOG.info(target.r + " : " + target.s);
         LOG.info("Pipeline " + pipeline + " has been successfully executed.");
     }
 }

@@ -46,7 +46,7 @@ public class LogicSample implements LearningSample{
 
     @Override
     public Value getValue(Model model) {
-        return model.evaluate(query);
+        return query.evaluate(model);
     }
 
 }

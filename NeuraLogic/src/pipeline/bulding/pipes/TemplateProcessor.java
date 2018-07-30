@@ -14,21 +14,21 @@ import java.util.logging.Logger;
 
 public class TemplateProcessor extends AbstractPipelineBuilder<Sources, Template> {
     private static final Logger LOG = Logger.getLogger(TemplateProcessor.class.getName());
-    private final Settings settings;
+    private final Sources sources;
 
     TemplateBuilder templateBuilder;
 
     MetadataProcessor metadataProcessor;
     TemplateReducing templateReducer;
 
-    public TemplateProcessor(Settings settings) {
+    public TemplateProcessor(Settings settings, Sources sources) {
         super(settings);
-        this.settings = settings;
         templateBuilder = new TemplateBuilder(settings);
+        this.sources = sources;
     }
 
     @Override
-    public Pipeline<Sources, Template> buildPipeline(Sources sources) {
+    public Pipeline<Sources, Template> buildPipeline() {
         Pipeline<Sources, Template> templateProcessingPipeline = new Pipeline<>("TemplateProcessingPipeline");
         if (sources.templateProvided) {
             Pipe<Sources, Template> sourcesTemplatePipe = templateProcessingPipeline.register(extractTemplate(sources));

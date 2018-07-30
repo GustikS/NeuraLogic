@@ -1,8 +1,6 @@
 package pipeline;
 
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 /**
@@ -11,7 +9,7 @@ import java.util.logging.Logger;
  * @param <I>
  * @param <O>
  */
-public abstract class Pipe<I, O> implements Function<I, O>, Consumer<I>, Supplier<O> {
+public abstract class Pipe<I, O> implements Function<I, O>, ConnectBefore<I>, ConnectAfter<O> {
     private static final Logger LOG = Logger.getLogger(Pipe.class.getName());
 
     protected Pipe(String id) {
@@ -25,19 +23,19 @@ public abstract class Pipe<I, O> implements Function<I, O>, Consumer<I>, Supplie
      */
     O outputReady;
 
-    public Supplier<I> input;
-    public Consumer<O> output;
+    public ConnectAfter<I> input;
+    public ConnectBefore<O> output;
 
     /**
      * Do not use much, it won't be executed by the run method
      *
      * @param pipe
      */
-    private void prepend(Supplier<I> pipe) {
+    private void prepend(ConnectAfter<I> pipe) {
         this.input = pipe;
     }
 
-    public void append(Consumer<O> pipe) {
+    public void append(ConnectBefore<O> pipe) {
         this.output = pipe;
     }
 
@@ -53,16 +51,6 @@ public abstract class Pipe<I, O> implements Function<I, O>, Consumer<I>, Supplie
         insert.output = after;
         this.output = insert;
         insert.input = this;
-    }
-
-    public void connectAfter(Pipe<O,?> after){
-        this.output = after;
-        after.input = this;
-    }
-
-    public void connectBefore(Pipe<?,I> before){
-        this.input = before;
-        before.output = this;
     }
 
     public O get() {
@@ -88,4 +76,25 @@ public abstract class Pipe<I, O> implements Function<I, O>, Consumer<I>, Supplie
     O transform(I input) {
         return apply(input);
     }
+
+    @Override
+    public ConnectBefore<O> getOutput() {
+        return output;
+    }
+
+    @Override
+    public void setOutput(ConnectBefore<O> prev) {
+        output = prev;
+    }
+
+    @Override
+    public ConnectAfter<I> getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(ConnectAfter<I> prev) {
+        input = prev;
+    }
+
 }

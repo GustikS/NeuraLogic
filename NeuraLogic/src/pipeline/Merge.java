@@ -1,7 +1,5 @@
 package pipeline;
 
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 /**
@@ -11,12 +9,12 @@ import java.util.logging.Logger;
  * @param <I2>
  * @param <O>
  */
-public abstract class Merge<I1, I2, O> implements Supplier<O>, Consumer, Executable {
+public abstract class Merge<I1, I2, O> implements ConnectBefore, ConnectAfter<O>, Executable {
     private static final Logger LOG = Logger.getLogger(Merge.class.getName());
 
-    public Supplier<I1> input1;
-    public Supplier<I2> input2;
-    public Consumer<O> output;
+    ConnectAfter<I1> input1;
+    ConnectAfter<I2> input2;
+    public ConnectBefore<O> output;
 
     public String ID;
     /**
@@ -65,6 +63,9 @@ public abstract class Merge<I1, I2, O> implements Supplier<O>, Consumer, Executa
         if (output != null)
             output.accept(outputReady);
     }
+
+
+
 /*
     private Stream<O> merge(Stream<I1> input1, I2 input2) {
         return input1.map(i1 -> merge(i1, input2));
@@ -79,4 +80,39 @@ public abstract class Merge<I1, I2, O> implements Supplier<O>, Consumer, Executa
     }
 */
     protected abstract O merge(I1 input1, I2 input2);
+
+    @Override
+    public ConnectBefore<O> getOutput() {
+        return output;
+    }
+
+    @Override
+    public void setOutput(ConnectBefore<O> prev) {
+        output = prev;
+    }
+
+    //Note - it will be probably better to explicitly differentiate between I1 and I2
+    /*
+    private final Class<I1> i1;
+    private final Class<I2> i2;
+
+    public <T> ConnectAfter<T> connectBefore(ConnectAfter<T> prev, T cls){
+        if (cls.getClass() == i1.getClass())
+        return prev;
+    }
+    */
+
+    //TODO next
+    public ConnectAfter<I1> connectBeforeL(ConnectAfter<I1> i1){
+        input1 = i1;
+        i1.setOutput(this);
+        return i1;
+    }
+
+    public ConnectAfter<I2> connectBeforeR(ConnectAfter<I2> i2){
+        input2 = i2;
+        i2.setOutput(this);
+        return i2;
+    }
+
 }

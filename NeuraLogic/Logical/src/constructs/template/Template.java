@@ -6,6 +6,8 @@ import constructs.template.templates.ParsedTemplate;
 import learning.Model;
 import learning.Query;
 import networks.evaluation.values.Value;
+import networks.structure.Weight;
+import training.NeuralModel;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -31,7 +33,21 @@ public class Template extends ParsedTemplate implements Model {
     }
 
     @Override
+    public String getId() {
+        return null;
+    }
+
+    @Override
     public <T extends Query> Value evaluate(T query) {
         return null;
+    }
+
+    @Override
+    public List<Weight> getAllWeights() {
+        return null;
+    }
+
+    public void updateWeightsFrom(NeuralModel neural) {
+        //TODO
     }
 }

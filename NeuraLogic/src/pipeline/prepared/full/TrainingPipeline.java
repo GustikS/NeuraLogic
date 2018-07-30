@@ -33,7 +33,7 @@ public class TrainingPipeline extends Pipeline<Sources, Results> {
         this.settings = settings;
 
         Pipe<Sources, Sources> start;
-        starts = Collections.singletonList(register(start = new IdentityGenPipe<>("IdentityGenPipe")));
+        this.start = Collections.singletonList(register(start = new IdentityGenPipe<>("IdentityGenPipe")));
 
         Branch<Sources, PlainTemplateParseTree, Sources> sourceBrach = register(new Branch<Sources, PlainTemplateParseTree, Sources>("TemplateBranch") {
             @Override
@@ -111,7 +111,7 @@ public class TrainingPipeline extends Pipeline<Sources, Results> {
             }
         });
 
-        terminals.add(trainingPipe);
+        terminal.add(trainingPipe);
 
     }
 }

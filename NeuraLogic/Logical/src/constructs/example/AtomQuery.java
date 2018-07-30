@@ -2,6 +2,7 @@ package constructs.example;
 
 import constructs.template.Atom;
 import constructs.template.Template;
+import learning.Model;
 import learning.Query;
 import networks.evaluation.values.Value;
 
@@ -30,6 +31,14 @@ public class AtomQuery implements Query {
     }
 
     @Override
+    public Value evaluate(Model model) {
+        if (model instanceof Template){
+            return evaluate((Template) model);
+        } else {
+            return null;
+        }
+    }
+
     public Value evaluate(Template template) {
         return null;
     }

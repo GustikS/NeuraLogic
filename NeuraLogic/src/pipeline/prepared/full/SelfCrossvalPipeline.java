@@ -25,14 +25,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SelfCrossvalPipeline extends Pipeline<Sources, Results> {
-    // TODO - create pipeline within pipeline - for each fold !? reuse existing pipeline and just aggregate their terminals at the end
+    // TODO - create pipeline within pipeline - for each fold !? reuse existing pipeline and just aggregate their terminal at the end
     private static final Logger LOG = Logger.getLogger(SelfCrossvalPipeline.class.getName());
 
     public SelfCrossvalPipeline(@NotNull Settings settings) {
         this.settings = settings;
 
         Pipe<Sources, Sources> start;
-        starts = Collections.singletonList(register(start = new IdentityGenPipe<>("IdentityGenPipe")));
+        this.start = Collections.singletonList(register(start = new IdentityGenPipe<>("IdentityGenPipe")));
 
         Branch<Sources, PlainTemplateParseTree, PlainQueriesParseTree> sourceBrach = register(new Branch<Sources, PlainTemplateParseTree, PlainQueriesParseTree>("SourceBranch") {
             @Override
@@ -104,7 +104,7 @@ public class SelfCrossvalPipeline extends Pipeline<Sources, Results> {
             }
         });
 
-        terminals.add(trainingPipe);
+        terminal.add(trainingPipe);
 
     }
 }

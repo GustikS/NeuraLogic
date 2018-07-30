@@ -8,114 +8,58 @@ import pipeline.Pipe;
 import pipeline.Pipeline;
 import pipeline.bulding.AbstractPipelineBuilder;
 import settings.Settings;
-import settings.Sources;
+import settings.Source;
 
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class SamplesProcessor {
+public class SamplesProcessor extends AbstractPipelineBuilder<Source, Stream<LogicSample>> {
     private static final Logger LOG = Logger.getLogger(SamplesProcessor.class.getName());
-    private final Settings settings;
 
     SamplesBuilder samplesBuilder;
+    private Source sources;
 
-    public SamplesProcessor(Settings settings) {
-        this.settings = settings;
+    public SamplesProcessor(Settings settings, Source sources) {
+        super(settings);
+        this.sources = sources;
         samplesBuilder = new constructs.building.SamplesBuilder(settings);
     }
 
-    public class TrainingSamplesProcessor extends AbstractPipelineBuilder<Sources, Stream<LogicSample>> {
-
-
-        public TrainingSamplesProcessor(Settings settings) {
-            super(settings);
-        }
-
-        public Pipe<Sources, Stream<LiftedExample>> extractTrainingExamples(Sources sources) {
-            return null;
-        }
-
-        public Pipe<Sources, Stream<Query>> extractTrainingQueries(Sources sources) {
-            return null;
-        }
-
-        public Pipe<Sources, Stream<LogicSample>> extractTrainingSamplesPipe(Sources sources) {
-            Pipe<Sources, Stream<LogicSample>> pipe = new Pipe<Sources, Stream<LogicSample>>("TrainingSamplesExtractionPipe") {
-                @Override
-                public Stream<LogicSample> apply(Sources sources) {
-                    if (sources.trainQueriesSeparate) {
-                        return samplesBuilder.buildFrom(sources.trainExamplesParseTree, sources.trainQueriesParseTree);
-                    } else if (sources.trainQueriesProvided) {
-                        return samplesBuilder.buildFrom(sources.trainExamplesParseTree);
-                    } else {
-                        LOG.warning("No Queries found to assemble train Samples");
-                        return null;
-                    }
-                }
-            };
-            return pipe;
-        }
-
-        @Override
-        public Pipeline<Sources, Stream<LogicSample>> buildPipeline(Sources sources) {
-            Pipeline<Sources, Stream<LogicSample>> samplesProcessingPipeline = new Pipeline<>("TrainingSamplesProcessingPipeline");
-            if (sources.trainQueriesProvided) {
-                Pipe<Sources, Stream<LogicSample>> sourcesSamplesPipe = samplesProcessingPipeline.register(extractTrainingSamplesPipe(sources));
-                Pipe<Stream<LogicSample>, Stream<LogicSample>> samplesPostprocessPipe = samplesProcessingPipeline.register(postprocessSamples());
-                sourcesSamplesPipe.connectAfter(samplesPostprocessPipe);
-                return samplesProcessingPipeline;
-            } else {
-                LOG.warning("Training samples extraction from sources requested but no training queries provided.");
-                return null;
-            }
-        }
+    public Pipe<Source, Stream<LiftedExample>> extractExamples(Source sources) {
+        return null;
     }
 
-    public class TestingSamplesProcessor extends AbstractPipelineBuilder<Sources, Stream<LogicSample>> {
-
-        public TestingSamplesProcessor(Settings settings) {
-            super(settings);
-        }
-
-        public Pipe<Sources, Stream<LiftedExample>> extractTestingExamples(Sources sources) {
-            return null;
-        }
-
-        public Pipe<Sources, Stream<Query>> extractTestingQueries(Sources sources) {
-            return null;
-        }
-
-        public Pipe<Sources, Stream<LogicSample>> extractTestingSamplesPipe(Sources sources) {
-            Pipe<Sources, Stream<LogicSample>> pipe = new Pipe<Sources, Stream<LogicSample>>("TrainingSamplesExtractionPipe") {
-                @Override
-                public Stream<LogicSample> apply(Sources sources) {
-                    if (sources.testQueriesSeparate) {
-                        return samplesBuilder.buildFrom(sources.testExamplesParseTree, sources.testQueriesParseTree);
-                    } else if (sources.trainQueriesProvided) {
-                        return samplesBuilder.buildFrom(sources.testExamplesParseTree);
-                    } else {
-                        LOG.warning("No Queries found to assemble test Samples");
-                        return null;
-                    }
-                }
-            };
-            return pipe;
-        }
-
-        @Override
-        public Pipeline<Sources, Stream<LogicSample>> buildPipeline(Sources sources) {
-            Pipeline<Sources, Stream<LogicSample>> samplesProcessingPipeline = new Pipeline<>("TestingSamplesProcessingPipeline");
-            if (sources.testQueriesProvided) {
-                Pipe<Sources, Stream<LogicSample>> sourcesSamplesPipe = samplesProcessingPipeline.register(extractTestingSamplesPipe(sources));
-                Pipe<Stream<LogicSample>, Stream<LogicSample>> samplesPostprocessPipe = samplesProcessingPipeline.register(postprocessSamples());
-                sourcesSamplesPipe.connectAfter(samplesPostprocessPipe);
-                return samplesProcessingPipeline;
-            } else {
-                LOG.warning("Testing samples extraction from sources requested but no testing queries provided.");
-                return null;
-            }
-        }
+    public Pipe<Source, Stream<Query>> extractQueries(Source sources) {
+        return null;
     }
+
+    public Pipe<Source, Stream<LogicSample>> extractTrainingSamplesPipe(Source sources) {
+        Pipe<Source, Stream<LogicSample>> pipe = new Pipe<Source, Stream<LogicSample>>("SamplesExtractionPipe") {
+            @Override
+            public Stream<LogicSample> apply(Source sources) {
+                if (sources.QueriesSeparate) {
+                    return samplesBuilder.buildFrom(sources.ExamplesParseTree, sources.QueriesParseTree);
+                } else if (sources.QueriesProvided) {
+                    return samplesBuilder.buildFrom(sources.ExamplesParseTree);
+                } else {
+                    LOG.severe("No Queries found to assemble Samples");
+                    return null;
+                }
+            }
+        };
+        return pipe;
+    }
+
+    @Override
+    public Pipeline<Source, Stream<LogicSample>> buildPipeline() {
+        Pipeline<Source, Stream<LogicSample>> samplesProcessingPipeline = new Pipeline<>("SamplesProcessingPipeline");
+            Pipe<Source, Stream<LogicSample>> sourcesSamplesPipe = samplesProcessingPipeline.register(extractTrainingSamplesPipe(this.sources));
+            Pipe<Stream<LogicSample>, Stream<LogicSample>> samplesPostprocessPipe = samplesProcessingPipeline.register(postprocessSamples());
+            sourcesSamplesPipe.connectAfter(samplesPostprocessPipe);
+            return samplesProcessingPipeline;
+
+    }
+
 
     public Pipe<Stream<LogicSample>, Stream<LogicSample>> postprocessSamples() {
         //TODO

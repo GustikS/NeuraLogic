@@ -1,13 +1,15 @@
 package pipeline.bulding;
 
+import constructs.example.LogicSample;
 import constructs.template.Template;
 import ida.utils.tuples.Pair;
-import constructs.example.LogicSample;
 import learning.crossvalidation.TrainTestResults;
+import pipeline.Pipe;
 import pipeline.Pipeline;
 import pipeline.bulding.pipes.SamplesProcessor;
 import pipeline.bulding.pipes.TemplateProcessor;
 import settings.Settings;
+import settings.Source;
 import settings.Sources;
 import training.results.Results;
 
@@ -16,12 +18,18 @@ import java.util.stream.Stream;
 
 public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Results> {
     private static final Logger LOG = Logger.getLogger(LearningSchemeBuilder.class.getName());
+    private Sources sources;
 
-    public LearningSchemeBuilder(Settings settings) {
+    public LearningSchemeBuilder(Settings settings, Sources sources) {
         super(settings);
+        this.sources = sources;
     }
 
     @Override
+    public Pipeline<Sources, Results> buildPipeline() {
+        return buildPipeline(this.sources);
+    }
+
     public Pipeline<Sources, Results> buildPipeline(Sources sources) {
         Pipeline<Sources, Results> pipeline = new Pipeline<>("LearningSchemePipeline");
 
@@ -34,14 +42,28 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
             return sourcesResultsPipeline;
         } else if (sources.trainTest) {
             TrainTestBuilder trainTestBuilder = new TrainTestBuilder(settings);
-            Pipeline<Sources, TrainTestResults> pipeline = trainTestBuilder.buildPipeline(sources);
+            Pipeline<Sources, TrainTestResults> pipeline2 = trainTestBuilder.buildPipeline(sources);
         } else if (sources.trainOnly) {
-            SamplesProcessor.TrainingSamplesProcessor trainingSamplesProcessor = (new SamplesProcessor(settings)).new TrainingSamplesProcessor(settings);
-            Pipeline<Sources, Stream<LogicSample>> sourcesStreamPipeline = trainingSamplesProcessor.buildPipeline(sources);
-            TemplateProcessor templateProcessor = new TemplateProcessor(settings);
-            Pipeline<Sources, Template> sourcesTemplatePipeline = templateProcessor.buildPipeline(sources);
+            Pipe<Sources, Source> sourcesSourcePipe = pipeline.registerStart(new Pipe<Sources, Source>("sourcesSourcePipe") {
+                @Override
+                public Source apply(Sources sources) {
+                    return sources.train;
+                }
+            });
+
+            SamplesProcessor trainingSamplesProcessor = new SamplesProcessor(settings, sources.train);
+            Pipeline<Source, Stream<LogicSample>> sourcesStreamPipeline = pipeline.register(trainingSamplesProcessor.buildPipeline());
+            sourcesSourcePipe.output = sourcesStreamPipeline;
             LearningBuilder learningBuilder = new LearningBuilder(settings);
-            Pipeline<Pair<Template, Stream<LogicSample>>, Pair<Template, Results>> trainingPipeline = learningBuilder.buildPipeline(sources);
+            if (sources.templateProvided) {
+                TemplateProcessor templateProcessor = new TemplateProcessor(settings, sources);
+                Pipeline<Sources, Template> sourcesTemplatePipeline = pipeline.register(templateProcessor.buildPipeline());
+                LearningBuilder.NormalLearningBuilder normalLearningBuilder = learningBuilder.new NormalLearningBuilder(settings);
+                Pipeline<Pair<Template, Stream<LogicSample>>, Pair<Template, Results>> pairPairPipeline = pipeline.register(normalLearningBuilder.buildPipeline());
+            } else {
+                LearningBuilder.StructureLearningBuilder structureLearningBuilder = learningBuilder.new StructureLearningBuilder(settings);
+                Pipeline<Stream<LogicSample>, Pair<Template, Results>> streamPairPipeline = pipeline.register(structureLearningBuilder.buildPipeline());
+            }
 
         } else if (sources.testOnly) {
             TestingBuilder testingBuilder = new TestingBuilder(settings);

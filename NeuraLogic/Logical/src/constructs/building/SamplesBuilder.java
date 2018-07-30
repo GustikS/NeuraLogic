@@ -27,12 +27,11 @@ import java.util.stream.Stream;
 /**
  * To get labeleb samples from example file (parsable source)
  */
-public class SamplesBuilder extends AbstractPipelineBuilder<Source,Stream</*TODO*/>>{
+public class SamplesBuilder extends AbstractPipelineBuilder<Source,Stream<LogicSample>>{
     private static final Logger LOG = Logger.getLogger(SamplesBuilder.class.getName());
-    private final Settings settings;
 
     public SamplesBuilder(Settings settings) {
-        this.settings = settings;
+        super(settings);
         //TODO extract from settings what version/format of trainExamples this will be (single vs. multiple files)
     }
 

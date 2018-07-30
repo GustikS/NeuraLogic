@@ -46,7 +46,17 @@ public class NeuralModel implements Model {
     }
 
     @Override
+    public String getId() {
+        return null;
+    }
+
+    @Override
     public <T extends Query> Value evaluate(T query) {
         return null;
+    }
+
+    @Override
+    public List<Weight> getAllWeights() {
+        return weights;
     }
 }

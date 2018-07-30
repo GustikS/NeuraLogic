@@ -1,8 +1,6 @@
 package settings;
 
 import ida.utils.tuples.Pair;
-import neuralogic.examples.PlainExamplesParseTree;
-import neuralogic.queries.PlainQueriesParseTree;
 import neuralogic.template.PlainTemplateParseTree;
 import org.apache.commons.cli.CommandLine;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -16,7 +14,7 @@ import java.util.logging.Logger;
  * <p>
  * Created by gusta on 26.3.17.
  */
-public abstract class Sources { //TODO split this class to carry 2 separate Source objects (train a test) (?) - do next
+public class Sources {
 
     private static final Logger LOG = Logger.getLogger(Sources.class.getName());
 
@@ -27,36 +25,16 @@ public abstract class Sources { //TODO split this class to carry 2 separate Sour
     public List<Sources> folds;
     protected Sources parent;
 
+    public Source train;
+    Source test;
+
     //TODO change to correct abstract/specific parse trees for each type
     public PlainTemplateParseTree templateParseTree;
-    public PlainExamplesParseTree trainExamplesParseTree;
-    public PlainExamplesParseTree testExamplesParseTree;
-    public PlainQueriesParseTree trainQueriesParseTree;
-    public PlainQueriesParseTree testQueriesParseTree;
-
+    //TODO put Readers down in hierarchy into files? (maybe not)
     public Reader templateReader;
-    public Reader trainExamplesReader;
-    public Reader testExamplesReader;
-    public Reader trainQueriesReader;  // these should always be present for learning
-    public Reader testQueriesReader;
-
 
     //----------------INFERRED SETTINGS
     public boolean templateProvided;
-
-    public boolean trainExamplesSeparate;
-    public boolean testExamplesSeparate;
-    public boolean trainQueriesSeparate;
-    public boolean testQueriesSeparate;
-
-    public boolean trainExamplesProvided;
-    public boolean trainQueriesProvided;
-    public boolean testExamplesProvided;
-    public boolean testQueriesProvided;
-
-    public boolean trainQueriesLinkedById;
-    public boolean testQueriesLinkedById;
-
     public boolean foldFiles;   //i.e. external x-val files
 
     //-----------------Learning modes
@@ -65,8 +43,10 @@ public abstract class Sources { //TODO split this class to carry 2 separate Sour
     public boolean trainOnly = false;
     public boolean testOnly = false;
 
-
-    public abstract Pair<Boolean, String> validate(Settings settings);
+    public Sources(Settings settings) {
+        train = new Source();
+        test = new Source();
+    }
 
     public void infer(Settings settings) {
         if (folds != null) {
@@ -85,40 +65,8 @@ public abstract class Sources { //TODO split this class to carry 2 separate Sour
             templateProvided = true;
         }
 
-        trainExamplesSeparate = trainExamplesReader == null ? false : !trainExamplesParseTree.isEmpty();
-        testExamplesSeparate = testExamplesReader != null ? !testExamplesParseTree.isEmpty() : false;
-        trainQueriesSeparate = trainQueriesReader == null ? false : !trainQueriesParseTree.isEmpty();
-        testQueriesSeparate = testQueriesReader != null ? !testQueriesParseTree.isEmpty() : false;
-
-        if (trainExamplesSeparate) {
-            trainExamplesProvided = true;
-            if (trainExamplesParseTree.getRoot().label() != null) {
-                trainQueriesProvided = true;
-            }
-        } else {
-            trainExamplesProvided = false;
-        }
-
-        if (testExamplesSeparate) {
-            testExamplesProvided = true;
-            if (testExamplesParseTree.getRoot().label() != null) {
-                testQueriesProvided = true;
-            }
-        } else {
-            testExamplesProvided = false;
-        }
-        if (trainQueriesSeparate) {
-            trainQueriesProvided = true;
-            if (trainQueriesParseTree.getRoot().atom() != null) {
-                trainQueriesLinkedById = true;
-            }
-        }
-        if (testQueriesSeparate) {
-            testQueriesProvided = true;
-            if (testQueriesParseTree.getRoot().atom() != null) {
-                testQueriesLinkedById = true;
-            }
-        }
+        train.infer(settings);
+        test.infer(settings);
 
         /*
         if (testQueriesProvided) {
@@ -128,11 +76,11 @@ public abstract class Sources { //TODO split this class to carry 2 separate Sour
         */
 
         if (!crossvalidation) {
-            if (trainQueriesProvided && testQueriesProvided) {
+            if (train.QueriesProvided && test.QueriesProvided) {
                 trainTest = true;
-            } else if (trainQueriesProvided) {
+            } else if (train.QueriesProvided) {
                 trainOnly = true;
-            } else if (testQueriesProvided) {
+            } else if (test.QueriesProvided) {
                 if (!templateProvided) {
                     LOG.warning("Incosistent learning mode inference for this Source (missing template).");
                 }
@@ -149,12 +97,28 @@ public abstract class Sources { //TODO split this class to carry 2 separate Sour
      * @param settings
      * @return
      */
-    public Pair<Boolean, String> isValid(Settings settings) {
+    public Pair<Boolean, String> validate(Settings settings) {
         boolean valid = true;
         String msg = "";
+
         infer(settings);
+
+        if (train.QueriesReader == null && test.QueriesReader == null && folds == null) {
+            LOG.severe(msg += "Invalid learning setup - no trainQueriesSeparate nor testing samples provided");
+            valid = false;
+        }
+        if (templateReader == null && train.QueriesReader == null && test.QueriesReader == null) {
+            LOG.severe(msg += "Invalid learning setup - no template nor trainQueriesSeparate or testing samples provided");
+            valid = false;
+        }
         //TODO add some general validation
-        return validate(settings);
+        Pair<Boolean, String> valtrain = train.validate(settings);
+        valid &= valtrain.r;
+        msg += valtrain.s;
+        Pair<Boolean, String> valtest = test.validate(settings);
+        msg += valtest.s;
+        valid &= valtest.r;
+        return new Pair<>(valid, msg);
     }
 
 

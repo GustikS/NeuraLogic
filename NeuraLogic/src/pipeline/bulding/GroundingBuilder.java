@@ -10,7 +10,7 @@ import training.NeuralSample;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Stream<LogicSample>,Template>,Stream<NeuralSample>> {
+public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template,Stream<LogicSample>>,Stream<NeuralSample>> {
     private static final Logger LOG = Logger.getLogger(GroundingBuilder.class.getName());
 
     public GroundingBuilder(Settings settings) {
@@ -18,7 +18,8 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Stream<LogicS
     }
 
     @Override
-    public Pipeline<Pair<Stream<LogicSample>, Template>, Stream<NeuralSample>> buildPipeline(Pair<Stream<LogicSample>, Template> sourceType) {
+    public Pipeline<Pair<Template, Stream<LogicSample>>, Stream<NeuralSample>> buildPipeline() {
         return null;
     }
+
 }

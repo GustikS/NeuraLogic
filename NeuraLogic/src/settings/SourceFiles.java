@@ -22,8 +22,8 @@ public class SourceFiles extends Sources {
     public File trainQueries;
     public File testQueries;
 
-    public SourceFiles() {
-
+    public SourceFiles(Settings settings) {
+        super(settings);
     }
 
     public Pair<Boolean, String> validate(Settings settings) {
@@ -38,23 +38,15 @@ public class SourceFiles extends Sources {
     }
 
     public Pair<Boolean, String> isValid(Settings settings) {
-        boolean valid = true;
-        String msg = "";
-
-        if (trainQueriesReader == null && testQueriesReader == null && folds == null) {
-            LOG.severe(msg = "Invalid learning setup - no trainQueriesSeparate nor testing samples provided");
-            valid = false;
-        }
-        if (templateReader == null && trainQueriesReader == null && testQueriesReader == null) {
-            LOG.severe(msg = "Invalid learning setup - no template nor trainQueriesSeparate or testing samples provided");
-            valid = false;
-        }
+        Pair<Boolean, String> validate = super.validate(settings);
         //TODO is complete?
-        return new Pair(valid, msg);
+        return validate;
     }
 
 
     public SourceFiles(Settings settings, CommandLine cmd) {
+        super(settings);
+
         if (cmd.hasOption("folds")) {
             String sourcePath = cmd.getOptionValue("sourcePath", settings.sourcePath);
             String foldPrefix = cmd.getOptionValue("foldPrefix", settings.foldsPrefix);
@@ -73,14 +65,10 @@ public class SourceFiles extends Sources {
 
     private void crawlFolds(Settings settings, CommandLine cmd, String path, String prefix) {
         File dir = new File(path);
-        File[] foldDirs = dir.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.startsWith(prefix);
-            }
-        });
+        File[] foldDirs = dir.listFiles((dir1, name) -> name.startsWith(prefix));
         this.folds = new ArrayList<>();
         for (File foldDir : foldDirs) {
-            SourceFiles sFold = new SourceFiles();
+            SourceFiles sFold = new SourceFiles(settings);
             sFold.parent = this;
             sFold.setupFromDir(settings, cmd, foldDir);
             this.folds.add(sFold);
@@ -90,6 +78,7 @@ public class SourceFiles extends Sources {
     }
 
     private SourceFiles setupFromDir(Settings settings, CommandLine cmd, File foldDir) {
+
         try {
             if ((this.template = Paths.get(foldDir.toString(), cmd.getOptionValue("template", settings.templateFile)).toFile()).exists()) {
                 if (parent.templateReader != null){
@@ -122,11 +111,11 @@ public class SourceFiles extends Sources {
         }
 
         try {
-            this.trainExamplesReader = new FileReader(this.trainExamples = Paths.get(foldDir.toString(), cmd.getOptionValue("trainExamples", settings.trainExamplesFile)).toFile());
+            this.train.ExamplesReader = new FileReader(this.trainExamples = Paths.get(foldDir.toString(), cmd.getOptionValue("trainExamples", settings.trainExamplesFile)).toFile());
             try {
                 switch (Utilities.identifyFileTypeUsingFilesProbeContentType(trainExamples.toString())) {
                     case "text/plain":
-                        trainExamplesParseTree = new PlainExamplesParseTree(trainExamplesReader);
+                        train.ExamplesParseTree = new PlainExamplesParseTree(train.ExamplesReader);
                         break;
                     default:
                         throw new UnknownFormatFlagsException("File type of input examples not recognized!");
@@ -139,11 +128,11 @@ public class SourceFiles extends Sources {
         }
 
         try {
-            this.testExamplesReader = new FileReader(this.testExamples = Paths.get(foldDir.toString(), cmd.getOptionValue("testExamples", settings.testExamplesFile)).toFile());
+            this.test.ExamplesReader = new FileReader(this.testExamples = Paths.get(foldDir.toString(), cmd.getOptionValue("testExamples", settings.testExamplesFile)).toFile());
             try {
                 switch (Utilities.identifyFileTypeUsingFilesProbeContentType(testExamples.toString())) {
                     case "text/plain":
-                        testExamplesParseTree = new PlainExamplesParseTree(testExamplesReader);
+                        test.ExamplesParseTree = new PlainExamplesParseTree(test.ExamplesReader);
                         break;
                     default:
                         throw new UnknownFormatFlagsException("File type of input test examples not recognized!");
@@ -156,11 +145,11 @@ public class SourceFiles extends Sources {
         }
 
         try {
-            this.trainQueriesReader = new FileReader(this.trainQueries = Paths.get(foldDir.toString(), cmd.getOptionValue("trainQueries", settings.trainQueriesFile)).toFile());
+            this.train.QueriesReader = new FileReader(this.trainQueries = Paths.get(foldDir.toString(), cmd.getOptionValue("trainQueries", settings.trainQueriesFile)).toFile());
             try {
                 switch (Utilities.identifyFileTypeUsingFilesProbeContentType(trainQueries.toString())) {
                     case "text/plain":
-                        trainQueriesParseTree = new PlainQueriesParseTree(trainQueriesReader);
+                        train.QueriesParseTree = new PlainQueriesParseTree(train.QueriesReader);
                         break;
                     default:
                         throw new UnknownFormatFlagsException("File type of input train queries not recognized!");
@@ -173,11 +162,11 @@ public class SourceFiles extends Sources {
         }
 
         try {
-            this.testQueriesReader = new FileReader(this.testQueries = Paths.get(foldDir.toString(), cmd.getOptionValue("trainQueries", settings.testQueriesFile)).toFile());
+            this.test.QueriesReader = new FileReader(this.testQueries = Paths.get(foldDir.toString(), cmd.getOptionValue("trainQueries", settings.testQueriesFile)).toFile());
             try {
                 switch (Utilities.identifyFileTypeUsingFilesProbeContentType(testQueries.toString())) {
                     case "text/plain":
-                        testQueriesParseTree = new PlainQueriesParseTree(testQueriesReader);
+                        test.QueriesParseTree = new PlainQueriesParseTree(test.QueriesReader);
                         break;
                     default:
                         throw new UnknownFormatFlagsException("File type of input test queries not recognized!");
