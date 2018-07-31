@@ -8,9 +8,13 @@ import pipeline.Pipe;
 import pipeline.Pipeline;
 import pipeline.bulding.pipes.SamplesProcessor;
 import pipeline.bulding.pipes.TemplateProcessor;
+import pipeline.prepared.pipes.generic.DuplicateBranch;
+import pipeline.prepared.pipes.generic.PairMerge;
+import pipeline.prepared.pipes.generic.SecondFromPairPipe;
 import settings.Settings;
 import settings.Source;
 import settings.Sources;
+import training.NeuralModel;
 import training.results.Results;
 
 import java.util.logging.Logger;
@@ -44,22 +48,29 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
             TrainTestBuilder trainTestBuilder = new TrainTestBuilder(settings);
             Pipeline<Sources, TrainTestResults> pipeline2 = trainTestBuilder.buildPipeline(sources);
         } else if (sources.trainOnly) {
-            Pipe<Sources, Source> sourcesSourcePipe = pipeline.registerStart(new Pipe<Sources, Source>("sourcesSourcePipe") {
+            DuplicateBranch<Sources> duplicateBranch = pipeline.registerStart(new DuplicateBranch<>());
+            Pipe<Sources, Source> sourcesSourcePipe = pipeline.register(new Pipe<Sources, Source>("sourcesSourcePipe") {
                 @Override
                 public Source apply(Sources sources) {
                     return sources.train;
                 }
             });
-
+            duplicateBranch.connectAfterL(sourcesSourcePipe);
             SamplesProcessor trainingSamplesProcessor = new SamplesProcessor(settings, sources.train);
             Pipeline<Source, Stream<LogicSample>> sourcesStreamPipeline = pipeline.register(trainingSamplesProcessor.buildPipeline());
-            sourcesSourcePipe.output = sourcesStreamPipeline;
+            sourcesSourcePipe.connectAfter(sourcesStreamPipeline);
+
             LearningBuilder learningBuilder = new LearningBuilder(settings);
             if (sources.templateProvided) {
                 TemplateProcessor templateProcessor = new TemplateProcessor(settings, sources);
                 Pipeline<Sources, Template> sourcesTemplatePipeline = pipeline.register(templateProcessor.buildPipeline());
+                duplicateBranch.connectAfterR(sourcesTemplatePipeline);
+                PairMerge<Template, Stream<LogicSample>> pairMerge = pipeline.register(new PairMerge<>());
                 LearningBuilder.NormalLearningBuilder normalLearningBuilder = learningBuilder.new NormalLearningBuilder(settings);
-                Pipeline<Pair<Template, Stream<LogicSample>>, Pair<Template, Results>> pairPairPipeline = pipeline.register(normalLearningBuilder.buildPipeline());
+                Pipeline<Pair<Template, Stream<LogicSample>>, Pair<NeuralModel, Results>> pairPairPipeline = pipeline.register(normalLearningBuilder.buildPipeline());
+                pairMerge.connectAfter(pairPairPipeline);
+                SecondFromPairPipe<NeuralModel, Results> secondFromPairPipe = pipeline.registerEnd(new SecondFromPairPipe<>());
+                pairPairPipeline.connectAfter(secondFromPairPipe);
             } else {
                 LearningBuilder.StructureLearningBuilder structureLearningBuilder = learningBuilder.new StructureLearningBuilder(settings);
                 Pipeline<Stream<LogicSample>, Pair<Template, Results>> streamPairPipeline = pipeline.register(structureLearningBuilder.buildPipeline());
@@ -71,5 +82,6 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
         } else {
             LOG.warning("Invalid learning mode setting.");
         }
+        return pipeline;
     }
 }

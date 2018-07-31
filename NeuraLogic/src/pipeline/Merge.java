@@ -9,11 +9,11 @@ import java.util.logging.Logger;
  * @param <I2>
  * @param <O>
  */
-public abstract class Merge<I1, I2, O> implements ConnectBefore, ConnectAfter<O>, Executable {
+public abstract class Merge<I1, I2, O> implements ConnectAfter<O> {
     private static final Logger LOG = Logger.getLogger(Merge.class.getName());
 
-    ConnectAfter<I1> input1;
-    ConnectAfter<I2> input2;
+    Pipe<I1,I1> input1;
+    Pipe<I2,I2> input2;
     public ConnectBefore<O> output;
 
     public String ID;
@@ -25,22 +25,30 @@ public abstract class Merge<I1, I2, O> implements ConnectBefore, ConnectAfter<O>
 
     public Merge(String id) {
         ID = id;
+        input1 = new Pipe<I1, I1>(id + "Input1") {
+            @Override
+            public I1 apply(I1 i1) {
+                Merge.this.accept(i1);
+                return i1;
+            }
+        };
+        input2 = new Pipe<I2, I2>(id + "Input2") {
+            @Override
+            public I2 apply(I2 i2) {
+                Merge.this.accept(i2);
+                return i2;
+            }
+        };
     }
 
     @Override
-    @Deprecated
-    public void run() {
-        I1 i1 = input1.get();
-        I2 i2 = input2.get();
-        accept(i1, i2);
-    }
-
     public O get() {
         if (outputReady == null) {
             LOG.severe("The result of this Merge " + ID + " is requested but not yet calculated");
             LOG.severe("Pipeline is broken");
             System.exit(3);
         }
+
         return outputReady;
     }
 
@@ -102,17 +110,10 @@ public abstract class Merge<I1, I2, O> implements ConnectBefore, ConnectAfter<O>
     }
     */
 
-    //TODO next
-    public ConnectAfter<I1> connectBeforeL(ConnectAfter<I1> i1){
-        input1 = i1;
-        i1.setOutput(this);
-        return i1;
+    public ConnectAfter<I1> connectBeforeL(ConnectAfter<I1> prev){
+        return input1.connectBefore(prev);
     }
-
-    public ConnectAfter<I2> connectBeforeR(ConnectAfter<I2> i2){
-        input2 = i2;
-        i2.setOutput(this);
-        return i2;
+    public ConnectAfter<I2> connectBeforeR(ConnectAfter<I2> prev){
+        return input2.connectBefore(prev);
     }
-
 }

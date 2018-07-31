@@ -1,15 +1,16 @@
 package pipeline;
 
 import ida.utils.tuples.Pair;
+import pipeline.prepared.pipes.generic.IdentityGenPipe;
 
 import java.util.logging.Logger;
 
-public  class Branch<I, O1, O2> implements ConnectBefore<I>, ConnectAfter {
+public abstract class Branch<I, O1, O2> implements ConnectBefore<I> {
     private static final Logger LOG = Logger.getLogger(Branch.class.getName());
 
     public ConnectAfter<I> input;
-    public ConnectBefore<O1> output1;
-    public ConnectBefore<O2> output2;
+    public IdentityGenPipe<O1> output1;
+    public IdentityGenPipe<O2> output2;
 
     Pair<O1,O2> outputReady;
 
@@ -17,6 +18,8 @@ public  class Branch<I, O1, O2> implements ConnectBefore<I>, ConnectAfter {
 
     public Branch(String id) {
         ID = id;
+        output1 = new IdentityGenPipe<>(id + "Output1");
+        output2 = new IdentityGenPipe<>(id + "Output2");
     }
 
     public void accept(I outputFromInputPipe) {
@@ -37,18 +40,11 @@ public  class Branch<I, O1, O2> implements ConnectBefore<I>, ConnectAfter {
         input = prev;
     }
 
-    @Override
-    public ConnectBefore getOutput() {
-        return null;
+    public ConnectBefore<O1> connectAfterL(ConnectBefore<O1> next){
+        return output1.connectAfter(next);
     }
 
-    @Override
-    public void setOutput(ConnectBefore prev) {
-
-    }
-
-    @Override
-    public Object get() {
-        return null;
+    public ConnectBefore<O2> connectAfterR(ConnectBefore<O2> next){
+        return output2.connectAfter(next);
     }
 }

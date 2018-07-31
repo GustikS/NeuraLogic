@@ -5,6 +5,9 @@ import ida.utils.tuples.Pair;
 import constructs.example.LogicSample;
 import pipeline.Pipeline;
 import pipeline.prepared.pipes.*;
+import pipeline.prepared.pipes.generic.FirstFromPairExtractionBranch;
+import pipeline.prepared.pipes.generic.PairBranch;
+import pipeline.prepared.pipes.generic.PairMerge;
 import settings.Settings;
 import training.NeuralModel;
 import training.NeuralSample;
@@ -21,14 +24,14 @@ public class LearningBuilder {
         this.settings = settings;
     }
 
-    public class NormalLearningBuilder extends AbstractPipelineBuilder<Pair<Template, Stream<LogicSample>>,Pair<Template,Results>> {
+    public class NormalLearningBuilder extends AbstractPipelineBuilder<Pair<Template, Stream<LogicSample>>,Pair<NeuralModel,Results>> {
 
         public NormalLearningBuilder(Settings settings) {
             super(settings);
         }
 
         @Override
-        public Pipeline<Pair<Template, Stream<LogicSample>>, Pair<Template, Results>> buildPipeline() {
+        public Pipeline<Pair<Template, Stream<LogicSample>>, Pair<NeuralModel, Results>> buildPipeline() {
             Pipeline<Pair<Template, Stream<LogicSample>>, Pair<Template, Results>> learningPipeline = new Pipeline<>("NormalLearningPipeline");
 
             FirstFromPairExtractionBranch<Template, Stream<LogicSample>> extractionBranch = new FirstFromPairExtractionBranch<>("ExtractTemplate");

@@ -7,9 +7,9 @@ public interface ConnectAfter<T> extends Supplier<T> {
     ConnectBefore<T> getOutput();
     void setOutput(ConnectBefore<T> prev);
 
-    default <A extends ConnectBefore<T>> A connectAfter(A next) {
+    default ConnectBefore<T> connectAfter(ConnectBefore<T> next) {
         setOutput(next);
-        next.connectBefore(this);
+        next.setInput(this);
         return next;
     }
 }

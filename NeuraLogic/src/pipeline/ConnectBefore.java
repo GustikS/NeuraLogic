@@ -9,7 +9,7 @@ public interface ConnectBefore<T>  extends Consumer<T> {
 
     default ConnectAfter<T> connectBefore(ConnectAfter<T> previous){
         setInput(previous);
-        previous.connectAfter(this);
+        previous.setOutput(this);
         return previous;
     }
 }

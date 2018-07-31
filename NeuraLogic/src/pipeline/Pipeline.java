@@ -24,8 +24,8 @@ public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T> {
     public String ID;
 
     protected Settings settings;
-    protected ConnectBefore<S> start;
-    protected ConnectAfter<T> terminal;
+    public ConnectBefore<S> start;
+    public ConnectAfter<T> terminal;
 
     ConcurrentHashMap<String, Branch> branches;
     ConcurrentHashMap<String, Merge> merges;
@@ -56,7 +56,7 @@ public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T> {
         return new Pair<String, T>(ID, terminal.get());
     }
 
-    public <I, O> Pipe<I, O> register(Pipe<I, O> p) {
+    public <I, O, A extends Pipe<I,O>> A register(A p) {
         pipes.put(p.ID, p);
         return p;
     }
@@ -66,7 +66,7 @@ public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T> {
         return b;
     }
 
-    public <I1, I2, O> Merge<I1, I2, O> register(Merge<I1, I2, O> m) {
+    public <I1, I2, O, A extends Merge<I1, I2, O>> A register(A m) {
         merges.put(m.ID, m);
         //executionQueue.add(p);
         return m;
@@ -83,7 +83,7 @@ public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T> {
         return p;
     }
 
-    public <O1, O2> Branch<S, O1, O2> registerStart(Branch<S, O1, O2> p) {
+    public <O1, O2, A extends Branch<S, O1, O2>> A registerStart(A p) {
         start = p;
         register(p);
         return p;
@@ -91,6 +91,18 @@ public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T> {
 
     public Pipeline<S, T> registerStart(Pipeline<S, T> p) {
         start = p.start;
+        register(p);
+        return p;
+    }
+
+    public <I, A extends Pipe<I,T>> A registerEnd(A p) {
+        terminal = p;
+        register(p);
+        return p;
+    }
+
+    public <I1, I2, A extends Merge<I1, I2, T>> A registerEnd(A p) {
+        terminal = p;
         register(p);
         return p;
     }

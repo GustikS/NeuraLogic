@@ -27,6 +27,29 @@ public abstract class Pipe<I, O> implements Function<I, O>, ConnectBefore<I>, Co
     public ConnectBefore<O> output;
 
     /**
+     *
+     * @param input - can be a Stream!
+     */
+    public void accept(I input) {
+        outputReady = apply(input);
+        if (this.output != null) {
+            this.output.accept(outputReady);
+        }
+    }
+
+
+
+    public O get() {
+        if (outputReady == null) {
+            LOG.severe("The result of pipe " + ID + " is requested but not yet calculated");
+            LOG.severe("Pipeline is broken");
+            System.exit(3);
+        }
+        return outputReady;
+    }
+
+
+    /**
      * Do not use much, it won't be executed by the run method
      *
      * @param pipe
@@ -45,7 +68,6 @@ public abstract class Pipe<I, O> implements Function<I, O>, ConnectBefore<I>, Co
         this.input = insert;
         insert.output = this;
     }
-
     public void insertAfter(Pipe<O, ?> after, Pipe<O, O> insert) {
         after.input = insert;
         insert.output = after;
@@ -53,29 +75,7 @@ public abstract class Pipe<I, O> implements Function<I, O>, ConnectBefore<I>, Co
         insert.input = this;
     }
 
-    public O get() {
-        if (outputReady == null) {
-            LOG.severe("The result of pipe " + ID + " is requested but not yet calculated");
-            LOG.severe("Pipeline is broken");
-            System.exit(3);
-        }
-        return outputReady;
-    }
 
-    /**
-     *
-     * @param input - can be a Stream!
-     */
-    public void accept(I input) {
-        outputReady = transform(input);
-        if (this.output != null) {
-            this.output.accept(outputReady);
-        }
-    }
-
-    O transform(I input) {
-        return apply(input);
-    }
 
     @Override
     public ConnectBefore<O> getOutput() {

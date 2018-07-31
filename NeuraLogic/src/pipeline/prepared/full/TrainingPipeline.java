@@ -17,7 +17,7 @@ import pipeline.Branch;
 import pipeline.Merge;
 import pipeline.Pipe;
 import pipeline.Pipeline;
-import pipeline.prepared.pipes.IdentityGenPipe;
+import pipeline.prepared.pipes.generic.IdentityGenPipe;
 import settings.Settings;
 import settings.Sources;
 import training.results.Results;
