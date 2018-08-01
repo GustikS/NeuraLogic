@@ -6,6 +6,11 @@ import networks.evaluation.results.Results;
  * Created by gusta on 8.3.17.
  */
 public class TrainTestResults {
-    Results training;
-    Results testing;
+    public Results training;
+    public Results testing;
+
+    public TrainTestResults(Results train, Results test) {
+        this.training = train;
+        this.testing = test;
+    }
 }

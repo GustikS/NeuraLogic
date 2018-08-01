@@ -26,7 +26,7 @@ public class Sources {
     protected Sources parent;
 
     public Source train;
-    Source test;
+    public Source test;
 
     //TODO change to correct abstract/specific parse trees for each type
     public PlainTemplateParseTree templateParseTree;

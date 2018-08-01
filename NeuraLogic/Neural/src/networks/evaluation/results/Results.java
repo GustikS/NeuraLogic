@@ -3,16 +3,20 @@ package networks.evaluation.results;
 import networks.evaluation.values.Value;
 import training.NeuralSample;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by gusta on 8.3.17.
  */
-public class Results {
-    Map<NeuralSample, Value> outputs;
+public abstract class Results {
+    Map<NeuralSample, Value> outputs = new HashMap<>();
 
-    public String toString(){
-        //TODO override intelligently in subclasses
-        return null;
+    public abstract String toString();
+
+    public void addResult(NeuralSample sample, Value value){
+        outputs.put(sample,value);
     }
+
+    public abstract boolean calculate();
 }

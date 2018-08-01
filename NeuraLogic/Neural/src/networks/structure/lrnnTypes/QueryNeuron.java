@@ -1,6 +1,6 @@
 package networks.structure.lrnnTypes;
 
-import constructs.example.LiftedExample;
+import learning.Example;
 import learning.Model;
 import learning.Query;
 import networks.evaluation.values.Value;
@@ -17,8 +17,8 @@ public class QueryNeuron extends Neuron implements Query{
     NeuralNetwork context;
 
     @Override
-    public Optional<LiftedExample> getEvidence() {
-        return context;
+    public Optional<Example> getEvidence() {
+        return Optional.of(context);
     }
 
     @Override

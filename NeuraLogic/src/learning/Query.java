@@ -1,6 +1,5 @@
 package learning;
 
-import constructs.example.LiftedExample;
 import networks.evaluation.values.Value;
 
 import java.util.Optional;
@@ -16,7 +15,7 @@ public interface Query {
      * Returns a particular example (logic clauses OR neural network) that this query corresponds to
      * @return
      */
-    Optional<LiftedExample> getEvidence();
+    Optional<Example> getEvidence();
     /**
      * Uniquely identifies this query, i.e. logical atom or neural network output
      * @return

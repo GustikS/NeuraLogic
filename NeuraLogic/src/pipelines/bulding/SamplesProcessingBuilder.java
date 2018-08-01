@@ -16,11 +16,11 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
     private static final Logger LOG = Logger.getLogger(SamplesProcessingBuilder.class.getName());
 
     SamplesBuilder samplesBuilder;
-    private Source sources;
+    private Source source;
 
     public SamplesProcessingBuilder(Settings settings, Source sources) {
         super(settings);
-        this.sources = sources;
+        this.source = sources;
         samplesBuilder = new constructs.building.SamplesBuilder(settings);
     }
 
@@ -32,7 +32,7 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
         return null;
     }
 
-    public Pipe<Source, Stream<LogicSample>> extractTrainingSamplesPipe(Source sources) {
+    public Pipe<Source, Stream<LogicSample>> extractSamplesPipe(Source sources) {
         Pipe<Source, Stream<LogicSample>> pipe = new Pipe<Source, Stream<LogicSample>>("SamplesExtractionPipe") {
             @Override
             public Stream<LogicSample> apply(Source sources) {
@@ -51,16 +51,20 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
 
     @Override
     public Pipeline<Source, Stream<LogicSample>> buildPipeline() {
+        return buildPipeline(this.source);
+    }
+
+    public Pipeline<Source, Stream<LogicSample>> buildPipeline(Source source) {
         Pipeline<Source, Stream<LogicSample>> samplesProcessingPipeline = new Pipeline<>("SamplesProcessingPipeline");
-            Pipe<Source, Stream<LogicSample>> sourcesSamplesPipe = samplesProcessingPipeline.register(extractTrainingSamplesPipe(this.sources));
-            Pipe<Stream<LogicSample>, Stream<LogicSample>> samplesPostprocessPipe = samplesProcessingPipeline.register(postprocessSamples());
+            Pipe<Source, Stream<LogicSample>> sourcesSamplesPipe = samplesProcessingPipeline.register(extractSamplesPipe(source));
+            Pipe<Stream<LogicSample>, Stream<LogicSample>> samplesPostprocessPipe = samplesProcessingPipeline.register(postprocessSamplesPipe());
             sourcesSamplesPipe.connectAfter(samplesPostprocessPipe);
             return samplesProcessingPipeline;
 
     }
 
 
-    public Pipe<Stream<LogicSample>, Stream<LogicSample>> postprocessSamples() {
+    public Pipe<Stream<LogicSample>, Stream<LogicSample>> postprocessSamplesPipe() {
         //TODO
         return null;
     }

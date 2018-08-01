@@ -77,7 +77,7 @@ public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T> {
         return p;
     }
 
-    public <O> Pipe<S, O> registerStart(Pipe<S, O> p) {
+    public <O, A extends Pipe<S, O>> A registerStart(A p) {
         start = p;
         register(p);
         return p;
@@ -89,7 +89,7 @@ public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T> {
         return p;
     }
 
-    public Pipeline<S, T> registerStart(Pipeline<S, T> p) {
+    public <O, A extends Pipeline<S,O>> A registerStart(A p) {
         start = p.start;
         register(p);
         return p;
@@ -103,6 +103,12 @@ public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T> {
 
     public <I1, I2, A extends Merge<I1, I2, T>> A registerEnd(A p) {
         terminal = p;
+        register(p);
+        return p;
+    }
+
+    public <I, A extends Pipeline<I,T>> A registerEnd(A p) {
+        terminal = p.terminal;
         register(p);
         return p;
     }
@@ -153,4 +159,5 @@ public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T> {
     public void setInput(ConnectAfter<S> prev) {
         input = prev;
     }
+
 }

@@ -13,15 +13,21 @@ import java.util.stream.Stream;
 
 public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Results> {
     private static final Logger LOG = Logger.getLogger(CrossvalidationBuilder.class.getName());
+    private Sources sources;
     public TrainTestBuilder trainTestBuilder;
 
-    public CrossvalidationBuilder(Settings settings) {
+    public CrossvalidationBuilder(Settings settings, Sources sources) {
         super(settings);
+        this.sources = sources;
     }
 
     @Override
+    public Pipeline<Sources, Results> buildPipeline() {
+        return buildPipeline(sources);
+    }
+
     public Pipeline<Sources, Results> buildPipeline(Sources sources) {
-        SamplesProcessingBuilder samplesExtractor = new SamplesProcessingBuilder(settings);
+        SamplesProcessingBuilder samplesExtractor = new SamplesProcessingBuilder(settings, sources.train);
 
         if (sources.foldFiles) {
             //load external folds sources.folds, perfrom crossvalidation
@@ -52,4 +58,6 @@ public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Res
             }
         }
     }
+
+
 }
