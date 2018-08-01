@@ -1,11 +1,11 @@
 import ida.utils.tuples.Pair;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
-import pipeline.Pipeline;
-import pipeline.bulding.LearningSchemeBuilder;
+import pipelines.Pipeline;
+import pipelines.bulding.LearningSchemeBuilder;
 import settings.Settings;
 import settings.Sources;
-import training.results.Results;
+import networks.evaluation.results.Results;
 import utils.CommandLineHandler;
 import utils.logging.Logging;
 
@@ -40,11 +40,11 @@ public class Main {
             System.exit(1);
         }
 
-        //place for external changes in setting object for non-standard pipeline
+        //place for external changes in setting object for non-standard pipelines
 
         Pair<Boolean, String> validation = settings.validate();
         if (!validation.r) {
-            LOG.severe("Invalid pipeline setting.\n" + validation.s);
+            LOG.severe("Invalid pipelines setting.\n" + validation.s);
             System.exit(2);
         }
         validation = sources.validate(settings);

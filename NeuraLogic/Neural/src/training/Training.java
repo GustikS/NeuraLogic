@@ -1,6 +1,6 @@
 package training;
 
-import training.results.Results;
+import networks.evaluation.results.Results;
 
 import java.util.List;
 

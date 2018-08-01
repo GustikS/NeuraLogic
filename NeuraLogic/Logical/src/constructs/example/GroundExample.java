@@ -27,4 +27,9 @@ public class GroundExample implements Example {
     public String getId() {
         return null;
     }
+
+    @Override
+    public Integer getSize() {
+        return null;
+    }
 }

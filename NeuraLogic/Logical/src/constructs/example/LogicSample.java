@@ -2,22 +2,21 @@ package constructs.example;
 
 import learning.Example;
 import learning.LearningSample;
-import learning.Model;
 import learning.Query;
 import networks.evaluation.values.Value;
 
 
 /**
  * Represents highest level abstraction for supervised learning methods.
- *
+ * <p>
  * Created by gusta on 8.3.17.
  */
-public class LogicSample implements LearningSample{
+public class LogicSample implements LearningSample {
     double importance;
     AtomQuery query;
     Value target;
 
-    public LogicSample(AtomQuery q, Value v){
+    public LogicSample(AtomQuery q, Value v) {
 
     }
 
@@ -45,8 +44,7 @@ public class LogicSample implements LearningSample{
     }
 
     @Override
-    public Value getValue(Model model) {
-        return query.evaluate(model);
+    public Example getExample() {
+        return query.getEvidence().get();
     }
-
 }

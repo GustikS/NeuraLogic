@@ -19,4 +19,9 @@ public class NeuralNetwork implements Example{
     public String getId() {
         return null;
     }
+
+    @Override
+    public Integer getSize() {
+        return null;
+    }
 }

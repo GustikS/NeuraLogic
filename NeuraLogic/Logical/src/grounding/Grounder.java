@@ -2,7 +2,7 @@ package grounding;
 
 import constructs.template.Template;
 import constructs.example.LogicSample;
-import pipeline.SampleProcess;
+import pipelines.SampleProcess;
 
 /**
  * Created by Gusta on 06.10.2016.

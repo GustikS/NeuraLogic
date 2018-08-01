@@ -2,7 +2,7 @@ package learning.crossvalidation;
 
 import learning.Learner;
 import constructs.example.LogicSample;
-import training.results.Results;
+import networks.evaluation.results.Results;
 
 import java.util.List;
 

@@ -1,6 +1,6 @@
 package learning.crossvalidation;
 
-import training.results.Results;
+import networks.evaluation.results.Results;
 
 /**
  * Created by gusta on 8.3.17.
