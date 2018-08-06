@@ -12,8 +12,8 @@ import java.util.logging.Logger;
 public abstract class Merge<I1, I2, O> implements ConnectAfter<O> {
     private static final Logger LOG = Logger.getLogger(Merge.class.getName());
 
-    Pipe<I1,I1> input1;
-    Pipe<I2,I2> input2;
+    public Pipe<I1, I1> input1;
+    public Pipe<I2, I2> input2;
     public ConnectBefore<O> output;
 
     public String ID;
@@ -73,20 +73,19 @@ public abstract class Merge<I1, I2, O> implements ConnectAfter<O> {
     }
 
 
+    /*
+        private Stream<O> merge(Stream<I1> input1, I2 input2) {
+            return input1.map(i1 -> merge(i1, input2));
+        }
 
-/*
-    private Stream<O> merge(Stream<I1> input1, I2 input2) {
-        return input1.map(i1 -> merge(i1, input2));
-    }
+        private Stream<O> merge(I1 input1, Stream<I2> input2) {
+            return input2.map(i2 -> merge(input1, i2));
+        }
 
-    private Stream<O> merge(I1 input1, Stream<I2> input2) {
-        return input2.map(i2 -> merge(input1, i2));
-    }
-
-    private Stream<O> merge(Stream<I1> input1, Stream<I2> input2) {
-        return Utilities.zipStreams(input1, input2, this::merge);
-    }
-*/
+        private Stream<O> merge(Stream<I1> input1, Stream<I2> input2) {
+            return Utilities.zipStreams(input1, input2, this::merge);
+        }
+    */
     protected abstract O merge(I1 input1, I2 input2);
 
     @Override
@@ -110,10 +109,11 @@ public abstract class Merge<I1, I2, O> implements ConnectAfter<O> {
     }
     */
 
-    public ConnectAfter<I1> connectBeforeL(ConnectAfter<I1> prev){
+    public ConnectAfter<I1> connectBeforeL(ConnectAfter<I1> prev) {
         return input1.connectBefore(prev);
     }
-    public ConnectAfter<I2> connectBeforeR(ConnectAfter<I2> prev){
+
+    public ConnectAfter<I2> connectBeforeR(ConnectAfter<I2> prev) {
         return input2.connectBefore(prev);
     }
 }

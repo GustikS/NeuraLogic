@@ -18,29 +18,32 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
     SamplesBuilder samplesBuilder;
     private Source source;
 
-    public SamplesProcessingBuilder(Settings settings, Source sources) {
+    public SamplesProcessingBuilder(Settings settings, Source source) {
         super(settings);
-        this.source = sources;
+        this.source = source;
         samplesBuilder = new constructs.building.SamplesBuilder(settings);
     }
 
-    public Pipe<Source, Stream<LiftedExample>> extractExamples(Source sources) {
+    public Pipe<Source, Stream<LiftedExample>> extractExamples(Source source) {
         return null;
     }
 
-    public Pipe<Source, Stream<Query>> extractQueries(Source sources) {
+    public Pipe<Source, Stream<Query>> extractQueries(Source source) {
         return null;
     }
 
-    public Pipe<Source, Stream<LogicSample>> extractSamplesPipe(Source sources) {
+    public Pipe<Source, Stream<LogicSample>> extractSamplesPipe(Source source) {
         Pipe<Source, Stream<LogicSample>> pipe = new Pipe<Source, Stream<LogicSample>>("SamplesExtractionPipe") {
             @Override
-            public Stream<LogicSample> apply(Source sources) {
-                if (sources.QueriesSeparate) {
-                    return samplesBuilder.buildFrom(sources.ExamplesParseTree, sources.QueriesParseTree);
-                } else if (sources.QueriesProvided) {
-                    return samplesBuilder.buildFrom(sources.ExamplesParseTree);
-                } else {
+            public Stream<LogicSample> apply(Source source) {
+                if (source.QueriesSeparate && source.ExamplesProvided) {
+                    return samplesBuilder.buildFrom(source.ExamplesParseTree, source.QueriesParseTree);
+                } else if (!source.QueriesSeparate && source.ExamplesProvided && source.QueriesProvided) {
+                    return samplesBuilder.buildFrom(source.ExamplesParseTree);
+                } else if (source.QueriesSeparate && !source.ExamplesProvided){
+                    return samplesBuilder.buildFrom(source.QueriesParseTree);
+                }
+                else {
                     LOG.severe("No Queries found to assemble Samples");
                     return null;
                 }

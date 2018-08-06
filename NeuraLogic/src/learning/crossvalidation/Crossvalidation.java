@@ -1,19 +1,19 @@
 package learning.crossvalidation;
 
-import learning.Learner;
-import constructs.example.LogicSample;
+import learning.LearningSample;
 import networks.evaluation.results.Results;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by gusta on 8.3.17.
  */
-public class Crossvalidation {
+public class Crossvalidation<T extends LearningSample> {
 
-    List<TrainTestResults> crossvalidate(){return null;}
-    TrainTestResults aggregate(List<TrainTestResults> foldRunStatsList){return null;}
-    Results train(Learner learner, List<LogicSample> learningSamples){return null;}
-    Results test(Learner learner, List<LogicSample> learningSamples){return null;}
+    List<Fold<T>> folds;
+    Optional<Results> results;
+
+    public TrainTestResults aggregateResults(List<TrainTestResults> foldRunStatsList){return null;}
 
 }

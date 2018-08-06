@@ -1,17 +1,19 @@
 package pipelines.bulding;
 
-import constructs.example.LogicSample;
+import learning.crossvalidation.Crossvalidation;
+import learning.crossvalidation.TrainTestResults;
+import networks.evaluation.results.Results;
 import pipelines.MultiBranch;
+import pipelines.MultiMerge;
 import pipelines.Pipeline;
 import settings.Settings;
 import settings.Sources;
-import networks.evaluation.results.Results;
 
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
-public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Results> {
+public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, TrainTestResults> {
     private static final Logger LOG = Logger.getLogger(CrossvalidationBuilder.class.getName());
     private Sources sources;
     public TrainTestBuilder trainTestBuilder;
@@ -22,28 +24,49 @@ public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Res
     }
 
     @Override
-    public Pipeline<Sources, Results> buildPipeline() {
+    public Pipeline<Sources, TrainTestResults> buildPipeline() {
         return buildPipeline(sources);
     }
 
-    public Pipeline<Sources, Results> buildPipeline(Sources sources) {
-        SamplesProcessingBuilder samplesExtractor = new SamplesProcessingBuilder(settings, sources.train);
+    public Pipeline<Sources, TrainTestResults> buildPipeline(Sources sources) {
+        Pipeline<Sources, TrainTestResults> pipeline = new Pipeline<>("LearningSchemePipeline");
 
-        if (sources.foldFiles) {
-            //load external folds sources.folds, perfrom crossvalidation
+        if (sources.foldFiles) { //external pre-split folds by user
+            if (sources.folds.stream().allMatch(fold -> fold.trainTest)) {  //folds are completely independent (train+test provided)
 
-            MultiBranch<List<Sources>, Stream<LogicSample>> crossvalTrainBranch;
-            crossvalTrainBranch = new MultiBranch<List<Sources>, Stream<LogicSample>>(ExternalTrainingCrossvalSplit) {
-                @Override
-                public Stream<Stream<LogicSample>> apply(List<Sources> sources) {
+                MultiBranch<Sources, Sources> multiBranch = pipeline.registerStart(new MultiBranch<Sources, Sources>("FoldsBranch", sources.folds.size()) {
+                    @Override
+                    protected List<Sources> branch(Sources folds) {
+                        return folds.folds;
+                    }
+                });
 
+                TrainTestBuilder trainTestBuilder = new TrainTestBuilder(settings, sources);
+                List<Pipeline<Sources, TrainTestResults>> trainTestPipelines = trainTestBuilder.buildPipelines(sources.folds.size());
+                trainTestPipelines.forEach(pipeline::register);
+
+                multiBranch.connectAfter(trainTestPipelines);
+
+                MultiMerge<TrainTestResults, TrainTestResults> multiMerge = pipeline.registerEnd(new MultiMerge<TrainTestResults, TrainTestResults>("ResultsAggregateMerge", sources.folds.size()) {
+                    @Override
+                    protected TrainTestResults merge(List<TrainTestResults> inputs) {
+                        Crossvalidation crossvalidation = new Crossvalidation();
+                        return crossvalidation.aggregateResults(inputs);
+                    }
+                });
+                multiMerge.connectBefore(trainTestPipelines);
+
+            } else if (sources.folds.stream().allMatch(fold -> fold.testOnly)) { //train-test folds need to be created first
+                if (settings.isolatedFoldsGrounding) {
+
+                } else {
 
                 }
-            };
+                SamplesProcessingBuilder samplesExtractor = new SamplesProcessingBuilder(settings, sources.train);
+            }
 
 
-        } else {
-            //split the dataset into folds - create sources, perform crossvalidation
+        } else {    //internal splitting
             if (settings.isolatedFoldsGrounding) {
                 //first split the source and then ground
             } else {

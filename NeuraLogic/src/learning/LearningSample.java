@@ -1,5 +1,6 @@
 package learning;
 
+import com.sun.istack.internal.Nullable;
 import networks.evaluation.values.Value;
 
 public interface LearningSample {
@@ -9,6 +10,8 @@ public interface LearningSample {
     String getId();
     Value getTarget();
     Query getQuery();
+
+    @Nullable
     Example getExample();
 
     default Value getValue(Model model) {

@@ -111,6 +111,13 @@ public class Sources {
             LOG.severe(msg += "Invalid learning setup - no template nor trainQueriesSeparate or testing samples provided");
             valid = false;
         }
+        if (crossvalidation && (testOnly || trainTest || trainOnly)){
+            LOG.severe(msg += "Invalid learning setup - cannot decide between crossvalidation and other modes.");
+            valid = false;
+        }
+        if (foldFiles){
+            Pair<Boolean, String> val = checkJointConsistency(folds);
+        }
         //TODO add some general validation
         Pair<Boolean, String> valtrain = train.validate(settings);
         valid &= valtrain.r;
@@ -119,6 +126,16 @@ public class Sources {
         msg += valtest.s;
         valid &= valtest.r;
         return new Pair<>(valid, msg);
+    }
+
+    /**
+     * All folds must have the same contents (wr.t. train test Source)
+     * i.e. if one of them includes train, all must do, otherwise it is inconsistent
+     * @param folds
+     * @return
+     */
+    private Pair<Boolean, String> checkJointConsistency(List<Sources> folds) {
+        return null;
     }
 
 

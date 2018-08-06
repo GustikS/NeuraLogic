@@ -5,6 +5,7 @@ import settings.Settings;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 /**
@@ -16,7 +17,7 @@ import java.util.logging.Logger;
  * <p>
  * Created by gusta on 14.3.17.
  */
-public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T> {
+public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T>, Function<S, T> {
     // pipelines - vstup a vystup by byl Pipe/Merge/Branch?
 
     private static final Logger LOG = Logger.getLogger(Pipeline.class.getName());
@@ -30,6 +31,9 @@ public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T> {
     ConcurrentHashMap<String, Branch> branches;
     ConcurrentHashMap<String, Merge> merges;
     ConcurrentHashMap<String, Pipe> pipes;
+
+    ConcurrentHashMap<String, MultiBranch> multiBranches;
+    ConcurrentHashMap<String, MultiMerge> multiMerges;
 
     ConcurrentHashMap<String, Pipeline> pipelines;
 
@@ -56,7 +60,7 @@ public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T> {
         return new Pair<String, T>(ID, terminal.get());
     }
 
-    public <I, O, A extends Pipe<I,O>> A register(A p) {
+    public <I, O, A extends Pipe<I, O>> A register(A p) {
         pipes.put(p.ID, p);
         return p;
     }
@@ -89,13 +93,29 @@ public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T> {
         return p;
     }
 
-    public <O, A extends Pipeline<S,O>> A registerStart(A p) {
+    public <O, A extends MultiBranch<S, O>> A registerStart(A m) {
+        start = m;
+        register(m);
+        return m;
+    }
+
+    public <I, O, A extends MultiBranch<I, O>> A register(A m) {
+        multiBranches.put(m.ID, m);
+        return m;
+    }
+
+    public <I, O, A extends MultiMerge<I, O>> A register(A m) {
+        multiMerges.put(m.ID, m);
+        return m;
+    }
+
+    public <O, A extends Pipeline<S, O>> A registerStart(A p) {
         start = p.start;
         register(p);
         return p;
     }
 
-    public <I, A extends Pipe<I,T>> A registerEnd(A p) {
+    public <I, A extends Pipe<I, T>> A registerEnd(A p) {
         terminal = p;
         register(p);
         return p;
@@ -107,7 +127,13 @@ public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T> {
         return p;
     }
 
-    public <I, A extends Pipeline<I,T>> A registerEnd(A p) {
+    public <I, A extends MultiMerge<I, T>> A registerEnd(A p) {
+        terminal = p;
+        register(p);
+        return p;
+    }
+
+    public <I, A extends Pipeline<I, T>> A registerEnd(A p) {
         terminal = p.terminal;
         register(p);
         return p;
@@ -158,6 +184,11 @@ public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T> {
     @Override
     public void setInput(ConnectAfter<S> prev) {
         input = prev;
+    }
+
+    @Override
+    public T apply(S s) {
+        return execute(s).s;
     }
 
 }

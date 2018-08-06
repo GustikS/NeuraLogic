@@ -72,7 +72,7 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
 
         pairMerge.connectAfter(logicTestingPipeline);
 
-        Merge<Results,Results,TrainTestResults> resultsMerge = pipeline.registerEnd(new Merge<Results, Results, TrainTestResults>() {
+        Merge<Results,Results,TrainTestResults> resultsMerge = pipeline.registerEnd(new Merge<Results, Results, TrainTestResults>("TrainTestResultsMerge") {
             @Override
             protected TrainTestResults merge(Results train, Results test) {
                 return new TrainTestResults(train, test);
@@ -85,7 +85,41 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
         return pipeline;
     }
 
+    /**
+     * First Stream<NeuralSample> is Train and second is Test
+     * @return
+     */
     public Pipeline<Pair<NeuralModel,Pair<Stream<NeuralSample>,Stream<NeuralSample>>>, TrainTestResults> buildNeuralPipeline() {
-        //TODO next
+        Pipeline<Pair<NeuralModel,Pair<Stream<NeuralSample>,Stream<NeuralSample>>>, TrainTestResults> pipeline = new Pipeline<>("NeuralTrainTestPipeline");
+        TrainingBuilder.NeuralLearningBuilder neuralLearningBuilder = new TrainingBuilder(settings).new NeuralLearningBuilder(settings);
+        Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Results>> neuralLearning = pipeline.register(neuralLearningBuilder.buildPipeline());
+        TestingBuilder.NeuralTestingBuilder neuralTestingBuilder = new TestingBuilder(settings).new NeuralTestingBuilder(settings);
+        Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Results> neuralTesting = pipeline.register(neuralTestingBuilder.buildPipeline());
+
+        PairBranch<NeuralModel,Pair<Stream<NeuralSample>,Stream<NeuralSample>>> modelSamplesBranch = pipeline.registerStart(new PairBranch<>());
+        PairBranch<Stream<NeuralSample>,Stream<NeuralSample>> trainTestBranch = pipeline.register(new PairBranch<>());
+        PairBranch<NeuralModel, Results> modelResultsBranch = pipeline.register(new PairBranch<>());
+        PairMerge<NeuralModel, Stream<NeuralSample>> trainingMerge = pipeline.register(new PairMerge<>());
+        PairMerge<NeuralModel, Stream<NeuralSample>> testingMerge = pipeline.register(new PairMerge<>());
+        Merge<Results,Results,TrainTestResults> resultsMerge = pipeline.registerEnd(new Merge<Results, Results, TrainTestResults>("TrainTestResultsMerge") {
+            @Override
+            protected TrainTestResults merge(Results train, Results test) {
+                return new TrainTestResults(train, test);
+            }
+        });
+
+        pipeline.registerStart(modelSamplesBranch);
+        modelSamplesBranch.connectAfterL(trainingMerge.input1);
+        modelSamplesBranch.connectAfterR(trainTestBranch);
+        trainingMerge.connectBeforeR(trainTestBranch.output1);
+        trainingMerge.connectAfter(neuralLearning);
+        neuralLearning.connectAfter(modelResultsBranch);
+        testingMerge.connectBeforeL(modelResultsBranch.output1);
+        testingMerge.connectBeforeR(trainTestBranch.output2);
+        testingMerge.connectAfter(neuralTesting);
+        resultsMerge.connectBeforeL(modelResultsBranch.output2);
+        resultsMerge.connectBeforeR(neuralTesting);
+
+        return pipeline;
     }
 }

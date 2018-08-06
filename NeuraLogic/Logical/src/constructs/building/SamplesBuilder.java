@@ -14,6 +14,7 @@ import neuralogic.examples.ExamplesParseTreeExtractor;
 import neuralogic.examples.PlainExamplesParseTreeExtractor;
 import neuralogic.grammarParsing.PlainGrammarVisitor;
 import neuralogic.grammarParsing.PlainParseTree;
+import neuralogic.queries.PlainQueriesParseTree;
 import parsers.neuralogic.NeuralogicParser;
 import pipelines.bulding.AbstractPipelineBuilder;
 import settings.Settings;
@@ -97,5 +98,9 @@ public class SamplesBuilder {
      */
     public Stream<LogicSample> combine(Stream<GroundExample> examples, Stream<Query> queries) {
 
+    }
+
+    public Stream<LogicSample> buildFrom(PlainQueriesParseTree queriesParseTree) {
+        QueriesBuilder queriesBuilder = new QueriesBuilder();
     }
 }

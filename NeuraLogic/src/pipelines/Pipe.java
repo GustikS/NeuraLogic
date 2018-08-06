@@ -1,11 +1,15 @@
 package pipelines;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
 /**
  * The input can also be a Stream and this pipe can be just a non-terminating mapping Stream<I> -> Stream<O>,
  * but also a mapping (function) between arbitrary kinds of Objects
+ *
  * @param <I>
  * @param <O>
  */
@@ -27,7 +31,6 @@ public abstract class Pipe<I, O> implements Function<I, O>, ConnectBefore<I>, Co
     public ConnectBefore<O> output;
 
     /**
-     *
      * @param input - can be a Stream!
      */
     public void accept(I input) {
@@ -36,7 +39,6 @@ public abstract class Pipe<I, O> implements Function<I, O>, ConnectBefore<I>, Co
             this.output.accept(outputReady);
         }
     }
-
 
 
     public O get() {
@@ -68,13 +70,13 @@ public abstract class Pipe<I, O> implements Function<I, O>, ConnectBefore<I>, Co
         this.input = insert;
         insert.output = this;
     }
+
     public void insertAfter(Pipe<O, ?> after, Pipe<O, O> insert) {
         after.input = insert;
         insert.output = after;
         this.output = insert;
         insert.input = this;
     }
-
 
 
     @Override
@@ -95,6 +97,34 @@ public abstract class Pipe<I, O> implements Function<I, O>, ConnectBefore<I>, Co
     @Override
     public void setInput(ConnectAfter<I> prev) {
         input = prev;
+    }
+
+    /**
+     * Reflection based cloning - hack to clone abstract pipe subclasses
+     * @param count
+     * @return
+     */
+    public List<Pipe<I, O>> multiple(int count) {
+        List<Pipe<I, O>> copies = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            try {
+                Pipe<I, O> clone = this.getClass().getDeclaredConstructor(String.class).newInstance(this.ID + i);
+                copies.add(clone);
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+        }
+        if (!copies.isEmpty()) return copies;
+        else {
+            LOG.severe("Cloning of a pipe:" + this.ID + " was not succesfull!");
+            return null;
+        }
     }
 
 }

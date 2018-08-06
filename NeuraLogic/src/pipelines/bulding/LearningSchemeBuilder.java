@@ -63,12 +63,12 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
             trainTestPipeline.connectAfter(getTestResultsPipe);
 
         } else if (sources.trainOnly) {
-            Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Results>> trainingPipeline = pipeline.registerStart(buildTrainingPipeline());
+            Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Results>> trainingPipeline = pipeline.registerStart(this.buildTrainingPipeline());
             SecondFromPairPipe<Pair<Template, NeuralModel>, Results> secondFromPairPipe = pipeline.registerEnd(new SecondFromPairPipe<>());
             trainingPipeline.connectAfter(secondFromPairPipe);
 
         } else if (sources.testOnly) {
-            Pipeline<Sources, Results> testingPipeline = pipeline.registerEnd(pipeline.registerStart(buildTestingPipeline()));
+            Pipeline<Sources, Results> testingPipeline = pipeline.registerEnd(pipeline.registerStart(this.buildTestingPipeline()));
 
         } else {
             LOG.severe("Invalid learning mode setting.");
@@ -76,6 +76,11 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
         return pipeline;
     }
 
+
+    /**
+     * Pure testing, starting from Sources (test Source + Template)
+     * @return
+     */
     public Pipeline<Sources, Results> buildTestingPipeline(){
         Pipeline<Sources, Results> pipeline = new Pipeline<>("TestingPipeline");
         DuplicateBranch<Sources> duplicateBranch = pipeline.registerStart(new DuplicateBranch<>());
@@ -115,6 +120,10 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
     }
 
 
+    /**
+     * Pure training, starting from Sources (train Source + Template)
+     * @return
+     */
     public Pipeline<Sources, Pair<Pair<Template, NeuralModel>,Results>> buildTrainingPipeline(){
         Pipeline<Sources, Pair<Pair<Template, NeuralModel>,Results>> pipeline = new Pipeline<>("TrainingPipeline");
         DuplicateBranch<Sources> duplicateBranch = pipeline.registerStart(new DuplicateBranch<>());
