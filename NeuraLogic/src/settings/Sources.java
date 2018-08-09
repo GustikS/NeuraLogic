@@ -135,6 +135,7 @@ public class Sources {
      * @return
      */
     private Pair<Boolean, String> checkJointConsistency(List<Sources> folds) {
+        //1) all folds have different templates is OK, but some have and some not is not ok, none have is ok, only superfold has template is ok
         return null;
     }
 

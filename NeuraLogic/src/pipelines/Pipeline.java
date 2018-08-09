@@ -32,6 +32,7 @@ public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T>, Functi
     ConcurrentHashMap<String, Merge> merges;
     ConcurrentHashMap<String, Pipe> pipes;
 
+    ConcurrentHashMap<String, ParallelPipe> multiPipes;
     ConcurrentHashMap<String, MultiBranch> multiBranches;
     ConcurrentHashMap<String, MultiMerge> multiMerges;
 
@@ -39,6 +40,7 @@ public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T>, Functi
 
     public ConnectAfter<S> input;
     public ConnectBefore<T> output;
+
 
     public Pipeline(String id) {
         this.ID = id;
@@ -63,6 +65,12 @@ public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T>, Functi
     public <I, O, A extends Pipe<I, O>> A register(A p) {
         pipes.put(p.ID, p);
         return p;
+    }
+
+    public <I,O,A extends ParallelPipe<I,O>> A register(A m) {
+        //TODO register individual pipes in multis
+        multiPipes.put(m.ID,m);
+        return m;
     }
 
     public <I, O1, O2, A extends Branch<I, O1, O2>> A register(A b) {
@@ -190,5 +198,4 @@ public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T>, Functi
     public T apply(S s) {
         return execute(s).s;
     }
-
 }

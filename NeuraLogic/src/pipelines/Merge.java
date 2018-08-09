@@ -1,5 +1,7 @@
 package pipelines;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -115,5 +117,45 @@ public abstract class Merge<I1, I2, O> implements ConnectAfter<O> {
 
     public ConnectAfter<I2> connectBeforeR(ConnectAfter<I2> prev) {
         return input2.connectBefore(prev);
+    }
+
+    public List<Merge<I1, I2, O>> parallel(int count) {
+        List<Merge<I1, I2, O>> copies = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            copies.add(new Merge<I1, I2, O>(this.ID + i) {
+                @Override
+                protected O merge(I1 input1, I2 input2) {
+                    return Merge.this.merge(input1, input2);
+                }
+            });
+        }
+        return copies;
+    }
+
+    public static <T, A extends Merge<T, ?, ?>, B extends ConnectAfter<T>> void connectBeforeL(List<A> merges, List<B> pipes){
+        if (merges.size() != pipes.size()){
+            LOG.severe("The 2 Lists of merges and pipes provided cannot be connected with different sizes!");
+        }
+        for (int i = 0; i < merges.size(); i++) {
+            merges.get(i).connectBeforeL(pipes.get(i));
+        }
+    }
+
+    public static <T, A extends Merge<?, T, ?>, B extends ConnectAfter<T>> void connectBeforeR(List<A> merges, List<B> pipes){
+        if (merges.size() != pipes.size()){
+            LOG.severe("The 2 Lists of merges and pipes provided cannot be connected with different sizes!");
+        }
+        for (int i = 0; i < merges.size(); i++) {
+            merges.get(i).connectBeforeR(pipes.get(i));
+        }
+    }
+
+    public static <T, A extends Merge<?, ?, T>, B extends ConnectBefore<T>> void connectAfter(List<A> merges, List<B> pipes){
+        if (merges.size() != pipes.size()){
+            LOG.severe("The 2 Lists of merges and pipes provided cannot be connected with different sizes!");
+        }
+        for (int i = 0; i < merges.size(); i++) {
+            merges.get(i).connectAfter(pipes.get(i));
+        }
     }
 }

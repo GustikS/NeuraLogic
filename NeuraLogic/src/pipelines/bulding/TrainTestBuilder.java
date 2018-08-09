@@ -5,6 +5,7 @@ import constructs.template.Template;
 import ida.utils.tuples.Pair;
 import learning.crossvalidation.TrainTestResults;
 import networks.evaluation.results.Results;
+import neuralogic.template.PlainTemplateParseTree;
 import pipelines.Merge;
 import pipelines.Pipe;
 import pipelines.Pipeline;
@@ -17,6 +18,7 @@ import settings.Sources;
 import training.NeuralModel;
 import training.NeuralSample;
 
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -48,7 +50,7 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
             }
         });
 
-        LearningSchemeBuilder learningSchemeBuilder = new LearningSchemeBuilder(settings,sources);
+        LearningSchemeBuilder learningSchemeBuilder = new LearningSchemeBuilder(settings, sources);
         Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Results>> trainingPipeline = pipeline.register(learningSchemeBuilder.buildTrainingPipeline());
         PairBranch<Pair<Template, NeuralModel>, Results> pairBranch1 = pipeline.register(new PairBranch<>());
 
@@ -72,7 +74,7 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
 
         pairMerge.connectAfter(logicTestingPipeline);
 
-        Merge<Results,Results,TrainTestResults> resultsMerge = pipeline.registerEnd(new Merge<Results, Results, TrainTestResults>("TrainTestResultsMerge") {
+        Merge<Results, Results, TrainTestResults> resultsMerge = pipeline.registerEnd(new Merge<Results, Results, TrainTestResults>("TrainTestResultsMerge") {
             @Override
             protected TrainTestResults merge(Results train, Results test) {
                 return new TrainTestResults(train, test);
@@ -85,41 +87,84 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
         return pipeline;
     }
 
-    /**
-     * First Stream<NeuralSample> is Train and second is Test
-     * @return
-     */
-    public Pipeline<Pair<NeuralModel,Pair<Stream<NeuralSample>,Stream<NeuralSample>>>, TrainTestResults> buildNeuralPipeline() {
-        Pipeline<Pair<NeuralModel,Pair<Stream<NeuralSample>,Stream<NeuralSample>>>, TrainTestResults> pipeline = new Pipeline<>("NeuralTrainTestPipeline");
-        TrainingBuilder.NeuralLearningBuilder neuralLearningBuilder = new TrainingBuilder(settings).new NeuralLearningBuilder(settings);
-        Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Results>> neuralLearning = pipeline.register(neuralLearningBuilder.buildPipeline());
-        TestingBuilder.NeuralTestingBuilder neuralTestingBuilder = new TestingBuilder(settings).new NeuralTestingBuilder(settings);
-        Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Results> neuralTesting = pipeline.register(neuralTestingBuilder.buildPipeline());
+    public class LogicTrainTestBuilder extends AbstractPipelineBuilder<Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>, TrainTestResults> {
 
-        PairBranch<NeuralModel,Pair<Stream<NeuralSample>,Stream<NeuralSample>>> modelSamplesBranch = pipeline.registerStart(new PairBranch<>());
-        PairBranch<Stream<NeuralSample>,Stream<NeuralSample>> trainTestBranch = pipeline.register(new PairBranch<>());
-        PairBranch<NeuralModel, Results> modelResultsBranch = pipeline.register(new PairBranch<>());
-        PairMerge<NeuralModel, Stream<NeuralSample>> trainingMerge = pipeline.register(new PairMerge<>());
-        PairMerge<NeuralModel, Stream<NeuralSample>> testingMerge = pipeline.register(new PairMerge<>());
-        Merge<Results,Results,TrainTestResults> resultsMerge = pipeline.registerEnd(new Merge<Results, Results, TrainTestResults>("TrainTestResultsMerge") {
-            @Override
-            protected TrainTestResults merge(Results train, Results test) {
-                return new TrainTestResults(train, test);
-            }
-        });
+        public LogicTrainTestBuilder(Settings settings) {
+            super(settings);
+        }
 
-        pipeline.registerStart(modelSamplesBranch);
-        modelSamplesBranch.connectAfterL(trainingMerge.input1);
-        modelSamplesBranch.connectAfterR(trainTestBranch);
-        trainingMerge.connectBeforeR(trainTestBranch.output1);
-        trainingMerge.connectAfter(neuralLearning);
-        neuralLearning.connectAfter(modelResultsBranch);
-        testingMerge.connectBeforeL(modelResultsBranch.output1);
-        testingMerge.connectBeforeR(trainTestBranch.output2);
-        testingMerge.connectAfter(neuralTesting);
-        resultsMerge.connectBeforeL(modelResultsBranch.output2);
-        resultsMerge.connectBeforeR(neuralTesting);
+        /**
+         * First Stream<NeuralSample> is Train and second is Test
+         *
+         * @return
+         */
+        @Override
+        public Pipeline<Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>, TrainTestResults> buildPipeline() {
+            return null;
+        }
 
-        return pipeline;
+        //public Pipeline<Pair<PlainTemplateParseTree, Pair<Stream<LogicSample>, Stream<LogicSample>>>, TrainTestResults> buildTemplatePipeline() {
+        //}
+
+    }
+
+    public class StructureTrainTestBuilder extends AbstractPipelineBuilder<Pair<Stream<LogicSample>, Stream<LogicSample>>, TrainTestResults> {
+
+
+        public StructureTrainTestBuilder(Settings settings) {
+            super(settings);
+        }
+
+        @Override
+        public Pipeline<Pair<Stream<LogicSample>, Stream<LogicSample>>, TrainTestResults> buildPipeline() {
+            return null;
+        }
+    }
+
+    public class NeuralTrainTestBuilder extends AbstractPipelineBuilder<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>, TrainTestResults> {
+
+        public NeuralTrainTestBuilder(Settings settings) {
+            super(settings);
+        }
+
+        /**
+         * First Stream<NeuralSample> is Train and second is Test
+         *
+         * @return
+         */
+        @Override
+        public Pipeline<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>, TrainTestResults> buildPipeline() {
+            Pipeline<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>, TrainTestResults> pipeline = new Pipeline<>("NeuralTrainTestPipeline");
+            TrainingBuilder.NeuralLearningBuilder neuralLearningBuilder = new TrainingBuilder(settings).new NeuralLearningBuilder(settings);
+            Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Results>> neuralLearning = pipeline.register(neuralLearningBuilder.buildPipeline());
+            TestingBuilder.NeuralTestingBuilder neuralTestingBuilder = new TestingBuilder(settings).new NeuralTestingBuilder(settings);
+            Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Results> neuralTesting = pipeline.register(neuralTestingBuilder.buildPipeline());
+
+            PairBranch<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>> modelSamplesBranch = pipeline.registerStart(new PairBranch<>());
+            PairBranch<Stream<NeuralSample>, Stream<NeuralSample>> trainTestBranch = pipeline.register(new PairBranch<>());
+            PairBranch<NeuralModel, Results> modelResultsBranch = pipeline.register(new PairBranch<>());
+            PairMerge<NeuralModel, Stream<NeuralSample>> trainingMerge = pipeline.register(new PairMerge<>());
+            PairMerge<NeuralModel, Stream<NeuralSample>> testingMerge = pipeline.register(new PairMerge<>());
+            Merge<Results, Results, TrainTestResults> resultsMerge = pipeline.registerEnd(new Merge<Results, Results, TrainTestResults>("TrainTestResultsMerge") {
+                @Override
+                protected TrainTestResults merge(Results train, Results test) {
+                    return new TrainTestResults(train, test);
+                }
+            });
+
+            pipeline.registerStart(modelSamplesBranch);
+            modelSamplesBranch.connectAfterL(trainingMerge.input1);
+            modelSamplesBranch.connectAfterR(trainTestBranch);
+            trainingMerge.connectBeforeR(trainTestBranch.output1);
+            trainingMerge.connectAfter(neuralLearning);
+            neuralLearning.connectAfter(modelResultsBranch);
+            testingMerge.connectBeforeL(modelResultsBranch.output1);
+            testingMerge.connectBeforeR(trainTestBranch.output2);
+            testingMerge.connectAfter(neuralTesting);
+            resultsMerge.connectBeforeL(modelResultsBranch.output2);
+            resultsMerge.connectBeforeR(neuralTesting);
+
+            return pipeline;
+        }
     }
 }

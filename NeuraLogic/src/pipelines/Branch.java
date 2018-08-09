@@ -3,6 +3,8 @@ package pipelines;
 import ida.utils.tuples.Pair;
 import pipelines.prepared.pipes.generic.IdentityGenPipe;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 public abstract class Branch<I, O1, O2> implements ConnectBefore<I> {
@@ -47,4 +49,45 @@ public abstract class Branch<I, O1, O2> implements ConnectBefore<I> {
     public ConnectBefore<O2> connectAfterR(ConnectBefore<O2> next){
         return output2.connectAfter(next);
     }
+
+    public List<Branch<I, O1, O2>> parallel(int count){
+        List<Branch<I, O1, O2>> copies = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            copies.add(new Branch<I, O1, O2>(this.ID+i) {
+                @Override
+                protected Pair<O1, O2> branch(I i1) {
+                    return Branch.this.branch(i1);
+                }
+            });
+        }
+        return copies;
+    };
+
+    public static <T, A extends Branch<?,T,?>, B extends ConnectBefore<T>> void connectAfterL(List<A> branches, List<B> next){
+        if (branches.size() != next.size()){
+            LOG.severe("The 2 Lists of branches and pipes provided cannot be connected with different sizes!");
+        }
+        for (int i = 0; i < branches.size(); i++) {
+            branches.get(i).connectAfterL(next.get(i));
+        }
+    }
+
+    public static <T, A extends Branch<?,?,T>, B extends ConnectBefore<T>> void connectAfterR(List<A> branches, List<B> next){
+        if (branches.size() != next.size()){
+            LOG.severe("The 2 Lists of branches and pipes provided cannot be connected with different sizes!");
+        }
+        for (int i = 0; i < branches.size(); i++) {
+            branches.get(i).connectAfterR(next.get(i));
+        }
+    }
+
+    public static <T> void connectBefore(List<Branch<T,?,?>> branches, List<ConnectAfter<T>> next){
+        if (branches.size() != next.size()){
+            LOG.severe("The 2 Lists of branches and pipes provided cannot be connected with different sizes!");
+        }
+        for (int i = 0; i < branches.size(); i++) {
+            branches.get(i).connectBefore(next.get(i));
+        }
+    }
+
 }

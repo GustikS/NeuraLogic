@@ -101,9 +101,12 @@ public abstract class Pipe<I, O> implements Function<I, O>, ConnectBefore<I>, Co
 
     /**
      * Reflection based cloning - hack to clone abstract pipe subclasses
+     * Rather use parallel instead of reflection!
+     *
      * @param count
      * @return
      */
+    @Deprecated
     public List<Pipe<I, O>> multiple(int count) {
         List<Pipe<I, O>> copies = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
@@ -124,6 +127,28 @@ public abstract class Pipe<I, O> implements Function<I, O>, ConnectBefore<I>, Co
         else {
             LOG.severe("Cloning of a pipe:" + this.ID + " was not succesfull!");
             return null;
+        }
+    }
+
+    public List<Pipe<I, O>> parallel(int count){
+        List<Pipe<I, O>> copies = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            Pipe<I, O> clone = new Pipe<I, O>(this.ID + i) {
+                @Override
+                public O apply(I i) {
+                    return Pipe.this.apply(i);  //TODO check if working correctly
+                }
+            };
+        }
+        return copies;
+    }
+
+    public static <T, A extends ConnectAfter<T>, B extends ConnectBefore<T>> void connect(List<A> prev, List<B> next){
+        if (prev.size() != next.size()){
+            LOG.severe("The 2 Lists of pipes provided cannot be connected with different sizes!");
+        }
+        for (int i = 0; i < prev.size(); i++) {
+            prev.get(i).connectAfter(next.get(i));
         }
     }
 

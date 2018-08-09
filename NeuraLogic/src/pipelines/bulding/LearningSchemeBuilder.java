@@ -4,6 +4,7 @@ import constructs.example.LogicSample;
 import constructs.template.Template;
 import ida.utils.tuples.Pair;
 import learning.crossvalidation.TrainTestResults;
+import networks.evaluation.results.Results;
 import pipelines.Merge;
 import pipelines.Pipe;
 import pipelines.Pipeline;
@@ -15,7 +16,6 @@ import settings.Settings;
 import settings.Source;
 import settings.Sources;
 import training.NeuralModel;
-import networks.evaluation.results.Results;
 
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -39,6 +39,7 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
 
     /**
      * Based on provided Sources (samples) decide the learning mode and return Pipeline
+     *
      * @param sources
      * @return
      */
@@ -46,15 +47,20 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
         Pipeline<Sources, Results> pipeline = new Pipeline<>("LearningSchemePipeline");
 
         if (sources.crossvalidation) {
-            CrossvalidationBuilder crossvalidationSchemeBuilder = new CrossvalidationBuilder(settings,sources);
-            TrainTestBuilder trainTestBuilder = new TrainTestBuilder(settings,sources);
-            crossvalidationSchemeBuilder.trainTestBuilder = trainTestBuilder;
-            pipeline = crossvalidationSchemeBuilder.buildPipeline();
+            CrossvalidationBuilder crossvalidationSchemeBuilder = new CrossvalidationBuilder(settings, sources);
+            Pipeline<Sources, TrainTestResults> crossvalPipeline = pipeline.registerStart(crossvalidationSchemeBuilder.buildPipeline());
+            Pipe<TrainTestResults, Results> getTestResultsPipe = pipeline.registerEnd(new Pipe<TrainTestResults, Results>("GetTestResultsPipe") {
+                @Override
+                public Results apply(TrainTestResults trainTestResults) {
+                    return trainTestResults.testing;
+                }
+            });
+            crossvalPipeline.connectAfter(getTestResultsPipe);
 
         } else if (sources.trainTest) { //returns only test results in this case
             TrainTestBuilder trainTestBuilder = new TrainTestBuilder(settings, sources);
             Pipeline<Sources, TrainTestResults> trainTestPipeline = pipeline.registerStart(trainTestBuilder.buildPipeline());
-            Pipe<TrainTestResults,Results> getTestResultsPipe = pipeline.registerEnd(new Pipe<TrainTestResults,Results>("GetTestResultsPipe") {
+            Pipe<TrainTestResults, Results> getTestResultsPipe = pipeline.registerEnd(new Pipe<TrainTestResults, Results>("GetTestResultsPipe") {
                 @Override
                 public Results apply(TrainTestResults trainTestResults) {
                     return trainTestResults.testing;
@@ -79,9 +85,10 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
 
     /**
      * Pure testing, starting from Sources (test Source + Template)
+     *
      * @return
      */
-    public Pipeline<Sources, Results> buildTestingPipeline(){
+    public Pipeline<Sources, Results> buildTestingPipeline() {
         Pipeline<Sources, Results> pipeline = new Pipeline<>("TestingPipeline");
         DuplicateBranch<Sources> duplicateBranch = pipeline.registerStart(new DuplicateBranch<>());
         Pipe<Sources, Source> sourcesSourcePipe = pipeline.register(new Pipe<Sources, Source>("sourcesSourcePipe") {
@@ -97,10 +104,10 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
         Pipeline<Sources, Template> sourcesTemplatePipeline = pipeline.register(templateProcessor.buildPipeline());
         DuplicateBranch<Template> duplicateBranch1 = pipeline.register(new DuplicateBranch<>());
         TemplateToNeuralPipe templateToNeuralPipe = pipeline.register(new TemplateToNeuralPipe());
-        PairMerge<Pair<Template,NeuralModel>, Stream<LogicSample>> pairMerge = pipeline.register(new PairMerge<>());
+        PairMerge<Pair<Template, NeuralModel>, Stream<LogicSample>> pairMerge = pipeline.register(new PairMerge<>());
         TestingBuilder.LogicTestingBuilder testingBuilder = (new TestingBuilder(settings)).new LogicTestingBuilder(settings);
         Pipeline<Pair<Pair<Template, NeuralModel>, Stream<LogicSample>>, Results> logicTestingPipeline = pipeline.registerEnd(testingBuilder.buildPipeline());
-        PairMerge<Template,NeuralModel> pairMerge1 = pipeline.register(new PairMerge<>());
+        PairMerge<Template, NeuralModel> pairMerge1 = pipeline.register(new PairMerge<>());
 
         duplicateBranch.connectAfterL(sourcesSourcePipe);
         duplicateBranch.connectAfterR(sourcesTemplatePipeline);
@@ -122,10 +129,11 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
 
     /**
      * Pure training, starting from Sources (train Source + Template)
+     *
      * @return
      */
-    public Pipeline<Sources, Pair<Pair<Template, NeuralModel>,Results>> buildTrainingPipeline(){
-        Pipeline<Sources, Pair<Pair<Template, NeuralModel>,Results>> pipeline = new Pipeline<>("TrainingPipeline");
+    public Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Results>> buildTrainingPipeline() {
+        Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Results>> pipeline = new Pipeline<>("TrainingPipeline");
         DuplicateBranch<Sources> duplicateBranch = pipeline.registerStart(new DuplicateBranch<>());
         Pipe<Sources, Source> sourcesSourcePipe = pipeline.register(new Pipe<Sources, Source>("SourcesSourcePipe") {
             @Override
@@ -145,8 +153,8 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
             DuplicateBranch<Template> duplicateBranch1 = pipeline.register(new DuplicateBranch<>());
 
             PairMerge<Template, Stream<LogicSample>> pairMerge = pipeline.register(new PairMerge<>());
-            TrainingBuilder.LogicLearningBuilder logicLearningBuilder = trainingBuilder.new LogicLearningBuilder(settings);
-            Pipeline<Pair<Template, Stream<LogicSample>>, Pair<NeuralModel, Results>> pairPairPipeline = pipeline.register(logicLearningBuilder.buildPipeline());
+            TrainingBuilder.LogicTrainingBuilder logicTrainingBuilder = trainingBuilder.new LogicTrainingBuilder(settings);
+            Pipeline<Pair<Template, Stream<LogicSample>>, Pair<NeuralModel, Results>> pairPairPipeline = pipeline.register(logicTrainingBuilder.buildPipeline());
 
             sourcesTemplatePipeline.connectAfter(duplicateBranch1);
 
@@ -156,10 +164,10 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
             pairMerge.connectBeforeR(sourcesStreamPipeline);
             pairMerge.connectAfter(pairPairPipeline);
 
-            Merge<Template,Pair<NeuralModel,Results>,Pair<Pair<Template, NeuralModel>,Results>> finalMerge = pipeline.registerEnd(new Merge<Template,Pair<NeuralModel,Results>,Pair<Pair<Template, NeuralModel>,Results>>("ModelMerge"){
+            Merge<Template, Pair<NeuralModel, Results>, Pair<Pair<Template, NeuralModel>, Results>> finalMerge = pipeline.registerEnd(new Merge<Template, Pair<NeuralModel, Results>, Pair<Pair<Template, NeuralModel>, Results>>("ModelMerge") {
                 @Override
                 protected Pair<Pair<Template, NeuralModel>, Results> merge(Template input1, Pair<NeuralModel, Results> input2) {
-                    return new Pair<>(new Pair<>(input1,input2.r),input2.s);
+                    return new Pair<>(new Pair<>(input1, input2.r), input2.s);
                 }
             });
             finalMerge.connectBeforeL(duplicateBranch1.output1);
@@ -167,7 +175,7 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
 
         } else {
             TrainingBuilder.StructureLearningBuilder structureLearningBuilder = trainingBuilder.new StructureLearningBuilder(settings);
-            Pipeline<Stream<LogicSample>, Pair<Pair<Template,NeuralModel>, Results>> streamPairPipeline = pipeline.registerEnd(structureLearningBuilder.buildPipeline());
+            Pipeline<Stream<LogicSample>, Pair<Pair<Template, NeuralModel>, Results>> streamPairPipeline = pipeline.registerEnd(structureLearningBuilder.buildPipeline());
         }
         return pipeline;
     }

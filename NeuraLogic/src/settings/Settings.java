@@ -66,6 +66,9 @@ public class Settings {
     public boolean exportFolds = true;
     public boolean isolatedFoldsGrounding = false;
 
+    //same template provided for all folds?
+    public boolean commonTemplate;
+
 
     //----------------Template Transformations
     public boolean processMetadata = true;

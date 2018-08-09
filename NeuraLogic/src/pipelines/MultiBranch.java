@@ -14,7 +14,7 @@ public abstract class MultiBranch<I, O> implements ConnectBefore<I> {
     private static final Logger LOG = Logger.getLogger(MultiBranch.class.getName());
 
     public ConnectAfter<I> input;
-    List<IdentityGenPipe<O>> outputs;
+    public List<IdentityGenPipe<O>> outputs;
 
     List<O> outputReady;
 
@@ -44,7 +44,7 @@ public abstract class MultiBranch<I, O> implements ConnectBefore<I> {
 
         } else {
             for (int i = 0; i < outputs.size(); i++) {
-                outputs.get(i).apply(outputReady.get(i));
+                outputs.get(i).accept(outputReady.get(i));
             }
         }
     }
