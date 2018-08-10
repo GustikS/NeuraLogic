@@ -3,6 +3,8 @@ package pipelines.bulding;
 import constructs.example.LogicSample;
 import constructs.template.Template;
 import ida.utils.tuples.Pair;
+import learning.LearningSample;
+import learning.Model;
 import learning.crossvalidation.Crossvalidation;
 import learning.crossvalidation.TrainTestResults;
 import learning.crossvalidation.splitting.Splitter;
@@ -21,7 +23,7 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
- * TODO - decompose into smaller blocks
+ * Build CV pipeline w.r.t. given Sources and Settings
  */
 public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, TrainTestResults> {
     private static final Logger LOG = Logger.getLogger(CrossvalidationBuilder.class.getName());
@@ -59,38 +61,37 @@ public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Tra
                 }
             });
 
-            if (sources.folds.stream().allMatch(fold -> fold.trainTest)) {  //folds are completely independent (train+test provided)
+            if (sources.folds.stream().allMatch(fold -> fold.trainTest)) {  //folds are completely independent (train+test already provided in each)
 
                 List<Pipeline<Sources, TrainTestResults>> trainTestPipelines = trainTestBuilder.buildPipelines(sources.folds.size());
                 trainTestPipelines.forEach(pipeline::register);
 
                 foldsBranch.connectAfter(trainTestPipelines);
-
-
                 resultsMultiMerge.connectBefore(trainTestPipelines);
 
-            } else if (sources.folds.stream().allMatch(fold -> fold.testOnly)) { //train-test folds need to be assembled first from simple folds
+            } else if (sources.folds.stream().allMatch(fold -> fold.testOnly)) { //train-test folds need to be assembled first from provided test-sets
+
                 List<Pipe<Sources, Source>> testFoldPipes = new Pipe<Sources, Source>("GetTestFold") {
                     @Override
                     public Source apply(Sources sources) {
                         return sources.test;
                     }
                 }.parallel(sources.folds.size());
+                testFoldPipes.forEach(pipeline::register);
 
-
-                SamplesProcessingBuilder samplesExtractor = new SamplesProcessingBuilder(settings, sources.folds.get(0).test);
-                List<Pipeline<Source, Stream<LogicSample>>> samplesExtract = samplesExtractor.buildPipelines(sources.folds.size());
+                List<Pipeline<Source, Stream<LogicSample>>> samplesExtract = new SamplesProcessingBuilder(settings, sources.folds.get(0).test).buildPipelines(sources.folds.size());
                 samplesExtract.forEach(pipeline::register);
                 Pipe.connect(testFoldPipes, samplesExtract);
 
-                if (sources.templateProvided) {
+                if (sources.templateProvided) { //standard learning with a provided template - prepare for template processing
 
                     DuplicateBranch<Sources> duplicateOrigin = pipeline.registerStart(new DuplicateBranch<>());
                     TemplateProcessingBuilder templateProcessor = new TemplateProcessingBuilder(settings, sources);
 
                     Pipeline<Sources, Template> sourcesTemplatePipeline = null;
                     List<Pipeline<Sources, Template>> sourcesTemplatePipelines = null;
-                    if (settings.commonTemplate) {
+
+                    if (settings.commonTemplate) { //there is a single template common to all the provided folds - process it
 
                         sourcesTemplatePipeline = pipeline.register(templateProcessor.buildPipeline());
 
@@ -98,48 +99,76 @@ public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Tra
                         duplicateOrigin.connectAfterR(foldsBranch);
                         foldsBranch.connectAfter(testFoldPipes);
 
-                    } else {
+                    } else { //there are possibly different templates provided separately for each of the folds - process them in parallel together with the corresponding test-sets
 
                         sourcesTemplatePipelines = templateProcessor.buildPipelines(sources.folds.size());
+                        sourcesTemplatePipelines.forEach(pipeline::register);
 
-                        List<Branch<Sources, Sources, Sources>> parallel = duplicateOrigin.parallel(sources.folds.size());
+                        List<Branch<Sources, Sources, Sources>> parallelSourcesDuplicates = duplicateOrigin.parallel(sources.folds.size());
+                        parallelSourcesDuplicates.forEach(pipeline::register);
                         pipeline.registerStart(foldsBranch);
-                        foldsBranch.connectAfter(parallel);
-                        Branch.connectAfterL(parallel, testFoldPipes);
-                        Branch.connectAfterR(parallel, sourcesTemplatePipelines);
+
+                        foldsBranch.connectAfter(parallelSourcesDuplicates);
+                        Branch.connectAfterL(parallelSourcesDuplicates, testFoldPipes);
+                        Branch.connectAfterR(parallelSourcesDuplicates, sourcesTemplatePipelines);
                     }
 
+                    if (settings.trainFoldsIsolation) { //first assemble full (overlapping with train) train-test CV folds, then do the full training (repetively ground all train samples folds from scratch). Grounding is hidden within each TrainTest pipeline (easier here).
 
-                    if (!settings.isolatedFoldsGrounding) { //ground all, then CV - most efficient mode
+                        List<Pipeline<Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>, TrainTestResults>> logicTrainTestPipelines = trainTestBuilder.new LogicTrainTestBuilder(settings).buildPipelines(sources.folds.size());
+                        logicTrainTestPipelines.forEach(pipeline::register);
+                        resultsMultiMerge.connectBefore(logicTrainTestPipelines);
 
-                        List<Pipeline<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>, TrainTestResults>> neuralTrainTestPipeline = trainTestBuilder.new NeuralTrainTestBuilder(settings).buildPipelines(sources.folds.size());
-                        neuralTrainTestPipeline.forEach(pipeline::register);
-                        resultsMultiMerge.connectBefore(neuralTrainTestPipeline);
+                        MultiMerge<Stream<LogicSample>, Crossvalidation<LogicSample>> logicCrossvalidation = pipeline.register(assembleCV(LogicSample.class, sources.folds.size()));
+                        logicCrossvalidation.connectBefore(samplesExtract);
 
-                        MultiMerge<Stream<NeuralSample>, Crossvalidation<NeuralSample>> neuralCrossvalidation = new MultiMerge<Stream<NeuralSample>, Crossvalidation<NeuralSample>>("NeuralCrossvalidation", sources.folds.size()) {
-                            @Override
-                            protected Crossvalidation<NeuralSample> merge(List<Stream<NeuralSample>> inputs) {
-                                Crossvalidation<NeuralSample> cv = new Crossvalidation<>(settings, inputs.size());
-                                cv.loadFolds(inputs);
-                                return cv;
-                            }
-                        };
+                        if (settings.commonTemplate) { //common template for all folds - no need to copy here since there's no grounding or preprocessing into neural
 
+                            PairMerge<Template, Crossvalidation<LogicSample>> templateCVmerge = pipeline.register(new PairMerge<>());
+                            templateCVmerge.connectBeforeL(sourcesTemplatePipeline);
+                            templateCVmerge.connectBeforeR(logicCrossvalidation);
+
+                            MultiBranch<Pair<Template, Crossvalidation<LogicSample>>, Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>> emitFolds = pipeline.register(emitModelFolds(Template.class, LogicSample.class, sources.folds.size()));
+                            templateCVmerge.connectAfter(emitFolds);
+                            emitFolds.connectAfter(logicTrainTestPipelines);
+
+                        } else { //each fold has a separate template - again no preprocessing into neural
+
+                            ListMerge<Template> templatesMergeList = pipeline.register(new ListMerge<>(sources.folds.size()));
+                            templatesMergeList.connectBefore(sourcesTemplatePipelines);
+                            Merge<List<Template>, Crossvalidation<LogicSample>, List<Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>>> mergeCVtemplates = pipeline.register(emitModelsFolds(Template.class, LogicSample.class, sources.folds.size()));
+                            mergeCVtemplates.connectBeforeL(templatesMergeList);
+                            mergeCVtemplates.connectBeforeR(logicCrossvalidation);
+
+                            ListBranch<Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>> modelsFoldsBranch = pipeline.register(new ListBranch<>(sources.folds.size()));
+                            mergeCVtemplates.connectAfter(modelsFoldsBranch);
+                            modelsFoldsBranch.connectAfter(logicTrainTestPipelines);
+
+                        }
+
+                    } else { //ground all test-sets independently, then assemble CV folds <- most efficient mode (no repeated grounding of the same sample). Explicit grounding and transforming to Neural representation here
+
+                        List<Pipeline<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>, TrainTestResults>> neuralTrainTestPipelines = trainTestBuilder.new NeuralTrainTestBuilder(settings).buildPipelines(sources.folds.size());
+                        neuralTrainTestPipelines.forEach(pipeline::register);
+                        resultsMultiMerge.connectBefore(neuralTrainTestPipelines);
+
+                        MultiMerge<Stream<NeuralSample>, Crossvalidation<NeuralSample>> neuralCrossvalidation = pipeline.register(assembleCV(NeuralSample.class, sources.folds.size()));
                         List<Pipeline<Pair<Template, Stream<LogicSample>>, Stream<NeuralSample>>> groundingPipelines = new GroundingBuilder(settings).buildPipelines(sources.folds.size());
-
+                        groundingPipelines.forEach(pipeline::register);
                         List<Merge<Template, Stream<LogicSample>, Pair<Template, Stream<LogicSample>>>> templateSamplesMerges = new PairMerge<Template, Stream<LogicSample>>().parallel(sources.folds.size());
+                        templateSamplesMerges.forEach(pipeline::register);
 
                         neuralCrossvalidation.connectBefore(groundingPipelines);
-
                         Merge.connectBeforeR(templateSamplesMerges, samplesExtract);
                         Pipe.connect(templateSamplesMerges, groundingPipelines);
 
 
-                        if (settings.commonTemplate) {
-                            DuplicateBranch<Template> duplicateTemplate = new DuplicateBranch<>();
-                            TemplateToNeuralPipe templateToNeuralPipe = new TemplateToNeuralPipe();
+                        if (settings.commonTemplate) { //process the single template to neural model and duplicate it to each of the folds, merge into crossval
 
-                            DuplicateListBranch<Template> templateListBranch = new DuplicateListBranch<>(sources.folds.size());
+                            DuplicateBranch<Template> duplicateTemplate = pipeline.register(new DuplicateBranch<>());
+                            TemplateToNeuralPipe templateToNeuralPipe = pipeline.register(new TemplateToNeuralPipe());
+                            DuplicateListBranch<Template> templateListBranch = pipeline.register(new DuplicateListBranch<>(sources.folds.size()));  //duplicating the same template - might be advantagoues for subsequent parallel grounding
+
                             sourcesTemplatePipeline.connectAfter(duplicateTemplate);
                             duplicateTemplate.connectAfterL(templateListBranch);
                             duplicateTemplate.connectAfterR(templateToNeuralPipe);
@@ -149,294 +178,210 @@ public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Tra
                             pairMerge.connectBeforeL(templateToNeuralPipe);
                             pairMerge.connectBeforeR(neuralCrossvalidation);
 
-                            MultiBranch<Pair<NeuralModel, Crossvalidation<NeuralSample>>, Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>> pairMultiBranch = pipeline.register(new MultiBranch<Pair<NeuralModel, Crossvalidation<NeuralSample>>, Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>>("MergeFoldWithNeuralModel", sources.folds.size()) {
-                                @Override
-                                protected List<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>> branch(Pair<NeuralModel, Crossvalidation<NeuralSample>> cv) {
-                                    List<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>> pairList = new ArrayList<>(cv.s.foldCount);
-                                    for (int i = 0; i < cv.s.foldCount; i++) {
-                                        pairList.add(new Pair<>(cv.r, new Pair<>(cv.s.folds.get(i).train.stream(), cv.s.folds.get(i).test.stream())));  //TODO consider parallel streaming of samples
-                                    }
-                                    return pairList;
-                                }
-                            });
-                            pairMerge.connectAfter(pairMultiBranch);
-                            pairMultiBranch.connectAfter(neuralTrainTestPipeline);
+                            MultiBranch<Pair<NeuralModel, Crossvalidation<NeuralSample>>, Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>> emitFolds = pipeline.register(emitModelFolds(NeuralModel.class, NeuralSample.class, sources.folds.size()));
+                            pairMerge.connectAfter(emitFolds);
+                            emitFolds.connectAfter(neuralTrainTestPipelines);
 
-                        } else {
+                        } else { //process the different templates in parallel to neural models and merge them into crossval
+
                             List<Branch<Template, Template, Template>> parallelTemplateBranches = new DuplicateBranch<Template>().parallel(sources.folds.size());
+                            parallelTemplateBranches.forEach(pipeline::register);
+                            List<Pipe<Template, Template>> templatesPipes = new IdentityGenPipe<Template>().parallel(sources.folds.size());
+                            templatesPipes.forEach(pipeline::register);
+                            List<Pipe<Template, NeuralModel>> template2NeuralModels = new TemplateToNeuralPipe().parallel(sources.folds.size());
+                            template2NeuralModels.forEach(pipeline::register);
+                            ListMerge<NeuralModel> neuralModelsMerge = pipeline.register(new ListMerge<>(sources.folds.size()));
+                            Merge<List<NeuralModel>, Crossvalidation<NeuralSample>, List<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>>> emitModelsFolds = pipeline.register(emitModelsFolds(NeuralModel.class, NeuralSample.class, sources.folds.size()));
+                            ListBranch<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>> modelsFoldsBranch = pipeline.register(new ListBranch<>(sources.folds.size()));
+
                             Pipe.connect(sourcesTemplatePipelines, parallelTemplateBranches);
-                            List<Pipe<Template, Template>> identityPipes = new IdentityGenPipe<Template>().parallel(sources.folds.size());
-                            Branch.connectAfterL(parallelTemplateBranches, identityPipes);
-                            List<Pipe<Template, NeuralModel>> parallelNeuralModels = new TemplateToNeuralPipe().parallel(sources.folds.size());
-                            Branch.connectAfterR(parallelTemplateBranches, parallelNeuralModels);
-                            Merge.connectBeforeL(templateSamplesMerges, identityPipes);
+                            Branch.connectAfterL(parallelTemplateBranches, templatesPipes);
+                            Branch.connectAfterR(parallelTemplateBranches, template2NeuralModels);
+                            Merge.connectBeforeL(templateSamplesMerges, templatesPipes);
 
+                            neuralModelsMerge.connectBefore(template2NeuralModels);
+                            emitModelsFolds.connectBeforeL(neuralModelsMerge);
+                            emitModelsFolds.connectBeforeR(neuralCrossvalidation);
 
-                            ListMerge<NeuralModel> listMerge = pipeline.register(new ListMerge<>(sources.folds.size()));
-                            listMerge.connectBefore(parallelNeuralModels);
-                            Merge<List<NeuralModel>, Crossvalidation<NeuralSample>, List<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>>> mergeCVTemplates = pipeline.register(new Merge<List<NeuralModel>, Crossvalidation<NeuralSample>, List<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>>>("MergeCVTemplates") {
-                                @Override
-                                protected List<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>> merge(List<NeuralModel> templates, Crossvalidation<NeuralSample> cv) {
-                                    List<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>> folds = new ArrayList<>(templates.size());
-                                    for (int i = 0; i < templates.size(); i++) {
-                                        folds.add(new Pair<>(templates.get(i), new Pair<>(cv.folds.get(i).train.stream(), cv.folds.get(i).test.stream())));
-                                    }
-                                    return folds;
-                                }
-                            });
-                            mergeCVTemplates.connectBeforeL(listMerge);
-                            mergeCVTemplates.connectBeforeR(neuralCrossvalidation);
-
-                            ListBranch<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>> listBranch = pipeline.register(new ListBranch<>(sources.folds.size()));
-                            mergeCVTemplates.connectAfter(listBranch);
-                            listBranch.connectAfter(neuralTrainTestPipeline);
-                        }
-
-                    } else { //repetively ground all train-test folds from scratch
-
-                        List<Pipeline<Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>, TrainTestResults>> logicTrainTestPipelines = trainTestBuilder.new LogicTrainTestBuilder(settings).buildPipelines(sources.folds.size());
-                        logicTrainTestPipelines.forEach(pipeline::register);
-                        resultsMultiMerge.connectBefore(logicTrainTestPipelines);
-
-                        MultiMerge<Stream<LogicSample>, Crossvalidation<LogicSample>> logicCrossvalidation = new MultiMerge<Stream<LogicSample>, Crossvalidation<LogicSample>>("LogicCrossvalidation", sources.folds.size()) {
-                            @Override
-                            protected Crossvalidation<LogicSample> merge(List<Stream<LogicSample>> inputs) {
-                                Crossvalidation<LogicSample> cv = new Crossvalidation<>(settings, inputs.size());
-                                cv.loadFolds(inputs);
-                                return cv;
-                            }
-                        };
-                        logicCrossvalidation.connectBefore(samplesExtract);
-
-                        if (settings.commonTemplate) { //common template for all folds
-
-                            PairMerge<Template, Crossvalidation<LogicSample>> pairMerge = pipeline.register(new PairMerge<>());
-                            pairMerge.connectBeforeL(sourcesTemplatePipeline);
-                            pairMerge.connectBeforeR(logicCrossvalidation);
-
-                            MultiBranch<Pair<Template, Crossvalidation<LogicSample>>, Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>> pairMultiBranch = pipeline.register(new MultiBranch<Pair<Template, Crossvalidation<LogicSample>>, Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>>("MergeFoldWithTemplate", sources.folds.size()) {
-                                @Override
-                                protected List<Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>> branch(Pair<Template, Crossvalidation<LogicSample>> cv) {
-                                    List<Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>> pairList = new ArrayList<>(cv.s.foldCount);
-                                    for (int i = 0; i < cv.s.foldCount; i++) {
-                                        pairList.add(new Pair<>(cv.r, new Pair<>(cv.s.folds.get(i).train.stream(), cv.s.folds.get(i).test.stream())));  //TODO consider parallel streaming of samples
-                                    }
-                                    return pairList;
-                                }
-                            });
-                            pairMerge.connectAfter(pairMultiBranch);
-                            pairMultiBranch.connectAfter(logicTrainTestPipelines);
-
-                        } else { //each fold has a separate template
-
-                            ListMerge<Template> listMerge = pipeline.register(new ListMerge<>(sources.folds.size()));
-                            listMerge.connectBefore(sourcesTemplatePipelines);
-                            Merge<List<Template>, Crossvalidation<LogicSample>, List<Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>>> mergeCVTemplates = pipeline.register(new Merge<List<Template>, Crossvalidation<LogicSample>, List<Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>>>("MergeCVTemplates") {
-                                @Override
-                                protected List<Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>> merge(List<Template> templates, Crossvalidation<LogicSample> cv) {
-                                    List<Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>> folds = new ArrayList<>(templates.size());
-                                    for (int i = 0; i < templates.size(); i++) {
-                                        folds.add(new Pair<>(templates.get(i), new Pair<>(cv.folds.get(i).train.stream(), cv.folds.get(i).test.stream())));
-                                    }
-                                    return folds;
-                                }
-                            });
-                            mergeCVTemplates.connectBeforeL(listMerge);
-                            mergeCVTemplates.connectBeforeR(logicCrossvalidation);
-
-                            ListBranch<Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>> listBranch = pipeline.register(new ListBranch<>(sources.folds.size()));
-                            mergeCVTemplates.connectAfter(listBranch);
-                            listBranch.connectAfter(logicTrainTestPipelines);
+                            emitModelsFolds.connectAfter(modelsFoldsBranch);
+                            modelsFoldsBranch.connectAfter(neuralTrainTestPipelines);
                         }
                     }
 
-                } else {    //structure learning must go with isolated folds anyway
+                } else { //structure learning must go with isolated training folds anyway
 
-                    MultiMerge<Stream<LogicSample>, Crossvalidation<LogicSample>> createFoldsMMerge = new MultiMerge<Stream<LogicSample>, Crossvalidation<LogicSample>>("CreateCvFolds", sources.folds.size()) {
-                        @Override
-                        protected Crossvalidation<LogicSample> merge(List<Stream<LogicSample>> inputs) {
-                            Crossvalidation<LogicSample> cv = new Crossvalidation<>(settings, inputs.size());
-                            cv.loadFolds(inputs);
-                            return cv;
-                        }
-                    };
-                    createFoldsMMerge.connectBefore(samplesExtract);
-
-                    MultiBranch<Crossvalidation<LogicSample>, Pair<Stream<LogicSample>, Stream<LogicSample>>> pairMultiBranch = pipeline.register(new MultiBranch<Crossvalidation<LogicSample>, Pair<Stream<LogicSample>, Stream<LogicSample>>>("ExtractCVFolds", sources.folds.size()) {
-
-                        @Override
-                        protected List<Pair<Stream<LogicSample>, Stream<LogicSample>>> branch(Crossvalidation<LogicSample> cv) {
-                            List<Pair<Stream<LogicSample>, Stream<LogicSample>>> folds = new ArrayList<>(cv.foldCount);
-                            for (int i = 0; i < cv.foldCount; i++) {
-                                folds.add(new Pair<>(cv.folds.get(i).train.stream(), cv.folds.get(i).test.stream()));
-                            }
-                            return folds;
-                        }
-                    });
-                    pairMultiBranch.connectBefore(createFoldsMMerge);
-
+                    MultiMerge<Stream<LogicSample>, Crossvalidation<LogicSample>> mergeFolds2CV = pipeline.register(assembleCV(LogicSample.class, sources.folds.size()));
+                    MultiBranch<Crossvalidation<LogicSample>, Pair<Stream<LogicSample>, Stream<LogicSample>>> emitTrainTest = pipeline.register(emitTrainTest(LogicSample.class, sources.folds.size()));
                     List<Pipeline<Pair<Stream<LogicSample>, Stream<LogicSample>>, TrainTestResults>> structTrainTestPipeline = trainTestBuilder.new StructureTrainTestBuilder(settings).buildPipelines(sources.folds.size());
                     structTrainTestPipeline.forEach(pipeline::register);
-                    pairMultiBranch.connectAfter(structTrainTestPipeline);
 
+                    mergeFolds2CV.connectBefore(samplesExtract);
+                    emitTrainTest.connectBefore(mergeFolds2CV);
+                    emitTrainTest.connectAfter(structTrainTestPipeline);
                     resultsMultiMerge.connectBefore(structTrainTestPipeline);
                 }
             }
 
-        } else {    //internal splitting
+        } else { //internal folds splitting from provided 'train' data
 
-            Pipe<Sources, Source> getTrain = new Pipe<Sources, Source>("GetTrainFold") {
+            Pipe<Sources, Source> getTrainSource = pipeline.register(new Pipe<Sources, Source>("GetTrainFold") {
                 @Override
                 public Source apply(Sources sources) {
                     return sources.train;
                 }
-            };
+            });
 
-            Pipeline<Source, Stream<LogicSample>> samplesExtract = new SamplesProcessingBuilder(settings, sources.train).buildPipeline(sources.train);
+            Pipeline<Source, Stream<LogicSample>> samplesExtract = pipeline.register(new SamplesProcessingBuilder(settings, sources.train).buildPipeline(sources.train));
 
-            if (sources.templateProvided) {
-                Pipeline<Sources, Template> templatePipeline = new TemplateProcessingBuilder(settings, sources).buildPipeline();
+            if (sources.templateProvided) { //prepare template processing
+
+                Pipeline<Sources, Template> getTemplate = pipeline.register(new TemplateProcessingBuilder(settings, sources).buildPipeline());
 
                 DuplicateBranch<Sources> sourcesDuplicateBranch = pipeline.registerStart(new DuplicateBranch<>());
-                sourcesDuplicateBranch.connectAfterL(templatePipeline);
-                sourcesDuplicateBranch.connectAfterR(getTrain);
-                getTrain.connectAfter(samplesExtract);
+                sourcesDuplicateBranch.connectAfterL(getTemplate);
+                sourcesDuplicateBranch.connectAfterR(getTrainSource);
+                getTrainSource.connectAfter(samplesExtract);
 
-                if (settings.isolatedFoldsGrounding) { //assemble folds -> perform full logic learning including repetitive grounding on the train parts
+                if (settings.trainFoldsIsolation) { //assemble full train folds -> perform full logic learning including repetitive grounding on the train parts
 
                     List<Pipeline<Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>, TrainTestResults>> logicTrainTestPipelines = trainTestBuilder.new LogicTrainTestBuilder(settings).buildPipelines(sources.folds.size());
+                    Pipe<Stream<LogicSample>, Crossvalidation<LogicSample>> logicCrossvalidation = pipeline.register(cvFromStream(LogicSample.class));
                     logicTrainTestPipelines.forEach(pipeline::register);
-                    resultsMultiMerge.connectBefore(logicTrainTestPipelines);
-
-                    Pipe<Stream<LogicSample>, Crossvalidation<LogicSample>> logicCrossvalidation = new Pipe<Stream<LogicSample>, Crossvalidation<LogicSample>>("CrossvalidationPipe") {
-                        @Override
-                        public Crossvalidation<LogicSample> apply(Stream<LogicSample> logicSampleStream) {
-                            Crossvalidation<LogicSample> cv = new Crossvalidation<>(settings, settings.foldsCount);
-                            cv.loadFolds(logicSampleStream);
-                            return cv;
-                        }
-                    };
+                    PairMerge<Template, Crossvalidation<LogicSample>> templateCVmerge = pipeline.register(new PairMerge<>());
+                    MultiBranch<Pair<Template, Crossvalidation<LogicSample>>, Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>> emitFolds = pipeline.register(emitModelFolds(Template.class, LogicSample.class, sources.folds.size()));
 
                     samplesExtract.connectAfter(logicCrossvalidation);
+                    templateCVmerge.connectBeforeL(getTemplate);
+                    templateCVmerge.connectBeforeR(logicCrossvalidation);
 
-                    PairMerge<Template, Crossvalidation<LogicSample>> pairMerge = pipeline.register(new PairMerge<>());
-                    pairMerge.connectBeforeL(templatePipeline);
-                    pairMerge.connectBeforeR(logicCrossvalidation);
+                    templateCVmerge.connectAfter(emitFolds);
+                    emitFolds.connectAfter(logicTrainTestPipelines);
+                    resultsMultiMerge.connectBefore(logicTrainTestPipelines);
 
-                    MultiBranch<Pair<Template, Crossvalidation<LogicSample>>, Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>> pairMultiBranch = pipeline.register(new MultiBranch<Pair<Template, Crossvalidation<LogicSample>>, Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>>("MergeFoldWithTemplate", sources.folds.size()) {
-                        @Override
-                        protected List<Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>> branch(Pair<Template, Crossvalidation<LogicSample>> cv) {
-                            List<Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>> pairList = new ArrayList<>(cv.s.foldCount);
-                            for (int i = 0; i < cv.s.foldCount; i++) {
-                                pairList.add(new Pair<>(cv.r, new Pair<>(cv.s.folds.get(i).train.stream(), cv.s.folds.get(i).test.stream())));  //TODO consider parallel streaming of samples
-                            }
-                            return pairList;
-                        }
-                    });
-                    pairMerge.connectAfter(pairMultiBranch);
-                    pairMultiBranch.connectAfter(logicTrainTestPipelines);
-                    
                 } else { //partition -> ground -> assemble train-test folds
 
-                    DuplicateBranch<Template> duplicateTemplate = new DuplicateBranch<>();
-                    templatePipeline.connectAfter(duplicateTemplate);
-                    DuplicateListBranch<Template> templateListBranch = new DuplicateListBranch<>(sources.folds.size());
-                    duplicateTemplate.connectAfterL(templateListBranch);
+                    List<Pipeline<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>, TrainTestResults>> neuralTrainTestPipeline = trainTestBuilder.new NeuralTrainTestBuilder(settings).buildPipelines(sources.folds.size());
+                    neuralTrainTestPipeline.forEach(pipeline::register);
+                    List<Pipeline<Pair<Template, Stream<LogicSample>>, Stream<NeuralSample>>> groundingPipelines = new GroundingBuilder(settings).buildPipelines(sources.folds.size());
+                    groundingPipelines.forEach(pipeline::register);
 
-                    Pipe<Stream<LogicSample>, List<Stream<LogicSample>>> splitterPipe = new Pipe<Stream<LogicSample>, List<Stream<LogicSample>>>("SplitterPipe") {
+                    DuplicateBranch<Template> duplicateTemplate = pipeline.register(new DuplicateBranch<>());
+                    DuplicateListBranch<Template> templateListBranch = pipeline.register(new DuplicateListBranch<>(sources.folds.size()));
+                    ListBranch<Stream<LogicSample>> foldsBranch = pipeline.register(new ListBranch<>(sources.folds.size()));
+                    Pipe<Stream<LogicSample>, List<Stream<LogicSample>>> samplesSplitterPipe = pipeline.register(new Pipe<Stream<LogicSample>, List<Stream<LogicSample>>>("SplitterPipe") {
                         @Override
                         public List<Stream<LogicSample>> apply(Stream<LogicSample> logicSampleStream) {
                             Splitter<LogicSample> splitter = Splitter.getSplitter(settings);
                             return splitter.partition(logicSampleStream, settings.foldsCount);
                         }
-                    };
-                    ListBranch<Stream<LogicSample>> foldsBranch = new ListBranch<>(sources.folds.size());
-                    samplesExtract.connectAfter(splitterPipe);
-                    splitterPipe.connectAfter(foldsBranch);
-
-                    List<Pipeline<Pair<Template, Stream<LogicSample>>, Stream<NeuralSample>>> groundingPipelines = new GroundingBuilder(settings).buildPipelines(sources.folds.size());
+                    });
 
                     List<Merge<Template, Stream<LogicSample>, Pair<Template, Stream<LogicSample>>>> templateSamplesMerges = new PairMerge<Template, Stream<LogicSample>>().parallel(sources.folds.size());
+                    templateSamplesMerges.forEach(pipeline::register);
+                    MultiMerge<Stream<NeuralSample>, Crossvalidation<NeuralSample>> neuralCrossvalidation = pipeline.register(assembleCV(NeuralSample.class, sources.folds.size()));
+                    TemplateToNeuralPipe templateToNeuralPipe = pipeline.register(new TemplateToNeuralPipe());
+                    PairMerge<NeuralModel, Crossvalidation<NeuralSample>> modelCVmerge = pipeline.register(new PairMerge<>());
+                    MultiBranch<Pair<NeuralModel, Crossvalidation<NeuralSample>>, Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>> emitFolds = emitModelFolds(NeuralModel.class, NeuralSample.class, sources.folds.size());
+
+
+                    getTemplate.connectAfter(duplicateTemplate);
+                    duplicateTemplate.connectAfterL(templateListBranch);
+                    samplesExtract.connectAfter(samplesSplitterPipe);
+                    samplesSplitterPipe.connectAfter(foldsBranch);
+
                     Merge.connectBeforeL(templateSamplesMerges, templateListBranch.outputs);
                     Merge.connectBeforeR(templateSamplesMerges, foldsBranch.outputs);
-                    Pipe.connect(templateSamplesMerges,groundingPipelines);
-
-                    List<Pipeline<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>, TrainTestResults>> neuralTrainTestPipeline = trainTestBuilder.new NeuralTrainTestBuilder(settings).buildPipelines(sources.folds.size());
-                    neuralTrainTestPipeline.forEach(pipeline::register);
-                    resultsMultiMerge.connectBefore(neuralTrainTestPipeline);
-
-                    MultiMerge<Stream<NeuralSample>, Crossvalidation<NeuralSample>> neuralCrossvalidation = new MultiMerge<Stream<NeuralSample>, Crossvalidation<NeuralSample>>("NeuralCrossvalidation", sources.folds.size()) {
-                        @Override
-                        protected Crossvalidation<NeuralSample> merge(List<Stream<NeuralSample>> inputs) {
-                            Crossvalidation<NeuralSample> cv = new Crossvalidation<>(settings, inputs.size());
-                            cv.loadFolds(inputs);
-                            return cv;
-                        }
-                    };
+                    Pipe.connect(templateSamplesMerges, groundingPipelines);
 
                     neuralCrossvalidation.connectBefore(groundingPipelines);
-
-                    TemplateToNeuralPipe templateToNeuralPipe = new TemplateToNeuralPipe();
                     duplicateTemplate.connectAfterR(templateToNeuralPipe);
 
-                    PairMerge<NeuralModel, Crossvalidation<NeuralSample>> pairMerge = pipeline.register(new PairMerge<>());
-                    pairMerge.connectBeforeL(templateToNeuralPipe);
-                    pairMerge.connectBeforeR(neuralCrossvalidation);
+                    modelCVmerge.connectBeforeL(templateToNeuralPipe);
+                    modelCVmerge.connectBeforeR(neuralCrossvalidation);
 
-                    MultiBranch<Pair<NeuralModel, Crossvalidation<NeuralSample>>, Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>> pairMultiBranch = pipeline.register(new MultiBranch<Pair<NeuralModel, Crossvalidation<NeuralSample>>, Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>>("MergeFoldWithNeuralModel", sources.folds.size()) {
-                        @Override
-                        protected List<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>> branch(Pair<NeuralModel, Crossvalidation<NeuralSample>> cv) {
-                            List<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>> pairList = new ArrayList<>(cv.s.foldCount);
-                            for (int i = 0; i < cv.s.foldCount; i++) {
-                                pairList.add(new Pair<>(cv.r, new Pair<>(cv.s.folds.get(i).train.stream(), cv.s.folds.get(i).test.stream())));  //TODO consider parallel streaming of samples
-                            }
-                            return pairList;
-                        }
-                    });
-                    pairMerge.connectAfter(pairMultiBranch);
-                    pairMultiBranch.connectAfter(neuralTrainTestPipeline);
+                    modelCVmerge.connectAfter(emitFolds);
+                    emitFolds.connectAfter(neuralTrainTestPipeline);
 
+                    resultsMultiMerge.connectBefore(neuralTrainTestPipeline);
                 }
 
-            } else {
+            } else { //structure learning
 
+                Pipe<Stream<LogicSample>, Crossvalidation<LogicSample>> cvFromStream = pipeline.register(cvFromStream(LogicSample.class));
+                MultiBranch<Crossvalidation<LogicSample>, Pair<Stream<LogicSample>, Stream<LogicSample>>> emitTrainTest = pipeline.register(emitTrainTest(LogicSample.class, sources.folds.size()));
+                List<Pipeline<Pair<Stream<LogicSample>, Stream<LogicSample>>, TrainTestResults>> structTrainTestPipelines = trainTestBuilder.new StructureTrainTestBuilder(settings).buildPipelines(sources.folds.size());
+                structTrainTestPipelines.forEach(pipeline::register);
 
-                Pipe<Stream<LogicSample>, Crossvalidation<LogicSample>> createFoldsMMerge = new Pipe<Stream<LogicSample>, Crossvalidation<LogicSample>>("CreateCvFolds") {
-                    @Override
-                    public Crossvalidation<LogicSample> apply(Stream<LogicSample> inputs) {
-                        Crossvalidation<LogicSample> cv = new Crossvalidation<LogicSample>(settings);
-                        cv.loadFolds(inputs);
-                        return cv;
-                    }
-                };
+                cvFromStream.connectBefore(samplesExtract);
+                emitTrainTest.connectBefore(cvFromStream);
+                emitTrainTest.connectAfter(structTrainTestPipelines);
 
-                createFoldsMMerge.connectBefore(samplesExtract);
-
-                MultiBranch<Crossvalidation<LogicSample>, Pair<Stream<LogicSample>, Stream<LogicSample>>> pairMultiBranch = pipeline.register(new MultiBranch<Crossvalidation<LogicSample>, Pair<Stream<LogicSample>, Stream<LogicSample>>>("ExtractCVFolds", sources.folds.size()) {
-
-                    @Override
-                    protected List<Pair<Stream<LogicSample>, Stream<LogicSample>>> branch(Crossvalidation<LogicSample> cv) {
-                        List<Pair<Stream<LogicSample>, Stream<LogicSample>>> folds = new ArrayList<>(cv.foldCount);
-                        for (int i = 0; i < cv.foldCount; i++) {
-                            folds.add(new Pair<>(cv.folds.get(i).train.stream(), cv.folds.get(i).test.stream()));
-                        }
-                        return folds;
-                    }
-                });
-                pairMultiBranch.connectBefore(createFoldsMMerge);
-
-                List<Pipeline<Pair<Stream<LogicSample>, Stream<LogicSample>>, TrainTestResults>> structTrainTestPipeline = trainTestBuilder.new StructureTrainTestBuilder(settings).buildPipelines(sources.folds.size());
-                structTrainTestPipeline.forEach(pipeline::register);
-                pairMultiBranch.connectAfter(structTrainTestPipeline);
-
-                resultsMultiMerge.connectBefore(structTrainTestPipeline);
-
-            }
-
-            if (settings.exportFolds) {
-                //TODO
+                resultsMultiMerge.connectBefore(structTrainTestPipelines);
             }
         }
+
         return pipeline;
+    }
+
+    protected <S extends LearningSample> Pipe<Stream<S>, Crossvalidation<S>> cvFromStream(Class<S> s) {
+        return new Pipe<Stream<S>, Crossvalidation<S>>("CVFromStream") {
+            @Override
+            public Crossvalidation<S> apply(Stream<S> logicSampleStream) {
+                Crossvalidation<S> cv = new Crossvalidation<>(settings, settings.foldsCount);
+                cv.loadFolds(logicSampleStream);
+                return cv;
+            }
+        };
+    }
+
+    protected <S extends LearningSample> MultiMerge<Stream<S>, Crossvalidation<S>> assembleCV(Class<S> s, int foldsCount) {
+        return new MultiMerge<Stream<S>, Crossvalidation<S>>("MergeFolds2CV", foldsCount) {
+            @Override
+            protected Crossvalidation<S> merge(List<Stream<S>> inputs) {
+                Crossvalidation<S> cv = new Crossvalidation<S>(settings, inputs.size());
+                cv.loadFolds(inputs);
+                return cv;
+            }
+        };
+    }
+
+    protected <S extends LearningSample> MultiBranch<Crossvalidation<S>, Pair<Stream<S>, Stream<S>>> emitTrainTest(Class<S> s, int foldCount) {
+        return new MultiBranch<Crossvalidation<S>, Pair<Stream<S>, Stream<S>>>("BranchCV2Folds", sources.folds.size()) {
+
+            @Override
+            protected List<Pair<Stream<S>, Stream<S>>> branch(Crossvalidation<S> cv) {
+                List<Pair<Stream<S>, Stream<S>>> folds = new ArrayList<>(cv.foldCount);
+                for (int i = 0; i < cv.foldCount; i++) {
+                    folds.add(new Pair<>(cv.folds.get(i).train.stream(), cv.folds.get(i).test.stream()));
+                }
+                return folds;
+            }
+        };
+    }
+
+    protected <T extends Model, S extends LearningSample> MultiBranch<Pair<T, Crossvalidation<S>>, Pair<T, Pair<Stream<S>, Stream<S>>>> emitModelFolds(Class<T> t, Class<S> s, int foldCount) {
+        return new MultiBranch<Pair<T, Crossvalidation<S>>, Pair<T, Pair<Stream<S>, Stream<S>>>>("EmitFoldsWithModel", foldCount) {
+            @Override
+            protected List<Pair<T, Pair<Stream<S>, Stream<S>>>> branch(Pair<T, Crossvalidation<S>> cv) {
+                List<Pair<T, Pair<Stream<S>, Stream<S>>>> pairList = new ArrayList<>(cv.s.foldCount);
+                for (int i = 0; i < cv.s.foldCount; i++) {
+                    pairList.add(new Pair<>(cv.r, new Pair<>(cv.s.folds.get(i).train.stream(), cv.s.folds.get(i).test.stream())));  //TODO consider parallel streaming of samples in each fold? (probably turn to parallel later)
+                }
+                return pairList;
+            }
+        };
+    }
+
+    protected <T extends Model, S extends LearningSample> Merge<List<T>, Crossvalidation<S>, List<Pair<T, Pair<Stream<S>, Stream<S>>>>> emitModelsFolds(Class<T> t, Class<S> s, int foldsCount) {
+        return new Merge<List<T>, Crossvalidation<S>, List<Pair<T, Pair<Stream<S>, Stream<S>>>>>("EmitFoldsWithModels") {
+            @Override
+            protected List<Pair<T, Pair<Stream<S>, Stream<S>>>> merge(List<T> templates, Crossvalidation<S> cv) {
+                List<Pair<T, Pair<Stream<S>, Stream<S>>>> folds = new ArrayList<>(templates.size());
+                for (int i = 0; i < templates.size(); i++) {
+                    folds.add(new Pair<>(templates.get(i), new Pair<>(cv.folds.get(i).train.stream(), cv.folds.get(i).test.stream())));
+                }
+                return folds;
+            }
+        };
     }
 }

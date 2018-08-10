@@ -64,7 +64,7 @@ public class Settings {
     public int foldsCount = 5;
     public boolean stratification = true;
     public boolean exportFolds = true;
-    public boolean isolatedFoldsGrounding = false;
+    public boolean trainFoldsIsolation = false;
 
     //same template provided for all folds?
     public boolean commonTemplate;

@@ -3,7 +3,6 @@ package pipelines;
 import ida.utils.tuples.Pair;
 import settings.Settings;
 
-import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -147,7 +146,7 @@ public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T>, Functi
         return p;
     }
 
-    public <U> Pipeline<S, U> connectAfter(Pipeline<T, U> next) throws IOException {
+    public <U> Pipeline<S, U> connectAfter(Pipeline<T, U> next) {
         Pipeline<S, U> pipeline = new Pipeline(this.ID + "+" + next.ID);
         pipeline.start = this.start;
         pipeline.terminal = next.terminal;

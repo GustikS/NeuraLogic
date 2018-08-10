@@ -18,15 +18,11 @@ import settings.Sources;
 import training.NeuralModel;
 import training.NeuralSample;
 
-import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<Template, NeuralModel>,Results>> {
     private static final Logger LOG = Logger.getLogger(TrainingBuilder.class.getName());
-
-    NeuralLearningBuilder neuralLearningBuilder;
-
     Sources sources;
 
     public TrainingBuilder(Settings settings, Sources sources) {
@@ -42,96 +38,88 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
 
     public Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Results>> buildPipeline(Sources sources) {
         Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Results>> pipeline = new Pipeline<>("TrainingPipeline");
-        DuplicateBranch<Sources> duplicateBranch = pipeline.registerStart(new DuplicateBranch<>());
-        Pipe<Sources, Source> sourcesSourcePipe = pipeline.register(new Pipe<Sources, Source>("SourcesSourcePipe") {
+
+        Pipe<Sources, Source> getTrainSource = pipeline.register(new Pipe<Sources, Source>("getTrainSourcePipe") {
             @Override
             public Source apply(Sources sources) {
                 return sources.train;
             }
         });
-        duplicateBranch.connectAfterL(sourcesSourcePipe);
+
         SamplesProcessingBuilder trainingSamplesProcessor = new SamplesProcessingBuilder(settings, sources.train);
-        Pipeline<Source, Stream<LogicSample>> sourcesStreamPipeline = pipeline.register(trainingSamplesProcessor.buildPipeline());
-        sourcesSourcePipe.connectAfter(sourcesStreamPipeline);
+        Pipeline<Source, Stream<LogicSample>> getLogicSampleStream = pipeline.register(trainingSamplesProcessor.buildPipeline());
+        getTrainSource.connectAfter(getLogicSampleStream);
 
         if (sources.templateProvided) {
+            DuplicateBranch<Sources> duplicateBranch = pipeline.registerStart(new DuplicateBranch<>());
+            duplicateBranch.connectAfterL(getTrainSource);
+
             TemplateProcessingBuilder templateProcessor = new TemplateProcessingBuilder(settings, sources);
             Pipeline<Sources, Template> sourcesTemplatePipeline = pipeline.register(templateProcessor.buildPipeline());
 
-            Pipe<Template, Optional<Template>> optionalPipe = pipeline.register(new Pipe<Template, Optional<Template>>("OptionalPipe") {
-                @Override
-                public Optional<Template> apply(Template template) {
-                    return Optional.of(template);
-                }
-            });
+            PairMerge<Template, Stream<LogicSample>> pairMerge = pipeline.register(new PairMerge<>());
+            LogicLearningBuilder logicTrainingBuilder = new LogicLearningBuilder(settings);
+            Pipeline<Pair<Template, Stream<LogicSample>>, Pair<Pair<Template, NeuralModel>, Results>> trainingPipeline = pipeline.registerEnd(logicTrainingBuilder.buildPipeline());
 
-            PairMerge<Optional<Template>, Stream<LogicSample>> pairMerge = pipeline.register(new PairMerge<>());
-            LogicTrainingBuilder logicTrainingBuilder = new LogicTrainingBuilder(settings);
-            Pipeline<Pair<Optional<Template>, Stream<LogicSample>>, Pair<Pair<Template, NeuralModel>, Results>> pairPairPipeline = pipeline.registerEnd(logicTrainingBuilder.buildPipeline());
-
-            sourcesTemplatePipeline.connectAfter(optionalPipe);
-            optionalPipe.connectAfter(pairMerge.input1);
-
+            sourcesTemplatePipeline.connectAfter(pairMerge.input1);
             duplicateBranch.connectAfterR(sourcesTemplatePipeline);
-            pairMerge.connectBeforeR(sourcesStreamPipeline);
-            pairMerge.connectAfter(pairPairPipeline);
+            pairMerge.connectBeforeR(getLogicSampleStream);
+            pairMerge.connectAfter(trainingPipeline);
 
-        } else {
-            Pipe<Sources, Optional<Template>> optionalPipe = pipeline.register(new Pipe<Sources, Optional<Template>>("OptionalEmptyPipe") {
-                @Override
-                public Optional<Template> apply(Sources sources) {
-                    if (sources.templateProvided){
-                        LOG.severe("Template should not have been provided - Sources mismatch!");
-                    }
-                    return Optional.empty();
-                }
-            });
+        } else { //Structure Learning
+            pipeline.registerStart(getTrainSource);
+            Pipeline<Stream<LogicSample>, Pair<Pair<Template, NeuralModel>, Results>> trainingPipeline = pipeline.registerEnd(new StructureLearningBuilder(settings).buildPipeline());
+            getLogicSampleStream.connectAfter(trainingPipeline);
         }
+
         return pipeline;
     }
 
     /**
      * TODO - in case that some of the samples did not ground succesfully, hack the pipeline and start StructureLearning in the current context
      */
-    public class LogicTrainingBuilder extends AbstractPipelineBuilder<Pair<Template, Stream<LogicSample>>, Pair<NeuralModel, Results>> {
+    public class LogicLearningBuilder extends AbstractPipelineBuilder<Pair<Template, Stream<LogicSample>>, Pair<Pair<Template, NeuralModel>, Results>> {
 
-        public LogicTrainingBuilder(Settings settings) {
+        public LogicLearningBuilder(Settings settings) {
             super(settings);
         }
 
         @Override
-        public Pipeline<Pair<Template, Stream<LogicSample>>, Pair<NeuralModel, Results>> buildPipeline() {
-            Pipeline<Pair<Template, Stream<LogicSample>>, Pair<NeuralModel, Results>> pipeline = new Pipeline<>("NormalLearningPipeline");
+        public Pipeline<Pair<Template, Stream<LogicSample>>, Pair<Pair<Template, NeuralModel>, Results>> buildPipeline() {
+            Pipeline<Pair<Template, Stream<LogicSample>>, Pair<Pair<Template, NeuralModel>, Results>> pipeline = new Pipeline<>("LogicLearningPipeline");
 
-            FirstFromPairExtractionBranch<Template, Stream<LogicSample>> extractionBranch = pipeline.registerStart(new FirstFromPairExtractionBranch<>());
+            FirstFromPairExtractionBranch<Template, Stream<LogicSample>> templateSamplesBranch = pipeline.registerStart(new FirstFromPairExtractionBranch<>());
+            DuplicateBranch<Template> duplicateBranch = pipeline.register(new DuplicateBranch<>());
 
-            GroundingBuilder groundingBuilder = new GroundingBuilder(settings);
-            Pipeline<Pair<Template, Stream<LogicSample>>, Stream<NeuralSample>> groundingPipeline = pipeline.register(groundingBuilder.buildPipeline());
+            Pipeline<Pair<Template, Stream<LogicSample>>, Stream<NeuralSample>> groundingPipeline = pipeline.register(new GroundingBuilder(settings).buildPipeline());
 
             TemplateToNeuralPipe templateToNeuralPipe = pipeline.register(new TemplateToNeuralPipe());
 
             PairMerge<NeuralModel, Stream<NeuralSample>> pairMerge = pipeline.register(new PairMerge<>());
 
-            neuralLearningBuilder = new NeuralLearningBuilder(settings);
-            Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Results>> trainingPipeline = pipeline.registerEnd(neuralLearningBuilder.buildPipeline());
+            Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Results>> trainingPipeline = pipeline.register(new NeuralLearningBuilder(settings).buildPipeline());
 
-            extractionBranch.connectAfterL(groundingPipeline);
-            extractionBranch.connectAfterR(templateToNeuralPipe);
+            Merge<Template, Pair<NeuralModel, Results>, Pair<Pair<Template, NeuralModel>, Results>> finalMerge = pipeline.registerEnd(new Merge<Template, Pair<NeuralModel, Results>, Pair<Pair<Template, NeuralModel>, Results>>("ModelMerge") {
+                @Override
+                protected Pair<Pair<Template, NeuralModel>, Results> merge(Template input1, Pair<NeuralModel, Results> input2) {
+                    return new Pair<>(new Pair<>(input1, input2.r), input2.s);
+                }
+            });
+
+            templateSamplesBranch.connectAfterL(groundingPipeline);
+            templateSamplesBranch.connectAfterR(duplicateBranch);
+
+            duplicateBranch.connectAfterL(templateToNeuralPipe);
 
             pairMerge.connectBeforeL(templateToNeuralPipe);
             pairMerge.connectBeforeR(groundingPipeline);
 
             pairMerge.connectAfter(trainingPipeline);
 
-            return pipeline;
-        }
+            finalMerge.connectBeforeL(duplicateBranch.output2);
+            finalMerge.connectBeforeR(trainingPipeline);
 
-        /**
-         * Just a shortcut to NeuralLearningBuilder
-         * @return
-         */
-        public Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Results>> buildNeuralPipeline() {
-            return neuralLearningBuilder.buildPipeline();
+            return pipeline;
         }
     }
 
