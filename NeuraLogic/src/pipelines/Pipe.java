@@ -13,7 +13,7 @@ import java.util.logging.Logger;
  * @param <I>
  * @param <O>
  */
-public abstract class Pipe<I, O> implements Function<I, O>, ConnectBefore<I>, ConnectAfter<O> {
+public abstract class Pipe<I, O> extends Block implements Function<I, O>, ConnectBefore<I>, ConnectAfter<O> {
     private static final Logger LOG = Logger.getLogger(Pipe.class.getName());
 
     protected Pipe(String id) {

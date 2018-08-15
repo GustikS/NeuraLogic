@@ -1,4 +1,4 @@
-package pipelines.prepared.pipes.specific;
+package pipelines.pipes.specific;
 
 import ida.utils.tuples.Pair;
 import networks.evaluation.Evaluator;

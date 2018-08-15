@@ -33,14 +33,17 @@ public class PlainQueriesParseTreeExtractor extends QueriesParseTreeExtractor<Pl
     public Stream<Pair<ValuedFact, Conjunction>> getLabeledQueries(NeuralogicParser.QueriesFileContext ctx) {
         PlainGrammarVisitor.FactVisitor factVisitor = visitor.new FactVisitor();
         PlainGrammarVisitor.FactConjunctionVisitor factConjunctionVisitor = visitor.new FactConjunctionVisitor();
-        if (ctx.atom() != null) {
-            Stream<ValuedFact> labelStream = ctx.atom().stream().map(atom -> atom.accept(factVisitor));
+        if (ctx.conjunction() != null) {
             Stream<Conjunction> queriesStream = ctx.conjunction().stream().map(line -> line.accept(factConjunctionVisitor));
-            return zipStreams(labelStream, queriesStream, (lab, query) -> new Pair(lab, query));
-
+            if (ctx.atom() != null) {
+                LOG.info("Provided queries have no ids with them.");
+                Stream<ValuedFact> labelStream = ctx.atom().stream().map(atom -> atom.accept(factVisitor));
+                return zipStreams(labelStream, queriesStream, (lab, query) -> new Pair(lab, query));
+            } else {
+                return queriesStream.map(q -> new Pair(null, q));
+            }
         } else
-            LOG.severe("Could not extract any labeled queries");
+            LOG.severe("Could not extract any queries");
         return null;
     }
-
 }

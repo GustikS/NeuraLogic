@@ -7,11 +7,10 @@ import neuralogic.grammarParsing.PlainParseTree;
 import org.antlr.v4.runtime.ParserRuleContext;
 import settings.Settings;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.util.logging.Logger;
 
-public abstract class LogicSourceBuilder<I extends ParserRuleContext, O> {
+public abstract class LogicSourceBuilder<I extends PlainParseTree<? extends ParserRuleContext>, O> {
     private static final Logger LOG = Logger.getLogger(LogicSourceBuilder.class.getName());
 
     Settings settings;
@@ -23,8 +22,13 @@ public abstract class LogicSourceBuilder<I extends ParserRuleContext, O> {
     // Weights are shared over the whole template
     public WeightFactory weightFactory = new WeightFactory();
 
-    @Deprecated
-    public abstract O buildFrom(Reader reader) throws IOException;
+    public void setFactoriesFrom(LogicSourceBuilder other){
+        this.constantFactory = other.constantFactory;
+        this.predicateFactory = other.predicateFactory;
+        this.weightFactory = other.weightFactory;
+    }
 
-    public abstract O buildFrom(PlainParseTree<I> parseTree) throws IOException;
+    abstract I parseTreeFrom(Reader reader);
+
+    abstract O buildFrom(I parseTree);
 }

@@ -69,11 +69,14 @@ public class Settings {
     //same template provided for all folds?
     public boolean commonTemplate;
 
-
     //----------------Template Transformations
     public boolean processMetadata = true;
     public boolean reduceTemplate = true;
 
+    //----------------Learning Samples
+    public double defaultSampleImportance = 1.0;
+    public String sampleIdPrefix = "s";
+    public String queriesBatchPrefix = "_b";
 
 
     /**

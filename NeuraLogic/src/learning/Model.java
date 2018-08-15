@@ -5,9 +5,9 @@ import networks.structure.Weight;
 
 import java.util.List;
 
-public interface Model {
+public interface Model<T extends Query>  {
     String getId();
 
-    <T extends Query> Value evaluate(T query);
+    Value evaluate(T query);
     List<Weight> getAllWeights();
 }

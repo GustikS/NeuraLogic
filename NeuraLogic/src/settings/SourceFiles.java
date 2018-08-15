@@ -77,6 +77,13 @@ public class SourceFiles extends Sources {
         }
     }
 
+    /**
+     * TODO do not create the parse trees here, process them separately later in the respective builders (load only Readers)
+     * @param settings
+     * @param cmd
+     * @param foldDir
+     * @return
+     */
     private SourceFiles setupFromDir(Settings settings, CommandLine cmd, File foldDir) {
 
         try {
@@ -92,7 +99,7 @@ public class SourceFiles extends Sources {
             try {
                 switch (Utilities.identifyFileTypeUsingFilesProbeContentType(template.toString())) {
                     case "text/plain":
-                        templateParseTree = new PlainTemplateParseTree(templateReader);
+//                        templateParseTree = new PlainTemplateParseTree(templateReader);
                         break;
                     case "application/xml":
                         //TODO
@@ -115,7 +122,7 @@ public class SourceFiles extends Sources {
             try {
                 switch (Utilities.identifyFileTypeUsingFilesProbeContentType(trainExamples.toString())) {
                     case "text/plain":
-                        train.ExamplesParseTree = new PlainExamplesParseTree(train.ExamplesReader);
+//                        train.ExamplesParseTree = new PlainExamplesParseTree(train.ExamplesReader);
                         break;
                     default:
                         throw new UnknownFormatFlagsException("File type of input examples not recognized!");
@@ -132,7 +139,7 @@ public class SourceFiles extends Sources {
             try {
                 switch (Utilities.identifyFileTypeUsingFilesProbeContentType(testExamples.toString())) {
                     case "text/plain":
-                        test.ExamplesParseTree = new PlainExamplesParseTree(test.ExamplesReader);
+//                        test.ExamplesParseTree = new PlainExamplesParseTree(test.ExamplesReader);
                         break;
                     default:
                         throw new UnknownFormatFlagsException("File type of input test examples not recognized!");
@@ -149,7 +156,7 @@ public class SourceFiles extends Sources {
             try {
                 switch (Utilities.identifyFileTypeUsingFilesProbeContentType(trainQueries.toString())) {
                     case "text/plain":
-                        train.QueriesParseTree = new PlainQueriesParseTree(train.QueriesReader);
+ //                       train.QueriesParseTree = new PlainQueriesParseTree(train.QueriesReader);
                         break;
                     default:
                         throw new UnknownFormatFlagsException("File type of input train queries not recognized!");
@@ -162,11 +169,11 @@ public class SourceFiles extends Sources {
         }
 
         try {
-            this.test.QueriesReader = new FileReader(this.testQueries = Paths.get(foldDir.toString(), cmd.getOptionValue("trainQueries", settings.testQueriesFile)).toFile());
+            this.test.QueriesReader = new FileReader(this.testQueries = Paths.get(foldDir.toString(), cmd.getOptionValue("testQueries", settings.testQueriesFile)).toFile());
             try {
                 switch (Utilities.identifyFileTypeUsingFilesProbeContentType(testQueries.toString())) {
                     case "text/plain":
-                        test.QueriesParseTree = new PlainQueriesParseTree(test.QueriesReader);
+ //                       test.QueriesParseTree = new PlainQueriesParseTree(test.QueriesReader);
                         break;
                     default:
                         throw new UnknownFormatFlagsException("File type of input test queries not recognized!");

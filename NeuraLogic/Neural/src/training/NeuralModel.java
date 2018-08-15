@@ -1,9 +1,9 @@
 package training;
 
 import learning.Model;
-import learning.Query;
 import networks.evaluation.values.Value;
 import networks.structure.Weight;
+import networks.structure.lrnnTypes.QueryNeuron;
 
 import java.io.Reader;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * Created by gusta on 8.3.17.
  */
-public class NeuralModel implements Model {
+public class NeuralModel implements Model<QueryNeuron> {
     List<Weight> weights;
 
     public  NeuralModel(List<Weight> weights){
@@ -51,9 +51,10 @@ public class NeuralModel implements Model {
     }
 
     @Override
-    public <T extends Query> Value evaluate(T query) {
+    public Value evaluate(QueryNeuron query) {
         return null;
     }
+
 
     @Override
     public List<Weight> getAllWeights() {

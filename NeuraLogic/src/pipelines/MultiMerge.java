@@ -9,7 +9,7 @@ import java.util.logging.Logger;
  * This block may be non-terminating - it is possible to return merging of streams as a stream,
  * hence the return value is open - it can be a Stream, List, or any Object
  */
-public abstract class MultiMerge<I, O> implements ConnectAfter<O>{
+public abstract class MultiMerge<I, O> extends Block implements ConnectAfter<O>{
     private static final Logger LOG = Logger.getLogger(MultiMerge.class.getName());
 
     public String ID;

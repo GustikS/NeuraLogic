@@ -1,47 +1,75 @@
 package constructs.building;
 
 import constructs.Conjunction;
+import constructs.example.LogicSample;
 import constructs.example.ValuedFact;
 import ida.utils.tuples.Pair;
+import networks.evaluation.values.ScalarValue;
 import neuralogic.grammarParsing.PlainGrammarVisitor;
-import neuralogic.grammarParsing.PlainParseTree;
+import neuralogic.queries.PlainQueriesParseTree;
 import neuralogic.queries.PlainQueriesParseTreeExtractor;
-import parsers.neuralogic.NeuralogicParser;
+import settings.Settings;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class QueriesBuilder {
+public class QueriesBuilder extends SamplesBuilder<PlainQueriesParseTree, Pair<ValuedFact, Conjunction>> {
     private static final Logger LOG = Logger.getLogger(QueriesBuilder.class.getName());
 
-
-    public class LabeledQueriesBuilder extends LogicSourceBuilder<NeuralogicParser.QueriesFileContext, Stream<Pair<ValuedFact, Conjunction>>> {
-        @Override
-        public Stream<Pair<ValuedFact, Conjunction>> buildFrom(Reader reader) throws IOException {
-            return null;
-        }
-
-        @Override
-        public Stream<Pair<ValuedFact, Conjunction>> buildFrom(PlainParseTree<NeuralogicParser.QueriesFileContext> parseTree) {
-            PlainGrammarVisitor plainGrammarVisitor = new PlainGrammarVisitor(this);
-            PlainQueriesParseTreeExtractor queriesParseTreeExtractor = new PlainQueriesParseTreeExtractor(plainGrammarVisitor);
-            return queriesParseTreeExtractor.getLabeledQueries(parseTree.getRoot());
-        }
+    public QueriesBuilder(Settings settings) {
+        super(settings);
     }
 
-    public class UnlabeledQueriesBuilder extends LogicSourceBuilder<NeuralogicParser.QueriesFileContext, Stream<Conjunction>> {
-        @Override
-        public Stream<Conjunction> buildFrom(Reader reader) throws IOException {
-            return null;
+    @Override
+    public PlainQueriesParseTree parseTreeFrom(Reader reader) {
+        try {
+            return new PlainQueriesParseTree(reader);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        return null;
+    }
 
-        @Override
-        public Stream<Conjunction> buildFrom(PlainParseTree<NeuralogicParser.QueriesFileContext> parseTree) {
-            PlainGrammarVisitor plainGrammarVisitor = new PlainGrammarVisitor(this);
-            PlainQueriesParseTreeExtractor queriesParseTreeExtractor = new PlainQueriesParseTreeExtractor(plainGrammarVisitor);
-            return queriesParseTreeExtractor.getQueries(parseTree.getRoot());
+    @Override
+    public Stream<Pair<ValuedFact, Conjunction>> buildFrom(PlainQueriesParseTree parseTree) {
+        PlainGrammarVisitor plainGrammarVisitor = new PlainGrammarVisitor(this);
+        PlainQueriesParseTreeExtractor queriesParseTreeExtractor = new PlainQueriesParseTreeExtractor(plainGrammarVisitor);
+        return queriesParseTreeExtractor.getLabeledQueries(parseTree.getRoot());
+    }
+
+    /**
+     * Stream of samples belonging to a single example (subset of the whole sample set)
+     * //TODO measure performance of this (and posssibly replace with 2 methods, one withou creating stream when not necessary)
+     *
+     * @param pair
+     * @return
+     */
+    @Override
+    public Stream<LogicSample> sampleFrom(Pair<ValuedFact, Conjunction> pair) {
+
+        if (pair.s.facts == null || pair.s.facts.size() == 0){
+            LOG.severe("Cannot extract LogicSample(s) without a query provided!");
+            return Stream.empty();
         }
+        Stream<ValuedFact> queries = pair.s.facts.stream();
+
+        if (pair.r != null) {   // labeled query(ies)
+            String id = pair.r.literal.toString();
+            if (pair.r.value != null) { // has importance set
+                if (pair.r.value.value instanceof ScalarValue) {
+                    final double importance = ((ScalarValue) pair.r.value.value).value;
+                    return queries.map(f -> new LogicSample(f.value.value, createQueryAtom(id, importance, f)));
+                } else {
+                    LOG.warning("Query with non-scalar target value not supported (yet)");
+                    return queries.map(f -> new LogicSample(f.value.value, createQueryAtom(id, f)));
+                }
+            } else {
+                return queries.map(f -> new LogicSample(f.value.value, createQueryAtom(id, f)));
+            }
+        }
+        String minibatch = String.valueOf(queryCounter);
+        return queries.map(f -> new LogicSample(f.value.value, createQueryAtom(minibatch, f)));
     }
 }

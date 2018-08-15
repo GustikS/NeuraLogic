@@ -10,11 +10,9 @@ import constructs.template.metadata.WeightMetadata;
 import ida.utils.tuples.Pair;
 import networks.structure.Weight;
 import neuralogic.grammarParsing.PlainGrammarVisitor;
-import neuralogic.grammarParsing.PlainParseTree;
 import neuralogic.template.PlainTemplateParseTree;
 import neuralogic.template.PlainTemplateParseTreeExtractor;
 import neuralogic.template.TemplateParseTreeExtractor;
-import parsers.neuralogic.NeuralogicParser;
 import settings.Settings;
 import settings.Sources;
 
@@ -28,7 +26,7 @@ import java.util.stream.Collectors;
 /**
  * Builds template given some prescribed strategy, output from a parser and some general setting
  */
-public class TemplateBuilder extends LogicSourceBuilder<NeuralogicParser.TemplateFileContext, Template> {
+public class TemplateBuilder extends LogicSourceBuilder<PlainTemplateParseTree, Template> {
     private static final Logger LOG = Logger.getLogger(TemplateBuilder.class.getName());
 
     public TemplateBuilder(Settings settings) {
@@ -36,28 +34,29 @@ public class TemplateBuilder extends LogicSourceBuilder<NeuralogicParser.Templat
     }
 
     @Override
-    public Template buildFrom(Reader reader) throws IOException {
-        PlainParseTree plainParseTree = new PlainTemplateParseTree(reader);
-        return buildFrom(plainParseTree);
+    public Template parseTreeFrom(Reader reader) {
+        PlainTemplateParseTree plainParseTree = null;
+        try {
+            plainParseTree = new PlainTemplateParseTree(reader);
+            return buildFrom(plainParseTree);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    public Template buildFrom(Sources sources) throws IOException {
-        if (sources.templateParseTree != null)
-            return buildFrom(sources.templateParseTree);
-        else if (sources.templateReader != null)
-            return buildFrom(sources.templateReader);
+    public Template parseTreeFrom(Sources sources) throws IOException {
+        if (sources.templateReader != null)
+            return parseTreeFrom(sources.templateReader);
         else
             LOG.severe("No way to create template from sources at request");
         return null;
     }
 
-    public Template buildFrom(PlainParseTree<NeuralogicParser.TemplateFileContext> plainParseTree) {
-        return buildFrom(plainParseTree, getTemplateParseTreeExtractor());
-    }
-
-    private TemplateParseTreeExtractor getTemplateParseTreeExtractor() {
+    @Override
+    public Template buildFrom(PlainTemplateParseTree plainParseTree) {
         PlainGrammarVisitor plainGrammarVisitor = new PlainGrammarVisitor(this);
-        return new PlainTemplateParseTreeExtractor(plainGrammarVisitor);
+        return buildFrom(plainParseTree, new PlainTemplateParseTreeExtractor(plainGrammarVisitor));
     }
 
     /**
@@ -65,7 +64,7 @@ public class TemplateBuilder extends LogicSourceBuilder<NeuralogicParser.Templat
      *
      * @return
      */
-    public Template buildFrom(PlainParseTree<NeuralogicParser.TemplateFileContext> plainParseTree, TemplateParseTreeExtractor templateParseTreeExtractor) {
+    public Template buildFrom(PlainTemplateParseTree plainParseTree, TemplateParseTreeExtractor templateParseTreeExtractor) {
 
         List<WeightedRule> weightedRules = templateParseTreeExtractor.getWeightedRules(plainParseTree.getRoot());
         List<ValuedFact> valuedFacts = templateParseTreeExtractor.getWeightedFacts(plainParseTree.getRoot());

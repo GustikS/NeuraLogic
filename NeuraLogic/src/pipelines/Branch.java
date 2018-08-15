@@ -1,13 +1,13 @@
 package pipelines;
 
 import ida.utils.tuples.Pair;
-import pipelines.prepared.pipes.generic.IdentityGenPipe;
+import pipelines.pipes.generic.IdentityGenPipe;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-public abstract class Branch<I, O1, O2> implements ConnectBefore<I> {
+public abstract class Branch<I, O1, O2> extends Block implements ConnectBefore<I> {
     private static final Logger LOG = Logger.getLogger(Branch.class.getName());
 
     public ConnectAfter<I> input;

@@ -19,7 +19,7 @@ public abstract class ExamplesParseTreeExtractor<T extends GrammarVisitor> {
 
     public abstract Stream<LiftedExample> getUnlabeledExamples(@NotNull NeuralogicParser.ExamplesFileContext ctx);
 
-    public abstract Stream<Pair<Conjunction, LiftedExample>> getLabeledSamples(@NotNull NeuralogicParser.ExamplesFileContext ctx);
+    public abstract Stream<Pair<Conjunction, LiftedExample>> getLabeledExamples(@NotNull NeuralogicParser.ExamplesFileContext ctx);
 
     public abstract Stream<Conjunction> getQueries(@NotNull NeuralogicParser.ExamplesFileContext ctx);
 }

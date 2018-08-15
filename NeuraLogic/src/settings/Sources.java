@@ -1,7 +1,6 @@
 package settings;
 
 import ida.utils.tuples.Pair;
-import neuralogic.template.PlainTemplateParseTree;
 import org.apache.commons.cli.CommandLine;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -28,9 +27,6 @@ public class Sources {
     public Source train;
     public Source test;
 
-    //TODO change to correct abstract/specific parse trees for each type
-    public PlainTemplateParseTree templateParseTree;
-    //TODO put Readers down in hierarchy into files? (maybe not)
     public Reader templateReader;
 
     //----------------INFERRED SETTINGS
@@ -60,8 +56,6 @@ public class Sources {
             templateProvided = false;
             settings.structureLearning = true;
         } else {
-            if (templateParseTree.getRoot().templateLine() == null)
-                templateProvided = false;
             templateProvided = true;
         }
 

@@ -3,9 +3,10 @@ package neuralogic.grammarParsing;
 import com.sun.istack.internal.NotNull;
 import constructs.Conjunction;
 import constructs.WeightedPredicate;
+import constructs.building.LogicSourceBuilder;
+import constructs.building.factories.VariableFactory;
 import constructs.example.LiftedExample;
 import constructs.example.ValuedFact;
-import constructs.building.factories.VariableFactory;
 import constructs.template.Atom;
 import constructs.template.BodyAtom;
 import constructs.template.WeightedRule;
@@ -19,7 +20,6 @@ import networks.evaluation.values.VectorValue;
 import networks.structure.Weight;
 import parsers.neuralogic.NeuralogicBaseVisitor;
 import parsers.neuralogic.NeuralogicParser;
-import constructs.building.LogicSourceBuilder;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -56,6 +56,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             rule.head = new Atom();
             rule.head.weightedPredicate = headAtom.weightedPredicate;
             rule.head.literal = headAtom.literal;
+            rule.head.weightedPredicate.predicate.arity = rule.head.literal.arity();
 
             rule.weight = headAtom.weight;
 
@@ -94,14 +95,15 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             BodyAtom bodyAtom = new BodyAtom();
             bodyAtom.originalString = ctx.getText();
 
-            WeightedPredicate predicate = ctx.predicate().accept(new PredicateVisitor());
-            bodyAtom.weightedPredicate = predicate;
             TermVisitor termVisitor = new TermVisitor();
             termVisitor.variableFactory = this.variableFactory;
             List<Term> terms = ctx.termList().term()
                     .stream()
                     .map(term -> term.accept(termVisitor))
                     .collect(Collectors.toList());
+
+            WeightedPredicate predicate = ctx.predicate().accept(new PredicateVisitor(terms.size()));
+            bodyAtom.weightedPredicate = predicate;
 
             bodyAtom.isNegated = ctx.negation() != null;    //TODO derive proper activation function for negation here already and remove the flag
             bodyAtom.literal = new Literal(predicate.predicate.name, bodyAtom.isNegated, terms);
@@ -159,15 +161,15 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             ValuedFact fact = new ValuedFact();
             fact.originalString = ctx.getText();
 
-            WeightedPredicate predicate = ctx.atom().predicate().accept(new PredicateVisitor());
-            fact.weightedPredicate = predicate;
-
             TermVisitor termVisitor = new TermVisitor();
             termVisitor.variableFactory = this.variableFactory;
             List<Term> terms = ctx.atom().termList().term()
                     .stream()
                     .map(term -> term.accept(termVisitor))
                     .collect(Collectors.toList());
+
+            WeightedPredicate predicate = ctx.atom().predicate().accept(new PredicateVisitor(terms.size()));
+            fact.weightedPredicate = predicate;
 
             fact.literal = new Literal(predicate.predicate.name, ctx.atom().negation() != null, terms);
             fact.value = ctx.atom().weight().accept(new WeightVisitor());
@@ -176,14 +178,20 @@ public class PlainGrammarVisitor extends GrammarVisitor {
     }
 
     private class PredicateVisitor extends NeuralogicBaseVisitor<WeightedPredicate> {
+        int arity = -1;
+
+        public PredicateVisitor(int arity) {
+            this.arity = arity;
+        }
 
         @Override
         public WeightedPredicate visitPredicate(@NotNull NeuralogicParser.PredicateContext ctx) {
-            int arity = -1;
-            try {
-                arity = Integer.parseInt(ctx.INT().getText());
-            } catch (Exception ex) {
-                LOG.severe("Cannot parse arity of a predicate from " + ctx.getText());
+            if (ctx.INT() != null) {
+                try {
+                    arity = Integer.parseInt(ctx.INT().getText());
+                } catch (Exception ex) {
+                    LOG.severe("Cannot parse arity of a predicate from " + ctx.getText());
+                }
             }
             WeightedPredicate predicate = builder.predicateFactory.construct(ctx.ATOMIC_NAME().getText(), arity, ctx.SPECIAL() != null);
 

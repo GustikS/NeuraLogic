@@ -1,4 +1,4 @@
-package pipelines.prepared.pipes.specific;
+package pipelines.pipes.specific;
 
 import constructs.template.Template;
 import pipelines.Pipe;

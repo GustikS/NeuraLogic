@@ -6,7 +6,7 @@ import learning.crossvalidation.TrainTestResults;
 import networks.evaluation.results.Results;
 import pipelines.Pipe;
 import pipelines.Pipeline;
-import pipelines.prepared.pipes.generic.SecondFromPairPipe;
+import pipelines.pipes.generic.SecondFromPairPipe;
 import settings.Settings;
 import settings.Sources;
 import training.NeuralModel;
@@ -38,7 +38,6 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
      */
     public Pipeline<Sources, Results> buildPipeline(Sources sources) {
         Pipeline<Sources, Results> pipeline = new Pipeline<>("LearningSchemePipeline");
-
 
         if (sources.crossvalidation) { //returns only test results in this case
             CrossvalidationBuilder crossvalidationSchemeBuilder = new CrossvalidationBuilder(settings, sources);

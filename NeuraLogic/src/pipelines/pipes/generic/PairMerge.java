@@ -1,4 +1,4 @@
-package pipelines.prepared.pipes.generic;
+package pipelines.pipes.generic;
 
 import ida.utils.tuples.Pair;
 import pipelines.Merge;

@@ -1,6 +1,6 @@
 package constructs.building.parsing_old;
 
-import constructs.example.AtomQuery;
+import constructs.example.QueryAtom;
 import constructs.example.CompositeQuery;
 import learning.Query;
 
@@ -42,7 +42,7 @@ public class PlainTextQueryParser implements QueryParser {
         if (s.contains(":-")){
             return CompositeQuery.parse(s);
         } else {
-            return AtomQuery.parse(s);
+            return QueryAtom.parse(s);
         }
     }
 

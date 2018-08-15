@@ -11,7 +11,7 @@ import java.util.logging.Logger;
  * @param <I2>
  * @param <O>
  */
-public abstract class Merge<I1, I2, O> implements ConnectAfter<O> {
+public abstract class Merge<I1, I2, O> extends Block implements ConnectAfter<O> {
     private static final Logger LOG = Logger.getLogger(Merge.class.getName());
 
     public Pipe<I1, I1> input1;

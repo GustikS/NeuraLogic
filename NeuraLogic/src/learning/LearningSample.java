@@ -1,20 +1,19 @@
 package learning;
 
-import com.sun.istack.internal.Nullable;
 import networks.evaluation.values.Value;
 
-public interface LearningSample {
+public abstract class LearningSample<Q extends Query> {
     //should learning samples contain reference to Model - probably not (Structure learning)
 
-    Double getImportance();
-    String getId();
-    Value getTarget();
-    Query getQuery();
+    public Q query;
+    public Value target;
 
-    @Nullable
-    Example getExample();
-
-    default Value getValue(Model model) {
-        return getQuery().evaluate(model);
+    public String getId(){
+        return query.ID;
     }
+
+    public double getImportance(){
+        return query.importance;
+    }
+
 }

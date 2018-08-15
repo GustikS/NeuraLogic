@@ -12,7 +12,7 @@ public class StratifiedSplitter<T extends LearningSample> implements Splitter<T>
 
 
     @Override
-    public List<List<T>> partition(Stream<T> samples, int foldCount) {
+    public List<Stream<T>> partition(Stream<T> samples, int foldCount) {
         return null;
     }
 

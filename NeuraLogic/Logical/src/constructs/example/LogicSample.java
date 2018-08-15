@@ -1,8 +1,6 @@
 package constructs.example;
 
-import learning.Example;
 import learning.LearningSample;
-import learning.Query;
 import networks.evaluation.values.Value;
 
 
@@ -11,40 +9,12 @@ import networks.evaluation.values.Value;
  * <p>
  * Created by gusta on 8.3.17.
  */
-public class LogicSample implements LearningSample {
-    double importance;
-    AtomQuery query;
-    Value target;
+public class LogicSample extends LearningSample {
 
-    public LogicSample(AtomQuery q, Value v) {
+    public LogicSample(Value v, QueryAtom q) {
+        this.query = q;
+        this.target = v;
 
     }
 
-    public LogicSample(AtomQuery query, Example example) {
-    }
-
-    @Override
-    public Double getImportance() {
-        return importance;
-    }
-
-    @Override
-    public String getId() {
-        return null;
-    }
-
-    @Override
-    public Value getTarget() {
-        return target;
-    }
-
-    @Override
-    public Query getQuery() {
-        return query;
-    }
-
-    @Override
-    public Example getExample() {
-        return query.getEvidence().get();
-    }
 }

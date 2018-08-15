@@ -1,17 +1,12 @@
 package settings;
 
 import ida.utils.tuples.Pair;
-import neuralogic.examples.PlainExamplesParseTree;
-import neuralogic.queries.PlainQueriesParseTree;
 
 import java.io.Reader;
 import java.util.logging.Logger;
 
 public class Source {
     private static final Logger LOG = Logger.getLogger(Source.class.getName());
-
-    public PlainExamplesParseTree ExamplesParseTree;
-    public PlainQueriesParseTree QueriesParseTree;
 
     public Reader ExamplesReader;
     public Reader QueriesReader;  // these should always be present for learning
@@ -24,30 +19,26 @@ public class Source {
 
     public boolean QueriesLinkedById;
 
-    public Pair<Boolean, String> validate(Settings settings){
+    public Pair<Boolean, String> validate(Settings settings) {
         //TODO
         return null;
     }
 
     public void infer(Settings settings) {
 
-        ExamplesSeparate = ExamplesReader == null ? false : !ExamplesParseTree.isEmpty();
-        QueriesSeparate = QueriesReader == null ? false : !QueriesParseTree.isEmpty();
+        ExamplesSeparate = ExamplesReader == null ? false : true;
+        QueriesSeparate = QueriesReader == null ? false : true;
 
         if (ExamplesSeparate) {
             ExamplesProvided = true;
-            if (ExamplesParseTree.getRoot().label() != null) {
-                QueriesProvided = true;
-            }
         } else {
             ExamplesProvided = false;
         }
 
         if (QueriesSeparate) {
             QueriesProvided = true;
-            if (QueriesParseTree.getRoot().atom() != null) {
+            if (ExamplesProvided)
                 QueriesLinkedById = true;
-            }
         }
     }
 }

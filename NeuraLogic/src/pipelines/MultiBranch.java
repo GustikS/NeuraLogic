@@ -1,6 +1,6 @@
 package pipelines;
 
-import pipelines.prepared.pipes.generic.IdentityGenPipe;
+import pipelines.pipes.generic.IdentityGenPipe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.logging.Logger;
  * This method must be terminating, since it is not possible to fork streams,
  * hence the return value is List to signify this
  */
-public abstract class MultiBranch<I, O> implements ConnectBefore<I> {
+public abstract class MultiBranch<I, O> extends Block implements ConnectBefore<I> {
     private static final Logger LOG = Logger.getLogger(MultiBranch.class.getName());
 
     public ConnectAfter<I> input;

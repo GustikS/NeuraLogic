@@ -2,6 +2,7 @@ package pipelines;
 
 import ida.utils.tuples.Pair;
 import settings.Settings;
+import utils.Exporter;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -16,14 +17,13 @@ import java.util.logging.Logger;
  * <p>
  * Created by gusta on 14.3.17.
  */
-public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T>, Function<S, T> {
+public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAfter<T>, Function<S, T> {
     // pipelines - vstup a vystup by byl Pipe/Merge/Branch?
 
     private static final Logger LOG = Logger.getLogger(Pipeline.class.getName());
 
     public String ID;
 
-    protected Settings settings;
     public ConnectBefore<S> start;
     public ConnectAfter<T> terminal;
 
@@ -45,6 +45,17 @@ public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T>, Functi
         this.ID = id;
     }
 
+    public Pipeline(String id, Settings settings) {
+        this.ID = id;
+        this.settings = settings;
+    }
+
+    public Pipeline(String id, Settings settings, Exporter exporter) {
+        this.ID = id;
+        this.settings = settings;
+        this.exporter = exporter;
+    }
+
     /**
      * List of points in the pipelines that need to be called externally, i.e. where streams are terminated.
      */
@@ -63,29 +74,45 @@ public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T>, Functi
 
     public <I, O, A extends Pipe<I, O>> A register(A p) {
         pipes.put(p.ID, p);
+        p.parent = this;
         return p;
     }
 
-    public <I,O,A extends ParallelPipe<I,O>> A register(A m) {
+    @Deprecated
+    public <I, O, A extends ParallelPipe<I, O>> A register(A m) {
         //TODO register individual pipes in multis
-        multiPipes.put(m.ID,m);
+        multiPipes.put(m.ID, m);
         return m;
     }
 
     public <I, O1, O2, A extends Branch<I, O1, O2>> A register(A b) {
         branches.put(b.ID, b);
+        b.parent = this;
         return b;
     }
 
     public <I1, I2, O, A extends Merge<I1, I2, O>> A register(A m) {
         merges.put(m.ID, m);
-        //executionQueue.add(p);
+        m.parent = this;
         return m;
     }
 
     public <I, O> Pipeline<I, O> register(Pipeline<I, O> p) {
         pipelines.put(p.ID, p);
+        p.parent = this;
         return p;
+    }
+
+    public <I, O, A extends MultiBranch<I, O>> A register(A m) {
+        multiBranches.put(m.ID, m);
+        m.parent = this;
+        return m;
+    }
+
+    public <I, O, A extends MultiMerge<I, O>> A register(A m) {
+        multiMerges.put(m.ID, m);
+        m.parent = this;
+        return m;
     }
 
     public <O, A extends Pipe<S, O>> A registerStart(A p) {
@@ -103,16 +130,6 @@ public class Pipeline<S, T> implements ConnectBefore<S>, ConnectAfter<T>, Functi
     public <O, A extends MultiBranch<S, O>> A registerStart(A m) {
         start = m;
         register(m);
-        return m;
-    }
-
-    public <I, O, A extends MultiBranch<I, O>> A register(A m) {
-        multiBranches.put(m.ID, m);
-        return m;
-    }
-
-    public <I, O, A extends MultiMerge<I, O>> A register(A m) {
-        multiMerges.put(m.ID, m);
         return m;
     }
 

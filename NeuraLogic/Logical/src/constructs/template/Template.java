@@ -1,10 +1,10 @@
 package constructs.template;
 
 import constructs.Conjunction;
+import constructs.example.QueryAtom;
 import constructs.example.ValuedFact;
 import constructs.template.templates.ParsedTemplate;
 import learning.Model;
-import learning.Query;
 import networks.evaluation.values.Value;
 import networks.structure.Weight;
 import training.NeuralModel;
@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Created by Gusta on 04.10.2016.
  */
-public class Template extends ParsedTemplate implements Model {
+public class Template extends ParsedTemplate implements Model<QueryAtom> {
     public LinkedHashSet<WeightedRule> rules;
     public LinkedHashSet<ValuedFact> facts;
     public LinkedHashSet<Conjunction> constraints;
@@ -38,9 +38,10 @@ public class Template extends ParsedTemplate implements Model {
     }
 
     @Override
-    public <T extends Query> Value evaluate(T query) {
+    public Value evaluate(QueryAtom query) {
         return null;
     }
+
 
     @Override
     public List<Weight> getAllWeights() {

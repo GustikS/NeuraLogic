@@ -48,7 +48,7 @@ public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, 
         Pipe<Sources, Template> pipe = new Pipe<Sources, Template>("TemplateExtractionPipe") {
             @Override
             public Template apply(Sources sources) {
-                return templateBuilder.buildFrom(sources.templateParseTree);
+                return templateBuilder.parseTreeFrom(sources.templateReader);
 
             }
         };
