@@ -7,7 +7,8 @@ import ida.ilp.logic.Clause;
 import java.util.LinkedHashSet;
 import java.util.logging.Logger;
 
-public class RichLogicTemplate extends Template{
+@Deprecated
+public class RichLogicTemplate extends Template {
     private static final Logger LOG = Logger.getLogger(RichLogicTemplate.class.getName());
 
 

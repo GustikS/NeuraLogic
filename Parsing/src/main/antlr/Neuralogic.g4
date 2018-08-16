@@ -4,7 +4,7 @@ grammar Neuralogic;
 templateFile: templateLine*;
 // format : valid line is either normal rule, or simple true fact, or conjunction of facts (constraint - for future)
 // the rest of lines is metadata
-templateLine: lrnnRule | fact | (conjunction '.') | predicateMetadata | predicateOffset | weightMetadata;
+templateLine: lrnnRule | fact | (conjunction '.') | predicateMetadata | predicateOffset | weightMetadata | templateMetadata;
 
 //trainExamples may come in following formats (overloading the lrnn_rule):
 //labeled: label query literals :- lifted examples, where the label query literal may also be a <link> to the queries file
@@ -44,6 +44,7 @@ lrnnRule: atom IMPLIED_BY conjunction offset? '.' metadataList?;
 predicateOffset: predicate weight;
 predicateMetadata: predicate metadataList;
 weightMetadata: DOLLAR ATOMIC_NAME metadataList;
+templateMetadata: metadataList;
 
 //weight: fixed_weight | SEPARATOR (INT | FLOAT) SEPARATOR;
 //SEPARATOR: (' ' | BOL | EOF);
@@ -67,7 +68,7 @@ INT: [+-]? DIGIT+;
 FLOAT: [+-]? DIGIT+ '.' DIGIT+ ( [eE] [+-]? DIGIT+ )?;
 
 // i.e. any name of an atom (predicate or constant)
-ATOMIC_NAME: LCASE_LETTER ALPHANUMERIC*;
+ATOMIC_NAME: TRUE | LCASE_LETTER ALPHANUMERIC*;
 
 // generic chars
 IMPLIED_BY: ':-';
@@ -95,7 +96,7 @@ fragment DIGIT: [0-9];
 
 fragment BOL : [\r\n\f]+ ;
 
-// ignore whitespace
+// Be careful - all whitespace is completely IGNORED! (including new lines)
 //WS : (' ' | '\t')+ -> channel(HIDDEN);
 WS : [ \t\r\n]+ -> skip;
 

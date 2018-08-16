@@ -1,8 +1,5 @@
 package settings;
 
-import grounding.Grounder;
-import grounding.bottomUp.BottomUp;
-import grounding.topDown.TopDown;
 import ida.utils.tuples.Pair;
 import org.apache.commons.cli.CommandLine;
 
@@ -29,8 +26,16 @@ public class Settings {
     NumberFormat nf = new DecimalFormat("#.##########");
 
     //------------------Grounding
-    public Grounder grounder;   //TODO vyhodit, nechat v Settings jen primitivni typy
-    public boolean onlineGrounding;
+    /**
+     * Ground networks may share common parts (i.e. Grounder has a cache)
+     */
+    public boolean sharedGroundings;
+    /**
+     * Ground networks are grounded in a specific sequence (with sharing)
+     */
+    public boolean sequentialGrounding;
+
+    public boolean parallelGrounding = true;
 
     /**
      * Type of grounder
@@ -66,14 +71,18 @@ public class Settings {
     public boolean exportFolds = true;
     public boolean trainFoldsIsolation = false;
 
-    //same template provided for all folds?
+    /**
+     * same template provided for all folds?
+     */
     public boolean commonTemplate;
 
     //----------------Template Transformations
+
     public boolean processMetadata = true;
     public boolean reduceTemplate = true;
 
     //----------------Learning Samples
+
     public double defaultSampleImportance = 1.0;
     public String sampleIdPrefix = "s";
     public String queriesBatchPrefix = "_b";
@@ -86,16 +95,6 @@ public class Settings {
     }
 
     public void setupFromCommandline(CommandLine cmd) {
-
-        String _grounding = cmd.getOptionValue("grounding", grounding.name());
-        switch (_grounding) {
-            case "BUP":
-                grounder = new BottomUp();
-                break;
-            case "TDOWN":
-                grounder = new TopDown();
-                break;
-        }
 
         String _seed = cmd.getOptionValue("seed", String.valueOf(seed));
         random = new Random(Integer.parseInt(_seed));

@@ -9,7 +9,7 @@ import networks.evaluation.values.Value;
  * <p>
  * Created by gusta on 8.3.17.
  */
-public class LogicSample extends LearningSample {
+public class LogicSample extends LearningSample<QueryAtom> {
 
     public LogicSample(Value v, QueryAtom q) {
         this.query = q;

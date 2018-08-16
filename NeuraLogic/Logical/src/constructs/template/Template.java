@@ -3,7 +3,6 @@ package constructs.template;
 import constructs.Conjunction;
 import constructs.example.QueryAtom;
 import constructs.example.ValuedFact;
-import constructs.template.templates.ParsedTemplate;
 import learning.Model;
 import networks.evaluation.values.Value;
 import networks.structure.Weight;
@@ -15,7 +14,7 @@ import java.util.List;
 /**
  * Created by Gusta on 04.10.2016.
  */
-public class Template extends ParsedTemplate implements Model<QueryAtom> {
+public class Template implements Model<QueryAtom> {
     public LinkedHashSet<WeightedRule> rules;
     public LinkedHashSet<ValuedFact> facts;
     public LinkedHashSet<Conjunction> constraints;

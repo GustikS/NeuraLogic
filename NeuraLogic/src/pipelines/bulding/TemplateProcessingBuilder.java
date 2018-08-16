@@ -2,6 +2,7 @@ package pipelines.bulding;
 
 import constructs.building.TemplateBuilder;
 import constructs.template.Template;
+import constructs.template.templates.ParsedTemplate;
 import constructs.template.transforming.MetadataProcessor;
 import constructs.template.transforming.TemplateReducing;
 import pipelines.Pipe;
@@ -28,46 +29,54 @@ public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, 
 
     @Override
     public Pipeline<Sources, Template> buildPipeline() {
-        Pipeline<Sources, Template> templateProcessingPipeline = new Pipeline<>("TemplateProcessingPipeline");
+        Pipeline<Sources, Template> pipeline = new Pipeline<>("TemplateProcessingPipeline");
         if (sources.templateProvided) {
-            Pipe<Sources, Template> sourcesTemplatePipe = templateProcessingPipeline.register(extractTemplate(sources));
-            Pipe<Template, Template> templateTemplatePipe = templateProcessingPipeline.register(postProcessTemplate());
-            sourcesTemplatePipe.connectAfter(templateTemplatePipe);
-            return templateProcessingPipeline;
+            Pipe<Sources, ParsedTemplate> sourcesTemplatePipe = pipeline.registerStart(extractTemplate(sources));
+            if (settings.processMetadata) {
+                Pipe<ParsedTemplate, Template> metadataPipe = pipeline.registerEnd(processMetadata());
+                sourcesTemplatePipe.connectAfter(metadataPipe);
+            }
+            if (settings.reduceTemplate) {
+                Pipe<Template, Template> reduceTemplatePipe = reduceTemplate();
+                pipeline.terminal.connectAfter(pipeline.registerEnd(reduceTemplatePipe)); //todo check if correct end of pipeline
+            }
+            //TODO rest of template transformations
+            return pipeline;
         } else {
             LOG.warning("Template extraction from sources requested but no template provided.");
             return null;
         }
     }
 
-    public Pipe<Sources, Template> extractTemplate(Sources sources) {
+    protected Pipe<Template, Template> reduceTemplate() {
+        templateReducer = TemplateReducing.getReducer(settings);
+        return new Pipe<Template, Template>("TemplateReducingPipe") {
+            @Override
+            public Template apply(Template template) {
+                return templateReducer.reduce(template);
+            }
+        };
+    }
+
+    protected Pipe<ParsedTemplate, Template> processMetadata() {
+        metadataProcessor = new MetadataProcessor(settings);
+        return new Pipe<ParsedTemplate, Template>("MetadataProcessingPipe") {
+            @Override
+            public Template apply(ParsedTemplate template) {
+                return metadataProcessor.processMetadata(template);
+            }
+        };
+    }
+
+    public Pipe<Sources, ParsedTemplate> extractTemplate(Sources sources) {
         if (!sources.templateProvided) {
             LOG.severe("No template provided yet required.");
             return null;
         }
-        Pipe<Sources, Template> pipe = new Pipe<Sources, Template>("TemplateExtractionPipe") {
+        Pipe<Sources, ParsedTemplate> pipe = new Pipe<Sources, ParsedTemplate>("TemplateExtractionPipe") {
             @Override
-            public Template apply(Sources sources) {
-                return templateBuilder.parseTreeFrom(sources.templateReader);
-
-            }
-        };
-        return pipe;
-    }
-
-    public Pipe<Template, Template> postProcessTemplate() {
-        Pipe<Template, Template> pipe = new Pipe<Template, Template>("TemplatePostprocessingPipe") {
-            @Override
-            public Template apply(Template template) {
-                if (settings.processMetadata) {
-                    template = metadataProcessor.processMetadata(template);
-                }
-                if (settings.reduceTemplate) {
-                    templateReducer = TemplateReducing.getReducer(settings);
-                    template = templateReducer.reduce(template);
-                }
-                //TODO rest of template transformations
-                return template;
+            public ParsedTemplate apply(Sources sources) {
+                return templateBuilder.buildTemplateFrom(sources.templateReader);
             }
         };
         return pipe;

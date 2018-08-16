@@ -38,7 +38,7 @@ public class PlainQueriesParseTreeExtractor extends QueriesParseTreeExtractor<Pl
             if (ctx.atom() != null) {
                 LOG.info("Provided queries have no ids with them.");
                 Stream<ValuedFact> labelStream = ctx.atom().stream().map(atom -> atom.accept(factVisitor));
-                return zipStreams(labelStream, queriesStream, (lab, query) -> new Pair(lab, query));
+                return zipStreams(labelStream, queriesStream, (lab, query) -> new Pair(lab, query));    //TODO do not zip, create a single line context object (same as in labeled Examples)
             } else {
                 return queriesStream.map(q -> new Pair(null, q));
             }

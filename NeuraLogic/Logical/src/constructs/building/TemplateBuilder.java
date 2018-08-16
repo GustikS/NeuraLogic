@@ -7,6 +7,7 @@ import constructs.template.Template;
 import constructs.template.WeightedRule;
 import constructs.template.metadata.PredicateMetadata;
 import constructs.template.metadata.WeightMetadata;
+import constructs.template.templates.ParsedTemplate;
 import ida.utils.tuples.Pair;
 import networks.structure.Weight;
 import neuralogic.grammarParsing.PlainGrammarVisitor;
@@ -14,7 +15,6 @@ import neuralogic.template.PlainTemplateParseTree;
 import neuralogic.template.PlainTemplateParseTreeExtractor;
 import neuralogic.template.TemplateParseTreeExtractor;
 import settings.Settings;
-import settings.Sources;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 /**
  * Builds template given some prescribed strategy, output from a parser and some general setting
  */
-public class TemplateBuilder extends LogicSourceBuilder<PlainTemplateParseTree, Template> {
+public class TemplateBuilder extends LogicSourceBuilder<PlainTemplateParseTree, ParsedTemplate> {
     private static final Logger LOG = Logger.getLogger(TemplateBuilder.class.getName());
 
     public TemplateBuilder(Settings settings) {
@@ -34,27 +34,25 @@ public class TemplateBuilder extends LogicSourceBuilder<PlainTemplateParseTree, 
     }
 
     @Override
-    public Template parseTreeFrom(Reader reader) {
-        PlainTemplateParseTree plainParseTree = null;
+    public PlainTemplateParseTree parseTreeFrom(Reader reader) {
         try {
-            plainParseTree = new PlainTemplateParseTree(reader);
-            return buildFrom(plainParseTree);
+            return new PlainTemplateParseTree(reader);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public Template parseTreeFrom(Sources sources) throws IOException {
-        if (sources.templateReader != null)
-            return parseTreeFrom(sources.templateReader);
+    public ParsedTemplate buildTemplateFrom(Reader reader) {
+        if (reader != null)
+            return buildFrom(parseTreeFrom(reader));
         else
             LOG.severe("No way to create template from sources at request");
         return null;
     }
 
     @Override
-    public Template buildFrom(PlainTemplateParseTree plainParseTree) {
+    public ParsedTemplate buildFrom(PlainTemplateParseTree plainParseTree) {
         PlainGrammarVisitor plainGrammarVisitor = new PlainGrammarVisitor(this);
         return buildFrom(plainParseTree, new PlainTemplateParseTreeExtractor(plainGrammarVisitor));
     }
@@ -64,7 +62,7 @@ public class TemplateBuilder extends LogicSourceBuilder<PlainTemplateParseTree, 
      *
      * @return
      */
-    public Template buildFrom(PlainTemplateParseTree plainParseTree, TemplateParseTreeExtractor templateParseTreeExtractor) {
+    public ParsedTemplate buildFrom(PlainTemplateParseTree plainParseTree, TemplateParseTreeExtractor templateParseTreeExtractor) {
 
         List<WeightedRule> weightedRules = templateParseTreeExtractor.getWeightedRules(plainParseTree.getRoot());
         List<ValuedFact> valuedFacts = templateParseTreeExtractor.getWeightedFacts(plainParseTree.getRoot());
@@ -74,11 +72,11 @@ public class TemplateBuilder extends LogicSourceBuilder<PlainTemplateParseTree, 
         List<Pair<Weight, Map<String, Object>>> weightsMetadata = templateParseTreeExtractor.getWeightsMetadata(plainParseTree.getRoot());
 
 
-        Template template = new Template(weightedRules, valuedFacts);
+        ParsedTemplate template = new ParsedTemplate(weightedRules, valuedFacts);
         template.addConstraints(weightedConjunctions);  //todo check what are weighted conjunctions in template
         template.originalString = plainParseTree.toString();    //todo check where is the real string
 
-        template.templateMetadata = null; //TODO add support for this in the template file
+        template.templateMetadata = null; //TODO add support for this in the template loading
         template.predicatesMetadata = predicatesMetadata.stream().map(pair -> new Pair<>(pair.r, new PredicateMetadata(pair.s))).collect(Collectors.toList());
         template.weightsMetadata = weightsMetadata.stream().map(pair -> new Pair<>(pair.r, new WeightMetadata(pair.s))).collect(Collectors.toList());
 
@@ -86,7 +84,7 @@ public class TemplateBuilder extends LogicSourceBuilder<PlainTemplateParseTree, 
     }
 
     public Template extendTemplateWith(Reader reader, Settings settings) {
-        //TODO
+        //TODO later
         return null;
     }
 

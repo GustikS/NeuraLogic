@@ -32,7 +32,7 @@ public class PlainExamplesParseTreeExtractor extends ExamplesParseTreeExtractor<
 
     @Override
     public Stream<Pair<Conjunction, LiftedExample>> getLabeledExamples(@NotNull NeuralogicParser.ExamplesFileContext ctx) {
-        return zipStreams(getQueries(ctx), getUnlabeledExamples(ctx), (q, e) -> new Pair(q, e));  //TODO check synchronization of labels and examples, what happens if some label is missing? (it should return null value)
+        return zipStreams(getQueries(ctx), getUnlabeledExamples(ctx), (q, e) -> new Pair(q, e));  //TODO check synchronization of labels and examples - change grammar to single line context object for the pair of (Q,E) and add custom visitor with shared variableFactory
 
     }
 

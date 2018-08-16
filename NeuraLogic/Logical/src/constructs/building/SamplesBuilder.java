@@ -5,6 +5,7 @@ import constructs.example.LogicSample;
 import constructs.example.QueryAtom;
 import constructs.example.ValuedFact;
 import constructs.template.Atom;
+import learning.LearningSample;
 import neuralogic.grammarParsing.PlainParseTree;
 import org.antlr.v4.runtime.ParserRuleContext;
 import settings.Settings;
@@ -45,15 +46,23 @@ public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRu
      */
     public static Stream<LogicSample> merge2streams(Stream<LogicSample> queries, Stream<LogicSample> examples) {
         if (queries.isParallel() || examples.isParallel()) {
-            return Stream.concat(queries, examples).collect(Collectors.toConcurrentMap(q -> q.getId(), q -> q, (q1, q2) -> merge2samples(q1,q2))).values().stream();
+            return Stream.concat(queries, examples).collect(Collectors.toConcurrentMap(LearningSample::getId, q -> q, SamplesBuilder::merge2samples)).values().stream();
         } else {
-            return Stream.concat(queries, examples).collect(Collectors.toMap(q -> q.getId(), q -> q, (q1, q2) -> merge2samples(q1,q2))).values().stream();
+            return Stream.concat(queries, examples).collect(Collectors.toMap(LearningSample::getId, q -> q, SamplesBuilder::merge2samples)).values().stream();
         }
     }
 
+    /**
+     * Combined a separate query (wrapped in LogicSample) and example (wrapped in LogicSample) into a single LogicSample
+     * Due to possible parallelism, it is not certain in what order they will come (i.e. q1,q2 are interchangebale)
+     * @param q1
+     * @param q2
+     * @return
+     */
     private static LogicSample merge2samples(LogicSample q1, LogicSample q2) {
-        LogicSample query = q1.target != null ? q1 : q2;
         LogicSample example = q1.query.evidence != null ? q1 : q2;
+        LogicSample query = q1.target != null ? q1 : q2;
+
         if (query == example) {
             LOG.severe("Example-Query merging inconsistency: " + q1 + " + " + q2);
         }

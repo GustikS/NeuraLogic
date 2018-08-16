@@ -24,7 +24,13 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
 
     public String ID;
 
+    /**
+     * first node INSIDE this pipeline
+     */
     public ConnectBefore<S> start;
+    /**
+     * last node INSIDE this pipeline
+     */
     public ConnectAfter<T> terminal;
 
     ConcurrentHashMap<String, Branch> branches;
@@ -37,7 +43,13 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
 
     ConcurrentHashMap<String, Pipeline> pipelines;
 
+    /**
+     * input BEFORE this pipeline
+     */
     public ConnectAfter<S> input;
+    /**
+     * output AFTER this pipeline
+     */
     public ConnectBefore<T> output;
 
 
