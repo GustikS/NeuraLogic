@@ -7,11 +7,10 @@ import constructs.building.LogicSourceBuilder;
 import constructs.building.factories.VariableFactory;
 import constructs.example.LiftedExample;
 import constructs.example.ValuedFact;
-import constructs.template.Atom;
 import constructs.template.BodyAtom;
+import constructs.template.HeadAtom;
 import constructs.template.WeightedRule;
 import constructs.template.metadata.RuleMetadata;
-import ida.ilp.logic.Literal;
 import ida.ilp.logic.Term;
 import ida.utils.tuples.Pair;
 import networks.evaluation.values.ScalarValue;
@@ -51,14 +50,11 @@ public class PlainGrammarVisitor extends GrammarVisitor {
 
             AtomVisitor headVisitor = new AtomVisitor();
             headVisitor.variableFactory = this.variableFactory;
+            // we hack it through BodyAtom here to pass the weight of the rule
             BodyAtom headAtom = ctx.atom().accept(headVisitor);
+            rule.weight = headAtom.getConjunctWeight();  //rule weight
 
-            rule.head = new Atom();
-            rule.head.weightedPredicate = headAtom.weightedPredicate;
-            rule.head.literal = headAtom.literal;
-            rule.head.weightedPredicate.predicate.arity = rule.head.literal.arity();
-
-            rule.weight = headAtom.weight;
+            rule.head = new HeadAtom(headAtom);
 
             AtomConjunctionVisitor bodyVisitor = new AtomConjunctionVisitor();
             bodyVisitor.variableFactory = this.variableFactory;
@@ -92,8 +88,6 @@ public class PlainGrammarVisitor extends GrammarVisitor {
 
         @Override
         public BodyAtom visitAtom(@NotNull NeuralogicParser.AtomContext ctx) {
-            BodyAtom bodyAtom = new BodyAtom();
-            bodyAtom.originalString = ctx.getText();
 
             TermVisitor termVisitor = new TermVisitor();
             termVisitor.variableFactory = this.variableFactory;
@@ -103,11 +97,10 @@ public class PlainGrammarVisitor extends GrammarVisitor {
                     .collect(Collectors.toList());
 
             WeightedPredicate predicate = ctx.predicate().accept(new PredicateVisitor(terms.size()));
-            bodyAtom.weightedPredicate = predicate;
+            Weight weight = ctx.weight().accept(new WeightVisitor());
 
-            bodyAtom.isNegated = ctx.negation() != null;    //TODO derive proper activation function for negation here already and remove the flag
-            bodyAtom.literal = new Literal(predicate.predicate.name, bodyAtom.isNegated, terms);
-            bodyAtom.weight = ctx.weight().accept(new WeightVisitor());
+            BodyAtom bodyAtom = new BodyAtom(predicate, terms, ctx.negation() != null, weight);
+            bodyAtom.originalString = ctx.getText();
 
             return bodyAtom;
         }
@@ -158,8 +151,6 @@ public class PlainGrammarVisitor extends GrammarVisitor {
 
         @Override
         public ValuedFact visitFact(@NotNull NeuralogicParser.FactContext ctx) {
-            ValuedFact fact = new ValuedFact();
-            fact.originalString = ctx.getText();
 
             TermVisitor termVisitor = new TermVisitor();
             termVisitor.variableFactory = this.variableFactory;
@@ -169,10 +160,12 @@ public class PlainGrammarVisitor extends GrammarVisitor {
                     .collect(Collectors.toList());
 
             WeightedPredicate predicate = ctx.atom().predicate().accept(new PredicateVisitor(terms.size()));
-            fact.weightedPredicate = predicate;
 
-            fact.literal = new Literal(predicate.predicate.name, ctx.atom().negation() != null, terms);
-            fact.value = ctx.atom().weight().accept(new WeightVisitor());
+            Weight weight = ctx.atom().weight().accept(new WeightVisitor());
+
+            ValuedFact fact = new ValuedFact(predicate, terms, ctx.atom().negation() != null, weight.value);
+            fact.originalString = ctx.getText();
+            
             return fact;
         }
     }

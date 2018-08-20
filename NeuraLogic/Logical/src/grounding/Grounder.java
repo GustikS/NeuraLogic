@@ -26,7 +26,7 @@ public abstract class Grounder {
     public Stream<NeuralSample> ground(Stream<LogicSample> logicSampleStream, Template template) {
         Stream<NeuralSample> neuralSampleStream = null;
         if (settings.sequentialGrounding) {
-
+        //todo
         } else {
             neuralSampleStream = logicSampleStream.map(logicSample -> new NeuralSample(logicSample.target, ground(logicSample.query, template)));
         }
@@ -59,11 +59,11 @@ public abstract class Grounder {
     public static Grounder getGrounder(Settings settings) {
         switch (settings.grounding) {
             case BUP:
-                return new BottomUp();
+                return new BottomUp(settings);
             case TDOWN:
-                return new TopDown();
+                return new TopDown(settings);
             default:
-                return new BottomUp();
+                return new BottomUp(settings);
         }
     }
 }

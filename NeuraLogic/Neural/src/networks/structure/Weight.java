@@ -16,17 +16,9 @@ public class Weight {
 
     WeightMetadata metadata;
 
-    public void init() {
-
-    }
-
-    @Deprecated
-    public static Weight construct(String name, Value value, boolean fixed) {
-        //TODO weak factory method
-        Weight weight = new Weight();
-        weight.name = name;
-        weight.value = value;
-        weight.isLearnable = !fixed;
-        return weight;
+    public Weight(String name, Value value, boolean fixed) {
+        this.name = name;
+        this.value = value;
+        this.isLearnable = !fixed;
     }
 }

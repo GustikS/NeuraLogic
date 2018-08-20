@@ -16,22 +16,22 @@ import java.util.stream.Collectors;
  * To keep track of created predicates in some local scope (for predicate sharing)
  * Created by gusta on 5.3.18.
  */
-public class PredicateFactory {
-    private static final Logger LOG = Logger.getLogger(PredicateFactory.class.getName());
+public class WeightedPredicateFactory {
+    private static final Logger LOG = Logger.getLogger(WeightedPredicateFactory.class.getName());
 
     private Map<String, WeightedPredicate> str2pred;
     private Map<WeightedPredicate, WeightedPredicate> pred2pred;
 
-    public PredicateFactory() {
+    public WeightedPredicateFactory() {
         str2pred = new HashMap<>();
     }
 
-    public PredicateFactory(Collection<WeightedPredicate> preds) {
+    public WeightedPredicateFactory(Collection<WeightedPredicate> preds) {
         str2pred = preds.stream().collect(Collectors.toMap(WeightedPredicate::toString, Function.identity()));
         pred2pred = preds.stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
     }
 
-    public WeightedPredicate construct(String from, int arity, boolean special) {
+    public WeightedPredicate construct(String from, int arity, Boolean special) {
         WeightedPredicate result = str2pred.get(from + "/" + arity);
         if (result == null) {
             result = WeightedPredicate.construct(from, arity, special);
@@ -58,5 +58,9 @@ public class PredicateFactory {
             changes++;
         }
         return changes;
+    }
+
+    public WeightedPredicate construct(String name, int arity) {
+        return construct(name, arity, null);
     }
 }

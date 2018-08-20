@@ -4,7 +4,7 @@ import constructs.example.LiftedExample;
 import constructs.example.LogicSample;
 import constructs.example.QueryAtom;
 import constructs.example.ValuedFact;
-import constructs.template.Atom;
+import constructs.template.HeadAtom;
 import learning.LearningSample;
 import neuralogic.grammarParsing.PlainParseTree;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -71,14 +71,14 @@ public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRu
     }
 
     public QueryAtom createQueryAtom(String id, ValuedFact f, LiftedExample example) {
-        return new QueryAtom(prefix + id, queryCounter++, settings.defaultSampleImportance, new Atom(f.literal, f.weightedPredicate), example);
+        return new QueryAtom(prefix + id, queryCounter++, settings.defaultSampleImportance, new HeadAtom(f.literal, f.weightedPredicate), example);
     }
 
     public QueryAtom createQueryAtom(String id, double importance, ValuedFact f) {
-        return new QueryAtom(prefix + id, queryCounter++, importance, new Atom(f.literal, f.weightedPredicate));
+        return new QueryAtom(prefix + id, queryCounter++, importance, new HeadAtom(f.literal, f.weightedPredicate));
     }
 
     public QueryAtom createQueryAtom(String id, ValuedFact f) {
-        return new QueryAtom(prefix + id, queryCounter++, settings.defaultSampleImportance, new Atom(f.literal, f.weightedPredicate));
+        return new QueryAtom(prefix + id, queryCounter++, settings.defaultSampleImportance, new HeadAtom(f.literal, f.weightedPredicate));
     }
 }

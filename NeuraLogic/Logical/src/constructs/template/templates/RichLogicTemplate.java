@@ -1,6 +1,6 @@
 package constructs.template.templates;
 
-import constructs.template.Atom;
+import constructs.template.HeadAtom;
 import constructs.template.Template;
 import ida.ilp.logic.Clause;
 
@@ -12,7 +12,7 @@ public class RichLogicTemplate extends Template {
     private static final Logger LOG = Logger.getLogger(RichLogicTemplate.class.getName());
 
 
-    LinkedHashSet<Atom> atoms;
+    LinkedHashSet<HeadAtom> atoms;
     LinkedHashSet<Clause> constraints;
 
 }

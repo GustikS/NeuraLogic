@@ -32,7 +32,7 @@ public class WeightFactory {
     public Weight construct(String from) {
         Weight result = str2weight.get(from);
         if (result == null) {
-            result = Weight.construct(from);
+            result = new Weight(from, null, false);
             str2weight.put(from, result);
             weight2weight.put(result, result);
         }
@@ -41,7 +41,7 @@ public class WeightFactory {
 
     public Weight construct(Weight from) {
         Weight result = weight2weight.get(from);
-        if (result == null){
+        if (result != null){
             str2weight.put(result.toString(), result);
             weight2weight.put(result, result);
         }
@@ -49,10 +49,10 @@ public class WeightFactory {
     }
 
     public Weight construct(String name, Value value, boolean fixed) {
-        Weight result = str2weight.get(from);
+        Weight result = str2weight.get(name);
         if (result == null) {
-            result = Weight.construct(from);
-            str2weight.put(from, result);
+            result = new Weight(name, value, fixed);
+            str2weight.put(name, result);
             weight2weight.put(result, result);
         }
         return result;

@@ -1,6 +1,6 @@
 package constructs.example;
 
-import constructs.template.Atom;
+import constructs.template.HeadAtom;
 import constructs.template.Template;
 import ida.utils.tuples.Pair;
 import learning.Query;
@@ -18,7 +18,7 @@ public class CompositeQuery implements Query{
     /**
      * list of query atoms with possible negations
      */
-    List<Pair<Atom,Activation>> queryAtoms;
+    List<Pair<HeadAtom,Activation>> queryAtoms;
 
     Activation aggregationFcn;
     Activation activationFcn;

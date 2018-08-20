@@ -1,16 +1,29 @@
 package grounding.topDown;
 
+import constructs.example.LiftedExample;
+import constructs.example.QueryAtom;
+import constructs.template.Template;
 import grounding.Grounder;
-import constructs.example.LogicSample;
-
-import java.util.stream.Stream;
+import networks.structure.NeuralNetwork;
+import networks.structure.lrnnTypes.QueryNeuron;
+import settings.Settings;
 
 /**
  * Created by Gusta on 06.10.2016.
  */
 public class TopDown extends Grounder {
+    public TopDown(Settings settings) {
+        super(settings);
+    }
+
     @Override
-    public Stream<LogicSample> process(Stream<LogicSample> input) {
+    public QueryNeuron ground(QueryAtom queryAtom, Template template) {
         return null;
     }
+
+    @Override
+    public NeuralNetwork ground(LiftedExample example, Template template) {
+        return null;
+    }
+
 }

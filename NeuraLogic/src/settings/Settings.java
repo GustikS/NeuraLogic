@@ -27,11 +27,15 @@ public class Settings {
 
     //------------------Grounding
     /**
-     * Ground networks may share common parts (i.e. Grounder has a cache)
+     * Ground train+test example sets TOGETHER (with the same cache)
+     */
+    public boolean trainTestJointGrounding; //TODO implement this
+    /**
+     * Ground networks (in a given Grounder context) may share common parts (i.e. Grounder has a cache)
      */
     public boolean sharedGroundings;
     /**
-     * Ground networks are grounded in a specific sequence (with sharing)
+     * Ground networks are grounded in a specific sequence (i.e. sharing only with previous examples)
      */
     public boolean sequentialGrounding;
 
@@ -45,6 +49,19 @@ public class Settings {
     public enum groundingAlgo {
         BUP, TDOWN
     }
+
+    //-----------------Neural nets creation
+
+    /**
+     * full unsupervised grounding, even if query is provided
+     */
+    public boolean forceFullNetworks;
+
+    public double defaultConjunctWeight = 1.0;  //todo actually use these in some factory method
+    public double defaultDisjunctWeight = 1.0;
+    public double defaultConjunctionOffset = 1.0;
+    public double defaultDisjunctionOffset = 1.0;
+
 
     //-----------------Structure Learning
     public boolean structureLearning;
@@ -65,10 +82,13 @@ public class Settings {
 
     //----------------Crossvaldiation
 
-
     public int foldsCount = 5;
     public boolean stratification = true;
     public boolean exportFolds = true;
+    /**
+     * Are the train folds to be completely isolated, even though they share common subsets? (test folds are always isolated).
+     * If so, then many operations (e.g. grounding) will be unnecessarily repeated for these common subsets.
+     */
     public boolean trainFoldsIsolation = false;
 
     /**

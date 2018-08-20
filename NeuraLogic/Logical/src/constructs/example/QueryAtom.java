@@ -1,6 +1,6 @@
 package constructs.example;
 
-import constructs.template.Atom;
+import constructs.template.HeadAtom;
 import constructs.template.Template;
 import learning.Query;
 import networks.evaluation.values.Value;
@@ -10,15 +10,15 @@ import networks.evaluation.values.Value;
  */
 public class QueryAtom extends Query<LiftedExample, Template> {
 
-    Atom atom;
+    HeadAtom headAtom;
 
-    public QueryAtom(String id, int queryCounter, double importance, Atom query, LiftedExample evidence) {
+    public QueryAtom(String id, int queryCounter, double importance, HeadAtom query, LiftedExample evidence) {
         super(id, queryCounter, importance);
-        this.atom = query;
+        this.headAtom = query;
         this.evidence = evidence;
     }
 
-    public QueryAtom(String id, int queryCounter, double importance, Atom query) {
+    public QueryAtom(String id, int queryCounter, double importance, HeadAtom query) {
         super(id, queryCounter, importance);
     }
 

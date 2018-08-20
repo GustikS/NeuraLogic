@@ -1,7 +1,7 @@
 package constructs.building;
 
 import constructs.building.factories.ConstantFactory;
-import constructs.building.factories.PredicateFactory;
+import constructs.building.factories.WeightedPredicateFactory;
 import constructs.building.factories.WeightFactory;
 import neuralogic.grammarParsing.PlainParseTree;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -18,9 +18,10 @@ public abstract class LogicSourceBuilder<I extends PlainParseTree<? extends Pars
     // Constants are shared over the whole template
     public ConstantFactory constantFactory = new ConstantFactory();
     // Predicates are shared over the whole template
-    public PredicateFactory predicateFactory = new PredicateFactory();
+    public WeightedPredicateFactory predicateFactory = new WeightedPredicateFactory();
     // Weights are shared over the whole template
     public WeightFactory weightFactory = new WeightFactory();
+    //variable factories are typically just used locally
 
     public void setFactoriesFrom(LogicSourceBuilder other){
         this.constantFactory = other.constantFactory;
