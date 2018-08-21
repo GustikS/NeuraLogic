@@ -30,7 +30,7 @@ public class Atom {
 
     public Atom(WeightedPredicate weightedPredicate, List<Term> terms, boolean negated) {
         if (weightedPredicate.predicate.arity != terms.size()){
-            LOG.severe("Predicate arity and terms size mismatch while creating an Atom");
+            LOG.severe("Predicate arity and terms size mismatch while creating an Atom");   //tried some workarounds with injecting predicate factory, but this probably has to be here (since predicate and terms are created at separate places)
         }
         this.offsettedPredicate = weightedPredicate;
         this.literal = new Literal(weightedPredicate.predicate, negated, terms);
