@@ -23,6 +23,21 @@ public class VectorValue extends Value {
         return null;
     }
 
+    @Override
+    protected Value addMatrix(MatrixValue val2) {
+        return null;
+    }
+
+    @Override
+    protected Value addVector(VectorValue val2) {
+        return null;
+    }
+
+    @Override
+    protected Value addScalar(ScalarValue val2) {
+        return null;
+    }
+
     public VectorValue(List<Double> vector){
         value = vector.stream().mapToDouble(d -> d).toArray();
     }

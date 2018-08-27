@@ -4,6 +4,7 @@ import constructs.Atom;
 import constructs.WeightedPredicate;
 import ida.ilp.logic.Term;
 import networks.evaluation.values.Value;
+import networks.structure.Weight;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -21,6 +22,10 @@ public class ValuedFact extends Atom {
     public ValuedFact(WeightedPredicate weightedPredicate, List<Term> terms, boolean negated, Value value) {
         super(weightedPredicate, terms, negated);
         this.value = value;
+    }
+
+    public Weight getOffset() {
+        return offsettedPredicate.offset;
     }
 
     public Value getFactValue() {

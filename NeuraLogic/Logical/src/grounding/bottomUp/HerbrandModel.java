@@ -1,5 +1,6 @@
 package grounding.bottomUp;
 
+import constructs.template.WeightedRule;
 import ida.ilp.logic.*;
 import ida.ilp.logic.subsumption.CustomPredicate;
 import ida.ilp.logic.subsumption.Matching;
@@ -22,6 +23,7 @@ public class HerbrandModel {
      * map predicates to ground literal Sets
      */
     MultiMap<Predicate, Literal> herbrand;
+    Matching matching;
 
     public HerbrandModel() {
         herbrand = new MultiMap<>();
@@ -38,13 +40,20 @@ public class HerbrandModel {
     }
 
 
-    public MultiMap<Predicate,Literal> getModel(Collection<? extends Clause> clauses) {
+    public MultiMap<Predicate, Literal> loadModel(Collection<? extends Clause> clauses) {
         Pair<List<HornClause>, List<Literal>> rulesAndFacts = rulesAndFacts(clauses);
-        return getModel(rulesAndFacts.r, rulesAndFacts.s);
+        return loadModel(rulesAndFacts.r, rulesAndFacts.s);
     }
 
 
-    public MultiMap<Predicate,Literal> getModel(Collection<HornClause> irules, Collection<Literal> facts) {
+    /**
+     * todo add version with constraints at input
+     *
+     * @param irules
+     * @param facts
+     * @return
+     */
+    public MultiMap<Predicate, Literal> loadModel(Collection<HornClause> irules, Collection<Literal> facts) {
         populateHerbrand(facts);
 
         LinkedHashSet<HornClause> rules = new LinkedHashSet<>(irules); //for removing
@@ -58,9 +67,9 @@ public class HerbrandModel {
         boolean changed;
         do {
             int herbrandSize0 = VectorUtils.sum(herbrand.sizes());
-            LOG.fine("herbrandSize0: " + herbrandSize0);
+            LOG.fine("herbrand size before round: " + herbrandSize0);
             //get all valid literals from current herbrand in to matching
-            Matching matching = new Matching(Sugar.<Clause>list(new Clause(Sugar.flatten(herbrand.values())))); //todo somehow change this to incrementally pass only NEW facts (ClauseE) to existing Matching object for speedup?
+            matching = new Matching(Sugar.<Clause>list(new Clause(Sugar.flatten(herbrand.values())))); //todo somehow change this to incrementally pass only NEW facts (ClauseE) to existing Matching object for speedup? Try version withou example indexing
             LOG.finer("Matching created.");
             for (Predicate predicate : headSignatures) {
                 //may overwrite the previous ones which is actually what we want (?)
@@ -89,10 +98,27 @@ public class HerbrandModel {
             }
             LOG.finer(rules.size() + " rules grounded.");
             int herbrandSize1 = VectorUtils.sum(herbrand.sizes());
-            LOG.fine("herbrandSize1 " + herbrandSize1);
+            LOG.fine("herbrand size after round: " + herbrandSize1);
             changed = herbrandSize1 > herbrandSize0;
         } while (changed);
         return herbrand;
+    }
+
+    public Pair<Term[], List<Term[]>> groundingSubstitutions(HornClause hornClause) {
+        return matching.allSubstitutions(hornClause.toClause(), 0, Integer.MAX_VALUE);
+    }
+
+    public List<WeightedRule> groundRules(WeightedRule liftedRule) {
+        return groundRules(liftedRule, liftedRule.toHornClause());
+    }
+
+    public List<WeightedRule> groundRules(WeightedRule liftedRule, HornClause hc) {
+        List<WeightedRule> weightedRules = new ArrayList<>();
+        Pair<Term[], List<Term[]>> substitutions = groundingSubstitutions(hc);
+        for (int i = 0; i < substitutions.s.size(); i++) {
+            weightedRules.add(liftedRule.ground(substitutions.r, substitutions.s.get(i)));
+        }
+        return weightedRules;
     }
 
     /**
@@ -124,11 +150,12 @@ public class HerbrandModel {
                     rest.add(hc);
             }
         }
-        return new Pair(rest, groundFacts);
+        return new Pair<>(rest, groundFacts);
     }
 
     /**
      * Name of the special predicate for binding within the substitution engine
+     *
      * @param predicate
      * @return
      */
@@ -223,7 +250,7 @@ public class HerbrandModel {
         long t1 = System.nanoTime();
         for (int i = 0; i < repeats; i++) {
             HerbrandModel bug = new HerbrandModel();
-            herbrand = bug.getModel(rules);
+            herbrand = bug.loadModel(rules);
         }
         long t2 = System.nanoTime();
         Collection<Literal> literals = Sugar.flatten(herbrand.values());

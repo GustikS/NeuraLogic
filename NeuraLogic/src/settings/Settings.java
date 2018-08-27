@@ -62,6 +62,10 @@ public class Settings {
     public double defaultConjunctionOffset = 1.0;
     public double defaultDisjunctionOffset = 1.0;
 
+    /**
+     * There is no actual weighting, just pooling, so identity weight
+     */
+    public double aggNeuronInputWeight = 1.0;
 
     //-----------------Structure Learning
     public boolean structureLearning;

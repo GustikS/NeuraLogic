@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class Atom {
@@ -24,7 +25,7 @@ public class Atom {
     protected Literal literal;
 
     @Nullable
-    protected Activation activation;
+    public Activation activation;
     @Nullable
     public String originalString;
 
@@ -47,6 +48,10 @@ public class Atom {
         return literal.predicate();
     }
 
+    public WeightedPredicate getOffsettedPredicate() {
+        return offsettedPredicate;
+    }
+
     public boolean isNegated() {
         return literal.isNegated();
     }
@@ -54,4 +59,11 @@ public class Atom {
     public Literal getLiteral() {
         return literal;
     }
+
+    public Atom ground(Map<Term,Term> var2term){
+        Atom copy = new Atom(this);
+        copy.literal = copy.literal.subsCopy(var2term);
+        return copy;
+    }
+
 }

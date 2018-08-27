@@ -9,7 +9,7 @@ import networks.evaluation.values.Value;
 public class Weight {
     public String name;
     public Value value;
-    public boolean isLearnable = true;
+    public boolean isFixed = false;
 
     double learningRate;
     public String originalString;
@@ -19,6 +19,20 @@ public class Weight {
     public Weight(String name, Value value, boolean fixed) {
         this.name = name;
         this.value = value;
-        this.isLearnable = !fixed;
+        this.isFixed = fixed;
+    }
+
+    public Weight(Value value) {
+        this.value = value;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return name.equals(obj);
     }
 }

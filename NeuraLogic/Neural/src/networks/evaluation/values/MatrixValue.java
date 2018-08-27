@@ -20,4 +20,19 @@ public class MatrixValue extends Value {
     protected Value multiplyByScalar(ScalarValue val2) {
         return null;
     }
+
+    @Override
+    protected Value addMatrix(MatrixValue val2) {
+        return null;
+    }
+
+    @Override
+    protected Value addVector(VectorValue val2) {
+        return null;
+    }
+
+    @Override
+    protected Value addScalar(ScalarValue val2) {
+        return null;
+    }
 }

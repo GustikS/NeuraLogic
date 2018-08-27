@@ -21,7 +21,7 @@ public class NeuralModel implements Model<QueryNeuron> {
 
     void resetWeights(){
         for (Weight weight : weights) {
-            if (weight.isLearnable){
+            if (weight.isFixed){
                 weight.init();
             }
         }

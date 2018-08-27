@@ -39,7 +39,7 @@ public class HornClause {
                 pos++;
             }
         }
-        if (pos == 1) {
+        if (pos == 1 && c.literals().size() > 1) {
             return head;
         } else {
             return null;

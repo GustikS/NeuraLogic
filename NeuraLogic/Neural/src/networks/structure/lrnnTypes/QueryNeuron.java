@@ -13,6 +13,10 @@ public class QueryNeuron extends Query<NeuralNetwork, NeuralModel> {
 
     Neuron neuron;
 
+    public QueryNeuron(String id, int queryCounter, double importance) {
+        super(id, queryCounter, importance);
+    }
+
     @Override
     public Value evaluate(NeuralModel neuralNet) {
         return null;

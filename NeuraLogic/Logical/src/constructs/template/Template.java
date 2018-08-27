@@ -17,7 +17,7 @@ import java.util.List;
 public class Template implements Model<QueryAtom> {
     public LinkedHashSet<WeightedRule> rules;
     public LinkedHashSet<ValuedFact> facts;
-    public LinkedHashSet<Conjunction> constraints;
+    public LinkedHashSet<Conjunction> constraints;  //todo how to handle these?
 
     public Template() {
     }

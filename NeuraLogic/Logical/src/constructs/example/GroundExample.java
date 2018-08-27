@@ -12,9 +12,9 @@ import java.util.stream.Collectors;
  * Ground example is simply a collection of facts, potentially separated into conjunctions
  */
 public class GroundExample implements Example {
-    LinkedHashSet<Conjunction> conjunctions;
+    public LinkedHashSet<Conjunction> conjunctions;
 
-    LinkedHashSet<ValuedFact> flatFacts;
+    public LinkedHashSet<ValuedFact> flatFacts;
 
     public GroundExample(List<Conjunction> body) {
         conjunctions = new LinkedHashSet<>();

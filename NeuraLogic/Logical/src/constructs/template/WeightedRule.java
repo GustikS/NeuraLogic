@@ -4,10 +4,14 @@ import constructs.template.metadata.RuleMetadata;
 import ida.ilp.logic.Clause;
 import ida.ilp.logic.HornClause;
 import ida.ilp.logic.Literal;
+import ida.ilp.logic.Term;
 import networks.evaluation.functions.Activation;
 import networks.structure.Weight;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -24,16 +28,57 @@ public class WeightedRule {
     public Weight offset;
 
     public HeadAtom head;
-    public List<BodyAtom> body;
+    public ArrayList<BodyAtom> body;
 
-    Activation aggregationFcn;
-    Activation activationFcn;
+    public Activation aggregationFcn;
+    public Activation activationFcn;
 
     public RuleMetadata metadata;
     public String originalString;
 
-    HornClause toHornClause(){
+    public WeightedRule() {
+
+    }
+
+    public WeightedRule(WeightedRule other) {
+        this.weight = other.weight;
+        this.head = other.head;
+        this.body = other.body;
+        this.offset = other.offset;
+        this.aggregationFcn = other.aggregationFcn;
+        this.activationFcn = other.activationFcn;
+        this.metadata = other.metadata;
+        this.originalString = other.originalString;
+        this.isEditable = other.isEditable;
+    }
+
+    public HornClause toHornClause() {
         List<Literal> collected = body.stream().map(bodyLit -> bodyLit.getLiteral()).collect(Collectors.toList());
-        return new HornClause(head.getLiteral(),new Clause(collected));
+        return new HornClause(head.getLiteral(), new Clause(collected));
+    }
+
+    public WeightedRule ground(Term[] variables, Term[] terms) {
+        WeightedRule ruleCopy = new WeightedRule(this);
+
+        Map<Term, Term> var2term = new HashMap<Term, Term>();
+        for (int i = 0; i < variables.length; i++) {
+            var2term.put(variables[i], terms[i]);
+        }
+
+        ruleCopy.head = ruleCopy.head.ground(var2term);
+        for (int i = 0; i < body.size(); i++) {
+            body.set(i, body.get(i).ground(var2term));
+        }
+
+        return ruleCopy;
+    }
+
+    public String signatureString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(head.getPredicate()).append(":-");
+        for (BodyAtom bodyAtom : body) {
+            sb.append(bodyAtom.getPredicate()).append(",");
+        }
+        return sb.toString();
     }
 }

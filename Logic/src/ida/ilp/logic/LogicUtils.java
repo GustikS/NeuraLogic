@@ -300,7 +300,7 @@ public class LogicUtils {
     }
 
     /**
-     * Checks if the given clause is ground (a clause is ground if it contains no variables)
+     * Checks if the given clause is ground (a clause is groundCopy if it contains no variables)
      * @param c clause to be checked
      * @return true if c contains no variables, false otherwise
      */
@@ -582,13 +582,8 @@ public class LogicUtils {
     public static Clause substitute(Clause c, Map<? extends Term,? extends Term> substitution){
         Set<Literal> literals = new HashSet<Literal>();
         for (Literal l : c.literals()){
-            Literal cl = ((Literal)l).copy();
-            for (int j = 0; j < l.arity(); j++){
-                if (substitution.containsKey(l.get(j))){
-                    cl.set(substitution.get(l.get(j)), j);
-                }
-            }
-            literals.add(cl);
+            Literal groundCopy = l.subsCopy(substitution);
+            literals.add(groundCopy);
         }
         return new Clause(literals);
     }

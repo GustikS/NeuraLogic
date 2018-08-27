@@ -391,6 +391,10 @@ public class Literal {
         return this.terms;
     }
 
+    public List<Term> termList(){
+        return Arrays.asList(terms);
+    }
+
     /**
      * Converts Literal to Function
      *
@@ -411,7 +415,7 @@ public class Literal {
      */
     public Literal copy() {
         Literal p = new Literal();
-        p.predicate.name = this.predicate.name;
+        p.predicate = this.predicate;
         p.terms = new Term[this.terms.length];
         p.id = this.id;
         p.hashCode = this.hashCode;
@@ -419,6 +423,16 @@ public class Literal {
         for (int i = 0; i < terms.length; i++)
             p.terms[i] = terms[i];
         return p;
+    }
+
+    public Literal subsCopy(Map<? extends Term,? extends Term> substitution){
+        Literal copy = this.copy();
+        for (int j = 0; j < this.arity(); j++){
+            if (substitution.containsKey(copy.get(j))){
+                copy.set(substitution.get(get(j)),j);
+            }
+        }
+        return copy;
     }
 
     /**
