@@ -14,6 +14,7 @@ import networks.evaluation.values.ScalarValue;
 import networks.structure.NeuralNetwork;
 import networks.structure.Weight;
 import networks.structure.lrnnTypes.*;
+import org.jetbrains.annotations.NotNull;
 import settings.Settings;
 
 import java.util.*;
@@ -40,6 +41,10 @@ public class BottomUp extends Grounder {
 
     @Override
     public QueryNeuron ground(QueryAtom queryAtom, Template template) {
+        Pair<Map<HornClause, WeightedRule>, Map<Literal, ValuedFact>> rulesAndFacts = mapToLogic(rulesAndFacts(queryAtom.evidence, template));
+        Map<HornClause, WeightedRule> ruleMap = rulesAndFacts.r;
+        Map<Literal, ValuedFact> factMap = rulesAndFacts.s;
+
         return null;
     }
 
@@ -110,8 +115,19 @@ public class BottomUp extends Grounder {
             }
         }
 
-        // once all neurons are created, connect rule neurons' inputs to atom neurons
+        return networkFromNeurons(factMap, atomNeurons, aggNeurons, ruleNeurons);
+    }
 
+    /**
+     * Once all neurons are created, connect rule neurons' inputs to atom neurons/fact neurons
+     * @param factMap
+     * @param atomNeurons
+     * @param aggNeurons
+     * @param ruleNeurons
+     * @return
+     */
+    @NotNull
+    private NeuralNetwork networkFromNeurons(Map<Literal, ValuedFact> factMap, Map<Literal, AtomNeuron> atomNeurons, Map<WeightedRule, AggregationNeuron> aggNeurons, Map<WeightedRule, RuleNeuron> ruleNeurons) {
         Set<NegationNeuron> negationNeurons = new HashSet<>();
         Set<FactNeuron> factNeurons = new HashSet<>();
 
@@ -138,7 +154,6 @@ public class BottomUp extends Grounder {
                 entry.getValue().addInput(input, weight);
             }
         }
-        NeuralNetwork network = new NeuralNetwork(atomNeurons.values(), aggNeurons.values(), ruleNeurons.values(), factNeurons, negationNeurons);
-        return network;
+        return new NeuralNetwork(atomNeurons.values(), aggNeurons.values(), ruleNeurons.values(), factNeurons, negationNeurons);
     }
 }

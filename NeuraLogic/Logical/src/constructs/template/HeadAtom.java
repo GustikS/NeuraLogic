@@ -26,7 +26,7 @@ public class HeadAtom extends Atom {
     }
 
     public Weight getOffset() {
-        return offsettedPredicate.offset;
+        return offsettedPredicate.weight;
     }
 
     @Override

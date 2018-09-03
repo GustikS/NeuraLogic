@@ -16,13 +16,13 @@ public class Atom {
 
     /**
      * The predicates themselves ultimately carry the disjunction offset weight.
-     * Disjunction's offset needs to be explicit since adding a disjunctive "offset literal" would change the semantics (would force the head to be always true)
+     * Disjunction's offset needs to be explicit since adding a disjunctive "weight literal" would change the semantics (would force the head to be always true)
      */
     @NotNull
-    protected WeightedPredicate offsettedPredicate;
+    public WeightedPredicate offsettedPredicate;
 
     @NotNull
-    protected Literal literal;
+    public Literal literal;
 
     @Nullable
     public Activation activation;

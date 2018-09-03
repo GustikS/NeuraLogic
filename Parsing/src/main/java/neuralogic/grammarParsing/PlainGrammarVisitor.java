@@ -283,7 +283,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             }
             WeightedPredicate predicate = builder.predicateFactory.construct(ctx.predicate().ATOMIC_NAME().getText(), arity, ctx.predicate().SPECIAL() != null);
             Weight offset = ctx.weight().accept(new WeightVisitor());
-            predicate.offset = offset;
+            predicate.weight = offset;
             return new Pair(predicate, offset);
         }
     }

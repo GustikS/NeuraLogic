@@ -17,7 +17,7 @@ import java.util.List;
 public class ValuedFact extends Atom {
 
     @NotNull
-    protected Value value;
+    public Value value;
 
     public ValuedFact(WeightedPredicate weightedPredicate, List<Term> terms, boolean negated, Value value) {
         super(weightedPredicate, terms, negated);
@@ -25,7 +25,7 @@ public class ValuedFact extends Atom {
     }
 
     public Weight getOffset() {
-        return offsettedPredicate.offset;
+        return offsettedPredicate.weight;
     }
 
     public Value getFactValue() {

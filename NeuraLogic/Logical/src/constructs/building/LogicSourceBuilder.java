@@ -15,13 +15,13 @@ public abstract class LogicSourceBuilder<I extends PlainParseTree<? extends Pars
 
     Settings settings;
 
-    // Constants are shared over the whole template
+    // Constants are shared over the whole logic source
     public ConstantFactory constantFactory = new ConstantFactory();
-    // Predicates are shared over the whole template
+    // Predicates are shared over the whole logic source
     public WeightedPredicateFactory predicateFactory = new WeightedPredicateFactory();
-    // Weights are shared over the whole template
+    // Weights are shared over the whole logic source
     public WeightFactory weightFactory = new WeightFactory();
-    //variable factories are typically just used locally
+    //variable factories are typically just used locally (variables shared only within clauses)
 
     public void setFactoriesFrom(LogicSourceBuilder other){
         this.constantFactory = other.constantFactory;

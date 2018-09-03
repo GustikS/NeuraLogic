@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  * To keep track of created constants in some local scope (for constants sharing)
  * Created by gusta on 5.3.18.
  */
-public class ConstantFactory {
+public class ConstantFactory { //todo - add a common abstract factory with generics
     private static final Logger LOG = Logger.getLogger(ConstantFactory.class.getName());
 
     private Map<String, Constant> str2const;

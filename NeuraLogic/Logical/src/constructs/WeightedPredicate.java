@@ -11,10 +11,10 @@ public class WeightedPredicate {
     private static final Logger LOG = Logger.getLogger(WeightedPredicate.class.getName());
 
     /**
-     * Offset (for disjunction activation) at the level of a template utlimately belong to predicates
+     * Offset (for disjunction activation) at the level of a template ultimately belongs to predicate
      */
     @Nullable
-    public Weight offset;
+    public Weight weight;
 
     /**
      * Regular logic predicate
@@ -24,9 +24,9 @@ public class WeightedPredicate {
     @Nullable
     PredicateMetadata metadata;
 
-    public WeightedPredicate(Predicate predicate, Weight offset) {
+    public WeightedPredicate(Predicate predicate, Weight weight) {
         this.predicate = predicate;
-        this.offset = offset;
+        this.weight = weight;
     }
 
     public static WeightedPredicate construct(String name, int arity, Boolean special) {

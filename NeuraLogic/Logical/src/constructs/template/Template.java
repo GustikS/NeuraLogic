@@ -15,11 +15,19 @@ import java.util.List;
  * Created by Gusta on 04.10.2016.
  */
 public class Template implements Model<QueryAtom> {
+    String id;
+
     public LinkedHashSet<WeightedRule> rules;
     public LinkedHashSet<ValuedFact> facts;
     public LinkedHashSet<Conjunction> constraints;  //todo how to handle these?
 
     public Template() {
+    }
+
+    public Template(Template other) {
+        this.rules = other.rules;
+        this.facts = other.facts;
+        this.constraints = other.constraints;
     }
 
     public Template(List<WeightedRule> rules, List<ValuedFact> facts) {
@@ -33,7 +41,7 @@ public class Template implements Model<QueryAtom> {
 
     @Override
     public String getId() {
-        return null;
+        return id;
     }
 
     @Override
@@ -49,5 +57,8 @@ public class Template implements Model<QueryAtom> {
 
     public void updateWeightsFrom(NeuralModel neural) {
         //TODO
+    }
+
+    public void buildGraph() {
     }
 }

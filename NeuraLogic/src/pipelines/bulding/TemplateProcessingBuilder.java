@@ -2,6 +2,7 @@ package pipelines.bulding;
 
 import constructs.building.TemplateBuilder;
 import constructs.template.Template;
+import constructs.template.templates.GraphTemplate;
 import constructs.template.templates.ParsedTemplate;
 import constructs.template.transforming.MetadataProcessor;
 import constructs.template.transforming.TemplateReducing;
@@ -35,11 +36,14 @@ public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, 
             if (settings.processMetadata) {
                 Pipe<ParsedTemplate, Template> metadataPipe = pipeline.registerEnd(processMetadata());
                 sourcesTemplatePipe.connectAfter(metadataPipe);
+                if (settings.reduceTemplate) {
+                    Pipe<Template, GraphTemplate> graphTemplatePipe = pipeline.register(buildTemplateGraph());
+                    metadataPipe.connectAfter(graphTemplatePipe);
+                    Pipe<GraphTemplate, Template> reduceTemplatePipe = reduceTemplate();
+                    graphTemplatePipe.connectAfter(pipeline.registerEnd(reduceTemplatePipe)); //todo make correct combination logic
+                }
             }
-            if (settings.reduceTemplate) {
-                Pipe<Template, Template> reduceTemplatePipe = reduceTemplate();
-                pipeline.terminal.connectAfter(pipeline.registerEnd(reduceTemplatePipe)); //todo check if correct end of pipeline
-            }
+
             //TODO rest of template transformations
             return pipeline;
         } else {
@@ -48,11 +52,11 @@ public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, 
         }
     }
 
-    protected Pipe<Template, Template> reduceTemplate() {
+    protected Pipe<GraphTemplate, Template> reduceTemplate() {
         templateReducer = TemplateReducing.getReducer(settings);
-        return new Pipe<Template, Template>("TemplateReducingPipe") {
+        return new Pipe<GraphTemplate, Template>("TemplateReducingPipe") {
             @Override
-            public Template apply(Template template) {
+            public Template apply(GraphTemplate template) {
                 return templateReducer.reduce(template);
             }
         };
@@ -80,5 +84,14 @@ public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, 
             }
         };
         return pipe;
+    }
+
+    protected Pipe<Template, GraphTemplate> buildTemplateGraph() {
+        return new Pipe<Template, GraphTemplate>("BuildTemplateGraphPipe") {
+            @Override
+            public GraphTemplate apply(Template template) {
+                return new GraphTemplate(template);
+            }
+        };
     }
 }

@@ -102,7 +102,17 @@ public class Settings {
 
     //----------------Template Transformations
 
+    /**
+     * Apply all metadata read from sources
+     */
     public boolean processMetadata = true;
+    /**
+     * Build template graph structure
+     */
+    public boolean graphTemplate = true;
+    /**
+     * Reduce template graph size (e.g. linear chains)
+     */
     public boolean reduceTemplate = true;
 
     //----------------Learning Samples
@@ -116,6 +126,8 @@ public class Settings {
      * TODO Setup globally default settings here
      */
     public Settings() {
+
+
     }
 
     public void setupFromCommandline(CommandLine cmd) {
@@ -138,6 +150,7 @@ public class Settings {
     }
 
     public void infer(){
+        if (reduceTemplate) graphTemplate = true;
         //TODO
     }
 

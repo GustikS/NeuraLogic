@@ -54,7 +54,7 @@ public class WeightedPredicateFactory {
     public int addOffsets(List<Pair<WeightedPredicate, Weight>> predicateOffsetsList) {
         int changes = 0;
         for (Pair<WeightedPredicate, Weight> predicateWeightPair : predicateOffsetsList) {
-            pred2pred.get(predicateWeightPair.r).offset = predicateWeightPair.s;
+            pred2pred.get(predicateWeightPair.r).weight = predicateWeightPair.s;
             changes++;
         }
         return changes;

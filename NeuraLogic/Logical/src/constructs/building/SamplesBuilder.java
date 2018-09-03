@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * To get labeleb samples from example file (parsable source)
+ * To get labeled samples from example file (parsable source)
  */
 public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRuleContext>, O> extends LogicSourceBuilder<I, Stream<O>> {
     private static final Logger LOG = Logger.getLogger(SamplesBuilder.class.getName());
@@ -71,14 +71,14 @@ public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRu
     }
 
     public QueryAtom createQueryAtom(String id, ValuedFact f, LiftedExample example) {
-        return new QueryAtom(prefix + id, queryCounter++, settings.defaultSampleImportance, new HeadAtom(f.literal, f.weightedPredicate), example);
+        return new QueryAtom(prefix + id, queryCounter++, settings.defaultSampleImportance, new HeadAtom(f.offsettedPredicate, f.literal.termList()), example);
     }
 
     public QueryAtom createQueryAtom(String id, double importance, ValuedFact f) {
-        return new QueryAtom(prefix + id, queryCounter++, importance, new HeadAtom(f.literal, f.weightedPredicate));
+        return new QueryAtom(prefix + id, queryCounter++, importance, new HeadAtom(f.offsettedPredicate, f.literal.termList()));
     }
 
     public QueryAtom createQueryAtom(String id, ValuedFact f) {
-        return new QueryAtom(prefix + id, queryCounter++, settings.defaultSampleImportance, new HeadAtom(f.literal, f.weightedPredicate));
+        return new QueryAtom(prefix + id, queryCounter++, settings.defaultSampleImportance, new HeadAtom(f.offsettedPredicate, f.literal.termList()));
     }
 }

@@ -13,7 +13,6 @@ import networks.structure.Weight;
 import neuralogic.grammarParsing.PlainGrammarVisitor;
 import neuralogic.template.PlainTemplateParseTree;
 import neuralogic.template.PlainTemplateParseTreeExtractor;
-import neuralogic.template.TemplateParseTreeExtractor;
 import settings.Settings;
 
 import java.io.IOException;
@@ -62,7 +61,7 @@ public class TemplateBuilder extends LogicSourceBuilder<PlainTemplateParseTree, 
      *
      * @return
      */
-    public ParsedTemplate buildFrom(PlainTemplateParseTree plainParseTree, TemplateParseTreeExtractor templateParseTreeExtractor) {
+    public ParsedTemplate buildFrom(PlainTemplateParseTree plainParseTree, PlainTemplateParseTreeExtractor templateParseTreeExtractor) {
 
         List<WeightedRule> weightedRules = templateParseTreeExtractor.getWeightedRules(plainParseTree.getRoot());
         List<ValuedFact> valuedFacts = templateParseTreeExtractor.getWeightedFacts(plainParseTree.getRoot());

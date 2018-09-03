@@ -54,7 +54,7 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
             return Stream.of(new LogicSample(null, createQueryAtom(query.literal.toString(), query, example)));
         } else {    // these are not for merging
             String minibatch = String.valueOf(queryCounter);
-            return pair.r.facts.stream().map(f -> new LogicSample(f.value.value, createQueryAtom(settings.queriesBatchPrefix + minibatch, f, example)));
+            return pair.r.facts.stream().map(f -> new LogicSample(f.value, createQueryAtom(settings.queriesBatchPrefix + minibatch, f, example)));
         }
     }
     private LogicSample createEmptySample(String id, LiftedExample example) {

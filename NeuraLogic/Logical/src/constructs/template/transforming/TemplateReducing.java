@@ -1,13 +1,14 @@
 package constructs.template.transforming;
 
 import constructs.template.Template;
+import constructs.template.templates.GraphTemplate;
 import settings.Settings;
 
 /**
  * Created by gusta on 14.3.17.
  */
 public interface TemplateReducing {
-    Template reduce(Template itemplate);
+    Template reduce(GraphTemplate itemplate);
 
     static TemplateReducing getReducer(Settings settings) {
         //TODO provide more reducers
