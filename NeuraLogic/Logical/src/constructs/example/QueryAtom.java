@@ -10,7 +10,7 @@ import networks.evaluation.values.Value;
  */
 public class QueryAtom extends Query<LiftedExample, Template> {
 
-    HeadAtom headAtom;
+    public HeadAtom headAtom;
 
     public QueryAtom(String id, int queryCounter, double importance, HeadAtom query, LiftedExample evidence) {
         super(id, queryCounter, importance);

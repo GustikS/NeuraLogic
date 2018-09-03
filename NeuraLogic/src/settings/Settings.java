@@ -114,6 +114,14 @@ public class Settings {
      * Reduce template graph size (e.g. linear chains)
      */
     public boolean reduceTemplate = true;
+    /**
+     * If the template contains facts, infer all other possible true facts as a preprocessing step (to save time inferring the same things over and over later)
+     */
+    public boolean inferTemplateFacts = true;
+    /**
+     * In advance of grounding, remove rules that are irrelevant to the given query (with no chance to be in support)
+     */
+    public boolean supervisedTemplateGraphPruning = true;   //todo measure if this actually helps
 
     //----------------Learning Samples
 

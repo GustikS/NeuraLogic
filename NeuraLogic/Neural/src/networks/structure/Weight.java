@@ -35,4 +35,8 @@ public class Weight {
     public boolean equals(Object obj) {
         return name.equals(obj);
     }
+
+    public void init() {
+        //todo
+    }
 }

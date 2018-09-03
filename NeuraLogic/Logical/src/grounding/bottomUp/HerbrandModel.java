@@ -40,9 +40,14 @@ public class HerbrandModel {
     }
 
 
-    public MultiMap<Predicate, Literal> loadModel(Collection<? extends Clause> clauses) {
+    /**
+     *
+     * @param clauses - may contain facts and rules
+     * @return
+     */
+    public MultiMap<Predicate, Literal> inferModel(Collection<? extends Clause> clauses) {
         Pair<List<HornClause>, List<Literal>> rulesAndFacts = rulesAndFacts(clauses);
-        return loadModel(rulesAndFacts.r, rulesAndFacts.s);
+        return inferModel(rulesAndFacts.r, rulesAndFacts.s);
     }
 
 
@@ -53,7 +58,7 @@ public class HerbrandModel {
      * @param facts
      * @return
      */
-    public MultiMap<Predicate, Literal> loadModel(Collection<HornClause> irules, Collection<Literal> facts) {
+    public MultiMap<Predicate, Literal> inferModel(Collection<HornClause> irules, Collection<Literal> facts) {
         populateHerbrand(facts);
 
         LinkedHashSet<HornClause> rules = new LinkedHashSet<>(irules); //for removing
@@ -250,7 +255,7 @@ public class HerbrandModel {
         long t1 = System.nanoTime();
         for (int i = 0; i < repeats; i++) {
             HerbrandModel bug = new HerbrandModel();
-            herbrand = bug.loadModel(rules);
+            herbrand = bug.inferModel(rules);
         }
         long t2 = System.nanoTime();
         Collection<Literal> literals = Sugar.flatten(herbrand.values());

@@ -21,7 +21,7 @@ public class HeadAtom extends Atom {
         super(weightedPredicate, terms, false);
     }
 
-    public HeadAtom(Atom another){
+    public HeadAtom(Atom another) {
         super(another);
     }
 
@@ -30,7 +30,7 @@ public class HeadAtom extends Atom {
     }
 
     @Override
-    public HeadAtom ground(Map<Term,Term> var2term) {
+    public HeadAtom ground(Map<Term, Term> var2term) {
         HeadAtom copy = new HeadAtom(this);
         copy.literal = copy.literal.subsCopy(var2term);
         return copy;

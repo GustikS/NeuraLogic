@@ -6,6 +6,7 @@ import constructs.example.ValuedFact;
 import constructs.template.BodyAtom;
 import constructs.template.Template;
 import constructs.template.WeightedRule;
+import constructs.template.templates.GraphTemplate;
 import grounding.Grounder;
 import ida.ilp.logic.HornClause;
 import ida.ilp.logic.Literal;
@@ -29,9 +30,14 @@ public class BottomUp extends Grounder {
     HerbrandModel herbrandModel;
 
     /**
-     * Temp structure (head -> rules -> ground bodies) for traversing the graph of groundings
+     * Temp (for current pair of Template+Example) structure (head -> rules -> ground bodies) for traversing the graph of groundings
      */
     LinkedHashMap<Literal, LinkedHashMap<WeightedRule, List<WeightedRule>>> groundRules;
+
+    /**
+     * Temp (for current pair of Template+Example) set of true ground facts
+     */
+    Map<Literal, ValuedFact> groundFacts;
 
     public BottomUp(Settings settings) {
         super(settings);
@@ -41,6 +47,7 @@ public class BottomUp extends Grounder {
 
     @Override
     public QueryNeuron ground(QueryAtom queryAtom, Template template) {
+        LOG.warning("Supervised bottom-up grounding with a normal flat Template instead of optimized GraphTemplate");
         Pair<Map<HornClause, WeightedRule>, Map<Literal, ValuedFact>> rulesAndFacts = mapToLogic(rulesAndFacts(queryAtom.evidence, template));
         Map<HornClause, WeightedRule> ruleMap = rulesAndFacts.r;
         Map<Literal, ValuedFact> factMap = rulesAndFacts.s;
@@ -48,8 +55,25 @@ public class BottomUp extends Grounder {
         return null;
     }
 
+    public QueryNeuron ground(QueryAtom queryAtom, GraphTemplate template) {
+        if (settings.supervisedTemplateGraphPruning)
+            template = template.prune(queryAtom);
+
+        groundRulesAndFacts(queryAtom.evidence, template);
+
+        //TODO next prune groundRules here
+        NeuralNetwork neuralNetwork = networkFromGroundRules(groundRules, groundFacts);
+        neuralNetwork.setId(queryAtom.evidence.getId());
+
+        QueryNeuron qn = new QueryNeuron(queryAtom, neuralNetwork);
+
+        cleanUp();
+        return qn;
+    }
+
     /**
      * TODO create a streaming version for single examples?
+     * todo add version with continual rule creation instead of final substitutions
      *
      * @param example
      * @param template
@@ -58,11 +82,34 @@ public class BottomUp extends Grounder {
     @Override
     public NeuralNetwork ground(LiftedExample example, Template template) {
 
+        groundRulesAndFacts(example, template);
+
+        NeuralNetwork neuralNetwork = networkFromGroundRules(groundRules, groundFacts);
+        neuralNetwork.setId(example.getId());
+        cleanUp();
+        return neuralNetwork;
+    }
+
+    protected void cleanUp() {
+        if (!sharedGroundings) {
+            groundRules.clear();
+            groundFacts.clear();
+            herbrandModel = new HerbrandModel();
+        }
+    }
+
+    @NotNull
+    protected void groundRulesAndFacts(LiftedExample example, Template template) {
         Pair<Map<HornClause, WeightedRule>, Map<Literal, ValuedFact>> rulesAndFacts = mapToLogic(rulesAndFacts(example, template));
         Map<HornClause, WeightedRule> ruleMap = rulesAndFacts.r;
-        Map<Literal, ValuedFact> factMap = rulesAndFacts.s;
+        groundFacts = rulesAndFacts.s;
 
-        herbrandModel.loadModel(ruleMap.keySet(), factMap.keySet());
+        Set<Literal> facts = groundFacts.keySet();
+        // add already inferred facts as a hack to speedup the Herbrand model calculation
+        if (settings.inferTemplateFacts)
+            facts = template.getAllFacts();
+
+        herbrandModel.inferModel(ruleMap.keySet(), facts);
 
         for (Map.Entry<HornClause, WeightedRule> ruleEntry : ruleMap.entrySet()) {
             List<WeightedRule> groundings = herbrandModel.groundRules(ruleEntry.getValue(), ruleEntry.getKey());
@@ -74,14 +121,6 @@ public class BottomUp extends Grounder {
                 ruleGroundings.add(grounding);
             }
         }
-
-        NeuralNetwork neuralNetwork = networkFromGroundRules(groundRules, factMap);
-        neuralNetwork.setId(example.getId());
-        if (!sharedGroundings) {
-            groundRules.clear();
-            herbrandModel = new HerbrandModel();
-        }
-        return neuralNetwork;
     }
 
     private NeuralNetwork networkFromGroundRules(LinkedHashMap<Literal, LinkedHashMap<WeightedRule, List<WeightedRule>>> groundRules, Map<Literal, ValuedFact> factMap) {
@@ -120,6 +159,7 @@ public class BottomUp extends Grounder {
 
     /**
      * Once all neurons are created, connect rule neurons' inputs to atom neurons/fact neurons
+     *
      * @param factMap
      * @param atomNeurons
      * @param aggNeurons

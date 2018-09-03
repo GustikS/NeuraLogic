@@ -6,6 +6,7 @@ import constructs.example.QueryAtom;
 import constructs.example.ValuedFact;
 import constructs.template.Template;
 import constructs.template.WeightedRule;
+import constructs.template.templates.GraphTemplate;
 import grounding.bottomUp.BottomUp;
 import grounding.topDown.TopDown;
 import ida.ilp.logic.HornClause;
@@ -59,6 +60,14 @@ public abstract class Grounder {
      * @return
      */
     public abstract QueryNeuron ground(QueryAtom queryAtom, Template template);
+
+    /**
+     * Optimized supervised-pruning grounding
+     * @param queryAtom
+     * @param template
+     * @return
+     */
+    public abstract QueryNeuron ground(QueryAtom queryAtom, GraphTemplate template);
 
     /**
      * Unsupervised grounding

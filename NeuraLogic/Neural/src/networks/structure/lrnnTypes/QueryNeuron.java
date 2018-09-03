@@ -1,5 +1,6 @@
 package networks.structure.lrnnTypes;
 
+import constructs.example.QueryAtom;
 import learning.Query;
 import networks.evaluation.values.Value;
 import networks.structure.NeuralNetwork;
@@ -15,6 +16,11 @@ public class QueryNeuron extends Query<NeuralNetwork, NeuralModel> {
 
     public QueryNeuron(String id, int queryCounter, double importance) {
         super(id, queryCounter, importance);
+    }
+
+    public QueryNeuron(QueryAtom queryAtom, NeuralNetwork neuralNetwork) {
+        super(queryAtom.ID, queryAtom.position, queryAtom.importance);
+        neuron = neuralNetwork.getNeuron(queryAtom.headAtom.literal);
     }
 
     @Override

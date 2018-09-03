@@ -29,7 +29,7 @@ public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, 
     }
 
     @Override
-    public Pipeline<Sources, Template> buildPipeline() {
+    public Pipeline<Sources, Template> buildPipeline() { //todo make correct combination logic
         Pipeline<Sources, Template> pipeline = new Pipeline<>("TemplateProcessingPipeline");
         if (sources.templateProvided) {
             Pipe<Sources, ParsedTemplate> sourcesTemplatePipe = pipeline.registerStart(extractTemplate(sources));
@@ -40,16 +40,29 @@ public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, 
                     Pipe<Template, GraphTemplate> graphTemplatePipe = pipeline.register(buildTemplateGraph());
                     metadataPipe.connectAfter(graphTemplatePipe);
                     Pipe<GraphTemplate, Template> reduceTemplatePipe = reduceTemplate();
-                    graphTemplatePipe.connectAfter(pipeline.registerEnd(reduceTemplatePipe)); //todo make correct combination logic
+                    graphTemplatePipe.connectAfter(pipeline.registerEnd(reduceTemplatePipe));
+                }
+                if (settings.inferTemplateFacts){
+                    Pipe<Template, Template> inferencePipe = pipeline.registerEnd(inferFacts());
+                    metadataPipe.connectAfter(inferencePipe);
                 }
             }
-
             //TODO rest of template transformations
             return pipeline;
         } else {
             LOG.warning("Template extraction from sources requested but no template provided.");
             return null;
         }
+    }
+
+    protected Pipe<Template, Template> inferFacts() {
+        return new Pipe<Template, Template>("TemplateInferencePipe") {
+            @Override
+            public Template apply(Template template) {
+                template.inferTemplateFacts();
+                return template;
+            }
+        };
     }
 
     protected Pipe<GraphTemplate, Template> reduceTemplate() {
@@ -90,7 +103,8 @@ public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, 
         return new Pipe<Template, GraphTemplate>("BuildTemplateGraphPipe") {
             @Override
             public GraphTemplate apply(Template template) {
-                return new GraphTemplate(template);
+                GraphTemplate graphTemplate = new GraphTemplate(template);
+                return  graphTemplate;
             }
         };
     }

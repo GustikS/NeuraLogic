@@ -19,7 +19,7 @@ public class BodyAtom extends Atom {
     protected Weight weight;
 
     public BodyAtom(WeightedPredicate weightedPredicate, List<Term> terms, boolean negated, Weight weight) {
-        super(weightedPredicate,  terms, negated);
+        super(weightedPredicate, terms, negated);
         this.weight = weight;
     }
 
@@ -36,7 +36,7 @@ public class BodyAtom extends Atom {
     }
 
     @Override
-    public BodyAtom ground(Map<Term,Term> var2term) {
+    public BodyAtom ground(Map<Term, Term> var2term) {
         BodyAtom copy = new BodyAtom(this);
         copy.literal = copy.literal.subsCopy(var2term);
         return copy;

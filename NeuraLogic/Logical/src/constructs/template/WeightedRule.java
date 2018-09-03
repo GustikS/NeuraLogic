@@ -28,7 +28,7 @@ public class WeightedRule {
     public Weight offset;
 
     public HeadAtom head;
-    public ArrayList<BodyAtom> body;
+    public List<BodyAtom> body;
 
     public Activation aggregationFcn;
     public Activation activationFcn;
