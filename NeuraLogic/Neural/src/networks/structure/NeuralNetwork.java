@@ -24,7 +24,7 @@ public class NeuralNetwork implements Example {
     List<FactNeuron> factNeurons;
     List<NegationNeuron> negationNeurons;
 
-    public NeuralNetwork(Collection<AtomNeuron> atomNeurons, Collection<AggregationNeuron> aggregationNeurons, Collection<RuleNeuron> ruleNeurons, Set<FactNeuron> factNeurons, Set<NegationNeuron> negationNeurons) {
+    public NeuralNetwork(Collection<AtomNeuron> atomNeurons, Collection<AggregationNeuron> aggregationNeurons, Collection<RuleNeuron> ruleNeurons, Collection<FactNeuron> factNeurons, Set<NegationNeuron> negationNeurons) {
         this.neurons = new ArrayList<>(atomNeurons.size() + aggregationNeurons.size() + ruleNeurons.size() + factNeurons.size() + negationNeurons.size());
 
         this.atomNeurons = new ArrayList<>(atomNeurons);

@@ -7,6 +7,8 @@ import networks.evaluation.values.Value;
 
 /**
  * Created by Gusta on 04.10.2016.
+ *
+ * HeadAtom desont have to be ground! - it will apply to all compatible ground neurons then
  */
 public class QueryAtom extends Query<LiftedExample, Template> {
 

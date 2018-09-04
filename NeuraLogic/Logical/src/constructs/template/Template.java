@@ -3,6 +3,7 @@ package constructs.template;
 import constructs.Conjunction;
 import constructs.example.QueryAtom;
 import constructs.example.ValuedFact;
+import constructs.template.templates.GraphTemplate;
 import grounding.bottomUp.HerbrandModel;
 import ida.ilp.logic.HornClause;
 import ida.ilp.logic.Literal;
@@ -18,12 +19,14 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
  * Created by Gusta on 04.10.2016.
  */
 public class Template implements Model<QueryAtom> {
+    private static final Logger LOG = Logger.getLogger(Template.class.getName());
     String id;
 
     public LinkedHashSet<WeightedRule> rules;
@@ -99,5 +102,10 @@ public class Template implements Model<QueryAtom> {
         MultiMap<Predicate, Literal> multiMap = herbrandModel.inferModel(rules, facts);
         multiMap.values().forEach(inferredLiterals::addAll);
         return inferredLiterals;
+    }
+
+    public GraphTemplate prune(QueryAtom query) {
+        LOG.warning("Inefficient template pruning");
+        return new GraphTemplate(this).prune(query);
     }
 }

@@ -35,11 +35,13 @@ public class Settings {
      */
     public boolean sharedGroundings;
     /**
-     * Ground networks are grounded in a specific sequence (i.e. sharing only with previous examples)
+     * Ground networks are grounded in a specific given sequence (i.e. sharing only with previous examples)
      */
     public boolean sequentialGrounding;
-
-    public boolean parallelGrounding = true;
+    /**
+     * To be clear
+     */
+    public boolean parallelGrounding = !sequentialGrounding;
 
     /**
      * Type of grounder
@@ -51,7 +53,10 @@ public class Settings {
     }
 
     //-----------------Neural nets creation
-
+    /**
+     * Prune out ground rules with no support for a given query
+     */
+    public boolean supervisedGroundTemplatePruning = true;
     /**
      * full unsupervised grounding, even if query is provided
      */

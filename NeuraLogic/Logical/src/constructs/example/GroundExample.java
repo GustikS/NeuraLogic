@@ -2,6 +2,7 @@ package constructs.example;
 
 
 import constructs.Conjunction;
+import grounding.GroundTemplate;
 import learning.Example;
 
 import java.util.LinkedHashSet;
@@ -15,6 +16,8 @@ public class GroundExample implements Example {
     public LinkedHashSet<Conjunction> conjunctions;
 
     public LinkedHashSet<ValuedFact> flatFacts;
+
+    public GroundExample(){}
 
     public GroundExample(List<Conjunction> body) {
         conjunctions = new LinkedHashSet<>();

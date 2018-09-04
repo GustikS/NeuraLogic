@@ -34,6 +34,10 @@ public class GraphTemplate extends Template {
      */
     Set<Literal> openAtoms;
 
+    public GraphTemplate(){
+        atom2rules = new HashMap<>();
+    }
+
     public GraphTemplate(Template template) {
         super(template);
 
@@ -81,6 +85,9 @@ public class GraphTemplate extends Template {
 
     public GraphTemplate(GraphTemplate template) {
         super(template);
+        atom2rules = template.atom2rules;
+        closedAtoms = template.closedAtoms;
+        openAtoms = template.openAtoms;
     }
 
     /**

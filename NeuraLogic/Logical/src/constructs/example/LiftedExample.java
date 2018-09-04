@@ -16,6 +16,9 @@ import java.util.List;
 public class LiftedExample extends GroundExample {
     public LinkedHashSet<WeightedRule> rules;
 
+    public LiftedExample() {
+    }
+
     public LiftedExample(List<Conjunction> conjunctions, List<WeightedRule> irules) {
         super(conjunctions);
         rules = new LinkedHashSet<>();

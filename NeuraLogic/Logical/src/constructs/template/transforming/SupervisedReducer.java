@@ -2,11 +2,13 @@ package constructs.template.transforming;
 
 import constructs.example.QueryAtom;
 import constructs.template.Template;
+import constructs.template.templates.GraphTemplate;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
+@Deprecated
 public class SupervisedReducer implements TemplateReducing {
     private static final Logger LOG = Logger.getLogger(SupervisedReducer.class.getName());
 
@@ -32,6 +34,11 @@ public class SupervisedReducer implements TemplateReducing {
 
     public Template reduce(Template itemplate, Set<QueryAtom> query) {
         //TODO
+        return null;
+    }
+
+    @Override
+    public Template reduce(GraphTemplate itemplate) {
         return null;
     }
 }
