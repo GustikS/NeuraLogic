@@ -54,13 +54,13 @@ public class Settings {
 
     //-----------------Neural nets creation
     /**
-     * Prune out ground rules with no support for a given query
+     * Prune out ground rules with no support for a given query EXPLICITLY in advance
      */
-    public boolean supervisedGroundTemplatePruning = true;
+    public boolean supervisedGroundTemplatePruning = false;
     /**
      * full unsupervised grounding, even if query is provided
      */
-    public boolean forceFullNetworks;
+    public boolean forceFullNetworks = false;
 
     public double defaultConjunctWeight = 1.0;  //todo actually use these in some factory method
     public double defaultDisjunctWeight = 1.0;

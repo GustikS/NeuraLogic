@@ -12,6 +12,10 @@ import ida.ilp.logic.Clause;
 import ida.ilp.logic.Literal;
 import ida.ilp.logic.subsumption.Matching;
 import learning.Example;
+import networks.structure.lrnnTypes.AggregationNeuron;
+import networks.structure.lrnnTypes.AtomNeuron;
+import networks.structure.lrnnTypes.FactNeuron;
+import networks.structure.lrnnTypes.RuleNeuron;
 
 import java.util.*;
 
@@ -20,6 +24,14 @@ import java.util.*;
  */
 public class GroundTemplate extends GraphTemplate implements Example {
     String id;
+
+    public static class Neurons {
+        Map<Literal, AtomNeuron> atomNeurons = new HashMap<>();
+        Map<WeightedRule, AggregationNeuron> aggNeurons = new HashMap<>();
+        Map<WeightedRule, RuleNeuron> ruleNeurons = new LinkedHashMap<>();
+        Map<Literal, FactNeuron> factNeurons = new HashMap<>();
+    }
+
     /**
      * Temp (for current pair of Template+Example) structure (head -> rules -> ground bodies) for traversing the graph of groundings
      */

@@ -18,9 +18,10 @@ public class QueryNeuron extends Query<NeuralNetwork, NeuralModel> {
         super(id, queryCounter, importance);
     }
 
-    public QueryNeuron(QueryAtom queryAtom, NeuralNetwork neuralNetwork) {
-        super(queryAtom.ID, queryAtom.position, queryAtom.importance);
-        neuron = neuralNetwork.getNeuron(queryAtom.headAtom.literal);
+    public QueryNeuron(String id, int position, double importance, AtomNeuron targetNeuron, NeuralNetwork neuralNetwork) {
+        super(id, position, importance);
+        this.neuron = targetNeuron;
+        this.evidence = neuralNetwork;
     }
 
     @Override

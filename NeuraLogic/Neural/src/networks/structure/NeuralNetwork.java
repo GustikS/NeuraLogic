@@ -13,31 +13,36 @@ import java.util.Set;
  */
 public class NeuralNetwork implements Example {
     String id;
-    /**
-     * All neurons combined.
-     */
-    List<Neuron> neurons;
 
-    List<AtomNeuron> atomNeurons;
-    List<AggregationNeuron> aggNeurons;
-    List<RuleNeuron> ruleNeurons;
-    List<FactNeuron> factNeurons;
-    List<NegationNeuron> negationNeurons;
+    Neurons neurons;
+
+    public class Neurons {
+        /**
+         * All neurons combined.
+         */
+        List<Neuron> allNeurons;
+
+        List<AtomNeuron> atomNeurons = new ArrayList<>();
+        List<AggregationNeuron> aggNeurons = new ArrayList<>();
+        List<RuleNeuron> ruleNeurons = new ArrayList<>();
+        List<FactNeuron> factNeurons = new ArrayList<>();
+        List<NegationNeuron> negationNeurons = new ArrayList<>();
+    }
 
     public NeuralNetwork(Collection<AtomNeuron> atomNeurons, Collection<AggregationNeuron> aggregationNeurons, Collection<RuleNeuron> ruleNeurons, Collection<FactNeuron> factNeurons, Set<NegationNeuron> negationNeurons) {
-        this.neurons = new ArrayList<>(atomNeurons.size() + aggregationNeurons.size() + ruleNeurons.size() + factNeurons.size() + negationNeurons.size());
+        this.neurons.allNeurons = new ArrayList<>(atomNeurons.size() + aggregationNeurons.size() + ruleNeurons.size() + factNeurons.size() + negationNeurons.size());
 
-        this.atomNeurons = new ArrayList<>(atomNeurons);
-        this.aggNeurons = new ArrayList<>(aggregationNeurons);
-        this.ruleNeurons = new ArrayList<>(ruleNeurons);
-        this.factNeurons = new ArrayList<>(factNeurons);
-        this.negationNeurons = new ArrayList<>(negationNeurons);
+        this.neurons.atomNeurons.addAll(atomNeurons);
+        this.neurons.aggNeurons.addAll(aggregationNeurons);
+        this.neurons.ruleNeurons.addAll(ruleNeurons);
+        this.neurons.factNeurons.addAll(factNeurons);
+        this.neurons.negationNeurons.addAll(negationNeurons);
 
-        neurons.addAll(this.atomNeurons);
-        neurons.addAll(this.aggNeurons);
-        neurons.addAll(this.ruleNeurons);
-        neurons.addAll(this.factNeurons);
-        neurons.addAll(this.negationNeurons);
+        this.neurons.allNeurons.addAll(atomNeurons);
+        this.neurons.allNeurons.addAll(aggregationNeurons);
+        this.neurons.allNeurons.addAll(ruleNeurons);
+        this.neurons.allNeurons.addAll(factNeurons);
+        this.neurons.allNeurons.addAll(negationNeurons);
     }
 
     boolean isRecursive() {
@@ -51,7 +56,7 @@ public class NeuralNetwork implements Example {
 
     @Override
     public Integer getSize() {
-        return neurons.size();
+        return neurons.allNeurons.size();
     }
 
     public void setId(String id) {
