@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 
 /**
  * Created by Gusta on 06.10.2016.
- *
+ * <p>
  * TODO create a streaming version for single examples?
  * todo add version with continual rule creation instead of final substitutions
  */
@@ -60,7 +60,10 @@ public class BottomUp extends Grounder {
                 ruleGroundings.add(grounding);
             }
         }
-        return new GroundTemplate(groundRules, groundFacts);
+        GroundTemplate groundTemplate = new GroundTemplate(groundRules, groundFacts);
+        if (storeGroundings)
+            storedGrounding = groundTemplate;
+        return groundTemplate;
     }
 
 }

@@ -74,7 +74,7 @@ public class HerbrandModel {
             int herbrandSize0 = VectorUtils.sum(herbrand.sizes());
             LOG.fine("herbrand size before round: " + herbrandSize0);
             //get all valid literals from current herbrand in to matching
-            matching = new Matching(Sugar.<Clause>list(new Clause(Sugar.flatten(herbrand.values())))); //todo somehow change this to incrementally pass only NEW facts (ClauseE) to existing Matching object for speedup? Try version withou example indexing
+            matching = new Matching(Sugar.<Clause>list(new Clause(Sugar.flatten(herbrand.values())))); //todo somehow change this to incrementally pass only NEW facts (ClauseE) to existing Matching object for speedup? Try version without example indexing
             LOG.finer("Matching created.");
             for (Predicate predicate : headSignatures) {
                 //may overwrite the previous ones which is actually what we want (?)

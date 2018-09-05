@@ -16,6 +16,8 @@ import java.util.List;
 public class LiftedExample extends GroundExample {
     public LinkedHashSet<WeightedRule> rules;
 
+
+
     public LiftedExample() {
     }
 

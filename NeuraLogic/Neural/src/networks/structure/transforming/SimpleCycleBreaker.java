@@ -2,12 +2,20 @@ package networks.structure.transforming;
 
 import networks.structure.NeuralNetwork;
 
+import java.util.HashMap;
+
 /**
  * Created by gusta on 14.3.17.
  */
-public class SimpleCycleBreaker implements CycleBreaking {
+public class SimpleCycleBreaker extends CycleBreaking {
+
     @Override
     public NeuralNetwork breakCycles(NeuralNetwork inet) {
-        return null;
+        if (processedNets.containsKey(inet.getId())){
+            return inet;
+        }
+        processedNets.put(inet.getId(),inet);
+        //TODO
+        return inet;
     }
 }

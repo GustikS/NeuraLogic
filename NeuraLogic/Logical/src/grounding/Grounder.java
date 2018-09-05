@@ -19,12 +19,14 @@ import networks.structure.NeuralNetwork;
 import networks.structure.Weight;
 import networks.structure.lrnnTypes.*;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import settings.Settings;
 import training.NeuralSample;
 
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by Gusta on 06.10.2016.
@@ -34,10 +36,16 @@ public abstract class Grounder {
     protected Settings settings;
 
     protected boolean storeGroundings;
+    @Nullable
+    protected GroundTemplate storedGrounding;
 
     public Grounder(Settings settings) {
         this.settings = settings;
-        storeGroundings = settings.sharedGroundings;
+        storeGroundings = settings.globallySharedGroundings;
+    }
+
+    public List<NeuralSample> globalGround(Stream<LogicSample> samples, Template template){
+
     }
 
     public List<NeuralSample> ground(LogicSample logicSample, GroundTemplate groundTemplate) {
@@ -113,7 +121,7 @@ public abstract class Grounder {
     }
 
     /**
-     * The theorem proving part - returns ground rules and facts wrapped in a GroundTemplate
+     * The theorem proving part - returns ground rules and facts wrapped in a GroundTemplate - to be implemented by subclasses
      *
      * @param example
      * @param template

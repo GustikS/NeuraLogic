@@ -33,15 +33,15 @@ public class Settings {
     /**
      * Ground networks (in a given Grounder context) may share common parts (i.e. Grounder has a cache)
      */
-    public boolean sharedGroundings;
+    public boolean globallySharedGroundings;
     /**
      * Ground networks are grounded in a specific given sequence (i.e. sharing only with previous examples)
      */
-    public boolean sequentialGrounding;
+    public boolean sequentiallySharedGroundings;
     /**
-     * To be clear
+     * If there's no need for keeping the given sequence, ground in parallel in the given context
      */
-    public boolean parallelGrounding = !sequentialGrounding;
+    public boolean parallelGrounding = !sequentiallySharedGroundings;
 
     /**
      * Type of grounder
@@ -49,16 +49,16 @@ public class Settings {
     public groundingAlgo grounding = groundingAlgo.BUP;
 
     public enum groundingAlgo {
-        BUP, TDOWN
+        BUP, TDOWN, GRINGO
     }
 
     //-----------------Neural nets creation
     /**
-     * Prune out ground rules with no support for a given query EXPLICITLY in advance
+     * Prune out ground rules with no support for a given query EXPLICITLY in advance (even though in a supervised pipeline, only support will be taken recursively)
      */
-    public boolean supervisedGroundTemplatePruning = false;
+    public boolean explicitSupervisedGroundTemplatePruning = false;
     /**
-     * full unsupervised grounding, even if query is provided
+     * Force full unsupervised network creation, even if query is provided
      */
     public boolean forceFullNetworks = false;
 
@@ -71,6 +71,21 @@ public class Settings {
      * There is no actual weighting, just pooling, so identity weight
      */
     public double aggNeuronInputWeight = 1.0;
+
+    public boolean neuralNetsPostProcessing;
+    /**
+     * Remove recurrent edges from the neural networks
+     */
+    public boolean cycleBreaking;
+    /**
+     * Remove unnecessary parts from the networks (e.g. linear chains)
+     */
+    public boolean reduceNetworks;
+
+    /**
+     * Similar to reducing but more drastic - catamorphic compression (e.g. iso-value compression)
+     */
+    public boolean compressNetworks;
 
     //-----------------Structure Learning
     public boolean structureLearning;
@@ -101,14 +116,14 @@ public class Settings {
     public boolean trainFoldsIsolation = false;
 
     /**
-     * same template provided for all folds?
+     * Same template provided for all folds?
      */
     public boolean commonTemplate;
 
     //----------------Template Transformations
 
     /**
-     * Apply all metadata read from sources
+     * Apply all metadata taken from sources
      */
     public boolean processMetadata = true;
     /**
@@ -124,7 +139,7 @@ public class Settings {
      */
     public boolean inferTemplateFacts = true;
     /**
-     * In advance of grounding, remove rules that are irrelevant to the given query (with no chance to be in support)
+     * In advance of grounding (theorem proving), remove rules that are irrelevant to the given query (with no chance to be in support)
      */
     public boolean supervisedTemplateGraphPruning = true;   //todo measure if this actually helps
 

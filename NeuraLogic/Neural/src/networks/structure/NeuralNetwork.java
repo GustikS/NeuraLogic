@@ -16,6 +16,9 @@ public class NeuralNetwork implements Example {
 
     Neurons neurons;
 
+    List<Neuron> roots;
+    List<Neuron> leaves;
+
     public class Neurons {
         /**
          * All neurons combined.
