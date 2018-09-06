@@ -2,6 +2,9 @@ package constructs.example;
 
 import constructs.Conjunction;
 import constructs.template.WeightedRule;
+import grounding.GroundTemplate;
+import networks.structure.NeuralNetwork;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -16,7 +19,8 @@ import java.util.List;
 public class LiftedExample extends GroundExample {
     public LinkedHashSet<WeightedRule> rules;
 
-
+    @Nullable
+    GroundTemplate groundTemplate; //todo next - propagate this through for shared grounding with parallel shuffling (rather create new Object that encompasses these two in sample)
 
     public LiftedExample() {
     }

@@ -37,33 +37,40 @@ public class BottomUp extends Grounder {
         Map<HornClause, WeightedRule> ruleMap = rulesAndFacts.r;
         Map<Literal, ValuedFact> groundFacts = rulesAndFacts.s;
 
-        LinkedHashMap<Literal, LinkedHashMap<WeightedRule, List<WeightedRule>>> groundRules = new LinkedHashMap<>();
+        LinkedHashMap<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> groundRules = new LinkedHashMap<>();
 
         Set<Literal> facts = groundFacts.keySet();
         // add already inferred facts as a hack to speedup the Herbrand model calculation
         if (settings.inferTemplateFacts)
             facts = template.getAllFacts();
 
-        if (!storeGroundings) {
-            herbrandModel = new HerbrandModel();
-        }
-
         herbrandModel.inferModel(ruleMap.keySet(), facts);
 
         for (Map.Entry<HornClause, WeightedRule> ruleEntry : ruleMap.entrySet()) {
             List<WeightedRule> groundings = herbrandModel.groundRules(ruleEntry.getValue(), ruleEntry.getKey());
             for (WeightedRule grounding : groundings) {
-                Map<WeightedRule, List<WeightedRule>> rules2groundings =
+                Map<WeightedRule, LinkedHashSet<WeightedRule>> rules2groundings =
                         groundRules.computeIfAbsent(grounding.head.getLiteral(), k -> new LinkedHashMap<>());
-                List<WeightedRule> ruleGroundings =
-                        rules2groundings.computeIfAbsent(ruleEntry.getValue(), k -> new LinkedList<>());
+                LinkedHashSet<WeightedRule> ruleGroundings =
+                        rules2groundings.computeIfAbsent(ruleEntry.getValue(), k -> new LinkedHashSet<>());
                 ruleGroundings.add(grounding);
             }
         }
         GroundTemplate groundTemplate = new GroundTemplate(groundRules, groundFacts);
-        if (storeGroundings)
-            storedGrounding = groundTemplate;
+        herbrandModel.clear();
         return groundTemplate;
     }
 
+    @Override
+    public GroundTemplate groundRulesAndFacts(LiftedExample example, Template template, GroundTemplate old) {
+        if (old == null) {
+            old = new GroundTemplate();
+        }
+        herbrandModel.populateHerbrand(old.groundFacts.keySet());
+        GroundTemplate bigger = groundRulesAndFacts(example, template);
+        GroundTemplate diff = bigger.diffAgainst(old);
+        old.groundRules = bigger.groundRules;
+        old.groundFacts = bigger.groundFacts;
+        return diff;
+    }
 }

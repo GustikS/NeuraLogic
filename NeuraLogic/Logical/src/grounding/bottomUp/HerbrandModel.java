@@ -168,6 +168,10 @@ public class HerbrandModel {
         return "@tuplenotin-" + predicate.name + "/" + predicate.arity;
     }
 
+    public void clear() {
+        herbrand.clear();
+    }
+
     /**
      * Used for adding solutions (found by the engine) to the herbrand map on the fly, so that the engine can prune the rest
      */

@@ -2,6 +2,7 @@ package pipelines.bulding;
 
 import constructs.building.ExamplesBuilder;
 import constructs.building.QueriesBuilder;
+import constructs.building.SamplesBuilder;
 import constructs.example.LiftedExample;
 import constructs.example.LogicSample;
 import learning.Query;
@@ -21,6 +22,7 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
         super(settings);
         this.source = source;
     }
+
 
     @Override
     public Pipeline<Source, Stream<LogicSample>> buildPipeline() {
@@ -52,7 +54,7 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
             return new Pipe<Source, Stream<LogicSample>>("SamplesExtractionPipe") {
                 @Override
                 public Stream<LogicSample> apply(Source source) {
-                    if (source.QueriesSeparate && source.ExamplesProvided) {
+                    if (source.QueriesSeparate && source.ExamplesProvided) {    //todo move the if's outside to pipeline creation
                         ExamplesBuilder examplesBuilder = new ExamplesBuilder(settings);
                         Stream<LogicSample> examples = examplesBuilder.buildSamplesFrom(examplesBuilder.parseTreeFrom(source.ExamplesReader));
 
@@ -81,7 +83,7 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
 
 
     public Pipe<Stream<LogicSample>, Stream<LogicSample>> postprocessSamplesPipe() {
-        //TODO
+        //TODO for instance order by example id
         return null;
     }
 }

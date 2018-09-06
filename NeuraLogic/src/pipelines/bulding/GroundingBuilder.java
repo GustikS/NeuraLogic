@@ -49,7 +49,7 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
 
         ConnectAfter<Stream<Pair<Template, LogicSample>>> nextPipe;
         if (settings.parallelGrounding) {
-            Pipe<Stream<Pair<Template, LogicSample>>, Stream<Pair<Template, LogicSample>>> parallelPipe = pipeline.register(new Pipe<Stream<Pair<Template, LogicSample>>, Stream<Pair<Template, LogicSample>>>("ParallelizationPipe") {
+            Pipe<Stream<Pair<Template, LogicSample>>, Stream<Pair<Template, LogicSample>>> parallelPipe = pipeline.register(new Pipe<Stream<Pair<Template, LogicSample>>, Stream<Pair<Template, LogicSample>>>("ParallelizationPipe") { //todo move parallelziation all the way up?
                 @Override
                 public Stream<Pair<Template, LogicSample>> apply(Stream<Pair<Template, LogicSample>> pairStream) {
                     return pairStream.parallel();
@@ -61,13 +61,41 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
             nextPipe = templateReducing;
         }
 
-        Pipe<Stream<Pair<Template, LogicSample>>, Stream<Pair<LogicSample, GroundTemplate>>> groundingPipe = pipeline.register(new Pipe<Stream<Pair<Template, LogicSample>>, Stream<Pair<LogicSample, GroundTemplate>>>("GroundingPipe") {
-            @Override
-            public Stream<Pair<LogicSample, GroundTemplate>> apply(Stream<Pair<Template, LogicSample>> pairStream) {
-                return pairStream.map(pair -> new Pair<>(pair.s, grounder.groundRulesAndFacts(pair.s.query.evidence, pair.r)));
-            }
-        });
-        nextPipe.connectAfter(groundingPipe);
+        ConnectAfter<Stream<Pair<LogicSample, GroundTemplate>>> nextPipe0;
+        if (settings.sequentiallySharedGroundings) {    //contradicts parallel grounding - checked in settings
+            Pipe<Stream<Pair<Template, LogicSample>>, Stream<Pair<LogicSample, GroundTemplate>>> groundingPipe = pipeline.register(new Pipe<Stream<Pair<Template, LogicSample>>, Stream<Pair<LogicSample, GroundTemplate>>>("SequentiallySharedGroundingPipe") {
+                GroundTemplate stored = null;
+                @Override
+                public Stream<Pair<LogicSample, GroundTemplate>> apply(Stream<Pair<Template, LogicSample>> pairStream) {
+                    if (pairStream.isParallel())
+                        LOG.severe("Sequential sharing in a parallel grounding stream.");
+                    return pairStream.map(pair -> {
+                        GroundTemplate groundTemplate = grounder.groundRulesAndFacts(pair.s.query.evidence, pair.r, stored);
+                        return new Pair<>(pair.s, groundTemplate);
+                    });
+                }
+            });
+            nextPipe.connectAfter(groundingPipe);
+            nextPipe0 = groundingPipe;
+        } else if (settings.globallySharedGroundings) {
+            Pipe<Stream<Pair<Template, LogicSample>>, Stream<Pair<LogicSample, GroundTemplate>>> groundingPipe = pipeline.register(new Pipe<Stream<Pair<Template, LogicSample>>, Stream<Pair<LogicSample, GroundTemplate>>>("GlobalSharingGroundingPipe") {
+                @Override
+                public Stream<Pair<LogicSample, GroundTemplate>> apply(Stream<Pair<Template, LogicSample>> pairStream) {
+                    return grounder.globalGround(pairStream);
+                }
+            });
+            nextPipe.connectAfter(groundingPipe);
+            nextPipe0 = groundingPipe;
+        } else {
+            Pipe<Stream<Pair<Template, LogicSample>>, Stream<Pair<LogicSample, GroundTemplate>>> groundingPipe = pipeline.register(new Pipe<Stream<Pair<Template, LogicSample>>, Stream<Pair<LogicSample, GroundTemplate>>>("NormalGroundingPipe") {
+                @Override
+                public Stream<Pair<LogicSample, GroundTemplate>> apply(Stream<Pair<Template, LogicSample>> pairStream) {
+                    return pairStream.map(pair -> new Pair<>(pair.s, grounder.groundRulesAndFacts(pair.s.query.evidence, pair.r)));
+                }
+            });
+            nextPipe.connectAfter(groundingPipe);
+            nextPipe0 = groundingPipe;
+        }
 
         ConnectAfter<Stream<Pair<LogicSample, GroundTemplate>>> nextPipe1;
         if (settings.explicitSupervisedGroundTemplatePruning) {
@@ -77,13 +105,13 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
                     return pairStream.map(p -> new Pair<>(p.r, p.s.prune(p.r.query)));
                 }
             });
-            groundingPipe.connectAfter(groundReducingPipe);
+            nextPipe0.connectAfter(groundReducingPipe);
             nextPipe1 = groundReducingPipe;
         } else {
-            nextPipe1 = groundingPipe;
+            nextPipe1 = nextPipe0;
         }
 
-        Pipe<Stream<Pair<LogicSample, GroundTemplate>>, Stream<NeuralSample>> neuralizationPipe = new Pipe<Stream<Pair<LogicSample, GroundTemplate>>, Stream<NeuralSample>>("NeuralizationPipe") {
+        Pipe<Stream<Pair<LogicSample, GroundTemplate>>, Stream<NeuralSample>> neuralizationPipe = new Pipe<Stream<Pair<LogicSample, GroundTemplate>>, Stream<NeuralSample>>("SupervisedNeuralizationPipe") {
             @Override
             public Stream<NeuralSample> apply(Stream<Pair<LogicSample, GroundTemplate>> pairStream) {
                 return pairStream.map(pair -> grounder.ground(pair.r, pair.s).stream()).flatMap(f -> f);
@@ -100,16 +128,7 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
             nextPipe2 = neuralizationPipe;
         }
 
-        if (settings.sequentiallySharedGroundings) {
-
-            if (settings.globallySharedGroundings) {
-
-            }
-            //todo poresit shared a sequential groundings zde na urovni tvorby pipeline
-        } else {
-
-        }
-        return null;
+        return pipeline;
     }
 
     private Pipeline<Stream<NeuralSample>, Stream<NeuralSample>> neuralPostprocessingPipeline() {

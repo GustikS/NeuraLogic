@@ -12,11 +12,10 @@ import java.util.List;
 /**
  * Created by gusta on 13.3.17.
  * <p>
- * Fact with a corresponding truth value (not weight, but may be sharable)
+ * Fact with a corresponding truth value
  */
 public class ValuedFact extends Atom {
 
-    @NotNull
     public Value value;
 
     public ValuedFact(WeightedPredicate weightedPredicate, List<Term> terms, boolean negated, Value value) {

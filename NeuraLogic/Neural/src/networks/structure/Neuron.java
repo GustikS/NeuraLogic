@@ -54,4 +54,12 @@ public abstract class Neuron<T> {
     public void addInput(T input, Weight weight){
         inputs.add(new Pair<>(input,weight));
     }
+
+    public boolean hasInputs() {
+        return !inputs.isEmpty();
+    }
+
+    public int inputCount() {
+        return inputs.size();
+    }
 }

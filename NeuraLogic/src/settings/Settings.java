@@ -145,6 +145,15 @@ public class Settings {
 
     //----------------Learning Samples
 
+    /**
+     * There is exactly 1 query per each example (allows for some speedup in merging)
+     */
+    public boolean oneQueryPerExample;
+    /**
+     * Queries and Examples are 1-1 and also ordered correspondingly (allows to just merge the 2 streams without terminating them)
+     */
+    public boolean queriesAlignedWithExamples;
+
     public double defaultSampleImportance = 1.0;
     public String sampleIdPrefix = "s";
     public String queriesBatchPrefix = "_b";
@@ -171,7 +180,11 @@ public class Settings {
         boolean valid = true;
         StringBuilder message = new StringBuilder();
 
-
+        if (sequentiallySharedGroundings) {
+            if (parallelGrounding)
+                valid = false;
+            message.append("Not possible");
+        }
         //TODO more validation and inference of settings
 
         return new Pair(valid, message);

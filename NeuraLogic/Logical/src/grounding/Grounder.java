@@ -35,17 +35,12 @@ public abstract class Grounder {
     private static final Logger LOG = Logger.getLogger(Grounder.class.getName());
     protected Settings settings;
 
-    protected boolean storeGroundings;
-    @Nullable
-    protected GroundTemplate storedGrounding;
-
     public Grounder(Settings settings) {
         this.settings = settings;
-        storeGroundings = settings.globallySharedGroundings;
     }
 
-    public List<NeuralSample> globalGround(Stream<LogicSample> samples, Template template){
-
+    public Stream<Pair<LogicSample, GroundTemplate>> globalGround(Stream<Pair<Template, LogicSample>> pairStream) {
+        //todo next - merge all templates and samples into one, then everything analogically to normal grounding of 1 sample
     }
 
     public List<NeuralSample> ground(LogicSample logicSample, GroundTemplate groundTemplate) {
@@ -63,37 +58,35 @@ public abstract class Grounder {
      * @param queryAtom
      * @return
      */
-    public List<QueryNeuron> ground(QueryAtom queryAtom, GroundTemplate groundTemplate) {
+    public List<QueryNeuron> ground(QueryAtom queryAtom, GroundTemplate groundTemplate) { // - todo test if all correct in sequential sharing mode
         List<Literal> queryLiterals = new ArrayList<>();
-        GroundTemplate.Neurons neuronMaps = new GroundTemplate.Neurons();
 
         Matching matching = new Matching();
         Set<Literal> closedSet = new HashSet<>();
 
-        for (Map.Entry<Literal, LinkedHashMap<WeightedRule, List<WeightedRule>>> entry : groundTemplate.groundRules.entrySet()) {
+        for (Map.Entry<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> entry : groundTemplate.groundRules.entrySet()) {
             if (queryAtom.headAtom.literal.predicate().equals(entry.getKey().predicate()) && matching.subsumption(new Clause(queryAtom.headAtom.literal), new Clause(entry.getKey()))) { //todo check this method
                 queryLiterals.add(entry.getKey());
 
                 if (!settings.forceFullNetworks) {
                     closedSet.add(entry.getKey());
-                    recurseNeurons(entry.getKey(), groundTemplate.groundRules, neuronMaps, closedSet);
+                    recurseNeurons(entry.getKey(), groundTemplate.groundRules, groundTemplate.neuronMaps, closedSet);
                 }
             }
         }
 
-        NeuralNetwork neuralNetwork;
         if (settings.forceFullNetworks) {
-            neuralNetwork = ground(groundTemplate, neuronMaps);
+            groundTemplate.neuralNetwork = ground(groundTemplate, groundTemplate.neuronMaps);
         } else {
-            neuronMaps.factNeurons = neuronsFromFacts(groundTemplate.groundFacts);
-            neuralNetwork = networkFromNeuronMaps(neuronMaps);
-            neuralNetwork.setId(groundTemplate.getId());
+            groundTemplate.neuronMaps.factNeurons.putAll(neuronsFromFacts(groundTemplate.groundFacts));
+            groundTemplate.neuralNetwork = networkFromNeuronMaps(groundTemplate.neuronMaps);
+            groundTemplate.neuralNetwork.setId(groundTemplate.getId());
         }
 
         List<QueryNeuron> queryNeurons = new ArrayList<>();
         for (Literal queryLiteral : queryLiterals) {
-            AtomNeuron atomNeuron = neuronMaps.atomNeurons.get(queryLiteral);
-            QueryNeuron queryNeuron = new QueryNeuron(queryAtom.ID, queryAtom.position, queryAtom.importance, atomNeuron, neuralNetwork);
+            AtomNeuron atomNeuron = groundTemplate.neuronMaps.atomNeurons.get(queryLiteral);
+            QueryNeuron queryNeuron = new QueryNeuron(queryAtom.ID, queryAtom.position, queryAtom.importance, atomNeuron, groundTemplate.neuralNetwork);
             queryNeurons.add(queryNeuron);
         }
         return queryNeurons;
@@ -106,15 +99,15 @@ public abstract class Grounder {
      * @return
      */
     public NeuralNetwork ground(GroundTemplate groundTemplate) {
-        return ground(groundTemplate, new GroundTemplate.Neurons());
+        return ground(groundTemplate, new GroundTemplate.NeuronMaps());
     }
 
-    public NeuralNetwork ground(GroundTemplate groundTemplate, GroundTemplate.Neurons neuronMaps) {
-        for (Map.Entry<Literal, LinkedHashMap<WeightedRule, List<WeightedRule>>> entry : groundTemplate.groundRules.entrySet()) {
+    public NeuralNetwork ground(GroundTemplate groundTemplate, GroundTemplate.NeuronMaps neuronMaps) {
+        for (Map.Entry<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> entry : groundTemplate.groundRules.entrySet()) {
             addNeuronsFromRules(new Pair<>(entry.getKey(), entry.getValue()), neuronMaps);
         }
 
-        neuronMaps.factNeurons = neuronsFromFacts(groundTemplate.groundFacts);
+        neuronMaps.factNeurons.putAll(neuronsFromFacts(groundTemplate.groundFacts));
         NeuralNetwork neuralNetwork = networkFromNeuronMaps(neuronMaps);
         neuralNetwork.setId(groundTemplate.getId());
         return neuralNetwork;
@@ -128,6 +121,15 @@ public abstract class Grounder {
      * @return
      */
     public abstract GroundTemplate groundRulesAndFacts(LiftedExample example, Template template);
+
+    /**
+     * The theorem proving part - with reuse of some previous grounding
+     * @param example
+     * @param template
+     * @param reuse
+     * @return
+     */
+    public abstract GroundTemplate groundRulesAndFacts(LiftedExample example, Template template, GroundTemplate reuse);
 
     public Pair<Set<WeightedRule>, Set<ValuedFact>> rulesAndFacts(LiftedExample example, Template template) {
         LinkedHashSet<ValuedFact> flatFacts = new LinkedHashSet<>(example.flatFacts);
@@ -196,16 +198,16 @@ public abstract class Grounder {
      * @param neuronMaps
      * @param closedSet
      */
-    private void recurseNeurons(@NotNull Literal literal, LinkedHashMap<Literal, LinkedHashMap<WeightedRule, List<WeightedRule>>> groundRules, GroundTemplate.Neurons neuronMaps, Set<Literal> closedSet) {
+    private void recurseNeurons(@NotNull Literal literal, LinkedHashMap<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> groundRules, GroundTemplate.NeuronMaps neuronMaps, Set<Literal> closedSet) {
         if (closedSet.contains(literal)) {
             return;
         }
         closedSet.add(literal);
 
-        LinkedHashMap<WeightedRule, List<WeightedRule>> ruleMap = groundRules.get(literal);
+        LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>> ruleMap = groundRules.get(literal);
         addNeuronsFromRules(new Pair<>(literal, ruleMap), neuronMaps);
 
-        for (List<WeightedRule> groundings : ruleMap.values()) {
+        for (LinkedHashSet<WeightedRule> groundings : ruleMap.values()) {
             for (WeightedRule grounding : groundings) {
                 for (BodyAtom bodyAtom : grounding.body) {
                     recurseNeurons(bodyAtom.literal, groundRules, neuronMaps, closedSet);
@@ -215,32 +217,32 @@ public abstract class Grounder {
     }
 
 
-    private GroundTemplate.Neurons addNeuronsFromRules(Pair<Literal, LinkedHashMap<WeightedRule, List<WeightedRule>>> headLiteral2rules, GroundTemplate.Neurons neurons) {
+    private GroundTemplate.NeuronMaps addNeuronsFromRules(Pair<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> headLiteral2rules, GroundTemplate.NeuronMaps neuronMaps) {
 
         AtomNeuron headAtom;
-        if ((headAtom = neurons.atomNeurons.get(headLiteral2rules.r)) == null) {
-            headAtom = new AtomNeuron(headLiteral2rules.s.entrySet().iterator().next().getValue().get(0).head); //it doesnt matter which head
-            neurons.atomNeurons.put(headLiteral2rules.r, headAtom);
+        if ((headAtom = neuronMaps.atomNeurons.get(headLiteral2rules.r)) == null) {
+            headAtom = new AtomNeuron(headLiteral2rules.s.entrySet().iterator().next().getValue().iterator().next().head); //it doesn't matter which head
+            neuronMaps.atomNeurons.put(headLiteral2rules.r, headAtom);
         }
-        for (Map.Entry<WeightedRule, List<WeightedRule>> rules2groundings : headLiteral2rules.s.entrySet()) {
+        for (Map.Entry<WeightedRule, LinkedHashSet<WeightedRule>> rules2groundings : headLiteral2rules.s.entrySet()) {
             AggregationNeuron aggNeuron;
-            if ((aggNeuron = neurons.aggNeurons.get(rules2groundings.getKey())) == null) {
+            if ((aggNeuron = neuronMaps.aggNeurons.get(rules2groundings.getKey())) == null) {
                 aggNeuron = new AggregationNeuron(rules2groundings.getKey());
-                neurons.aggNeurons.put(rules2groundings.getKey(), aggNeuron);
+                neuronMaps.aggNeurons.put(rules2groundings.getKey(), aggNeuron);
             }
             headAtom.addInput(aggNeuron, rules2groundings.getKey().weight);
 
             for (WeightedRule grounding : rules2groundings.getValue()) {
                 RuleNeuron ruleNeuron;
-                if ((ruleNeuron = neurons.ruleNeurons.get(grounding)) == null) {
+                if ((ruleNeuron = neuronMaps.ruleNeurons.get(grounding)) == null) {
                     ruleNeuron = new RuleNeuron(grounding);
-                    neurons.ruleNeurons.put(grounding, ruleNeuron);
+                    neuronMaps.ruleNeurons.put(grounding, ruleNeuron);
                 }
                 aggNeuron.addInput(ruleNeuron, new Weight(new ScalarValue(settings.aggNeuronInputWeight)));
             }
         }
 
-        return neurons;
+        return neuronMaps;
     }
 
     private Map<Literal, FactNeuron> neuronsFromFacts(Map<Literal, ValuedFact> groundFacts) {
@@ -258,16 +260,19 @@ public abstract class Grounder {
      * @return
      */
     @NotNull
-    private NeuralNetwork networkFromNeuronMaps(GroundTemplate.Neurons neurons) {
+    private NeuralNetwork networkFromNeuronMaps(GroundTemplate.NeuronMaps neuronMaps) {
         Set<NegationNeuron> negationNeurons = new HashSet<>();
 
-        for (Map.Entry<WeightedRule, RuleNeuron> entry : neurons.ruleNeurons.entrySet()) {
+        for (Map.Entry<WeightedRule, RuleNeuron> entry : neuronMaps.ruleNeurons.entrySet()) {
+            if (entry.getValue().inputCount() == entry.getKey().body.size()){
+                continue;   //this rule neuron is already connected
+            }
             for (BodyAtom bodyAtom : entry.getKey().body) {
                 Weight weight = bodyAtom.getConjunctWeight();
 
-                AtomFact input = neurons.atomNeurons.get(bodyAtom.getLiteral()); //input is an atom neuron?
+                AtomFact input = neuronMaps.atomNeurons.get(bodyAtom.getLiteral()); //input is an atom neuron?
                 if (input == null) { //input is a fact neuron!
-                    FactNeuron factNeuron = neurons.factNeurons.get(bodyAtom.getLiteral());
+                    FactNeuron factNeuron = neuronMaps.factNeurons.get(bodyAtom.getLiteral());
                     if (factNeuron == null) {
                         LOG.severe("Error: no input found for this neuron!!: " + bodyAtom);
                     }
@@ -282,6 +287,6 @@ public abstract class Grounder {
                 entry.getValue().addInput(input, weight);
             }
         }
-        return new NeuralNetwork(neurons.atomNeurons.values(), neurons.aggNeurons.values(), neurons.ruleNeurons.values(), neurons.factNeurons.values(), negationNeurons);
+        return new NeuralNetwork(neuronMaps.atomNeurons.values(), neuronMaps.aggNeurons.values(), neuronMaps.ruleNeurons.values(), neuronMaps.factNeurons.values(), negationNeurons);
     }
 }

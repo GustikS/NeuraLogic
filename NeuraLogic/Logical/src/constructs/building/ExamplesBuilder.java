@@ -49,7 +49,7 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
         if (pair.r.facts == null || pair.r.facts.size() == 0) {
             LOG.warning("Cannot extract LogicSample(s) without a query provided - emmiting unlabeled LogicSample(s)");
             return Stream.of(createEmptySample(String.valueOf(queryCounter), example));
-        } else if (pair.r.facts.size() == 1 && pair.r.facts.get(0).value == null) { // the query literal is a LINK to query file
+        } else if ((pair.r.facts.size() == 1) && (pair.r.facts.get(0).value == null)) { // the query literal is a LINK to query file
             ValuedFact query = pair.r.facts.get(0);
             return Stream.of(new LogicSample(null, createQueryAtom(query.literal.toString(), query, example)));
         } else {    // these are not for merging

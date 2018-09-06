@@ -5,11 +5,20 @@ import constructs.example.LogicSample;
 import constructs.example.QueryAtom;
 import constructs.example.ValuedFact;
 import constructs.template.HeadAtom;
+import ida.utils.tuples.Pair;
 import learning.LearningSample;
+import learning.Query;
 import neuralogic.grammarParsing.PlainParseTree;
 import org.antlr.v4.runtime.ParserRuleContext;
 import settings.Settings;
+import utils.Utilities;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -44,17 +53,36 @@ public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRu
      * @param examples
      * @return
      */
-    public static Stream<LogicSample> merge2streams(Stream<LogicSample> queries, Stream<LogicSample> examples) {
-        if (queries.isParallel() || examples.isParallel()) {
-            return Stream.concat(queries, examples).collect(Collectors.toConcurrentMap(LearningSample::getId, q -> q, SamplesBuilder::merge2samples)).values().stream();
-        } else {
-            return Stream.concat(queries, examples).collect(Collectors.toMap(LearningSample::getId, q -> q, SamplesBuilder::merge2samples)).values().stream();
+    public Stream<LogicSample> merge2streams(Stream<LogicSample> queries, Stream<LogicSample> examples) {
+        if (settings.queriesAlignedWithExamples) {
+            return Utilities.zipStreams(queries, examples, SamplesBuilder::merge2samples);
         }
+
+        Map<String, Pair<LiftedExample, List<LogicSample>>> map;
+        if (queries.isParallel() || examples.isParallel()) {
+            if (settings.oneQueryPerExample)
+                return Stream.concat(queries, examples).collect(Collectors.toConcurrentMap(LearningSample::getId, q -> q, SamplesBuilder::merge2samples)).values().stream();
+            map = new ConcurrentHashMap<>();
+        } else {
+            if (settings.oneQueryPerExample)
+                return Stream.concat(queries, examples).collect(Collectors.toMap(LearningSample::getId, q -> q, SamplesBuilder::merge2samples)).values().stream();
+            map = new HashMap<>();
+        }
+        //the remaining 1 example to Many queries solution
+        examples.forEach(ls -> map.put(ls.getId(), new Pair<>(ls.query.evidence, new ArrayList<>())));
+        queries.forEach(ls -> {
+            Pair<LiftedExample, List<LogicSample>> pair = map.get(ls.getId());
+            ls.query.evidence = pair.r;
+            List<LogicSample> qs = pair.s;
+            qs.add(ls);
+        });
+        return map.values().stream().map(pair -> pair.s.stream()).flatMap(f -> f);
     }
 
     /**
      * Combined a separate query (wrapped in LogicSample) and example (wrapped in LogicSample) into a single LogicSample
      * Due to possible parallelism, it is not certain in what order they will come (i.e. q1,q2 are interchangebale)
+     *
      * @param q1
      * @param q2
      * @return
