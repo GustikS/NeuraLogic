@@ -4,6 +4,7 @@ package constructs.example;
 import constructs.Conjunction;
 import grounding.GroundTemplate;
 import learning.Example;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
  * Ground example is simply a collection of facts, potentially separated into conjunctions
  */
 public class GroundExample implements Example {
+    @Nullable
     public LinkedHashSet<Conjunction> conjunctions;
 
     public LinkedHashSet<ValuedFact> flatFacts;

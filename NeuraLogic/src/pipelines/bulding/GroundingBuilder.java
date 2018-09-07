@@ -1,8 +1,10 @@
 package pipelines.bulding;
 
+import constructs.example.LiftedExample;
 import constructs.template.Template;
 import grounding.GroundTemplate;
 import grounding.Grounder;
+import grounding.GroundingSample;
 import ida.utils.tuples.Pair;
 import constructs.example.LogicSample;
 import networks.structure.transforming.CycleBreaking;
@@ -26,83 +28,137 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
         grounder = Grounder.getGrounder(settings);
     }
 
+    /**
+     * For efficient grounding, expects ordered stream where samples with the same example come in sequence.
+     * That should be the case if samples are created by any standard means (SamplesBuilder).
+     * <p>
+     * This is a nasty side-effect Stream misuse, but necessary if we want both:
+     * 1) Streaming, not to hold all samples/groundings in memory
+     * 2) Sharing between samples (side effect) not to ground them independently (to save time and memory)
+     * <p>
+     * A possible solution would be to group examples that require sharing in advance, but that would:
+     * 1) require terminating the stream
+     * 2) or change LogicSample to carry unique LiftedExample instead of QueryAtom, which breaks the idea of the independent LearningSample(s)
+     * 3) maybe custom splititerator could work here...
+     *
+     * @return
+     */
     @Override
     public Pipeline<Pair<Template, Stream<LogicSample>>, Stream<NeuralSample>> buildPipeline() {
         Pipeline<Pair<Template, Stream<LogicSample>>, Stream<NeuralSample>> pipeline = new Pipeline<>("GroundingPipeline");
 
-        Pipe<Pair<Template, Stream<LogicSample>>, Stream<Pair<Template, LogicSample>>> templateReducing;
-        if (settings.supervisedTemplateGraphPruning) {
-            templateReducing = pipeline.registerStart(new Pipe<Pair<Template, Stream<LogicSample>>, Stream<Pair<Template, LogicSample>>>("SupervisedTemplateReducing") {
-                @Override
-                public Stream<Pair<Template, LogicSample>> apply(Pair<Template, Stream<LogicSample>> templateSamples) {
-                    return templateSamples.s.map(sample -> new Pair<>(templateSamples.r.prune(sample.query), sample));
+        Pipe<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> groundingSamples = pipeline.registerStart(new Pipe<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>>("GroundingSamplesStreaming") {
+            @Override
+            public Stream<GroundingSample> apply(Pair<Template, Stream<LogicSample>> templateStreamPair) {
+                if (templateStreamPair.s.isParallel()) {
+                    LOG.warning("Samples come in parallel into grounder already, this may have negative effect on shared grounding."); //can be: https://stackoverflow.com/questions/29216588/how-to-ensure-order-of-processing-in-java8-streams
+                    if (!settings.oneQueryPerExample)
+                        templateStreamPair.s = templateStreamPair.s.sequential();
                 }
-            });
-        } else {
-            templateReducing = pipeline.registerStart(new Pipe<Pair<Template, Stream<LogicSample>>, Stream<Pair<Template, LogicSample>>>("SimpleTemplateSamplePairing") {
-                @Override
-                public Stream<Pair<Template, LogicSample>> apply(Pair<Template, Stream<LogicSample>> templateSamples) {
-                    return templateSamples.s.map(sample -> new Pair<>(templateSamples.r, sample));
-                }
-            });
-        }
+                final GroundingSample.Wrap lastGroundingWrap = new GroundingSample.Wrap(null);
+                templateStreamPair.s.map(sample -> {
+                    GroundingSample groundingSample = new GroundingSample(sample, templateStreamPair.r);
+                    if (sample.query.evidence.equals(lastGroundingWrap.example)) {
+                        groundingSample.grounding = lastGroundingWrap;
+                        groundingSample.groundingComplete = true;
+                    } else {
+                        lastGroundingWrap.example = sample.query.evidence;
+                    }
+                    return groundingSample;
+                });
+                return null;
+            }
+        });
 
-        ConnectAfter<Stream<Pair<Template, LogicSample>>> nextPipe;
+        ConnectAfter<Stream<GroundingSample>> nextPipe;
         if (settings.parallelGrounding) {
-            Pipe<Stream<Pair<Template, LogicSample>>, Stream<Pair<Template, LogicSample>>> parallelPipe = pipeline.register(new Pipe<Stream<Pair<Template, LogicSample>>, Stream<Pair<Template, LogicSample>>>("ParallelizationPipe") { //todo move parallelziation all the way up?
+            Pipe<Stream<GroundingSample>, Stream<GroundingSample>> parallelPipe = pipeline.register(new Pipe<Stream<GroundingSample>, Stream<GroundingSample>>("ParallelizationPipe") {
                 @Override
-                public Stream<Pair<Template, LogicSample>> apply(Stream<Pair<Template, LogicSample>> pairStream) {
+                public Stream<GroundingSample> apply(Stream<GroundingSample> pairStream) {
                     return pairStream.parallel();
                 }
             });
-            templateReducing.connectAfter(parallelPipe);
+            groundingSamples.connectAfter(parallelPipe);
             nextPipe = parallelPipe;
         } else {
-            nextPipe = templateReducing;
+            nextPipe = groundingSamples;
         }
 
-        ConnectAfter<Stream<Pair<LogicSample, GroundTemplate>>> nextPipe0;
-        if (settings.sequentiallySharedGroundings) {    //contradicts parallel grounding - checked in settings
-            Pipe<Stream<Pair<Template, LogicSample>>, Stream<Pair<LogicSample, GroundTemplate>>> groundingPipe = pipeline.register(new Pipe<Stream<Pair<Template, LogicSample>>, Stream<Pair<LogicSample, GroundTemplate>>>("SequentiallySharedGroundingPipe") {
-                GroundTemplate stored = null;
+        ConnectAfter<Stream<GroundingSample>> nextPipe00;
+        if (settings.supervisedTemplateGraphPruning) {
+            Pipe<Stream<GroundingSample>, Stream<GroundingSample>> templateReducing = pipeline.register(new Pipe<Stream<GroundingSample>, Stream<GroundingSample>>("SupervisedTemplateReducing") {
                 @Override
-                public Stream<Pair<LogicSample, GroundTemplate>> apply(Stream<Pair<Template, LogicSample>> pairStream) {
+                public Stream<GroundingSample> apply(Stream<GroundingSample> templateSamples) {
+                    return templateSamples.map(sample -> {
+                        sample.template = sample.template.prune(sample.query);
+                        sample.groundingComplete = false;
+                        return sample;
+                    });
+                }
+            });
+            nextPipe.connectAfter(templateReducing);
+            nextPipe00 = templateReducing;
+        } else {
+            nextPipe00 = nextPipe;
+        }
+
+
+        ConnectAfter<Stream<GroundingSample>> nextPipe0;
+        if (settings.sequentiallySharedGroundings) {    //contradicts parallel grounding - checked in settings
+            Pipe<Stream<GroundingSample>, Stream<GroundingSample>> groundingPipe = pipeline.register(new Pipe<Stream<GroundingSample>, Stream<GroundingSample>>("SequentiallySharedGroundingPipe") {
+                GroundTemplate stored = null;
+
+                @Override
+                public Stream<GroundingSample> apply(Stream<GroundingSample> pairStream) {
                     if (pairStream.isParallel())
                         LOG.severe("Sequential sharing in a parallel grounding stream.");
-                    return pairStream.map(pair -> {
-                        GroundTemplate groundTemplate = grounder.groundRulesAndFacts(pair.s.query.evidence, pair.r, stored);
-                        return new Pair<>(pair.s, groundTemplate);
+                    return pairStream.map(gs -> {
+                        if (gs.grounding.grounding == null || !gs.groundingComplete) {
+                            gs.grounding.grounding = grounder.groundRulesAndFacts(gs.query.evidence, gs.template, stored);  //todo test for case with multiple queries on 1 example with sequential sharing (do we still increment against the last query here?)
+                        }
+                        return gs;
                     });
                 }
             });
             nextPipe.connectAfter(groundingPipe);
             nextPipe0 = groundingPipe;
         } else if (settings.globallySharedGroundings) {
-            Pipe<Stream<Pair<Template, LogicSample>>, Stream<Pair<LogicSample, GroundTemplate>>> groundingPipe = pipeline.register(new Pipe<Stream<Pair<Template, LogicSample>>, Stream<Pair<LogicSample, GroundTemplate>>>("GlobalSharingGroundingPipe") {
+            Pipe<Stream<GroundingSample>, Stream<GroundingSample>> groundingPipe = pipeline.register(new Pipe<Stream<GroundingSample>, Stream<GroundingSample>>("GlobalSharingGroundingPipe") {
                 @Override
-                public Stream<Pair<LogicSample, GroundTemplate>> apply(Stream<Pair<Template, LogicSample>> pairStream) {
+                public Stream<GroundingSample> apply(Stream<GroundingSample> pairStream) {
                     return grounder.globalGround(pairStream);
                 }
             });
             nextPipe.connectAfter(groundingPipe);
             nextPipe0 = groundingPipe;
         } else {
-            Pipe<Stream<Pair<Template, LogicSample>>, Stream<Pair<LogicSample, GroundTemplate>>> groundingPipe = pipeline.register(new Pipe<Stream<Pair<Template, LogicSample>>, Stream<Pair<LogicSample, GroundTemplate>>>("NormalGroundingPipe") {
+            Pipe<Stream<GroundingSample>, Stream<GroundingSample>> groundingPipe = pipeline.register(new Pipe<Stream<GroundingSample>, Stream<GroundingSample>>("NormalGroundingPipe") {
                 @Override
-                public Stream<Pair<LogicSample, GroundTemplate>> apply(Stream<Pair<Template, LogicSample>> pairStream) {
-                    return pairStream.map(pair -> new Pair<>(pair.s, grounder.groundRulesAndFacts(pair.s.query.evidence, pair.r)));
+                public Stream<GroundingSample> apply(Stream<GroundingSample> pairStream) {
+                    return pairStream.map(gs -> {
+                        if (gs.grounding.grounding == null) {
+                            gs.grounding.grounding = grounder.groundRulesAndFacts(gs.query.evidence, gs.template);
+                        } else if (!gs.groundingComplete) {
+                            gs.grounding.grounding = grounder.groundRulesAndFacts(gs.query.evidence, gs.template, gs.grounding.grounding);
+                            return gs;
+                        }
+                        return gs;
+                    });
                 }
             });
             nextPipe.connectAfter(groundingPipe);
             nextPipe0 = groundingPipe;
         }
 
-        ConnectAfter<Stream<Pair<LogicSample, GroundTemplate>>> nextPipe1;
+        ConnectAfter<Stream<GroundingSample>> nextPipe1;
         if (settings.explicitSupervisedGroundTemplatePruning) {
-            Pipe<Stream<Pair<LogicSample, GroundTemplate>>, Stream<Pair<LogicSample, GroundTemplate>>> groundReducingPipe = pipeline.register(new Pipe<Stream<Pair<LogicSample, GroundTemplate>>, Stream<Pair<LogicSample, GroundTemplate>>>("SupervisedGroundReducingPipe") {
+            Pipe<Stream<GroundingSample>, Stream<GroundingSample>> groundReducingPipe = pipeline.register(new Pipe<Stream<GroundingSample>, Stream<GroundingSample>>("SupervisedGroundReducingPipe") {
                 @Override
-                public Stream<Pair<LogicSample, GroundTemplate>> apply(Stream<Pair<LogicSample, GroundTemplate>> pairStream) {
-                    return pairStream.map(p -> new Pair<>(p.r, p.s.prune(p.r.query)));
+                public Stream<GroundingSample> apply(Stream<GroundingSample> pairStream) {
+                    return pairStream.map(p -> {
+                        p.grounding.grounding = p.grounding.grounding.prune(p.query);
+                        return p;
+                    });
                 }
             });
             nextPipe0.connectAfter(groundReducingPipe);
@@ -111,10 +167,10 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
             nextPipe1 = nextPipe0;
         }
 
-        Pipe<Stream<Pair<LogicSample, GroundTemplate>>, Stream<NeuralSample>> neuralizationPipe = new Pipe<Stream<Pair<LogicSample, GroundTemplate>>, Stream<NeuralSample>>("SupervisedNeuralizationPipe") {
+        Pipe<Stream<GroundingSample>, Stream<NeuralSample>> neuralizationPipe = new Pipe<Stream<GroundingSample>, Stream<NeuralSample>>("SupervisedNeuralizationPipe") {
             @Override
-            public Stream<NeuralSample> apply(Stream<Pair<LogicSample, GroundTemplate>> pairStream) {
-                return pairStream.map(pair -> grounder.ground(pair.r, pair.s).stream()).flatMap(f -> f);
+            public Stream<NeuralSample> apply(Stream<GroundingSample> pairStream) {
+                return pairStream.map(pair -> grounder.ground(pair).stream()).flatMap(f -> f);
             }
         };
         nextPipe1.connectAfter(neuralizationPipe);

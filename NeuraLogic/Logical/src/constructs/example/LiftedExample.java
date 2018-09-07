@@ -19,9 +19,6 @@ import java.util.List;
 public class LiftedExample extends GroundExample {
     public LinkedHashSet<WeightedRule> rules;
 
-    @Nullable
-    GroundTemplate groundTemplate; //todo next - propagate this through for shared grounding with parallel shuffling (rather create new Object that encompasses these two in sample)
-
     public LiftedExample() {
     }
 

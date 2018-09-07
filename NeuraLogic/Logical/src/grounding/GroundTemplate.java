@@ -84,24 +84,44 @@ public class GroundTemplate extends GraphTemplate implements Example {
     }
 
 
+    /**
+     * Returns set difference of this GroundTemplate w.r.t. reuse in terms of Rules and Facts,
+     * but takes all the previous neurons from reuse.
+     * @param reuse
+     * @return
+     */
     public GroundTemplate diffAgainst(GroundTemplate reuse) {
+        GroundTemplate diff = new GroundTemplate();
+
+        //1) copy all ground rules into new diff
+        diff.groundRules = new LinkedHashMap<>();
+        for (Map.Entry<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> entry : this.groundRules.entrySet()) {
+            LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>> put = diff.groundRules.put(entry.getKey(), new LinkedHashMap<>());
+            for (Map.Entry<WeightedRule, LinkedHashSet<WeightedRule>> entry2 : entry.getValue().entrySet()) {
+                LinkedHashSet<WeightedRule> put1 = put.put(entry2.getKey(), new LinkedHashSet<>());
+                put1.addAll(entry2.getValue());
+            }
+        }
+        //2) copy all ground facts into new diff
+        diff.groundFacts = new HashMap<>();
+        diff.groundFacts.putAll(this.groundFacts);
 
         for (Map.Entry<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> entry : reuse.groundRules.entrySet()) {
             for (Map.Entry<WeightedRule, LinkedHashSet<WeightedRule>> entry2 : entry.getValue().entrySet()) {
                 for (WeightedRule rule : entry2.getValue()) {
                     //delete pointers to the newly proved rules which are equivalent the the previously proved rules
-                    LinkedHashSet<WeightedRule> rules = this.groundRules.get(entry.getKey()).get(entry2.getKey());
+                    LinkedHashSet<WeightedRule> rules = diff.groundRules.get(entry.getKey()).get(entry2.getKey());
                     rules.remove(rule); //todo change to factory method which tells if new instead and go back to arraylist instead of LinkedHashSet for the groundings?(will be faster?)
                 }
             }
         }
         //also forget newly proved equivalent facts
-        this.groundFacts.keySet().removeAll(reuse.groundFacts.keySet());
+        diff.groundFacts.keySet().removeAll(reuse.groundFacts.keySet());
 
         //but take all the previously created neurons
-        this.neuronMaps.addAllFrom(reuse.neuronMaps);
+        diff.neuronMaps.addAllFrom(reuse.neuronMaps);
 
-        //todo next - return new GroundTempalte as diff
+        return diff;
     }
 
     public GroundTemplate prune(QueryAtom queryAtom) {

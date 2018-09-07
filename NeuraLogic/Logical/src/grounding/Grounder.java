@@ -39,15 +39,15 @@ public abstract class Grounder {
         this.settings = settings;
     }
 
-    public Stream<Pair<LogicSample, GroundTemplate>> globalGround(Stream<Pair<Template, LogicSample>> pairStream) {
+    public Stream<GroundingSample> globalGround(Stream<GroundingSample> pairStream) {
         //todo next - merge all templates and samples into one, then everything analogically to normal grounding of 1 sample
     }
 
-    public List<NeuralSample> ground(LogicSample logicSample, GroundTemplate groundTemplate) {
-        List<QueryNeuron> queryNeurons = ground(logicSample.query, groundTemplate);
+    public List<NeuralSample> ground(GroundingSample groundingSample) {
+        List<QueryNeuron> queryNeurons = ground(groundingSample.query, groundingSample.grounding.grounding);
         List<NeuralSample> samples = new ArrayList<>();
         for (QueryNeuron queryNeuron : queryNeurons) {
-            samples.add(new NeuralSample(logicSample.target, queryNeuron));
+            samples.add(new NeuralSample(groundingSample.target, queryNeuron));
         }
         return samples;
     }
