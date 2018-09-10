@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * To get labeled samples from example file (parsable source)
+ * //todo pridat query-to-multiple examples correspondence?? mozna...(spis ne)
  */
 public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRuleContext>, O> extends LogicSourceBuilder<I, Stream<O>> {
     private static final Logger LOG = Logger.getLogger(SamplesBuilder.class.getName());

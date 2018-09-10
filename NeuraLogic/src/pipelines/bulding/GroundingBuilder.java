@@ -1,6 +1,5 @@
 package pipelines.bulding;
 
-import constructs.example.LiftedExample;
 import constructs.template.Template;
 import grounding.GroundTemplate;
 import grounding.Grounder;
@@ -39,8 +38,9 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
      * A possible solution would be to group examples that require sharing in advance, but that would:
      * 1) require terminating the stream
      * 2) or change LogicSample to carry unique LiftedExample instead of QueryAtom, which breaks the idea of the independent LearningSample(s)
-     * 3) maybe custom splititerator could work here...
+     * 3) maybe custom SplitIterator could work here - todo that's the correct solution without side-effects (at least for sequential processing)
      *
+     * todo check if sequential processing per-element doesnt break the desired side effects (when something gets deleted after sample is processed, but required for the next one) or blow up memory (when each stage with a side effect stores a separate huge Map)
      * @return
      */
     @Override
@@ -101,7 +101,6 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
         } else {
             nextPipe00 = nextPipe;
         }
-
 
         ConnectAfter<Stream<GroundingSample>> nextPipe0;
         if (settings.sequentiallySharedGroundings) {    //contradicts parallel grounding - checked in settings
@@ -204,9 +203,9 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
                 }
             });
         }
-        if (settings.compressNetworks) {
+        if (settings.isoValueCompression) { //todo add branch at the beginning of this pipeline to extract all posible weights (over all samples) from the start template
             NetworkReducing compressor = NetworkReducing.getCompressor(settings);
-            last = pipeline.register(new Pipe<Stream<NeuralSample>, Stream<NeuralSample>>("NetworkCompressingPipe") {
+            last = pipeline.register(new Pipe<Stream<NeuralSample>, Stream<NeuralSample>>("IsoValueCompressionPipe") {
                 @Override
                 public Stream<NeuralSample> apply(Stream<NeuralSample> neuralSampleStream) {
                     return neuralSampleStream.map(net -> {
@@ -216,6 +215,9 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
                 }
             });
             if (first == null) first = last;
+        }
+        if (settings.isoGradientCompression){
+            //todo
         }
         if (settings.cycleBreaking) {
             CycleBreaking breaker = CycleBreaking.getBreaker(settings);
@@ -229,6 +231,9 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
                 }
             });
             if (first == null) first = last;
+        }
+        if (settings.expandEmbeddings){
+            //todo at the very end of all pruning, expand the networks to full size with vectorized nodes
         }
         pipeline.registerStart(first);
         pipeline.registerEnd(last);

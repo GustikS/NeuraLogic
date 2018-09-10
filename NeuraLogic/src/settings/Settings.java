@@ -71,7 +71,9 @@ public class Settings {
      * There is no actual weighting, just pooling, so identity weight
      */
     public double aggNeuronInputWeight = 1.0;
-
+    /**
+     * A whole pipeline of all postprocessing steps
+     */
     public boolean neuralNetsPostProcessing;
     /**
      * Remove recurrent edges from the neural networks
@@ -81,11 +83,18 @@ public class Settings {
      * Remove unnecessary parts from the networks (e.g. linear chains)
      */
     public boolean reduceNetworks;
-
     /**
-     * Similar to reducing but more drastic - catamorphic compression (e.g. iso-value compression)
+     * Bottom-up value based sub-graph isomorphism collapsing (merging)
      */
-    public boolean compressNetworks;
+    public boolean isoValueCompression;
+    /**
+     * Top-down value (gradient) based sub-graph isomorphism collapsing (merging)
+     */
+    public boolean isoGradientCompression;
+    /**
+     * If there are embedding constructs in the Template, expand them (copy-multiple neurons) after Network creation
+     */
+    public boolean expandEmbeddings;
 
     //-----------------Structure Learning
     public boolean structureLearning;
@@ -176,6 +185,10 @@ public class Settings {
     }
 
 
+    /**
+     * Check for banned combinations here
+     * @return
+     */
     public Pair<Boolean, String> validate() {
         boolean valid = true;
         StringBuilder message = new StringBuilder();
@@ -185,11 +198,18 @@ public class Settings {
                 valid = false;
             message.append("Not possible");
         }
+        if (!oneQueryPerExample) {
+            if (explicitSupervisedGroundTemplatePruning)
+                valid = false;
+        }
         //TODO more validation and inference of settings
 
         return new Pair(valid, message);
     }
 
+    /**
+     * Infer all remaining settings from the given
+     */
     public void infer(){
         if (reduceTemplate) graphTemplate = true;
         //TODO

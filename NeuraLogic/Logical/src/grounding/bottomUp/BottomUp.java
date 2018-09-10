@@ -19,7 +19,7 @@ import java.util.logging.Logger;
  * Created by Gusta on 06.10.2016.
  * <p>
  * TODO create a streaming version for single examples?
- * todo add version with continual rule creation instead of final substitutions
+ * todo add the version with continual rule creation instead of final substitutions
  */
 public class BottomUp extends Grounder {
     private static final Logger LOG = Logger.getLogger(BottomUp.class.getName());
@@ -61,6 +61,15 @@ public class BottomUp extends Grounder {
         return groundTemplate;
     }
 
+    /**
+     * Performs incremental grounding over the old GroundTemplate.
+     * Returns GroundTemplate that carries diff w.r.t. ground rules and facts but union w.r.t. neurons.
+     * Updates the old with the union of ground rules and facts.
+     * @param example
+     * @param template
+     * @param old
+     * @return
+     */
     @Override
     public GroundTemplate groundRulesAndFacts(LiftedExample example, Template template, GroundTemplate old) {
         if (old == null) {

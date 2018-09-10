@@ -3,11 +3,16 @@ package networks.structure;
 import ida.utils.tuples.Pair;
 import networks.evaluation.functions.Activation;
 import networks.evaluation.values.Value;
+import networks.structure.metadata.NeuronMetadata;
 
 import java.util.ArrayList;
 
 /**
  * Created by gusta on 8.3.17.
+ *
+ * Solved question - is it better to store inputs (better for iso-value) or outputs (better for iso-gradient) of a neuron?
+ *  - inputs representation is better since it follows the process of calculation more naturally
+ *      - staying with this representation for everything then
  */
 public abstract class Neuron<T> {
     /**
@@ -19,10 +24,12 @@ public abstract class Neuron<T> {
     protected Weight offset;
 
     /**
-     * We want fast iteration over inputs
+     * We want fast iteration over inputs -> array
      */
     protected ArrayList<Pair<T, Weight>> inputs;
     protected Activation activation;
+
+    NeuronMetadata metadata;
 
     public Neuron(String id){
         this.id = id;

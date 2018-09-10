@@ -3,13 +3,12 @@ package networks.structure;
 import learning.Example;
 import networks.structure.lrnnTypes.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by gusta on 8.3.17.
+ *
+ * //todo after creation and post-processing, add a transformation to a more optimized version (everything based on int, maybe even precompute layers, remove recursion)
  */
 public class NeuralNetwork implements Example {
     String id;
@@ -18,6 +17,11 @@ public class NeuralNetwork implements Example {
 
     List<Neuron> roots;
     List<Neuron> leaves;
+
+    /**
+     * Locally valid input overloading for some neurons to facilitate dynamic structure changes
+     */
+    public Map<Neuron, ArrayList<Neuron>> inputMapping;
 
     public class Neurons {
         /**

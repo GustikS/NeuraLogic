@@ -27,7 +27,7 @@ public class GroundingSample extends LogicSample {
     }
 
     /**
-     * todo add synchronized access to grounding and example
+     * todo add synchronized access to grounding and example (or remove it)
      */
     public static class Wrap {
 

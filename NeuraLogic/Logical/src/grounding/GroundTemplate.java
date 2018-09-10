@@ -10,6 +10,7 @@ import ida.ilp.logic.Literal;
 import ida.ilp.logic.subsumption.Matching;
 import learning.Example;
 import networks.structure.NeuralNetwork;
+import networks.structure.Neuron;
 import networks.structure.lrnnTypes.AggregationNeuron;
 import networks.structure.lrnnTypes.AtomNeuron;
 import networks.structure.lrnnTypes.FactNeuron;
@@ -38,6 +39,12 @@ public class GroundTemplate extends GraphTemplate implements Example {
     public Map<Literal, ValuedFact> groundFacts;
 
     public NeuronMaps neuronMaps;
+
+    /**
+     * Locally valid input overloading for some neurons to facilitate dynamic structure changes
+     */
+    @Nullable
+    public Map<Neuron, ArrayList<Neuron>> inputMapping;
 
     public static class NeuronMaps {
         Map<Literal, AtomNeuron> atomNeurons = new HashMap<>();
@@ -106,12 +113,13 @@ public class GroundTemplate extends GraphTemplate implements Example {
         diff.groundFacts = new HashMap<>();
         diff.groundFacts.putAll(this.groundFacts);
 
+        //forget repetitive ground rules
         for (Map.Entry<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> entry : reuse.groundRules.entrySet()) {
             for (Map.Entry<WeightedRule, LinkedHashSet<WeightedRule>> entry2 : entry.getValue().entrySet()) {
                 for (WeightedRule rule : entry2.getValue()) {
                     //delete pointers to the newly proved rules which are equivalent the the previously proved rules
                     LinkedHashSet<WeightedRule> rules = diff.groundRules.get(entry.getKey()).get(entry2.getKey());
-                    rules.remove(rule); //todo change to factory method which tells if new instead and go back to arraylist instead of LinkedHashSet for the groundings?(will be faster?)
+                    rules.remove(rule); //todo change to factory method which tells if new instead and go back to arraylist instead of LinkedHashSet for the groundings??(will be faster?)
                 }
             }
         }
