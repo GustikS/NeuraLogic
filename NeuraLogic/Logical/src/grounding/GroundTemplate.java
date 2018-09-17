@@ -8,9 +8,11 @@ import constructs.template.templates.GraphTemplate;
 import ida.ilp.logic.Clause;
 import ida.ilp.logic.Literal;
 import ida.ilp.logic.subsumption.Matching;
+import ida.utils.tuples.Pair;
 import learning.Example;
 import networks.structure.NeuralNetwork;
 import networks.structure.Neuron;
+import networks.structure.Weight;
 import networks.structure.lrnnTypes.AggregationNeuron;
 import networks.structure.lrnnTypes.AtomNeuron;
 import networks.structure.lrnnTypes.FactNeuron;
@@ -30,7 +32,7 @@ public class GroundTemplate extends GraphTemplate implements Example {
      * Temp (for current pair of Template+Example) structure (head -> rules -> ground bodies) for traversing the graph of groundings
      */
     @NotNull
-    public LinkedHashMap<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> groundRules;
+    public LinkedHashMap<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> groundRules;    //todo optimize access by further aggregating literals with the same predicate for subsumption testing?
 
     /**
      * Temp (for current pair of Template+Example) set of true ground facts
@@ -40,23 +42,25 @@ public class GroundTemplate extends GraphTemplate implements Example {
 
     public NeuronMaps neuronMaps;
 
-    /**
-     * Locally valid input overloading for some neurons to facilitate dynamic structure changes
-     */
-    @Nullable
-    public Map<Neuron, ArrayList<Neuron>> inputMapping;
-
     public static class NeuronMaps {
         Map<Literal, AtomNeuron> atomNeurons = new HashMap<>();
         Map<WeightedRule, AggregationNeuron> aggNeurons = new HashMap<>();
         Map<WeightedRule, RuleNeuron> ruleNeurons = new LinkedHashMap<>();
         Map<Literal, FactNeuron> factNeurons = new HashMap<>();
 
+        /**
+         * Locally valid input overloading for some neurons to facilitate dynamic structure changes
+         */
+        @Nullable
+        public Map<Neuron, ArrayList<Pair<Neuron, Weight>>> extraInputMapping;
+
         public void addAllFrom(NeuronMaps neuronMaps) {
             atomNeurons.putAll(neuronMaps.atomNeurons);
             aggNeurons.putAll(neuronMaps.aggNeurons);
             ruleNeurons.putAll(neuronMaps.ruleNeurons);
             factNeurons.putAll(neuronMaps.factNeurons);
+
+            extraInputMapping.putAll(neuronMaps.extraInputMapping);
         }
     }
 
@@ -92,12 +96,12 @@ public class GroundTemplate extends GraphTemplate implements Example {
 
 
     /**
-     * Returns set difference of this GroundTemplate w.r.t. reuse in terms of Rules and Facts,
-     * but takes all the previous neurons from reuse.
-     * @param reuse
+     * Returns set difference of this GroundTemplate w.r.t. memory in terms of Rules and Facts,
+     * but takes all the previous neurons from memory.
+     * @param memory
      * @return
      */
-    public GroundTemplate diffAgainst(GroundTemplate reuse) {
+    public GroundTemplate diffAgainst(GroundTemplate memory) {
         GroundTemplate diff = new GroundTemplate();
 
         //1) copy all ground rules into new diff
@@ -114,7 +118,7 @@ public class GroundTemplate extends GraphTemplate implements Example {
         diff.groundFacts.putAll(this.groundFacts);
 
         //forget repetitive ground rules
-        for (Map.Entry<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> entry : reuse.groundRules.entrySet()) {
+        for (Map.Entry<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> entry : memory.groundRules.entrySet()) {
             for (Map.Entry<WeightedRule, LinkedHashSet<WeightedRule>> entry2 : entry.getValue().entrySet()) {
                 for (WeightedRule rule : entry2.getValue()) {
                     //delete pointers to the newly proved rules which are equivalent the the previously proved rules
@@ -124,10 +128,10 @@ public class GroundTemplate extends GraphTemplate implements Example {
             }
         }
         //also forget newly proved equivalent facts
-        diff.groundFacts.keySet().removeAll(reuse.groundFacts.keySet());
+        diff.groundFacts.keySet().removeAll(memory.groundFacts.keySet());
 
         //but take all the previously created neurons
-        diff.neuronMaps.addAllFrom(reuse.neuronMaps);
+        diff.neuronMaps.addAllFrom(memory.neuronMaps);
 
         return diff;
     }

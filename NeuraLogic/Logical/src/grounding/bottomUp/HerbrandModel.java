@@ -117,6 +117,13 @@ public class HerbrandModel {
         return groundRules(liftedRule, liftedRule.toHornClause());
     }
 
+    /**
+     * todo kill permutations of body literals here - return only truly unique ground rules?
+     *  - but careful for conjunction weights - aggregate them? must not be shared - same problem in Grounder merging different WeightedRules with same hornClauses
+     * @param liftedRule
+     * @param hc
+     * @return
+     */
     public List<WeightedRule> groundRules(WeightedRule liftedRule, HornClause hc) {
         List<WeightedRule> weightedRules = new ArrayList<>();
         Pair<Term[], List<Term[]>> substitutions = groundingSubstitutions(hc);

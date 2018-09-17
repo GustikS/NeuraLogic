@@ -108,4 +108,13 @@ public class Template implements Model<QueryAtom> {
         LOG.warning("Inefficient template pruning");
         return new GraphTemplate(this).prune(query);
     }
+
+    public void addAllFrom(Template template) {
+        if (template == this){
+            return;
+        }
+        rules.addAll(template.rules);
+        facts.addAll(template.facts);
+        constraints.addAll(template.constraints);
+    }
 }

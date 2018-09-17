@@ -2,7 +2,6 @@ package constructs.example;
 
 
 import constructs.Conjunction;
-import grounding.GroundTemplate;
 import learning.Example;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,5 +35,10 @@ public class GroundExample implements Example {
     @Override
     public Integer getSize() {
         return null;
+    }
+
+    public void addAllFrom(@Nullable GroundExample evidence) {
+        conjunctions.addAll(evidence.conjunctions);
+        flatFacts.addAll(evidence.flatFacts);
     }
 }

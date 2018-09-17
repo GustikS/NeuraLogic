@@ -2,13 +2,7 @@ package grounding;
 
 import constructs.example.LiftedExample;
 import constructs.example.LogicSample;
-import constructs.example.QueryAtom;
 import constructs.template.Template;
-import ida.utils.tuples.Pair;
-import learning.Example;
-import learning.LearningSample;
-import learning.Query;
-import networks.evaluation.values.Value;
 
 public class GroundingSample extends LogicSample {
 
@@ -27,16 +21,39 @@ public class GroundingSample extends LogicSample {
     }
 
     /**
-     * todo add synchronized access to grounding and example (or remove it)
+     * Helper subclass for keeping references to existing GroundTemplate that may be shared between different GroundingSamples based on common LiftedExample
      */
     public static class Wrap {
 
         public Wrap(LiftedExample example) {
+            this.setExample(example);
+        }
+
+        /**
+         * Duplicate reference (to GroundingSample.Query.Evidence) but with synchronized access
+         */
+        private LiftedExample example;
+        private GroundTemplate grounding;
+
+        public synchronized LiftedExample getExample() {
+            return example;
+        }
+
+        /**
+         * Shared example in this wrap may be accessed by multiple Threads
+         * @param example
+         */
+        public synchronized void setExample(LiftedExample example) {
             this.example = example;
         }
 
-        public LiftedExample example;
-        public GroundTemplate grounding;
+        public synchronized GroundTemplate getGrounding() {
+            return grounding;
+        }
+
+        public synchronized void setGrounding(GroundTemplate grounding) {
+            this.grounding = grounding;
+        }
     }
 
 }

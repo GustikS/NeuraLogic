@@ -76,13 +76,17 @@ public class Settings {
      */
     public boolean neuralNetsPostProcessing;
     /**
+     * Copy out neurons fully instead of input over-mappings
+     */
+    public boolean removeInputOvermapping;
+    /**
      * Remove recurrent edges from the neural networks
      */
     public boolean cycleBreaking;
     /**
      * Remove unnecessary parts from the networks (e.g. linear chains)
      */
-    public boolean reduceNetworks;
+    public boolean pruneNetworks;
     /**
      * Bottom-up value based sub-graph isomorphism collapsing (merging)
      */

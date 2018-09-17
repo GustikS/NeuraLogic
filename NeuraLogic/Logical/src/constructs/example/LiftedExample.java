@@ -2,8 +2,6 @@ package constructs.example;
 
 import constructs.Conjunction;
 import constructs.template.WeightedRule;
-import grounding.GroundTemplate;
-import networks.structure.NeuralNetwork;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashSet;
@@ -28,4 +26,10 @@ public class LiftedExample extends GroundExample {
         rules.addAll(irules);
 
     }
+
+    public void addAllFrom(@Nullable LiftedExample evidence) {
+        super.addAllFrom(evidence);
+        rules.addAll(evidence.rules);
+    }
+
 }

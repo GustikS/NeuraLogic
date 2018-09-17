@@ -42,7 +42,7 @@ public class BottomUp extends Grounder {
         Set<Literal> facts = groundFacts.keySet();
         // add already inferred facts as a hack to speedup the Herbrand model calculation
         if (settings.inferTemplateFacts)
-            facts = template.getAllFacts();
+            facts.addAll(template.getAllFacts());
 
         herbrandModel.inferModel(ruleMap.keySet(), facts);
 
@@ -62,24 +62,24 @@ public class BottomUp extends Grounder {
     }
 
     /**
-     * Performs incremental grounding over the old GroundTemplate.
+     * Performs incremental grounding over the memory GroundTemplate.
      * Returns GroundTemplate that carries diff w.r.t. ground rules and facts but union w.r.t. neurons.
-     * Updates the old with the union of ground rules and facts.
+     * Updates the memory with the union of ground rules and facts.
      * @param example
      * @param template
-     * @param old
+     * @param memory
      * @return
      */
     @Override
-    public GroundTemplate groundRulesAndFacts(LiftedExample example, Template template, GroundTemplate old) {
-        if (old == null) {
-            old = new GroundTemplate();
+    public GroundTemplate groundRulesAndFacts(LiftedExample example, Template template, GroundTemplate memory) {
+        if (memory == null) {
+            memory = new GroundTemplate();
         }
-        herbrandModel.populateHerbrand(old.groundFacts.keySet());
+        herbrandModel.populateHerbrand(memory.groundFacts.keySet());
         GroundTemplate bigger = groundRulesAndFacts(example, template);
-        GroundTemplate diff = bigger.diffAgainst(old);
-        old.groundRules = bigger.groundRules;
-        old.groundFacts = bigger.groundFacts;
+        GroundTemplate diff = bigger.diffAgainst(memory);
+        memory.groundRules = bigger.groundRules;
+        memory.groundFacts = bigger.groundFacts;
         return diff;
     }
 }
