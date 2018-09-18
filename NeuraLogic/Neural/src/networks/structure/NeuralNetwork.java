@@ -3,28 +3,33 @@ package networks.structure;
 import ida.utils.tuples.Pair;
 import learning.Example;
 import networks.structure.lrnnTypes.*;
+import networks.structure.metadata.InputMapping;
+import networks.structure.metadata.NetworkMetadata;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 /**
  * Created by gusta on 8.3.17.
- *
+ * <p>
  * //todo after creation and post-processing, add a transformation to a more optimized version (everything based on int, maybe even precompute layers, remove recursion)
  */
 public class NeuralNetwork implements Example {
     String id;
 
-    Neurons neurons;    //todo heavy object, cosider removing after calculation (push this out in a separate NeuralNet classes with different optimizations)
+    Neurons neurons;    //todo heavy object, consider removing after calculation (push this out in a separate NeuralNet classes with different optimizations)
 
     /**
      * Locally valid input overloading for some neurons to facilitate dynamic structure changes
      */
-    public @Nullable Map<Neuron, ArrayList<Pair<Neuron, Weight>>> extraInputMapping;
+    public @Nullable Map<Neuron, InputMapping> extraInputMapping;
+
+    @Nullable
+    NetworkMetadata metadata;
 
     public class Neurons {
         /**
-         * All neurons combined in TOPOLOGICAL ORDERING. <- todo
+         * All neurons combined in TOPOLOGICAL ORDERING.
          */
         List<Neuron> allNeuronsTopologic;
 
@@ -39,19 +44,23 @@ public class NeuralNetwork implements Example {
     }
 
     public NeuralNetwork(Collection<AtomNeuron> atomNeurons, Collection<AggregationNeuron> aggregationNeurons, Collection<RuleNeuron> ruleNeurons, Collection<FactNeuron> factNeurons, Set<NegationNeuron> negationNeurons) {
-        this.neurons.allNeuronsTopologic = new ArrayList<>(atomNeurons.size() + aggregationNeurons.size() + ruleNeurons.size() + factNeurons.size() + negationNeurons.size());
-
         this.neurons.atomNeurons.addAll(atomNeurons);
         this.neurons.aggNeurons.addAll(aggregationNeurons);
         this.neurons.ruleNeurons.addAll(ruleNeurons);
         this.neurons.factNeurons.addAll(factNeurons);
         this.neurons.negationNeurons.addAll(negationNeurons);
 
-        this.neurons.allNeuronsTopologic.addAll(atomNeurons);
-        this.neurons.allNeuronsTopologic.addAll(aggregationNeurons);
-        this.neurons.allNeuronsTopologic.addAll(ruleNeurons);
-        this.neurons.allNeuronsTopologic.addAll(factNeurons);
-        this.neurons.allNeuronsTopologic.addAll(negationNeurons);
+        List<Neuron> allNeurons = new ArrayList<>(atomNeurons.size() + aggregationNeurons.size() + ruleNeurons.size() + factNeurons.size() + negationNeurons.size());
+        allNeurons.addAll(atomNeurons);
+        allNeurons.addAll(aggregationNeurons);
+        allNeurons.addAll(ruleNeurons);
+        allNeurons.addAll(factNeurons);
+        allNeurons.addAll(negationNeurons);
+        this.neurons.allNeuronsTopologic = topologicSort(allNeurons);
+    }
+
+    private List<Neuron> topologicSort(List<Neuron> allNeurons) {
+        //TODO next
     }
 
     boolean isRecursive() {
@@ -70,5 +79,12 @@ public class NeuralNetwork implements Example {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    Iterator<Pair<Neuron, Weight>> inputsIterator(Neuron neuron) {
+        InputMapping inputMapping;
+        if ((inputMapping = extraInputMapping.get(neuron)) != null){
+            //TODO NEXT
+        }
     }
 }

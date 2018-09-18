@@ -49,6 +49,9 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
 
         ConnectAfter<Stream<NeuralSample>> nextPipe = neuralizationPipe;
 
+        if (settings.neuralNetsSupervisedPruning){
+            //todo
+        }
         if (settings.removeInputOvermapping){
             //todo next - remove maps by recursive copying (here?)
         }

@@ -8,15 +8,14 @@ import constructs.template.templates.GraphTemplate;
 import ida.ilp.logic.Clause;
 import ida.ilp.logic.Literal;
 import ida.ilp.logic.subsumption.Matching;
-import ida.utils.tuples.Pair;
 import learning.Example;
 import networks.structure.NeuralNetwork;
 import networks.structure.Neuron;
-import networks.structure.Weight;
 import networks.structure.lrnnTypes.AggregationNeuron;
 import networks.structure.lrnnTypes.AtomNeuron;
 import networks.structure.lrnnTypes.FactNeuron;
 import networks.structure.lrnnTypes.RuleNeuron;
+import networks.structure.metadata.LinkedInputMapping;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,7 +51,7 @@ public class GroundTemplate extends GraphTemplate implements Example {
          * Locally valid input overloading for some neurons to facilitate dynamic structure changes
          */
         @Nullable
-        public Map<Neuron, ArrayList<Pair<Neuron, Weight>>> extraInputMapping;
+        public Map<Neuron, LinkedInputMapping> extraInputMapping = new HashMap<>();
 
         public void addAllFrom(NeuronMaps neuronMaps) {
             atomNeurons.putAll(neuronMaps.atomNeurons);

@@ -6,6 +6,7 @@ import networks.evaluation.values.Value;
 import networks.structure.metadata.NeuronMetadata;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by gusta on 8.3.17.
@@ -14,9 +15,9 @@ import java.util.ArrayList;
  *  - inputs representation is better since it follows the process of calculation more naturally
  *      - staying with this representation for everything then
  */
-public abstract class Neuron<T> {
+public abstract class Neuron<T extends Neuron> {
     /**
-     * Unique id within a network - todo consider int
+     * Unique id within a network
      */
     protected String id;
 
@@ -68,5 +69,9 @@ public abstract class Neuron<T> {
 
     public int inputCount() {
         return inputs.size();
+    }
+
+    public List<Pair<T, Weight>> getInputs() {
+        return inputs;
     }
 }

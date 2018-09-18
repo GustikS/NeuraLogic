@@ -17,7 +17,7 @@ public class Gringo extends Grounder {
     }
 
     @Override
-    public GroundTemplate groundRulesAndFacts(LiftedExample example, Template template, GroundTemplate reuse) {
+    public GroundTemplate groundRulesAndFacts(LiftedExample example, Template template, GroundTemplate memory) {
         return null;
     }
 }

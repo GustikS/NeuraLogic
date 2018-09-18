@@ -76,6 +76,10 @@ public class Settings {
      */
     public boolean neuralNetsPostProcessing;
     /**
+     * Remove everything outside QueryNeuron's support (can appear if network have shared parts)
+     */
+    public boolean neuralNetsSupervisedPruning;
+    /**
      * Copy out neurons fully instead of input over-mappings
      */
     public boolean removeInputOvermapping;
@@ -148,7 +152,7 @@ public class Settings {
      */
     public boolean reduceTemplate = true;
     /**
-     * If the template contains facts, infer all other possible true facts as a preprocessing step (to save time inferring the same things over and over later)
+     * If the template contains facts, infer all other possible true facts as a preprocessing step (to save some time inferring the same things over and over later)
      */
     public boolean inferTemplateFacts = true;
     /**
