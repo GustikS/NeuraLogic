@@ -7,5 +7,7 @@ import java.util.Map;
 
 public class NetworkMetadata {
 
-    public @Nullable Map<Neuron, InputMapping> extraOutputMapping;
+    public Map<Neuron, Integer> parentsCount;
+
+    public Map<Neuron, Double> cumulatedGradient;
 }

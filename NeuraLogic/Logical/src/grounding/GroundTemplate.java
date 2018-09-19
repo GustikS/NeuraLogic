@@ -15,7 +15,7 @@ import networks.structure.lrnnTypes.AggregationNeuron;
 import networks.structure.lrnnTypes.AtomNeuron;
 import networks.structure.lrnnTypes.FactNeuron;
 import networks.structure.lrnnTypes.RuleNeuron;
-import networks.structure.metadata.LinkedInputMapping;
+import networks.structure.metadata.LinkedNeuronMapping;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,7 +51,7 @@ public class GroundTemplate extends GraphTemplate implements Example {
          * Locally valid input overloading for some neurons to facilitate dynamic structure changes
          */
         @Nullable
-        public Map<Neuron, LinkedInputMapping> extraInputMapping = new HashMap<>();
+        public Map<Neuron, LinkedNeuronMapping> extraInputMapping = new HashMap<>();
 
         public void addAllFrom(NeuronMaps neuronMaps) {
             atomNeurons.putAll(neuronMaps.atomNeurons);

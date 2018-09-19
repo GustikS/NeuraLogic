@@ -2,25 +2,23 @@ package networks.structure;
 
 import ida.utils.tuples.Pair;
 import networks.evaluation.functions.Activation;
-import networks.evaluation.values.Value;
-import networks.structure.metadata.NeuronMetadata;
+import networks.structure.lrnnTypes.Neural;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by gusta on 8.3.17.
- *
+ * <p>
  * Solved question - is it better to store inputs (better for iso-value) or outputs (better for iso-gradient) of a neuron?
- *  - inputs representation is better since it follows the process of calculation more naturally
- *      - staying with this representation for everything then
+ * - inputs representation is better since it follows the process of calculation more naturally
+ * - staying with this representation for everything then
  */
-public abstract class Neuron<T extends Neuron> {
+public abstract class Neuron<T extends Neural> implements Neural {
     /**
      * Unique id within a network
      */
     protected String id;
-
 
     protected Weight offset;
 
@@ -30,24 +28,10 @@ public abstract class Neuron<T extends Neuron> {
     protected ArrayList<Pair<T, Weight>> inputs;
     protected Activation activation;
 
-    NeuronMetadata metadata;
-
-    public Neuron(String id){
+    public Neuron(String id) {
         this.id = id;
         inputs = new ArrayList<>();
     }
-
-    /**
-     * Forward pass
-     * @return
-     */
-    public abstract Value evaluate();
-
-    /**
-     * Backward pass
-     * @return
-     */
-    public abstract Value gradient();
 
     @Override
     public int hashCode() {
@@ -59,8 +43,8 @@ public abstract class Neuron<T extends Neuron> {
         return super.equals(obj);   //TODO use id
     }
 
-    public void addInput(T input, Weight weight){
-        inputs.add(new Pair<>(input,weight));
+    public void addInput(T input, Weight weight) {
+        inputs.add(new Pair<>(input, weight));
     }
 
     public boolean hasInputs() {

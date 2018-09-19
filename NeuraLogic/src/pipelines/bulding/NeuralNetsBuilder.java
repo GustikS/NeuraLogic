@@ -2,6 +2,7 @@ package pipelines.bulding;
 
 import grounding.Grounder;
 import grounding.GroundingSample;
+import networks.structure.NeuralProcessingSample;
 import networks.structure.transforming.CycleBreaking;
 import networks.structure.transforming.NetworkReducing;
 import pipelines.ConnectAfter;
@@ -27,41 +28,57 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
         this.grounder = grounder;
     }
 
-    /**
-     *
-     *
-     * @return
-     */
     public Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> buildPipeline() {
-        Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> pipeline = new Pipeline<Stream<GroundingSample>, Stream<NeuralSample>>("NeuralNetsPostprocessing");
+        Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> pipeline = new Pipeline<Stream<GroundingSample>, Stream<NeuralSample>>("NeuralNetsCreation");
 
-        Pipe<Stream<GroundingSample>, Stream<NeuralSample>> neuralizationPipe = pipeline.registerStart(new Pipe<Stream<GroundingSample>, Stream<NeuralSample>>("SupervisedNeuralizationPipe") {
+        Pipe<Stream<GroundingSample>, Stream<NeuralProcessingSample>> neuralizationPipe = pipeline.registerStart(new Pipe<Stream<GroundingSample>, Stream<NeuralProcessingSample>>("SupervisedNeuralizationPipe") {
             @Override
-            public Stream<NeuralSample> apply(Stream<GroundingSample> pairStream) {
+            public Stream<NeuralProcessingSample> apply(Stream<GroundingSample> pairStream) {
                 return pairStream.map(pair -> grounder.neuralize(pair).stream()).flatMap(f -> f);
             }
         });
 
-        if (!settings.neuralNetsPostProcessing) {
-            pipeline.registerEnd(neuralizationPipe);
-            return pipeline;
+        ConnectAfter<Stream<NeuralProcessingSample>> nextPipe = neuralizationPipe;
+        if (settings.neuralNetsPostProcessing) {
+            Pipeline<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> postprocessingPipeline = buildProcessingPipeline();
+            nextPipe.connectAfter(postprocessingPipeline);
+            nextPipe = postprocessingPipeline;
+        } else {
+            LOG.info("Warning - skipping all neural optimization steps!");
         }
 
-        ConnectAfter<Stream<NeuralSample>> nextPipe = neuralizationPipe;
+        Pipe<Stream<NeuralProcessingSample>, Stream<NeuralSample>> cutoffPipe = pipeline.registerEnd(new Pipe<Stream<NeuralProcessingSample>, Stream<NeuralSample>>("ReleaseMemoryPipe") {
+            @Override
+            public Stream<NeuralSample> apply(Stream<NeuralProcessingSample> neuralProcessingSampleStream) {
+                return neuralProcessingSampleStream.map(s -> new NeuralSample(s.target, s.query));
+            }
+        });
 
-        if (settings.neuralNetsSupervisedPruning){
+        return pipeline;
+    }
+
+    /**
+     * @return
+     */
+    public Pipeline<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> buildProcessingPipeline() {
+        Pipeline<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> pipeline = new Pipeline<>("NeuralNetsPostprocessing");
+
+        ConnectAfter<Stream<NeuralProcessingSample>> nextPipe = null;
+
+        if (settings.neuralNetsSupervisedPruning) {
             //todo
         }
-        if (settings.removeInputOvermapping){
+
+        if (settings.copyOutInputOvermapping) {
             //todo next - remove maps by recursive copying (here?)
         }
 
         if (settings.pruneNetworks) {
             NetworkReducing reducer = NetworkReducing.getReducer(settings);
-            Pipe<Stream<NeuralSample>, Stream<NeuralSample>> pruningPipe = pipeline.registerEnd(new Pipe<Stream<NeuralSample>, Stream<NeuralSample>>("NetworkPruningPipe") {
+            Pipe<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> pruningPipe = pipeline.registerEnd(new Pipe<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>>("NetworkPruningPipe") {
                 @Override
-                public Stream<NeuralSample> apply(Stream<NeuralSample> neuralSampleStream) {
-                    return neuralSampleStream.map(net -> {
+                public Stream<NeuralProcessingSample> apply(Stream<NeuralProcessingSample> NeuralProcessingSampleStream) {
+                    return NeuralProcessingSampleStream.map(net -> {
                         net.query.evidence = reducer.reduce(net.query.evidence);
                         return net;
                     });
@@ -72,10 +89,10 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
         }
         if (settings.isoValueCompression) { //todo add branch at the beginning of this pipeline to extract all posible weights (over all samples) from the start template
             NetworkReducing compressor = NetworkReducing.getCompressor(settings);
-            Pipe<Stream<NeuralSample>, Stream<NeuralSample>> isoValuePipe = pipeline.registerEnd(new Pipe<Stream<NeuralSample>, Stream<NeuralSample>>("IsoValueCompressionPipe") {
+            Pipe<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> isoValuePipe = pipeline.registerEnd(new Pipe<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>>("IsoValueCompressionPipe") {
                 @Override
-                public Stream<NeuralSample> apply(Stream<NeuralSample> neuralSampleStream) {
-                    return neuralSampleStream.map(net -> {
+                public Stream<NeuralProcessingSample> apply(Stream<NeuralProcessingSample> NeuralProcessingSampleStream) {
+                    return NeuralProcessingSampleStream.map(net -> {
                         net.query.evidence = compressor.reduce(net.query.evidence);
                         return net;
                     });
@@ -90,9 +107,9 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
         }
         if (settings.cycleBreaking) {
             CycleBreaking breaker = CycleBreaking.getBreaker(settings);
-            Pipe<Stream<NeuralSample>, Stream<NeuralSample>> pipe = pipeline.registerEnd(new Pipe<Stream<NeuralSample>, Stream<NeuralSample>>("CycleBreakingPipe") {
+            Pipe<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> pipe = pipeline.registerEnd(new Pipe<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>>("CycleBreakingPipe") {
                 @Override
-                public Stream<NeuralSample> apply(Stream<NeuralSample> neuralSampleStream) {
+                public Stream<NeuralProcessingSample> apply(Stream<NeuralProcessingSample> neuralSampleStream) {
                     return neuralSampleStream.map(net -> {
                         net.query.evidence = breaker.breakCycles(net.query.evidence);
                         return net;
@@ -102,6 +119,15 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
             nextPipe.connectAfter(pipe);
             nextPipe = pipe;
         }
+
+        if (settings.collapseActivations) {
+
+        }
+
+        if (settings.collapseWeights) {
+
+        }
+
         if (settings.expandEmbeddings) {
             //todo at the very end of all pruning, expand the networks to full size with vectorized nodes
         }

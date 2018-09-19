@@ -10,18 +10,25 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class LinkedInputMapping<T extends Neuron> implements InputMapping<T> {
-    private static final Logger LOG = Logger.getLogger(LinkedInputMapping.class.getName());
+public class LinkedNeuronMapping<T extends Neuron> implements NeuronMapping<T> {
+    private static final Logger LOG = Logger.getLogger(LinkedNeuronMapping.class.getName());
 
     List<Pair<T, Weight>> inputs;
-    public LinkedInputMapping<T> previous;
+    public LinkedNeuronMapping<T> previous;
 
-    public LinkedInputMapping(List<Pair<T, Weight>> inputs) {
-        this.inputs = new ArrayList<>(inputs);
+    public LinkedNeuronMapping(List<Pair<T, Weight>> inputs) {
+        this.previous = new LinkedNeuronMapping<>();
+        this.previous.inputs = new ArrayList<>(inputs);
+        this.inputs = new ArrayList<>();
     }
 
-    public LinkedInputMapping(LinkedInputMapping<T> previous) {
+    public LinkedNeuronMapping(LinkedNeuronMapping<T> previous) {
         this.previous = previous;
+        this.inputs = new ArrayList<>();
+    }
+
+    public LinkedNeuronMapping() {
+        this.inputs = new ArrayList<>();
     }
 
     @NotNull
@@ -31,16 +38,16 @@ public class LinkedInputMapping<T extends Neuron> implements InputMapping<T> {
     }
 
     @Override
-    public void addInput(Pair<T, Weight> input) {
+    public void addLink(Pair<T, Weight> input) {
         inputs.add(input);
     }
 
-    public class InputIterator<T extends Neuron> implements Iterator<Pair<T, Weight>> {
+    private class InputIterator<T extends Neuron> implements Iterator<Pair<T, Weight>> {
 
-        LinkedInputMapping<T> actual;
+        LinkedNeuronMapping<T> actual;
         int current;
 
-        public InputIterator(LinkedInputMapping<T> inputMapping) {
+        public InputIterator(LinkedNeuronMapping<T> inputMapping) {
             this.actual = inputMapping;
             this.current = actual.inputs.size() - 1;
         }

@@ -1,19 +1,13 @@
 package networks.structure.lrnnTypes;
 
-import networks.evaluation.values.Value;
 import networks.structure.Weight;
 
 /**
- * Useless interface, duplicate for Neron - needed as just a formal grouping for Atom and Fact neurons (which are pretty much the same)
- * todo - move to separate super-interface common to Neuron and this
+ * For now a useless interface, just a formal grouping for Atom and Fact neurons.
  */
-public interface AtomFact {
-
-    Value evaluate();
+public interface AtomFact extends Neural {
 
     Weight getOffset();
-
-    Value gradient();
 
     String getId();
 }

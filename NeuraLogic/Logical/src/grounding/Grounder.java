@@ -15,12 +15,13 @@ import ida.ilp.logic.subsumption.Matching;
 import ida.utils.tuples.Pair;
 import networks.evaluation.values.ScalarValue;
 import networks.structure.NeuralNetwork;
+import networks.structure.NeuralProcessingSample;
 import networks.structure.Weight;
 import networks.structure.lrnnTypes.*;
-import networks.structure.metadata.LinkedInputMapping;
+import networks.structure.metadata.LinkedNeuronMapping;
+import networks.structure.networks.DetailedNetwork;
 import org.jetbrains.annotations.NotNull;
 import settings.Settings;
-import training.NeuralSample;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -38,11 +39,11 @@ public abstract class Grounder {
         this.settings = settings;
     }
 
-    public List<NeuralSample> neuralize(GroundingSample groundingSample) {
+    public List<NeuralProcessingSample> neuralize(GroundingSample groundingSample) {
         List<QueryNeuron> queryNeurons = neuralize(groundingSample.query, groundingSample.grounding.getGrounding());
-        List<NeuralSample> samples = new ArrayList<>();
+        List<NeuralProcessingSample> samples = new ArrayList<>();
         for (QueryNeuron queryNeuron : queryNeurons) {
-            samples.add(new NeuralSample(groundingSample.target, queryNeuron));
+            samples.add(new NeuralProcessingSample(groundingSample.target, queryNeuron));
         }
         return samples;
     }
@@ -240,8 +241,9 @@ public abstract class Grounder {
 
 
     /**
-     * TODO ERROR - in sequential sharing, we are modifying the previous neurons here (adding inputs to them) - the previous neurons should stay same, we should only add structures...
-     * ->
+     * Given a literal together with all corresponding rules where it appears as a head, create AtomNeuron -> AggNeurons -> RuleNeurons neurons and connections.
+     * Reuse existing neuronMaps, i.e., detect if a required neuron already exists in these,
+     *  - if so, then we need to add extra input mapping not to change the previously existing neurons, while still being able to reuse them.
      *
      * @param headLiteral2rules
      * @param neuronMaps
@@ -257,11 +259,11 @@ public abstract class Grounder {
             neuronMaps.atomNeurons.put(headLiteral2rules.r, headAtomNeuron);
         } else {
             if (headLiteral2rules.s.entrySet().size() > 0) {
-                LinkedInputMapping<AggregationNeuron> inputMapping;
+                LinkedNeuronMapping<AggregationNeuron> inputMapping;
                 if ((inputMapping = neuronMaps.extraInputMapping.get(headAtomNeuron)) != null) {    //if previously existing atom neuron already had input overmapping, create a new (incremental) one
-                    neuronMaps.extraInputMapping.put(headAtomNeuron, new LinkedInputMapping<>(inputMapping));
+                    neuronMaps.extraInputMapping.put(headAtomNeuron, new LinkedNeuronMapping<>(inputMapping));
                 } else {
-                    neuronMaps.extraInputMapping.put(headAtomNeuron, new LinkedInputMapping<>(headAtomNeuron.getInputs()));
+                    neuronMaps.extraInputMapping.put(headAtomNeuron, new LinkedNeuronMapping<>(headAtomNeuron.getInputs()));
                 }
             }
         }
@@ -274,11 +276,11 @@ public abstract class Grounder {
                 neuronMaps.aggNeurons.put(rules2groundings.getKey(), aggNeuron);
             } else {
                 if (rules2groundings.getValue().size() > 0) {
-                    LinkedInputMapping<RuleNeuron> inputMapping;
+                    LinkedNeuronMapping<RuleNeuron> inputMapping;
                     if ((inputMapping = neuronMaps.extraInputMapping.get(aggNeuron)) != null) {    //if previously existing aggregation neuron already had input overmapping, create a new (incremental) one
-                        neuronMaps.extraInputMapping.put(aggNeuron, new LinkedInputMapping<>(inputMapping));
+                        neuronMaps.extraInputMapping.put(aggNeuron, new LinkedNeuronMapping<>(inputMapping));
                     } else {
-                        neuronMaps.extraInputMapping.put(aggNeuron, new LinkedInputMapping<>(aggNeuron.getInputs()));
+                        neuronMaps.extraInputMapping.put(aggNeuron, new LinkedNeuronMapping<>(aggNeuron.getInputs()));
                     }
                 }
             }
@@ -286,8 +288,8 @@ public abstract class Grounder {
                 headAtomNeuron.addInput(aggNeuron, rules2groundings.getKey().weight);
             } else {
                 LOG.info("Warning-  modifying previous state - Creating input overmapping for this Atom neuron: " + headAtomNeuron);
-                LinkedInputMapping<AggregationNeuron> inputMapping = neuronMaps.extraInputMapping.get(headAtomNeuron);
-                inputMapping.addInput(new Pair<>(aggNeuron, rules2groundings.getKey().weight));
+                LinkedNeuronMapping<AggregationNeuron> inputMapping = neuronMaps.extraInputMapping.get(headAtomNeuron);
+                inputMapping.addLink(new Pair<>(aggNeuron, rules2groundings.getKey().weight));
             }
             for (WeightedRule grounding : rules2groundings.getValue()) {
                 RuleNeuron ruleNeuron;
@@ -301,8 +303,8 @@ public abstract class Grounder {
                     aggNeuron.addInput(ruleNeuron, new Weight(new ScalarValue(settings.aggNeuronInputWeight)));
                 } else {
                     LOG.info("Warning-  modifying previous state - Creating input overmapping for this Agg neuron: " + aggNeuron);
-                    LinkedInputMapping<RuleNeuron> inputMapping = neuronMaps.extraInputMapping.get(headAtomNeuron);
-                    inputMapping.addInput(new Pair<>(ruleNeuron, new Weight(new ScalarValue(settings.aggNeuronInputWeight))));
+                    LinkedNeuronMapping<RuleNeuron> inputMapping = neuronMaps.extraInputMapping.get(headAtomNeuron);
+                    inputMapping.addLink(new Pair<>(ruleNeuron, new Weight(new ScalarValue(settings.aggNeuronInputWeight))));
                 }
             }
         }
@@ -310,6 +312,11 @@ public abstract class Grounder {
         return neuronMaps;
     }
 
+    /**
+     * Create FactNeurons mapped back to ground Literals
+     * @param groundFacts
+     * @return
+     */
     private Map<Literal, FactNeuron> neuronsFromFacts(Map<Literal, ValuedFact> groundFacts) {
         Map<Literal, FactNeuron> factNeurons = new HashMap<>();
         for (Map.Entry<Literal, ValuedFact> factEntry : groundFacts.entrySet()) {
@@ -320,8 +327,8 @@ public abstract class Grounder {
     }
 
     /**
-     * Once all neurons are created, connect rule neurons' inputs to atom neurons/fact neurons.
-     * Only newly created rule nerons are processed.
+     * Given all existing neurons (either newly created or reused), connect RuleNeurons -> AtomNeurons (or FactNeurons).
+     * Only newly created rule neurons, i.e. those that haven't been connected to their inputs yet, are processed.
      *
      * @return
      */
@@ -353,7 +360,7 @@ public abstract class Grounder {
                 entry.getValue().addInput(input, weight);
             }
         }
-        NeuralNetwork neuralNetwork = new NeuralNetwork(neuronMaps.atomNeurons.values(), neuronMaps.aggNeurons.values(), neuronMaps.ruleNeurons.values(), neuronMaps.factNeurons.values(), negationNeurons);
+        DetailedNetwork neuralNetwork = new DetailedNetwork(neuronMaps.atomNeurons.values(), neuronMaps.aggNeurons.values(), neuronMaps.ruleNeurons.values(), neuronMaps.factNeurons.values(), negationNeurons);
         if (neuronMaps.extraInputMapping != null && !neuronMaps.extraInputMapping.isEmpty()) {
             neuralNetwork.extraInputMapping = new HashMap<>();
             neuralNetwork.extraInputMapping.putAll(neuronMaps.extraInputMapping);

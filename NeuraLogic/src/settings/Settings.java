@@ -14,6 +14,14 @@ import java.util.logging.Logger;
 public class Settings {
     private static final Logger LOG = Logger.getLogger(Settings.class.getName());
 
+    //------------------High level
+
+    public optimize mode;
+
+    public enum optimize {
+        MEMORY, SPEED, TRADEOFF
+    }
+
     //------------------Global structures
     /**
      * Global random generator
@@ -82,7 +90,11 @@ public class Settings {
     /**
      * Copy out neurons fully instead of input over-mappings
      */
-    public boolean removeInputOvermapping;
+    public boolean copyOutInputOvermapping;
+    /**
+     * Create maps of neurons to their outputs in each network (individual neurons have only links to inputs)
+     */
+    public boolean calculateOutputLinks;
     /**
      * Remove recurrent edges from the neural networks
      */
@@ -100,6 +112,14 @@ public class Settings {
      */
     public boolean isoGradientCompression;
     /**
+     * If all neurons of the same class use the same activation, move to a single static reference (optimize memory)
+     */
+    public boolean collapseActivations;
+    /**
+     * If all the weights in a network are Scalars, move to a more efficient representation (optimize memory and speed)
+     */
+    public boolean collapseWeights;
+    /**
      * If there are embedding constructs in the Template, expand them (copy-multiple neurons) after Network creation
      */
     public boolean expandEmbeddings;
@@ -112,6 +132,7 @@ public class Settings {
      * Are the data sources files? (not e.g. streams from memory/internet)
      */
     public boolean sourceFiles = true;
+
     public String sourcePath = ".";
     public String templateFile = "template.txt";
     public String trainExamplesFile = "trainExamples.txt";
