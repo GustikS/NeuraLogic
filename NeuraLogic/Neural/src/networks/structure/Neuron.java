@@ -1,50 +1,39 @@
 package networks.structure;
 
-import ida.utils.tuples.Pair;
 import networks.evaluation.functions.Activation;
-import networks.structure.lrnnTypes.Neural;
+import networks.structure.neurons.Neurons;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.logging.Logger;
 
-/**
- * Created by gusta on 8.3.17.
- * <p>
- * Solved question - is it better to store inputs (better for iso-value) or outputs (better for iso-gradient) of a neuron?
- * - inputs representation is better since it follows the process of calculation more naturally
- * - staying with this representation for everything then
- */
-public abstract class Neuron<T extends Neural> implements Neural {
+public class Neuron<T extends Neurons> implements Neurons {
+    private static final Logger LOG = Logger.getLogger(Neuron.class.getName());
+
     /**
-     * Unique id within a network
+     * Should be unique across ALL the networks (due to sharing)
      */
     protected String id;
-
-    protected Weight offset;
-
     /**
-     * We want fast iteration over inputs -> array
+     * We want fast iteration over inputs
      */
-    protected ArrayList<Pair<T, Weight>> inputs;
+    protected ArrayList<T> inputs;
+    /**
+     * Activation function
+     */
     protected Activation activation;
 
-    public Neuron(String id) {
+    public Neuron(String id){
         this.id = id;
         inputs = new ArrayList<>();
     }
 
-    @Override
-    public int hashCode() {
-        return super.hashCode(); //TODO use id
+    public void addInput(T input){
+        inputs.add(input);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);   //TODO use id
-    }
-
-    public void addInput(T input, Weight weight) {
-        inputs.add(new Pair<>(input, weight));
+    public ArrayList<T> getInputs() {
+        return inputs;
     }
 
     public boolean hasInputs() {
@@ -55,7 +44,27 @@ public abstract class Neuron<T extends Neural> implements Neural {
         return inputs.size();
     }
 
-    public List<Pair<T, Weight>> getInputs() {
-        return inputs;
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj.getClass() != this.getClass()) {
+            return false;
+        }
+        WeightedNeuron obj1 = (WeightedNeuron) obj;
+        return this.id.equals(obj1.id);
+    }
+
+    @Override
+    public Activation getActivation() {
+        return activation;
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 }

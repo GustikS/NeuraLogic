@@ -11,11 +11,11 @@ import ida.ilp.logic.subsumption.Matching;
 import learning.Example;
 import networks.structure.NeuralNetwork;
 import networks.structure.Neuron;
-import networks.structure.lrnnTypes.AggregationNeuron;
-import networks.structure.lrnnTypes.AtomNeuron;
-import networks.structure.lrnnTypes.FactNeuron;
-import networks.structure.lrnnTypes.RuleNeuron;
-import networks.structure.metadata.LinkedNeuronMapping;
+import networks.structure.metadata.NeuronMapping;
+import networks.structure.neurons.AggregationNeuron;
+import networks.structure.neurons.AtomNeuron;
+import networks.structure.neurons.FactNeuron;
+import networks.structure.neurons.RuleNeurons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,14 +44,14 @@ public class GroundTemplate extends GraphTemplate implements Example {
     public static class NeuronMaps {
         Map<Literal, AtomNeuron> atomNeurons = new HashMap<>();
         Map<WeightedRule, AggregationNeuron> aggNeurons = new HashMap<>();
-        Map<WeightedRule, RuleNeuron> ruleNeurons = new LinkedHashMap<>();
+        Map<WeightedRule, RuleNeurons> ruleNeurons = new LinkedHashMap<>();
         Map<Literal, FactNeuron> factNeurons = new HashMap<>();
 
         /**
          * Locally valid input overloading for some neurons to facilitate dynamic structure changes
          */
         @Nullable
-        public Map<Neuron, LinkedNeuronMapping> extraInputMapping = new HashMap<>();
+        public Map<Neuron, NeuronMapping> extraInputMapping = new HashMap<>();
 
         public void addAllFrom(NeuronMaps neuronMaps) {
             atomNeurons.putAll(neuronMaps.atomNeurons);

@@ -8,6 +8,6 @@ import java.util.List;
  * Created by gusta on 16.3.17.
  */
 public class NeuralLayer {
-    List<Neuron> neurons;
+    List<WeightedNeuron> neurons;
     Activation activation;
 }

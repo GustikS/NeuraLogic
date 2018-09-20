@@ -2,7 +2,7 @@ package networks.structure.networks;
 
 import ida.utils.tuples.Pair;
 import networks.structure.NeuralNetwork;
-import networks.structure.Neuron;
+import networks.structure.WeightedNeuron;
 import networks.structure.Weight;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +17,7 @@ public class TopologicNetwork extends NeuralNetwork{
      * All neurons combined in TOPOLOGICAL ORDERING.
      */
     @Nullable
-    List<Neuron> allNeuronsTopologic;
+    List<WeightedNeuron> allNeuronsTopologic;
 
 
     @Override
@@ -26,12 +26,12 @@ public class TopologicNetwork extends NeuralNetwork{
     }
 
     @Override
-    public <T extends Neuron> Iterator<Pair<T, Weight>> getInputs(Neuron<T> neuron) {
+    public <T extends WeightedNeuron> Iterator<Pair<T, Weight>> getInputs(WeightedNeuron<T> neuron) {
         return null;
     }
 
     @Override
-    public <T extends Neuron> Iterator<Pair<T, Weight>> getOutputs(Neuron<T> neuron) {
+    public <T extends WeightedNeuron> Iterator<Pair<T, Weight>> getOutputs(WeightedNeuron<T> neuron) {
         return null;
     }
 }

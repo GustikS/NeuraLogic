@@ -1,7 +1,7 @@
 package networks.structure;
 
 import networks.evaluation.values.Value;
-import networks.structure.lrnnTypes.QueryNeuron;
+import networks.structure.neurons.QueryNeuron;
 import networks.structure.networks.DetailedNetwork;
 import training.NeuralSample;
 

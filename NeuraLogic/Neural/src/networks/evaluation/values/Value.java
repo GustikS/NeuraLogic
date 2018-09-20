@@ -5,28 +5,65 @@ package networks.evaluation.values;
  */
 public abstract class Value {
 
+    public static final Value ONE = new One();
+
+    private static class One extends Value {
+
+        private ScalarValue one = new ScalarValue(1);
+
+        @Override
+        protected Value multiplyByMatrix(MatrixValue val2) {
+            return val2;
+        }
+
+        @Override
+        protected Value multiplyByVector(VectorValue val2) {
+            return val2;
+        }
+
+        @Override
+        protected Value multiplyByScalar(ScalarValue val2) {
+            return val2;
+        }
+
+        @Override
+        protected Value addMatrix(MatrixValue val2) {
+            return val2.addScalar(one);
+        }
+
+        @Override
+        protected Value addVector(VectorValue val2) {
+            return val2.addScalar(one);
+        }
+
+        @Override
+        protected Value addScalar(ScalarValue val2) {
+            return val2.addScalar(one);
+        }
+    }
+
     public Value multiplyBy(Value val2) {
         if (val2 instanceof MatrixValue) {
-            return multiplyByMatrix((MatrixValue)val2);
+            return multiplyByMatrix((MatrixValue) val2);
         }
         if (val2 instanceof VectorValue) {
-            return multiplyByVector((VectorValue)val2);
+            return multiplyByVector((VectorValue) val2);
         }
         if (val2 instanceof ScalarValue) {
-            return multiplyByScalar((ScalarValue)val2);
+            return multiplyByScalar((ScalarValue) val2);
         }
         throw new ClassCastException("Unknown value-type multiplication!");
     }
 
     public Value add(Value val2) {
         if (val2 instanceof MatrixValue) {
-            return addMatrix((MatrixValue)val2);
+            return addMatrix((MatrixValue) val2);
         }
         if (val2 instanceof VectorValue) {
-            return addVector((VectorValue)val2);
+            return addVector((VectorValue) val2);
         }
         if (val2 instanceof ScalarValue) {
-            return addScalar((ScalarValue)val2);
+            return addScalar((ScalarValue) val2);
         }
         throw new ClassCastException("Unknown value-type adding!");
     }

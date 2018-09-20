@@ -3,7 +3,7 @@ package training;
 import learning.Model;
 import networks.evaluation.values.Value;
 import networks.structure.Weight;
-import networks.structure.lrnnTypes.QueryNeuron;
+import networks.structure.neurons.QueryNeuron;
 
 import java.io.Reader;
 import java.util.List;

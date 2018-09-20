@@ -5,7 +5,7 @@ import constructs.WeightedPredicate;
 import ida.ilp.logic.Term;
 import networks.evaluation.functions.Activation;
 import networks.structure.Weight;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public class BodyAtom extends Atom {
 
-    @NotNull
+    @Nullable
     protected Weight weight;
 
     public BodyAtom(WeightedPredicate weightedPredicate, List<Term> terms, boolean negated, Weight weight) {

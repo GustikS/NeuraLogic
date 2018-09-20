@@ -2,6 +2,9 @@ package networks.evaluation;
 
 import networks.evaluation.results.Results;
 import networks.evaluation.values.Value;
+import networks.structure.NeuralNetwork;
+import networks.structure.WeightedNeuron;
+import networks.structure.networks.TopologicNetwork;
 import settings.Settings;
 import training.NeuralModel;
 import training.NeuralSample;
@@ -17,13 +20,46 @@ public class Evaluator {
         this.settings = settings;
     }
 
-    public Value evaluate(NeuralModel model, NeuralSample sample){
+    public Value evaluate(NeuralModel model, NeuralSample sample) {
         //TODO
         return null;
     }
 
-    public Results evaluate(NeuralModel model, Stream<NeuralSample> sample){
+    public Results evaluate(NeuralModel model, Stream<NeuralSample> sample) {
         //TODO
+        return null;
+    }
+
+    /**
+     * Evaluate neuron output by recursively evaluating its inputs
+     *
+     * @param neuron
+     * @return
+     */
+    public Value evaluate(WeightedNeuron neuron) {
+
+    }
+
+    /**
+     * Evaluate neuron output by recursively evaluating its inputs.
+     * Inputs can be overmapped in a given network.
+     *
+     * @param neuron
+     * @param network
+     * @return
+     */
+    public Value evaluate(WeightedNeuron neuron, NeuralNetwork network) {
+        return null;
+    }
+
+    /**
+     * Evaluate neuron output. Iteration can go linearly over topologically sorted array.
+     *
+     * @param neuron
+     * @param network
+     * @return
+     */
+    public Value evaluate(WeightedNeuron neuron, TopologicNetwork network) {
         return null;
     }
 }

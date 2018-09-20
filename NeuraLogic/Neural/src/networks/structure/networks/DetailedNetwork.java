@@ -4,10 +4,12 @@ import ida.utils.tuples.Pair;
 import networks.structure.NeuralNetwork;
 import networks.structure.Neuron;
 import networks.structure.Weight;
-import networks.structure.lrnnTypes.*;
+import networks.structure.WeightedNeuron;
 import networks.structure.metadata.LinkedNeuronMapping;
 import networks.structure.metadata.NetworkMetadata;
 import networks.structure.metadata.NeuronMapping;
+import networks.structure.metadata.WeightedNeuronMapping;
+import networks.structure.neurons.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -45,7 +47,7 @@ public class DetailedNetwork extends NeuralNetwork {
     @Nullable
     NetworkMetadata metadata;
 
-    public DetailedNetwork(Collection<AtomNeuron> atomNeurons, Collection<AggregationNeuron> aggregationNeurons, Collection<RuleNeuron> ruleNeurons, Collection<FactNeuron> factNeurons, Set<NegationNeuron> negationNeurons) {
+    public DetailedNetwork(Collection<AtomNeuron> atomNeurons, Collection<AggregationNeuron> aggregationNeurons, Collection<RuleNeurons> ruleNeurons, Collection<FactNeuron> factNeurons, Set<NegationNeuron> negationNeurons) {
         this.neurons = new Neurons();
         this.neurons.atomNeurons = new ArrayList<>(atomNeurons);
         this.neurons.aggNeurons = new ArrayList<>(aggregationNeurons);
@@ -68,17 +70,26 @@ public class DetailedNetwork extends NeuralNetwork {
     public Map<Neuron, NeuronMapping> calculateOutputs() {
         Map<Neuron, NeuronMapping> outputMapping = new HashMap<>();
         for (Neuron parent : allNeuronsTolopogic) {
-            Iterator<Pair<Neuron, Weight>> inputs = getInputs(parent);
-            Pair<Neuron, Weight> child;
+            Iterator<Neuron> inputs = getInputs(parent);
+            Neuron child;
             while ((child = inputs.next()) != null) {
-                NeuronMapping parentMapping = outputMapping.computeIfAbsent(child.r, f -> new LinkedNeuronMapping());
+                NeuronMapping parentMapping = outputMapping.computeIfAbsent(child, f -> new LinkedNeuronMapping());
                 parentMapping.addLink(child);
             }
         }
         return outputMapping;
     }
 
-    public <T extends Neuron> Iterator<Pair<T, Weight>> getInputs(Neuron<T> neuron) {
+    public <T extends WeightedNeuron> Iterator<Pair<T, Weight>> getInputs(WeightedNeuron<T> neuron) {
+        WeightedNeuronMapping<T> inputMapping;
+        if ((inputMapping = extraInputMapping != null ? (WeightedNeuronMapping<T>) extraInputMapping.get(neuron) : null) != null) {
+            return inputMapping.iterator();
+        } else {
+            return neuron.getWeightedInputs();
+        }
+    }
+
+    public <T extends Neuron> Iterator<T> getInputs(Neuron<T> neuron) {
         NeuronMapping<T> inputMapping;
         if ((inputMapping = extraInputMapping != null ? extraInputMapping.get(neuron) : null) != null) {
             return inputMapping.iterator();
@@ -91,7 +102,7 @@ public class DetailedNetwork extends NeuralNetwork {
         //todo to use with pruning
     }
 
-    public <T extends Neuron> Iterator<Pair<T, Weight>> getOutputs(Neuron<T> neuron) {
+    public <T extends Neuron> Iterator<T> getOutputs(Neuron<T> neuron) {
         NeuronMapping<T> mapping;
         if ((mapping = outputMapping != null ? outputMapping.get(neuron) : null) != null) {
             return mapping.iterator();

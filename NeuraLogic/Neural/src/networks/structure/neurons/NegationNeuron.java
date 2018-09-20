@@ -1,7 +1,6 @@
-package networks.structure.lrnnTypes;
+package networks.structure.neurons;
 
 import networks.evaluation.functions.Activation;
-import networks.evaluation.values.Value;
 import networks.structure.Neuron;
 import networks.structure.Weight;
 
@@ -13,24 +12,14 @@ public class NegationNeuron extends Neuron<AtomFact> implements AtomFact {
     AtomFact input;
 
     public NegationNeuron(AtomFact atom, Activation negationActivation) {
-        super(atom.getId());
+        super("neg_" + atom.getId());
         inputs = null;
         input = atom;
         activation = negationActivation;
     }
 
     @Override
-    public Value evaluate() {
-        return null;
-    }
-
-    @Override
     public Weight getOffset() {
-        return null;
-    }
-
-    @Override
-    public Value gradient() {
         return null;
     }
 

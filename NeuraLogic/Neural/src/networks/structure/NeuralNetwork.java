@@ -29,8 +29,9 @@ public abstract class NeuralNetwork implements Example {
         this.id = id;
     }
 
-    public abstract <T extends Neuron> Iterator<Pair<T, Weight>> getInputs(Neuron<T> neuron);
-    public abstract <T extends Neuron> Iterator<Pair<T, Weight>> getOutputs(Neuron<T> neuron);
+    public abstract <T extends WeightedNeuron> Iterator<Pair<T, Weight>> getInputs(WeightedNeuron<T> neuron);
+    public abstract <T extends Neuron> Iterator<T> getInputs(Neuron<T> neuron);
 
+    public abstract <T extends Neuron> Iterator<T> getOutputs(Neuron<T> neuron);
 
 }

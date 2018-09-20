@@ -24,6 +24,7 @@ public class Weight {
 
     public Weight(Value value) {
         this.value = value;
+        this.isFixed = true;
     }
 
     @Override

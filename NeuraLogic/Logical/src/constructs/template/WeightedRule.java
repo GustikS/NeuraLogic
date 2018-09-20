@@ -8,7 +8,6 @@ import ida.ilp.logic.Term;
 import networks.evaluation.functions.Activation;
 import networks.structure.Weight;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,5 +79,14 @@ public class WeightedRule {
             sb.append(bodyAtom.getPredicate()).append(",");
         }
         return sb.toString();
+    }
+
+    public boolean hasWeightedBody() {
+        for (BodyAtom bodyAtom : body) {
+            if (bodyAtom.weight != null) {
+                return false;
+            }
+        }
+        return true;
     }
 }

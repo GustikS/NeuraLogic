@@ -1,14 +1,13 @@
-package networks.structure.lrnnTypes;
+package networks.structure.neurons;
 
 import constructs.template.HeadAtom;
-import networks.evaluation.values.Value;
-import networks.structure.Neuron;
 import networks.structure.Weight;
+import networks.structure.WeightedNeuron;
 
 /**
  * Created by gusta on 8.3.17.
  */
-public class AtomNeuron extends Neuron<AggregationNeuron> implements AtomFact{
+public class AtomNeuron extends WeightedNeuron<AggregationNeuron> implements AtomFact {
 
     public AtomNeuron(HeadAtom head) {
         super(head.toString()); //todo really?
@@ -17,18 +16,8 @@ public class AtomNeuron extends Neuron<AggregationNeuron> implements AtomFact{
     }
 
     @Override
-    public Value evaluate() {
-        return null;
-    }
-
-    @Override
     public Weight getOffset() {
         return offset;
-    }
-
-    @Override
-    public Value gradient() {
-        return null;
     }
 
     @Override

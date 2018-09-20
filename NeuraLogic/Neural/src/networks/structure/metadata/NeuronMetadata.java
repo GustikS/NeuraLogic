@@ -1,7 +1,7 @@
 package networks.structure.metadata;
 
 import ida.utils.tuples.Pair;
-import networks.structure.Neuron;
+import networks.structure.WeightedNeuron;
 import networks.structure.Weight;
 
 import java.util.ArrayList;
@@ -14,5 +14,5 @@ public class NeuronMetadata {
     //todo add embedding expansion info
     //activation function?
 
-    ArrayList<Pair<Neuron,Weight>> parents;
+    ArrayList<Pair<WeightedNeuron,Weight>> parents;
 }

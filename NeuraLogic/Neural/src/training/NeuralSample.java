@@ -2,7 +2,7 @@ package training;
 
 import learning.LearningSample;
 import networks.evaluation.values.Value;
-import networks.structure.lrnnTypes.QueryNeuron;
+import networks.structure.neurons.QueryNeuron;
 
 /**
  * Created by gusta on 8.3.17.

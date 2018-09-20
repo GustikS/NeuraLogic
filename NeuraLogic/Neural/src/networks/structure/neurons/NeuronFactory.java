@@ -1,4 +1,4 @@
-package networks.structure.lrnnTypes;
+package networks.structure.neurons;
 
 import java.util.logging.Logger;
 

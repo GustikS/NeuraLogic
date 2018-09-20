@@ -1,13 +1,12 @@
 package networks.structure.metadata;
 
-import networks.structure.Neuron;
-import org.jetbrains.annotations.Nullable;
+import networks.structure.WeightedNeuron;
 
 import java.util.Map;
 
 public class NetworkMetadata {
 
-    public Map<Neuron, Integer> parentsCount;
+    public Map<WeightedNeuron, Integer> parentsCount;
 
-    public Map<Neuron, Double> cumulatedGradient;
+    public Map<WeightedNeuron, Double> cumulatedGradient;
 }
