@@ -1,8 +1,6 @@
 package networks.structure.transforming;
 
-import networks.structure.NeuralNetwork;
-
-import java.util.HashMap;
+import networks.structure.networks.NeuralNetwork;
 
 /**
  * Created by gusta on 14.3.17.

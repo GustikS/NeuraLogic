@@ -8,7 +8,7 @@ import constructs.template.metadata.PredicateMetadata;
 import constructs.template.metadata.TemplateMetadata;
 import constructs.template.metadata.WeightMetadata;
 import ida.utils.tuples.Pair;
-import networks.structure.Weight;
+import networks.structure.weights.Weight;
 
 import java.util.List;
 import java.util.logging.Logger;

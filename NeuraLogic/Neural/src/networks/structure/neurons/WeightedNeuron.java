@@ -1,8 +1,10 @@
-package networks.structure;
+package networks.structure.neurons;
 
 import ida.utils.tuples.Pair;
+import networks.evaluation.functions.Activation;
+import networks.evaluation.iteration.State;
 import networks.evaluation.values.Value;
-import networks.structure.neurons.Neurons;
+import networks.structure.weights.Weight;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,33 +19,33 @@ import java.util.logging.Logger;
  * - inputs representation is better since it follows the process of calculation more naturally
  * - staying with this representation for everything then
  */
-public class WeightedNeuron<T extends Neurons> extends Neuron<T> {
+public class WeightedNeuron<T extends Neurons, S extends State> extends Neuron<T, S> {
     private static final Logger LOG = Logger.getLogger(WeightedNeuron.class.getName());
 
     protected Weight offset;
 
     /**
-     * This class is responsible to protect correct ordering of weights and inputs.
+     * This class is responsible to protect correct ordering of weights w.r.t. inputs.
      */
-    protected ArrayList<Weight> weights;
+    private ArrayList<Weight> weights;
 
-    public WeightedNeuron(String id) {
-        super(id);
+    public WeightedNeuron(String id, int index, S state, Weight offset, Activation activation) {
+        super(index, id, state, activation);
         weights = new ArrayList<>();
     }
 
-    public void addInput(T input) {
+    public final void addInput(T input) {
         LOG.warning("Adding unnecessarily weighted input. Use plain Neuron Object for unweighted inputs instead!");
         inputs.add(input);
         weights.add(new Weight(Value.ONE));
     }
 
-    public void addInput(T input, Weight weight) {
+    public final void addInput(T input, Weight weight) {
         inputs.add(input);
         weights.add(weight);
     }
 
-    public ArrayList<Weight> getWeights() {
+    public final ArrayList<Weight> getWeights() {
         return weights;
     }
 
@@ -52,7 +54,7 @@ public class WeightedNeuron<T extends Neurons> extends Neuron<T> {
      *
      * @return
      */
-    public List<Pair<T, Weight>> createWeightedInputs() {
+    public final List<Pair<T, Weight>> createWeightedInputs() {
         List<Pair<T, Weight>> pairedInputs = new ArrayList<>(weights.size());
         for (int i = 0; i < weights.size(); i++) {
             pairedInputs.add(new Pair<>(inputs.get(i), weights.get(i)));
@@ -60,11 +62,11 @@ public class WeightedNeuron<T extends Neurons> extends Neuron<T> {
         return pairedInputs;
     }
 
-    public Iterator<Pair<T, Weight>> getWeightedInputs() {
+    public final Iterator<Pair<T, Weight>> getWeightedInputs() {
         return new WeightedInputsIterator(inputs, weights);
     }
 
-    private class WeightedInputsIterator implements Iterator<Pair<T, Weight>> {
+    private final class WeightedInputsIterator implements Iterator<Pair<T, Weight>> {
 
         int index = 0;
         ArrayList<T> inputs;

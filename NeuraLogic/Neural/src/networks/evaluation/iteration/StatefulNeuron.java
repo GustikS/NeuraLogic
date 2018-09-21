@@ -1,19 +1,22 @@
 package networks.evaluation.iteration;
 
+import networks.evaluation.functions.Activation;
 import networks.evaluation.values.Value;
-import networks.structure.WeightedNeuron;
+import networks.structure.neurons.Neuron;
 
 import java.util.logging.Logger;
 
-public class StatefulNeuron extends WeightedNeuron {
+@Deprecated
+public class StatefulNeuron<S> extends Neuron {
     private static final Logger LOG = Logger.getLogger(StatefulNeuron.class.getName());
 
     Value accumulatedGradient;
     Value value;
 
-    public StatefulNeuron(String id) {
-        super(id);
+    public StatefulNeuron(int index, String id, State state, Activation activation) {
+        super(index, id, state, activation);
     }
+
 
     public Value getValue() {
         return value;

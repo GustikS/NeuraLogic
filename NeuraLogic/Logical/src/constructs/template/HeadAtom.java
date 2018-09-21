@@ -3,7 +3,7 @@ package constructs.template;
 import constructs.Atom;
 import constructs.WeightedPredicate;
 import ida.ilp.logic.Term;
-import networks.structure.Weight;
+import networks.structure.weights.Weight;
 
 import java.util.List;
 import java.util.Map;

@@ -1,21 +1,21 @@
 package networks.structure.networks;
 
 import ida.utils.tuples.Pair;
-import networks.structure.NeuralNetwork;
-import networks.structure.Neuron;
-import networks.structure.Weight;
-import networks.structure.WeightedNeuron;
+import networks.evaluation.iteration.State;
+import networks.structure.weights.Weight;
 import networks.structure.metadata.LinkedNeuronMapping;
 import networks.structure.metadata.NetworkMetadata;
 import networks.structure.metadata.NeuronMapping;
 import networks.structure.metadata.WeightedNeuronMapping;
-import networks.structure.neurons.*;
+import networks.structure.neurons.Neuron;
+import networks.structure.neurons.WeightedNeuron;
+import networks.structure.neurons.creation.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.logging.Logger;
 
-public class DetailedNetwork extends NeuralNetwork {
+public class DetailedNetwork extends TopologicNetwork {
     private static final Logger LOG = Logger.getLogger(DetailedNetwork.class.getName());
 
     /**
@@ -25,8 +25,6 @@ public class DetailedNetwork extends NeuralNetwork {
 
     public @Nullable Map<Neuron, NeuronMapping> outputMapping;
 
-    List<Neuron> allNeuronsTolopogic;
-
     @Nullable
     Neurons neurons;
 
@@ -35,6 +33,7 @@ public class DetailedNetwork extends NeuralNetwork {
         List<AtomNeuron> atomNeurons;
         List<AggregationNeuron> aggNeurons;
         List<RuleNeuron> ruleNeurons;
+        List<WeightedRuleNeuron> weightedRuleNeurons;
         List<FactNeuron> factNeurons;
         List<NegationNeuron> negationNeurons;
 
@@ -51,25 +50,34 @@ public class DetailedNetwork extends NeuralNetwork {
         this.neurons = new Neurons();
         this.neurons.atomNeurons = new ArrayList<>(atomNeurons);
         this.neurons.aggNeurons = new ArrayList<>(aggregationNeurons);
-        this.neurons.ruleNeurons = new ArrayList<>(ruleNeurons);
+        this.neurons.ruleNeurons = new ArrayList<>();
+        this.neurons.weightedRuleNeurons = new ArrayList<>();
+        for (RuleNeurons ruleNeuron : ruleNeurons) {
+            if (ruleNeuron instanceof WeightedRuleNeuron) {
+                this.neurons.weightedRuleNeurons.add((WeightedRuleNeuron) ruleNeuron);
+            } else {
+                this.neurons.ruleNeurons.add((RuleNeuron) ruleNeuron);
+            }
+        }
         this.neurons.factNeurons = new ArrayList<>(factNeurons);
         this.neurons.negationNeurons = new ArrayList<>(negationNeurons);
 
-        this.allNeuronsTolopogic = new ArrayList<>(atomNeurons.size() + aggregationNeurons.size() + ruleNeurons.size() + factNeurons.size() + negationNeurons.size());
-        this.allNeuronsTolopogic.addAll(atomNeurons);
-        this.allNeuronsTolopogic.addAll(aggregationNeurons);
-        this.allNeuronsTolopogic.addAll(ruleNeurons);
-        this.allNeuronsTolopogic.addAll(factNeurons);
-        this.allNeuronsTolopogic.addAll(negationNeurons);
+        this.allNeuronsTopologic = new ArrayList<>(atomNeurons.size() + aggregationNeurons.size() + ruleNeurons.size() + factNeurons.size() + negationNeurons.size());
+        this.allNeuronsTopologic.addAll(atomNeurons);
+        this.allNeuronsTopologic.addAll(aggregationNeurons);
+        this.allNeuronsTopologic.addAll(this.neurons.ruleNeurons);
+        this.allNeuronsTopologic.addAll(this.neurons.weightedRuleNeurons);
+        this.allNeuronsTopologic.addAll(factNeurons);
+        this.allNeuronsTopologic.addAll(negationNeurons);
 
-        this.allNeuronsTolopogic = topologicSort(this.allNeuronsTolopogic);
+        this.allNeuronsTopologic = topologicSort(this.allNeuronsTopologic);
 
         this.outputMapping = calculateOutputs();
     }
 
     public Map<Neuron, NeuronMapping> calculateOutputs() {
         Map<Neuron, NeuronMapping> outputMapping = new HashMap<>();
-        for (Neuron parent : allNeuronsTolopogic) {
+        for (Neuron parent : allNeuronsTopologic) {
             Iterator<Neuron> inputs = getInputs(parent);
             Neuron child;
             while ((child = inputs.next()) != null) {
@@ -80,7 +88,7 @@ public class DetailedNetwork extends NeuralNetwork {
         return outputMapping;
     }
 
-    public <T extends WeightedNeuron> Iterator<Pair<T, Weight>> getInputs(WeightedNeuron<T> neuron) {
+    public <T extends WeightedNeuron, S extends State> Iterator<Pair<T, Weight>> getInputs(WeightedNeuron<T, S> neuron) {
         WeightedNeuronMapping<T> inputMapping;
         if ((inputMapping = extraInputMapping != null ? (WeightedNeuronMapping<T>) extraInputMapping.get(neuron) : null) != null) {
             return inputMapping.iterator();
@@ -89,7 +97,7 @@ public class DetailedNetwork extends NeuralNetwork {
         }
     }
 
-    public <T extends Neuron> Iterator<T> getInputs(Neuron<T> neuron) {
+    public <T extends Neuron, S extends State> Iterator<T> getInputs(Neuron<T, S> neuron) {
         NeuronMapping<T> inputMapping;
         if ((inputMapping = extraInputMapping != null ? extraInputMapping.get(neuron) : null) != null) {
             return inputMapping.iterator();
@@ -98,11 +106,7 @@ public class DetailedNetwork extends NeuralNetwork {
         }
     }
 
-    public void removeInput(Neuron neuron, Pair<Neuron, Weight> input){
-        //todo to use with pruning
-    }
-
-    public <T extends Neuron> Iterator<T> getOutputs(Neuron<T> neuron) {
+    public <T extends Neuron, S extends State> Iterator<T> getOutputs(Neuron<T, S> neuron) {
         NeuronMapping<T> mapping;
         if ((mapping = outputMapping != null ? outputMapping.get(neuron) : null) != null) {
             return mapping.iterator();
@@ -111,13 +115,18 @@ public class DetailedNetwork extends NeuralNetwork {
         }
     }
 
+
+    public void removeInput(Neuron neuron, Pair<Neuron, Weight> input) {
+        //todo to use with pruning
+    }
+
     public boolean isRecursive() {
         return recursive;
     }
 
     @Override
     public Integer getSize() {
-        return allNeuronsTolopogic.size();
+        return allNeuronsTopologic.size();
     }
 
     public List<Neuron> topologicSort(List<Neuron> allNeurons) {

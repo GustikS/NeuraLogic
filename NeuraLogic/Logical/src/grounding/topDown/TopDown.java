@@ -5,7 +5,7 @@ import constructs.example.QueryAtom;
 import constructs.template.Template;
 import constructs.template.templates.GraphTemplate;
 import grounding.Grounder;
-import networks.structure.NeuralNetwork;
+import networks.structure.networks.NeuralNetwork;
 import networks.structure.neurons.QueryNeuron;
 import settings.Settings;
 

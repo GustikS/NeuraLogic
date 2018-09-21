@@ -1,19 +1,21 @@
 package training;
 
-import networks.structure.NeuralNetwork;
-import networks.structure.WeightedNeuron;
-import networks.structure.Weight;
+import networks.structure.networks.NeuralNetwork;
+import networks.structure.weights.Weight;
+import networks.structure.neurons.WeightedNeuron;
 import networks.structure.networks.TopologicNetwork;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Created by gusta on 8.3.17.
  */
 public class Backprop {
 
-    public Backprop(List<Weight> weights){
+    Weight[] weights;
 
+    public Backprop(ArrayList<Weight> weights){
+        //todo distribute weights according to their indices
     }
 
     public void backprop(WeightedNeuron neuron){

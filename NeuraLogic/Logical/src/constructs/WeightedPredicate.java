@@ -2,7 +2,7 @@ package constructs;
 
 import constructs.template.metadata.PredicateMetadata;
 import ida.ilp.logic.Predicate;
-import networks.structure.Weight;
+import networks.structure.weights.Weight;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.logging.Logger;

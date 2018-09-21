@@ -1,11 +1,12 @@
 package networks.structure.neurons;
 
-import networks.evaluation.values.Value;
+import networks.evaluation.functions.Activation;
 
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 /**
- * The most lightweight representation of a Neuron.
+ * The most lightweight representation of a Neuron. Not needed anymore since with explicit weight sharing through Weight object, these indices are just pointers to the Weight objects.
  */
 @Deprecated
 public class IndexedNeuron implements Neurons {
@@ -18,12 +19,22 @@ public class IndexedNeuron implements Neurons {
     int offsetIndex;
 
     @Override
-    public Value evaluate() {
+    public <T extends Neuron> ArrayList<T> getInputs() {
         return null;
     }
 
     @Override
-    public Value gradient() {
+    public Activation getActivation() {
         return null;
+    }
+
+    @Override
+    public String getId() {
+        return null;
+    }
+
+    @Override
+    public int inputCount() {
+        return 0;
     }
 }

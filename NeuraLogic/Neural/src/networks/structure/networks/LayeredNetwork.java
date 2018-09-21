@@ -1,7 +1,5 @@
 package networks.structure.networks;
 
-import networks.structure.NeuralLayer;
-
 import java.util.List;
 
 /**

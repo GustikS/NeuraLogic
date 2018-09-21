@@ -1,7 +1,7 @@
 package constructs.building.factories;
 
 import networks.evaluation.values.Value;
-import networks.structure.Weight;
+import networks.structure.weights.Weight;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
  */
 public class WeightFactory {
     private static final Logger LOG = Logger.getLogger(WeightFactory.class.getName());
+
+    private int index = 0;
 
     private Map<String, Weight> str2weight;
     private Map<Weight, Weight> weight2weight;
@@ -32,7 +34,7 @@ public class WeightFactory {
     public Weight construct(String from) {
         Weight result = str2weight.get(from);
         if (result == null) {
-            result = new Weight(from, null, false);
+            result = new Weight(index++, from, null, false);
             str2weight.put(from, result);
             weight2weight.put(result, result);
         }
@@ -51,7 +53,7 @@ public class WeightFactory {
     public Weight construct(String name, Value value, boolean fixed) {
         Weight result = str2weight.get(name);
         if (result == null) {
-            result = new Weight(name, value, fixed);
+            result = new Weight(index++, name, value, fixed);
             str2weight.put(name, result);
             weight2weight.put(result, result);
         }

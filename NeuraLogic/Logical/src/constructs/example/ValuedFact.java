@@ -4,8 +4,7 @@ import constructs.Atom;
 import constructs.WeightedPredicate;
 import ida.ilp.logic.Term;
 import networks.evaluation.values.Value;
-import networks.structure.Weight;
-import org.jetbrains.annotations.NotNull;
+import networks.structure.weights.Weight;
 
 import java.util.List;
 

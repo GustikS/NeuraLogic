@@ -1,9 +1,8 @@
 package networks.structure.transforming;
 
-import networks.structure.NeuralNetwork;
+import networks.structure.networks.NeuralNetwork;
 import settings.Settings;
 
-import java.util.HashMap;
 import java.util.HashSet;
 
 /**

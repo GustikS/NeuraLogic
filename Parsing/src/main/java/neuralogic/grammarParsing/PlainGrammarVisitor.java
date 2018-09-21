@@ -16,7 +16,7 @@ import ida.utils.tuples.Pair;
 import networks.evaluation.values.ScalarValue;
 import networks.evaluation.values.Value;
 import networks.evaluation.values.VectorValue;
-import networks.structure.Weight;
+import networks.structure.weights.Weight;
 import parsers.neuralogic.NeuralogicBaseVisitor;
 import parsers.neuralogic.NeuralogicParser;
 

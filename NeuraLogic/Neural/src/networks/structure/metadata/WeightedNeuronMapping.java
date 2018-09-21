@@ -1,7 +1,7 @@
 package networks.structure.metadata;
 
 import ida.utils.tuples.Pair;
-import networks.structure.Weight;
+import networks.structure.weights.Weight;
 import networks.structure.neurons.Neurons;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,6 +35,11 @@ public class WeightedNeuronMapping<T extends Neurons> implements NeuronMapping<P
     @Override
     public Iterator<Pair<T, Weight>> iterator() {
         return new InputIterator<>(this);
+    }
+
+    @Override
+    public boolean isComplete() {
+        return true;
     }
 
     @Override

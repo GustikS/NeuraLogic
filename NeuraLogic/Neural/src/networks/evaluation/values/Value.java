@@ -1,13 +1,15 @@
 package networks.evaluation.values;
 
+import networks.evaluation.iteration.State;
+
 /**
  * Created by gusta on 8.3.17.
  */
-public abstract class Value {
+public abstract class Value implements State.Evaluation, State.Gradient {
 
-    public static final Value ONE = new One();
+    public static final Value ONE = new One();  //todo zero
 
-    private static class One extends Value {
+    private static class One extends networks.evaluation.values.Value {
 
         private ScalarValue one = new ScalarValue(1);
 
@@ -42,7 +44,7 @@ public abstract class Value {
         }
     }
 
-    public Value multiplyBy(Value val2) {
+    public final Value multiplyBy(Value val2) {
         if (val2 instanceof MatrixValue) {
             return multiplyByMatrix((MatrixValue) val2);
         }
@@ -55,7 +57,7 @@ public abstract class Value {
         throw new ClassCastException("Unknown value-type multiplication!");
     }
 
-    public Value add(Value val2) {
+    public final Value add(Value val2) {
         if (val2 instanceof MatrixValue) {
             return addMatrix((MatrixValue) val2);
         }
@@ -79,4 +81,5 @@ public abstract class Value {
     protected abstract Value addVector(VectorValue val2);
 
     protected abstract Value addScalar(ScalarValue val2);
+
 }

@@ -2,8 +2,8 @@ package networks.evaluation;
 
 import networks.evaluation.results.Results;
 import networks.evaluation.values.Value;
-import networks.structure.NeuralNetwork;
-import networks.structure.WeightedNeuron;
+import networks.structure.networks.NeuralNetwork;
+import networks.structure.neurons.WeightedNeuron;
 import networks.structure.networks.TopologicNetwork;
 import settings.Settings;
 import training.NeuralModel;

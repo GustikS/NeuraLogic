@@ -1,28 +1,34 @@
-package networks.structure;
+package networks.structure.weights;
 
 import constructs.template.metadata.WeightMetadata;
 import networks.evaluation.values.Value;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Created by gusta on 8.3.17.
  */
 public class Weight {
+    public final int index;
+
     public String name;
     public Value value;
     public boolean isFixed = false;
 
+    @Nullable
     double learningRate;
-    public String originalString;
+    //public String originalString;
 
     WeightMetadata metadata;
 
-    public Weight(String name, Value value, boolean fixed) {
+    private Weight(int index, String name, Value value, boolean fixed) {
+        this.index = index;
         this.name = name;
         this.value = value;
         this.isFixed = fixed;
     }
 
-    public Weight(Value value) {
+    private Weight(int index, Value value) {
+        this.index = index;
         this.value = value;
         this.isFixed = true;
     }

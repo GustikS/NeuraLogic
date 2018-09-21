@@ -14,14 +14,15 @@ import ida.ilp.logic.Literal;
 import ida.ilp.logic.subsumption.Matching;
 import ida.utils.tuples.Pair;
 import networks.evaluation.values.ScalarValue;
-import networks.structure.NeuralNetwork;
+import networks.structure.networks.NeuralNetwork;
 import networks.structure.NeuralProcessingSample;
-import networks.structure.Weight;
-import networks.structure.WeightedNeuron;
+import networks.structure.weights.Weight;
+import networks.structure.neurons.WeightedNeuron;
 import networks.structure.metadata.LinkedNeuronMapping;
 import networks.structure.metadata.WeightedNeuronMapping;
 import networks.structure.networks.DetailedNetwork;
 import networks.structure.neurons.*;
+import networks.structure.neurons.creation.*;
 import org.jetbrains.annotations.NotNull;
 import settings.Settings;
 
@@ -189,7 +190,7 @@ public abstract class Grounder {
      */
     private WeightedRule merge2rules(WeightedRule a, WeightedRule b) {
         WeightedRule weightedRule = new WeightedRule(a);
-        weightedRule.weight = new Weight(a.weight.name, a.weight.value.add(b.weight.value), a.weight.isFixed);
+        weightedRule.weight = new Weight(index, a.weight.name, a.weight.value.add(b.weight.value), a.weight.isFixed);
         return weightedRule;
     }
 

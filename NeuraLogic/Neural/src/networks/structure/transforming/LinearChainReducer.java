@@ -1,6 +1,6 @@
 package networks.structure.transforming;
 
-import networks.structure.NeuralNetwork;
+import networks.structure.networks.NeuralNetwork;
 
 public class LinearChainReducer implements NetworkReducing {
 

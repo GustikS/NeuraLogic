@@ -1,7 +1,7 @@
 package networks.evaluation.functions;
 
 import networks.evaluation.values.Value;
-import networks.structure.Weight;
+import networks.structure.weights.Weight;
 import networks.structure.neurons.Neurons;
 
 import java.util.ArrayList;

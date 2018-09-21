@@ -1,7 +1,6 @@
-package networks.structure;
+package networks.structure.neurons;
 
-import networks.evaluation.values.Value;
-import networks.structure.neurons.Neurons;
+import networks.structure.weights.Weight;
 
 import java.util.logging.Logger;
 
@@ -15,17 +14,11 @@ public class InputEdge<T extends Neurons> {
 
     T input;
 
-    public Value getInputValue(){
-        return input.evaluate();
-    }
 
     public class Weighted extends InputEdge<T> {
 
         Weight weight;
 
-        public Value getInputValue(){
-            return weight.value.multiplyBy(input.evaluate());
-        }
 
     }
 }

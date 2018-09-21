@@ -9,36 +9,36 @@ public class VectorValue extends Value {
     double[] value;
 
     @Override
-    protected Value multiplyByMatrix(MatrixValue val2) {
+    protected final Value multiplyByMatrix(MatrixValue val2) {
         return this;
     }
 
     @Override
-    protected Value multiplyByVector(VectorValue val2) {
+    protected final Value multiplyByVector(VectorValue val2) {
         return null;
     }
 
     @Override
-    protected Value multiplyByScalar(ScalarValue val2) {
+    protected final Value multiplyByScalar(ScalarValue val2) {
         return null;
     }
 
     @Override
-    protected Value addMatrix(MatrixValue val2) {
+    protected final Value addMatrix(MatrixValue val2) {
         return null;
     }
 
     @Override
-    protected Value addVector(VectorValue val2) {
+    protected final Value addVector(VectorValue val2) {
         return null;
     }
 
     @Override
-    protected Value addScalar(ScalarValue val2) {
+    protected final Value addScalar(ScalarValue val2) {
         return null;
     }
 
-    public VectorValue(List<Double> vector){
+    public VectorValue(List<Double> vector) {
         value = vector.stream().mapToDouble(d -> d).toArray();
     }
 }

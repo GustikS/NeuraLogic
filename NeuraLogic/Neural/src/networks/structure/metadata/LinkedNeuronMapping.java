@@ -36,6 +36,11 @@ public class LinkedNeuronMapping<T extends Neurons> implements NeuronMapping<T> 
     }
 
     @Override
+    public boolean isComplete() {
+        return true;
+    }
+
+    @Override
     public void addLink(T input) {
         inputs.add(input);
     }

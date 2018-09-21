@@ -1,8 +1,8 @@
 package networks.evaluation.iteration;
 
 import networks.evaluation.values.Value;
-import networks.structure.NeuralNetwork;
-import networks.structure.WeightedNeuron;
+import networks.structure.networks.NeuralNetwork;
+import networks.structure.neurons.WeightedNeuron;
 
 public interface IterationStrategy<T extends NeuralNetwork, V extends Value> {
 
