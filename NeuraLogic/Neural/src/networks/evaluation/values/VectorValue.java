@@ -8,6 +8,24 @@ import java.util.List;
 public class VectorValue extends Value {
     double[] value;
 
+    public VectorValue(int size){
+        value = new double[size];
+    }
+
+    public VectorValue(List<Double> vector) {
+        value = vector.stream().mapToDouble(d -> d).toArray();
+    }
+
+    public VectorValue(int size, ValueInitializer valueInitializer){
+        value = new double[size];
+        initialize(valueInitializer);
+    }
+
+    @Override
+    public void initialize(ValueInitializer valueInitializer) {
+        valueInitializer.initVector(this);
+    }
+
     @Override
     protected final Value multiplyByMatrix(MatrixValue val2) {
         return this;
@@ -38,7 +56,5 @@ public class VectorValue extends Value {
         return null;
     }
 
-    public VectorValue(List<Double> vector) {
-        value = vector.stream().mapToDouble(d -> d).toArray();
-    }
+
 }

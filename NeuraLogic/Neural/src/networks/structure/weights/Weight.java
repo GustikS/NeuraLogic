@@ -2,6 +2,7 @@ package networks.structure.weights;
 
 import constructs.template.metadata.WeightMetadata;
 import networks.evaluation.values.Value;
+import networks.evaluation.values.ValueInitializer;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -19,6 +20,9 @@ public class Weight {
     //public String originalString;
 
     WeightMetadata metadata;
+
+    public static Weight unitWeight = new Weight(-1, "unitWeight", Value.ONE, true);
+    public static Weight zeroWeight = new Weight(-1, "zeroWeight" ,Value.ZERO, true);
 
     private Weight(int index, String name, Value value, boolean fixed) {
         this.index = index;
@@ -43,7 +47,7 @@ public class Weight {
         return name.equals(obj);
     }
 
-    public void init() {
-        //todo
+    public void init(ValueInitializer valueInitializer) {
+        value.initialize(valueInitializer);
     }
 }

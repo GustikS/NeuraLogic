@@ -131,6 +131,7 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
         if (settings.expandEmbeddings) {
             //todo at the very end of all pruning, expand the networks to full size with vectorized nodes
         }
+        //todo check wieghts dimensions
         return pipeline;
     }
 }

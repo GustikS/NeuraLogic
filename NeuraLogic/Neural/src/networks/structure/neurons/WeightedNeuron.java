@@ -3,7 +3,6 @@ package networks.structure.neurons;
 import ida.utils.tuples.Pair;
 import networks.evaluation.functions.Activation;
 import networks.evaluation.iteration.State;
-import networks.evaluation.values.Value;
 import networks.structure.weights.Weight;
 
 import java.util.ArrayList;
@@ -19,7 +18,7 @@ import java.util.logging.Logger;
  * - inputs representation is better since it follows the process of calculation more naturally
  * - staying with this representation for everything then
  */
-public class WeightedNeuron<T extends Neurons, S extends State> extends Neuron<T, S> {
+public class WeightedNeuron<T extends Neurons, S extends State.Computation> extends Neuron<T, S> {
     private static final Logger LOG = Logger.getLogger(WeightedNeuron.class.getName());
 
     protected Weight offset;
@@ -37,7 +36,7 @@ public class WeightedNeuron<T extends Neurons, S extends State> extends Neuron<T
     public final void addInput(T input) {
         LOG.warning("Adding unnecessarily weighted input. Use plain Neuron Object for unweighted inputs instead!");
         inputs.add(input);
-        weights.add(new Weight(Value.ONE));
+        weights.add(Weight.unitWeight);
     }
 
     public final void addInput(T input, Weight weight) {
@@ -45,12 +44,16 @@ public class WeightedNeuron<T extends Neurons, S extends State> extends Neuron<T
         weights.add(weight);
     }
 
+    /**
+     * Fastest access to weighted inputs
+     * @return
+     */
     public final ArrayList<Weight> getWeights() {
         return weights;
     }
 
     /**
-     * Expensive call - needs to create new objects!
+     * Expensive call - needs to create new List and Pairs!
      *
      * @return
      */
@@ -62,6 +65,10 @@ public class WeightedNeuron<T extends Neurons, S extends State> extends Neuron<T
         return pairedInputs;
     }
 
+    /**
+     * Semi-expensive - needs to create iterator and Pairs.
+     * @return
+     */
     public final Iterator<Pair<T, Weight>> getWeightedInputs() {
         return new WeightedInputsIterator(inputs, weights);
     }

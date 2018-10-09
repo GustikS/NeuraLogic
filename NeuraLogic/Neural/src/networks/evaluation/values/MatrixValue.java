@@ -4,7 +4,15 @@ package networks.evaluation.values;
  * Created by gusta on 8.3.17.
  */
 public class MatrixValue extends Value {
+    int rows;
+    int cols;
+
     double[][] value;
+
+    @Override
+    public void initialize(ValueInitializer valueInitializer) {
+        valueInitializer.initMatrix(this);
+    }
 
     @Override
     protected final Value multiplyByMatrix(MatrixValue val2) {

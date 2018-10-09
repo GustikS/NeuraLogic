@@ -5,13 +5,20 @@ import networks.evaluation.iteration.State;
 /**
  * Created by gusta on 8.3.17.
  */
-public abstract class Value implements State.Evaluation, State.Gradient {
+public abstract class Value implements State.Computation.Evaluation, State.Computation.Gradient {
 
-    public static final Value ONE = new One();  //todo zero
+    public static final Value ONE = new One();
+    public static final Value ZERO = new Zero();
+
+    public abstract void initialize(ValueInitializer valueInitializer);
 
     private static class One extends networks.evaluation.values.Value {
 
         private ScalarValue one = new ScalarValue(1);
+
+        @Override
+        public void initialize(ValueInitializer valueInitializer) {
+        }
 
         @Override
         protected Value multiplyByMatrix(MatrixValue val2) {
@@ -41,6 +48,45 @@ public abstract class Value implements State.Evaluation, State.Gradient {
         @Override
         protected Value addScalar(ScalarValue val2) {
             return val2.addScalar(one);
+        }
+    }
+
+    private static class Zero extends networks.evaluation.values.Value {
+
+        private ScalarValue ZERO = new ScalarValue(0);
+
+        @Override
+        public void initialize(ValueInitializer valueInitializer) {
+        }
+
+        @Override
+        protected Value multiplyByMatrix(MatrixValue val2) {
+            return ZERO;
+        }
+
+        @Override
+        protected Value multiplyByVector(VectorValue val2) {
+            return ZERO;
+        }
+
+        @Override
+        protected Value multiplyByScalar(ScalarValue val2) {
+            return ZERO;
+        }
+
+        @Override
+        protected Value addMatrix(MatrixValue val2) {
+            return val2;
+        }
+
+        @Override
+        protected Value addVector(VectorValue val2) {
+            return val2;
+        }
+
+        @Override
+        protected Value addScalar(ScalarValue val2) {
+            return val2;
         }
     }
 

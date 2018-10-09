@@ -1,10 +1,13 @@
 package networks.structure.metadata;
 
-public interface NeuronMapping<T> extends Iterable<T> {
+import networks.evaluation.iteration.State;
+
+public interface NeuronMapping<T> extends Iterable<T>, State.Structure {
     /**
      * Are the returned inputs a complete set of all inputs?
      * @return
      */
     boolean isComplete();
+
     void addLink(T input);
 }

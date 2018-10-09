@@ -6,10 +6,21 @@ package networks.evaluation.values;
 public class ScalarValue extends Value {
     public double value;
 
+    public ScalarValue() {
+        value = 0;
+    }
+
+    public ScalarValue(double val) {
+        value = val;
+    }
+
+    public ScalarValue(ValueInitializer valueInitializer) {
+        initialize(valueInitializer);
+    }
+
     @Override
-    protected final Value multiplyByScalar(ScalarValue val2) {
-        value *= val2.value;
-        return this;
+    public void initialize(ValueInitializer valueInitializer) {
+        valueInitializer.initScalar(this);
     }
 
     @Override
@@ -20,6 +31,12 @@ public class ScalarValue extends Value {
     @Override
     protected final Value multiplyByVector(VectorValue val2) {
         return null;
+    }
+
+    @Override
+    protected final Value multiplyByScalar(ScalarValue val2) {
+        value *= val2.value;
+        return this;
     }
 
     @Override
@@ -37,8 +54,5 @@ public class ScalarValue extends Value {
         return null;
     }
 
-    public ScalarValue(double val) {
-        value = val;
-    }
 
 }

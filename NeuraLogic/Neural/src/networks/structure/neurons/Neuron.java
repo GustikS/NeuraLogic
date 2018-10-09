@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-public class Neuron<T extends Neurons, S extends State> implements Neurons {
+public class Neuron<T extends Neurons, S extends State.Computation> implements Neurons {
     private static final Logger LOG = Logger.getLogger(Neuron.class.getName());
     /**
      * Globally unique index of creation of this neuron (=hash)
@@ -25,14 +25,18 @@ public class Neuron<T extends Neurons, S extends State> implements Neurons {
     @Nullable
     private final S state;
     /**
+     * If not shared, the state can be freely used to store information (most efficient mode)
+     */
+    public boolean isShared;
+    /**
      * Activation function
      */
     @NotNull
     private final Activation activation;
     /**
-     * We want fast iteration over inputs - todo test - consider array here
+     * We want fast iteration over inputs - todo test - consider array here with grounder storing the inputs in a list first
      */
-    @Nullable   // FactNeurons have no inputs (null check will be faster that isEmpty())
+    @Nullable   // because FactNeurons have no inputs (null check will be faster that isEmpty())
     protected ArrayList<T> inputs;
 
     public Neuron(int index, String id, S state, Activation activation) {

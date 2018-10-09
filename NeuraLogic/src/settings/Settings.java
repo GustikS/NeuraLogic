@@ -16,9 +16,9 @@ public class Settings {
 
     //------------------High level
 
-    public optimize mode;
+    public Optimize mode;
 
-    public enum optimize {
+    public enum Optimize {
         MEMORY, SPEED, TRADEOFF
     }
 
@@ -26,7 +26,7 @@ public class Settings {
     /**
      * Global random generator
      */
-    Random random;
+    public Random random;
     public int seed = 1;
     /**
      * Global number format for all printing
@@ -54,9 +54,9 @@ public class Settings {
     /**
      * Type of grounder
      */
-    public groundingAlgo grounding = groundingAlgo.BUP;
+    public GroundingAlgo grounding = GroundingAlgo.BUP;
 
-    public enum groundingAlgo {
+    public enum GroundingAlgo {
         BUP, TDOWN, GRINGO
     }
 
@@ -123,6 +123,13 @@ public class Settings {
      * If there are embedding constructs in the Template, expand them (copy-multiple neurons) after Network creation
      */
     public boolean expandEmbeddings;
+
+    //-----------------Evaluation & Training
+
+    public NeuronSearch neuronSearch = NeuronSearch.LINEAR;
+    public enum NeuronSearch {
+        LINEAR, BST, HASHMAP
+    }
 
     //-----------------Structure Learning
     public boolean structureLearning;
@@ -198,6 +205,13 @@ public class Settings {
 
 
     /**
+     * Stores dynamically inferred settings
+     */
+    public class Inferred {
+        //todo store dynamically inferred settings here
+    }
+
+    /**
      * TODO Setup globally default settings here
      */
     public Settings() {
@@ -216,6 +230,7 @@ public class Settings {
 
     /**
      * Check for banned combinations here
+     *
      * @return
      */
     public Pair<Boolean, String> validate() {
@@ -239,7 +254,7 @@ public class Settings {
     /**
      * Infer all remaining settings from the given
      */
-    public void infer(){
+    public void infer() {
         if (reduceTemplate) graphTemplate = true;
         //TODO
     }
