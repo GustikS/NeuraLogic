@@ -130,6 +130,11 @@ public class Settings {
     public enum NeuronSearch {
         LINEAR, BST, HASHMAP
     }
+    public int lin2bst = 10^3;
+    public int bst2hashmap = 10^6;
+
+    public boolean minibatch = false;
+    public int minibatchSize = 4;
 
     //-----------------Structure Learning
     public boolean structureLearning;

@@ -1,9 +1,12 @@
 package networks.evaluation.values;
 
+import java.util.logging.Logger;
+
 /**
  * Created by gusta on 8.3.17.
  */
 public class ScalarValue extends Value {
+    private static final Logger LOG = Logger.getLogger(ScalarValue.class.getName());
     public double value;
 
     public ScalarValue() {
@@ -24,35 +27,43 @@ public class ScalarValue extends Value {
     }
 
     @Override
-    protected final Value multiplyByMatrix(MatrixValue val2) {
+    public Value multiplyBy(Value value) {
+        return value.multiplyBy(this);
+    }
+
+    @Override
+    public ScalarValue multiplyBy(ScalarValue value) {
+        return new ScalarValue(this.value * value.value);
+    }
+
+    @Override
+    public VectorValue multiplyBy(VectorValue value) {
         return null;
     }
 
     @Override
-    protected final Value multiplyByVector(VectorValue val2) {
+    public MatrixValue multiplyBy(MatrixValue value) {
         return null;
     }
 
     @Override
-    protected final Value multiplyByScalar(ScalarValue val2) {
-        value *= val2.value;
-        return this;
+    public Value add(Value value) {
+        return value.add(this);
     }
 
     @Override
-    protected final Value addMatrix(MatrixValue val2) {
+    public ScalarValue add(ScalarValue value) {
+        return new ScalarValue(this.value + value.value);
+    }
+
+    @Override
+    public VectorValue add(VectorValue value) {
         return null;
     }
 
     @Override
-    protected final Value addVector(VectorValue val2) {
+    public MatrixValue add(MatrixValue value) {
         return null;
     }
-
-    @Override
-    protected final Value addScalar(ScalarValue val2) {
-        return null;
-    }
-
 
 }

@@ -1,6 +1,6 @@
 package networks.evaluation.values;
 
-import networks.evaluation.iteration.State;
+import networks.structure.networks.State;
 
 /**
  * Created by gusta on 8.3.17.
@@ -12,120 +12,127 @@ public abstract class Value implements State.Computation.Evaluation, State.Compu
 
     public abstract void initialize(ValueInitializer valueInitializer);
 
+    /**
+     * Double-dispatch with switch of the left-right hand sides to keep in mind!
+     * @param value
+     * @return
+     */
+    public abstract Value multiplyBy(Value value);
+    public abstract Value multiplyBy(ScalarValue value);
+    public abstract Value multiplyBy(VectorValue value);
+    public abstract Value multiplyBy(MatrixValue value);
+
+    /**
+     * Double-dispatch with switch of the left-right hand sides to keep in mind!
+     * @param value
+     * @return
+     */
+    public abstract Value add(Value value);
+    public abstract Value add(ScalarValue value);
+    public abstract Value add(VectorValue value);
+    public abstract Value add(MatrixValue value);
+
+
+    /**
+     * todo consider replacing these constant classes with simple ScalarValue(1), the speedup might be small.
+     */
     private static class One extends networks.evaluation.values.Value {
 
         private ScalarValue one = new ScalarValue(1);
 
         @Override
         public void initialize(ValueInitializer valueInitializer) {
+            //void
         }
 
         @Override
-        protected Value multiplyByMatrix(MatrixValue val2) {
-            return val2;
+        public Value multiplyBy(Value value) {
+            return value;
         }
 
         @Override
-        protected Value multiplyByVector(VectorValue val2) {
-            return val2;
+        public Value multiplyBy(ScalarValue value) {
+            return value;
         }
 
         @Override
-        protected Value multiplyByScalar(ScalarValue val2) {
-            return val2;
+        public Value multiplyBy(VectorValue value) {
+            return value;
         }
 
         @Override
-        protected Value addMatrix(MatrixValue val2) {
-            return val2.addScalar(one);
+        public Value multiplyBy(MatrixValue value) {
+            return value;
         }
 
         @Override
-        protected Value addVector(VectorValue val2) {
-            return val2.addScalar(one);
+        public Value add(Value value) {
+            return value.add(one);
         }
 
         @Override
-        protected Value addScalar(ScalarValue val2) {
-            return val2.addScalar(one);
+        public Value add(ScalarValue value) {
+            return value.add(one);
+        }
+
+        @Override
+        public Value add(VectorValue value) {
+            return value.add(one);
+        }
+
+        @Override
+        public Value add(MatrixValue value) {
+            return value.add(one);
         }
     }
 
     private static class Zero extends networks.evaluation.values.Value {
 
-        private ScalarValue ZERO = new ScalarValue(0);
+        private ScalarValue zero = new ScalarValue(0);
 
         @Override
         public void initialize(ValueInitializer valueInitializer) {
+            //void
         }
 
         @Override
-        protected Value multiplyByMatrix(MatrixValue val2) {
-            return ZERO;
+        public Value multiplyBy(Value value) {
+            return zero;
         }
 
         @Override
-        protected Value multiplyByVector(VectorValue val2) {
-            return ZERO;
+        public Value multiplyBy(ScalarValue value) {
+            return zero;
         }
 
         @Override
-        protected Value multiplyByScalar(ScalarValue val2) {
-            return ZERO;
+        public Value multiplyBy(VectorValue value) {
+            return zero;
         }
 
         @Override
-        protected Value addMatrix(MatrixValue val2) {
-            return val2;
+        public Value multiplyBy(MatrixValue value) {
+            return zero;
         }
 
         @Override
-        protected Value addVector(VectorValue val2) {
-            return val2;
+        public Value add(Value value) {
+            return value;
         }
 
         @Override
-        protected Value addScalar(ScalarValue val2) {
-            return val2;
+        public Value add(ScalarValue value) {
+            return value;
+        }
+
+        @Override
+        public Value add(VectorValue value) {
+            return value;
+        }
+
+        @Override
+        public Value add(MatrixValue value) {
+            return value;
         }
     }
-
-    public final Value multiplyBy(Value val2) {
-        if (val2 instanceof MatrixValue) {
-            return multiplyByMatrix((MatrixValue) val2);
-        }
-        if (val2 instanceof VectorValue) {
-            return multiplyByVector((VectorValue) val2);
-        }
-        if (val2 instanceof ScalarValue) {
-            return multiplyByScalar((ScalarValue) val2);
-        }
-        throw new ClassCastException("Unknown value-type multiplication!");
-    }
-
-    public final Value add(Value val2) {
-        if (val2 instanceof MatrixValue) {
-            return addMatrix((MatrixValue) val2);
-        }
-        if (val2 instanceof VectorValue) {
-            return addVector((VectorValue) val2);
-        }
-        if (val2 instanceof ScalarValue) {
-            return addScalar((ScalarValue) val2);
-        }
-        throw new ClassCastException("Unknown value-type adding!");
-    }
-
-    protected abstract Value multiplyByMatrix(MatrixValue val2);
-
-    protected abstract Value multiplyByVector(VectorValue val2);
-
-    protected abstract Value multiplyByScalar(ScalarValue val2);
-
-    protected abstract Value addMatrix(MatrixValue val2);
-
-    protected abstract Value addVector(VectorValue val2);
-
-    protected abstract Value addScalar(ScalarValue val2);
-
 }

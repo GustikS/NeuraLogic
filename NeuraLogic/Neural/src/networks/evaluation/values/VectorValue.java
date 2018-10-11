@@ -1,11 +1,13 @@
 package networks.evaluation.values;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Created by gusta on 8.3.17.
  */
 public class VectorValue extends Value {
+    private static final Logger LOG = Logger.getLogger(VectorValue.class.getName());
     double[] value;
 
     public VectorValue(int size){
@@ -27,34 +29,45 @@ public class VectorValue extends Value {
     }
 
     @Override
-    protected final Value multiplyByMatrix(MatrixValue val2) {
-        return this;
+    public Value multiplyBy(Value value) {
+        return value.multiplyBy(this);
     }
 
     @Override
-    protected final Value multiplyByVector(VectorValue val2) {
+    public VectorValue multiplyBy(ScalarValue value) {
         return null;
     }
 
     @Override
-    protected final Value multiplyByScalar(ScalarValue val2) {
+    public Value multiplyBy(VectorValue value) {
+        //todo take care of an element-wise multiplication vs matrix
         return null;
     }
 
     @Override
-    protected final Value addMatrix(MatrixValue val2) {
+    public MatrixValue multiplyBy(MatrixValue value) {
         return null;
     }
 
     @Override
-    protected final Value addVector(VectorValue val2) {
+    public Value add(Value value) {
         return null;
     }
 
     @Override
-    protected final Value addScalar(ScalarValue val2) {
+    public VectorValue add(ScalarValue value) {
         return null;
     }
 
+    @Override
+    public VectorValue add(VectorValue value) {
+        return null;
+    }
+
+    @Override
+    public Value add(MatrixValue value) {
+        LOG.severe("Incompatible multiplication");
+        return null;
+    }
 
 }

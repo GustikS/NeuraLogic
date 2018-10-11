@@ -9,9 +9,9 @@ import ida.ilp.logic.Clause;
 import ida.ilp.logic.Literal;
 import ida.ilp.logic.subsumption.Matching;
 import learning.Example;
-import networks.structure.networks.NeuralNetwork;
-import networks.structure.neurons.Neuron;
 import networks.structure.metadata.NeuronMapping;
+import networks.structure.networks.DetailedNetwork;
+import networks.structure.neurons.Neuron;
 import networks.structure.neurons.creation.AggregationNeuron;
 import networks.structure.neurons.creation.AtomNeuron;
 import networks.structure.neurons.creation.FactNeuron;
@@ -42,10 +42,10 @@ public class GroundTemplate extends GraphTemplate implements Example {
     public NeuronMaps neuronMaps;
 
     public static class NeuronMaps {
-        Map<Literal, AtomNeuron> atomNeurons = new HashMap<>();
-        Map<WeightedRule, AggregationNeuron> aggNeurons = new HashMap<>();
-        Map<WeightedRule, RuleNeurons> ruleNeurons = new LinkedHashMap<>();
-        Map<Literal, FactNeuron> factNeurons = new HashMap<>();
+        public Map<Literal, AtomNeuron> atomNeurons = new HashMap<>();
+        public Map<WeightedRule, AggregationNeuron> aggNeurons = new HashMap<>();
+        public Map<WeightedRule, RuleNeurons> ruleNeurons = new LinkedHashMap<>();
+        public Map<Literal, FactNeuron> factNeurons = new HashMap<>();
 
         /**
          * Locally valid input overloading for some neurons to facilitate dynamic structure changes
@@ -64,7 +64,7 @@ public class GroundTemplate extends GraphTemplate implements Example {
     }
 
     @Nullable
-    NeuralNetwork neuralNetwork;
+    DetailedNetwork neuralNetwork;
 
 
     public GroundTemplate() {

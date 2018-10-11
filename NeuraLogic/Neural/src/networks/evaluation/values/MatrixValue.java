@@ -1,9 +1,13 @@
 package networks.evaluation.values;
 
+import java.util.logging.Logger;
+
 /**
  * Created by gusta on 8.3.17.
  */
 public class MatrixValue extends Value {
+    private static final Logger LOG = Logger.getLogger(MatrixValue.class.getName());
+
     int rows;
     int cols;
 
@@ -15,32 +19,54 @@ public class MatrixValue extends Value {
     }
 
     @Override
-    protected final Value multiplyByMatrix(MatrixValue val2) {
+    public Value multiplyBy(Value value) {
+        return value.multiplyBy(this);
+    }
+
+    @Override
+    public ScalarValue multiplyBy(ScalarValue value) {
         return null;
     }
 
     @Override
-    protected final Value multiplyByVector(VectorValue val2) {
+    public MatrixValue multiplyBy(VectorValue value) {
+        return null;
+    }
+
+    /**
+     * Handle the non-commutative cases carefully!
+     * @param value
+     * @return
+     */
+    @Override
+    public MatrixValue multiplyBy(MatrixValue value) {
+        MatrixValue lhs = value;
+        MatrixValue rhs = this;
+        //todo actually multiply them (with eigen?)
         return null;
     }
 
     @Override
-    protected final Value multiplyByScalar(ScalarValue val2) {
+    public Value add(Value value) {
+        return value.add(this);
+    }
+
+    @Override
+    public MatrixValue add(ScalarValue value) {
+        //element-wise
         return null;
     }
 
     @Override
-    protected final Value addMatrix(MatrixValue val2) {
+    public Value add(VectorValue value) {
+        LOG.severe("Incompatible multiplication");
         return null;
     }
 
     @Override
-    protected final Value addVector(VectorValue val2) {
+    public Value add(MatrixValue value) {
+        //check dimensions
         return null;
     }
 
-    @Override
-    protected final Value addScalar(ScalarValue val2) {
-        return null;
-    }
 }

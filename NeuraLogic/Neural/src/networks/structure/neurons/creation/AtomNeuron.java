@@ -1,7 +1,7 @@
 package networks.structure.neurons.creation;
 
 import constructs.template.HeadAtom;
-import networks.evaluation.iteration.State;
+import networks.structure.networks.State;
 import networks.structure.weights.Weight;
 import networks.structure.neurons.WeightedNeuron;
 

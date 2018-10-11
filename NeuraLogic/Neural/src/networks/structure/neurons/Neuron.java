@@ -1,7 +1,7 @@
 package networks.structure.neurons;
 
 import networks.evaluation.functions.Activation;
-import networks.evaluation.iteration.State;
+import networks.structure.networks.State;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

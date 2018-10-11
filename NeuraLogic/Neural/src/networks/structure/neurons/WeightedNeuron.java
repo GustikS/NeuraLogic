@@ -2,7 +2,7 @@ package networks.structure.neurons;
 
 import ida.utils.tuples.Pair;
 import networks.evaluation.functions.Activation;
-import networks.evaluation.iteration.State;
+import networks.structure.networks.State;
 import networks.structure.weights.Weight;
 
 import java.util.ArrayList;

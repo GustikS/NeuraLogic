@@ -1,6 +1,6 @@
 package networks.structure.metadata;
 
-import networks.evaluation.iteration.State;
+import networks.structure.networks.State;
 
 public interface NeuronMapping<T> extends Iterable<T>, State.Structure {
     /**

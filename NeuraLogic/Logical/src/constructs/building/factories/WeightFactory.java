@@ -59,4 +59,8 @@ public class WeightFactory {
         }
         return result;
     }
+
+    public Weight mergeWeights(Weight a, Weight b) {
+        return new Weight(index, a.name, a.value.add(b.value), a.isFixed);  //todo improve this - //todo correct for explicit weight sharing - cannot just add shared weight
+    }
 }

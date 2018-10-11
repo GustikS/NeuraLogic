@@ -8,6 +8,7 @@ import java.util.logging.Logger;
  * This type of a Neuron can be used in a fixed context of a NeuralNetwork.
  * I.e. with no sharing across networks, when it is clear what the parents of this Neuron are.
  */
+@Deprecated
 public class DetailedNeuron extends StatefulNeuron {
     private static final Logger LOG = Logger.getLogger(DetailedNeuron.class.getName());
 

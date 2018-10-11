@@ -1,7 +1,7 @@
 package networks.structure.neurons.creation;
 
 import constructs.template.WeightedRule;
-import networks.evaluation.iteration.State;
+import networks.structure.networks.State;
 import networks.structure.neurons.Neuron;
 
 /**

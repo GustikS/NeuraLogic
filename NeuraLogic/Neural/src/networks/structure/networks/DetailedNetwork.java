@@ -1,7 +1,6 @@
 package networks.structure.networks;
 
 import ida.utils.tuples.Pair;
-import networks.evaluation.iteration.State;
 import networks.structure.weights.Weight;
 import networks.structure.metadata.LinkedNeuronMapping;
 import networks.structure.metadata.NetworkMetadata;
@@ -26,16 +25,20 @@ public class DetailedNetwork extends TopologicNetwork {
     public @Nullable Map<Neuron, NeuronMapping> outputMapping;
 
     @Nullable
+    public
     Neurons neurons;
+
+    public DetailedNetwork() {
+    }
 
     public class Neurons {
 
-        List<AtomNeuron> atomNeurons;
-        List<AggregationNeuron> aggNeurons;
-        List<RuleNeuron> ruleNeurons;
-        List<WeightedRuleNeuron> weightedRuleNeurons;
-        List<FactNeuron> factNeurons;
-        List<NegationNeuron> negationNeurons;
+        public List<AtomNeuron> atomNeurons;
+        public List<AggregationNeuron> aggNeurons;
+        public List<RuleNeuron> ruleNeurons;
+        public List<WeightedRuleNeuron> weightedRuleNeurons;
+        public List<FactNeuron> factNeurons;
+        public List<NegationNeuron> negationNeurons;
 
         List<Neuron> roots;
         List<Neuron> leaves;
@@ -45,35 +48,6 @@ public class DetailedNetwork extends TopologicNetwork {
 
     @Nullable
     NetworkMetadata metadata;
-
-    public DetailedNetwork(Collection<AtomNeuron> atomNeurons, Collection<AggregationNeuron> aggregationNeurons, Collection<RuleNeurons> ruleNeurons, Collection<FactNeuron> factNeurons, Set<NegationNeuron> negationNeurons) {
-        this.neurons = new Neurons();
-        this.neurons.atomNeurons = new ArrayList<>(atomNeurons);
-        this.neurons.aggNeurons = new ArrayList<>(aggregationNeurons);
-        this.neurons.ruleNeurons = new ArrayList<>();
-        this.neurons.weightedRuleNeurons = new ArrayList<>();
-        for (RuleNeurons ruleNeuron : ruleNeurons) {
-            if (ruleNeuron instanceof WeightedRuleNeuron) {
-                this.neurons.weightedRuleNeurons.add((WeightedRuleNeuron) ruleNeuron);
-            } else {
-                this.neurons.ruleNeurons.add((RuleNeuron) ruleNeuron);
-            }
-        }
-        this.neurons.factNeurons = new ArrayList<>(factNeurons);
-        this.neurons.negationNeurons = new ArrayList<>(negationNeurons);
-
-        this.allNeuronsTopologic = new ArrayList<>(atomNeurons.size() + aggregationNeurons.size() + ruleNeurons.size() + factNeurons.size() + negationNeurons.size());
-        this.allNeuronsTopologic.addAll(atomNeurons);
-        this.allNeuronsTopologic.addAll(aggregationNeurons);
-        this.allNeuronsTopologic.addAll(this.neurons.ruleNeurons);
-        this.allNeuronsTopologic.addAll(this.neurons.weightedRuleNeurons);
-        this.allNeuronsTopologic.addAll(factNeurons);
-        this.allNeuronsTopologic.addAll(negationNeurons);
-
-        this.allNeuronsTopologic = topologicSort(this.allNeuronsTopologic);
-
-        this.outputMapping = calculateOutputs();
-    }
 
     public Map<Neuron, NeuronMapping> calculateOutputs() {
         Map<Neuron, NeuronMapping> outputMapping = new HashMap<>();
@@ -88,7 +62,7 @@ public class DetailedNetwork extends TopologicNetwork {
         return outputMapping;
     }
 
-    public <T extends WeightedNeuron, S extends State> Iterator<Pair<T, Weight>> getInputs(WeightedNeuron<T, S> neuron) {
+    public <T extends WeightedNeuron, S extends State.Structure> Iterator<Pair<T, Weight>> getInputs(WeightedNeuron<T, S> neuron) {
         WeightedNeuronMapping<T> inputMapping;
         if ((inputMapping = extraInputMapping != null ? (WeightedNeuronMapping<T>) extraInputMapping.get(neuron) : null) != null) {
             return inputMapping.iterator();
@@ -97,7 +71,7 @@ public class DetailedNetwork extends TopologicNetwork {
         }
     }
 
-    public <T extends Neuron, S extends State> Iterator<T> getInputs(Neuron<T, S> neuron) {
+    public <T extends Neuron, S extends State.Structure> Iterator<T> getInputs(Neuron<T, S> neuron) {
         NeuronMapping<T> inputMapping;
         if ((inputMapping = extraInputMapping != null ? extraInputMapping.get(neuron) : null) != null) {
             return inputMapping.iterator();
@@ -106,7 +80,7 @@ public class DetailedNetwork extends TopologicNetwork {
         }
     }
 
-    public <T extends Neuron, S extends State> Iterator<T> getOutputs(Neuron<T, S> neuron) {
+    public <T extends Neuron, S extends State.Structure> Iterator<T> getOutputs(Neuron<T, S> neuron) {
         NeuronMapping<T> mapping;
         if ((mapping = outputMapping != null ? outputMapping.get(neuron) : null) != null) {
             return mapping.iterator();
@@ -129,32 +103,4 @@ public class DetailedNetwork extends TopologicNetwork {
         return allNeuronsTopologic.size();
     }
 
-    public List<Neuron> topologicSort(List<Neuron> allNeurons) {
-        Set<Neuron> visited = new HashSet<>();
-        Stack<Neuron> stack = new Stack<>();
-
-        for (Neuron neuron : allNeurons) {
-            if (!visited.contains(neuron))
-                topoSortRecursive(neuron, visited, stack);
-        }
-
-        List<Neuron> neurons = new ArrayList<>(allNeurons.size());
-        while (!stack.empty())
-            neurons.add(stack.pop());
-
-        return neurons;
-    }
-
-    private void topoSortRecursive(Neuron neuron, Set<Neuron> visited, Stack<Neuron> stack) {
-        visited.add(neuron);
-
-        Iterator<Pair<Neuron, Weight>> inputs = getInputs(neuron);
-        while (inputs.hasNext()) {
-            Pair<Neuron, Weight> next = inputs.next();
-            if (!visited.contains(next.r)) {
-                topoSortRecursive(next.r, visited, stack);
-            }
-        }
-        stack.push(neuron);
-    }
 }

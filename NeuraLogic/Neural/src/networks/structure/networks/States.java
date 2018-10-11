@@ -1,4 +1,4 @@
-package networks.evaluation.iteration;
+package networks.structure.networks;
 
 import networks.evaluation.values.Value;
 import networks.structure.metadata.NeuronMapping;

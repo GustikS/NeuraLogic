@@ -1,6 +1,6 @@
 package training;
 
-import networks.evaluation.iteration.State;
+import networks.structure.networks.State;
 import networks.structure.weights.Weight;
 
 import java.util.ArrayList;

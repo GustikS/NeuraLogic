@@ -2,6 +2,7 @@ package networks.evaluation.iteration;
 
 import networks.evaluation.functions.Activation;
 import networks.evaluation.values.Value;
+import networks.structure.networks.State;
 import networks.structure.neurons.Neuron;
 
 import java.util.logging.Logger;
