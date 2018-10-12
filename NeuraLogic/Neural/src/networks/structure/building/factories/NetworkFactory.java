@@ -1,11 +1,12 @@
-package networks.structure.factories;
+package networks.structure.building.factories;
 
 import grounding.GroundTemplate;
-import networks.structure.networks.DetailedNetwork;
+import networks.structure.networks.types.DetailedNetwork;
 import networks.structure.networks.NeuralNetwork;
-import networks.structure.networks.NeuronStates;
-import networks.structure.networks.State;
-import networks.structure.neurons.creation.*;
+import networks.structure.metadata.states.NeuronStates;
+import networks.structure.metadata.states.State;
+import networks.structure.neurons.Neuron;
+import networks.structure.neurons.types.*;
 import settings.Settings;
 
 import java.util.ArrayList;
@@ -20,6 +21,30 @@ public class NetworkFactory {
 
     public NetworkFactory(Settings settings) {
         this.settings = settings;
+    }
+
+
+
+    /**
+     * Create an interface array (!) to be later filled with particular States
+     * @param network
+     * @param settings
+     * @return
+     */
+    public static State.Structure[] getStates(DetailedNetwork network, Settings settings) {
+        return new State.Structure[network.allNeuronsTopologic.size()];
+    }
+
+    /**
+     * Get true state for this neuron of this network
+     * @return
+     */
+    State.Structure getNeuronState(NeuralNetwork network, Neuron neuron) {
+        if (settings.)
+    }
+
+    public NeuralNetwork buildOptimizedNetwork(){
+
     }
 
     public DetailedNetwork buildDetailedNetwork(GroundTemplate.NeuronMaps neuronMaps, Set<NegationNeuron> negationNeurons) {
@@ -63,19 +88,9 @@ public class NetworkFactory {
 
         network.outputMapping = network.calculateOutputs();
 
-        setNeuronStates(network, getStates(network, settings));
+        setNeuronSearch(network, getStates(network, settings));
 
         return network;
-    }
-
-    /**
-     * Create an interface array (!) to be later filled with particular States
-     * @param network
-     * @param settings
-     * @return
-     */
-    public static State.Structure[] getStates(DetailedNetwork network, Settings settings) {
-        return new State.Structure[network.allNeuronsTopologic.size()];
     }
 
     /**
@@ -83,7 +98,7 @@ public class NetworkFactory {
      * @param neuralNetwork
      * @param states
      */
-    public void setNeuronStates(NeuralNetwork neuralNetwork, State.Structure[] states) {
+    public void setNeuronSearch(NeuralNetwork neuralNetwork, State.Structure[] states) {
         if (neuralNetwork.getSize() < settings.lin2bst)
             neuralNetwork.neuronStates = new NeuronStates.LinearCache(states);
         else if (neuralNetwork.getSize() > settings.lin2bst && neuralNetwork.getSize() < settings.bst2hashmap)

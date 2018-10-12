@@ -2,7 +2,7 @@ package constructs.template.transforming;
 
 import constructs.template.Template;
 import constructs.template.metadata.*;
-import constructs.template.templates.ParsedTemplate;
+import constructs.template.types.ParsedTemplate;
 import settings.Settings;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 

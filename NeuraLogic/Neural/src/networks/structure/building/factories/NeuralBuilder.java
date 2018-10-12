@@ -1,7 +1,6 @@
-package networks.structure.factories;
+package networks.structure.building.factories;
 
 import constructs.building.factories.WeightFactory;
-import networks.structure.networks.State;
 import settings.Settings;
 
 import java.util.logging.Logger;
@@ -22,9 +21,5 @@ public class NeuralBuilder {
         this.neuronFactory = other.neuronFactory;
         this.networkFactory = other.networkFactory;
         this.weightFactory = other.weightFactory;
-    }
-
-    State.Structure getStructureState() {
-
     }
 }

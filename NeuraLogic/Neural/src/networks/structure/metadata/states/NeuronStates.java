@@ -1,4 +1,4 @@
-package networks.structure.networks;
+package networks.structure.metadata.states;
 
 import networks.structure.neurons.Neuron;
 

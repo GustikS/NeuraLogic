@@ -5,6 +5,7 @@ import constructs.template.Template;
 import grounding.GroundTemplate;
 import grounding.Grounder;
 import grounding.GroundingSample;
+import networks.structure.building.Neuralizer;
 import ida.utils.tuples.Pair;
 import pipelines.ConnectAfter;
 import pipelines.Pipe;
@@ -160,7 +161,7 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
             nextPipe = groundReducingPipe;
         }
 
-        NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, grounder);
+        NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, new Neuralizer(grounder));
         Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> neuralizationPipeline = pipeline.registerEnd(neuralNetsBuilder.buildPipeline());
 
         nextPipe.connectAfter(neuralizationPipeline);

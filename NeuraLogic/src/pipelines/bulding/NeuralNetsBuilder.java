@@ -1,7 +1,7 @@
 package pipelines.bulding;
 
-import grounding.Grounder;
 import grounding.GroundingSample;
+import networks.structure.building.Neuralizer;
 import networks.structure.NeuralProcessingSample;
 import networks.structure.transforming.CycleBreaking;
 import networks.structure.transforming.NetworkReducing;
@@ -17,15 +17,15 @@ import java.util.stream.Stream;
 public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingSample>, Stream<NeuralSample>> {
     private static final Logger LOG = Logger.getLogger(NeuralNetsBuilder.class.getName());
 
-    Grounder grounder;
+    Neuralizer neuralizer;
 
     public NeuralNetsBuilder(Settings settings) {
         super(settings);
     }
 
-    public NeuralNetsBuilder(Settings settings, Grounder grounder) {
+    public NeuralNetsBuilder(Settings settings, Neuralizer neuralizer) {
         super(settings);
-        this.grounder = grounder;
+        this.neuralizer = neuralizer;
     }
 
     public Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> buildPipeline() {
@@ -34,7 +34,7 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
         Pipe<Stream<GroundingSample>, Stream<NeuralProcessingSample>> neuralizationPipe = pipeline.registerStart(new Pipe<Stream<GroundingSample>, Stream<NeuralProcessingSample>>("SupervisedNeuralizationPipe") {
             @Override
             public Stream<NeuralProcessingSample> apply(Stream<GroundingSample> pairStream) {
-                return pairStream.map(pair -> grounder.neuralize(pair).stream()).flatMap(f -> f);
+                return pairStream.map(pair -> neuralizer.neuralize(pair).stream()).flatMap(f -> f);
             }
         });
 
@@ -120,18 +120,15 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
             nextPipe = pipe;
         }
 
-        if (settings.collapseActivations) {
-
-        }
-
         if (settings.collapseWeights) {
-
+            //maybe
         }
 
         if (settings.expandEmbeddings) {
             //todo at the very end of all pruning, expand the networks to full size with vectorized nodes
         }
         //todo check wieghts dimensions
+        //todo process neuron sharing flags from neurons to networks - need to terminate the stream (since a neuron may become shared later on)
         return pipeline;
     }
 }

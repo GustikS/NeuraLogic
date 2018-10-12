@@ -1,4 +1,4 @@
-package constructs.template.templates;
+package constructs.template.types;
 
 import constructs.template.HeadAtom;
 import constructs.template.Template;

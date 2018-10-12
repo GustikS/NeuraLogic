@@ -1,7 +1,7 @@
-package networks.structure.networks;
+package networks.structure.metadata.states;
 
 import networks.evaluation.values.Value;
-import networks.structure.metadata.NeuronMapping;
+import networks.structure.metadata.inputMappings.NeuronMapping;
 
 import java.util.logging.Logger;
 
@@ -14,7 +14,7 @@ public class States implements State {
     /**
      * Storing a State that consists of a pair of values (value & gradient)
      */
-    public static final class ComputationPair implements State.Computation.Pair {
+    public static final class ComputationPair implements Computation.ValuePair {
         Value value;
         Value gradient;
 
@@ -45,7 +45,7 @@ public class States implements State {
     /**
      * Storing inputs and outputs of each neuron (may vary due to neuron sharing in different contexts)
      */
-    public static final class StructurePair implements State.Structure.Pair {
+    public static final class StructurePair implements Structure.StructPair {
         NeuronMapping inputs;
         NeuronMapping outputs;
 

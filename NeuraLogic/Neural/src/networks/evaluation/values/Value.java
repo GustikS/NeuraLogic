@@ -1,6 +1,6 @@
 package networks.evaluation.values;
 
-import networks.structure.networks.State;
+import networks.structure.metadata.states.State;
 
 /**
  * Created by gusta on 8.3.17.

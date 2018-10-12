@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 /**
  * todo use in case of input overmapping and parallel evaluation, otherwise just use stateful neurons
  */
+@Deprecated
 public class EvaluatorWithNeuronStates<S> extends Evaluator {
     private static final Logger LOG = Logger.getLogger(EvaluatorWithNeuronStates.class.getName());
 

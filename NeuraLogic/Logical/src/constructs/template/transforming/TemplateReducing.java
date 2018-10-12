@@ -2,7 +2,6 @@ package constructs.template.transforming;
 
 import constructs.example.QueryAtom;
 import constructs.template.Template;
-import constructs.template.templates.GraphTemplate;
 import settings.Settings;
 
 /**

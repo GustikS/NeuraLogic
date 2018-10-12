@@ -134,7 +134,7 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
             return pipeline;
         }
 
-        //public Pipeline<Pair<PlainTemplateParseTree, Pair<Stream<LogicSample>, Stream<LogicSample>>>, TrainTestResults> buildTemplatePipeline() {
+        //public Pipeline<Pair<PlainTemplateParseTree, ValuePair<Stream<LogicSample>, Stream<LogicSample>>>, TrainTestResults> buildTemplatePipeline() {
         //}
 
     }

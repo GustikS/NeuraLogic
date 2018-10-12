@@ -1,4 +1,4 @@
-package networks.structure.metadata;
+package networks.structure.metadata.inputMappings;
 
 import networks.structure.neurons.Neurons;
 import org.jetbrains.annotations.NotNull;

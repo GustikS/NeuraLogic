@@ -2,7 +2,7 @@ package networks.structure;
 
 import networks.evaluation.values.Value;
 import networks.structure.neurons.QueryNeuron;
-import networks.structure.networks.DetailedNetwork;
+import networks.structure.networks.types.DetailedNetwork;
 import training.NeuralSample;
 
 import java.util.logging.Logger;

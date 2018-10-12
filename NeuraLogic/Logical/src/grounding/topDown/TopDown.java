@@ -1,12 +1,9 @@
 package grounding.topDown;
 
 import constructs.example.LiftedExample;
-import constructs.example.QueryAtom;
 import constructs.template.Template;
-import constructs.template.templates.GraphTemplate;
+import grounding.GroundTemplate;
 import grounding.Grounder;
-import networks.structure.networks.NeuralNetwork;
-import networks.structure.neurons.QueryNeuron;
 import settings.Settings;
 
 /**
@@ -18,18 +15,14 @@ public class TopDown extends Grounder {
     }
 
     @Override
-    public QueryNeuron ground(QueryAtom queryAtom, Template template) {
+    public GroundTemplate groundRulesAndFacts(LiftedExample example, Template template) {
         return null;
     }
 
     @Override
-    public QueryNeuron ground(QueryAtom queryAtom, GraphTemplate template) {
+    public GroundTemplate groundRulesAndFacts(LiftedExample example, Template template, GroundTemplate memory) {
         return null;
     }
 
-    @Override
-    public NeuralNetwork ground(LiftedExample example, Template template) {
-        return null;
-    }
 
 }

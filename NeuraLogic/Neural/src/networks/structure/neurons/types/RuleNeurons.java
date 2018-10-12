@@ -1,4 +1,4 @@
-package networks.structure.neurons.creation;
+package networks.structure.neurons.types;
 
 import networks.structure.neurons.Neurons;
 

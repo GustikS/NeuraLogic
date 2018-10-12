@@ -1,4 +1,4 @@
-package networks.structure.neurons.creation;
+package networks.structure.neurons.types;
 
 import constructs.example.ValuedFact;
 import networks.evaluation.values.Value;

@@ -3,7 +3,7 @@ package constructs.template;
 import constructs.Conjunction;
 import constructs.example.QueryAtom;
 import constructs.example.ValuedFact;
-import constructs.template.templates.GraphTemplate;
+import constructs.template.types.GraphTemplate;
 import grounding.bottomUp.HerbrandModel;
 import ida.ilp.logic.HornClause;
 import ida.ilp.logic.Literal;

@@ -1,7 +1,7 @@
 package networks.structure.neurons;
 
 import networks.evaluation.functions.Activation;
-import networks.structure.networks.State;
+import networks.structure.metadata.states.State;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +18,7 @@ public class Neuron<T extends Neurons, S extends State.Computation> implements N
      * Typically unique across all the networks in case of neuron sharing (represents logic of creation)
      */
     @NotNull
-    private final String id;
+    public String id;
     /**
      * Stores value, or gradient, or both for this neuron for computation reuse (faster than explicit maps in Evaluator and/or Backprop, but cannot be used in parallel batch mode with various neuron sharings)
      */
@@ -34,7 +34,7 @@ public class Neuron<T extends Neurons, S extends State.Computation> implements N
     @NotNull
     private final Activation activation;
     /**
-     * We want fast iteration over inputs - todo test - consider array here with grounder storing the inputs in a list first
+     * We want fast iteration over inputs - todo test - consider array here with grounder storing the inputMappings in a list first
      */
     @Nullable   // because FactNeurons have no inputs (null check will be faster that isEmpty())
     protected ArrayList<T> inputs;

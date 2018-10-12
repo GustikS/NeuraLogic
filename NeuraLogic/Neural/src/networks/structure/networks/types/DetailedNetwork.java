@@ -1,20 +1,24 @@
-package networks.structure.networks;
+package networks.structure.networks.types;
 
 import ida.utils.tuples.Pair;
-import networks.structure.weights.Weight;
-import networks.structure.metadata.LinkedNeuronMapping;
+import networks.structure.metadata.inputMappings.LinkedNeuronMapping;
 import networks.structure.metadata.NetworkMetadata;
-import networks.structure.metadata.NeuronMapping;
-import networks.structure.metadata.WeightedNeuronMapping;
+import networks.structure.metadata.inputMappings.NeuronMapping;
+import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
+import networks.structure.metadata.states.State;
 import networks.structure.neurons.Neuron;
 import networks.structure.neurons.WeightedNeuron;
-import networks.structure.neurons.creation.*;
+import networks.structure.neurons.types.*;
+import networks.structure.weights.Weight;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
-public class DetailedNetwork extends TopologicNetwork {
+public class DetailedNetwork<N extends State.Structure> extends TopologicNetwork<N> {
     private static final Logger LOG = Logger.getLogger(DetailedNetwork.class.getName());
 
     /**
@@ -51,6 +55,7 @@ public class DetailedNetwork extends TopologicNetwork {
 
     public Map<Neuron, NeuronMapping> calculateOutputs() {
         Map<Neuron, NeuronMapping> outputMapping = new HashMap<>();
+
         for (Neuron parent : allNeuronsTopologic) {
             Iterator<Neuron> inputs = getInputs(parent);
             Neuron child;
@@ -62,7 +67,7 @@ public class DetailedNetwork extends TopologicNetwork {
         return outputMapping;
     }
 
-    public <T extends WeightedNeuron, S extends State.Structure> Iterator<Pair<T, Weight>> getInputs(WeightedNeuron<T, S> neuron) {
+    public <T extends WeightedNeuron, S extends State.Computation> Iterator<Pair<T, Weight>> getInputs(WeightedNeuron<T, S> neuron) {
         WeightedNeuronMapping<T> inputMapping;
         if ((inputMapping = extraInputMapping != null ? (WeightedNeuronMapping<T>) extraInputMapping.get(neuron) : null) != null) {
             return inputMapping.iterator();
@@ -71,7 +76,7 @@ public class DetailedNetwork extends TopologicNetwork {
         }
     }
 
-    public <T extends Neuron, S extends State.Structure> Iterator<T> getInputs(Neuron<T, S> neuron) {
+    public <T extends Neuron, S extends State.Computation> Iterator<T> getInputs(Neuron<T, S> neuron) {
         NeuronMapping<T> inputMapping;
         if ((inputMapping = extraInputMapping != null ? extraInputMapping.get(neuron) : null) != null) {
             return inputMapping.iterator();
@@ -80,7 +85,7 @@ public class DetailedNetwork extends TopologicNetwork {
         }
     }
 
-    public <T extends Neuron, S extends State.Structure> Iterator<T> getOutputs(Neuron<T, S> neuron) {
+    public <T extends Neuron, S extends State.Computation> Iterator<T> getOutputs(Neuron<T, S> neuron) {
         NeuronMapping<T> mapping;
         if ((mapping = outputMapping != null ? outputMapping.get(neuron) : null) != null) {
             return mapping.iterator();

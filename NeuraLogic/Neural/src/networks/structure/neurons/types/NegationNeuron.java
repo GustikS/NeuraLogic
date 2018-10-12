@@ -1,7 +1,7 @@
-package networks.structure.neurons.creation;
+package networks.structure.neurons.types;
 
 import networks.evaluation.functions.Activation;
-import networks.structure.networks.State;
+import networks.structure.metadata.states.State;
 import networks.structure.weights.Weight;
 import networks.structure.neurons.Neuron;
 

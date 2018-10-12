@@ -2,8 +2,8 @@ package pipelines.bulding;
 
 import constructs.building.TemplateBuilder;
 import constructs.template.Template;
-import constructs.template.templates.GraphTemplate;
-import constructs.template.templates.ParsedTemplate;
+import constructs.template.types.GraphTemplate;
+import constructs.template.types.ParsedTemplate;
 import constructs.template.transforming.MetadataProcessor;
 import constructs.template.transforming.TemplateReducing;
 import pipelines.Pipe;

@@ -4,7 +4,7 @@ import networks.evaluation.results.Results;
 import networks.evaluation.values.Value;
 import networks.structure.networks.NeuralNetwork;
 import networks.structure.neurons.WeightedNeuron;
-import networks.structure.networks.TopologicNetwork;
+import networks.structure.networks.types.TopologicNetwork;
 import settings.Settings;
 import training.NeuralModel;
 import training.NeuralSample;

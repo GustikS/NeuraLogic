@@ -3,7 +3,7 @@ package networks.structure.neurons;
 import learning.Query;
 import networks.evaluation.values.Value;
 import networks.structure.networks.NeuralNetwork;
-import networks.structure.neurons.creation.AtomNeuron;
+import networks.structure.neurons.types.AtomNeuron;
 import training.NeuralModel;
 
 /**

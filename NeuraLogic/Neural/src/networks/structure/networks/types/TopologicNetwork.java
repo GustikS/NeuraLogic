@@ -1,6 +1,8 @@
-package networks.structure.networks;
+package networks.structure.networks.types;
 
 import ida.utils.tuples.Pair;
+import networks.structure.metadata.states.State;
+import networks.structure.networks.NeuralNetwork;
 import networks.structure.neurons.Neuron;
 import networks.structure.neurons.WeightedNeuron;
 import networks.structure.weights.Weight;

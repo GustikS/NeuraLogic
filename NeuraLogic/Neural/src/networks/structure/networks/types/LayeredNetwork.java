@@ -1,4 +1,6 @@
-package networks.structure.networks;
+package networks.structure.networks.types;
+
+import networks.structure.networks.NeuralLayer;
 
 import java.util.List;
 

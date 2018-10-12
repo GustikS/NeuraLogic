@@ -1,4 +1,4 @@
-package constructs.template.templates;
+package constructs.template.types;
 
 import constructs.WeightedPredicate;
 import constructs.example.ValuedFact;

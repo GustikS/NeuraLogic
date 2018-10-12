@@ -1,4 +1,4 @@
-package networks.structure.metadata;
+package networks.structure.metadata.inputMappings;
 
 import ida.utils.tuples.Pair;
 import networks.structure.weights.Weight;

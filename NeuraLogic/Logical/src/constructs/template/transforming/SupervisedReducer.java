@@ -2,7 +2,7 @@ package constructs.template.transforming;
 
 import constructs.example.QueryAtom;
 import constructs.template.Template;
-import constructs.template.templates.GraphTemplate;
+import constructs.template.types.GraphTemplate;
 
 import java.util.HashSet;
 import java.util.Set;

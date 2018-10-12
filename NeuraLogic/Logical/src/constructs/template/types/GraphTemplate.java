@@ -1,8 +1,7 @@
-package constructs.template.templates;
+package constructs.template.types;
 
 import constructs.example.QueryAtom;
 import constructs.template.BodyAtom;
-import constructs.template.HeadAtom;
 import constructs.template.Template;
 import constructs.template.WeightedRule;
 import ida.ilp.logic.Clause;

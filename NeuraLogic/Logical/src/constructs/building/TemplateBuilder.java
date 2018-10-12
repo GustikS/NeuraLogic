@@ -7,7 +7,7 @@ import constructs.template.Template;
 import constructs.template.WeightedRule;
 import constructs.template.metadata.PredicateMetadata;
 import constructs.template.metadata.WeightMetadata;
-import constructs.template.templates.ParsedTemplate;
+import constructs.template.types.ParsedTemplate;
 import ida.utils.tuples.Pair;
 import networks.structure.weights.Weight;
 import neuralogic.grammarParsing.PlainGrammarVisitor;
