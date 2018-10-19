@@ -1,6 +1,6 @@
 package learning;
 
-import networks.evaluation.values.Value;
+import networks.computation.values.Value;
 import org.jetbrains.annotations.Nullable;
 
 /**

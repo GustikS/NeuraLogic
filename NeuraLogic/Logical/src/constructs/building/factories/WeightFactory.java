@@ -1,6 +1,6 @@
 package constructs.building.factories;
 
-import networks.evaluation.values.Value;
+import networks.computation.values.Value;
 import networks.structure.weights.Weight;
 
 import java.util.Collection;

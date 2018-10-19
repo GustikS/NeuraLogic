@@ -1,31 +1,56 @@
 package networks.structure.metadata.states;
 
-import networks.evaluation.values.Value;
+import networks.computation.iteration.actions.Backprop;
+import networks.computation.iteration.actions.StateVisitor;
+import networks.computation.values.Value;
 import networks.structure.metadata.inputMappings.NeuronMapping;
+import networks.structure.neurons.Neuron;
 
 import java.util.logging.Logger;
 
 /**
- * An aglomeration of special classes for storing computational and structural States (see interface State) of Neurons.
+ * An agglomeration of special classes for storing computational and structural States (see interface State) of Neurons.
  */
 public class States implements State {
     private static final Logger LOG = Logger.getLogger(States.class.getName());
 
     /**
-     * Storing a State that consists of a pair of values (value & gradient)
+     * A typical, lightweight State that consists of summed inputs (before activation), output value (after activation), and gradient (before activation) todo check
+     * Even though Evaluation and Backprop are always carried out separately, and so it seems that a single Value placeholder
+     * could be stored here, value and gradient must be held as two separate Values, since Backprop needs both to calculate gradient.
      */
-    public static final class ComputationPair implements Computation.ValuePair {
-        Value value;
-        Value gradient;
+    public static class InputsOutputGradient<V extends Value> implements Computation {
+        V summedInputs;
+        V outputValue;
+        V acumGradient;
 
         @Override
-        public final Value getValue() {
-            return value;
+        public void invalidate() {
+            summedInputs.zero();
+            outputValue.zero();
+            acumGradient.zero();
+        }
+    }
+
+    /**
+     * Simple storage of parent count for efficient backprop computation with DFS (may vary due to neuron sharing in different contexts).
+     */
+    public static final class ParentCounter extends InputsOutputGradient<Value> {
+        public final int count;
+        public int checked = 0;
+
+        public ParentCounter(int count) {
+            this.count = count;
         }
 
-        @Override
-        public final Value getGradient() {
-            return gradient;
+        //todo move this out to visitor
+        public void incrementGradient(Backprop backprop, Value value) {
+            acumGradient.increment(value);
+            checked++;
+        }
+
+        public <V extends Value> boolean ready4expansion(Backprop vStateVisitor) {
+            return checked >= count;
         }
     }
 
@@ -34,41 +59,42 @@ public class States implements State {
      *
      * @param <T>
      */
-    public static final class ComputationArray<T extends State.Computation> implements State.Computation {
+    public static final class StateComposite<T extends State.Computation> implements State.Computation {
         public final T[] states;
 
-        public ComputationArray(T[] states) {
+        public StateComposite(T[] states) {
             this.states = states;
+        }
+
+        @Override
+        public <V> V accept(StateVisitor<V> visitor) {
+            return states[visitor.state_index].accept(visitor);
+        }
+
+        @Override
+        public void invalidate() {
+            for (int i = 0; i < states.length; i++) {
+                states[i].invalidate();
+            }
         }
     }
 
     /**
-     * Storing inputs and outputs of each neuron (may vary due to neuron sharing in different contexts)
+     * Storing inputs and outputs of each neuron (may vary due to neuron sharing in different contexts).
+     * This information should be stored in a Network (not Neuron).
      */
-    public static final class StructurePair implements Structure.StructPair {
-        NeuronMapping inputs;
-        NeuronMapping outputs;
+    public static final class InputsOutputsPair implements State.Structure {
+        NeuronMapping<Neuron> inputs;
+        NeuronMapping<Neuron> outputs;
 
-        @Override
-        public final NeuronMapping getInputs() {
-            return inputs;
-        }
 
-        @Override
         public final NeuronMapping getOutputs() {
             return outputs;
         }
-    }
 
-    /**
-     * Simple storage of parent count for efficient backprop computation (may vary due to neuron sharing in different contexts)
-     */
-    public static final class StructureParents implements State.Structure {
-        public final int count;
-        public int checked = 0;
-
-        public StructureParents(int count) {
-            this.count = count;
+        public NeuronMapping<Neuron> getInputs(Neuron neuron) {
+            return inputs;
         }
     }
+
 }

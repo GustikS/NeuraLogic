@@ -5,7 +5,7 @@ import ida.ilp.logic.Clause;
 import ida.ilp.logic.HornClause;
 import ida.ilp.logic.Literal;
 import ida.ilp.logic.Term;
-import networks.evaluation.functions.Activation;
+import networks.computation.functions.Activation;
 import networks.structure.weights.Weight;
 
 import java.util.HashMap;

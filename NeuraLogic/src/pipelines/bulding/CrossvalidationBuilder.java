@@ -14,8 +14,8 @@ import pipelines.pipes.specific.TemplateToNeuralPipe;
 import settings.Settings;
 import settings.Source;
 import settings.Sources;
-import training.NeuralModel;
-import training.NeuralSample;
+import networks.computation.training.NeuralModel;
+import networks.computation.training.NeuralSample;
 
 import java.util.ArrayList;
 import java.util.List;

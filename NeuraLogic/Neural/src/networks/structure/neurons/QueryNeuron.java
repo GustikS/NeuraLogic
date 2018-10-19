@@ -1,17 +1,18 @@
 package networks.structure.neurons;
 
 import learning.Query;
-import networks.evaluation.values.Value;
+import networks.computation.training.NeuralModel;
+import networks.computation.values.Value;
+import networks.structure.metadata.states.State;
 import networks.structure.networks.NeuralNetwork;
 import networks.structure.neurons.types.AtomNeuron;
-import training.NeuralModel;
 
 /**
  * Created by gusta on 11.3.17.
  */
-public class QueryNeuron extends Query<NeuralNetwork, NeuralModel> {
+public class QueryNeuron extends Query<NeuralNetwork<State.Structure>, NeuralModel> {
 
-    AtomNeuron neuron;
+    public AtomNeuron neuron;
 
     public QueryNeuron(String id, int queryCounter, double importance) {
         super(id, queryCounter, importance);

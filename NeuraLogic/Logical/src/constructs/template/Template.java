@@ -10,10 +10,10 @@ import ida.ilp.logic.Literal;
 import ida.ilp.logic.Predicate;
 import ida.utils.collections.MultiMap;
 import learning.Model;
-import networks.evaluation.values.Value;
+import networks.computation.values.Value;
 import networks.structure.weights.Weight;
 import org.jetbrains.annotations.Nullable;
-import training.NeuralModel;
+import networks.computation.training.NeuralModel;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;

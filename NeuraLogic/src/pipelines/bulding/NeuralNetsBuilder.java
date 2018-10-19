@@ -9,7 +9,7 @@ import pipelines.ConnectAfter;
 import pipelines.Pipe;
 import pipelines.Pipeline;
 import settings.Settings;
-import training.NeuralSample;
+import networks.computation.training.NeuralSample;
 
 import java.util.logging.Logger;
 import java.util.stream.Stream;

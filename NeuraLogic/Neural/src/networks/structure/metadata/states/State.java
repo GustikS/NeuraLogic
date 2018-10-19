@@ -1,51 +1,30 @@
 package networks.structure.metadata.states;
 
-import networks.evaluation.values.Value;
-import networks.structure.metadata.inputMappings.NeuronMapping;
+import networks.computation.iteration.actions.StateVisitor;
 
 /**
- * Annotation interfaces for clarity of stateful processing. It is an interface so that existing classes can be used directly in respective places.
- * For other cases, special class States is created.
+ * Mainly annotation interfaces used for clarity of stateful processing. It is an interface (not abstract class) so that existing classes (e.g. Value) can be used directly as a state.
+ * For other cases, special class States contains particular formations of useful states.
  */
 public interface State {
 
-    //todo different states may accept visitors to perform actions on them, e.g. GradientUpdate, which will get particular state-type  through this double dispatch (or just use instanceOf...)
-    default void accept(StateVisitor visitor){
-        visitor.visit(this);
+    default <V> V accept(StateVisitor<V> visitor){
+        return visitor.visit(this);
     }
 
     /**
-     * Stateful value storing during computation
+     * Stateful values held by a Neuron for use during neural computation
      */
     interface Computation extends State {
-        interface Evaluation extends Computation {
-        }
+        void invalidate();
 
-        interface Gradient extends Computation {
-        }
 
-        interface ValuePair extends Computation {
-            Value getValue();
-
-            Value getGradient();
-        }
     }
 
     /**
-     * Structural changes to neurons held as a state of each network
+     * Structural changes to neurons held as a state corresponding to each Neuron in a neural network
      */
     interface Structure extends State {
-        interface InputOvermap extends Structure {
-        }
 
-        interface OutputOvermap extends Structure {
-        }
-
-        interface StructPair extends Structure {
-            NeuronMapping getInputs();
-
-            NeuronMapping getOutputs();
-        }
     }
-
 }

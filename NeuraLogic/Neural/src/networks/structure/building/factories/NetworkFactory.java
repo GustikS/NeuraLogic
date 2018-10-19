@@ -1,10 +1,10 @@
 package networks.structure.building.factories;
 
 import grounding.GroundTemplate;
-import networks.structure.networks.types.DetailedNetwork;
-import networks.structure.networks.NeuralNetwork;
-import networks.structure.metadata.states.NeuronStates;
+import networks.structure.metadata.states.StatesCache;
 import networks.structure.metadata.states.State;
+import networks.structure.networks.NeuralNetwork;
+import networks.structure.networks.types.DetailedNetwork;
 import networks.structure.neurons.Neuron;
 import networks.structure.neurons.types.*;
 import settings.Settings;
@@ -24,9 +24,9 @@ public class NetworkFactory {
     }
 
 
-
     /**
      * Create an interface array (!) to be later filled with particular States
+     *
      * @param network
      * @param settings
      * @return
@@ -37,13 +37,16 @@ public class NetworkFactory {
 
     /**
      * Get true state for this neuron of this network
+     *
      * @return
      */
-    State.Structure getNeuronState(NeuralNetwork network, Neuron neuron) {
-        if (settings.)
+    State.Structure getNeuronState(DetailedNetwork network, Neuron neuron) {
+        if (network.extraInputMapping
+
+        }
     }
 
-    public NeuralNetwork buildOptimizedNetwork(){
+    public NeuralNetwork buildOptimizedNetwork() {
 
     }
 
@@ -57,7 +60,7 @@ public class NetworkFactory {
         return detailedNetwork;
     }
 
-    public DetailedNetwork buildDetailedNetwork(Collection<AtomNeuron> atomNeurons, Collection<AggregationNeuron> aggregationNeurons, Collection<RuleNeurons> ruleNeurons, Collection<FactNeuron> factNeurons, Collection<NegationNeuron> negationNeurons) {
+    private DetailedNetwork buildDetailedNetwork(Collection<AtomNeuron> atomNeurons, Collection<AggregationNeuron> aggregationNeurons, Collection<RuleNeurons> ruleNeurons, Collection<FactNeuron> factNeurons, Collection<NegationNeuron> negationNeurons) {
 
         DetailedNetwork network = new DetailedNetwork();
 
@@ -95,16 +98,17 @@ public class NetworkFactory {
 
     /**
      * Choose
+     *
      * @param neuralNetwork
      * @param states
      */
     public void setNeuronSearch(NeuralNetwork neuralNetwork, State.Structure[] states) {
         if (neuralNetwork.getSize() < settings.lin2bst)
-            neuralNetwork.neuronStates = new NeuronStates.LinearCache(states);
+            neuralNetwork.neuronStates = new StatesCache.LinearCache(states);
         else if (neuralNetwork.getSize() > settings.lin2bst && neuralNetwork.getSize() < settings.bst2hashmap)
-            neuralNetwork.neuronStates = new NeuronStates.HeapCache(states);
+            neuralNetwork.neuronStates = new StatesCache.HeapCache(states);
         else
-            neuralNetwork.neuronStates = new NeuronStates.HashCache(states);
+            neuralNetwork.neuronStates = new StatesCache.HashCache(states);
     }
 
 }

@@ -5,7 +5,7 @@ import pipelines.Pipeline;
 import pipelines.bulding.LearningSchemeBuilder;
 import settings.Settings;
 import settings.Sources;
-import networks.evaluation.results.Results;
+import networks.computation.results.Results;
 import utils.CommandLineHandler;
 import utils.logging.Logging;
 

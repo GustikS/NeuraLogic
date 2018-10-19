@@ -1,7 +1,7 @@
 package constructs.example;
 
 import learning.LearningSample;
-import networks.evaluation.values.Value;
+import networks.computation.values.Value;
 
 
 /**

@@ -1,8 +1,8 @@
 package networks.structure.weights;
 
 import constructs.template.metadata.WeightMetadata;
-import networks.evaluation.values.Value;
-import networks.evaluation.values.ValueInitializer;
+import networks.computation.values.Value;
+import networks.computation.values.ValueInitializer;
 import org.jetbrains.annotations.Nullable;
 
 /**

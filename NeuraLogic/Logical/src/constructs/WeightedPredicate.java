@@ -11,7 +11,8 @@ public class WeightedPredicate {
     private static final Logger LOG = Logger.getLogger(WeightedPredicate.class.getName());
 
     /**
-     * Offset (for disjunction activation) at the level of a template ultimately belongs to predicate
+     * Offset (for disjunction activation) at the level of a template ultimately belongs to predicate!
+     * todo check this with Ondra
      */
     @Nullable
     public Weight weight;

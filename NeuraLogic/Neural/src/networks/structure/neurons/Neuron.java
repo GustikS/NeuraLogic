@@ -1,6 +1,6 @@
 package networks.structure.neurons;
 
-import networks.evaluation.functions.Activation;
+import networks.computation.functions.Activation;
 import networks.structure.metadata.states.State;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -11,19 +11,29 @@ import java.util.logging.Logger;
 public class Neuron<T extends Neurons, S extends State.Computation> implements Neurons {
     private static final Logger LOG = Logger.getLogger(Neuron.class.getName());
     /**
-     * Globally unique index of creation of this neuron (=hash)
-     */
-    public final int index;
-    /**
-     * Typically unique across all the networks in case of neuron sharing (represents logic of creation)
+     * Globally unique index of creation of this neuron (=fast hash)
      */
     @NotNull
-    public String id;
+    public final int index;
     /**
-     * Stores value, or gradient, or both for this neuron for computation reuse (faster than explicit maps in Evaluator and/or Backprop, but cannot be used in parallel batch mode with various neuron sharings)
+     * Represents original logic of creation, typically unique across all the networks in case of neuron sharing
      */
     @Nullable
-    private final S state;
+    public String id;
+    /**
+     * Stores (intermediate) values, or gradient, or both for this neuron for computation reuse. It has to be a separate class
+     * since there is a wide variety of information that may be stored in a Neuron - e.g. it may also store (number of) parents
+     * and all States may be stored in an array for minibatch access to this Neuron.
+     * <p>
+     * It's not nice, but neurons have to hold states - that is the most efficient choice, since this is the most efficient place to bind
+     * the intermediate values of computation over neurons with the iteration over them. Not storing state directly in Neuron
+     * would require some mapping (e.g. Hashmap or BST) between neuron and the corresponding values, which would be computationally inefficient to search within.
+     * <p>
+     * This is thus faster than searching in explicit maps (more correctly placed in Evaluator and/or Backprop),
+     * but the states need to be treated more carefully (logic of creation taken by respective factories/builders).
+     */
+    @Nullable
+    public final S state;
     /**
      * If not shared, the state can be freely used to store information (most efficient mode)
      */
@@ -32,7 +42,7 @@ public class Neuron<T extends Neurons, S extends State.Computation> implements N
      * Activation function
      */
     @NotNull
-    private final Activation activation;
+    public final Activation activation;
     /**
      * We want fast iteration over inputs - todo test - consider array here with grounder storing the inputMappings in a list first
      */
@@ -56,8 +66,18 @@ public class Neuron<T extends Neurons, S extends State.Computation> implements N
         return inputs;
     }
 
-    public final boolean hasInputs() {
-        return !inputs.isEmpty();
+    public void invalidate() {
+        state.invalidate();
+    }
+
+    @Override
+    @NotNull
+    public Activation getActivation() {
+        return activation;
+    }
+
+    public final boolean hasNoInputs() {
+        return (inputs == null || inputs.isEmpty());
     }
 
     public int inputCount() {
@@ -74,14 +94,8 @@ public class Neuron<T extends Neurons, S extends State.Computation> implements N
         if (obj.getClass() != this.getClass()) {
             return false;
         }
-        WeightedNeuron obj1 = (WeightedNeuron) obj;
+        Neuron obj1 = (Neuron) obj;
         return this.id.equals(obj1.getId());
-    }
-
-    @NotNull
-    @Override
-    public Activation getActivation() {
-        return activation;
     }
 
     @NotNull

@@ -3,13 +3,13 @@ package pipelines.bulding;
 import constructs.template.Template;
 import ida.utils.tuples.Pair;
 import learning.crossvalidation.TrainTestResults;
-import networks.evaluation.results.Results;
+import networks.computation.results.Results;
 import pipelines.Pipe;
 import pipelines.Pipeline;
 import pipelines.pipes.generic.SecondFromPairPipe;
 import settings.Settings;
 import settings.Sources;
-import training.NeuralModel;
+import networks.computation.training.NeuralModel;
 
 import java.util.logging.Logger;
 

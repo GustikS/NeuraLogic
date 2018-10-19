@@ -3,7 +3,7 @@ package constructs;
 import ida.ilp.logic.Literal;
 import ida.ilp.logic.Predicate;
 import ida.ilp.logic.Term;
-import networks.evaluation.functions.Activation;
+import networks.computation.functions.Activation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

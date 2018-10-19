@@ -1,12 +1,12 @@
 package pipelines.pipes.specific;
 
 import ida.utils.tuples.Pair;
-import networks.evaluation.Evaluator;
-import networks.evaluation.results.Results;
+import networks.computation.iteration.actions.Evaluator;
+import networks.computation.results.Results;
 import pipelines.Pipe;
 import settings.Settings;
-import training.NeuralModel;
-import training.NeuralSample;
+import networks.computation.training.NeuralModel;
+import networks.computation.training.NeuralSample;
 
 import java.util.logging.Logger;
 import java.util.stream.Stream;

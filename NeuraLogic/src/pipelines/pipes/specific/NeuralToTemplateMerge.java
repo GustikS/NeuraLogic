@@ -2,7 +2,7 @@ package pipelines.pipes.specific;
 
 import constructs.template.Template;
 import pipelines.Merge;
-import training.NeuralModel;
+import networks.computation.training.NeuralModel;
 
 import java.util.logging.Logger;
 

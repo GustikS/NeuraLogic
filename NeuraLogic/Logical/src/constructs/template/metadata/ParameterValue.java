@@ -1,7 +1,7 @@
 package constructs.template.metadata;
 
 import ida.ilp.logic.Constant;
-import networks.evaluation.values.Value;
+import networks.computation.values.Value;
 import networks.structure.weights.Weight;
 
 import java.util.logging.Logger;

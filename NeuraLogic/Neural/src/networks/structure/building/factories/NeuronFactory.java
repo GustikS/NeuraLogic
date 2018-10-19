@@ -3,9 +3,10 @@ package networks.structure.building.factories;
 import constructs.example.ValuedFact;
 import constructs.template.HeadAtom;
 import constructs.template.WeightedRule;
-import networks.evaluation.functions.Activation;
+import networks.computation.functions.Activation;
 import networks.structure.metadata.states.State;
 import networks.structure.metadata.states.States;
+import networks.structure.neurons.Neuron;
 import networks.structure.neurons.types.*;
 import settings.Settings;
 
@@ -26,17 +27,27 @@ public class NeuronFactory {
     }
 
 
-    State.Computation getComputationState() {
-        //todo next consider all possibilities
-        if (settings.minibatch) {
-            return new States.ComputationArray<>(new State.Computation.ValuePair[settings.minibatchSize]);
+    State.Computation getComputationState(Neuron neuron) {
+        if (settings.minibatch) {   //if there is minibatch, multiple threads will possibly be accessing the same neuron, i.e. we need array of states, one for each thread
+            States.StateComposite<State.Computation> stateComposite = new States.StateComposite<>(new State.Computation[settings.minibatchSize]);
+            for (int i = 0; i < stateComposite.states.length; i++) {
+                stateComposite.states[i] = getBaseState(neuron);
+            }
+            return stateComposite;
+        } else {    //otherwise just initialize the one state for this neuron
+            return getBaseState(neuron);
+        }
+    }
+
+    State.Computation getBaseState(Neuron neuron) {
+        if (neuron.isShared) {
+
         } else {
-            return new States.ComputationPair();
+
         }
     }
 
     /**
-     *
      * @param head
      * @return
      */

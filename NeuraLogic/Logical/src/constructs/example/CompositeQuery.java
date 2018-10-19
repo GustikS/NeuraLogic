@@ -4,8 +4,8 @@ import constructs.template.HeadAtom;
 import constructs.template.Template;
 import ida.utils.tuples.Pair;
 import learning.Query;
-import networks.evaluation.functions.Activation;
-import networks.evaluation.values.Value;
+import networks.computation.functions.Activation;
+import networks.computation.values.Value;
 
 import java.util.List;
 import java.util.Optional;

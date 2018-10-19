@@ -1,5 +1,6 @@
 package networks.structure.metadata.inputMappings;
 
+import networks.structure.neurons.Neuron;
 import networks.structure.neurons.Neurons;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,6 +44,11 @@ public class LinkedNeuronMapping<T extends Neurons> implements NeuronMapping<T> 
     @Override
     public void addLink(T input) {
         inputs.add(input);
+    }
+
+    @Override
+    public NeuronMapping<Neuron> getInputs(Neuron neuron) {
+        return this;
     }
 
     private class InputIterator<T extends Neurons> implements Iterator<T> {

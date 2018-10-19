@@ -1,7 +1,7 @@
 package networks.structure.neurons;
 
 import ida.utils.tuples.Pair;
-import networks.evaluation.functions.Activation;
+import networks.computation.functions.Activation;
 import networks.structure.metadata.states.State;
 import networks.structure.weights.Weight;
 
@@ -26,10 +26,11 @@ public class WeightedNeuron<T extends Neurons, S extends State.Computation> exte
     /**
      * This class is responsible to protect correct ordering of weights w.r.t. inputs.
      */
-    private ArrayList<Weight> weights;
+    protected ArrayList<Weight> weights;
 
     public WeightedNeuron(String id, int index, S state, Weight offset, Activation activation) {
         super(index, id, state, activation);
+        this.offset = offset;
         weights = new ArrayList<>();
     }
 
@@ -53,16 +54,11 @@ public class WeightedNeuron<T extends Neurons, S extends State.Computation> exte
     }
 
     /**
-     * Expensive call - needs to create new List and Pairs!
-     *
+     * Efficient call for weighted inputs, returns them as-is (just a single Pair object is created).
      * @return
      */
-    public final List<Pair<T, Weight>> createWeightedInputs() {
-        List<Pair<T, Weight>> pairedInputs = new ArrayList<>(weights.size());
-        for (int i = 0; i < weights.size(); i++) {
-            pairedInputs.add(new Pair<>(inputs.get(i), weights.get(i)));
-        }
-        return pairedInputs;
+    public final Pair<List<T>, List<Weight>> getInputsWeights(){
+        return new Pair<>(inputs,weights);
     }
 
     /**
@@ -93,5 +89,18 @@ public class WeightedNeuron<T extends Neurons, S extends State.Computation> exte
         public Pair<T, Weight> next() {
             return new Pair<>(inputs.get(index), weights.get(index));
         }
+    }
+
+    /**
+     * Expensive call - needs to create new List and Pairs!
+     *
+     * @return
+     */
+    public final List<Pair<T, Weight>> createWeightedInputs() {
+        List<Pair<T, Weight>> pairedInputs = new ArrayList<>(weights.size());
+        for (int i = 0; i < weights.size(); i++) {
+            pairedInputs.add(new Pair<>(inputs.get(i), weights.get(i)));
+        }
+        return pairedInputs;
     }
 }

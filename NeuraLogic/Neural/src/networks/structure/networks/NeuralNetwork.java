@@ -2,8 +2,11 @@ package networks.structure.networks;
 
 import ida.utils.tuples.Pair;
 import learning.Example;
-import networks.structure.metadata.states.NeuronStates;
+import networks.computation.iteration.DFSstack;
+import networks.computation.iteration.IterationStrategy;
+import networks.computation.iteration.actions.NeuronVisitor;
 import networks.structure.metadata.states.State;
+import networks.structure.metadata.states.StatesCache;
 import networks.structure.neurons.Neuron;
 import networks.structure.neurons.WeightedNeuron;
 import networks.structure.weights.Weight;
@@ -16,7 +19,7 @@ import java.util.logging.Logger;
 /**
  * A neural network is a container to store context information for neurons, that may change from network to network.
  * Particularly this is neuronStates structure that holds inputs of shared neurons that vary across different networks.
- *
+ * <p>
  * Created by gusta on 8.3.17.
  * <p>
  * //todo after creation and post-processing, add a transformation to a more optimized version (everything based on int, maybe even precompute layers, remove recursion)
@@ -33,8 +36,7 @@ public abstract class NeuralNetwork<N extends State.Structure> implements Exampl
      * A structure to store States and Search for neurons within this network (if available)
      */
     @Nullable
-    public
-    NeuronStates<N> neuronStates;
+    public StatesCache<N> neuronStates;
 
     /**
      * If there are no shared neurons (or no parallel access to them), there is no need to store extra states of them
@@ -43,9 +45,10 @@ public abstract class NeuralNetwork<N extends State.Structure> implements Exampl
 
     /**
      * A subset of all weights from a template that are used within this network.
-     * todo NOT INDEXABLE! remove?
+     * todo NOT INDEXABLE! remove? yes remove...
      */
     @NotNull
+    @Deprecated
     Weight[] activeWeights;
 
     public NeuralNetwork() {
@@ -64,10 +67,34 @@ public abstract class NeuralNetwork<N extends State.Structure> implements Exampl
         this.id = id;
     }
 
-    public abstract <T extends WeightedNeuron, S extends State.Computation> Iterator<Pair<T, Weight>> getInputs(WeightedNeuron<T, S> neuron);
+    public abstract <T extends Neuron, S extends State.Computation> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron);
 
+    /**
+     * todo FactNeurons should return empty inputs
+     *
+     * @param neuron
+     * @param <T>
+     * @param <S>
+     * @return
+     */
     public abstract <T extends Neuron, S extends State.Computation> Iterator<T> getInputs(Neuron<T, S> neuron);
 
     public abstract <T extends Neuron, S extends State.Computation> Iterator<T> getOutputs(Neuron<T, S> neuron);
+
+    /**
+     * Bind this network representation with the preferred choice of iteration over neurons in it.
+     * E.g. if no neurons are stored in this network, go with simple DFS (default), but
+     * if neurons are stored in topological order (TopologicNetwork) iterate efficiently in linear fashion.
+     *
+     * @param vNeuronVisitor
+     * @return
+     */
+    public <V> IterationStrategy getPreferredBUpIterator(NeuronVisitor<V> vNeuronVisitor, Neuron<Neuron, State.Computation> outputNeuron) {
+        return new DFSstack().new BottomUp<>(vNeuronVisitor, this, outputNeuron);
+    }
+
+    public <V> IterationStrategy getPreferredTDownIterator(NeuronVisitor<V> vNeuronVisitor, Neuron<Neuron, State.Computation> outputNeuron) {
+        return new DFSstack().new TopDown<>(vNeuronVisitor, this, outputNeuron);
+    }
 
 }

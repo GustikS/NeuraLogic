@@ -3,7 +3,7 @@ package constructs.template;
 import constructs.Atom;
 import constructs.WeightedPredicate;
 import ida.ilp.logic.Term;
-import networks.evaluation.functions.Activation;
+import networks.computation.functions.Activation;
 import networks.structure.weights.Weight;
 import org.jetbrains.annotations.Nullable;
 

@@ -3,7 +3,7 @@ package learning.crossvalidation;
 import com.sun.istack.internal.Nullable;
 import learning.LearningSample;
 import learning.crossvalidation.splitting.Splitter;
-import networks.evaluation.results.Results;
+import networks.computation.results.Results;
 import settings.Settings;
 
 import java.util.ArrayList;
