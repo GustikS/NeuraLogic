@@ -1,9 +1,9 @@
 package constructs.example;
 
-import constructs.template.HeadAtom;
+import constructs.template.components.HeadAtom;
 import constructs.template.Template;
 import learning.Query;
-import networks.computation.values.Value;
+import networks.computation.training.evaluation.values.Value;
 
 /**
  * Created by Gusta on 04.10.2016.

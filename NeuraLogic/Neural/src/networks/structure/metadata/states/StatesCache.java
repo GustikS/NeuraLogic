@@ -1,6 +1,6 @@
 package networks.structure.metadata.states;
 
-import networks.structure.neurons.Neuron;
+import networks.structure.components.neurons.Neuron;
 
 import java.util.HashMap;
 import java.util.logging.Logger;

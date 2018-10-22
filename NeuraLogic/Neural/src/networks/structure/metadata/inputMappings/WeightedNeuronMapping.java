@@ -1,8 +1,8 @@
 package networks.structure.metadata.inputMappings;
 
 import ida.utils.tuples.Pair;
-import networks.structure.weights.Weight;
-import networks.structure.neurons.Neurons;
+import networks.structure.components.weights.Weight;
+import networks.structure.components.neurons.Neurons;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

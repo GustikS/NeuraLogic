@@ -4,7 +4,7 @@ import constructs.building.factories.WeightFactory;
 import constructs.example.LiftedExample;
 import constructs.example.ValuedFact;
 import constructs.template.Template;
-import constructs.template.WeightedRule;
+import constructs.template.components.WeightedRule;
 import grounding.bottomUp.BottomUp;
 import grounding.topDown.TopDown;
 import ida.ilp.logic.HornClause;
@@ -128,7 +128,7 @@ public abstract class Grounder {
 
     /**
      * Consume all samples, share all facts and rules between them, then ground as a single big sample.
-     * Stream TERMINATING operation!
+     * Stream TERMINATING operation!    //todo take out the stream...
      *
      * @param samples
      * @return

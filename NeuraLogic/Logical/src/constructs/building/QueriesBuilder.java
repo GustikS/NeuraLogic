@@ -4,7 +4,7 @@ import constructs.Conjunction;
 import constructs.example.LogicSample;
 import constructs.example.ValuedFact;
 import ida.utils.tuples.Pair;
-import networks.computation.values.ScalarValue;
+import networks.computation.training.evaluation.values.ScalarValue;
 import neuralogic.grammarParsing.PlainGrammarVisitor;
 import neuralogic.queries.PlainQueriesParseTree;
 import neuralogic.queries.PlainQueriesParseTreeExtractor;

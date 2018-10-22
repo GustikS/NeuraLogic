@@ -2,8 +2,8 @@ package networks.computation.iteration;
 
 import networks.computation.iteration.actions.NeuronVisitor;
 import networks.structure.metadata.states.State;
-import networks.structure.networks.NeuralNetwork;
-import networks.structure.neurons.Neuron;
+import networks.structure.components.NeuralNetwork;
+import networks.structure.components.neurons.Neuron;
 
 public abstract class TopDown<N extends State.Structure, V> extends IterationStrategy<N, V> {
 

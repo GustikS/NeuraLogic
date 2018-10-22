@@ -1,7 +1,7 @@
 package networks.computation.results;
 
 import ida.utils.tuples.Pair;
-import networks.computation.values.Value;
+import networks.computation.training.evaluation.values.Value;
 
 import java.util.ArrayList;
 import java.util.List;

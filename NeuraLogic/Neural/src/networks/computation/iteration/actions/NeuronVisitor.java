@@ -1,6 +1,10 @@
 package networks.computation.iteration.actions;
 
-import networks.structure.neurons.Neurons;
+import networks.structure.metadata.states.State;
+import networks.structure.components.NeuralNetwork;
+import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.WeightedNeuron;
+import networks.structure.components.weights.Weight;
 
 /**
  * @param <V>
@@ -9,28 +13,48 @@ public abstract class NeuronVisitor<V> {
 
     public StateVisitor<V> stateVisitor;
 
-    public V visit(Neurons neuron) {
-        if (ready4activation(neuron)) {
-            V activation = activate(neuron);
-            expand(neuron);
-            return activation;
-        }
-        return null;
-    }
-
     /**
-     * This one is for sure
+     * Check, typically using a State of the Neuron, whether this neuron is ready to propagate its result
      * @param neuron
      * @return
      */
-    public abstract boolean ready4activation(Neurons neuron);
+    public abstract boolean ready4activation(Neuron neuron);
 
+    /**
+     * Transformation of the State of this neuron through its activation function into a result V (typically a Value)
+     * @param neuron
+     * @return
+     */
+    public abstract V activateOutput(Neuron neuron);
 
+    /**
+     * Expand neighbors and Propagate result of this neuron into the neighbours (inputs or outputs).
+     * This call thus also needs to take care to find the neighbours itself.
+     * Will call propagation between the corresponding neurons.
+     * @param neuron
+     */
+    public abstract void expand(NeuralNetwork<State.Structure> network, Neuron neuron);
 
-    public abstract V activate(Neurons neuron);
+    /**
+     * Expand neighbors and Propagate result of this neuron into the neighbours (inputs or outputs).
+     * This call thus also needs to take care to find the neighbours itself.
+     * Will call propagation between the corresponding neurons with the corresponding edge weight.
+     * @param neuron
+     */
+    public abstract void expand(NeuralNetwork<State.Structure> network, WeightedNeuron neuron);
 
-    public abstract void expand(Neurons neuron);
+    /**
+     * Propagate result from the neuron from into the destination neuron
+     * @param from
+     * @param to
+     */
+    public abstract void propagate(Neuron from, Neuron to);
 
-    public abstract void expand(Neurons from, Neurons to);
+    /**
+     * Propagate result from the neuron from into the destination neuron using the information from the weight
+     * @param from
+     * @param to
+     */
+    public abstract void propagate(Neuron from, Neuron to, Weight weight);
 
 }

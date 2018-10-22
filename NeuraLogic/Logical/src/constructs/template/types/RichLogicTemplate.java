@@ -1,6 +1,6 @@
 package constructs.template.types;
 
-import constructs.template.HeadAtom;
+import constructs.template.components.HeadAtom;
 import constructs.template.Template;
 import ida.ilp.logic.Clause;
 

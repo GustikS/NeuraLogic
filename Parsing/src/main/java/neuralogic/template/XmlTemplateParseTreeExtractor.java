@@ -2,9 +2,9 @@ package neuralogic.template;
 
 import constructs.example.ValuedFact;
 import constructs.WeightedPredicate;
-import constructs.template.WeightedRule;
+import constructs.template.components.WeightedRule;
 import ida.utils.tuples.Pair;
-import networks.structure.weights.Weight;
+import networks.structure.components.weights.Weight;
 import neuralogic.grammarParsing.GrammarVisitor;
 import parsers.neuralogic.NeuralogicParser;
 

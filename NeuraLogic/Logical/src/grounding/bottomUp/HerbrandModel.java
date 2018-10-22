@@ -1,6 +1,6 @@
 package grounding.bottomUp;
 
-import constructs.template.WeightedRule;
+import constructs.template.components.WeightedRule;
 import ida.ilp.logic.*;
 import ida.ilp.logic.subsumption.CustomPredicate;
 import ida.ilp.logic.subsumption.Matching;

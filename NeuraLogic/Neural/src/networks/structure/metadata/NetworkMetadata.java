@@ -1,6 +1,6 @@
 package networks.structure.metadata;
 
-import networks.structure.neurons.WeightedNeuron;
+import networks.structure.components.neurons.WeightedNeuron;
 
 import java.util.Map;
 

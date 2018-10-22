@@ -3,6 +3,7 @@ package constructs.template;
 import constructs.Conjunction;
 import constructs.example.QueryAtom;
 import constructs.example.ValuedFact;
+import constructs.template.components.WeightedRule;
 import constructs.template.types.GraphTemplate;
 import grounding.bottomUp.HerbrandModel;
 import ida.ilp.logic.HornClause;
@@ -10,8 +11,8 @@ import ida.ilp.logic.Literal;
 import ida.ilp.logic.Predicate;
 import ida.utils.collections.MultiMap;
 import learning.Model;
-import networks.computation.values.Value;
-import networks.structure.weights.Weight;
+import networks.computation.training.evaluation.values.Value;
+import networks.structure.components.weights.Weight;
 import org.jetbrains.annotations.Nullable;
 import networks.computation.training.NeuralModel;
 

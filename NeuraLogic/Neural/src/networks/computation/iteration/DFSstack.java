@@ -2,8 +2,8 @@ package networks.computation.iteration;
 
 import networks.computation.iteration.actions.NeuronVisitor;
 import networks.structure.metadata.states.State;
-import networks.structure.networks.NeuralNetwork;
-import networks.structure.neurons.Neuron;
+import networks.structure.components.NeuralNetwork;
+import networks.structure.components.neurons.Neuron;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -28,7 +28,7 @@ public class DFSstack {
                 Neuron<Neuron, State.Computation> pop = stack.pop();
                 Iterator<Neuron> inputs = network.getInputs(pop);
                 for (Neuron next; (next = inputs.next()) != null; ) {
-                    neuronVisitor.expand(value, next.state);
+                    neuronVisitor.propagate(value, next.state);
                     if (neuronVisitor.ready4activation(next))
                         stack.push(next);
                 }
@@ -65,7 +65,7 @@ public class DFSstack {
                 if (neuronVisitor.ready(pop.state)) {  //ready if no input, or it already does have a value
                     Iterator<T> inputs = network.getInputs(pop);
                     for (T next; (next = inputs.next()) != null; ) {
-                        neuronVisitor.expand(next.state.getInputSum(neuronVisitor), pop.state);
+                        neuronVisitor.propagate(next.state.getInputSum(neuronVisitor), pop.state);
                     }
                 } else {
                     Iterator<T> inputs = network.getInputs(pop);

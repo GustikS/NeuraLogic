@@ -2,7 +2,7 @@ package constructs.building.factories;
 
 import constructs.WeightedPredicate;
 import ida.utils.tuples.Pair;
-import networks.structure.weights.Weight;
+import networks.structure.components.weights.Weight;
 
 import java.util.Collection;
 import java.util.HashMap;

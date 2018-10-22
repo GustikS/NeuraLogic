@@ -2,12 +2,12 @@ package networks.computation.iteration;
 
 import ida.utils.tuples.Pair;
 import networks.computation.iteration.actions.NeuronVisitor;
-import networks.computation.values.Value;
+import networks.computation.training.evaluation.values.Value;
 import networks.structure.metadata.states.State;
-import networks.structure.networks.types.TopologicNetwork;
-import networks.structure.neurons.Neuron;
-import networks.structure.neurons.WeightedNeuron;
-import networks.structure.weights.Weight;
+import networks.structure.components.types.TopologicNetwork;
+import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.WeightedNeuron;
+import networks.structure.components.weights.Weight;
 
 import java.util.Iterator;
 import java.util.List;
@@ -27,7 +27,7 @@ public class Topologic extends IterationStrategy<TopologicNetwork<State.Structur
             Value value = actual.state.getInputSum(neuronVisitor);
             Iterator<Neuron> inputs = network.getInputs(actual);
             for (Neuron input; (input = inputs.next()) != null; ) {
-                neuronVisitor.expand(value, input.state);
+                neuronVisitor.propagate(value, input.state);
             }
         }
         return neuron.state;
@@ -44,7 +44,7 @@ public class Topologic extends IterationStrategy<TopologicNetwork<State.Structur
         for (int i = 0; i < network.allNeuronsTopologic.size(); i++) {
             Neuron<Neuron, State.Computation> actual = network.allNeuronsTopologic.get(i);
             neuronVisitor.loadStateFromInputs(actual, network);
-            neuronVisitor.activate(actual);
+            neuronVisitor.activateOutput(actual);
         }
         return neuronVisitor.getValue(neuron);
     }
@@ -58,7 +58,7 @@ public class Topologic extends IterationStrategy<TopologicNetwork<State.Structur
 
         Iterator<Neuron> inputs = network.getInputs(actual);
         for (Neuron input; (input = inputs.next()) != null; ) {
-            neuronVisitor.expand(input.state.getInputSum(neuronVisitor), actual.state);
+            neuronVisitor.propagate(input.state.getInputSum(neuronVisitor), actual.state);
         }
     }
 
@@ -66,7 +66,7 @@ public class Topologic extends IterationStrategy<TopologicNetwork<State.Structur
 
         Iterator<Pair<Neuron, Weight>> inputs = network.getInputs(actual);
         for (Pair<Neuron, Weight> input; (input = inputs.next()) != null; ) {
-            neuronVisitor.expand(input.state.getInputSum(neuronVisitor), actual.state);
+            neuronVisitor.propagate(input.state.getInputSum(neuronVisitor), actual.state);
         }
     }
 

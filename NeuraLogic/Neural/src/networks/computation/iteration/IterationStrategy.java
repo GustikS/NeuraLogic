@@ -2,8 +2,9 @@ package networks.computation.iteration;
 
 import networks.computation.iteration.actions.NeuronVisitor;
 import networks.structure.metadata.states.State;
-import networks.structure.networks.NeuralNetwork;
-import networks.structure.neurons.Neuron;
+import networks.structure.components.NeuralNetwork;
+import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.WeightedNeuron;
 
 import java.util.Iterator;
 
@@ -29,4 +30,29 @@ public abstract class IterationStrategy<N extends State.Structure, V> implements
         this.network = network;
         this.outputNeuron = outputNeuron;
     }
+
+    /**
+     * Passive "Iterator" version - no action taken, just returning next Neuron (for processing, e.g. activation and expansion).
+     * @return
+     */
+    public abstract Neuron<Neuron, State.Computation> next();
+
+    /**
+     * Active "Propagator" version - takes care of neighbours expansion and ALSO propagation of Values at the same time.
+     * This is more efficient than just returning next neuron for processing, which has to repeat the neighbour exploration.
+     */
+    public abstract void iterate();
+
+    /**
+     * Explore neighbours AND propagate results of this neuron into them
+     * @param neuron
+     */
+    public abstract void expand(Neuron<Neuron, State.Computation> neuron);
+
+    /**
+     * Explore neighbours AND propagate results of this neuron into them with the corresponding weights
+     * @param neuron
+     */
+    public abstract void expand(WeightedNeuron<Neuron, State.Computation> neuron);
+
 }

@@ -1,8 +1,8 @@
 package networks.computation.training;
 
 import learning.LearningSample;
-import networks.computation.values.Value;
-import networks.structure.neurons.QueryNeuron;
+import networks.computation.training.evaluation.values.Value;
+import networks.structure.components.neurons.QueryNeuron;
 
 /**
  * Created by gusta on 8.3.17.

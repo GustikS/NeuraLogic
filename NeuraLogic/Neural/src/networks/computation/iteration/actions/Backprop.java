@@ -1,12 +1,12 @@
 package networks.computation.iteration.actions;
 
 import networks.computation.training.NeuralModel;
-import networks.computation.values.Value;
+import networks.computation.training.evaluation.values.Value;
 import networks.structure.metadata.states.State;
-import networks.structure.neurons.Neuron;
-import networks.structure.neurons.Neurons;
-import networks.structure.neurons.WeightedNeuron;
-import networks.structure.weights.Weight;
+import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.Neurons;
+import networks.structure.components.neurons.WeightedNeuron;
+import networks.structure.components.weights.Weight;
 import settings.Settings;
 
 import java.util.List;

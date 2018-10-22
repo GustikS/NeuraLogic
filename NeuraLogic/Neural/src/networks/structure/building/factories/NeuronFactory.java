@@ -1,13 +1,13 @@
 package networks.structure.building.factories;
 
 import constructs.example.ValuedFact;
-import constructs.template.HeadAtom;
-import constructs.template.WeightedRule;
+import constructs.template.components.HeadAtom;
+import constructs.template.components.WeightedRule;
 import networks.computation.functions.Activation;
 import networks.structure.metadata.states.State;
 import networks.structure.metadata.states.States;
-import networks.structure.neurons.Neuron;
-import networks.structure.neurons.types.*;
+import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.types.*;
 import settings.Settings;
 
 import java.util.logging.Logger;

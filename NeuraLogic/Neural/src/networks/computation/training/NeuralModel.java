@@ -1,9 +1,9 @@
 package networks.computation.training;
 
 import learning.Model;
-import networks.computation.values.Value;
-import networks.structure.weights.Weight;
-import networks.structure.neurons.QueryNeuron;
+import networks.computation.training.evaluation.values.Value;
+import networks.structure.components.weights.Weight;
+import networks.structure.components.neurons.QueryNeuron;
 
 import java.io.Reader;
 import java.util.List;

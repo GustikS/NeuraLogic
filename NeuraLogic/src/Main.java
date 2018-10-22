@@ -2,7 +2,7 @@ import ida.utils.tuples.Pair;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 import pipelines.Pipeline;
-import pipelines.bulding.LearningSchemeBuilder;
+import pipelines.building.LearningSchemeBuilder;
 import settings.Settings;
 import settings.Sources;
 import networks.computation.results.Results;

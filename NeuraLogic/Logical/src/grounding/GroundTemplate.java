@@ -2,20 +2,20 @@ package grounding;
 
 import constructs.example.QueryAtom;
 import constructs.example.ValuedFact;
-import constructs.template.BodyAtom;
-import constructs.template.WeightedRule;
+import constructs.template.components.BodyAtom;
+import constructs.template.components.WeightedRule;
 import constructs.template.types.GraphTemplate;
 import ida.ilp.logic.Clause;
 import ida.ilp.logic.Literal;
 import ida.ilp.logic.subsumption.Matching;
 import learning.Example;
 import networks.structure.metadata.inputMappings.NeuronMapping;
-import networks.structure.networks.types.DetailedNetwork;
-import networks.structure.neurons.Neuron;
-import networks.structure.neurons.types.AggregationNeuron;
-import networks.structure.neurons.types.AtomNeuron;
-import networks.structure.neurons.types.FactNeuron;
-import networks.structure.neurons.types.RuleNeurons;
+import networks.structure.components.types.DetailedNetwork;
+import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.types.AggregationNeuron;
+import networks.structure.components.neurons.types.AtomNeuron;
+import networks.structure.components.neurons.types.FactNeuron;
+import networks.structure.components.neurons.types.RuleNeurons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

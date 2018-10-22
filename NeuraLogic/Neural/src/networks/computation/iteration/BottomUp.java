@@ -2,8 +2,8 @@ package networks.computation.iteration;
 
 import networks.computation.iteration.actions.NeuronVisitor;
 import networks.structure.metadata.states.State;
-import networks.structure.networks.NeuralNetwork;
-import networks.structure.neurons.Neuron;
+import networks.structure.components.NeuralNetwork;
+import networks.structure.components.neurons.Neuron;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package networks.structure.metadata.inputMappings;
 
-import networks.structure.neurons.Neuron;
-import networks.structure.neurons.Neurons;
+import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.Neurons;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

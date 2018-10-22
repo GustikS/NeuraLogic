@@ -3,7 +3,7 @@ package grounding.bottomUp;
 import constructs.example.LiftedExample;
 import constructs.example.ValuedFact;
 import constructs.template.Template;
-import constructs.template.WeightedRule;
+import constructs.template.components.WeightedRule;
 import grounding.GroundTemplate;
 import grounding.Grounder;
 import ida.ilp.logic.HornClause;

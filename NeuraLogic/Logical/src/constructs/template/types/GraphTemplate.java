@@ -1,9 +1,9 @@
 package constructs.template.types;
 
 import constructs.example.QueryAtom;
-import constructs.template.BodyAtom;
+import constructs.template.components.BodyAtom;
 import constructs.template.Template;
-import constructs.template.WeightedRule;
+import constructs.template.components.WeightedRule;
 import ida.ilp.logic.Clause;
 import ida.ilp.logic.Literal;
 import ida.ilp.logic.Predicate;

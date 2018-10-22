@@ -1,7 +1,7 @@
 package constructs.example;
 
 import constructs.Conjunction;
-import constructs.template.WeightedRule;
+import constructs.template.components.WeightedRule;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashSet;

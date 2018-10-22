@@ -1,11 +1,11 @@
 package constructs.example;
 
-import constructs.template.HeadAtom;
+import constructs.template.components.HeadAtom;
 import constructs.template.Template;
 import ida.utils.tuples.Pair;
 import learning.Query;
 import networks.computation.functions.Activation;
-import networks.computation.values.Value;
+import networks.computation.training.evaluation.values.Value;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,7 +1,7 @@
 package networks.computation.functions;
 
-import networks.computation.values.Value;
-import networks.structure.weights.Weight;
+import networks.computation.training.evaluation.values.Value;
+import networks.structure.components.weights.Weight;
 
 import java.util.ArrayList;
 

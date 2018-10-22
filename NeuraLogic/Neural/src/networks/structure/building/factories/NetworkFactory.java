@@ -3,10 +3,10 @@ package networks.structure.building.factories;
 import grounding.GroundTemplate;
 import networks.structure.metadata.states.StatesCache;
 import networks.structure.metadata.states.State;
-import networks.structure.networks.NeuralNetwork;
-import networks.structure.networks.types.DetailedNetwork;
-import networks.structure.neurons.Neuron;
-import networks.structure.neurons.types.*;
+import networks.structure.components.NeuralNetwork;
+import networks.structure.components.neurons.types.*;
+import networks.structure.components.types.DetailedNetwork;
+import networks.structure.components.neurons.Neuron;
 import settings.Settings;
 
 import java.util.ArrayList;

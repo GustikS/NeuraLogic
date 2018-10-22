@@ -2,9 +2,9 @@ package networks.structure.metadata.states;
 
 import networks.computation.iteration.actions.Backprop;
 import networks.computation.iteration.actions.StateVisitor;
-import networks.computation.values.Value;
+import networks.computation.training.evaluation.values.Value;
 import networks.structure.metadata.inputMappings.NeuronMapping;
-import networks.structure.neurons.Neuron;
+import networks.structure.components.neurons.Neuron;
 
 import java.util.logging.Logger;
 
