@@ -1,6 +1,8 @@
 package networks.structure.metadata.states;
 
+import networks.computation.functions.Activation;
 import networks.computation.iteration.actions.StateVisitor;
+import networks.structure.components.weights.Weight;
 
 /**
  * Mainly annotation interfaces used for clarity of stateful processing. It is an interface (not abstract class) so that existing classes (e.g. Value) can be used directly as a state.
@@ -8,17 +10,35 @@ import networks.computation.iteration.actions.StateVisitor;
  */
 public interface State {
 
-    default <V> V accept(StateVisitor<V> visitor){
-        return visitor.visit(this);
-    }
-
     /**
      * Stateful values held by a Neuron for use during neural computation
      */
     interface Computation extends State {
         void invalidate();
 
+        default boolean ready4activation(StateVisitor visitor) {
+            return visitor.ready4activation(this);
+        }
 
+        default <V> V activateOutput(StateVisitor<V> visitor, Activation activation) {
+            return visitor.activateOutput(this, activation);
+        }
+
+        default <V> V getOutput(StateVisitor<V> visitor) {
+            return visitor.getOutput(this);
+        }
+
+        default <V> V getCumulation(StateVisitor<V> visitor) {
+            return visitor.getCumulation(this);
+        }
+
+        default <V> void propagateFrom(StateVisitor<V> visitor, V from) {
+            visitor.propagate(from, this);
+        }
+
+        default <V> void propagateFrom(StateVisitor<V> visitor, V from, Weight weight) {
+            visitor.propagate(from, this, weight);
+        }
     }
 
     /**

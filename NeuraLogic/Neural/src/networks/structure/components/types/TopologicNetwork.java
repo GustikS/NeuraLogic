@@ -1,7 +1,7 @@
 package networks.structure.components.types;
 
 import ida.utils.tuples.Pair;
-import networks.computation.iteration.IterationStrategy;
+import networks.computation.iteration.NeuronIterating;
 import networks.computation.iteration.Topologic;
 import networks.structure.metadata.states.State;
 import networks.structure.components.NeuralNetwork;
@@ -45,7 +45,7 @@ public class TopologicNetwork<N extends State.Structure> extends NeuralNetwork<N
     }
 
     @Override
-    public IterationStrategy preferredIterator(StateVisitor vStateVisitor) {
+    public NeuronIterating preferredIterator(StateVisitor vStateVisitor) {
         return new Topologic(vStateVisitor);
     }
 

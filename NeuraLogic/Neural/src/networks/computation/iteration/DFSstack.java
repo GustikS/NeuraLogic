@@ -1,9 +1,10 @@
 package networks.computation.iteration;
 
-import networks.computation.iteration.actions.NeuronVisitor;
-import networks.structure.metadata.states.State;
+import networks.computation.iteration.actions.StateVisitor;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.WeightedNeuron;
+import networks.structure.metadata.states.State;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -15,44 +16,63 @@ public class DFSstack {
 
     private Deque<Neuron<Neuron, State.Computation>> stack;
 
-    public class TopDown<N extends State.Structure, V> extends networks.computation.iteration.TopDown<N, V> {
+    public class TopDown {
 
-        public TopDown(NeuronVisitor<V> visitor, NeuralNetwork<N> network, Neuron<Neuron, State.Computation> neuron) {
-            super(visitor, network, neuron);
-            stack = new ArrayDeque<>();
-            stack.push(outputNeuron);
+        public class StackIterator extends IterationStrategy implements networks.computation.iteration.TopDown, NeuronIterating, NeuronVisiting {
+
+            public StackIterator(StateVisitor stateVisitor, NeuralNetwork<State.Structure> network, Neuron<Neuron, State.Computation> neuron) {
+                super(network, neuron);
+                stack = new ArrayDeque<>();
+                stack.push(outputNeuron);
+            }
+
+            public Neuron<Neuron, State.Computation> next() {
+                while (!stack.isEmpty()) {
+                    Neuron<Neuron, State.Computation> pop = stack.pop();
+                    if (stateVisitor.ready4activation(pop.state)) {  //careful here - it would not put the state on Stack when it should with the last call if checking the children forward instead
+                        Iterator<Neuron> inputs = network.getInputs(pop);
+                        for (Neuron next; (next = inputs.next()) != null; ) {
+                            stack.push(next);
+                        }
+                        return pop;
+                    }
+                }
+                return null;
+            }
+
+            @Override
+            public boolean hasNext() {
+                return !stack.isEmpty();
+            }
         }
 
-        public Neuron<Neuron, State.Computation> next() {
+        //na zkousku
+        public void iterate(NeuralNetwork network, Neuron<Neuron, State.Computation> outputNeuron) {
+            stack.push(outputNeuron);
             while (!stack.isEmpty()) {
                 Neuron<Neuron, State.Computation> pop = stack.pop();
+                //expand would go here - if not, we need 2 versions for weighted neuron here
                 Iterator<Neuron> inputs = network.getInputs(pop);
                 for (Neuron next; (next = inputs.next()) != null; ) {
-                    neuronVisitor.propagate(value, next.state);
-                    if (neuronVisitor.ready4activation(next))
+                    //or propagate here
+                    propagate(pop, next);
+                    if (stateVisitor.ready4activation(next.state))
                         stack.push(next);
                 }
             }
-            //stack.clear(); should be empty already
-            return neuron.state;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return !stack.isEmpty();
         }
 
     }
 
     /**
      * todo next do a reverse post-order (topologic sort) here
-     * todo - true recursive calls would be more efficient here (double call of inputs() here)
+     * todo - true recursive calls would be more efficient here (double call of inputs() here) - actually it's kind of same
      *
      * @return
      */
-    public class BottomUp<N extends State.Structure, V> extends networks.computation.iteration.BottomUp<N, V> {
+    public class BottomUp<N extends State.Structure, V> extends networks.computation.iteration.BottomUp.PostOrder<N, V> {
 
-        public BottomUp(NeuronVisitor<V> visitor, NeuralNetwork<N> network, Neuron<Neuron, State.Computation> neuron) {
+        public BottomUp(NeuronVisiting<V> visitor, NeuralNetwork<N> network, Neuron<Neuron, State.Computation> neuron) {
             super(visitor, network, neuron);
             stack = new ArrayDeque<>();
             stack.push(outputNeuron);

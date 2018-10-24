@@ -3,8 +3,8 @@ package networks.structure.components;
 import ida.utils.tuples.Pair;
 import learning.Example;
 import networks.computation.iteration.DFSstack;
-import networks.computation.iteration.IterationStrategy;
-import networks.computation.iteration.actions.NeuronVisitor;
+import networks.computation.iteration.NeuronIterating;
+import networks.computation.iteration.NeuronVisiting;
 import networks.structure.metadata.states.State;
 import networks.structure.metadata.states.StatesCache;
 import networks.structure.components.neurons.Neuron;
@@ -89,11 +89,11 @@ public abstract class NeuralNetwork<N extends State.Structure> implements Exampl
      * @param vNeuronVisitor
      * @return
      */
-    public <V> IterationStrategy getPreferredBUpIterator(NeuronVisitor<V> vNeuronVisitor, Neuron<Neuron, State.Computation> outputNeuron) {
+    public <V> NeuronIterating getPreferredBUpIterator(NeuronVisiting<V> vNeuronVisitor, Neuron<Neuron, State.Computation> outputNeuron) {
         return new DFSstack().new BottomUp<>(vNeuronVisitor, this, outputNeuron);
     }
 
-    public <V> IterationStrategy getPreferredTDownIterator(NeuronVisitor<V> vNeuronVisitor, Neuron<Neuron, State.Computation> outputNeuron) {
+    public <V> NeuronIterating getPreferredTDownIterator(NeuronVisiting<V> vNeuronVisitor, Neuron<Neuron, State.Computation> outputNeuron) {
         return new DFSstack().new TopDown<>(vNeuronVisitor, this, outputNeuron);
     }
 

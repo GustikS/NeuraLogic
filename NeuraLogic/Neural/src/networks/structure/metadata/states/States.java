@@ -1,6 +1,6 @@
 package networks.structure.metadata.states;
 
-import networks.computation.iteration.actions.Backprop;
+import networks.computation.iteration.actions.Backproper;
 import networks.computation.iteration.actions.StateVisitor;
 import networks.computation.training.evaluation.values.Value;
 import networks.structure.metadata.inputMappings.NeuronMapping;
@@ -44,12 +44,12 @@ public class States implements State {
         }
 
         //todo move this out to visitor
-        public void incrementGradient(Backprop backprop, Value value) {
+        public void incrementGradient(Backproper backproper, Value value) {
             acumGradient.increment(value);
             checked++;
         }
 
-        public <V extends Value> boolean ready4expansion(Backprop vStateVisitor) {
+        public <V extends Value> boolean ready4expansion(Backproper vStateVisitor) {
             return checked >= count;
         }
     }
@@ -68,7 +68,7 @@ public class States implements State {
 
         @Override
         public <V> V accept(StateVisitor<V> visitor) {
-            return states[visitor.state_index].accept(visitor);
+            return states[visitor.stateIndex].accept(visitor);
         }
 
         @Override

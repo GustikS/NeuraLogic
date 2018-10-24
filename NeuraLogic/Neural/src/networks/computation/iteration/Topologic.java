@@ -1,7 +1,6 @@
 package networks.computation.iteration;
 
 import ida.utils.tuples.Pair;
-import networks.computation.iteration.actions.NeuronVisitor;
 import networks.computation.training.evaluation.values.Value;
 import networks.structure.metadata.states.State;
 import networks.structure.components.types.TopologicNetwork;
@@ -13,10 +12,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class Topologic extends IterationStrategy<TopologicNetwork<State.Structure>> {
+public class Topologic extends NeuronIterating<TopologicNetwork<State.Structure>> {
     private static final Logger LOG = Logger.getLogger(Topologic.class.getName());
 
-    public Topologic(NeuronVisitor neuronVisitor) {
+    public Topologic(NeuronVisiting neuronVisitor) {
         super(neuronVisitor);
     }
 

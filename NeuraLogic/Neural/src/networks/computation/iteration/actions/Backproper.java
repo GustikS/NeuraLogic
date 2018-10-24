@@ -5,18 +5,16 @@ import networks.computation.training.evaluation.values.Value;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
 
-import java.util.logging.Logger;
+import java.util.List;
 
 /**
- * Serves 3 purposes: (split into separate classes?)
- * 1) a high level invocation of evaluation of a neural network with query neuron.
- * 2) a neuron (state) visitor - propagating output value into parents - is inherited
- * 3) a bottom-up iterator of neural networks - is outsourced via composition
+ * Created by gusta on 8.3.17.
  */
-public class Evaluator extends StateVisitor<Value> {
-    private static final Logger LOG = Logger.getLogger(Evaluator.class.getName());
+public class Backproper extends StateVisitor<Value> {
 
-    public Evaluator(int stateIndex) {
+    List<Weight> allWeights;
+
+    public Backproper(int stateIndex) {
         super(stateIndex);
     }
 
@@ -49,4 +47,5 @@ public class Evaluator extends StateVisitor<Value> {
     public void propagate(Value from, State.Computation to, Weight weight) {
 
     }
+
 }

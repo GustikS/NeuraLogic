@@ -10,7 +10,7 @@ import java.util.Queue;
 import java.util.logging.Logger;
 
 //todo this class is not used BFS would only be used for true bottom up evaluation as it cannot do post-order evaluation like DFS
-public class BFS<T extends Neuron, S extends State.Computation> extends IterationStrategy<NeuralNetwork<State.Structure>, T, S> {
+public class BFS<T extends Neuron, S extends State.Computation> extends NeuronIterating<NeuralNetwork<State.Structure>, T, S> {
     private static final Logger LOG = Logger.getLogger(BFS.class.getName());
 
     Queue<Neuron<T, S>> queue;
