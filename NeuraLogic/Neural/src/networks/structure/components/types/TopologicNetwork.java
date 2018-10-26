@@ -1,13 +1,11 @@
 package networks.structure.components.types;
 
 import ida.utils.tuples.Pair;
-import networks.computation.iteration.NeuronIterating;
-import networks.computation.iteration.Topologic;
-import networks.structure.metadata.states.State;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.weights.Weight;
+import networks.structure.metadata.states.State;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -30,7 +28,7 @@ public class TopologicNetwork<N extends State.Structure> extends NeuralNetwork<N
     }
 
     @Override
-    public <T extends Neuron, S extends State.Computation> Iterator<Pair<T, Weight>> getInputs(WeightedNeuron<T, S> neuron) {
+    public <T extends Neuron, S extends State.Computation> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron) {
         return null;
     }
 
@@ -44,10 +42,6 @@ public class TopologicNetwork<N extends State.Structure> extends NeuralNetwork<N
         return null;
     }
 
-    @Override
-    public NeuronIterating preferredIterator(StateVisitor vStateVisitor) {
-        return new Topologic(vStateVisitor);
-    }
 
     public List<Neuron> topologicSort(List<Neuron> allNeurons) {
         Set<Neuron> visited = new HashSet<>();

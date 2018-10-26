@@ -12,13 +12,13 @@ import networks.structure.components.neurons.types.AtomNeuron;
  */
 public class QueryNeuron extends Query<NeuralNetwork<State.Structure>, NeuralModel> {
 
-    public AtomNeuron neuron;
+    public AtomNeuron<State.Computation> neuron;
 
     public QueryNeuron(String id, int queryCounter, double importance) {
         super(id, queryCounter, importance);
     }
 
-    public QueryNeuron(String id, int position, double importance, AtomNeuron targetNeuron, NeuralNetwork neuralNetwork) {
+    public QueryNeuron(String id, int position, double importance, AtomNeuron<State.Computation> targetNeuron, NeuralNetwork<State.Structure> neuralNetwork) {
         super(id, position, importance);
         this.neuron = targetNeuron;
         this.evidence = neuralNetwork;

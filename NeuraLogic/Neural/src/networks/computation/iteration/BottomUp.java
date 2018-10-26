@@ -7,7 +7,7 @@ package networks.computation.iteration;
 public interface BottomUp<V> extends DirectedIteration {
 
     @Override
-    default void iterate(){
+    default void iterate() {
         bottomUp();
     }
 

@@ -7,7 +7,7 @@ import java.util.Iterator;
 
 
 /**
- * For "Passive" Iteration strategy - no action taken, just returning next Neuron (for processing, e.g. activation and expansion).
+ * For "Passive" Iteration strategy - no action taken, just returning next Neuron (for processing, e.g. activation and expansion). (PureIterator)
  * @return
  */
 public interface NeuronIterator extends Iterator<Neuron<Neuron, State.Computation>>{

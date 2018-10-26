@@ -39,12 +39,12 @@ public class Backproper extends StateVisitor<Value> {
     }
 
     @Override
-    public void propagate(Value from, State.Computation to) {
+    public void cumulate(Value from, State.Computation to) {
 
     }
 
     @Override
-    public void propagate(Value from, State.Computation to, Weight weight) {
+    public void cumulate(Value from, State.Computation to, Weight weight) {
 
     }
 

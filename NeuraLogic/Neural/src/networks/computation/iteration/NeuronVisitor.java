@@ -5,7 +5,7 @@ import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.WeightedNeuron;
 
 /**
- * No recursive expansion of nodes for processing, just an immediate propagation of values to neighbours
+ * No recursive expansion of nodes for processing, just an immediate propagation of values to neighbours (PureVisitor)
  */
 public interface NeuronVisitor {
 

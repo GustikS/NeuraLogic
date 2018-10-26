@@ -11,6 +11,7 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
+//todo next
 public class DFSstack {
     private static final Logger LOG = Logger.getLogger(DFSstack.class.getName());
 

@@ -63,7 +63,7 @@ public abstract class StateVisitor<V> {
      * @param from
      * @param to
      */
-    public abstract void propagate(V from, State.Computation to);
+    public abstract void cumulate(V from, State.Computation to);
 
     /**
      * Propagate result from the neuron "from" into the destination neuron using the information from the weight
@@ -71,6 +71,6 @@ public abstract class StateVisitor<V> {
      * @param from
      * @param to
      */
-    public abstract void propagate(V from, State.Computation to, Weight weight);
+    public abstract void cumulate(V from, State.Computation to, Weight weight);
 
 }

@@ -1,6 +1,9 @@
 package networks.computation.training.evaluation;
 
 import networks.computation.iteration.BottomUp;
+import networks.computation.iteration.DFSstack;
+import networks.computation.iteration.PureNeuronVisitor;
+import networks.computation.iteration.Topologic;
 import networks.computation.iteration.actions.Evaluator;
 import networks.computation.results.Result;
 import networks.computation.training.NeuralModel;
@@ -8,6 +11,7 @@ import networks.computation.training.NeuralSample;
 import networks.computation.training.evaluation.values.Value;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.types.AtomNeuron;
 import networks.structure.components.types.TopologicNetwork;
 import networks.structure.metadata.states.State;
@@ -43,6 +47,7 @@ public class Evaluation {
 
     /**
      * Get multiple evaluators with different state access views/indices
+     *
      * @param settings
      * @param count
      * @return
@@ -50,13 +55,13 @@ public class Evaluation {
     public List<Evaluator> getParallelEvaluators(Settings settings, int count) {
         List<Evaluator> evaluators = new ArrayList<>(count);
         for (int i = 0; i < evaluators.size(); i++) {
-            evaluators.add(i,new Evaluator(i));
+            evaluators.add(i, new Evaluator(i));
         }
         return evaluators;
     }
 
     /**
-     * todo move to BottomUp
+     * todo make the choice complete
      * Get the best mode of BottomUp iteration through this NeuralNetwork given the target of Evaluation of the output Neuron.
      *
      * @param settings
@@ -64,22 +69,22 @@ public class Evaluation {
      * @param evaluator
      * @return
      */
-    private BottomUp<Value> getBottomUpIterationStrategy(Settings settings, NeuralNetwork<State.Structure> network, Neuron<Neuron, State.Computation> outputNeuron, Evaluator evaluator) {
+    private BottomUp<Value> getBottomUpIterationStrategy(Settings settings, NeuralNetwork<State.Structure> network, Neuron outputNeuron, Evaluator evaluator) {
         if (network instanceof TopologicNetwork) {
-            return new BottomUpTopologicIterator(network, outputNeuron, evaluator);
-        } else return new BottomUpDFSstackVisitor(network, outputNeuron, evaluator);
+            PureNeuronVisitor.Up up = new PureNeuronVisitor(evaluator, network).new Up(evaluator, network);
+            new Topologic((TopologicNetwork<State.Structure>) network, evaluator).new BUpVisitor(outputNeuron, up);
+        } else {
+            new DFSstack(network, evaluator).new BUpVisitor(outputNeuron);
+        }
+        return null;
     }
 
     public Result evaluate(NeuralModel model, NeuralSample sample) {
         NeuralNetwork<State.Structure> network = sample.query.evidence;
-        AtomNeuron outputNeuron = sample.query.neuron;
+        AtomNeuron<State.Computation> outputNeuron = sample.query.neuron;
 
-        /**
-         * Takes care of the logic of iteration
-         */
-        BottomUp propagator = getBottomUpIterationStrategy(settings, network, outputNeuron, evaluator);
-        Value output = propagator.iterate();
-        //todo invalidate all neurons + set values to offset!
+        BottomUp<Value> propagator = getBottomUpIterationStrategy(settings, network, outputNeuron, evaluator);
+        Value output = propagator.bottomUp();
         Result result = new Result(sample.target, output);
         return result;
     }

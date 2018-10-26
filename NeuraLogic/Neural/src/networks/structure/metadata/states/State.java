@@ -32,12 +32,12 @@ public interface State {
             return visitor.getCumulation(this);
         }
 
-        default <V> void propagateFrom(StateVisitor<V> visitor, V from) {
-            visitor.propagate(from, this);
+        default <V> void cumulate(StateVisitor<V> visitor, V from) {
+            visitor.cumulate(from, this);
         }
 
-        default <V> void propagateFrom(StateVisitor<V> visitor, V from, Weight weight) {
-            visitor.propagate(from, this, weight);
+        default <V> void cumulate(StateVisitor<V> visitor, V from, Weight weight) {
+            visitor.cumulate(from, this, weight);
         }
     }
 

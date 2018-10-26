@@ -10,7 +10,7 @@ import networks.structure.metadata.states.State;
 import java.util.logging.Logger;
 
 /**
- * Active "Propagator" version - takes care of neighbours expansion and ALSO propagation of Values at the same time.
+ * Active "Propagator" visitor - takes care of neighbours expansion and ALSO propagation of Values at the same time.
  * In visitor this can be more efficient than just returning next neuron for processing in iterator, which has to repeat the neighbour exploration.
  */
 public abstract class NeuronVisiting<V> extends IterationStrategy<V> {
@@ -34,13 +34,13 @@ public abstract class NeuronVisiting<V> extends IterationStrategy<V> {
      *
      * @param neuron
      */
-    public abstract void expand(Neuron neuron);
+    public abstract void expand(Neuron<Neuron, State.Computation> neuron);
 
     /**
      * Expand neighbors and Propagate result of this neuron into the neighbours (inputs or outputs) with the corresponding edge weight AND add queue them for expansion, too.
      *
      * @param neuron
      */
-    public abstract void expand(WeightedNeuron neuron);
+    public abstract void expand(WeightedNeuron<Neuron, State.Computation> neuron);
 
 }
