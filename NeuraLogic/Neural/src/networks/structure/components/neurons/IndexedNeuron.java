@@ -1,6 +1,6 @@
 package networks.structure.components.neurons;
 
-import networks.computation.functions.Activation;
+import networks.computation.evaluation.functions.Activation;
 
 import java.util.ArrayList;
 import java.util.logging.Logger;

@@ -1,6 +1,6 @@
 package networks.structure.components.weights;
 
-import networks.computation.training.evaluation.values.Value;
+import networks.computation.evaluation.values.Value;
 
 import java.util.logging.Logger;
 

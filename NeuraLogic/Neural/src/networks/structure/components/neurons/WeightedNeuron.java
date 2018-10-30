@@ -1,7 +1,7 @@
 package networks.structure.components.neurons;
 
 import ida.utils.tuples.Pair;
-import networks.computation.functions.Activation;
+import networks.computation.evaluation.functions.Activation;
 import networks.structure.metadata.states.State;
 import networks.structure.components.weights.Weight;
 

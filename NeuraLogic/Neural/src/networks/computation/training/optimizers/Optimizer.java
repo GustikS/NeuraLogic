@@ -1,6 +1,6 @@
 package networks.computation.training.optimizers;
 
-import networks.computation.training.evaluation.values.Value;
+import networks.computation.evaluation.values.Value;
 import networks.structure.components.weights.Weight;
 
 import java.util.List;

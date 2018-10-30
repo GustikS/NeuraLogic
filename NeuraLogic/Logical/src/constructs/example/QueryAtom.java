@@ -3,7 +3,7 @@ package constructs.example;
 import constructs.template.components.HeadAtom;
 import constructs.template.Template;
 import learning.Query;
-import networks.computation.training.evaluation.values.Value;
+import networks.computation.evaluation.values.Value;
 
 /**
  * Created by Gusta on 04.10.2016.

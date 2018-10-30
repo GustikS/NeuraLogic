@@ -1,6 +1,6 @@
 package networks.structure.components.neurons;
 
-import networks.computation.functions.Activation;
+import networks.computation.evaluation.functions.Activation;
 import networks.computation.iteration.NeuronVisiting;
 import networks.computation.iteration.NeuronVisitor;
 

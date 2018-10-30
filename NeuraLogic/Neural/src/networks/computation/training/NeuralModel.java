@@ -1,7 +1,7 @@
 package networks.computation.training;
 
 import learning.Model;
-import networks.computation.training.evaluation.values.Value;
+import networks.computation.evaluation.values.Value;
 import networks.structure.components.weights.Weight;
 import networks.structure.components.neurons.QueryNeuron;
 
@@ -13,7 +13,7 @@ import java.util.Map;
  * Created by gusta on 8.3.17.
  */
 public class NeuralModel implements Model<QueryNeuron> {
-    List<Weight> weights;
+    public List<Weight> weights;
 
     public  NeuralModel(List<Weight> weights){
         this.weights = weights;

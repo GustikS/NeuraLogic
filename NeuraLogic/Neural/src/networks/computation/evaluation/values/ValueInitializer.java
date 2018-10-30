@@ -1,4 +1,4 @@
-package networks.computation.training.evaluation.values;
+package networks.computation.evaluation.values;
 
 import networks.structure.components.weights.Weight;
 import settings.Settings;

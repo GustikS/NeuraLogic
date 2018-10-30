@@ -2,7 +2,7 @@ package networks.structure.components.neurons;
 
 import learning.Query;
 import networks.computation.training.NeuralModel;
-import networks.computation.training.evaluation.values.Value;
+import networks.computation.evaluation.values.Value;
 import networks.structure.metadata.states.State;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.types.AtomNeuron;

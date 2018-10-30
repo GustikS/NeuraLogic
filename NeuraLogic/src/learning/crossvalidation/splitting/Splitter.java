@@ -23,9 +23,12 @@ public interface Splitter<T extends LearningSample> {
      */
     List<Stream<T>> partition(Stream<T> samples, int foldCount);
 
+    List<List<T>> partition(List<T> samples, int foldCount);
+
     default List<Fold<T>> splitIntoFolds(Stream<T> samples, int foldCount) {
         return splitIntoFolds(partition(samples, foldCount));
     }
+
 
     default List<Fold<T>> splitIntoFolds(List<Stream<T>> streams) {
         List<List<T>> folds = new ArrayList<>(streams.size());
@@ -40,7 +43,6 @@ public interface Splitter<T extends LearningSample> {
             fold.train = new ArrayList<>();
             for (int j = 0; j < folds.size(); j++) {
                 if (j == i) continue;
-                ;
                 fold.train.addAll(folds.get(j));
             }
             cvf.add(fold);

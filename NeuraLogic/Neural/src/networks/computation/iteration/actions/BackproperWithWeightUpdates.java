@@ -1,6 +1,6 @@
 package networks.computation.iteration.actions;
 
-import networks.computation.training.evaluation.values.Value;
+import networks.computation.evaluation.values.Value;
 
 import java.util.logging.Logger;
 

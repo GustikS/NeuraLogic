@@ -1,7 +1,7 @@
 package networks.computation.iteration.actions;
 
-import networks.computation.functions.Activation;
-import networks.computation.training.evaluation.values.Value;
+import networks.computation.evaluation.functions.Activation;
+import networks.computation.evaluation.values.Value;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
 

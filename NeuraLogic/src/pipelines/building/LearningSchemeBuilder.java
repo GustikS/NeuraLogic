@@ -3,7 +3,7 @@ package pipelines.building;
 import constructs.template.Template;
 import ida.utils.tuples.Pair;
 import learning.crossvalidation.TrainTestResults;
-import networks.computation.results.Results;
+import networks.computation.evaluation.results.Results;
 import pipelines.Pipe;
 import pipelines.Pipeline;
 import pipelines.pipes.generic.SecondFromPairPipe;

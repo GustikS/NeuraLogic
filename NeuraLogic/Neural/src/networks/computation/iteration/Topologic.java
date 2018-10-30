@@ -1,7 +1,7 @@
 package networks.computation.iteration;
 
 import networks.computation.iteration.actions.StateVisitor;
-import networks.computation.training.evaluation.values.Value;
+import networks.computation.evaluation.values.Value;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.types.TopologicNetwork;

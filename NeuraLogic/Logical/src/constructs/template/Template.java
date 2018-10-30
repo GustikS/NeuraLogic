@@ -11,7 +11,7 @@ import ida.ilp.logic.Literal;
 import ida.ilp.logic.Predicate;
 import ida.utils.collections.MultiMap;
 import learning.Model;
-import networks.computation.training.evaluation.values.Value;
+import networks.computation.evaluation.values.Value;
 import networks.structure.components.weights.Weight;
 import org.jetbrains.annotations.Nullable;
 import networks.computation.training.NeuralModel;

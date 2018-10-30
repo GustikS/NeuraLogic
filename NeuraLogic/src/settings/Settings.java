@@ -126,15 +126,53 @@ public class Settings {
 
     //-----------------Evaluation & Training
 
+    /**
+     * Evaluation mode: Regression vs. Classification
+     */
+    public boolean regression = false;
+
+    /**
+     * Default algorithm for neural cache searching
+     */
     public NeuronSearch neuronSearch = NeuronSearch.LINEAR;
     public enum NeuronSearch {
         LINEAR, BST, HASHMAP
     }
+
+    /**
+     * Networks size threshold for switching between neuron search algorithms
+     */
     public int lin2bst = 10^3;
+    /**
+     * Networks size threshold for switching between neuron search algorithms
+     */
     public int bst2hashmap = 10^6;
 
-    public boolean minibatch = false;
+    /**
+     * Parallel training with minibatches (the only truly correct parallel training). Batch size = Number of threads. SGD = 1.
+     */
     public int minibatchSize = 4;
+
+    /**
+     * Restarting the whole training?
+     */
+    public int restartCount = 1;
+
+    public int maxEpochCount = 10000;
+
+    /**
+     * Shuffle samples with each epoch to create different minibatches
+     */
+    public boolean minibatchShuffle = true;
+
+    /**
+     * Shuffle samples with each epoch even for the SGD mode
+     */
+    public boolean alwaysShuffle;
+
+    public boolean islearnRateDecay = false;
+
+    public double learningRate = 0.1;
 
     //-----------------Structure Learning
     public boolean structureLearning;

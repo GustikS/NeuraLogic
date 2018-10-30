@@ -1,29 +1,37 @@
-package networks.computation.training.evaluation.values;
+package networks.computation.evaluation.values;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
  * Created by gusta on 8.3.17.
  */
-public class MatrixValue extends Value {
-    private static final Logger LOG = Logger.getLogger(MatrixValue.class.getName());
+public class VectorValue extends Value {
+    private static final Logger LOG = Logger.getLogger(VectorValue.class.getName());
+    double[] value;
 
-    int rows;
-    int cols;
+    public VectorValue(int size){
+        value = new double[size];
+    }
 
-    double[][] value;
+    public VectorValue(List<Double> vector) {
+        value = vector.stream().mapToDouble(d -> d).toArray();
+    }
+
+    public VectorValue(int size, ValueInitializer valueInitializer){
+        value = new double[size];
+        initialize(valueInitializer);
+    }
 
     @Override
     public void initialize(ValueInitializer valueInitializer) {
-        valueInitializer.initMatrix(this);
+        valueInitializer.initVector(this);
     }
 
     @Override
     public void zero() {
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                value[i][j] = 0;
-            }
+        for (int i = 0; i < value.length; i++) {
+            value[i] = 0;
         }
     }
 
@@ -33,48 +41,39 @@ public class MatrixValue extends Value {
     }
 
     @Override
-    public ScalarValue multiplyBy(ScalarValue value) {
+    public VectorValue multiplyBy(ScalarValue value) {
         return null;
     }
 
     @Override
-    public MatrixValue multiplyBy(VectorValue value) {
+    public Value multiplyBy(VectorValue value) {
+        //todo take care of an element-wise multiplication vs matrix
         return null;
     }
 
-    /**
-     * Handle the non-commutative cases carefully!
-     * @param value
-     * @return
-     */
     @Override
     public MatrixValue multiplyBy(MatrixValue value) {
-        MatrixValue lhs = value;
-        MatrixValue rhs = this;
-        //todo actually multiply them (with eigen?)
         return null;
     }
 
     @Override
     public Value add(Value value) {
-        return value.add(this);
-    }
-
-    @Override
-    public MatrixValue add(ScalarValue value) {
-        //element-wise
         return null;
     }
 
     @Override
-    public Value add(VectorValue value) {
-        LOG.severe("Incompatible multiplication");
+    public VectorValue add(ScalarValue value) {
+        return null;
+    }
+
+    @Override
+    public VectorValue add(VectorValue value) {
         return null;
     }
 
     @Override
     public Value add(MatrixValue value) {
-        //check dimensions
+        LOG.severe("Incompatible multiplication");
         return null;
     }
 

@@ -1,14 +1,17 @@
 package pipelines.pipes.specific;
 
 import ida.utils.tuples.Pair;
-import networks.computation.training.evaluation.Evaluation;
-import networks.computation.results.Results;
+import networks.computation.evaluation.results.Result;
+import networks.computation.evaluation.Evaluation;
+import networks.computation.evaluation.results.Results;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import pipelines.Pipe;
 import settings.Settings;
 
+import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class NeuralEvaluationPipe extends Pipe<Pair<NeuralModel, Stream<NeuralSample>>, Results> {
@@ -25,14 +28,16 @@ public class NeuralEvaluationPipe extends Pipe<Pair<NeuralModel, Stream<NeuralSa
     }
 
     /**
-     * Terminating operation!
+     * Terminating operation (obviously)!
      * @param neuralModelStreamPair
      * @return
      */
     @Override
     public Results apply(Pair<NeuralModel, Stream<NeuralSample>> neuralModelStreamPair) {
         Evaluation evaluator = new Evaluation(settings);
-        neuralModelStreamPair.s.map(s -> evaluator.evaluate(neuralModelStreamPair.r, s));
-
+        Stream<Result> resultStream = neuralModelStreamPair.s.map(s -> evaluator.evaluate(neuralModelStreamPair.r, s));
+        List<Result> outputList = resultStream.collect(Collectors.toList());
+        Results results = Results.getFrom(settings, outputList);
+        return results;
     }
 }

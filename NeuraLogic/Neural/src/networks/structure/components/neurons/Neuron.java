@@ -1,6 +1,6 @@
 package networks.structure.components.neurons;
 
-import networks.computation.functions.Activation;
+import networks.computation.evaluation.functions.Activation;
 import networks.structure.metadata.states.State;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

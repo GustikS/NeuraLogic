@@ -1,7 +1,7 @@
 package networks.structure.components.neurons.types;
 
 import constructs.example.ValuedFact;
-import networks.computation.training.evaluation.values.Value;
+import networks.computation.evaluation.values.Value;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.weights.Weight;
 import networks.structure.components.neurons.Neuron;

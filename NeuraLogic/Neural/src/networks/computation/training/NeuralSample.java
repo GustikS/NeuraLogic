@@ -1,7 +1,7 @@
 package networks.computation.training;
 
 import learning.LearningSample;
-import networks.computation.training.evaluation.values.Value;
+import networks.computation.evaluation.values.Value;
 import networks.structure.components.neurons.QueryNeuron;
 
 /**

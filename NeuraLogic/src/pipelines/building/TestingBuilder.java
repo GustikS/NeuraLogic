@@ -3,7 +3,7 @@ package pipelines.building;
 import constructs.example.LogicSample;
 import constructs.template.Template;
 import ida.utils.tuples.Pair;
-import networks.computation.results.Results;
+import networks.computation.evaluation.results.Results;
 import pipelines.Branch;
 import pipelines.Pipe;
 import pipelines.Pipeline;

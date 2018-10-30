@@ -1,6 +1,6 @@
 package networks.structure.metadata.states;
 
-import networks.computation.functions.Activation;
+import networks.computation.evaluation.functions.Activation;
 import networks.computation.iteration.actions.StateVisitor;
 import networks.structure.components.weights.Weight;
 

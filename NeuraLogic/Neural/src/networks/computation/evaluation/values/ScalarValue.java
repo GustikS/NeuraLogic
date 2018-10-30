@@ -1,4 +1,4 @@
-package networks.computation.training.evaluation.values;
+package networks.computation.evaluation.values;
 
 import java.util.logging.Logger;
 

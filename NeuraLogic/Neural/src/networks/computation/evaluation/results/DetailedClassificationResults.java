@@ -1,4 +1,4 @@
-package networks.computation.results;
+package networks.computation.evaluation.results;
 
 /**
  * Created by gusta on 8.3.17.

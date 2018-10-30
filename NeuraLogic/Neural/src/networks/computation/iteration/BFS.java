@@ -1,6 +1,6 @@
 package networks.computation.iteration;
 
-import networks.computation.training.evaluation.values.Value;
+import networks.computation.evaluation.values.Value;
 import networks.structure.metadata.states.State;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neuron;

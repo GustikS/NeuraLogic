@@ -1,6 +1,6 @@
 package learning;
 
-import networks.computation.training.evaluation.values.Value;
+import networks.computation.evaluation.values.Value;
 
 public abstract class LearningSample<Q extends Query> {
     //should learning samples contain reference to Model - probably not (Structure learning)

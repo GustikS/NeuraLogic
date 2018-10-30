@@ -1,17 +1,16 @@
-package networks.computation.training.evaluation;
+package networks.computation.evaluation;
 
+import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.BottomUp;
 import networks.computation.iteration.DFSstack;
 import networks.computation.iteration.PureNeuronVisitor;
 import networks.computation.iteration.Topologic;
 import networks.computation.iteration.actions.Evaluator;
-import networks.computation.results.Result;
+import networks.computation.evaluation.results.Result;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
-import networks.computation.training.evaluation.values.Value;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neuron;
-import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.types.AtomNeuron;
 import networks.structure.components.types.TopologicNetwork;
 import networks.structure.metadata.states.State;
@@ -71,7 +70,7 @@ public class Evaluation {
      */
     private BottomUp<Value> getBottomUpIterationStrategy(Settings settings, NeuralNetwork<State.Structure> network, Neuron outputNeuron, Evaluator evaluator) {
         if (network instanceof TopologicNetwork) {
-            PureNeuronVisitor.Up up = new PureNeuronVisitor(evaluator, network).new Up(evaluator, network);
+            PureNeuronVisitor.Up up = new PureNeuronVisitor().new Up(evaluator, network);
             new Topologic((TopologicNetwork<State.Structure>) network, evaluator).new BUpVisitor(outputNeuron, up);
         } else {
             new DFSstack(network, evaluator).new BUpVisitor(outputNeuron);
@@ -89,3 +88,4 @@ public class Evaluation {
         return result;
     }
 }
+

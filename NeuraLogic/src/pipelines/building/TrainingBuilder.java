@@ -3,7 +3,7 @@ package pipelines.building;
 import constructs.example.LogicSample;
 import constructs.template.Template;
 import ida.utils.tuples.Pair;
-import networks.computation.results.Results;
+import networks.computation.evaluation.results.Results;
 import pipelines.Merge;
 import pipelines.Pipe;
 import pipelines.Pipeline;
@@ -11,6 +11,7 @@ import pipelines.RecurrentPipe;
 import pipelines.pipes.generic.DuplicateBranch;
 import pipelines.pipes.generic.FirstFromPairExtractionBranch;
 import pipelines.pipes.generic.PairMerge;
+import pipelines.pipes.specific.NeuralTrainingPipe;
 import pipelines.pipes.specific.TemplateToNeuralPipe;
 import settings.Settings;
 import settings.Source;
@@ -150,7 +151,9 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
 
         @Override
         public Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Results>> buildPipeline() {
-            return null;
+            Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Results> pipeline = new Pipeline<>("NeuralTrainingPipeline");
+            NeuralTrainingPipe neuralEvaluationPipe = pipeline.registerEnd(pipeline.registerStart(new NeuralTrainingPipe(settings)));
+            return pipeline;
         }
     }
 

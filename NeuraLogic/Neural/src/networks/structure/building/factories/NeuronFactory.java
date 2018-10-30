@@ -3,12 +3,12 @@ package networks.structure.building.factories;
 import constructs.example.ValuedFact;
 import constructs.template.components.HeadAtom;
 import constructs.template.components.WeightedRule;
-import networks.computation.functions.Activation;
-import networks.structure.metadata.states.State;
-import networks.structure.metadata.states.States;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.types.*;
+import networks.structure.metadata.states.State;
+import networks.structure.metadata.states.States;
 import settings.Settings;
+import sun.rmi.server.Activation;
 
 import java.util.logging.Logger;
 
@@ -26,9 +26,8 @@ public class NeuronFactory {
         this.settings = settings;
     }
 
-
     State.Computation getComputationState(Neuron neuron) {
-        if (settings.minibatch) {   //if there is minibatch, multiple threads will possibly be accessing the same neuron, i.e. we need array of states, one for each thread
+        if (settings.minibatchSize > 1) {   //if there is minibatch, multiple threads will possibly be accessing the same neuron, i.e. we need array of states, one for each thread
             States.StateComposite<State.Computation> stateComposite = new States.StateComposite<>(new State.Computation[settings.minibatchSize]);
             for (int i = 0; i < stateComposite.states.length; i++) {
                 stateComposite.states[i] = getBaseState(neuron);

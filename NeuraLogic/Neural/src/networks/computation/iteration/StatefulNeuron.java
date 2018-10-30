@@ -1,7 +1,7 @@
 package networks.computation.iteration;
 
-import networks.computation.functions.Activation;
-import networks.computation.training.evaluation.values.Value;
+import networks.computation.evaluation.functions.Activation;
+import networks.computation.evaluation.values.Value;
 import networks.structure.metadata.states.State;
 import networks.structure.components.neurons.Neuron;
 

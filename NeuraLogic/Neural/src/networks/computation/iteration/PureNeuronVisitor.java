@@ -2,7 +2,7 @@ package networks.computation.iteration;
 
 import ida.utils.tuples.Pair;
 import networks.computation.iteration.actions.StateVisitor;
-import networks.computation.training.evaluation.values.Value;
+import networks.computation.evaluation.values.Value;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.WeightedNeuron;
@@ -19,6 +19,10 @@ public class PureNeuronVisitor {
 
     StateVisitor<Value> stateVisitor;   //todo copy this to inner class for performance?
     NeuralNetwork<State.Structure> network;
+
+    public PureNeuronVisitor(){
+
+    }
 
     public PureNeuronVisitor(StateVisitor<Value> stateVisitor, NeuralNetwork<State.Structure> network) {
         this.stateVisitor = stateVisitor;

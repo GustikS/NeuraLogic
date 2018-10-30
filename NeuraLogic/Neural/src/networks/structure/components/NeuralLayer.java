@@ -1,6 +1,6 @@
 package networks.structure.components;
 
-import networks.computation.functions.Activation;
+import networks.computation.evaluation.functions.Activation;
 import networks.structure.components.neurons.WeightedNeuron;
 
 import java.util.List;

@@ -1,6 +1,6 @@
 package networks.structure.building;
 
-import networks.computation.training.evaluation.values.Value;
+import networks.computation.evaluation.values.Value;
 import networks.structure.components.neurons.QueryNeuron;
 import networks.structure.components.types.DetailedNetwork;
 import networks.computation.training.NeuralSample;
