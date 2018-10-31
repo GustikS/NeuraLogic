@@ -32,42 +32,42 @@ public class ScalarValue extends Value {
     }
 
     @Override
-    public Value multiplyBy(Value value) {
-        return value.multiplyBy(this);
+    public Value times(Value value) {
+        return value.times(this);
     }
 
     @Override
-    public ScalarValue multiplyBy(ScalarValue value) {
+    public ScalarValue times(ScalarValue value) {
         return new ScalarValue(this.value * value.value);
     }
 
     @Override
-    public VectorValue multiplyBy(VectorValue value) {
+    public VectorValue times(VectorValue value) {
         return null;
     }
 
     @Override
-    public MatrixValue multiplyBy(MatrixValue value) {
+    public MatrixValue times(MatrixValue value) {
         return null;
     }
 
     @Override
-    public Value add(Value value) {
-        return value.add(this);
+    public Value plus(Value value) {
+        return value.plus(this);
     }
 
     @Override
-    public ScalarValue add(ScalarValue value) {
+    public ScalarValue plus(ScalarValue value) {
         return new ScalarValue(this.value + value.value);
     }
 
     @Override
-    public VectorValue add(VectorValue value) {
+    public VectorValue plus(VectorValue value) {
         return null;
     }
 
     @Override
-    public MatrixValue add(MatrixValue value) {
+    public MatrixValue plus(MatrixValue value) {
         return null;
     }
 

@@ -28,17 +28,17 @@ public class MatrixValue extends Value {
     }
 
     @Override
-    public Value multiplyBy(Value value) {
-        return value.multiplyBy(this);
+    public Value times(Value value) {
+        return value.times(this);
     }
 
     @Override
-    public ScalarValue multiplyBy(ScalarValue value) {
+    public ScalarValue times(ScalarValue value) {
         return null;
     }
 
     @Override
-    public MatrixValue multiplyBy(VectorValue value) {
+    public MatrixValue times(VectorValue value) {
         return null;
     }
 
@@ -48,7 +48,7 @@ public class MatrixValue extends Value {
      * @return
      */
     @Override
-    public MatrixValue multiplyBy(MatrixValue value) {
+    public MatrixValue times(MatrixValue value) {
         MatrixValue lhs = value;
         MatrixValue rhs = this;
         //todo actually multiply them (with eigen?)
@@ -56,24 +56,24 @@ public class MatrixValue extends Value {
     }
 
     @Override
-    public Value add(Value value) {
-        return value.add(this);
+    public Value plus(Value value) {
+        return value.plus(this);
     }
 
     @Override
-    public MatrixValue add(ScalarValue value) {
+    public MatrixValue plus(ScalarValue value) {
         //element-wise
         return null;
     }
 
     @Override
-    public Value add(VectorValue value) {
+    public Value plus(VectorValue value) {
         LOG.severe("Incompatible multiplication");
         return null;
     }
 
     @Override
-    public Value add(MatrixValue value) {
+    public Value plus(MatrixValue value) {
         //check dimensions
         return null;
     }

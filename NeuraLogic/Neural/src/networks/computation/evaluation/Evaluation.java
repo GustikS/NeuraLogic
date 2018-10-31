@@ -29,9 +29,12 @@ public class Evaluation {
      */
     Evaluator evaluator;
 
+    Result.Factory resultFactory;
+
     public Evaluation(Settings settings) {
         this.settings = settings;
         this.evaluator = getEvaluator(settings);
+        this.resultFactory = new Result.Factory(settings);
     }
 
     /**
@@ -84,7 +87,7 @@ public class Evaluation {
 
         BottomUp<Value> propagator = getBottomUpIterationStrategy(settings, network, outputNeuron, evaluator);
         Value output = propagator.bottomUp();
-        Result result = new Result(sample.target, output);
+        Result result = resultFactory.create(sample.getId(), sample.target, output);
         return result;
     }
 }

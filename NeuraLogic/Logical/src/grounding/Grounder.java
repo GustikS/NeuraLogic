@@ -123,7 +123,7 @@ public abstract class Grounder {
      * @return
      */
     private ValuedFact merge2facts(ValuedFact a, ValuedFact b) {
-        return new ValuedFact(a.getOffsettedPredicate(), a.getLiteral().termList(), a.getLiteral().isNegated(), a.getFactValue().add(b.getFactValue()));
+        return new ValuedFact(a.getOffsettedPredicate(), a.getLiteral().termList(), a.getLiteral().isNegated(), a.getFactValue().plus(b.getFactValue()));
     }
 
     /**

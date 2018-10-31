@@ -132,9 +132,20 @@ public class Settings {
     public boolean regression = false;
 
     /**
+     * Include also AUC ROC and AUC PR etc. in results calculations (might be demanding if recalculated too often)
+     */
+    public boolean detailedResults = false;
+
+    /**
+     * Recalculate results after every N epochae
+     */
+    public int resultsRecalculationEpochae = 10;
+
+    /**
      * Default algorithm for neural cache searching
      */
     public NeuronSearch neuronSearch = NeuronSearch.LINEAR;
+
     public enum NeuronSearch {
         LINEAR, BST, HASHMAP
     }
@@ -142,11 +153,11 @@ public class Settings {
     /**
      * Networks size threshold for switching between neuron search algorithms
      */
-    public int lin2bst = 10^3;
+    public int lin2bst = 10 ^ 3;
     /**
      * Networks size threshold for switching between neuron search algorithms
      */
-    public int bst2hashmap = 10^6;
+    public int bst2hashmap = 10 ^ 6;
 
     /**
      * Parallel training with minibatches (the only truly correct parallel training). Batch size = Number of threads. SGD = 1.
@@ -173,6 +184,20 @@ public class Settings {
     public boolean islearnRateDecay = false;
 
     public double learningRate = 0.1;
+
+    public ErrorFcn errorFunction = ErrorFcn.SQUARED_DIFF;
+
+    public enum ActivationFcn {
+        SIGMOID, RELU, TANH, IDENTITY
+    }
+
+    public enum ErrorFcn {
+        SQUARED_DIFF, ABS_DIFF
+    }
+
+    public enum AggregationFcn {
+        AVG, MAX, MIN
+    }
 
     //-----------------Structure Learning
     public boolean structureLearning;

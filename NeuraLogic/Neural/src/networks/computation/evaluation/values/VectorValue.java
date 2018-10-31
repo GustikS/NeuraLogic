@@ -36,43 +36,43 @@ public class VectorValue extends Value {
     }
 
     @Override
-    public Value multiplyBy(Value value) {
-        return value.multiplyBy(this);
+    public Value times(Value value) {
+        return value.times(this);
     }
 
     @Override
-    public VectorValue multiplyBy(ScalarValue value) {
+    public VectorValue times(ScalarValue value) {
         return null;
     }
 
     @Override
-    public Value multiplyBy(VectorValue value) {
+    public Value times(VectorValue value) {
         //todo take care of an element-wise multiplication vs matrix
         return null;
     }
 
     @Override
-    public MatrixValue multiplyBy(MatrixValue value) {
+    public MatrixValue times(MatrixValue value) {
         return null;
     }
 
     @Override
-    public Value add(Value value) {
+    public Value plus(Value value) {
         return null;
     }
 
     @Override
-    public VectorValue add(ScalarValue value) {
+    public VectorValue plus(ScalarValue value) {
         return null;
     }
 
     @Override
-    public VectorValue add(VectorValue value) {
+    public VectorValue plus(VectorValue value) {
         return null;
     }
 
     @Override
-    public Value add(MatrixValue value) {
+    public Value plus(MatrixValue value) {
         LOG.severe("Incompatible multiplication");
         return null;
     }

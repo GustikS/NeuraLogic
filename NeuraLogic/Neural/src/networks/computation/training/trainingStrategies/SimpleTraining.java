@@ -27,15 +27,9 @@ public class SimpleTraining extends TrainingStrategy {
 
     @Override
     protected void initTraining() {
-        List<Result> results = new LinkedList<>();
-        for (NeuralSample sample : sampleList) {
-            Result evaluate = evaluation.evaluate(model, sample);
-            results.add(evaluate);
-        }
-        progress.addNext(Results.getFrom(settings, results));
+
     }
 
-    @Override
     protected void initEpoch() {
         if (settings.alwaysShuffle){
             Collections.shuffle(sampleList);

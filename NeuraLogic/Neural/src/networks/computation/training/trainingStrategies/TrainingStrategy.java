@@ -4,6 +4,7 @@ import learning.crossvalidation.splitting.Splitter;
 import learning.crossvalidation.splitting.StratifiedSplitter;
 import networks.computation.evaluation.Evaluation;
 import networks.computation.evaluation.results.Progress;
+import networks.computation.evaluation.results.Result;
 import networks.computation.evaluation.results.Results;
 import networks.computation.evaluation.values.Value;
 import networks.computation.training.Backpropagation;
@@ -14,6 +15,7 @@ import networks.computation.training.trainingStrategies.Hyperparameters.Restarti
 import settings.Settings;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -75,9 +77,18 @@ public abstract class TrainingStrategy {
         return restartingStrategy.continueRestart();
     }
 
-    protected abstract void initTraining();
+    protected void initTraining(){
+        List<Result> results = new LinkedList<>();
+        for (NeuralSample sample : sampleList) {
+            Result evaluate = evaluation.evaluate(model, sample);
+            results.add(evaluate);
+        }
+        progress.nextResult(Results.getFrom(settings, results));
+    }
 
-    protected abstract void initRestart();
+    protected void initRestart(){
+        progress.nextRestart();
+    }
 
     protected void initEpoch(int count){
         if (settings.islearnRateDecay){

@@ -24,13 +24,13 @@ public abstract class Value implements State.Computation {
      * @param value
      * @return
      */
-    public abstract Value multiplyBy(Value value);
+    public abstract Value times(Value value);
 
-    public abstract Value multiplyBy(ScalarValue value);
+    public abstract Value times(ScalarValue value);
 
-    public abstract Value multiplyBy(VectorValue value);
+    public abstract Value times(VectorValue value);
 
-    public abstract Value multiplyBy(MatrixValue value);
+    public abstract Value times(MatrixValue value);
 
     /**
      * Constructive adding - will create a new Value
@@ -38,13 +38,26 @@ public abstract class Value implements State.Computation {
      * @param value
      * @return
      */
-    public abstract Value add(Value value);
+    public abstract Value plus(Value value);
 
-    public abstract Value add(ScalarValue value);
+    public abstract Value plus(ScalarValue value);
 
-    public abstract Value add(VectorValue value);
+    public abstract Value plus(VectorValue value);
 
-    public abstract Value add(MatrixValue value);
+    public abstract Value plus(MatrixValue value);
+
+    /**
+     * Constructive subtracting - will create a new Value
+     * @param value
+     * @return
+     */
+    public abstract Value minus(Value value);   //todo this must be element-wise!
+
+    public abstract Value minus(ScalarValue value);
+
+    public abstract Value minus(VectorValue value);
+
+    public abstract Value minus(MatrixValue value);
 
     /**
      * Destructive adding - faster as there is no need to create new Object Value
@@ -58,6 +71,7 @@ public abstract class Value implements State.Computation {
     public abstract void increment(VectorValue value);
 
     public abstract void increment(MatrixValue value);
+
 
 
     /**
@@ -78,43 +92,43 @@ public abstract class Value implements State.Computation {
         }
 
         @Override
-        public Value multiplyBy(Value value) {
+        public Value times(Value value) {
             return value;
         }
 
         @Override
-        public Value multiplyBy(ScalarValue value) {
+        public Value times(ScalarValue value) {
             return value;
         }
 
         @Override
-        public Value multiplyBy(VectorValue value) {
+        public Value times(VectorValue value) {
             return value;
         }
 
         @Override
-        public Value multiplyBy(MatrixValue value) {
+        public Value times(MatrixValue value) {
             return value;
         }
 
         @Override
-        public Value add(Value value) {
-            return value.add(one);
+        public Value plus(Value value) {
+            return value.plus(one);
         }
 
         @Override
-        public Value add(ScalarValue value) {
-            return value.add(one);
+        public Value plus(ScalarValue value) {
+            return value.plus(one);
         }
 
         @Override
-        public Value add(VectorValue value) {
-            return value.add(one);
+        public Value plus(VectorValue value) {
+            return value.plus(one);
         }
 
         @Override
-        public Value add(MatrixValue value) {
-            return value.add(one);
+        public Value plus(MatrixValue value) {
+            return value.plus(one);
         }
 
         @Override
@@ -158,42 +172,42 @@ public abstract class Value implements State.Computation {
         }
 
         @Override
-        public Value multiplyBy(Value value) {
+        public Value times(Value value) {
             return zero;
         }
 
         @Override
-        public Value multiplyBy(ScalarValue value) {
+        public Value times(ScalarValue value) {
             return zero;
         }
 
         @Override
-        public Value multiplyBy(VectorValue value) {
+        public Value times(VectorValue value) {
             return zero;
         }
 
         @Override
-        public Value multiplyBy(MatrixValue value) {
+        public Value times(MatrixValue value) {
             return zero;
         }
 
         @Override
-        public Value add(Value value) {
+        public Value plus(Value value) {
             return value;
         }
 
         @Override
-        public Value add(ScalarValue value) {
+        public Value plus(ScalarValue value) {
             return value;
         }
 
         @Override
-        public Value add(VectorValue value) {
+        public Value plus(VectorValue value) {
             return value;
         }
 
         @Override
-        public Value add(MatrixValue value) {
+        public Value plus(MatrixValue value) {
             return value;
         }
 
