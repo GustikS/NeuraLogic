@@ -1,13 +1,16 @@
 package constructs.example;
 
-import constructs.template.components.HeadAtom;
 import constructs.template.Template;
+import constructs.template.components.HeadAtom;
+import grounding.GroundTemplate;
+import grounding.Grounder;
 import learning.Query;
-import networks.computation.evaluation.values.Value;
+import networks.computation.evaluation.values.ScalarValue;
+import settings.Settings;
 
 /**
  * Created by Gusta on 04.10.2016.
- *
+ * <p>
  * HeadAtom desont have to be ground! - it will apply to all compatible neuralize neurons then
  */
 public class QueryAtom extends Query<LiftedExample, Template> {
@@ -24,10 +27,18 @@ public class QueryAtom extends Query<LiftedExample, Template> {
         super(id, queryCounter, importance);
     }
 
-
     @Override
-    public Value evaluate(Template template) {
-        return null;
+    public ScalarValue evaluate(Settings settings, Template template) {
+        LiftedExample example = this.evidence;
+        Grounder grounder = Grounder.getGrounder(settings);
+        GroundTemplate groundTemplate = grounder.groundRulesAndFacts(example, template);
+        ScalarValue present;
+        if (groundTemplate.groundFacts.containsKey(headAtom.literal) || groundTemplate.groundRules.keySet().contains(headAtom.literal)) {
+            present = new ScalarValue(1);
+        } else {
+            present = new ScalarValue(0);
+        }
+        return present;
     }
 
 }

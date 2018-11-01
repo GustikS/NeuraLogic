@@ -17,6 +17,8 @@ public abstract class Value implements State.Computation {
 
     public abstract void zero();
 
+    public abstract Value clone();
+
     /**
      * Double-dispatch with switch of the left-right hand sides to keep in mind!
      * todo multiplications must create new value objects!!

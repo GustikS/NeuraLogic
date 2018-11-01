@@ -2,6 +2,7 @@ package learning;
 
 import networks.computation.evaluation.values.Value;
 import org.jetbrains.annotations.Nullable;
+import settings.Settings;
 
 /**
  * Query is like an output (Y) in supervised learning. It connects to a particular example, just like we're given data in normal learning (Y<-X).
@@ -53,5 +54,5 @@ public abstract class Query<E extends Example, M extends Model> {
      *
      * @return
      */
-    public abstract Value evaluate(M model);
+    public abstract Value evaluate(Settings settings, M model);
 }

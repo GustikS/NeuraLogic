@@ -72,5 +72,4 @@ public abstract class StateVisitor<V> {
      * @param to
      */
     public abstract void cumulate(V from, State.Computation to, Weight weight);
-
 }

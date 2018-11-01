@@ -1,11 +1,13 @@
 package networks.structure.components.neurons;
 
 import learning.Query;
-import networks.computation.training.NeuralModel;
+import networks.computation.evaluation.Evaluation;
 import networks.computation.evaluation.values.Value;
-import networks.structure.metadata.states.State;
+import networks.computation.training.NeuralModel;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.types.AtomNeuron;
+import networks.structure.metadata.states.State;
+import settings.Settings;
 
 /**
  * Created by gusta on 11.3.17.
@@ -25,11 +27,8 @@ public class QueryNeuron extends Query<NeuralNetwork<State.Structure>, NeuralMod
     }
 
     @Override
-    public Value evaluate(NeuralModel neuralNet) {
-        return null;
-    }
-
-    public Value evaluate() {
-        return null;
+    public Value evaluate(Settings settings, NeuralModel neuralModel) {
+        Evaluation evaluation = new Evaluation(settings);
+        return evaluation.evaluate(this);
     }
 }

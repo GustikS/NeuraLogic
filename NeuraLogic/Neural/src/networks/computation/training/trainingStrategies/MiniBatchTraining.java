@@ -1,5 +1,7 @@
 package networks.computation.training.trainingStrategies;
 
+import learning.crossvalidation.splitting.Splitter;
+import learning.crossvalidation.splitting.StratifiedSplitter;
 import networks.computation.evaluation.results.Results;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
@@ -12,6 +14,8 @@ import java.util.logging.Logger;
 
 public class MiniBatchTraining extends TrainingStrategy {
     private static final Logger LOG = Logger.getLogger(MiniBatchTraining.class.getName());
+
+    Splitter<NeuralSample> splitter = new StratifiedSplitter<>();
 
     public MiniBatchTraining(Settings settings, NeuralModel model, List<NeuralSample> sampleList) {
         super(settings, model, sampleList);

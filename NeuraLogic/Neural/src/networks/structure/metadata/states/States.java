@@ -66,6 +66,7 @@ public class States implements State {
             this.states = states;
         }
 
+        //todo implement all the methods redirection here, or create separate visitors for each method.
         @Override
         public <V> V accept(StateVisitor<V> visitor) {
             return states[visitor.stateIndex].accept(visitor);

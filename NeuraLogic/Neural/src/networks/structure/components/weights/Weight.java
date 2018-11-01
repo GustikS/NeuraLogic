@@ -15,6 +15,11 @@ public class Weight {
     public Value value;
     public boolean isFixed = false;
 
+    /**
+     * The flag needs to be set by an external routine.
+     */
+    public boolean dropout = false;
+
     @Nullable
     double learningRate;
     //public String originalString;
@@ -24,14 +29,14 @@ public class Weight {
     public static Weight unitWeight = new Weight(-1, "unitWeight", Value.ONE, true);
     public static Weight zeroWeight = new Weight(-1, "zeroWeight" ,Value.ZERO, true);
 
-    private Weight(int index, String name, Value value, boolean fixed) {
+    protected Weight(int index, String name, Value value, boolean fixed) {
         this.index = index;
         this.name = name;
         this.value = value;
         this.isFixed = fixed;
     }
 
-    private Weight(int index, Value value) {
+    protected Weight(int index, Value value) {
         this.index = index;
         this.value = value;
         this.isFixed = true;

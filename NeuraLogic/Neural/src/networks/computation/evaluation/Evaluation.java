@@ -1,5 +1,6 @@
 package networks.computation.evaluation;
 
+import constructs.example.QueryAtom;
 import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.BottomUp;
 import networks.computation.iteration.DFSstack;
@@ -11,6 +12,7 @@ import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.QueryNeuron;
 import networks.structure.components.neurons.types.AtomNeuron;
 import networks.structure.components.types.TopologicNetwork;
 import networks.structure.metadata.states.State;
@@ -82,13 +84,22 @@ public class Evaluation {
     }
 
     public Result evaluate(NeuralModel model, NeuralSample sample) {
-        NeuralNetwork<State.Structure> network = sample.query.evidence;
-        AtomNeuron<State.Computation> outputNeuron = sample.query.neuron;
+        return evaluate(sample);    //todo smth here?
+    }
+
+    public Result evaluate(NeuralSample sample) {
+        Value output = evaluate(sample.query);
+        Result result = resultFactory.create(sample.getId(), sample.target, output);
+        return result;
+    }
+
+    public Value evaluate(QueryNeuron queryNeuron) {
+        NeuralNetwork<State.Structure> network = queryNeuron.evidence;
+        AtomNeuron<State.Computation> outputNeuron = queryNeuron.neuron;
 
         BottomUp<Value> propagator = getBottomUpIterationStrategy(settings, network, outputNeuron, evaluator);
         Value output = propagator.bottomUp();
-        Result result = resultFactory.create(sample.getId(), sample.target, output);
-        return result;
+        return output;
     }
 }
 

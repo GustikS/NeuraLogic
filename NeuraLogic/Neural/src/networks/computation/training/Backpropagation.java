@@ -1,5 +1,6 @@
 package networks.computation.training;
 
+import networks.computation.evaluation.results.Result;
 import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.DFSstack;
 import networks.computation.iteration.PureNeuronVisitor;
@@ -8,11 +9,13 @@ import networks.computation.iteration.Topologic;
 import networks.computation.iteration.actions.Backproper;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.QueryNeuron;
 import networks.structure.components.neurons.types.AtomNeuron;
 import networks.structure.components.types.TopologicNetwork;
 import networks.structure.metadata.states.State;
 import settings.Settings;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 public class Backpropagation {
@@ -28,6 +31,14 @@ public class Backpropagation {
         this.settings = settings;
     }
 
+    /**
+     * The most efficient network iteration depends on its structure, so it's to be decided ont the run.
+     * @param settings
+     * @param network
+     * @param outputNeuron
+     * @param backproper
+     * @return
+     */
     public static TopDown getTopDownPropagator(Settings settings, NeuralNetwork<State.Structure> network, Neuron outputNeuron, Backproper backproper) {
         if (network instanceof TopologicNetwork) {
             PureNeuronVisitor.Down down = new PureNeuronVisitor().new Down(backproper, network);
@@ -44,5 +55,17 @@ public class Backpropagation {
 
         TopDown topDownPropagator = getTopDownPropagator(settings, network, outputNeuron, backproper);
         topDownPropagator.topdown();
+    }
+
+    public void backpropagate(Neuron outputNeuron, Value gradient){
+
+    }
+
+    public List<Value> getWeightUpdates(NeuralModel model, NeuralSample sample) {
+
+    }
+
+    public void backpropagate(NeuralModel currentModel, Result evaluation, QueryNeuron query) {
+        
     }
 }

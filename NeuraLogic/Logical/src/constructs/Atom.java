@@ -29,6 +29,11 @@ public class Atom {
     @Nullable
     public String originalString;
 
+    /**
+     * To be set before grounding - todo
+     */
+    public boolean dropout;
+
     public Atom(WeightedPredicate weightedPredicate, List<Term> terms, boolean negated) {
         if (weightedPredicate.predicate.arity != terms.size()){
             LOG.severe("Predicate arity and terms size mismatch while creating an Atom");   //tried some workarounds with injecting predicate factory, but this probably has to be here (since predicate and terms are created at separate places)

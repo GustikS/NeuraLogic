@@ -49,6 +49,12 @@ public class Neuron<T extends Neurons, S extends State.Computation> implements N
     @Nullable   // because FactNeurons have no inputs (null check will be faster that isEmpty())
     protected ArrayList<T> inputs;
 
+    /**
+     * It should be in State, but it is easier to have dropout here to be checked by a NeuronVisitor instead of StateVisitor
+     * (since it is independent of the other values in State and might operate also with Neuron's inputs).
+     */
+    public boolean dropout;
+
     public Neuron(int index, String id, S state, Activation activation) {
         this.index = index;
         this.id = id;

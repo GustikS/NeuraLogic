@@ -7,21 +7,43 @@ import java.util.List;
  * Created by gusta on 8.3.17.
  */
 public class Progress {
-    List<Results> currentProgress;
 
-    List<List<Results>> restarts;
+    Restart currentRestart;
+
+    List<Restart> restarts;
+
+    public Results bestResults;
 
     public Progress(){
-        currentProgress = new LinkedList<>();
+        currentRestart = new Restart();
+        restarts = new LinkedList<>();
     }
 
-    public void nextResult(Results next){
-        currentProgress.get(currentProgress.size()-1).outputs = null; //delete the particular outputs from the past Results to save space (store only statistics)
-        currentProgress.add(next);
+    public void addOnlineResults(Results next){
+        currentRestart.onlineResults.get(currentRestart.onlineResults.size()-1).evaluations = null; //delete the particular outputs from the past Results to save space (store only statistics)
+        currentRestart.onlineResults.add(next);
+    }
+
+    public void addTrueResults(Results next){
+        currentRestart.trueResults.get(currentRestart.trueResults.size()-1).evaluations = null; //delete the particular outputs from the past Results to save space (store only statistics)
+        currentRestart.trueResults.add(next);
     }
 
     public void nextRestart(){
-        restarts.add(currentProgress);
-        currentProgress = new LinkedList<>();
+        restarts.add(currentRestart);
+        currentRestart = new Restart();
+    }
+
+    public Results getCurrentOnlineResults() {
+        return currentRestart.onlineResults.get(currentRestart.onlineResults.size()-1);
+    }
+
+    public Results getLastTrueResults() {
+        return currentRestart.trueResults.get(currentRestart.trueResults.size()-1);
+    }
+
+    private class Restart {
+        List<Results> onlineResults = new LinkedList<>();
+        List<Results> trueResults = new LinkedList<>();
     }
 }

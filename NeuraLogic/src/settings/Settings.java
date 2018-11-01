@@ -169,7 +169,7 @@ public class Settings {
      */
     public int restartCount = 1;
 
-    public int maxEpochCount = 10000;
+    public int maxCumEpochCount = 10000;
 
     /**
      * Shuffle samples with each epoch to create different minibatches
@@ -185,7 +185,17 @@ public class Settings {
 
     public double learningRate = 0.1;
 
+    public double dropoutRate = 0.5;
+
+    public DropoutMode dropoutMode = DropoutMode.LIFTED_DROPCONNECT;
+
+    public enum DropoutMode {
+        DROPOUT, DROPCONNECT, LIFTED_DROPCONNECT
+    }
+
     public ErrorFcn errorFunction = ErrorFcn.SQUARED_DIFF;
+
+    public AggregationFcn errorAggregationFcn = AggregationFcn.AVG;
 
     public enum ActivationFcn {
         SIGMOID, RELU, TANH, IDENTITY

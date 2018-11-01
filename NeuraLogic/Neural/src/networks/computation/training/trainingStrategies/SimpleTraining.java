@@ -2,14 +2,13 @@ package networks.computation.training.trainingStrategies;
 
 import networks.computation.evaluation.Evaluation;
 import networks.computation.evaluation.results.Result;
-import networks.computation.evaluation.results.Results;
 import networks.computation.training.Backpropagation;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import settings.Settings;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -25,35 +24,23 @@ public class SimpleTraining extends TrainingStrategy {
         super(settings, model, sampleList);
     }
 
-    @Override
-    protected void initTraining() {
-
-    }
-
-    protected void initEpoch() {
-        if (settings.alwaysShuffle){
+    protected void initEpoch(int epochNumber) {
+        super.initEpoch(epochNumber);
+        if (settings.alwaysShuffle) {
             Collections.shuffle(sampleList);
         }
     }
 
     @Override
-    protected void learnEpoch() {
+    protected List<Result> learnEpoch(int epochNumber) {
+        List<Result> resultList = new ArrayList<>(sampleList.size());
+        for (NeuralSample neuralSample : sampleList) {
+            Result evaluation = this.evaluation.evaluate(currentModel, neuralSample);
+            resultList.add(evaluation);
 
+            backpropagation.backpropagate(currentModel, evaluation, neuralSample.query);
+        }
+        return resultList;
     }
 
-    @Override
-    protected void initRestart() {
-
-    }
-
-
-    @Override
-    protected Results finish() {
-        return null;
-    }
-
-    @Override
-    public NeuralModel getBestModel() {
-        return null;
-    }
 }

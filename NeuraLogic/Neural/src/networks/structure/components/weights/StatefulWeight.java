@@ -9,7 +9,7 @@ public class StatefulWeight extends Weight {
 
     private Value accumulatedUpdate;
 
-    public StatefulWeight(String name, Value value, boolean fixed) {
+    public StatefulWeight(int index, String name, Value value, boolean fixed) {
         super(index, name, value, fixed);
     }
 

@@ -94,7 +94,7 @@ public class Topologic {
 
         int i = Topologic.this.network.allNeuronsTopologic.size() - 1;
 
-        public TDownIterator(Neuron<Neuron, State.Computation> outputNeuron, NeuronVisitor pureNeuronVisitor) {
+        public TDownIterator(Neuron outputNeuron, NeuronVisitor pureNeuronVisitor) {
             super(Topologic.this.stateVisitor, Topologic.this.network, outputNeuron, pureNeuronVisitor);
             while (Topologic.this.network.allNeuronsTopologic.get(i) != outputNeuron){
                 i--;
