@@ -1,11 +1,17 @@
 package networks.computation.iteration.actions;
 
 import networks.computation.evaluation.functions.Activation;
+import networks.computation.evaluation.values.Value;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
 
 import java.util.logging.Logger;
 
+/**
+ * todo test version with separate visitors for each method for performance - if fast enough, switch to it
+ * todo at least subclass to Computation visitor
+ * @param <V>
+ */
 public abstract class StateVisitor<V> {
     private static final Logger LOG = Logger.getLogger(StateVisitor.class.getName());
 
@@ -72,4 +78,6 @@ public abstract class StateVisitor<V> {
      * @param to
      */
     public abstract void cumulate(V from, State.Computation to, Weight weight);
+
+    public abstract void setOutput(State.Computation state, Value evaluate);
 }

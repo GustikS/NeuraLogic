@@ -38,7 +38,7 @@ public class SimpleTraining extends TrainingStrategy {
             Result evaluation = this.evaluation.evaluate(currentModel, neuralSample);
             resultList.add(evaluation);
 
-            backpropagation.backpropagate(currentModel, evaluation, neuralSample.query);
+            backpropagation.backpropagate(currentModel, neuralSample.query.evidence, neuralSample.query.neuron, evaluation);
         }
         return resultList;
     }

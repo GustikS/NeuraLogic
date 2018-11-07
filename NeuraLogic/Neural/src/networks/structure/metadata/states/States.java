@@ -1,11 +1,12 @@
 package networks.structure.metadata.states;
 
+import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.actions.Backproper;
 import networks.computation.iteration.actions.StateVisitor;
-import networks.computation.evaluation.values.Value;
-import networks.structure.metadata.inputMappings.NeuronMapping;
 import networks.structure.components.neurons.Neuron;
+import networks.structure.metadata.inputMappings.NeuronMapping;
 
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 /**
@@ -15,18 +16,23 @@ public class States implements State {
     private static final Logger LOG = Logger.getLogger(States.class.getName());
 
     /**
-     * A typical, lightweight State that consists of summed inputs (before activation), output value (after activation), and gradient (before activation) todo check
+     * A typical, minimal, lightweight State that consists of summed inputs (before activation), output value (after activation), and gradient (before activation) todo check
      * Even though Evaluation and Backprop are always carried out separately, and so it seems that a single Value placeholder
      * could be stored here, value and gradient must be held as two separate Values, since Backprop needs both to calculate gradient.
      */
     public static class InputsOutputGradient<V extends Value> implements Computation {
-        V summedInputs;
+        /**
+         * In the most general case, we need to feed the whole list of inputs into the activation function, not just the sum.
+         * E.g. for max/avg, although they could still have functions to calculate cumulatively without storing all the inputs,
+         * there could possibly be functions that cannot be calculated in a cumulative fashion, e.g. when we need to process all elements twice (e.g. normalize/softmax ?).
+         */
+        ArrayList<V> accumulatedInputs;
         V outputValue;
         V acumGradient;
 
         @Override
         public void invalidate() {
-            summedInputs.zero();
+            accumulatedInputs.clear();
             outputValue.zero();
             acumGradient.zero();
         }

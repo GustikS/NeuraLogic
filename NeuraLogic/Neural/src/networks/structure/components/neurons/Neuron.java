@@ -16,7 +16,7 @@ public class Neuron<T extends Neurons, S extends State.Computation> implements N
     @NotNull
     public final int index;
     /**
-     * Represents original logic of creation, typically unique across all the networks in case of neuron sharing
+     * Represents original logic of creation, typically unique across all the networks (in case of neuron sharing)
      */
     @Nullable
     public String id;
@@ -35,7 +35,7 @@ public class Neuron<T extends Neurons, S extends State.Computation> implements N
     @Nullable
     public final S state;
     /**
-     * If not shared, the state can be freely used to store information (most efficient mode)
+     * If not shared, an elementary State can be freely used to store any information (most efficient mode)
      */
     public boolean isShared;
     /**
@@ -51,9 +51,14 @@ public class Neuron<T extends Neurons, S extends State.Computation> implements N
 
     /**
      * It should be in State, but it is easier to have dropout here to be checked by a NeuronVisitor instead of StateVisitor
-     * (since it is independent of the other values in State and might operate also with Neuron's inputs).
+     * (since it is independent of the other values in State.Computation and might operate also with Neuron's inputs).
      */
     public boolean dropout;
+
+    /**
+     * Depth of tihs neuron. Might be useful e.g. for Dropout or some transformations.
+     */
+    int layer;
 
     public Neuron(int index, String id, S state, Activation activation) {
         this.index = index;

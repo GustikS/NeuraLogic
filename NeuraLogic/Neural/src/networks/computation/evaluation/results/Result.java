@@ -1,6 +1,5 @@
 package networks.computation.evaluation.results;
 
-import networks.computation.evaluation.functions.Activation;
 import networks.computation.evaluation.functions.ErrorFcn;
 import networks.computation.evaluation.functions.SquaredDiff;
 import networks.computation.evaluation.values.Value;
@@ -29,6 +28,10 @@ public class Result {
         this.sampleId = sampleId;
         this.target = target;
         this.output = output;
+    }
+
+    public Value gradient() {
+        return errorFcn.differentiate(output, target);
     }
 
     public static class Factory {

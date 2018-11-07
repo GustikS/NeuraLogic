@@ -33,6 +33,7 @@ public class Backpropagation {
 
     /**
      * The most efficient network iteration depends on its structure, so it's to be decided ont the run.
+     *
      * @param settings
      * @param network
      * @param outputNeuron
@@ -53,19 +54,23 @@ public class Backpropagation {
         NeuralNetwork<State.Structure> network = sample.query.evidence;
         AtomNeuron<State.Computation> outputNeuron = sample.query.neuron;
 
+
+    }
+
+    public void backpropagate(NeuralModel model, NeuralNetwork network, Neuron outputNeuron, Result result) {
+        Value gradient = result.gradient();
+        outputNeuron.state.invalidate();
+        outputNeuron.state.cumulate(backproper, gradient);
+
         TopDown topDownPropagator = getTopDownPropagator(settings, network, outputNeuron, backproper);
         topDownPropagator.topdown();
     }
 
-    public void backpropagate(Neuron outputNeuron, Value gradient){
+    public void backpropagate(Neuron outputNeuron, Value gradient) {
 
     }
 
     public List<Value> getWeightUpdates(NeuralModel model, NeuralSample sample) {
 
-    }
-
-    public void backpropagate(NeuralModel currentModel, Result evaluation, QueryNeuron query) {
-        
     }
 }

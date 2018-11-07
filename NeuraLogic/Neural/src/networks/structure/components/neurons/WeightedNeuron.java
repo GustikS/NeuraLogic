@@ -2,8 +2,8 @@ package networks.structure.components.neurons;
 
 import ida.utils.tuples.Pair;
 import networks.computation.evaluation.functions.Activation;
-import networks.structure.metadata.states.State;
 import networks.structure.components.weights.Weight;
+import networks.structure.metadata.states.State;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 public class WeightedNeuron<T extends Neurons, S extends State.Computation> extends Neuron<T, S> {
     private static final Logger LOG = Logger.getLogger(WeightedNeuron.class.getName());
 
-    protected Weight offset;
+    public Weight offset;
 
     /**
      * This class is responsible to protect correct ordering of weights w.r.t. inputs.
@@ -46,7 +46,8 @@ public class WeightedNeuron<T extends Neurons, S extends State.Computation> exte
     }
 
     /**
-     * Fastest access to weighted inputs
+     * Fastest access to weighted inputs is the separate access
+     *
      * @return
      */
     public final ArrayList<Weight> getWeights() {
@@ -55,14 +56,16 @@ public class WeightedNeuron<T extends Neurons, S extends State.Computation> exte
 
     /**
      * Efficient call for weighted inputs, returns them as-is (just a single Pair object is created).
+     *
      * @return
      */
-    public final Pair<List<T>, List<Weight>> getInputsWeights(){
-        return new Pair<>(inputs,weights);
+    public final Pair<List<T>, List<Weight>> getInputsWeights() {
+        return new Pair<>(inputs, weights);
     }
 
     /**
      * Semi-expensive - needs to create iterator and Pairs.
+     *
      * @return
      */
     public final Iterator<Pair<T, Weight>> getWeightedInputs() {
@@ -72,17 +75,20 @@ public class WeightedNeuron<T extends Neurons, S extends State.Computation> exte
     private final class WeightedInputsIterator implements Iterator<Pair<T, Weight>> {
 
         int index = 0;
+        int size;
+
         ArrayList<T> inputs;
         ArrayList<Weight> weights;
 
         public WeightedInputsIterator(ArrayList<T> inputs, ArrayList<Weight> weights) {
             this.inputs = inputs;
             this.weights = weights;
+            this.size = inputs.size();
         }
 
         @Override
         public boolean hasNext() {
-            return index < inputs.size() - 1;
+            return index < size - 1;
         }
 
         @Override

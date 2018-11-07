@@ -1,6 +1,7 @@
 package networks.structure.metadata.states;
 
 import networks.computation.evaluation.functions.Activation;
+import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.actions.StateVisitor;
 import networks.structure.components.weights.Weight;
 
@@ -28,9 +29,13 @@ public interface State {
             return visitor.getOutput(this);
         }
 
+        default void setOutput(StateVisitor visitor, Value evaluate){
+            visitor.setOutput(this,evaluate);
+        }
+
         default <V> V getCumulation(StateVisitor<V> visitor) {
             return visitor.getCumulation(this);
-        }
+        }   //todo NEXT NEXT this is wrong recursive call
 
         default <V> void cumulate(StateVisitor<V> visitor, V from) {
             visitor.cumulate(from, this);
@@ -39,6 +44,7 @@ public interface State {
         default <V> void cumulate(StateVisitor<V> visitor, V from, Weight weight) {
             visitor.cumulate(from, this, weight);
         }
+
     }
 
     /**

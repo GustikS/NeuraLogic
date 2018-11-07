@@ -1,7 +1,6 @@
 package networks.computation.evaluation.functions;
 
 import networks.computation.evaluation.values.Value;
-import networks.structure.components.weights.Weight;
 
 import java.util.ArrayList;
 
@@ -11,14 +10,15 @@ import java.util.ArrayList;
  *
  * Created by gusta on 8.3.17.
  */
-public interface Activation {
-    Value evaluate(ArrayList<Value> inputs);
-
-    Value evaluate(ArrayList<Value> inputs, ArrayList<Weight> weights);
+public interface Activation extends Aggregation {
 
     Value evaluate(Value summedInputs);
 
-    Value differentiateAt(Value x);
-
-    Activation differentiateGlobally();
+    default Value evaluate(ArrayList<Value> inputs){
+        Value sum = inputs.get(0).clone();
+        for (int i = 1, len = inputs.size(); i < len; i++) {
+            sum.plus(inputs.get(i));
+        }
+        return evaluate(sum);
+    }
 }
