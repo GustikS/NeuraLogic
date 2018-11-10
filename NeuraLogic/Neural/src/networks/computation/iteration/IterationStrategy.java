@@ -1,6 +1,6 @@
 package networks.computation.iteration;
 
-import networks.computation.iteration.actions.StateVisitor;
+import networks.computation.iteration.actions.StateVisiting;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.metadata.states.State;
@@ -26,11 +26,11 @@ import java.util.logging.Logger;
 public abstract class IterationStrategy<V> implements DirectedIteration {
     private static final Logger LOG = Logger.getLogger(IterationStrategy.class.getName());
 
-    StateVisitor<V> stateVisitor;
-    NeuralNetwork<State.Structure> network;
-    Neuron<Neuron, State.Computation> outputNeuron;
+    StateVisiting<V> stateVisitor;
+    NeuralNetwork<State.Neural.Structure> network;
+    Neuron<Neuron, State.Neural> outputNeuron;
 
-    public IterationStrategy(StateVisitor<V> stateVisitor, NeuralNetwork<State.Structure> network, Neuron<Neuron, State.Computation> outputNeuron) {
+    public IterationStrategy(StateVisiting<V> stateVisitor, NeuralNetwork<State.Neural.Structure> network, Neuron<Neuron, State.Neural> outputNeuron) {
         this.stateVisitor = stateVisitor;
         this.network = network;
         this.outputNeuron = outputNeuron;

@@ -1,10 +1,9 @@
 package networks.computation.iteration;
 
-import networks.computation.iteration.actions.StateVisitor;
+import networks.computation.iteration.actions.StateVisiting;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.Neurons;
-import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.metadata.states.State;
 
 import java.util.logging.Logger;
@@ -16,7 +15,7 @@ import java.util.logging.Logger;
 public abstract class NeuronVisiting<V> extends IterationStrategy<V> {
     private static final Logger LOG = Logger.getLogger(NeuronVisiting.class.getName());
 
-    public NeuronVisiting(StateVisitor<V> stateVisitor, NeuralNetwork<State.Structure> network, Neuron<Neuron, State.Computation> outputNeuron) {
+    public NeuronVisiting(StateVisiting<V> stateVisitor, NeuralNetwork<State.Neural.Structure> network, Neuron<Neuron, State.Neural> outputNeuron) {
         super(stateVisitor, network, outputNeuron);
     }
 
@@ -25,7 +24,7 @@ public abstract class NeuronVisiting<V> extends IterationStrategy<V> {
      *
      * @param neuron
      */
-    public void expand(Neurons neuron) {
+    public void visit(Neurons neuron) {
         LOG.severe("Error: Visitor calling a default method through double dispatch.");
     }
 
@@ -34,13 +33,5 @@ public abstract class NeuronVisiting<V> extends IterationStrategy<V> {
      *
      * @param neuron
      */
-    public abstract void expand(Neuron<Neuron, State.Computation> neuron);
-
-    /**
-     * Expand neighbors and Propagate result of this neuron into the neighbours (inputs or outputs) with the corresponding edge weight AND add queue them for expansion, too.
-     *
-     * @param neuron
-     */
-    public abstract void expand(WeightedNeuron<Neuron, State.Computation> neuron);
-
+    public abstract void visit(Neuron<Neuron, State.Neural> neuron);
 }

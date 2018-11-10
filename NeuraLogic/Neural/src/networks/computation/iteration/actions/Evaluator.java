@@ -2,15 +2,15 @@ package networks.computation.iteration.actions;
 
 import networks.computation.evaluation.functions.Activation;
 import networks.computation.evaluation.values.Value;
-import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
  *
  */
-public class Evaluator extends StateVisitor<Value> {
+public class Evaluator extends StateVisiting.ComputationVisitor {
     private static final Logger LOG = Logger.getLogger(Evaluator.class.getName());
 
     public Evaluator(int stateIndex) {
@@ -19,39 +19,15 @@ public class Evaluator extends StateVisitor<Value> {
 
     @Override
     public boolean ready4activation(State.Computation state) {
-        return true;
+        return true;    //todo check
     }
 
     @Override
-    public Value activateOutput(State.Computation state, Activation activation) {
-        Value cumulation = state.getCumulation(this);
-        Value output = activation.evaluate(cumulation);
-        state.setOutput(this, output);
-        return output;
+    public Value activateOutput(State.Computation computation, Activation activation) {
+        List<Value> cumulation = computation.getMessages();
+        Value evaluate = activation.evaluate(cumulation);
+        computation.setResult(this, evaluate);
+        return evaluate;
     }
 
-    @Override
-    public Value getOutput(State.Computation state) {
-        return state.getOutput(this);
-    }
-
-    @Override
-    public Value getCumulation(State.Computation state) {
-        return null;
-    }
-
-    @Override
-    public void cumulate(Value from, State.Computation to) {
-
-    }
-
-    @Override
-    public void cumulate(Value from, State.Computation to, Weight weight) {
-
-    }
-
-    @Override
-    public void setOutput(State.Computation state, Value evaluate) {
-
-    }
 }

@@ -12,15 +12,15 @@ import settings.Settings;
 /**
  * Created by gusta on 11.3.17.
  */
-public class QueryNeuron extends Query<NeuralNetwork<State.Structure>, NeuralModel> {
+public class QueryNeuron extends Query<NeuralNetwork<State.Neural.Structure>, NeuralModel> {
 
-    public AtomNeuron<State.Computation> neuron;
+    public AtomNeuron<State.Neural> neuron;
 
     public QueryNeuron(String id, int queryCounter, double importance) {
         super(id, queryCounter, importance);
     }
 
-    public QueryNeuron(String id, int position, double importance, AtomNeuron<State.Computation> targetNeuron, NeuralNetwork<State.Structure> neuralNetwork) {
+    public QueryNeuron(String id, int position, double importance, AtomNeuron<State.Neural> targetNeuron, NeuralNetwork<State.Neural.Structure> neuralNetwork) {
         super(id, position, importance);
         this.neuron = targetNeuron;
         this.evidence = neuralNetwork;

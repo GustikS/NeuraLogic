@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  * <p>
  * //todo after creation and post-processing, add a transformation to a more optimized version (everything based on int, maybe even precompute layers, remove recursion)
  */
-public abstract class NeuralNetwork<N extends State.Structure> implements Example {
+public abstract class NeuralNetwork<N extends State.Neural.Structure> implements Example {
     private static final Logger LOG = Logger.getLogger(NeuralNetwork.class.getName());
     /**
      * Should be as unique as possible
@@ -67,7 +67,7 @@ public abstract class NeuralNetwork<N extends State.Structure> implements Exampl
         this.id = id;
     }
 
-    public abstract <T extends Neuron, S extends State.Computation> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron);
+    public abstract <T extends Neuron, S extends State.Neural> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron);
 
     /**
      * todo FactNeurons should return empty inputs
@@ -77,9 +77,9 @@ public abstract class NeuralNetwork<N extends State.Structure> implements Exampl
      * @param <S>
      * @return
      */
-    public abstract <T extends Neuron, S extends State.Computation> Iterator<T> getInputs(Neuron<T, S> neuron);
+    public abstract <T extends Neuron, S extends State.Neural> Iterator<T> getInputs(Neuron<T, S> neuron);
 
-    public abstract <T extends Neuron, S extends State.Computation> Iterator<T> getOutputs(Neuron<T, S> neuron);
+    public abstract <T extends Neuron, S extends State.Neural> Iterator<T> getOutputs(Neuron<T, S> neuron);
 
     /**
      * Bind this network representation with the preferred choice of iteration over neurons in it.
@@ -89,11 +89,13 @@ public abstract class NeuralNetwork<N extends State.Structure> implements Exampl
      * @param vNeuronVisitor
      * @return
      */
-    public <V> NeuronIterating getPreferredBUpIterator(NeuronVisiting<V> vNeuronVisitor, Neuron<Neuron, State.Computation> outputNeuron) {
+    @Deprecated
+    public <V> NeuronIterating getPreferredBUpIterator(NeuronVisiting<V> vNeuronVisitor, Neuron<Neuron, State.Neural> outputNeuron) {
         return new DFSstack().new BottomUp<>(vNeuronVisitor, this, outputNeuron);
     }
 
-    public <V> NeuronIterating getPreferredTDownIterator(NeuronVisiting<V> vNeuronVisitor, Neuron<Neuron, State.Computation> outputNeuron) {
+    @Deprecated
+    public <V> NeuronIterating getPreferredTDownIterator(NeuronVisiting<V> vNeuronVisitor, Neuron<Neuron, State.Neural> outputNeuron) {
         return new DFSstack().new TopDown<>(vNeuronVisitor, this, outputNeuron);
     }
 

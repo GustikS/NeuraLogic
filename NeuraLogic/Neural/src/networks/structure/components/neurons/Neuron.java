@@ -2,13 +2,22 @@ package networks.structure.components.neurons;
 
 import networks.computation.evaluation.functions.Activation;
 import networks.structure.metadata.states.State;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-public class Neuron<T extends Neurons, S extends State.Computation> implements Neurons {
+/**
+ * Neuron class is a pure container. The various logics of the various operations that may be performed upon neurons (and the particular subtypes)
+ * are outsourced to NeuronVisitors (and StateVisitors for the state field). Putting the logic right into neuron classes might be slightly more efficient (=no visitors dispatch)
+ * but it would introduce a messy combinatorial explosion of all the different modes of evaluation, backpropagation, dropout etc. in this single class.
+ *
+ * @param <T>
+ * @param <S>
+ */
+public class Neuron<T extends Neurons, S extends State.Neural> implements Neurons {
     private static final Logger LOG = Logger.getLogger(Neuron.class.getName());
     /**
      * Globally unique index of creation of this neuron (=fast hash)
@@ -33,7 +42,7 @@ public class Neuron<T extends Neurons, S extends State.Computation> implements N
      * but the states need to be treated more carefully (logic of creation taken by respective factories/builders).
      */
     @Nullable
-    public final S state;
+    private final S state;
     /**
      * If not shared, an elementary State can be freely used to store any information (most efficient mode)
      */
@@ -48,15 +57,8 @@ public class Neuron<T extends Neurons, S extends State.Computation> implements N
      */
     @Nullable   // because FactNeurons have no inputs (null check will be faster that isEmpty())
     protected ArrayList<T> inputs;
-
     /**
-     * It should be in State, but it is easier to have dropout here to be checked by a NeuronVisitor instead of StateVisitor
-     * (since it is independent of the other values in State.Computation and might operate also with Neuron's inputs).
-     */
-    public boolean dropout;
-
-    /**
-     * Depth of tihs neuron. Might be useful e.g. for Dropout or some transformations.
+     * Depth of this neuron. Might be useful e.g. for Dropout or some transformations.
      */
     int layer;
 
@@ -113,5 +115,26 @@ public class Neuron<T extends Neurons, S extends State.Computation> implements N
     @Override
     public String getId() {
         return id;
+    }
+
+    /**
+     * This is to tunnel through the composite state
+     *
+     * @param index
+     * @return
+     */
+    @Contract(pure = true)
+    public final State.Neural.Computation getStateView(int index) {
+        return state.getView(index);
+    }
+
+    /**
+     *
+     * @return
+     */
+    @Deprecated
+    @Contract(pure = true)
+    public final State.Neural getState() {
+        return state;
     }
 }

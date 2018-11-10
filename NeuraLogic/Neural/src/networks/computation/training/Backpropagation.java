@@ -9,7 +9,6 @@ import networks.computation.iteration.Topologic;
 import networks.computation.iteration.actions.Backproper;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neuron;
-import networks.structure.components.neurons.QueryNeuron;
 import networks.structure.components.neurons.types.AtomNeuron;
 import networks.structure.components.types.TopologicNetwork;
 import networks.structure.metadata.states.State;
@@ -60,7 +59,7 @@ public class Backpropagation {
     public void backpropagate(NeuralModel model, NeuralNetwork network, Neuron outputNeuron, Result result) {
         Value gradient = result.gradient();
         outputNeuron.state.invalidate();
-        outputNeuron.state.cumulate(backproper, gradient);
+        outputNeuron.state.store(backproper, gradient);
 
         TopDown topDownPropagator = getTopDownPropagator(settings, network, outputNeuron, backproper);
         topDownPropagator.topdown();

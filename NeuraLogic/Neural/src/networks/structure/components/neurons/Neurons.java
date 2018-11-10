@@ -8,12 +8,12 @@ import java.util.ArrayList;
 
 public interface Neurons {
 
-    default void propagate(NeuronVisitor visitor) {
-        visitor.propagate(this);
+    default void visit(NeuronVisitor visitor) {
+        visitor.visit(this);
     }
 
-    default void expand(NeuronVisiting visitor) {
-        visitor.expand(this);
+    default void visit(NeuronVisiting visitor) {
+        visitor.visit(this);
     }
 
     ArrayList<? extends Neurons> getInputs();

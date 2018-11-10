@@ -1,7 +1,7 @@
 package networks.computation.iteration.actions;
 
 import networks.computation.iteration.NeuronIterating;
-import networks.computation.iteration.NeuronVisitor;
+import networks.computation.iteration.NeuronVisitorWeighted;
 import networks.computation.iteration.Topologic;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neuron;
@@ -14,7 +14,7 @@ import settings.Settings;
 
 import java.util.logging.Logger;
 
-public class Dropouter implements NeuronVisitor {
+public class Dropouter implements NeuronVisitorWeighted {
     private static final Logger LOG = Logger.getLogger(Dropouter.class.getName());
 
     Settings settings;

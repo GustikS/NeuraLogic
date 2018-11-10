@@ -28,7 +28,7 @@ public class NeuronFactory {
 
     State.Computation getComputationState(Neuron neuron) {
         if (settings.minibatchSize > 1) {   //if there is minibatch, multiple threads will possibly be accessing the same neuron, i.e. we need array of states, one for each thread
-            States.StateComposite<State.Computation> stateComposite = new States.StateComposite<>(new State.Computation[settings.minibatchSize]);
+            States.ComputationStateComposite<State.Computation> stateComposite = new States.ComputationStateComposite<>(new State.Computation[settings.minibatchSize]);
             for (int i = 0; i < stateComposite.states.length; i++) {
                 stateComposite.states[i] = getBaseState(neuron);
             }

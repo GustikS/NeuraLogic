@@ -1,9 +1,8 @@
 package networks.computation.iteration;
 
-import networks.computation.iteration.actions.StateVisitor;
+import networks.computation.iteration.actions.StateVisiting;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neuron;
-import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.metadata.states.State;
 
 import java.util.ArrayDeque;
@@ -15,21 +14,21 @@ import java.util.logging.Logger;
 public class DFSstack {
     private static final Logger LOG = Logger.getLogger(DFSstack.class.getName());
 
-    private Deque<Neuron<Neuron, State.Computation>> stack;
+    private Deque<Neuron<Neuron, State.Neural>> stack;
 
     public class TopDown {
 
         public class StackIterator extends IterationStrategy implements networks.computation.iteration.TopDown, NeuronIterating, NeuronVisiting {
 
-            public StackIterator(StateVisitor stateVisitor, NeuralNetwork<State.Structure> network, Neuron<Neuron, State.Computation> neuron) {
+            public StackIterator(StateVisiting stateVisitor, NeuralNetwork<State.Neural.Structure> network, Neuron<Neuron, State.Neural> neuron) {
                 super(network, neuron);
                 stack = new ArrayDeque<>();
                 stack.push(outputNeuron);
             }
 
-            public Neuron<Neuron, State.Computation> next() {
+            public Neuron<Neuron, State.Neural> next() {
                 while (!stack.isEmpty()) {
-                    Neuron<Neuron, State.Computation> pop = stack.pop();
+                    Neuron<Neuron, State.Neural> pop = stack.pop();
                     if (stateVisitor.ready4activation(pop.state)) {  //careful here - it would not put the state on Stack when it should with the last call if checking the children forward instead
                         Iterator<Neuron> inputs = network.getInputs(pop);
                         for (Neuron next; (next = inputs.next()) != null; ) {
@@ -48,10 +47,10 @@ public class DFSstack {
         }
 
         //na zkousku
-        public void iterate(NeuralNetwork network, Neuron<Neuron, State.Computation> outputNeuron) {
+        public void iterate(NeuralNetwork network, Neuron<Neuron, State.Neural> outputNeuron) {
             stack.push(outputNeuron);
             while (!stack.isEmpty()) {
-                Neuron<Neuron, State.Computation> pop = stack.pop();
+                Neuron<Neuron, State.Neural> pop = stack.pop();
                 //expand would go here - if not, we need 2 versions for weighted neuron here
                 Iterator<Neuron> inputs = network.getInputs(pop);
                 for (Neuron next; (next = inputs.next()) != null; ) {
@@ -73,13 +72,13 @@ public class DFSstack {
      */
     public class BottomUp<N extends State.Structure, V> extends networks.computation.iteration.BottomUp.PostOrder<N, V> {
 
-        public BottomUp(NeuronVisiting<V> visitor, NeuralNetwork<N> network, Neuron<Neuron, State.Computation> neuron) {
+        public BottomUp(NeuronVisiting<V> visitor, NeuralNetwork<N> network, Neuron<Neuron, State.Neural> neuron) {
             super(visitor, network, neuron);
             stack = new ArrayDeque<>();
             stack.push(outputNeuron);
         }
 
-        public Neuron<Neuron, State.Computation> next() {
+        public Neuron<Neuron, State.Neural> next() {
             stack.push(neuron);
             while (!stack.isEmpty()) {
                 Neuron<T, S> pop = stack.pop();

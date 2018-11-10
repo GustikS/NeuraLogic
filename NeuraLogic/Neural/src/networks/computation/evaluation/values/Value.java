@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 /**
  * Created by gusta on 8.3.17.
  */
-public abstract class Value implements State.Computation {
+public abstract class Value implements State.Neural {
     private static final Logger LOG = Logger.getLogger(Value.class.getName());
 
     public static final Value ONE = new One();
@@ -74,6 +74,10 @@ public abstract class Value implements State.Computation {
 
     public abstract void increment(MatrixValue value);
 
+    public abstract boolean greaterThan(Value maxValue);
+    public abstract boolean greaterThan(ScalarValue maxValue);
+    public abstract boolean greaterThan(VectorValue maxValue);
+    public abstract boolean greaterThan(MatrixValue maxValue);
 
 
     /**

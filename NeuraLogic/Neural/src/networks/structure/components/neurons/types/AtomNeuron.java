@@ -8,7 +8,7 @@ import networks.structure.components.weights.Weight;
 /**
  * Created by gusta on 8.3.17.
  */
-public class AtomNeuron<S extends State.Computation> extends WeightedNeuron<AggregationNeuron, S> implements AtomFact {
+public class AtomNeuron<S extends State.Neural> extends WeightedNeuron<AggregationNeuron, S> implements AtomFact {
 
     public AtomNeuron(HeadAtom head, int index, S state) {
         super(head.toString(), index, state, head.getOffset(), head.activation);

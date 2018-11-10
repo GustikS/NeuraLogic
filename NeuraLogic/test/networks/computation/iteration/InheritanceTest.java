@@ -1,6 +1,6 @@
 package networks.computation.iteration;
 
-import networks.computation.iteration.actions.StateVisitor;
+import networks.computation.iteration.actions.StateVisiting;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.WeightedNeuron;
@@ -14,7 +14,7 @@ public class InheritanceTest {
 
     public class A extends IterationStrategy implements networks.computation.iteration.BottomUp, networks.computation.iteration.TopDown {
 
-        public A(StateVisitor stateVisitor, NeuralNetwork network, Neuron outputNeuron) {
+        public A(StateVisiting stateVisitor, NeuralNetwork network, Neuron outputNeuron) {
             super(stateVisitor, network, outputNeuron);
         }
 
@@ -31,7 +31,7 @@ public class InheritanceTest {
 
     public class B extends NeuronVisiting implements networks.computation.iteration.BottomUp {
 
-        public B(StateVisitor stateVisitor, NeuralNetwork network, Neuron outputNeuron) {
+        public B(StateVisiting stateVisitor, NeuralNetwork network, Neuron outputNeuron) {
             super(stateVisitor, network, outputNeuron);
         }
 
@@ -41,19 +41,19 @@ public class InheritanceTest {
         }
 
         @Override
-        public void expand(Neuron neuron) {
+        public void visit(Neuron neuron) {
 
         }
 
         @Override
-        public void expand(WeightedNeuron neuron) {
+        public void visit(WeightedNeuron neuron) {
 
         }
     }
 
     public class C extends NeuronIterating implements networks.computation.iteration.TopDown {
 
-        public C(StateVisitor stateVisitor, NeuralNetwork network, Neuron outputNeuron, NeuronVisitor pureNeuronVisitor) {
+        public C(StateVisiting stateVisitor, NeuralNetwork network, Neuron outputNeuron, NeuronVisitorWeighted pureNeuronVisitor) {
             super(stateVisitor, network, outputNeuron, pureNeuronVisitor);
         }
 

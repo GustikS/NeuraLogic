@@ -26,7 +26,7 @@ public class Sigmoid implements Activation {
     }
 
     @Override
-    public Value differentiateAt(Value x) {
+    public Value differentiate(Value x) {
         return null;
     }
 

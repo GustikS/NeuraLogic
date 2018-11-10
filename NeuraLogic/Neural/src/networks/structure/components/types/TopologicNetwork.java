@@ -13,14 +13,13 @@ import java.util.logging.Logger;
 /**
  * A class with an explicitly stored (topological) ordering of neurons.
  */
-public class TopologicNetwork<N extends State.Structure> extends NeuralNetwork<N> {
+public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNetwork<N> {
     private static final Logger LOG = Logger.getLogger(TopologicNetwork.class.getName());
 
     /**
      * All neurons combined in TOPOLOGICAL ORDERING.
      */
-    public
-    List<Neuron<Neuron,State.Computation>> allNeuronsTopologic;
+    public List<Neuron<Neuron, State.Neural>> allNeuronsTopologic;
 
     @Override
     public Integer getSize() {
@@ -28,17 +27,17 @@ public class TopologicNetwork<N extends State.Structure> extends NeuralNetwork<N
     }
 
     @Override
-    public <T extends Neuron, S extends State.Computation> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron) {
+    public <T extends Neuron, S extends State.Neural> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron) {
         return null;
     }
 
     @Override
-    public <T extends Neuron, S extends State.Computation> Iterator<T> getInputs(Neuron<T, S> neuron) {
+    public <T extends Neuron, S extends State.Neural> Iterator<T> getInputs(Neuron<T, S> neuron) {
         return null;
     }
 
     @Override
-    public <T extends Neuron, S extends State.Computation> Iterator<T> getOutputs(Neuron<T, S> neuron) {
+    public <T extends Neuron, S extends State.Neural> Iterator<T> getOutputs(Neuron<T, S> neuron) {
         return null;
     }
 

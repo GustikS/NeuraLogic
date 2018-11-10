@@ -1,6 +1,6 @@
 package networks.computation.iteration;
 
-import networks.computation.iteration.actions.StateVisitor;
+import networks.computation.iteration.actions.StateVisiting;
 import networks.computation.evaluation.values.Value;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.WeightedNeuron;
@@ -15,19 +15,19 @@ import java.util.logging.Logger;
 public class Topologic {
     private static final Logger LOG = Logger.getLogger(Topologic.class.getName());
 
-    TopologicNetwork<State.Structure> network;
-    StateVisitor<Value> stateVisitor;
+    TopologicNetwork<State.Neural.Structure> network;
+    StateVisiting<Value> stateVisitor;
 
-    public Topologic(TopologicNetwork<State.Structure> network, StateVisitor<Value> stateVisitor) {
+    public Topologic(TopologicNetwork<State.Neural.Structure> network, StateVisiting<Value> stateVisitor) {
         this.network = network;
         this.stateVisitor = stateVisitor;
     }
 
 
-    public class TDownVisitor extends NeuronVisiting<Value> implements TopDown {
-        NeuronVisitor neuronVisitor;
+    public class TDownVisitor extends WeightedNeuronVisiting<Value> implements TopDown {
+        NeuronVisitor.Weighted neuronVisitor;
 
-        public TDownVisitor(Neuron<Neuron, State.Computation> outputNeuron, NeuronVisitor pureNeuronVisitor) {
+        public TDownVisitor(Neuron<Neuron, State.Neural> outputNeuron, NeuronVisitor.Weighted pureNeuronVisitor) {
             super(Topologic.this.stateVisitor, Topologic.this.network, outputNeuron);
             this.neuronVisitor = pureNeuronVisitor;
         }
@@ -39,27 +39,27 @@ public class Topologic {
                 idx--;
             }
             while (idx > 0) {
-                Neuron<Neuron, State.Computation> actual = Topologic.this.network.allNeuronsTopologic.get(idx);
-                actual.expand(this);
+                Neuron<Neuron, State.Neural> actual = Topologic.this.network.allNeuronsTopologic.get(idx);
+                actual.visit(this);
                 idx--;
             }
         }
 
         @Override
-        public void expand(Neuron<Neuron, State.Computation> neuron) {
-            neuronVisitor.propagate(neuron);
+        public void visit(Neuron<Neuron, State.Neural> neuron) {
+            neuronVisitor.visit(neuron);
         }
 
         @Override
-        public void expand(WeightedNeuron<Neuron, State.Computation> neuron) {
-            neuronVisitor.propagate(neuron);
+        public void visit(WeightedNeuron<Neuron, State.Neural> neuron) {
+            neuronVisitor.visit(neuron);
         }
     }
 
-    public class BUpVisitor extends NeuronVisiting<Value> implements BottomUp<Value> {
-        NeuronVisitor neuronVisitor;
+    public class BUpVisitor extends WeightedNeuronVisiting<Value> implements BottomUp<Value> {
+        NeuronVisitor.Weighted neuronVisitor;
 
-        public BUpVisitor(Neuron<Neuron, State.Computation> outputNeuron, NeuronVisitor pureNeuronVisitor) {
+        public BUpVisitor(Neuron<Neuron, State.Neural> outputNeuron, NeuronVisitor.Weighted pureNeuronVisitor) {
             super(Topologic.this.stateVisitor, Topologic.this.network, outputNeuron);
             this.neuronVisitor = pureNeuronVisitor;
         }
@@ -71,22 +71,22 @@ public class Topologic {
          */
         public Value bottomUp() {
             for (int i = 0, len = Topologic.this.network.allNeuronsTopologic.size(); i < len; i++) {
-                Neuron<Neuron, State.Computation> actual = Topologic.this.network.allNeuronsTopologic.get(i);
-                actual.expand(this);
+                Neuron<Neuron, State.Neural> actual = Topologic.this.network.allNeuronsTopologic.get(i);
+                actual.visit(this);
                 if (actual == outputNeuron)
                     break;
             }
-            return outputNeuron.state.getOutput(stateVisitor);
+            return outputNeuron.getStateView(stateVisitor.stateIndex).getResult(stateVisitor);
         }
 
         @Override
-        public void expand(Neuron<Neuron, State.Computation> neuron) {
-            neuronVisitor.propagate(neuron);
+        public void visit(Neuron<Neuron, State.Neural> neuron) {
+            neuronVisitor.visit(neuron);
         }
 
         @Override
-        public void expand(WeightedNeuron<Neuron, State.Computation> neuron) {
-            neuronVisitor.propagate(neuron);
+        public void visit(WeightedNeuron<Neuron, State.Neural> neuron) {
+            neuronVisitor.visit(neuron);
         }
     }
 
@@ -94,7 +94,7 @@ public class Topologic {
 
         int i = Topologic.this.network.allNeuronsTopologic.size() - 1;
 
-        public TDownIterator(Neuron outputNeuron, NeuronVisitor pureNeuronVisitor) {
+        public TDownIterator(Neuron outputNeuron, NeuronVisitor.Weighted pureNeuronVisitor) {
             super(Topologic.this.stateVisitor, Topologic.this.network, outputNeuron, pureNeuronVisitor);
             while (Topologic.this.network.allNeuronsTopologic.get(i) != outputNeuron){
                 i--;
@@ -102,7 +102,7 @@ public class Topologic {
         }
 
         @Override
-        public Neuron<Neuron, State.Computation> next() {
+        public Neuron<Neuron, State.Neural> next() {
             return Topologic.this.network.allNeuronsTopologic.get(i--);
         }
 
@@ -121,12 +121,12 @@ public class Topologic {
 
         int i = 0;
 
-        public BUpIterator(Neuron<Neuron, State.Computation> outputNeuron, NeuronVisitor pureNeuronVisitor) {
+        public BUpIterator(Neuron<Neuron, State.Neural> outputNeuron, NeuronVisitor.Weighted pureNeuronVisitor) {
             super(Topologic.this.stateVisitor, Topologic.this.network, outputNeuron, pureNeuronVisitor);
         }
 
         @Override
-        public Neuron<Neuron, State.Computation> next() {
+        public Neuron<Neuron, State.Neural> next() {
             return Topologic.this.network.allNeuronsTopologic.get(i++);
         }
 
@@ -138,7 +138,7 @@ public class Topologic {
         @Override
         public Value bottomUp() {
             iterate();
-            return outputNeuron.state.getOutput(stateVisitor);
+            return outputNeuron.getStateView(stateVisitor.stateIndex).getResult(stateVisitor);
         }
     }
 }

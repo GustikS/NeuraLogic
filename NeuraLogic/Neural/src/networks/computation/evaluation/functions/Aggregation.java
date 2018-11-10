@@ -1,25 +1,42 @@
 package networks.computation.evaluation.functions;
 
 import networks.computation.evaluation.values.Value;
-import networks.structure.components.weights.Weight;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * Class representing general functions that take some input Values. It is able to evaluate and differentiate.
+ */
 public interface Aggregation {
 
-    Value evaluate(ArrayList<Value> inputs);
+    Value evaluate(List<Value> inputs);
 
-    @Deprecated
-    Value evaluate(ArrayList<Value> inputs, ArrayList<Weight> weights);
-
-    Value differentiateAt(Value x);
+    Value differentiate(List<Value> inputs);
 
     /**
-     * This should be optional.
+     * This should probably be optional, if not needed anywhere.
+     *
      * @return
      */
     @Nullable
+    @Deprecated
     Activation differentiateGlobally();
 
+    interface State {
+        /**
+         * Store a value - add it to the current state
+         *
+         * @param value
+         */
+        void cumulate(Value value);
+
+        void invalidate();
+
+        int[] getInputMask();
+
+        Value gradient();
+
+        Value evaluate();
+    }
 }
