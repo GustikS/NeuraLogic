@@ -1,28 +1,24 @@
 package networks.computation.evaluation.functions;
 
 import networks.computation.evaluation.values.Value;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 /**
- * Class representing general functions that take some input Values. It is able to evaluate and differentiate.
+ * Class representing general functions that take some (possibly sorted) set of input Values. It is able to evaluate and differentiate.
+ * This is a generalization of ActivationFunction.
  */
-public interface Aggregation {
+public abstract class Aggregation {
 
-    Value evaluate(List<Value> inputs);
+    public abstract Value evaluate(List<Value> inputs);
 
-    Value differentiate(List<Value> inputs);
+    public abstract Value differentiate(List<Value> inputs);
 
     /**
-     * This should probably be optional, if not needed anywhere.
-     *
-     * @return
+     * During neural computation of Aggregation/Activation, a computational State resides in memory for efficient reuse.
+     * E.g. we are not given all inputs/outputs at once, but the Values come sequentially as we iterate the neurons.
+     * The State is then to accumulate the intermediate Values first, before finally calling the respective functions.
      */
-    @Nullable
-    @Deprecated
-    Activation differentiateGlobally();
-
     interface State {
         /**
          * Store a value - add it to the current state

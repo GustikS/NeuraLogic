@@ -1,7 +1,7 @@
 package networks.computation.evaluation.results;
 
 import networks.computation.evaluation.functions.Activation;
-import networks.computation.evaluation.functions.Average;
+import networks.computation.evaluation.functions.specific.Average;
 import settings.Settings;
 
 import java.util.ArrayList;

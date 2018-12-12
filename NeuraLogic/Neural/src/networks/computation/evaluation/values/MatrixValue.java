@@ -1,5 +1,8 @@
 package networks.computation.evaluation.values;
 
+import networks.computation.evaluation.functions.Aggregation;
+
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 /**
@@ -19,12 +22,23 @@ public class MatrixValue extends Value {
     }
 
     @Override
-    public void zero() {
+    public MatrixValue zero() {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 value[i][j] = 0;
             }
         }
+        return this;
+    }
+
+    @Override
+    public MatrixValue clone() {
+        return null;
+    }
+
+    @Override
+    public Value apply(Function<Double, Double> function) {
+        return null;
     }
 
     @Override
@@ -68,13 +82,33 @@ public class MatrixValue extends Value {
 
     @Override
     public Value plus(VectorValue value) {
-        LOG.severe("Incompatible multiplication");
+        LOG.severe("Incompatible adding!");
         return null;
     }
 
     @Override
     public Value plus(MatrixValue value) {
         //check dimensions
+        return null;
+    }
+
+    @Override
+    public Value minus(Value value) {
+        return null;
+    }
+
+    @Override
+    public Value minus(ScalarValue value) {
+        return null;
+    }
+
+    @Override
+    public Value minus(VectorValue value) {
+        return null;
+    }
+
+    @Override
+    public Value minus(MatrixValue value) {
         return null;
     }
 
@@ -99,7 +133,37 @@ public class MatrixValue extends Value {
     }
 
     @Override
+    public boolean greaterThan(Value maxValue) {
+        return false;
+    }
+
+    @Override
+    public boolean greaterThan(ScalarValue maxValue) {
+        return false;
+    }
+
+    @Override
+    public boolean greaterThan(VectorValue maxValue) {
+        return false;
+    }
+
+    @Override
+    public boolean greaterThan(MatrixValue maxValue) {
+        return false;
+    }
+
+    @Override
     public void invalidate() {
 
+    }
+
+    @Override
+    public Computation getView(int index) {
+        return null;
+    }
+
+    @Override
+    public Aggregation getActivation() {
+        return null;
     }
 }

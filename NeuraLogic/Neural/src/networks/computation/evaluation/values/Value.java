@@ -1,23 +1,34 @@
 package networks.computation.evaluation.values;
 
-import networks.structure.metadata.states.State;
-
+import java.util.Iterator;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 /**
  * Created by gusta on 8.3.17.
  */
-public abstract class Value implements State.Neural {
+public abstract class Value implements Iterable<Double> {
     private static final Logger LOG = Logger.getLogger(Value.class.getName());
 
-    public static final Value ONE = new One();
     public static final Value ZERO = new Zero();
+    public static final Value ONE = new One();
 
     public abstract void initialize(ValueInitializer valueInitializer);
 
-    public abstract void zero();
+    public abstract Value zero();
 
     public abstract Value clone();
+
+    /**
+     * Equivalent to clone() + zero()
+     *
+     * @return
+     */
+    public abstract Value getForm();
+
+    public abstract int[] size();
+
+    public abstract Value apply(Function<Double, Double> function);
 
     /**
      * Double-dispatch with switch of the left-right hand sides to keep in mind!
@@ -50,6 +61,7 @@ public abstract class Value implements State.Neural {
 
     /**
      * Constructive subtracting - will create a new Value
+     *
      * @param value
      * @return
      */
@@ -63,6 +75,7 @@ public abstract class Value implements State.Neural {
 
     /**
      * Destructive adding - faster as there is no need to create new Object Value
+     *
      * @param value
      * @return
      */
@@ -75,10 +88,12 @@ public abstract class Value implements State.Neural {
     public abstract void increment(MatrixValue value);
 
     public abstract boolean greaterThan(Value maxValue);
-    public abstract boolean greaterThan(ScalarValue maxValue);
-    public abstract boolean greaterThan(VectorValue maxValue);
-    public abstract boolean greaterThan(MatrixValue maxValue);
 
+    public abstract boolean greaterThan(ScalarValue maxValue);
+
+    public abstract boolean greaterThan(VectorValue maxValue);
+
+    public abstract boolean greaterThan(MatrixValue maxValue);
 
     /**
      * todo consider replacing these constant classes with simple ScalarValue(1), the speedup might be small.
@@ -98,6 +113,16 @@ public abstract class Value implements State.Neural {
         }
 
         @Override
+        public Value clone() {
+            return null;
+        }
+
+        @Override
+        public Value apply(Function<Double, Double> function) {
+            return null;
+        }
+
+        @Override
         public Value times(Value value) {
             return value;
         }
@@ -138,6 +163,26 @@ public abstract class Value implements State.Neural {
         }
 
         @Override
+        public Value minus(Value value) {
+            return null;
+        }
+
+        @Override
+        public Value minus(ScalarValue value) {
+            return null;
+        }
+
+        @Override
+        public Value minus(VectorValue value) {
+            return null;
+        }
+
+        @Override
+        public Value minus(MatrixValue value) {
+            return null;
+        }
+
+        @Override
         public void increment(Value value) {
 
         }
@@ -158,9 +203,25 @@ public abstract class Value implements State.Neural {
         }
 
         @Override
-        public void invalidate() {
-
+        public boolean greaterThan(Value maxValue) {
+            return false;
         }
+
+        @Override
+        public boolean greaterThan(ScalarValue maxValue) {
+            return false;
+        }
+
+        @Override
+        public boolean greaterThan(VectorValue maxValue) {
+            return false;
+        }
+
+        @Override
+        public boolean greaterThan(MatrixValue maxValue) {
+            return false;
+        }
+
     }
 
     private static class Zero extends Value {
@@ -178,6 +239,16 @@ public abstract class Value implements State.Neural {
         }
 
         @Override
+        public Value clone() {
+            return null;
+        }
+
+        @Override
+        public Value apply(Function<Double, Double> function) {
+            return null;
+        }
+
+        @Override
         public Value times(Value value) {
             return zero;
         }
@@ -218,6 +289,26 @@ public abstract class Value implements State.Neural {
         }
 
         @Override
+        public Value minus(Value value) {
+            return null;
+        }
+
+        @Override
+        public Value minus(ScalarValue value) {
+            return null;
+        }
+
+        @Override
+        public Value minus(VectorValue value) {
+            return null;
+        }
+
+        @Override
+        public Value minus(MatrixValue value) {
+            return null;
+        }
+
+        @Override
         public void increment(Value value) {
 
         }
@@ -238,8 +329,24 @@ public abstract class Value implements State.Neural {
         }
 
         @Override
-        public void invalidate() {
-
+        public boolean greaterThan(Value maxValue) {
+            return false;
         }
+
+        @Override
+        public boolean greaterThan(ScalarValue maxValue) {
+            return false;
+        }
+
+        @Override
+        public boolean greaterThan(VectorValue maxValue) {
+            return false;
+        }
+
+        @Override
+        public boolean greaterThan(MatrixValue maxValue) {
+            return false;
+        }
+
     }
 }

@@ -1,6 +1,11 @@
 package networks.computation.evaluation.values;
 
+import networks.computation.evaluation.functions.Aggregation;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 /**
@@ -10,7 +15,7 @@ public class VectorValue extends Value {
     private static final Logger LOG = Logger.getLogger(VectorValue.class.getName());
     double[] value;
 
-    public VectorValue(int size){
+    public VectorValue(int size) {
         value = new double[size];
     }
 
@@ -18,9 +23,30 @@ public class VectorValue extends Value {
         value = vector.stream().mapToDouble(d -> d).toArray();
     }
 
-    public VectorValue(int size, ValueInitializer valueInitializer){
+    public VectorValue(int size, ValueInitializer valueInitializer) {
         value = new double[size];
         initialize(valueInitializer);
+    }
+
+
+    @NotNull
+    @Override
+    public Iterator<Double> iterator() {
+        return new VectorValue.valueIterator();
+    }
+
+    protected class valueIterator implements Iterator<Double> {
+        int i = 0;
+
+        @Override
+        public boolean hasNext() {
+            return i++ < value.length;
+        }
+
+        @Override
+        public Double next() {
+            return value[i];
+        }
     }
 
     @Override
@@ -29,10 +55,35 @@ public class VectorValue extends Value {
     }
 
     @Override
-    public void zero() {
+    public VectorValue zero() {
         for (int i = 0; i < value.length; i++) {
             value[i] = 0;
         }
+        return this;
+    }
+
+    @Override
+    public VectorValue clone() {
+        VectorValue clone = new VectorValue(value.length);
+        for (int i = 0; i < clone.value.length; i++) {
+            clone.value[i] = this.value[i];
+        }
+        return clone;
+    }
+
+    @Override
+    public Value getForm() {
+        return new VectorValue(value.length);
+    }
+
+    @Override
+    public int[] size() {
+        return new int[0];
+    }
+
+    @Override
+    public Value apply(Function<Double, Double> function) {
+        return null;
     }
 
     @Override
@@ -78,6 +129,28 @@ public class VectorValue extends Value {
     }
 
     @Override
+    public Value minus(Value value) {
+        return null;
+    }
+
+    @Override
+    public Value minus(ScalarValue value) {
+        LOG.severe("Invalid dimensions for algebraic operation");
+
+        return null;
+    }
+
+    @Override
+    public Value minus(VectorValue value) {
+        return null;
+    }
+
+    @Override
+    public Value minus(MatrixValue value) {
+        return null;
+    }
+
+    @Override
     public void increment(Value value) {
 
     }
@@ -98,7 +171,37 @@ public class VectorValue extends Value {
     }
 
     @Override
+    public boolean greaterThan(Value maxValue) {
+        return false;
+    }
+
+    @Override
+    public boolean greaterThan(ScalarValue maxValue) {
+        return false;
+    }
+
+    @Override
+    public boolean greaterThan(VectorValue maxValue) {
+        return false;
+    }
+
+    @Override
+    public boolean greaterThan(MatrixValue maxValue) {
+        return false;
+    }
+
+    @Override
     public void invalidate() {
 
+    }
+
+    @Override
+    public Computation getView(int index) {
+        return null;
+    }
+
+    @Override
+    public Aggregation getActivation() {
+        return null;
     }
 }

@@ -1,18 +1,25 @@
-package networks.computation.evaluation.functions;
+package networks.computation.evaluation.functions.specific;
 
+import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.values.ScalarValue;
 import networks.computation.evaluation.values.Value;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.logging.Logger;
 
-public class Maximum implements Aggregation {
+public class Maximum extends Aggregation {
     private static final Logger LOG = Logger.getLogger(Maximum.class.getName());
 
     @Override
     public Value evaluate(List<Value> inputs) {
-        return null;
+        Value max = inputs.get(0);
+        for (int i = 1; i < inputs.size(); i++) {
+            Value value;
+            if ((value = inputs.get(i)).greaterThan(max)) {
+                max = value;
+            }
+        }
+        return max;
     }
 
     @Override
@@ -20,8 +27,4 @@ public class Maximum implements Aggregation {
         return new ScalarValue(1);  //todo check
     }
 
-    @Override
-    public @Nullable Activation differentiateGlobally() {
-        return null;
-    }
 }

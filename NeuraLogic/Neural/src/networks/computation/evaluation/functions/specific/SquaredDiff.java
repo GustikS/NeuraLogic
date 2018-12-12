@@ -1,5 +1,6 @@
-package networks.computation.evaluation.functions;
+package networks.computation.evaluation.functions.specific;
 
+import networks.computation.evaluation.functions.ErrorFcn;
 import networks.computation.evaluation.values.Value;
 
 import java.util.logging.Logger;

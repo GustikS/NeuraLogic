@@ -1,7 +1,7 @@
 package networks.computation.evaluation.results;
 
 import networks.computation.evaluation.functions.ErrorFcn;
-import networks.computation.evaluation.functions.SquaredDiff;
+import networks.computation.evaluation.functions.specific.SquaredDiff;
 import networks.computation.evaluation.values.Value;
 import settings.Settings;
 
