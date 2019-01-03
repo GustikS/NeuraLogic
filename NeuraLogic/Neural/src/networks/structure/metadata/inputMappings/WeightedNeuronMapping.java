@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class WeightedNeuronMapping<T extends Neurons> implements NeuronMapping<Pair<T, Weight>> {
+public class WeightedNeuronMapping<T extends Neurons> implements LinkedMapping<Pair<T, Weight>> {
     private static final Logger LOG = Logger.getLogger(WeightedNeuronMapping.class.getName());
 
     List<Pair<T, Weight>> inputs;

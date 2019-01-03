@@ -9,7 +9,7 @@ import ida.ilp.logic.Clause;
 import ida.ilp.logic.Literal;
 import ida.ilp.logic.subsumption.Matching;
 import learning.Example;
-import networks.structure.metadata.inputMappings.NeuronMapping;
+import networks.structure.metadata.inputMappings.LinkedMapping;
 import networks.structure.components.types.DetailedNetwork;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.types.AggregationNeuron;
@@ -51,7 +51,7 @@ public class GroundTemplate extends GraphTemplate implements Example {
          * Locally valid input overloading for some neurons to facilitate dynamic structure changes
          */
         @Nullable
-        public Map<Neuron, NeuronMapping> extraInputMapping = new HashMap<>();
+        public Map<Neuron, LinkedMapping> extraInputMapping = new HashMap<>();
 
         public void addAllFrom(NeuronMaps neuronMaps) {
             atomNeurons.putAll(neuronMaps.atomNeurons);

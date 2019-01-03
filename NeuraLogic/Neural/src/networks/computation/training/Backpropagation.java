@@ -31,7 +31,7 @@ public class Backpropagation {
     }
 
     /**
-     * The most efficient network iteration depends on its structure, so it's to be decided ont the run.
+     * The most efficient network iteration depends on its structure, so it's to be decided on the run.
      *
      * @param settings
      * @param network
@@ -39,10 +39,10 @@ public class Backpropagation {
      * @param backproper
      * @return
      */
-    public static TopDown getTopDownPropagator(Settings settings, NeuralNetwork<State.Structure> network, Neuron outputNeuron, Backproper backproper) {
+    public static TopDown getTopDownPropagator(Settings settings, NeuralNetwork<State.Neural.Structure> network, Neuron outputNeuron, Backproper backproper) {
         if (network instanceof TopologicNetwork) {
             PureNeuronVisitor.Down down = new PureNeuronVisitor().new Down(backproper, network);
-            new Topologic((TopologicNetwork<State.Structure>) network, backproper).new TDownVisitor(outputNeuron, down);
+            new Topologic((TopologicNetwork<State.Neural.Structure>) network, backproper).new TDownVisitor(outputNeuron, down);
         } else {
             new DFSstack(network, backproper).new TDownVisitor(outputNeuron);
         }
@@ -50,10 +50,9 @@ public class Backpropagation {
     }
 
     public void backpropagate(NeuralModel model, NeuralSample sample) {
-        NeuralNetwork<State.Structure> network = sample.query.evidence;
-        AtomNeuron<State.Computation> outputNeuron = sample.query.neuron;
-
-
+        NeuralNetwork<State.Neural.Structure> network = sample.query.evidence;
+        AtomNeuron<State.Neural> outputNeuron = sample.query.neuron;
+        //todo need to evaluate here first
     }
 
     public void backpropagate(NeuralModel model, NeuralNetwork network, Neuron outputNeuron, Result result) {

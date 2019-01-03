@@ -24,7 +24,7 @@ public class IndexedNeuron implements Neurons {
     }
 
     @Override
-    public Activation getActivation() {
+    public Activation getAggregation() {
         return null;
     }
 

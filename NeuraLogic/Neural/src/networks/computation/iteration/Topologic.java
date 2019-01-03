@@ -76,7 +76,7 @@ public class Topologic {
                 if (actual == outputNeuron)
                     break;
             }
-            return outputNeuron.getStateView(stateVisitor.stateIndex).getResult(stateVisitor);
+            return outputNeuron.getComputationView(stateVisitor.stateIndex).getResult(stateVisitor);
         }
 
         @Override
@@ -138,7 +138,7 @@ public class Topologic {
         @Override
         public Value bottomUp() {
             iterate();
-            return outputNeuron.getStateView(stateVisitor.stateIndex).getResult(stateVisitor);
+            return outputNeuron.getComputationView(stateVisitor.stateIndex).getResult(stateVisitor);
         }
     }
 }

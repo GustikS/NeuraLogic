@@ -12,7 +12,7 @@ import ida.ilp.logic.Literal;
 import ida.ilp.logic.subsumption.Matching;
 import ida.utils.tuples.Pair;
 import networks.structure.building.factories.NeuralBuilder;
-import networks.structure.metadata.inputMappings.LinkedNeuronMapping;
+import networks.structure.metadata.inputMappings.NeuronMapping;
 import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 import networks.structure.components.neurons.types.*;
 import networks.structure.components.types.DetailedNetwork;
@@ -186,11 +186,11 @@ public class Neuralizer {
             } else {
                 aggNeuron.isShared = true;
                 if (rules2groundings.getValue().size() > 0) {
-                    LinkedNeuronMapping<RuleNeuron> inputMapping;
-                    if ((inputMapping = (LinkedNeuronMapping<RuleNeuron>) neuronMaps.extraInputMapping.get(aggNeuron)) != null) {    //if previously existing aggregation neuron already had input overmapping, create a new (incremental) one
-                        neuronMaps.extraInputMapping.put(aggNeuron, new LinkedNeuronMapping<>(inputMapping));
+                    NeuronMapping<RuleNeuron> inputMapping;
+                    if ((inputMapping = (NeuronMapping<RuleNeuron>) neuronMaps.extraInputMapping.get(aggNeuron)) != null) {    //if previously existing aggregation neuron already had input overmapping, create a new (incremental) one
+                        neuronMaps.extraInputMapping.put(aggNeuron, new NeuronMapping<>(inputMapping));
                     } else {
-                        neuronMaps.extraInputMapping.put(aggNeuron, new LinkedNeuronMapping<>(aggNeuron.getInputs()));
+                        neuronMaps.extraInputMapping.put(aggNeuron, new NeuronMapping<>(aggNeuron.getInputs()));
                     }
                 }
             }
@@ -218,7 +218,7 @@ public class Neuralizer {
                     aggNeuron.addInput(ruleNeuron);
                 } else {
                     LOG.info("Warning-  modifying previous state - Creating input overmapping for this Agg neuron: " + aggNeuron);
-                    LinkedNeuronMapping<RuleNeurons> inputMapping = (LinkedNeuronMapping<RuleNeurons>) neuronMaps.extraInputMapping.get(headAtomNeuron);
+                    NeuronMapping<RuleNeurons> inputMapping = (NeuronMapping<RuleNeurons>) neuronMaps.extraInputMapping.get(headAtomNeuron);
                     inputMapping.addLink(ruleNeuron);
                 }
             }

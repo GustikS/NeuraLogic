@@ -1,6 +1,6 @@
 package networks.computation.evaluation.results;
 
-import networks.computation.evaluation.functions.Activation;
+import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.functions.specific.Average;
 import settings.Settings;
 
@@ -24,7 +24,7 @@ public abstract class Results {
     /**
      * How to aggregate individual errors of samples. E.g. mean for MSE, or sum for SSE.
      */
-    Activation aggregationFcn;
+    Aggregation aggregationFcn;
 
     public Results() {
         evaluations = new ArrayList<>();
@@ -47,14 +47,14 @@ public abstract class Results {
 
     public static abstract class Factory {
 
-        Activation aggregation;
+        Aggregation aggregation;
 
-        public Factory(Activation aggregation){
+        public Factory(Aggregation aggregation){
             this.aggregation = aggregation;
         }
 
         public static Factory getFrom(Settings settings) {
-            Activation aggregationFunction = getAggregation(settings);
+            Aggregation aggregationFunction = getAggregation(settings);
             if (settings.regression) {
                 return new RegressionFactory(aggregationFunction);
             } else {
@@ -65,12 +65,13 @@ public abstract class Results {
             }
         }
 
-        private static Activation getAggregation(Settings settings) {
+        private static Aggregation getAggregation(Settings settings) {
             if (settings.errorAggregationFcn == Settings.AggregationFcn.AVG){
                 return new Average();
             } else {
                 LOG.severe("Unsupported errorAggregationFcn.");
             }
+            return null;
         }
 
         public abstract Results createFrom(List<Result> outputs);
@@ -78,37 +79,43 @@ public abstract class Results {
 
     private static class RegressionFactory extends Factory {
 
-        public RegressionFactory(Activation aggregation) {
+        public RegressionFactory(Aggregation aggregation) {
             super(aggregation);
         }
 
         @Override
         public Results createFrom(List<Result> outputs) {
-            return new RegressionResults(outputs);
+            RegressionResults regressionResults = new RegressionResults(outputs);
+            regressionResults.aggregationFcn = aggregation;
+            return regressionResults;
         }
     }
 
     private static class DetailedClassificationFactory extends Factory {
 
-        public DetailedClassificationFactory(Activation aggregation) {
+        public DetailedClassificationFactory(Aggregation aggregation) {
             super(aggregation);
         }
 
         @Override
         public Results createFrom(List<Result> outputs) {
-            return new DetailedClassificationResults(outputs);
+            DetailedClassificationResults detailedClassificationResults = new DetailedClassificationResults(outputs);
+            detailedClassificationResults.aggregationFcn = aggregation;
+            return detailedClassificationResults;
         }
     }
 
     private static class ClassificationFactory extends Factory {
 
-        public ClassificationFactory(Activation aggregation) {
+        public ClassificationFactory(Aggregation aggregation) {
             super(aggregation);
         }
 
         @Override
         public Results createFrom(List<Result> outputs) {
-            return new ClassificationResults(outputs);
+            ClassificationResults classificationResults = new ClassificationResults(outputs);
+            classificationResults.aggregationFcn = aggregation;
+            return classificationResults;
         }
     }
 }

@@ -71,8 +71,8 @@ public abstract class TrainingStrategy {
             initRestart();
             while (restartingStrategy.continueRestart() && epochae++ < settings.maxCumEpochCount) {
                 initEpoch(epochae);
-                List<Result> onlineEvalluations = learnEpoch(epochae);
-                endEpoch(epochae, onlineEvalluations);
+                List<Result> onlineEvaluations = learnEpoch(epochae);
+                endEpoch(epochae, onlineEvaluations);
             }
             endRestart();
         }
@@ -161,5 +161,9 @@ public abstract class TrainingStrategy {
         } else {
             return new SimpleTraining(settings, model, sampleList);
         }
+    }
+
+    public NeuralModel getBestModel() {
+        return bestModel;
     }
 }

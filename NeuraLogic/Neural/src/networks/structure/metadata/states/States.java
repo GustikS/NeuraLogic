@@ -6,7 +6,7 @@ import networks.computation.iteration.actions.Backproper;
 import networks.computation.iteration.actions.Evaluator;
 import networks.computation.iteration.actions.StateVisiting;
 import networks.structure.components.neurons.Neuron;
-import networks.structure.metadata.inputMappings.NeuronMapping;
+import networks.structure.metadata.inputMappings.LinkedMapping;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  * An agglomeration of classes for storing computational and structural States (see interface State) of Neurons.
  * <p>
  * Similarly to Neuron(s), States are (almost) pure containers, and the various logics of operations upon them (evaluation, backprop, etc.)
- * are carried out by separate NeuronVisitors, for the same reasons of clarity (at the slight expense of speed).
+ * are carried out by separate StateVisitors, for the same reasons of clarity (at the slight expense of speed).
  */
 public abstract class States implements State {
     private static final Logger LOG = Logger.getLogger(States.class.getName());
@@ -36,12 +36,12 @@ public abstract class States implements State {
         }
 
         @Override
-        public State.Neural.Computation getView(int index) {
+        public State.Neural.Computation getComputationView(int index) {
             return states[index];
         }
 
         @Override
-        public Aggregation getActivation() {
+        public Aggregation getAggregation() {
             return aggregation;
         }
 
@@ -61,7 +61,7 @@ public abstract class States implements State {
 
     public static class ComputationStateStandard implements Neural.Computation {
 
-        ActivationState activationState;
+        AggregationState aggregationState;
         Value outputValue;
         Value acumGradient;
 
@@ -69,23 +69,36 @@ public abstract class States implements State {
         public void invalidate() {
             outputValue.zero();
             acumGradient.zero();
-            activationState.invalidate();
+            aggregationState.invalidate();
         }
 
         @Override
-        public Aggregation getActivation() {
-            return activationState.getActivation();
+        public Aggregation getAggregation() {
+            return aggregationState.getAggregation();
         }
 
         @Override
-        public ActivationState getActivationState() {
-            return activationState;
+        public AggregationState getAggregationState() {
+            return aggregationState;
         }
 
         @Override
         public Value getResult(StateVisiting<Value> visitor) {
             LOG.severe("Error: Visitor calling a default method through dynamic dispatch.");
             return null;
+        }
+
+        @Override
+        public void setResult(StateVisiting<Value> visitor, Value value) {
+            LOG.severe("Error: Visitor calling a default method through dynamic dispatch.");
+        }
+
+        public void setResult(Evaluator visitor, Value value) {
+            outputValue = value;
+        }
+
+        public void setResult(Backproper visitor, Value value) {
+            acumGradient = value;
         }
 
         public Value getResult(Evaluator visitor) {
@@ -102,7 +115,7 @@ public abstract class States implements State {
         }
 
         public void store(Evaluator visitor, Value value) {
-            activationState.cumulate(value);
+            aggregationState.cumulate(value);
         }
 
         public void store(Backproper visitor, Value value) {
@@ -127,7 +140,7 @@ public abstract class States implements State {
         }
 
         @Override
-        public ActivationState getActivationState() {
+        public AggregationState getAggregationState() {
             return null;
         }
 
@@ -136,12 +149,10 @@ public abstract class States implements State {
             return value;
         }
 
-        @Override
         public void setResult(StateVisiting<Value> visitor, Value value) {
             //void
         }
 
-        @Override
         public Value getState(StateVisiting<Value> visitor) {
             return value;
         }
@@ -152,15 +163,20 @@ public abstract class States implements State {
         }
 
         @Override
-        public Aggregation getActivation() {
+        public Aggregation getAggregation() {
             return null;
         }
     }
+
+
+
 
     /**
      * A typical, minimal, lightweight State that consists of summed inputs (before activation), output value (after activation), and gradient (before activation) todo check
      * Even though Evaluation and Backprop are always carried out separately, and so it seems that a single Value placeholder
      * could be stored here, value and gradient must be held as two separate Values, since Backprop needs both to calculate gradient.
+     *
+     * todo check why this does not contain AggregationState - on purpose or OBSOLETE (replaced with ComputationStateStandard)?
      */
     public static class InputsOutputGradientDetailed implements Neural.Computation, Neural.Computation.Detailed {
         /**
@@ -185,7 +201,7 @@ public abstract class States implements State {
 
 
         @Override
-        public ActivationState getActivationState() {
+        public AggregationState getAggregationState() {
             return null;
         }
 
@@ -195,12 +211,10 @@ public abstract class States implements State {
             return null;
         }
 
-        @Override
         public void setResult(StateVisiting<Value> visitor, Value value) {
             LOG.severe("Error: Visitor calling a default method through dynamic dispatch.");
         }
 
-        @Override
         public Value getState(StateVisiting<Value> visitor) {
             LOG.severe("Error: Visitor calling a default method through dynamic dispatch.");
             return null;
@@ -254,7 +268,7 @@ public abstract class States implements State {
         }
 
         @Override
-        public Aggregation getActivation() {
+        public Aggregation getAggregation() {
             return null;
         }
     }
@@ -351,15 +365,15 @@ public abstract class States implements State {
      * This information should be stored in a Network (not Neuron).
      */
     public static final class InputsOutputsPair implements Neural.Structure {
-        NeuronMapping<Neuron> inputs;
-        NeuronMapping<Neuron> outputs;
+        LinkedMapping<Neuron> inputs;
+        LinkedMapping<Neuron> outputs;
 
 
-        public final NeuronMapping getOutputs() {
+        public final LinkedMapping getOutputs() {
             return outputs;
         }
 
-        public NeuronMapping<Neuron> getInputs(Neuron neuron) {
+        public LinkedMapping<Neuron> getInputs(Neuron neuron) {
             return inputs;
         }
 

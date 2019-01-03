@@ -4,6 +4,8 @@ import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.WeightedNeuron;
 
+import java.util.logging.Logger;
+
 /**
  * No recursive expansion of nodes for processing, just an immediate propagation of values to neighbours (PureVisitor)
  */
@@ -15,7 +17,8 @@ public interface NeuronVisitor {
      * @param neuron
      */
     default void visit(Neurons neuron) {
-        System.out.println("Error: Visitor calling a default method through double dispatch.");
+        Logger LOG = Logger.getLogger(NeuronVisitor.class.getName());
+        LOG.severe("Error: Visitor calling a default method through double dispatch.");
     }
 
     /**

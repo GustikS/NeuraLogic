@@ -73,12 +73,12 @@ public class Evaluation {
      * @param evaluator
      * @return
      */
-    private BottomUp<Value> getBottomUpIterationStrategy(Settings settings, NeuralNetwork<State.Structure> network, Neuron outputNeuron, Evaluator evaluator) {
+    private BottomUp<Value> getBottomUpIterationStrategy(Settings settings, NeuralNetwork<State.Neural.Structure> network, Neuron outputNeuron, Evaluator evaluator) {
         if (network instanceof TopologicNetwork) {
             PureNeuronVisitor.Up up = new PureNeuronVisitor().new Up(evaluator, network);
-            new Topologic((TopologicNetwork<State.Structure>) network, evaluator).new BUpVisitor(outputNeuron, up);
+            return new Topologic((TopologicNetwork<State.Neural.Structure>) network, evaluator).new BUpVisitor(outputNeuron, up);
         } else {
-            new DFSstack(network, evaluator).new BUpVisitor(outputNeuron);
+            return new DFSstack(network, evaluator).new BUpVisitor(outputNeuron);
         }
         return null;
     }
@@ -94,8 +94,8 @@ public class Evaluation {
     }
 
     public Value evaluate(QueryNeuron queryNeuron) {
-        NeuralNetwork<State.Structure> network = queryNeuron.evidence;
-        AtomNeuron<State.Computation> outputNeuron = queryNeuron.neuron;
+        NeuralNetwork<State.Neural.Structure> network = queryNeuron.evidence;
+        AtomNeuron<State.Neural> outputNeuron = queryNeuron.neuron;
 
         BottomUp<Value> propagator = getBottomUpIterationStrategy(settings, network, outputNeuron, evaluator);
         Value output = propagator.bottomUp();

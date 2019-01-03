@@ -2,6 +2,7 @@ package networks.computation.training;
 
 import learning.Model;
 import networks.computation.evaluation.values.Value;
+import networks.computation.evaluation.values.ValueInitializer;
 import networks.structure.components.neurons.QueryNeuron;
 import networks.structure.components.weights.Weight;
 
@@ -23,10 +24,10 @@ public class NeuralModel implements Model<QueryNeuron> {
         return null;
     }
 
-    public void resetWeights() {
+    public void resetWeights(ValueInitializer valueInitializer) {
         for (Weight weight : weights) {
             if (!weight.isFixed) {
-                weight.init();
+                weight.init(valueInitializer);
             }
         }
     }

@@ -7,17 +7,27 @@ import networks.computation.evaluation.values.Value;
 
 import java.util.logging.Logger;
 
-public abstract class ActivationState implements Aggregation.State {
-    private static final Logger LOG = Logger.getLogger(ActivationState.class.getName());
+/**
+ * This is to facilitate the fact that each function behaves differently w.r.t. online calculation, i.e. when inputs
+ * are not all given at once, but need to be sequentially accumulated. For instance, when iterating inputs for the MAX
+ * aggregation function, we need to remember the current maxValue and index, while for Sigmoid it is sufficient to
+ * remember only the current sum of all processed inputs. Of course that this could be worked-around by just remembering
+ * all the accumulated inputs (in a List) all the time, but that would be very inefficient, since the calculations would have to be
+ * carried out by iterating the list many times (without remembering the intermediate results for each activation function).
+ */
+public abstract class AggregationState implements Aggregation.State {
+    private static final Logger LOG = Logger.getLogger(AggregationState.class.getName());
 
-    public abstract Aggregation getActivation();
+    public abstract Aggregation getAggregation();
 
-
-    public static class Standard extends ActivationState {
+    /**
+     * State for standard Activation function, e.g. Sigmoid, which sums all the inputs and then applies some non-linearity to the result.
+     */
+    public static class ActivationState extends AggregationState {
         Activation activation;
         Value summedInputs;
 
-        public Standard(Activation activation, Value valueStore) {
+        public ActivationState(Activation activation, Value valueStore) {
             this.activation = activation;
             this.summedInputs = valueStore;
         }
@@ -42,12 +52,20 @@ public abstract class ActivationState implements Aggregation.State {
         }
 
         @Override
-        public Aggregation getActivation() {
+        public Value evaluate() {
+            return activation.evaluate(summedInputs);
+        }
+
+        @Override
+        public Activation getAggregation() {
             return activation;
         }
     }
 
-    public static abstract class Pooling extends ActivationState {
+    /**
+     * State for aggregations based on pooling, e.g. Max or Avg. These require remembering different values for intermediate results.
+     */
+    public static abstract class Pooling extends AggregationState {
         Aggregation aggregation;
 
         public Pooling(Aggregation aggregation) {
@@ -55,7 +73,7 @@ public abstract class ActivationState implements Aggregation.State {
         }
 
         @Override
-        public Aggregation getActivation() {
+        public Aggregation getAggregation() {
             return aggregation;
         }
 
@@ -94,9 +112,13 @@ public abstract class ActivationState implements Aggregation.State {
 
             @Override
             public Value gradient() {
-                return aggregation.differentiate(maxValue);
+                return new ScalarValue(1);
             }
 
+            @Override
+            public Value evaluate() {
+                return maxValue;
+            }
         }
 
         public static class Avg extends Pooling {
@@ -128,11 +150,17 @@ public abstract class ActivationState implements Aggregation.State {
 
             @Override
             public Value gradient() {
-                return new ScalarValue(1/count);
+                return new ScalarValue(1.0 / count);
+            }
+
+            @Override
+            public Value evaluate() {
+                return sum.times(new ScalarValue(1.0 / count));
             }
         }
 
         /**
+         * MaxK is to return the average of max-k and propagate gradient into max-k inputs.
          * todo whole class and corresponding aggregation function
          */
         public static class MaxK extends Pooling {
@@ -156,6 +184,16 @@ public abstract class ActivationState implements Aggregation.State {
             @Override
             public int[] getInputMask() {
                 return new int[0];
+            }
+
+            @Override
+            public Value gradient() {
+                return null;
+            }
+
+            @Override
+            public Value evaluate() {
+                return null;
             }
         }
     }

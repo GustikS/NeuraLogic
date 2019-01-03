@@ -157,6 +157,7 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
         return p;
     }
 
+
     public <I1, I2, A extends Merge<I1, I2, T>> A registerEnd(A p) {
         terminal = p;
         register(p);
@@ -226,4 +227,5 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
     public T apply(S s) {
         return execute(s).s;
     }
+
 }

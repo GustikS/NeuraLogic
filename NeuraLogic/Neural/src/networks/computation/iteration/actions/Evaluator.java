@@ -1,10 +1,8 @@
 package networks.computation.iteration.actions;
 
-import networks.computation.evaluation.functions.Activation;
 import networks.computation.evaluation.values.Value;
 import networks.structure.metadata.states.State;
 
-import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -18,16 +16,17 @@ public class Evaluator extends StateVisiting.ComputationVisitor {
     }
 
     @Override
-    public boolean ready4activation(State.Computation state) {
-        return true;    //todo check
+    public boolean ready4visit(State.Neural.Computation state) {
+        //todo
+        return true;
     }
 
     @Override
-    public Value activateOutput(State.Computation computation, Activation activation) {
-        List<Value> cumulation = computation.getMessages();
-        Value evaluate = activation.evaluate(cumulation);
-        computation.setResult(this, evaluate);
-        return evaluate;
+    public Value visit(State.Neural.Computation state) {
+        Value evaluation = state.getAggregationState().evaluate();
+        //with evaluation of this Neuron's Computation State, we also STORE the resulting value for immediate reuse (instead of calling the ActivationState.evaluation (again))
+        state.setResult(this, evaluation);
+        return evaluation;
     }
 
 }

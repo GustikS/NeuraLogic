@@ -6,10 +6,18 @@ import java.util.List;
 
 /**
  * Class representing general functions that take some (possibly sorted) set of input Values. It is able to evaluate and differentiate.
- * This is a generalization of ActivationFunction.
+ * This is a generalization of Activation. If it is sufficient to apply the function to the mere summation of the inputs,
+ * i.e. if the inputs are always summed up at first and then some non-linearity applied to the sum, use Activation class instead,
+ * which is based on providing existing Function<Double, Double> processing, while here the calculation must be implemented via inheritance.
  */
 public abstract class Aggregation {
 
+    /**
+     * Return the result of corresponding Aggregation function applied to the list of inputs.
+     *
+     * @param inputs
+     * @return
+     */
     public abstract Value evaluate(List<Value> inputs);
 
     public abstract Value differentiate(List<Value> inputs);
@@ -17,9 +25,12 @@ public abstract class Aggregation {
     /**
      * During neural computation of Aggregation/Activation, a computational State resides in memory for efficient reuse.
      * E.g. we are not given all inputs/outputs at once, but the Values come sequentially as we iterate the neurons.
-     * The State is then to accumulate the intermediate Values first, before finally calling the respective functions.
+     * This State is then to accumulate the intermediate Values first, before finally calling the respective functions.
+     *
+     * This interface applies equally to the Activation subclass, so it is just kept here once.
+     * See AggregationState for concrete implementations.
      */
-    interface State {
+    public interface State {
         /**
          * Store a value - add it to the current state
          *
@@ -27,12 +38,28 @@ public abstract class Aggregation {
          */
         void cumulate(Value value);
 
+        /**
+         * Reset all intermediate results of calculation (typically by zeroing them out)
+         */
         void invalidate();
 
+        /**
+         * If the activation applies to inly a subset of the input values, this return an array of the corresponding indices.
+         * Otherwise returns null if the activation is based on all the inputs.
+         * @return
+         */
         int[] getInputMask();
 
+        /**
+         * Calculate gradient of the current State.
+         * @return
+         */
         Value gradient();
 
+        /**
+         * Calculate the Value of the current State.
+         * @return
+         */
         Value evaluate();
     }
 }

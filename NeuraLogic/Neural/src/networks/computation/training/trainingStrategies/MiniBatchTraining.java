@@ -2,6 +2,7 @@ package networks.computation.training.trainingStrategies;
 
 import learning.crossvalidation.splitting.Splitter;
 import learning.crossvalidation.splitting.StratifiedSplitter;
+import networks.computation.evaluation.results.Result;
 import networks.computation.evaluation.results.Results;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
@@ -27,20 +28,20 @@ public class MiniBatchTraining extends TrainingStrategy {
     }
 
     @Override
-    protected void initEpoch() {
+    protected void initEpoch(int epochNumber) {
         if (settings.minibatchShuffle) {  //shuffle for minibatch version only!
             Collections.shuffle(sampleList, settings.random);
         }
     }
 
     @Override
-    protected void learnEpoch() {
+    protected void initRestart() {
 
     }
 
     @Override
-    protected void initRestart() {
-
+    protected List<Result> learnEpoch(int epochNumber) {
+        return null;
     }
 
     @Override

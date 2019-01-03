@@ -5,7 +5,7 @@ import networks.structure.components.neurons.Neuron;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
-public abstract class StatesCache<T extends State.Structure> {
+public abstract class StatesCache<T extends State.Neural.Structure> {
     private static final Logger LOG = Logger.getLogger(StatesCache.class.getName());
     /**
      * Stores a State <T> for each Neuron in this state cache (corresponding to one neural net). Neurons are translated to an index to this array with findNeuron().
@@ -42,7 +42,7 @@ public abstract class StatesCache<T extends State.Structure> {
          */
         private int[] neuronIndices;
 
-        public LinearCache(State.Structure[] neuronStates) {
+        public LinearCache(State.Neural.Structure[] neuronStates) {
             super(neuronStates);
         }
 
@@ -61,7 +61,7 @@ public abstract class StatesCache<T extends State.Structure> {
          */
         private int[] heapSortedNeuronIndices;
 
-        public HeapCache(State.Structure[] neuronStates) {
+        public HeapCache(State.Neural.Structure[] neuronStates) {
             super(neuronStates);
         }
 
@@ -85,7 +85,7 @@ public abstract class StatesCache<T extends State.Structure> {
          */
         public HashMap<Integer, Integer> neuronIndices;
 
-        public HashCache(State.Structure[] neuronStates) {
+        public HashCache(State.Neural.Structure[] neuronStates) {
             super(neuronStates);
         }
 

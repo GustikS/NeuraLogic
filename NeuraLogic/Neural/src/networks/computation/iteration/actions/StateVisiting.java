@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 
 /**
  * todo test version with separate visitors for each method for performance - if fast enough, switch to it
- * todo at least subclass to Computation visitor
  * @param <V>
  */
 public abstract class StateVisiting<V> {
@@ -35,6 +34,12 @@ public abstract class StateVisiting<V> {
             super(stateIndex);
         }
 
+        @Override
+        public Value visit(State<Value> state) {
+            LOG.severe("ComputationVisitor called for generic State<Value>.");
+            return state.accept(this);
+        }
+
         /**
          * Check, typically using a State of the Neuron, whether this neuron is ready to propagate its result
          *
@@ -44,7 +49,7 @@ public abstract class StateVisiting<V> {
         public abstract boolean ready4visit(State.Neural.Computation state);
 
         /**
-         * Transformation of the State of this neuron through its activation function into a result V (typically a Value)
+         * Transformation of the State of this neuron through its activation function into a result Value
          *
          * @param state
          * @return

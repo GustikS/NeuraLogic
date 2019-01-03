@@ -151,8 +151,8 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
 
         @Override
         public Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Results>> buildPipeline() {
-            Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Results> pipeline = new Pipeline<>("NeuralTrainingPipeline");
-            NeuralTrainingPipe neuralEvaluationPipe = pipeline.registerEnd(pipeline.registerStart(new NeuralTrainingPipe(settings)));
+            Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Results>> pipeline = new Pipeline<>("NeuralTrainingPipeline");
+            NeuralTrainingPipe neuralTrainingPipe = pipeline.registerEnd(pipeline.registerStart(new NeuralTrainingPipe(settings)));
             return pipeline;
         }
     }

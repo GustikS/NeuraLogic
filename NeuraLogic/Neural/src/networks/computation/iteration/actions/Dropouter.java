@@ -1,7 +1,6 @@
 package networks.computation.iteration.actions;
 
 import networks.computation.iteration.NeuronIterating;
-import networks.computation.iteration.NeuronVisitorWeighted;
 import networks.computation.iteration.Topologic;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neuron;

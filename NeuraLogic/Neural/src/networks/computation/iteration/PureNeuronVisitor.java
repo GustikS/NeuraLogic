@@ -17,74 +17,78 @@ import java.util.Iterator;
  */
 public class PureNeuronVisitor {
 
-    StateVisiting.ComputationVisitor stateVisitor;   //todo test copy this to inner class for performance?
-    NeuralNetwork<State.Structure> network;
+    StateVisiting.ComputationVisitor computationVisitor;   //todo test copy this to inner class for performance?
+    NeuralNetwork<State.Neural.Structure> network;
 
     public PureNeuronVisitor(){
 
     }
 
-    public PureNeuronVisitor(StateVisiting.ComputationVisitor stateVisitor, NeuralNetwork<State.Structure> network) {
-        this.stateVisitor = stateVisitor;
+    public PureNeuronVisitor(StateVisiting.ComputationVisitor computationVisitor, NeuralNetwork<State.Neural.Structure> network) {
+        this.computationVisitor = computationVisitor;
         this.network = network;
     }
 
     public class Up extends PureNeuronVisitor implements NeuronVisitor.Weighted {
 
-        public Up(StateVisiting.ComputationVisitor stateVisitor, NeuralNetwork<State.Structure> network) {
+        public Up(StateVisiting.ComputationVisitor stateVisitor, NeuralNetwork<State.Neural.Structure> network) {
             super(stateVisitor, network);
         }
 
         @Override
         public void visit(Neuron neuron) {
+            State.Neural.Computation state = neuron.getComputationView(computationVisitor.stateIndex);
             Iterator<Neuron> inputs = network.getInputs(neuron);
-            State.Computation state = neuron.getStateView(stateVisitor.stateIndex);
             for (Neuron input; (input = inputs.next()) != null; ) {
-                state.store(stateVisitor, input.getStateView(stateVisitor.stateIndex).getResult(stateVisitor));
+                state.store(computationVisitor, input.getComputationView(computationVisitor.stateIndex).getResult(computationVisitor));
             }
-            Value value = stateVisitor.activateOutput(state, neuron.activation);
+            Value value = computationVisitor.visit(state);
         }
 
         @Override
         public void visit(WeightedNeuron neuron) {
+            State.Neural.Computation state = neuron.getComputationView(computationVisitor.stateIndex);
             Pair<Iterator<Neuron>, Iterator<Weight>> inputs = network.getInputs(neuron);
             Iterator<Neuron> inputNeurons = inputs.r;
             Iterator<Weight> inputWeights = inputs.s;
             Neuron input;
             Weight weight;
-            neuron.state.store(stateVisitor, neuron.offset.value);       //todo invalidate state first, or is it ensured that it is invalidated?
+
+            state.store(computationVisitor, neuron.offset.value);       //todo invalidate state first, or is it ensured that it is invalidated?
             while ((input = inputNeurons.next()) != null && (weight = inputWeights.next()) != null) { //todo test version with fori
-                neuron.state.store(stateVisitor, input.state.getResult(stateVisitor), weight);
+                state.store(computationVisitor, input.getComputationView(computationVisitor.stateIndex).getResult(computationVisitor).times(weight.value));
             }
-            Value value = neuron.state.activateOutput(stateVisitor, neuron.activation);
+            Value value = computationVisitor.visit(state);
         }
     }
 
     public class Down extends PureNeuronVisitor implements NeuronVisitor.Weighted {
 
-        public Down(StateVisiting.ComputationVisitor stateVisitor, NeuralNetwork<State.Structure> network) {
+        public Down(StateVisiting.ComputationVisitor stateVisitor, NeuralNetwork<State.Neural.Structure> network) {
             super(stateVisitor, network);
         }
 
         @Override
         public void visit(Neuron neuron) {
-            Value value = neuron.state.activateOutput(stateVisitor, neuron.activation);
+            State.Neural.Computation state = neuron.getComputationView(computationVisitor.stateIndex);
+            Value value = computationVisitor.visit(state);
             Iterator<Neuron> inputs = network.getInputs(neuron);
             for (Neuron input; (input = inputs.next()) != null; ) {
-                input.state.store(stateVisitor, value);
+                input.getComputationView(computationVisitor.stateIndex).store(computationVisitor, value);
             }
         }
 
         @Override
         public void visit(WeightedNeuron neuron) {
-            Value value = neuron.state.activateOutput(stateVisitor, neuron.activation);
-            Pair<Iterator<Neuron>, Iterator<Weight>> inputs = network.getInputs(neuron);//todo next offset?!
+            State.Neural.Computation state = neuron.getComputationView(computationVisitor.stateIndex);
+            Value value = computationVisitor.visit(state);
+            Pair<Iterator<Neuron>, Iterator<Weight>> inputs = network.getInputs(neuron);//todo next offset?! - not needed for gradient I guess?
             Iterator<Neuron> inputNeurons = inputs.r;
-            Iterator<Weight> inputWieghts = inputs.s;
+            Iterator<Weight> inputWeights = inputs.s;
             Neuron input;
             Weight weight;
-            while ((input = inputNeurons.next()) != null && (weight = inputWieghts.next()) != null) {
-                input.state.store(stateVisitor, value, weight);
+            while ((input = inputNeurons.next()) != null && (weight = inputWeights.next()) != null) {
+                input.getComputationView(computationVisitor.stateIndex).store(computationVisitor, value.times(weight.value));
             }
         }
     }

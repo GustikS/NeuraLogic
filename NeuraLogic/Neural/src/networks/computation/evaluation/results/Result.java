@@ -55,7 +55,7 @@ public class Result {
         private ErrorFcn getErrFcn(Settings settings) {
             if (settings.errorFunction == Settings.ErrorFcn.SQUARED_DIFF)
                 return new SquaredDiff();
-            else //todo
+            else return null; //todo move all getters for the enum types into Settings?
         }
     }
 }

@@ -1,6 +1,6 @@
 package networks.structure.components.neurons;
 
-import networks.computation.evaluation.functions.Activation;
+import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.iteration.NeuronVisiting;
 import networks.computation.iteration.NeuronVisitor;
 
@@ -18,7 +18,7 @@ public interface Neurons {
 
     ArrayList<? extends Neurons> getInputs();
 
-    Activation getActivation();
+    Aggregation getAggregation();
 
     String getId();
 

@@ -22,4 +22,9 @@ public class RegressionResults extends Results{
     public boolean recalculate() {
         return false;
     }
+
+    @Override
+    public boolean betterThan(Results other) {
+        return false;
+    }
 }

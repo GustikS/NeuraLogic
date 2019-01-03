@@ -1,6 +1,7 @@
 package networks.structure.components.neurons;
 
 import networks.computation.evaluation.functions.Activation;
+import networks.computation.evaluation.functions.Aggregation;
 import networks.structure.metadata.states.State;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -48,9 +49,10 @@ public class Neuron<T extends Neurons, S extends State.Neural> implements Neuron
      */
     public boolean isShared;
     /**
-     * Activation function
+     * Activation function - moved to ActivationState
      */
     @NotNull
+    @Deprecated
     public final Activation activation;
     /**
      * We want fast iteration over inputs - todo test - consider array here with grounder storing the inputMappings in a list first
@@ -58,7 +60,7 @@ public class Neuron<T extends Neurons, S extends State.Neural> implements Neuron
     @Nullable   // because FactNeurons have no inputs (null check will be faster that isEmpty())
     protected ArrayList<T> inputs;
     /**
-     * Depth of this neuron. Might be useful e.g. for Dropout or some transformations.
+     * Depth of this neuron. Might be useful e.g. for Dropout or some transformations. todo
      */
     int layer;
 
@@ -85,8 +87,8 @@ public class Neuron<T extends Neurons, S extends State.Neural> implements Neuron
 
     @Override
     @NotNull
-    public Activation getActivation() {
-        return activation;
+    public Aggregation getAggregation() {
+        return state.getAggregation();
     }
 
     public final boolean hasNoInputs() {
@@ -118,18 +120,19 @@ public class Neuron<T extends Neurons, S extends State.Neural> implements Neuron
     }
 
     /**
-     * This is to tunnel through the composite state
+     * Get the Computation State of this Neuron.
+     * The index is to tunnel through the ComputationStateComposite if multiple computation states exist in parallel.
      *
      * @param index
      * @return
      */
     @Contract(pure = true)
-    public final State.Neural.Computation getStateView(int index) {
-        return state.getView(index);
+    public final State.Neural.Computation getComputationView(int index) {
+        return state.getComputationView(index);
     }
 
     /**
-     *
+     * Get the raw State of this Neuron.
      * @return
      */
     @Deprecated

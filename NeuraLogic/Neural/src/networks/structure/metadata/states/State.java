@@ -3,17 +3,28 @@ package networks.structure.metadata.states;
 import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.actions.StateVisiting;
+import networks.structure.metadata.inputMappings.LinkedMapping;
 
 import java.util.List;
 
 /**
- * Mainly annotation interfaces used for clarity of stateful processing. It is an interface (not abstract class) so that existing classes (e.g. Value) can be used directly as a state.
- * For other cases, special class States contains particular formations of useful states.
+ * Interfaces used for clarity of stateful processing during neural computations.
+ * These are interfaces (not abstract classes) so that existing classes can be used directly as a state,
+ * and so that compound states supporting multiple interfaces (e.g. dropout AND parents) can be created.
+ * Special class States then contains particular formations of typical useful states.
  */
 public interface State<V> {
 
+    /**
+     * Set all stateful values void.
+     */
     void invalidate();
 
+    /**
+     * Apply default functionality carried by the given StateVisitor.
+     * @param visitor
+     * @return
+     */
     default V accept(StateVisiting<V> visitor){
         return visitor.visit(this);
     }
@@ -21,33 +32,36 @@ public interface State<V> {
     interface Neural<V> extends State<V> {
 
         /**
-         * Get Computation view on this neural State of a Neuron
+         * Each Neural State must have a Computation State!
+         * Get Computation view on this neural State of a Neuron.
          * @param index
          * @return
          */
-        Computation getView(int index);
+        Computation getComputationView(int index);
 
-        Aggregation getActivation();
+        Aggregation getAggregation();
 
         /**
          * Stateful values held by a Neuron for use during neural computation, i.e. Evaluation and Backpropagation
          */
         interface Computation extends Neural<Value> {
 
-            ActivationState getActivationState();
+            AggregationState getAggregationState();
 
             Value getResult(StateVisiting<Value> visitor);
+
+            void setResult(StateVisiting<Value> visitor, Value value);
 
             void store(StateVisiting<Value> visitor, Value value);
 
             /**
-             * tunnel for composite state
+             * tunnel for the composite state
              *
              * @param index
              * @return
              */
             @Override
-            default Computation getView(int index) {
+            default Computation getComputationView(int index) {
                 return this;
             }
 
@@ -77,10 +91,11 @@ public interface State<V> {
         }
 
         /**
-         * Structural changes to neurons held as a state corresponding to each Neuron in a neural network
+         * Structural changes to neurons held as a state corresponding to each Neuron in a neural network.
+         * These are not necessarily stored by a Neuron, but rather at a separate StatesCache.
          */
-        interface Structure extends State {
-
+        interface Structure extends State<LinkedMapping> {
+            //todo
         }
 
     }
