@@ -37,5 +37,11 @@ public interface NeuronVisitor {
          * @param neuron
          */
         void visit(WeightedNeuron neuron);
+
+        /**
+         * This is to ensure that the implementing class does not forget about visiting the Weights too.
+         * @return
+         */
+        WeightVisitor getWeightVisitor();
     }
 }

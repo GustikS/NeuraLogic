@@ -25,7 +25,7 @@ public class Topologic {
 
 
     public class TDownVisitor extends WeightedNeuronVisiting<Value> implements TopDown {
-        NeuronVisitor.Weighted neuronVisitor;
+        NeuronVisitor.Weighted neuronVisitor;   //todo why not move up to IterationStrategy?
 
         public TDownVisitor(Neuron<Neuron, State.Neural> outputNeuron, NeuronVisitor.Weighted pureNeuronVisitor) {
             super(Topologic.this.stateVisitor, Topologic.this.network, outputNeuron);
@@ -72,7 +72,7 @@ public class Topologic {
         public Value bottomUp() {
             for (int i = 0, len = Topologic.this.network.allNeuronsTopologic.size(); i < len; i++) {
                 Neuron<Neuron, State.Neural> actual = Topologic.this.network.allNeuronsTopologic.get(i);
-                actual.visit(this);
+                actual.visit(this); //todo next why not calling actual.visit(neuronVisitor) right away?
                 if (actual == outputNeuron)
                     break;
             }

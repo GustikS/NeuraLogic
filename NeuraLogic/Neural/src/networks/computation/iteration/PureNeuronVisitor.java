@@ -1,8 +1,9 @@
 package networks.computation.iteration;
 
 import ida.utils.tuples.Pair;
-import networks.computation.iteration.actions.StateVisiting;
 import networks.computation.evaluation.values.Value;
+import networks.computation.iteration.actions.StateVisiting;
+import networks.computation.iteration.actions.WeightUpdater;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.WeightedNeuron;
@@ -17,6 +18,7 @@ import java.util.Iterator;
  */
 public class PureNeuronVisitor {
 
+    WeightUpdater weightUpdater;
     StateVisiting.ComputationVisitor computationVisitor;   //todo test copy this to inner class for performance?
     NeuralNetwork<State.Neural.Structure> network;
 
@@ -60,6 +62,11 @@ public class PureNeuronVisitor {
             }
             Value value = computationVisitor.visit(state);
         }
+
+        @Override
+        public WeightVisitor getWeightVisitor() {
+            return weightUpdater;
+        }
     }
 
     public class Down extends PureNeuronVisitor implements NeuronVisitor.Weighted {
@@ -81,15 +88,26 @@ public class PureNeuronVisitor {
         @Override
         public void visit(WeightedNeuron neuron) {
             State.Neural.Computation state = neuron.getComputationView(computationVisitor.stateIndex);
-            Value value = computationVisitor.visit(state);
+            Value gradient = computationVisitor.visit(state);
             Pair<Iterator<Neuron>, Iterator<Weight>> inputs = network.getInputs(neuron);//todo next offset?! - not needed for gradient I guess?
+
+            weightUpdater.visit(neuron.offset, gradient);
+
             Iterator<Neuron> inputNeurons = inputs.r;
             Iterator<Weight> inputWeights = inputs.s;
             Neuron input;
             Weight weight;
             while ((input = inputNeurons.next()) != null && (weight = inputWeights.next()) != null) {
-                input.getComputationView(computationVisitor.stateIndex).store(computationVisitor, value.times(weight.value));
+                State.Neural.Computation computationView = input.getComputationView(computationVisitor.stateIndex);
+
+                weightUpdater.visit(weight, gradient, computationView);
+                computationView.store(computationVisitor, gradient.times(weight.value));
             }
+        }
+
+        @Override
+        public WeightVisitor getWeightVisitor() {
+            return weightUpdater;
         }
     }
 }

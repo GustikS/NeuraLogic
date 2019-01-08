@@ -9,6 +9,10 @@ import networks.structure.metadata.states.State;
 import java.util.logging.Logger;
 
 /**
+ * Iteration strategy {@link IterationStrategy} based on the Visitor pattern. I.e. we are traversing the structure
+ * of {@link NeuralNetwork} AND simultaneously performing action of visiting.
+ *
+ * remarks:
  * Active "Propagator" visitor - takes care of neighbours expansion and ALSO propagation of Values at the same time.
  * In visitor pattern this can be more efficient than just returning next neuron for processing in iterator, which has to repeat the neighbour exploration.
  */
