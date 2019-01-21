@@ -1,7 +1,7 @@
 package networks.computation.iteration;
 
-import networks.computation.iteration.actions.StateVisiting;
 import networks.computation.evaluation.values.Value;
+import networks.computation.iteration.actions.WeightUpdater;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.types.TopologicNetwork;
@@ -10,26 +10,26 @@ import networks.structure.metadata.states.State;
 import java.util.logging.Logger;
 
 /**
- * A container for IterationStrategies that are based on a topologic ordering of neurons (in a TopologicNetwork).
+ * A container class for {@link IterationStrategy iteration strategies} that work with a topologic ordering of neurons (in a {@link TopologicNetwork}).
+ * That is following the @{@link NeuronVisiting visitor} or {@link NeuronIterating iterator} patterns for both going
+ * {@link BottomUp} and {@link TopDown}, which in a topologically ordered network simply corresponds to iterating left->right and vice versa.
+ *
+ * @see TopologicNetwork
  */
 public class Topologic {
     private static final Logger LOG = Logger.getLogger(Topologic.class.getName());
 
     TopologicNetwork<State.Neural.Structure> network;
-    StateVisiting<Value> stateVisitor;
 
-    public Topologic(TopologicNetwork<State.Neural.Structure> network, StateVisiting<Value> stateVisitor) {
+    public Topologic(TopologicNetwork<State.Neural.Structure> network) {
         this.network = network;
-        this.stateVisitor = stateVisitor;
     }
 
 
-    public class TDownVisitor extends WeightedNeuronVisiting<Value> implements TopDown {
-        NeuronVisitor.Weighted neuronVisitor;   //todo why not move up to IterationStrategy?
+    public class TDownVisitor extends NeuronVisiting.Weighted implements TopDown {
 
         public TDownVisitor(Neuron<Neuron, State.Neural> outputNeuron, NeuronVisitor.Weighted pureNeuronVisitor) {
-            super(Topologic.this.stateVisitor, Topologic.this.network, outputNeuron);
-            this.neuronVisitor = pureNeuronVisitor;
+            super(Topologic.this.network, outputNeuron, pureNeuronVisitor);
         }
 
         @Override
@@ -39,8 +39,8 @@ public class Topologic {
                 idx--;
             }
             while (idx > 0) {
-                Neuron<Neuron, State.Neural> actual = Topologic.this.network.allNeuronsTopologic.get(idx);
-                actual.visit(this);
+                Neuron<Neuron, State.Neural> actualNeuron = Topologic.this.network.allNeuronsTopologic.get(idx);
+                actualNeuron.visit(neuronVisitor);      //skips 1 function call as opposed to actualNeuron.visit(this);
                 idx--;
             }
         }
@@ -56,12 +56,10 @@ public class Topologic {
         }
     }
 
-    public class BUpVisitor extends WeightedNeuronVisiting<Value> implements BottomUp<Value> {
-        NeuronVisitor.Weighted neuronVisitor;
+    public class BUpVisitor extends NeuronVisiting.Weighted implements BottomUp<Value> {
 
         public BUpVisitor(Neuron<Neuron, State.Neural> outputNeuron, NeuronVisitor.Weighted pureNeuronVisitor) {
-            super(Topologic.this.stateVisitor, Topologic.this.network, outputNeuron);
-            this.neuronVisitor = pureNeuronVisitor;
+            super(Topologic.this.network, outputNeuron, pureNeuronVisitor);
         }
 
         /**
@@ -72,11 +70,11 @@ public class Topologic {
         public Value bottomUp() {
             for (int i = 0, len = Topologic.this.network.allNeuronsTopologic.size(); i < len; i++) {
                 Neuron<Neuron, State.Neural> actual = Topologic.this.network.allNeuronsTopologic.get(i);
-                actual.visit(this); //todo next why not calling actual.visit(neuronVisitor) right away?
+                actual.visit(neuronVisitor);    //skips 1 function call as opposed to actualNeuron.visit(this);
                 if (actual == outputNeuron)
                     break;
             }
-            return outputNeuron.getComputationView(stateVisitor.stateIndex).getResult(stateVisitor);
+            return outputNeuron.getComputationView(neuronVisitor.stateVisitor.stateIndex).getResult(neuronVisitor.stateVisitor);
         }
 
         @Override
@@ -90,12 +88,12 @@ public class Topologic {
         }
     }
 
-    public class TDownIterator extends NeuronIterating<Value> implements TopDown {
+    public class TDownIterator extends NeuronIterating implements TopDown<WeightUpdater> {
 
         int i = Topologic.this.network.allNeuronsTopologic.size() - 1;
 
         public TDownIterator(Neuron outputNeuron, NeuronVisitor.Weighted pureNeuronVisitor) {
-            super(Topologic.this.stateVisitor, Topologic.this.network, outputNeuron, pureNeuronVisitor);
+            super(Topologic.this.network, outputNeuron, pureNeuronVisitor);
             while (Topologic.this.network.allNeuronsTopologic.get(i) != outputNeuron){
                 i--;
             }
@@ -112,17 +110,17 @@ public class Topologic {
         }
 
         @Override
-        public void topdown() {
-            iterate();
+        public WeightUpdater topdown() {
+            return iterate();
         }
     }
 
-    public class BUpIterator extends NeuronIterating<Value> implements BottomUp<Value> {
+    public class BUpIterator extends NeuronIterating implements BottomUp<Value> {
 
         int i = 0;
 
         public BUpIterator(Neuron<Neuron, State.Neural> outputNeuron, NeuronVisitor.Weighted pureNeuronVisitor) {
-            super(Topologic.this.stateVisitor, Topologic.this.network, outputNeuron, pureNeuronVisitor);
+            super(Topologic.this.network, outputNeuron, pureNeuronVisitor);
         }
 
         @Override
@@ -138,7 +136,7 @@ public class Topologic {
         @Override
         public Value bottomUp() {
             iterate();
-            return outputNeuron.getComputationView(stateVisitor.stateIndex).getResult(stateVisitor);
+            return outputNeuron.getComputationView(neuronVisitor.stateVisitor.stateIndex).getResult(neuronVisitor.stateVisitor);
         }
     }
 }

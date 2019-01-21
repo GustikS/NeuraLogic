@@ -18,5 +18,9 @@ public interface BottomUp<V> extends DirectedIteration {
         bottomUp();
     }
 
+    /**
+     * Returns the result of bottom-up iteration, typically {@link networks.computation.evaluation.values.Value} of output
+     * @return
+     */
     V bottomUp();
 }

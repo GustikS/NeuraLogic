@@ -10,12 +10,16 @@ package networks.computation.iteration;
  * @see DirectedIteration
  * @see IterationStrategy
  */
-public interface TopDown extends DirectedIteration {
+public interface TopDown<V> extends DirectedIteration {
 
     @Override
     default void iterate(){
         topdown();
     }
 
-    void topdown();
+    /**
+     * Return the result of this top-down iteration, typically the list of updates found on the way ({@link networks.computation.iteration.actions.WeightUpdater})
+     * @return
+     */
+    V topdown();
 }

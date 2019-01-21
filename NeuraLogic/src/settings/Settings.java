@@ -165,6 +165,10 @@ public class Settings {
     public int minibatchSize = 4;
 
     /**
+     * A single-pass weight training via streaming. This can save memory, but cannot re-iterate the data (learn in epochs)
+     */
+    public boolean neuralStreaming;
+    /**
      * Restarting the whole training?
      */
     public int restartCount = 1;
@@ -172,18 +176,14 @@ public class Settings {
     public int maxCumEpochCount = 10000;
 
     /**
-     * Shuffle samples with each epoch to create different minibatches
+     * with Minibatch = Shuffle samples with each epoch to create different minibatches.
+     * with SGD = Shuffle samples with each epoch to pass the samples in different orders (=shuffle even for the SGD mode)
      */
-    public boolean minibatchShuffle = true;
-
-    /**
-     * Shuffle samples with each epoch even for the SGD mode
-     */
-    public boolean alwaysShuffle;
+    public boolean shuffleEachEpoch;
 
     public boolean islearnRateDecay = false;
 
-    public double learningRate = 0.1;
+    public double initLearningRate = 0.1;
 
     public double dropoutRate = 0.5;
 

@@ -18,7 +18,7 @@ public abstract class StateVisiting<V> {
      */
     public int stateIndex;
 
-    public StateVisiting() {
+    private StateVisiting() {
         stateIndex = -1;
     }
 

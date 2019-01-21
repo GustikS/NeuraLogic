@@ -4,6 +4,7 @@ import constructs.example.LogicSample;
 import constructs.template.Template;
 import ida.utils.tuples.Pair;
 import learning.crossvalidation.TrainTestResults;
+import networks.computation.evaluation.results.Progress;
 import networks.computation.evaluation.results.Results;
 import pipelines.Merge;
 import pipelines.Pipe;
@@ -31,7 +32,7 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
     TrainingBuilder trainingBuilder;
     TestingBuilder testingBuilder;
 
-    Merge<Results, Results, TrainTestResults> resultsMerge;
+    Merge<Progress, Results, TrainTestResults> resultsMerge;
 
     public TrainTestBuilder(Settings settings, Sources sources) {
         super(settings);
@@ -40,9 +41,9 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
         trainingBuilder = new TrainingBuilder(settings, sources);
         testingBuilder = new TestingBuilder(settings, sources);
 
-        resultsMerge = new Merge<Results, Results, TrainTestResults>("TrainTestResultsMerge") {
+        resultsMerge = new Merge<Progress, Results, TrainTestResults>("TrainTestResultsMerge") {
             @Override
-            protected TrainTestResults merge(Results train, Results test) {
+            protected TrainTestResults merge(Progress train, Results test) {
                 return new TrainTestResults(train, test);
             }
         };
@@ -64,8 +65,8 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
             }
         });
 
-        Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Results>> trainingPipeline = pipeline.register(trainingBuilder.buildPipeline());
-        PairBranch<Pair<Template, NeuralModel>, Results> pairBranch1 = pipeline.register(new PairBranch<>());
+        Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> trainingPipeline = pipeline.register(trainingBuilder.buildPipeline());
+        PairBranch<Pair<Template, NeuralModel>, Progress> pairBranch1 = pipeline.register(new PairBranch<>());
         Pipeline<Pair<Pair<Template, NeuralModel>, Stream<LogicSample>>, Results> logicTestingPipeline = pipeline.register(testingBuilder.new LogicTestingBuilder(settings).buildPipeline());
         Pipeline<Source, Stream<LogicSample>> testSamplesStreamPipeline = pipeline.register(new SamplesProcessingBuilder(settings, sources.test).buildPipeline(sources.test));
         PairMerge<Pair<Template, NeuralModel>, Stream<LogicSample>> pairMerge = pipeline.register(new PairMerge<>());
@@ -109,9 +110,9 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
             PairBranch<Stream<LogicSample>, Stream<LogicSample>> trainTestBranch = pipeline.register(new PairBranch<>());
             PairMerge<Template, Stream<LogicSample>> trainMerge = pipeline.register(new PairMerge<>());
             PairMerge<Pair<Template, NeuralModel>, Stream<LogicSample>> testMerge = pipeline.register(new PairMerge<>());
-            PairBranch<Pair<Template, NeuralModel>, Results> trainResultsBranch = pipeline.register(new PairBranch<>());
+            PairBranch<Pair<Template, NeuralModel>, Progress> trainResultsBranch = pipeline.register(new PairBranch<>());
 
-            Pipeline<Pair<Template, Stream<LogicSample>>, Pair<Pair<Template, NeuralModel>, Results>> trainingPipeline = pipeline.register(trainingBuilder.new LogicLearningBuilder(settings).buildPipeline());
+            Pipeline<Pair<Template, Stream<LogicSample>>, Pair<Pair<Template, NeuralModel>, Progress>> trainingPipeline = pipeline.register(trainingBuilder.new LogicLearningBuilder(settings).buildPipeline());
 
             Pipeline<Pair<Pair<Template, NeuralModel>, Stream<LogicSample>>, Results> testingPipeline = pipeline.register(testingBuilder.new LogicTestingBuilder(settings).buildPipeline());
 
@@ -151,11 +152,11 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
             Pipeline<Pair<Stream<LogicSample>, Stream<LogicSample>>, TrainTestResults> pipeline = new Pipeline<>("StructureTrainTestPipeline");
 
             PairBranch<Stream<LogicSample>, Stream<LogicSample>> trainTestBranch = pipeline.registerStart(new PairBranch<>());
-            Pipeline<Stream<LogicSample>, Pair<Pair<Template, NeuralModel>, Results>> trainingPipeline = pipeline.register(trainingBuilder.new StructureLearningBuilder(settings).buildPipeline());
+            Pipeline<Stream<LogicSample>, Pair<Pair<Template, NeuralModel>, Progress>> trainingPipeline = pipeline.register(trainingBuilder.new StructureLearningBuilder(settings).buildPipeline());
 
             Pipeline<Pair<Pair<Template, NeuralModel>, Stream<LogicSample>>, Results> testingPipeline = pipeline.register(testingBuilder.new LogicTestingBuilder(settings).buildPipeline());
 
-            PairBranch<Pair<Template, NeuralModel>, Results> trainResultsBranch = pipeline.register(new PairBranch<>());
+            PairBranch<Pair<Template, NeuralModel>, Progress> trainResultsBranch = pipeline.register(new PairBranch<>());
             PairMerge<Pair<Template, NeuralModel>, Stream<LogicSample>> testMerge = pipeline.register(new PairMerge<>());
 
 
@@ -189,13 +190,13 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
         public Pipeline<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>, TrainTestResults> buildPipeline() {
             Pipeline<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>, TrainTestResults> pipeline = new Pipeline<>("NeuralTrainTestPipeline");
             TrainingBuilder.NeuralLearningBuilder neuralLearningBuilder = new TrainingBuilder(settings, sources).new NeuralLearningBuilder(settings);
-            Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Results>> neuralLearning = pipeline.register(neuralLearningBuilder.buildPipeline());
+            Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Progress>> neuralLearning = pipeline.register(neuralLearningBuilder.buildPipeline());
             TestingBuilder.NeuralTestingBuilder neuralTestingBuilder = new TestingBuilder(settings, sources).new NeuralTestingBuilder(settings);
             Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Results> neuralTesting = pipeline.register(neuralTestingBuilder.buildPipeline());
 
             PairBranch<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>> modelSamplesBranch = pipeline.registerStart(new PairBranch<>());
             PairBranch<Stream<NeuralSample>, Stream<NeuralSample>> trainTestBranch = pipeline.register(new PairBranch<>());
-            PairBranch<NeuralModel, Results> modelResultsBranch = pipeline.register(new PairBranch<>());
+            PairBranch<NeuralModel, Progress> modelResultsBranch = pipeline.register(new PairBranch<>());
             PairMerge<NeuralModel, Stream<NeuralSample>> trainingMerge = pipeline.register(new PairMerge<>());
             PairMerge<NeuralModel, Stream<NeuralSample>> testingMerge = pipeline.register(new PairMerge<>());
 

@@ -16,4 +16,9 @@ public class StratifiedSplitter<T extends LearningSample> implements Splitter<T>
         return null;
     }
 
+    @Override
+    public List<List<T>> partition(List<T> samples, int foldCount) {
+        return null;
+    }
+
 }

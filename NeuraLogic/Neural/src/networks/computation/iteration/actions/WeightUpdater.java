@@ -4,11 +4,11 @@ import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.WeightVisitor;
 import networks.structure.components.weights.StatefulWeight;
 import networks.structure.components.weights.Weight;
-import networks.structure.metadata.states.State;
 
+import java.util.List;
 import java.util.logging.Logger;
 
-public class WeightUpdater extends WeightVisitor {
+public class WeightUpdater implements WeightVisitor {
     private static final Logger LOG = Logger.getLogger(WeightUpdater.class.getName());
 
     /**
@@ -17,10 +17,13 @@ public class WeightUpdater extends WeightVisitor {
      *
      * UNSYCHRONIZED storage of weight updates.
      */
-    Value[] weightUpdates;
+    public Value[] weightUpdates;
 
-    public WeightUpdater(Evaluator evaluator) {
-        super(evaluator);
+    public WeightUpdater(List<Weight> weights) {
+        weightUpdates = new Value[weights.size()];
+        for (int i = 0; i < weightUpdates.length; i++) {
+            weightUpdates[i] = weights.get(i).value.getForm();
+        }
     }
 
     @Override
@@ -28,10 +31,6 @@ public class WeightUpdater extends WeightVisitor {
         weightUpdates[weight.index].increment(value);
     }
 
-    @Override
-    public void visit(Weight weight, Value gradient, State.Neural.Computation input) {
-        weightUpdates[weight.index].increment(evaluator.visit(input));
-    }
 
     public void visit(StatefulWeight weight, Value value) {
         weight.getAccumulatedUpdate().increment(value); //todo this will probably never get called, is StatefulWeight necessary?

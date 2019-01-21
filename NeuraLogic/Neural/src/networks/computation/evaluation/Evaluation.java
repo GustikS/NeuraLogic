@@ -1,10 +1,9 @@
 package networks.computation.evaluation;
 
-import constructs.example.QueryAtom;
 import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.BottomUp;
 import networks.computation.iteration.DFSstack;
-import networks.computation.iteration.PureNeuronVisitor;
+import networks.computation.iteration.StandardNeuronVisitors;
 import networks.computation.iteration.Topologic;
 import networks.computation.iteration.actions.Evaluator;
 import networks.computation.evaluation.results.Result;
@@ -18,8 +17,6 @@ import networks.structure.components.types.TopologicNetwork;
 import networks.structure.metadata.states.State;
 import settings.Settings;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 public class Evaluation {
@@ -34,35 +31,15 @@ public class Evaluation {
     Result.Factory resultFactory;
 
     public Evaluation(Settings settings) {
+        this(settings,-1);
+    }
+
+    public Evaluation(Settings settings, int index) {
         this.settings = settings;
-        this.evaluator = getEvaluator(settings);
+        this.evaluator = Evaluator.getFrom(settings,index);
         this.resultFactory = new Result.Factory(settings);
     }
 
-    /**
-     * Get possibly different StateVisitors of Evaluator's type to manipulate Neurons' States
-     *
-     * @param settings
-     * @return
-     */
-    public Evaluator getEvaluator(Settings settings) {
-        return new Evaluator(-1);
-    }
-
-    /**
-     * Get multiple evaluators with different state access views/indices
-     *
-     * @param settings
-     * @param count
-     * @return
-     */
-    public List<Evaluator> getParallelEvaluators(Settings settings, int count) {
-        List<Evaluator> evaluators = new ArrayList<>(count);
-        for (int i = 0; i < evaluators.size(); i++) {
-            evaluators.add(i, new Evaluator(i));
-        }
-        return evaluators;
-    }
 
     /**
      * todo make the choice complete
@@ -75,8 +52,8 @@ public class Evaluation {
      */
     private BottomUp<Value> getBottomUpIterationStrategy(Settings settings, NeuralNetwork<State.Neural.Structure> network, Neuron outputNeuron, Evaluator evaluator) {
         if (network instanceof TopologicNetwork) {
-            PureNeuronVisitor.Up up = new PureNeuronVisitor().new Up(evaluator, network);
-            return new Topologic((TopologicNetwork<State.Neural.Structure>) network, evaluator).new BUpVisitor(outputNeuron, up);
+            StandardNeuronVisitors.Up up = new StandardNeuronVisitors.Up(network, evaluator);
+            return new Topologic((TopologicNetwork<State.Neural.Structure>) network).new BUpVisitor(outputNeuron, up);
         } else {
             return new DFSstack(network, evaluator).new BUpVisitor(outputNeuron);
         }

@@ -30,7 +30,7 @@ public class Result {
         this.output = output;
     }
 
-    public Value gradient() {
+    public Value errorGradient() {
         return errorFcn.differentiate(output, target);
     }
 

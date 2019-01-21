@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  *
  * During the iteration, we are visiting individual elements (e.g. {@link Neuron}) with their neighbors and performing
  * actions the logic of which is carried by various {@link NeuronVisitor NeuronVisitors}
- *     - e.g. {@link PureNeuronVisitor}
+ *     - e.g. {@link StandardNeuronVisitors}
  *
  * Each neuron-visitor operates on the local structure of the network (neuron + neighbors), and it further carries
  * a {@link StateVisiting state-visitor} which then performs actions solely on the individual neuron level by updating
@@ -41,16 +41,19 @@ import java.util.logging.Logger;
  * - it will save calling for the inputs of a neuron twice, since inputs() are needed to both update the state (propagate gradient) and expand to next neurons.
  * - in bottomup it can just return the next neuron (with a ready state), and on that it will simply propagate the state info further neurons
  */
-public abstract class IterationStrategy<V> implements DirectedIteration {
+public abstract class IterationStrategy implements DirectedIteration {
     private static final Logger LOG = Logger.getLogger(IterationStrategy.class.getName());
 
-    StateVisiting<V> stateVisitor;
     NeuralNetwork<State.Neural.Structure> network;
     Neuron<Neuron, State.Neural> outputNeuron;
+    /**
+     * Takes care of aggregating/propagating values to neighbours
+     */
+    NeuronVisitor neuronVisitor;
 
-    public IterationStrategy(StateVisiting<V> stateVisitor, NeuralNetwork<State.Neural.Structure> network, Neuron<Neuron, State.Neural> outputNeuron) {
-        this.stateVisitor = stateVisitor;
+    public IterationStrategy(NeuralNetwork<State.Neural.Structure> network, Neuron<Neuron, State.Neural> outputNeuron, NeuronVisitor pureNeuronVisitor) {
         this.network = network;
         this.outputNeuron = outputNeuron;
+        this.neuronVisitor = pureNeuronVisitor;
     }
 }

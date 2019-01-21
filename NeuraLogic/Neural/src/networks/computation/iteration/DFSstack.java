@@ -21,7 +21,7 @@ public class DFSstack {
         public class StackIterator extends IterationStrategy implements networks.computation.iteration.TopDown, NeuronIterating, NeuronVisiting {
 
             public StackIterator(StateVisiting stateVisitor, NeuralNetwork<State.Neural.Structure> network, Neuron<Neuron, State.Neural> neuron) {
-                super(network, neuron);
+                super(network, neuron, neuronVisitor);
                 stack = new ArrayDeque<>();
                 stack.push(outputNeuron);
             }
