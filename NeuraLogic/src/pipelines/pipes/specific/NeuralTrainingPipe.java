@@ -4,7 +4,7 @@ import ida.utils.tuples.Pair;
 import networks.computation.evaluation.results.Progress;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
-import networks.computation.training.trainingStrategies.TrainingStrategy;
+import networks.computation.training.strategies.TrainingStrategy;
 import pipelines.Pipe;
 import settings.Settings;
 

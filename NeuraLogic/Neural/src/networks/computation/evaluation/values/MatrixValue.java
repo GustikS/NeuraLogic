@@ -152,18 +152,4 @@ public class MatrixValue extends Value {
         return false;
     }
 
-    @Override
-    public void invalidate() {
-
-    }
-
-    @Override
-    public Computation getView(int index) {
-        return null;
-    }
-
-    @Override
-    public Aggregation getActivation() {
-        return null;
-    }
 }

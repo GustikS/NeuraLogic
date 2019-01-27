@@ -2,14 +2,12 @@ package networks.structure.metadata.states;
 
 import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.values.Value;
-import networks.computation.iteration.actions.Backproper;
-import networks.computation.iteration.actions.Evaluator;
-import networks.computation.iteration.actions.StateVisiting;
+import networks.computation.iteration.visitors.states.Backproper;
+import networks.computation.iteration.visitors.states.Evaluator;
+import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.metadata.inputMappings.LinkedMapping;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -59,6 +57,12 @@ public abstract class States implements State {
         }
     }
 
+    /**
+     * A typical, minimal, lightweight State that consists of aggregationState (before activation), output value (after activation), and gradient (before activation).
+     *
+     * Even though Evaluation and Backprop are always carried out separately, and so it seems that a single Value placeholder
+     * could be stored here, value and gradient must be held as two separate Values, since {@link networks.computation.iteration.actions.Backpropagation} needs both to calculate gradient.
+     */
     public static class ComputationStateStandard implements Neural.Computation {
 
         AggregationState aggregationState;
@@ -124,161 +128,15 @@ public abstract class States implements State {
     }
 
     /**
-     * Nothing but a Value. E.g. for Fact Neurons.
-     */
-    public static class SimpleValue implements Neural.Computation {
-
-        Value value;
-
-        public SimpleValue(Value factValue) {
-            this.value = factValue;
-        }
-
-        @Override
-        public void invalidate() {
-            //void
-        }
-
-        @Override
-        public AggregationState getAggregationState() {
-            return null;
-        }
-
-        @Override
-        public Value getResult(StateVisiting<Value> visitor) {
-            return value;
-        }
-
-        public void setResult(StateVisiting<Value> visitor, Value value) {
-            //void
-        }
-
-        public Value getState(StateVisiting<Value> visitor) {
-            return value;
-        }
-
-        @Override
-        public void store(StateVisiting<Value> visitor, Value value) {
-            //void
-        }
-
-        @Override
-        public Aggregation getAggregation() {
-            return null;
-        }
-    }
-
-
-
-
-    /**
-     * A typical, minimal, lightweight State that consists of summed inputs (before activation), output value (after activation), and gradient (before activation) todo check
-     * Even though Evaluation and Backprop are always carried out separately, and so it seems that a single Value placeholder
-     * could be stored here, value and gradient must be held as two separate Values, since Backprop needs both to calculate gradient.
-     *
-     * todo check why this does not contain AggregationState - on purpose or OBSOLETE (replaced with ComputationStateStandard)?
-     */
-    public static class InputsOutputGradientDetailed implements Neural.Computation, Neural.Computation.Detailed {
-        /**
-         * In the most general case, we need to feed the whole list of inputs into the activation function, not just the sum.
-         * E.g. for max/avg, although they could still have functions to calculate cumulatively without storing all the inputs,
-         * there could possibly be functions that cannot be calculated in a cumulative fashion, e.g. when we need to process all elements twice (e.g. normalize/softmax ?).
-         */
-        List<Value> accumulatedInputs;
-        /**
-         * this temp results might still be handy for majority of functions
-         */
-        Value summedInputs;
-        Value outputValue;
-        Value acumGradient;
-
-        @Override
-        public void invalidate() {
-            accumulatedInputs = new ArrayList<>(accumulatedInputs.size());
-            outputValue.zero();
-            acumGradient.zero();
-        }
-
-
-        @Override
-        public AggregationState getAggregationState() {
-            return null;
-        }
-
-        @Override
-        public Value getResult(StateVisiting<Value> visitor) {
-            LOG.severe("Error: Visitor calling a default method through dynamic dispatch.");
-            return null;
-        }
-
-        public void setResult(StateVisiting<Value> visitor, Value value) {
-            LOG.severe("Error: Visitor calling a default method through dynamic dispatch.");
-        }
-
-        public Value getState(StateVisiting<Value> visitor) {
-            LOG.severe("Error: Visitor calling a default method through dynamic dispatch.");
-            return null;
-        }
-
-        @Override
-        public void store(StateVisiting<Value> visitor, Value value) {
-            LOG.severe("Error: Visitor calling a default method through dynamic dispatch.");
-        }
-
-        public Value getOutput(Evaluator visitor) {
-            return outputValue;
-        }
-
-        public void setOutput(Evaluator visitor, Value value) {
-            this.outputValue = value;
-        }
-
-        public Value getOutput(Backproper visitor) {
-            return acumGradient;
-        }
-
-        public void setOutput(Backproper visitor, Value value) {
-            this.acumGradient = value;
-        }
-
-        @Override
-        public List<Value> getMessages() {
-            return accumulatedInputs;
-        }
-
-        public Value getCumulation(Evaluator visitor) {
-            return summedInputs;
-        }
-
-        public Value getCumulation(Backproper visitor) {
-            return acumGradient;
-        }
-
-        @Override
-        public void setMessages(List<Value> values) {
-            accumulatedInputs = values;
-        }
-
-        public void store(Evaluator visitor, Value value) {
-            accumulatedInputs.add(value);
-        }
-
-        public void store(Backproper visitor, Value value) {
-            acumGradient.increment(value);
-        }
-
-        @Override
-        public Aggregation getAggregation() {
-            return null;
-        }
-    }
-
-    /**
      * Simple storage of parent count for efficient backprop computation with DFS (may vary due to neuron sharing in different contexts).
      */
-    public static class ParentCounter extends InputsOutputGradientDetailed implements Neural.Computation.HasParents {
+    public static class ParentCounter extends ComputationStateStandard implements Neural.Computation.HasParents {
         public final int count;
         public int checked = 0;
+        /**
+         * A simple flag to signify whether the result of this state can be reused already (= is finished, instead of checking whether its zero as in the previous version).
+         */
+        boolean calculated;
 
         public ParentCounter(int count) {
             this.count = count;
@@ -288,6 +146,27 @@ public abstract class States implements State {
         public void invalidate() {
             super.invalidate();
             checked = 0;
+            calculated = false;
+        }
+
+        @Override
+        public void store(Backproper visitor, Value value) {
+            super.store(visitor, value);
+            checked++;
+        }
+
+        @Override
+        public boolean ready4expansion(StateVisiting visitor) {
+            LOG.warning("Default double dispatch call.");
+            return true;
+        }
+
+        public boolean ready4expansion(Backproper visitor) {
+            return checked == count;
+        }
+
+        public boolean ready4expansion(Evaluator visitor) {
+            return calculated;
         }
 
         @Override
@@ -304,9 +183,14 @@ public abstract class States implements State {
         public void setChecked(StateVisiting visitor, int checked) {
             this.checked = checked;
         }
+
+        public Value getResult(Evaluator visitor) {
+            calculated = true;
+            return super.getResult(visitor);
+        }
     }
 
-    public static final class DropoutStore extends InputsOutputGradientDetailed implements Neural.Computation.HasDropout {
+    public static final class DropoutStore extends ComputationStateStandard implements Neural.Computation.HasDropout {
 
         public final double dropoutRate;
         public boolean isDropped;
@@ -358,6 +242,48 @@ public abstract class States implements State {
         }
     }
 
+
+    /**
+     * Nothing but a Value. E.g. for Fact Neurons.
+     */
+    public static class SimpleValue implements Neural.Computation {
+
+        Value value;
+
+        public SimpleValue(Value factValue) {
+            this.value = factValue;
+        }
+
+        @Override
+        public void invalidate() {
+            //void
+        }
+
+        @Override
+        public AggregationState getAggregationState() {
+            return null;
+        }
+
+        @Override
+        public Value getResult(StateVisiting<Value> visitor) {
+            return value;
+        }
+
+        @Override
+        public void setResult(StateVisiting<Value> visitor, Value value) {
+            //void
+        }
+
+        @Override
+        public void store(StateVisiting<Value> visitor, Value value) {
+            //void
+        }
+
+        @Override
+        public Aggregation getAggregation() {
+            return null;
+        }
+    }
     //-------------------
 
     /**

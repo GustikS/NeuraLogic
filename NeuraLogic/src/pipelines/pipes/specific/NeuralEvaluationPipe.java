@@ -2,7 +2,7 @@ package pipelines.pipes.specific;
 
 import ida.utils.tuples.Pair;
 import networks.computation.evaluation.results.Result;
-import networks.computation.evaluation.Evaluation;
+import networks.computation.iteration.actions.Evaluation;
 import networks.computation.evaluation.results.Results;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
@@ -35,9 +35,9 @@ public class NeuralEvaluationPipe extends Pipe<Pair<NeuralModel, Stream<NeuralSa
     @Override
     public Results apply(Pair<NeuralModel, Stream<NeuralSample>> neuralModelStreamPair) {
         Evaluation evaluator = new Evaluation(settings);
-        Stream<Result> resultStream = neuralModelStreamPair.s.map(s -> evaluator.evaluate(neuralModelStreamPair.r, s));
+        Stream<Result> resultStream = neuralModelStreamPair.s.map(s -> evaluator.evaluate(s));
         List<Result> outputList = resultStream.collect(Collectors.toList());
-        Results results = Results.getFrom(settings, outputList);
-        return results;
+        Results.Factory factory = Results.Factory.getFrom(settings);
+        return factory.createFrom(outputList);
     }
 }

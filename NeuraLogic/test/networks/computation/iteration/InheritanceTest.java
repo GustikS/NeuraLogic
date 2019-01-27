@@ -1,6 +1,6 @@
 package networks.computation.iteration;
 
-import networks.computation.iteration.actions.StateVisiting;
+import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.WeightedNeuron;

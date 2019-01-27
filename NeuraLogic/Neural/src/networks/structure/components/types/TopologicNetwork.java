@@ -41,7 +41,11 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
         return null;
     }
 
-
+    /**
+     * todo replace with a more efficient version without hashset (using existing DFS iterators)
+     * @param allNeurons
+     * @return
+     */
     public List<Neuron> topologicSort(List<Neuron> allNeurons) {
         Set<Neuron> visited = new HashSet<>();
         Stack<Neuron> stack = new Stack<>();

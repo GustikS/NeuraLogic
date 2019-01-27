@@ -1,6 +1,5 @@
 package networks.computation.evaluation.values;
 
-import java.util.Iterator;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -108,8 +107,9 @@ public abstract class Value implements Iterable<Double> {
         }
 
         @Override
-        public void zero() {
+        public Value zero() {
             LOG.warning("Constant One cannot be zeroed!");
+            return null;
         }
 
         @Override

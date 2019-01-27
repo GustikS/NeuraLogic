@@ -2,7 +2,7 @@ package networks.structure.components.neurons;
 
 import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.iteration.NeuronVisiting;
-import networks.computation.iteration.NeuronVisitor;
+import networks.computation.iteration.visitors.neurons.NeuronVisitor;
 
 import java.util.ArrayList;
 

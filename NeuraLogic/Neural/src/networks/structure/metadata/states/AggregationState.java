@@ -5,6 +5,8 @@ import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.values.ScalarValue;
 import networks.computation.evaluation.values.Value;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -165,7 +167,6 @@ public abstract class AggregationState implements Aggregation.State {
          */
         public static class MaxK extends Pooling {
 
-
             public MaxK(int k) {
                 super(null);
                 //todo
@@ -195,6 +196,49 @@ public abstract class AggregationState implements Aggregation.State {
             public Value evaluate() {
                 return null;
             }
+        }
+    }
+
+    /**
+     * In the most general case, we need to feed the whole list of inputs into the activation function, not just the sum.
+     * There could possibly be functions that cannot be calculated in a cumulative fashion, e.g. when we need to process all elements twice (e.g. normalize/softmax ?).
+     */
+    public static class CumulationState extends AggregationState {
+        Aggregation aggregation;
+        List<Value> accumulatedInputs;
+
+        public CumulationState(){
+            accumulatedInputs = new ArrayList<>();
+        }
+
+        @Override
+        public Aggregation getAggregation() {
+            return aggregation;
+        }
+
+        @Override
+        public void cumulate(Value value) {
+            accumulatedInputs.add(value);
+        }
+
+        @Override
+        public void invalidate() {
+            accumulatedInputs.clear();
+        }
+
+        @Override
+        public int[] getInputMask() {
+            return new int[0];
+        }
+
+        @Override
+        public Value gradient() {
+            return aggregation.differentiate(accumulatedInputs);
+        }
+
+        @Override
+        public Value evaluate() {
+            return aggregation.evaluate(accumulatedInputs);
         }
     }
 }

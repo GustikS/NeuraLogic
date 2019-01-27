@@ -1,6 +1,13 @@
 package networks.computation.iteration;
 
-import networks.computation.iteration.actions.StateVisiting;
+import networks.computation.iteration.actions.Backpropagation;
+import networks.computation.iteration.actions.Evaluation;
+import networks.computation.iteration.modes.Topologic;
+import networks.computation.iteration.visitors.states.StateVisiting;
+import networks.computation.iteration.visitors.neurons.NeuronVisitor;
+import networks.computation.iteration.visitors.neurons.StandardNeuronVisitors;
+import networks.computation.iteration.visitors.states.Backproper;
+import networks.computation.iteration.visitors.states.Evaluator;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.metadata.states.State;
@@ -13,14 +20,14 @@ import java.util.logging.Logger;
  * performed on neurons of a given network {@link #network} starting/ending at {@link #outputNeuron}.
  *
  * Directions of iteration are contracted by corresponding interfaces (subclassing {@link DirectedIteration}):
- * - BottomUp {@link BottomUp} (may also "start" from query neuron, but returns neurons to perform the action when going up (postorder), e.g. {@link networks.computation.evaluation.Evaluation})
- * - TDown {@link TopDown} (starting from queryNeuron and going down, the natural direction when storing references to inputs, e.g. {@link networks.computation.training.Backpropagation})
+ * - BottomUp {@link BottomUp} (may also "start" from query neuron, but returns neurons to perform the action when going up (postorder), e.g. {@link Evaluation})
+ * - TDown {@link TopDown} (starting from queryNeuron and going down, the natural direction when storing references to inputs, e.g. {@link Backpropagation})
  *
  * Iteration strategy can generally follow either Iterator or Visitor design patterns:
  * - some {@link NeuronIterating iterator} with actions carried by some {@link NeuronVisitor}
- *     - e.g. {@link networks.computation.iteration.Topologic.BUpIterator}
+ *     - e.g. {@link Topologic.BUpIterator}
  * - some {@link NeuronVisiting visitor} with actions carried by some {@link NeuronVisitor}
- *     - e.g. {@link networks.computation.iteration.Topologic.TDownVisitor}
+ *     - e.g. {@link Topologic.TDownVisitor}
  *
  * During the iteration, we are visiting individual elements (e.g. {@link Neuron}) with their neighbors and performing
  * actions the logic of which is carried by various {@link NeuronVisitor NeuronVisitors}
@@ -30,8 +37,8 @@ import java.util.logging.Logger;
  * a {@link StateVisiting state-visitor} which then performs actions solely on the individual neuron level by updating
  * its internal {@link State state}, which may carry information such as value, gradient, dropout, and other intermediate results.
  * Exammple state visitors are:
- * - {@link networks.computation.iteration.actions.Evaluator} - updates values of corresponding states
- * - {@link networks.computation.iteration.actions.Backproper} - updates gradients of corresponding states
+ * - {@link Evaluator} - updates values of corresponding states
+ * - {@link Backproper} - updates gradients of corresponding states
  *
  * In the case of neural computation (e.g. eval or backprop), each neuron's {@link networks.structure.metadata.states.State.Neural.Computation computation-state}
  * further caries {@link networks.structure.metadata.states.AggregationState aggregation-state} specifically designed for
@@ -44,16 +51,11 @@ import java.util.logging.Logger;
 public abstract class IterationStrategy implements DirectedIteration {
     private static final Logger LOG = Logger.getLogger(IterationStrategy.class.getName());
 
-    NeuralNetwork<State.Neural.Structure> network;
-    Neuron<Neuron, State.Neural> outputNeuron;
-    /**
-     * Takes care of aggregating/propagating values to neighbours
-     */
-    NeuronVisitor neuronVisitor;
+    public NeuralNetwork<State.Neural.Structure> network;
+    public Neuron<Neuron, State.Neural> outputNeuron;
 
-    public IterationStrategy(NeuralNetwork<State.Neural.Structure> network, Neuron<Neuron, State.Neural> outputNeuron, NeuronVisitor pureNeuronVisitor) {
+    public IterationStrategy(NeuralNetwork<State.Neural.Structure> network, Neuron<Neuron, State.Neural> outputNeuron) {
         this.network = network;
         this.outputNeuron = outputNeuron;
-        this.neuronVisitor = pureNeuronVisitor;
     }
 }

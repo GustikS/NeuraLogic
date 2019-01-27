@@ -41,7 +41,7 @@ public class QueriesBuilder extends SamplesBuilder<PlainQueriesParseTree, Pair<V
 
     /**
      * Stream of samples belonging to a single example (subset of the whole sample set)
-     * //TODO measure performance of this (and possibly replace with 2 methods, one without creating stream when not necessary)
+     * //TODO test measure performance of this (and possibly replace with 2 methods, one without creating stream when not necessary)
      *
      * @param pair
      * @return

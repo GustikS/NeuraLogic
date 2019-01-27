@@ -1,5 +1,7 @@
 package networks.computation.iteration;
 
+import networks.computation.iteration.visitors.weights.WeightUpdater;
+
 /**
  * Annotation interface to signify the top-down direction of ({@link DirectedIteration})
  *
@@ -10,7 +12,7 @@ package networks.computation.iteration;
  * @see DirectedIteration
  * @see IterationStrategy
  */
-public interface TopDown<V> extends DirectedIteration {
+public interface TopDown extends DirectedIteration {
 
     @Override
     default void iterate(){
@@ -18,8 +20,8 @@ public interface TopDown<V> extends DirectedIteration {
     }
 
     /**
-     * Return the result of this top-down iteration, typically the list of updates found on the way ({@link networks.computation.iteration.actions.WeightUpdater})
+     * Return the result of this top-down iteration, typically the list of updates found on the way ({@link WeightUpdater})
      * @return
      */
-    V topdown();
+    void topdown();
 }

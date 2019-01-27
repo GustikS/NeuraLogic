@@ -1,7 +1,7 @@
 package networks.structure.components.neurons;
 
 import learning.Query;
-import networks.computation.evaluation.Evaluation;
+import networks.computation.iteration.actions.Evaluation;
 import networks.computation.evaluation.values.Value;
 import networks.computation.training.NeuralModel;
 import networks.structure.components.NeuralNetwork;

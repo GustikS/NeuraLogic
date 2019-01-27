@@ -2,7 +2,7 @@ package networks.structure.components;
 
 import ida.utils.tuples.Pair;
 import learning.Example;
-import networks.computation.iteration.DFSstack;
+import networks.computation.iteration.modes.DFSstack;
 import networks.computation.iteration.NeuronIterating;
 import networks.computation.iteration.NeuronVisiting;
 import networks.structure.metadata.states.State;

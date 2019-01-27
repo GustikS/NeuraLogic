@@ -123,6 +123,17 @@ public class Settings {
      * If there are embedding constructs in the Template, expand them (copy-multiple neurons) after Network creation
      */
     public boolean expandEmbeddings;
+    /**
+     * What particular {@link networks.structure.metadata.states.State.Neural.Computation} will the neurons have?
+     */
+    public NeuralState neuralState;
+
+    public enum NeuralState {
+        STANDARD,
+        PARENTS,
+        DROPOUT,
+        PAR_DROPOUT
+    }
 
     //-----------------Evaluation & Training
 
@@ -165,7 +176,12 @@ public class Settings {
     public int minibatchSize = 4;
 
     /**
-     * A single-pass weight training via streaming. This can save memory, but cannot re-iterate the data (learn in epochs)
+     * EXPERIMENTAL parallel training with asynchronous updates - fastest mode, but the gradients can be very wrongly overwritten (+dynamic size minibatches)
+     */
+    public boolean asyncParallelTraining;
+
+    /**
+     * A single-pass weight training via streaming. This can save memory, but cannot re-iterate the data (i.e. learn in epochs)
      */
     public boolean neuralStreaming;
     /**
@@ -173,6 +189,9 @@ public class Settings {
      */
     public int restartCount = 1;
 
+    /**
+     * Over all the restarts, how many epoch can be done at maximum.
+     */
     public int maxCumEpochCount = 10000;
 
     /**
@@ -190,7 +209,9 @@ public class Settings {
     public DropoutMode dropoutMode = DropoutMode.LIFTED_DROPCONNECT;
 
     public enum DropoutMode {
-        DROPOUT, DROPCONNECT, LIFTED_DROPCONNECT
+        DROPOUT, // = drop neurons
+        DROPCONNECT, // = drop edges
+        LIFTED_DROPCONNECT // = drop weights (= drop many different edges)
     }
 
     public ErrorFcn errorFunction = ErrorFcn.SQUARED_DIFF;

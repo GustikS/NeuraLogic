@@ -1,6 +1,5 @@
 package networks.computation.evaluation.values;
 
-import networks.computation.evaluation.functions.Aggregation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
@@ -190,18 +189,4 @@ public class VectorValue extends Value {
         return false;
     }
 
-    @Override
-    public void invalidate() {
-
-    }
-
-    @Override
-    public Computation getView(int index) {
-        return null;
-    }
-
-    @Override
-    public Aggregation getActivation() {
-        return null;
-    }
 }

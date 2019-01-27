@@ -2,7 +2,7 @@ package networks.structure.metadata.states;
 
 import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.values.Value;
-import networks.computation.iteration.actions.StateVisiting;
+import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.structure.metadata.inputMappings.LinkedMapping;
 
 import java.util.List;
@@ -22,10 +22,11 @@ public interface State<V> {
 
     /**
      * Apply default functionality carried by the given StateVisitor.
+     *
      * @param visitor
      * @return
      */
-    default V accept(StateVisiting<V> visitor){
+    default V accept(StateVisiting<V> visitor) {
         return visitor.visit(this);
     }
 
@@ -34,6 +35,7 @@ public interface State<V> {
         /**
          * Each Neural State must have a Computation State!
          * Get Computation view on this neural State of a Neuron.
+         *
          * @param index
          * @return
          */
@@ -63,6 +65,19 @@ public interface State<V> {
             @Override
             default Computation getComputationView(int index) {
                 return this;
+            }
+
+            /**
+             * Check using a State of the Neuron, whether this neuron is ready to propagate its result.
+             * This only needs to be checked in {@link networks.computation.iteration.modes.DFSstack} strategy,
+             * whereas in {@link networks.computation.iteration.modes.Topologic} the neurons are already ordered to be
+             * visited when ready 4 expansion.
+             *
+             * @param visitor
+             * @return
+             */
+            default boolean ready4expansion(StateVisiting visitor) {
+                return true;
             }
 
             interface HasParents {
