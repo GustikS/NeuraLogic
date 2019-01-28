@@ -25,13 +25,13 @@ import java.util.logging.Logger;
 public class DFSrecursion {
     private static final Logger LOG = Logger.getLogger(DFSrecursion.class.getName());
 
-    public class TDonwVisitor extends NeuronVisiting.Weighted implements TopDown {
+    public class TDownVisitor extends NeuronVisiting.Weighted implements TopDown {
 
         StateVisiting.Computation stateVisitor;
         WeightUpdater weightUpdater;
         StateVisiting.Computation bottomUp;
 
-        public TDonwVisitor(NeuralNetwork<State.Neural.Structure> network, Neuron<Neuron, State.Neural> neuron, StateVisiting.Computation topDown, StateVisiting.Computation bottomUp, WeightUpdater weightUpdater) {
+        public TDownVisitor(NeuralNetwork<State.Neural.Structure> network, Neuron<Neuron, State.Neural> neuron, StateVisiting.Computation topDown, StateVisiting.Computation bottomUp, WeightUpdater weightUpdater) {
             super(network, neuron);
             this.bottomUp = bottomUp;
             this.weightUpdater = weightUpdater;

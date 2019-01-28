@@ -1,10 +1,11 @@
 package networks.computation.iteration.actions;
 
-import networks.computation.iteration.modes.DFSstack;
 import networks.computation.iteration.IterationStrategy;
+import networks.computation.iteration.modes.BFS;
+import networks.computation.iteration.modes.DFSstack;
 import networks.computation.iteration.modes.Topologic;
-import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.computation.iteration.visitors.neurons.StandardNeuronVisitors;
+import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.components.types.TopologicNetwork;
@@ -20,17 +21,18 @@ public class IndependentNeuronProcessing {
     StateVisiting.Computation visitor;
 
     public IndependentNeuronProcessing(Settings settings, StateVisiting.Computation visitor) {
-         this.settings = settings;
-         this.visitor = visitor;
+        this.settings = settings;
+        this.visitor = visitor;
     }
-
 
     private IterationStrategy getIterationStrategy(NeuralNetwork network, Neuron outputNeuron) {
         StandardNeuronVisitors.Independent inval = new StandardNeuronVisitors.Independent(network, visitor);
         if (network instanceof TopologicNetwork) {
             return new Topologic((TopologicNetwork<State.Neural.Structure>) network).new BUpIterator(outputNeuron, inval);
-        } else {
+        } else if (settings.iterationMode == Settings.IterationMode.DFS_STACK) {
             return new DFSstack().new TDownIterator(network, outputNeuron, inval);
+        } else {
+            return new BFS().new TDownIterator(network, outputNeuron, inval);
         }
     }
 

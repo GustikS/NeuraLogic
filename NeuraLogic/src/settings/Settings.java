@@ -230,6 +230,12 @@ public class Settings {
         AVG, MAX, MIN
     }
 
+    public IterationMode iterationMode = IterationMode.Topologic;
+
+    public enum IterationMode {
+        Topologic, DFS_RECURSIVE, DFS_STACK, BFS
+    }
+
     //-----------------Structure Learning
     public boolean structureLearning;
 

@@ -1,13 +1,13 @@
 package networks.computation.iteration.actions;
 
+import networks.computation.evaluation.results.Result;
 import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.BottomUp;
+import networks.computation.iteration.modes.DFSrecursion;
 import networks.computation.iteration.modes.DFSstack;
-import networks.computation.iteration.visitors.neurons.StandardNeuronVisitors;
 import networks.computation.iteration.modes.Topologic;
+import networks.computation.iteration.visitors.neurons.StandardNeuronVisitors;
 import networks.computation.iteration.visitors.states.Evaluator;
-import networks.computation.evaluation.results.Result;
-import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neuron;
@@ -31,12 +31,12 @@ public class Evaluation {
     Result.Factory resultFactory;
 
     public Evaluation(Settings settings) {
-        this(settings,-1);
+        this(settings, -1);
     }
 
     public Evaluation(Settings settings, int index) {
         this.settings = settings;
-        this.evaluator = Evaluator.getFrom(settings,index);
+        this.evaluator = Evaluator.getFrom(settings, index);
         this.resultFactory = new Result.Factory(settings);
     }
 
@@ -53,13 +53,11 @@ public class Evaluation {
         StandardNeuronVisitors.Up up = new StandardNeuronVisitors.Up(network, evaluator);
         if (network instanceof TopologicNetwork) {
             return new Topologic((TopologicNetwork<State.Neural.Structure>) network).new BUpVisitor(outputNeuron, up);
+        } else if (settings.iterationMode == Settings.IterationMode.DFS_RECURSIVE) {
+            return new DFSrecursion().new BUpVisitor(network, outputNeuron, up);
         } else {
             return new DFSstack().new BUpIterator(network, outputNeuron, up);
-        }
-    }
-
-    public Result evaluate(NeuralModel model, NeuralSample sample) {
-        return evaluate(sample);    //todo smth here?
+        } // no BFS for bottomUp
     }
 
     public Result evaluate(NeuralSample sample) {

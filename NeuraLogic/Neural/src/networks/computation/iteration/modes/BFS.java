@@ -27,7 +27,6 @@ import java.util.logging.Logger;
  * - Actually, that's Kahn’s algorithm (using BFS for topologic sort), for which we need to track and iteratively decrease
  *  the in-degrees of nodes, which makes it less efficient than DFS (although asymptotically it's the same)
  *
- * todo next - how to use with invalidator and dropouter
  */
 
 public class BFS {
@@ -69,12 +68,12 @@ public class BFS {
         }
     }
 
-    public class TDonwVisitor extends NeuronVisiting.Weighted implements TopDown {
+    public class TDownVisitor extends NeuronVisiting.Weighted implements TopDown {
         StateVisiting.Computation stateVisitor;
         WeightUpdater weightUpdater;
         StateVisiting.Computation bottomUp;
 
-        public TDonwVisitor(NeuralNetwork<State.Neural.Structure> network, Neuron<Neuron, State.Neural> neuron, StateVisiting.Computation topDown, StateVisiting.Computation bottomUp, WeightUpdater weightUpdater) {
+        public TDownVisitor(NeuralNetwork<State.Neural.Structure> network, Neuron<Neuron, State.Neural> neuron, StateVisiting.Computation topDown, StateVisiting.Computation bottomUp, WeightUpdater weightUpdater) {
             super(network, neuron);
             queue = new ArrayDeque<>(network.getSize());
             queue.add(outputNeuron);

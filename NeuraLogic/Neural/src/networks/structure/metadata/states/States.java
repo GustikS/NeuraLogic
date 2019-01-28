@@ -2,11 +2,10 @@ package networks.structure.metadata.states;
 
 import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.values.Value;
-import networks.computation.iteration.visitors.states.Backproper;
-import networks.computation.iteration.visitors.states.Evaluator;
-import networks.computation.iteration.visitors.states.StateVisiting;
+import networks.computation.iteration.visitors.states.*;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.metadata.inputMappings.LinkedMapping;
+import settings.Settings;
 
 import java.util.logging.Logger;
 
@@ -59,7 +58,8 @@ public abstract class States implements State {
 
     /**
      * A typical, minimal, lightweight State that consists of aggregationState (before activation), output value (after activation), and gradient (before activation).
-     *
+     * Typical use is for Topologic iteration, where no extra information is needed.
+     * <p>
      * Even though Evaluation and Backprop are always carried out separately, and so it seems that a single Value placeholder
      * could be stored here, value and gradient must be held as two separate Values, since {@link networks.computation.iteration.actions.Backpropagation} needs both to calculate gradient.
      */
@@ -169,6 +169,10 @@ public abstract class States implements State {
             return calculated;
         }
 
+        public boolean ready4expansion(Invalidator visitor) {
+            return calculated;
+        }
+
         @Override
         public int getParents(StateVisiting visitor) {
             return count;
@@ -192,10 +196,13 @@ public abstract class States implements State {
 
     public static final class DropoutStore extends ComputationStateStandard implements Neural.Computation.HasDropout {
 
-        public final double dropoutRate;
+        public double dropoutRate;
         public boolean isDropped;
+        private boolean dropoutProcessed;
+        private Settings settings;
 
-        public DropoutStore(double dropoutRate) {
+        public DropoutStore(Settings settings, double dropoutRate) {
+            this.settings = settings;
             this.dropoutRate = dropoutRate;
         }
 
@@ -203,6 +210,11 @@ public abstract class States implements State {
         public void invalidate() {
             super.invalidate();
             isDropped = false;
+            dropoutProcessed = false;
+        }
+
+        public boolean ready4expansion(Dropouter visitor) {
+            return !dropoutProcessed;
         }
 
         @Override
@@ -211,34 +223,31 @@ public abstract class States implements State {
         }
 
         @Override
-        public void setDropout(StateVisiting visitor, boolean isDropped) {
-            this.isDropped = isDropped;
-        }
-    }
-
-    public static final class ParentsDropoutStore extends ParentCounter implements Neural.Computation.HasDropout {
-        public final double dropoutRate;
-        public boolean isDropped;
-
-        public ParentsDropoutStore(int count, double dropoutRate) {
-            super(count);
-            this.dropoutRate = dropoutRate;
+        public void setDropout(StateVisiting visitor) {
+            if (settings.random.nextDouble() < settings.dropoutRate)
+                isDropped = true;
+            else
+                isDropped = false;
+            dropoutProcessed = true;
         }
 
-        @Override
-        public void invalidate() {
-            super.invalidate();
-            isDropped = false;
-        }
+        public final class ParentsDropoutStore extends ParentCounter implements Neural.Computation.HasDropout {
 
-        @Override
-        public double getDropout(StateVisiting visitor) {
-            return dropoutRate;
-        }
+            public ParentsDropoutStore(Settings settings, int count, double dropoutRate) {
+                super(count);
+                DropoutStore.this.settings = settings;
+                DropoutStore.this.dropoutRate = dropoutRate;
+            }
 
-        @Override
-        public void setDropout(StateVisiting visitor, boolean isDropped) {
-            this.isDropped = isDropped;
+            @Override
+            public double getDropout(StateVisiting visitor) {
+                return DropoutStore.this.getDropout(visitor);
+            }
+
+            @Override
+            public void setDropout(StateVisiting visitor) {
+                DropoutStore.this.setDropout(visitor);
+            }
         }
     }
 

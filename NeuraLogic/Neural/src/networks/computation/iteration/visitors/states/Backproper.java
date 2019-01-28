@@ -53,7 +53,7 @@ public class Backproper extends StateVisiting.Computation {
 
         Value currentLevelDerivative = acumGradient.times(inputDerivative);
         //there is no setting (remembering) of the calculated gradient (as opposed to output, which is reused), it is just returned
-        return currentLevelDerivative;//todo next - where should we invalidate?
+        return currentLevelDerivative; //todo test invalidation here instead of using separate iteration with networks.computation.iteration.visitors.states.Invalidator ?
     }
 
 }

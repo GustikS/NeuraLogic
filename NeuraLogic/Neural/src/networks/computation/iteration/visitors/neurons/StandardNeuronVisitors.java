@@ -56,7 +56,7 @@ public class StandardNeuronVisitors {
             Neuron input;
             Weight weight;
 
-            state.invalidate(); //todo test invalidation here instead of using separate iteration with networks.computation.iteration.visitors.states.Invalidator , same for dropout?
+            //state.invalidate(); //todo test invalidation here instead of using separate iteration with networks.computation.iteration.visitors.states.Invalidator ?
             state.store(stateVisitor, neuron.offset.value);
             while ((input = inputNeurons.next()) != null && (weight = inputWeights.next()) != null) { //todo test version with fori
                 state.store(stateVisitor, input.getComputationView(stateVisitor.stateIndex).getResult(stateVisitor).times(weight.value));

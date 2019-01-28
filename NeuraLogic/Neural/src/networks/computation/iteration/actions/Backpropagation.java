@@ -3,7 +3,9 @@ package networks.computation.iteration.actions;
 import networks.computation.evaluation.results.Result;
 import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.TopDown;
+import networks.computation.iteration.modes.BFS;
 import networks.computation.iteration.modes.DFSrecursion;
+import networks.computation.iteration.modes.DFSstack;
 import networks.computation.iteration.modes.Topologic;
 import networks.computation.iteration.visitors.neurons.StandardNeuronVisitors;
 import networks.computation.iteration.visitors.states.Backproper;
@@ -58,13 +60,15 @@ public class Backpropagation {
     public TopDown getTopDownPropagator(NeuralNetwork<State.Neural.Structure> network, Neuron outputNeuron) {
         if (network instanceof TopologicNetwork) {
             StandardNeuronVisitors.Down down = new StandardNeuronVisitors.Down(network, backproper, evaluator, weightUpdater);
-            new Topologic((TopologicNetwork<State.Neural.Structure>) network).new TDownVisitor(outputNeuron, down);
+            return new Topologic((TopologicNetwork<State.Neural.Structure>) network).new TDownVisitor(outputNeuron, down);
+        } else if (settings.iterationMode == Settings.IterationMode.DFS_RECURSIVE) {
+            return new DFSrecursion().new TDownVisitor(network, outputNeuron, backproper, evaluator, weightUpdater);
+        } else if (settings.iterationMode == Settings.IterationMode.DFS_STACK) {
+            return new DFSstack().new TDownVisitor(network, outputNeuron, backproper, evaluator, weightUpdater);
         } else {
-            new DFSrecursion().new TDonwVisitor(network, outputNeuron, backproper, evaluator, weightUpdater);
+            return new BFS().new TDownVisitor(network, outputNeuron, backproper, evaluator, weightUpdater);
         }
-        return null;
     }
-
 
     public WeightUpdater backpropagate(NeuralSample neuralSample, Result evaluatedResult) {
         NeuralNetwork<State.Neural.Structure> neuralNetwork = neuralSample.query.evidence;

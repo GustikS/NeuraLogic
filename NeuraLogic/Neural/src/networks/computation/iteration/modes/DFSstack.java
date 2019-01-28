@@ -42,7 +42,7 @@ public class DFSstack {
         public Neuron<Neuron, State.Neural> next() {
             while (!stack.isEmpty()) {
                 Neuron<Neuron, State.Neural> pop = stack.pop();
-                if (pop.getComputationView(neuronVisitor.stateVisitor.stateIndex).ready4expansion(neuronVisitor.stateVisitor)) {  //we must check the parent here - it would not put the state on Stack when it should with the last call if checking the children forward instead (this is correct)
+                if (pop.getComputationView(neuronVisitor.stateVisitor.stateIndex).ready4expansion(neuronVisitor.stateVisitor)) {  //we must check the parent here (i.e. this is correct) - it would not put the state on Stack when it should with the last call if checking the children forward instead
                     Iterator<Neuron> inputs = network.getInputs(pop);
                     for (Neuron next; (next = inputs.next()) != null; ) {
                         stack.add(next);
@@ -64,12 +64,12 @@ public class DFSstack {
         }
     }
 
-    public class TDonwVisitor extends NeuronVisiting.Weighted implements TopDown {
+    public class TDownVisitor extends NeuronVisiting.Weighted implements TopDown {
         StateVisiting.Computation stateVisitor;
         WeightUpdater weightUpdater;
         StateVisiting.Computation bottomUp;
 
-        public TDonwVisitor(NeuralNetwork<State.Neural.Structure> network, Neuron<Neuron, State.Neural> neuron, StateVisiting.Computation topDown, StateVisiting.Computation bottomUp, WeightUpdater weightUpdater) {
+        public TDownVisitor(NeuralNetwork<State.Neural.Structure> network, Neuron<Neuron, State.Neural> neuron, StateVisiting.Computation topDown, StateVisiting.Computation bottomUp, WeightUpdater weightUpdater) {
             super(network, neuron);
             stack = new ArrayDeque<>();
             stack.push(outputNeuron);

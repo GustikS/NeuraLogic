@@ -28,8 +28,7 @@ public class Dropouter extends StateVisiting.Computation {
     }
 
     public Value visit(State.Neural.Computation.HasDropout state) {
-        if (settings.random.nextDouble() < settings.dropoutRate)
-            state.setDropout(this, true);
+        state.setDropout(this);
         return null;
     }
 }

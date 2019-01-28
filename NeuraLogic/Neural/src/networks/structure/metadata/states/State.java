@@ -91,8 +91,8 @@ public interface State<V> {
 
             interface HasDropout {
                 double getDropout(StateVisiting visitor);
-
-                void setDropout(StateVisiting visitor, boolean isDropped);
+                
+                void setDropout(StateVisiting visitor);
             }
 
             interface Detailed {
