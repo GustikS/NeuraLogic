@@ -45,15 +45,14 @@ public class Backproper extends StateVisiting.Computation {
         return backpropers;
     }
 
-    //todo next - should return a mask over inputs if something like MAX is used, or -1 otherwise
     @Override
     public Value visit(State.Neural.Computation state) {
-        Value acumGradient = state.getResult(this); //top-down accumulation
+        Value acumGradient = state.getResult(this); //top-down accumulation //todo test add check if non-zero and cut otherwise?
         Value inputDerivative = state.getAggregationState().gradient(); //bottom-up accumulation
 
         Value currentLevelDerivative = acumGradient.times(inputDerivative);
         //there is no setting (remembering) of the calculated gradient (as opposed to output, which is reused), it is just returned
-        return currentLevelDerivative; //todo test invalidation here instead of using separate iteration with networks.computation.iteration.visitors.states.Invalidator ?
+        return currentLevelDerivative;
     }
 
 }

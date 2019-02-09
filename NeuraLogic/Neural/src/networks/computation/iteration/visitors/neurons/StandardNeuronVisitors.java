@@ -22,6 +22,8 @@ import java.util.Iterator;
  *
  *  The actual values/messages being propagated between the neurons are calculated by the corresponding {@link NeuronVisitor#stateVisitor}.
  *
+ *  These visitors DO NOT support input masking (i.e. max pooling).
+ *
  * @see NeuronVisitor
  */
 public class StandardNeuronVisitors {
@@ -56,7 +58,7 @@ public class StandardNeuronVisitors {
             Neuron input;
             Weight weight;
 
-            //state.invalidate(); //todo test invalidation here instead of using separate iteration with networks.computation.iteration.visitors.states.Invalidator ?
+            //state.invalidate(); //todo (a) test if faster with invalidation here (at the beginning of evaluation) instead of using separate iteration with networks.computation.iteration.visitors.states.Invalidator ?
             state.store(stateVisitor, neuron.offset.value);
             while ((input = inputNeurons.next()) != null && (weight = inputWeights.next()) != null) { //todo test version with fori
                 state.store(stateVisitor, input.getComputationView(stateVisitor.stateIndex).getResult(stateVisitor).times(weight.value));
@@ -67,6 +69,8 @@ public class StandardNeuronVisitors {
 
     /**
      * Down = propagating some values from actual neuron's State to its inputs - e.g. for ({@link Backpropagation}
+     *
+     * These visitors DO NOT support input masking (i.e. max pooling).
      */
     public static class Down extends NeuronVisitor.Weighted {
 
@@ -81,7 +85,9 @@ public class StandardNeuronVisitors {
         public void visit(Neuron neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             Value value = stateVisitor.visit(state);
+
             Iterator<Neuron> inputs = network.getInputs(neuron);
+
             for (Neuron input; (input = inputs.next()) != null; ) {
                 input.getComputationView(stateVisitor.stateIndex).store(stateVisitor, value);
             }
@@ -91,6 +97,7 @@ public class StandardNeuronVisitors {
         public void visit(WeightedNeuron neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             Value gradient = stateVisitor.visit(state);
+            //state.invalidate(); //todo (b) test if faster with invalidation here (at the end of backprop) instead of using separate iteration with networks.computation.iteration.visitors.states.Invalidator ?
             Pair<Iterator<Neuron>, Iterator<Weight>> inputs = network.getInputs(neuron);
 
             weightUpdater.visit(neuron.offset, gradient);

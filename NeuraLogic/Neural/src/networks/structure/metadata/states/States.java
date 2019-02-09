@@ -131,7 +131,7 @@ public abstract class States implements State {
      * Simple storage of parent count for efficient backprop computation with DFS (may vary due to neuron sharing in different contexts).
      */
     public static class ParentCounter extends ComputationStateStandard implements Neural.Computation.HasParents {
-        public final int count;
+        public final int count; //todo next - this should be part of a structure state as the number of parents may vary from network to network!
         public int checked = 0;
         /**
          * A simple flag to signify whether the result of this state can be reused already (= is finished, instead of checking whether its zero as in the previous version).

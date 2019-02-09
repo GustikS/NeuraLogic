@@ -6,7 +6,6 @@ import networks.structure.metadata.states.State;
 import java.util.logging.Logger;
 
 /**
- * todo test version with separate visitors for each method for performance - if fast enough, switch to it
  * @param <V>
  */
 public abstract class StateVisiting<V> {

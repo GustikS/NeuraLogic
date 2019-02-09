@@ -2,17 +2,18 @@ package networks.structure.components;
 
 import ida.utils.tuples.Pair;
 import learning.Example;
-import networks.computation.iteration.modes.DFSstack;
 import networks.computation.iteration.NeuronIterating;
-import networks.computation.iteration.NeuronVisiting;
-import networks.structure.metadata.states.State;
-import networks.structure.metadata.states.StatesCache;
+import networks.computation.iteration.modes.DFSstack;
+import networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.weights.Weight;
+import networks.structure.metadata.states.State;
+import networks.structure.metadata.states.StatesCache;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
@@ -22,7 +23,8 @@ import java.util.logging.Logger;
  * <p>
  * Created by gusta on 8.3.17.
  * <p>
- * //todo after creation and post-processing, add a transformation to a more optimized version (everything based on int, maybe even precompute layers, remove recursion)
+ * todo next - network factory
+ *     - after creation and post-processing, add a transformation to a more optimized version (everything based on int, maybe even precompute layers, remove recursion)
  */
 public abstract class NeuralNetwork<N extends State.Neural.Structure> implements Example {
     private static final Logger LOG = Logger.getLogger(NeuralNetwork.class.getName());
@@ -42,6 +44,11 @@ public abstract class NeuralNetwork<N extends State.Neural.Structure> implements
      * If there are no shared neurons (or no parallel access to them), there is no need to store extra states of them
      */
     boolean hasSharedNeurons;
+
+    /**
+     * Whether there are neurons which do not propagate values into all the inputs (e.g. max-pooling).
+     */
+    public boolean containsInputMasking;
 
     /**
      * A subset of all weights from a template that are used within this network.
@@ -67,19 +74,51 @@ public abstract class NeuralNetwork<N extends State.Neural.Structure> implements
         this.id = id;
     }
 
-    public abstract <T extends Neuron, S extends State.Neural> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron);
 
     /**
-     * todo FactNeurons should return empty inputs
-     *
+     * Returning pair of iterators should be faster than returning iterator of pairs, which would need to actually create the pair object every time during iteration
      * @param neuron
      * @param <T>
      * @param <S>
      * @return
      */
-    public abstract <T extends Neuron, S extends State.Neural> Iterator<T> getInputs(Neuron<T, S> neuron);
+    public <T extends Neuron, S extends State.Neural> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron) {
+        return new Pair<>(neuron.getInputs().iterator(), neuron.getWeights().iterator());
+    }
 
-    public abstract <T extends Neuron, S extends State.Neural> Iterator<T> getOutputs(Neuron<T, S> neuron);
+    public <T extends Neuron, S extends State.Neural> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron, int[] inputMask) {
+        ArrayList<T> inputs = neuron.getInputs();
+        ArrayList<Weight> weights = neuron.getWeights();
+
+        ArrayList<T> maskedInputs = new ArrayList<>(inputMask.length);
+        ArrayList<Weight> maskedWeights = new ArrayList<>(inputMask.length);
+
+        for (int i = 0; i < inputMask.length; i++) {
+            int i1 = inputMask[i];
+            maskedInputs.add(inputs.get(i1));
+            maskedWeights.add(weights.get(i1));
+        }
+        return new Pair<>(maskedInputs.iterator(), maskedWeights.iterator());
+    }
+
+    public <T extends Neuron, S extends State.Neural> Iterator<T> getInputs(Neuron<T, S> neuron, int[] inputMask) {
+        ArrayList<T> inputs = neuron.getInputs();
+        ArrayList<T> maskedInputs = new ArrayList<>(inputMask.length);
+
+        for (int i = 0; i < inputMask.length; i++) {
+            int i1 = inputMask[i];
+            maskedInputs.add(inputs.get(i1));
+        }
+        return maskedInputs.iterator();
+    }
+
+    public <T extends Neuron, S extends State.Neural> Iterator<T> getInputs(Neuron<T, S> neuron) {
+        return neuron.getInputs().iterator();
+    }
+
+    public <T extends Neuron, S extends State.Neural> Iterator<T> getOutputs(Neuron<T, S> neuron) {
+        return null;
+    }
 
     /**
      * Bind this network representation with the preferred choice of iteration over neurons in it.
@@ -90,13 +129,13 @@ public abstract class NeuralNetwork<N extends State.Neural.Structure> implements
      * @return
      */
     @Deprecated
-    public <V> NeuronIterating getPreferredBUpIterator(NeuronVisiting<V> vNeuronVisitor, Neuron<Neuron, State.Neural> outputNeuron) {
-        return new DFSstack().new BottomUp<>(vNeuronVisitor, this, outputNeuron);
+    public <V> NeuronIterating getPreferredBUpIterator(NeuronVisitor.Weighted vNeuronVisitor, Neuron<Neuron, State.Neural> outputNeuron) {
+        return new DFSstack().new BUpIterator((NeuralNetwork<State.Neural.Structure>) this, outputNeuron, vNeuronVisitor);
     }
 
     @Deprecated
-    public <V> NeuronIterating getPreferredTDownIterator(NeuronVisiting<V> vNeuronVisitor, Neuron<Neuron, State.Neural> outputNeuron) {
-        return new DFSstack().new TopDown<>(vNeuronVisitor, this, outputNeuron);
+    public <V> NeuronIterating getPreferredTDownIterator(NeuronVisitor.Weighted vNeuronVisitor, Neuron<Neuron, State.Neural> outputNeuron) {
+        return new DFSstack().new TDownIterator((NeuralNetwork<State.Neural.Structure>) this, outputNeuron, vNeuronVisitor);
     }
 
 }

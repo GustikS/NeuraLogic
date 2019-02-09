@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class DetailedNetwork<N extends State.Structure> extends TopologicNetwork<N> {
+public class DetailedNetwork<N extends State.Neural.Structure> extends TopologicNetwork<N> {
     private static final Logger LOG = Logger.getLogger(DetailedNetwork.class.getName());
 
     /**
@@ -67,7 +67,7 @@ public class DetailedNetwork<N extends State.Structure> extends TopologicNetwork
         return outputMapping;
     }
 
-    public <T extends WeightedNeuron, S extends State.Computation> Iterator<Pair<T, Weight>> getInputs(WeightedNeuron<T, S> neuron) {
+    public <T extends WeightedNeuron, S extends State.Neural.Computation> Iterator<Pair<T, Weight>> getInputs(WeightedNeuron<T, S> neuron) {
         WeightedNeuronMapping<T> inputMapping;
         if ((inputMapping = extraInputMapping != null ? (WeightedNeuronMapping<T>) extraInputMapping.get(neuron) : null) != null) {
             return inputMapping.iterator();
@@ -76,7 +76,7 @@ public class DetailedNetwork<N extends State.Structure> extends TopologicNetwork
         }
     }
 
-    public <T extends Neuron, S extends State.Computation> Iterator<T> getInputs(Neuron<T, S> neuron) {
+    public <T extends Neuron, S extends State.Neural.Computation> Iterator<T> getInputs(Neuron<T, S> neuron) {
         LinkedMapping<T> inputMapping;
         if ((inputMapping = extraInputMapping != null ? extraInputMapping.get(neuron) : null) != null) {
             return inputMapping.iterator();
@@ -85,7 +85,7 @@ public class DetailedNetwork<N extends State.Structure> extends TopologicNetwork
         }
     }
 
-    public <T extends Neuron, S extends State.Computation> Iterator<T> getOutputs(Neuron<T, S> neuron) {
+    public <T extends Neuron, S extends State.Neural.Computation> Iterator<T> getOutputs(Neuron<T, S> neuron) {
         LinkedMapping<T> mapping;
         if ((mapping = outputMapping != null ? outputMapping.get(neuron) : null) != null) {
             return mapping.iterator();

@@ -53,12 +53,16 @@ public class Backpropagation {
     /**
      * The most efficient network iteration depends on its structure, so it's to be decided on the run.
      *
+     * For Max and MaxK functions, i.e. those with input mask, choose visitor instead of iterator, so that the inputs are expanded through the mask.
+     *    - todo or add the mask filtering of inputs to iterators, too?
+     * Also input masking cannot work with topologic ordering.
+     *
      * @param network
      * @param outputNeuron
      * @return
      */
     public TopDown getTopDownPropagator(NeuralNetwork<State.Neural.Structure> network, Neuron outputNeuron) {
-        if (network instanceof TopologicNetwork) {
+        if (network instanceof TopologicNetwork && !network.containsInputMasking) {
             StandardNeuronVisitors.Down down = new StandardNeuronVisitors.Down(network, backproper, evaluator, weightUpdater);
             return new Topologic((TopologicNetwork<State.Neural.Structure>) network).new TDownVisitor(outputNeuron, down);
         } else if (settings.iterationMode == Settings.IterationMode.DFS_RECURSIVE) {

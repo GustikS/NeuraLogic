@@ -70,7 +70,7 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
         }
 
         if (settings.copyOutInputOvermapping) {
-            //todo next - remove maps by recursive copying (here?)
+            //todo - remove maps by recursive copying (here?)
         }
 
         if (settings.pruneNetworks) {

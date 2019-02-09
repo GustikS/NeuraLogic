@@ -41,11 +41,11 @@ public class DFSrecursion {
         @Override
         public void visit(Neuron<Neuron, State.Neural> neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
-            Value value = stateVisitor.visit(state);
-            Iterator<Neuron> inputs = network.getInputs(neuron);
+            Value gradient = stateVisitor.visit(state);
+            Iterator<Neuron> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());
             for (Neuron input; (input = inputs.next()) != null; ) {
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
-                computationView.store(stateVisitor, value);
+                computationView.store(stateVisitor, gradient);
                 if (computationView.ready4expansion(stateVisitor)) {    //we can check the children in advance here since we expanded them already ourselves
                     input.visit(this);
                 }
@@ -56,7 +56,7 @@ public class DFSrecursion {
         public void visit(WeightedNeuron<Neuron, State.Neural> neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             Value gradient = stateVisitor.visit(state);
-            Pair<Iterator<Neuron>, Iterator<Weight>> inputs = network.getInputs(neuron);
+            Pair<Iterator<Neuron>, Iterator<Weight>> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());
 
             weightUpdater.visit(neuron.offset, gradient);
 

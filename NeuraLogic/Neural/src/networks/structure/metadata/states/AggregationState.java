@@ -228,7 +228,7 @@ public abstract class AggregationState implements Aggregation.State {
 
         @Override
         public int[] getInputMask() {
-            return new int[0];
+            return null;
         }
 
         @Override

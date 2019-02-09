@@ -3,7 +3,6 @@ package networks.structure.components.types;
 import ida.utils.tuples.Pair;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neuron;
-import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
 
@@ -24,21 +23,6 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
     @Override
     public Integer getSize() {
         return allNeuronsTopologic.size();
-    }
-
-    @Override
-    public <T extends Neuron, S extends State.Neural> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron) {
-        return null;
-    }
-
-    @Override
-    public <T extends Neuron, S extends State.Neural> Iterator<T> getInputs(Neuron<T, S> neuron) {
-        return null;
-    }
-
-    @Override
-    public <T extends Neuron, S extends State.Neural> Iterator<T> getOutputs(Neuron<T, S> neuron) {
-        return null;
     }
 
     /**

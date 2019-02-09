@@ -57,7 +57,7 @@ public class Neuron<T extends Neurons, S extends State.Neural> implements Neuron
     /**
      * We want fast iteration over inputs - todo test - consider array here with grounder storing the inputMappings in a list first
      */
-    @Nullable   // because FactNeurons have no inputs (null check will be faster that isEmpty())
+    @NotNull   // FactNeurons have no inputs - represented by an empty list rather than null, so that we do not need to check for null everywhere (that should not add too much extra memory)
     protected ArrayList<T> inputs;
     /**
      * Depth of this neuron. Might be useful e.g. for Dropout or some transformations. todo

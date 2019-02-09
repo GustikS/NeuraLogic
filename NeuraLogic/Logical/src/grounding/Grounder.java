@@ -41,7 +41,7 @@ public abstract class Grounder {
         this.weightFactory = weightFactory;
     }
 
-    //todo next should also decide based on template sturcture?
+    //todo should also decide based on template sturcture?
     public static Grounder getGrounder(Settings settings) {
         switch (settings.grounding) {
             case BUP:

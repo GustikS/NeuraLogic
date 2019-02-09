@@ -1,12 +1,19 @@
 package networks.structure.components.types;
 
 import networks.structure.components.NeuralLayer;
+import networks.structure.components.NeuralNetwork;
+import networks.structure.metadata.states.State;
 
 import java.util.List;
 
 /**
  * Created by gusta on 17.3.17.
  */
-public class LayeredNetwork {
+public class LayeredNetwork extends NeuralNetwork<State.Neural.Structure> {
     List<NeuralLayer> layers;
+
+    @Override
+    public Integer getSize() {
+        return null;
+    }
 }
