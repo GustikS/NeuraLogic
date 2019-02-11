@@ -10,6 +10,7 @@ import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.neurons.types.*;
 import networks.structure.components.weights.Weight;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -20,6 +21,15 @@ import java.util.logging.Logger;
 
 public class DetailedNetwork<N extends State.Neural.Structure> extends TopologicNetwork<N> {
     private static final Logger LOG = Logger.getLogger(DetailedNetwork.class.getName());
+
+
+    /**
+     * A subset of all weights from a template that are used within this network.
+     * todo NOT INDEXABLE! remove? yes remove...
+     */
+    @NotNull
+    @Deprecated
+    Weight[] activeWeights;
 
     /**
      * Locally valid input overloading for some neurons to facilitate dynamic structure changes
@@ -67,16 +77,19 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
         return outputMapping;
     }
 
-    public <T extends WeightedNeuron, S extends State.Neural.Computation> Iterator<Pair<T, Weight>> getInputs(WeightedNeuron<T, S> neuron) {
+
+    public <T extends Neuron, S extends State.Neural> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron) {
         WeightedNeuronMapping<T> inputMapping;
         if ((inputMapping = extraInputMapping != null ? (WeightedNeuronMapping<T>) extraInputMapping.get(neuron) : null) != null) {
-            return inputMapping.iterator();
+            Iterator<T> iterator = inputMapping.iterator();
+            Iterator<Weight> weightIterator = inputMapping.weightIterator();
+            return new Pair<>(iterator, weightIterator);
         } else {
-            return neuron.getWeightedInputs();
+            return super.getInputs(neuron);
         }
     }
 
-    public <T extends Neuron, S extends State.Neural.Computation> Iterator<T> getInputs(Neuron<T, S> neuron) {
+    public <T extends Neuron, S extends State.Neural> Iterator<T> getInputs(Neuron<T, S> neuron) {
         LinkedMapping<T> inputMapping;
         if ((inputMapping = extraInputMapping != null ? extraInputMapping.get(neuron) : null) != null) {
             return inputMapping.iterator();
@@ -85,7 +98,7 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
         }
     }
 
-    public <T extends Neuron, S extends State.Neural.Computation> Iterator<T> getOutputs(Neuron<T, S> neuron) {
+    public <T extends Neuron, S extends State.Neural> Iterator<T> getOutputs(Neuron<T, S> neuron) {
         LinkedMapping<T> mapping;
         if ((mapping = outputMapping != null ? outputMapping.get(neuron) : null) != null) {
             return mapping.iterator();
@@ -93,7 +106,6 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
             return null;
         }
     }
-
 
     public void removeInput(Neuron neuron, Pair<Neuron, Weight> input) {
         //todo to use with pruning

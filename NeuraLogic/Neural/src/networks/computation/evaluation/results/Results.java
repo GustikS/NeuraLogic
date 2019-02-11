@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * Object carying target values with outputs, and corresponding evaluation computations.
+ * Object carrying target values with outputs, and corresponding evaluation computations.
  * <p>
  * Created by gusta on 8.3.17.
  */

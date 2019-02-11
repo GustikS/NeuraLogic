@@ -1,40 +1,35 @@
 package networks.structure.metadata.inputMappings;
 
-import ida.utils.tuples.Pair;
-import networks.structure.components.weights.Weight;
 import networks.structure.components.neurons.Neurons;
-import org.jetbrains.annotations.NotNull;
+import networks.structure.components.weights.Weight;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class WeightedNeuronMapping<T extends Neurons> implements LinkedMapping<Pair<T, Weight>> {
+public class WeightedNeuronMapping<T extends Neurons> extends NeuronMapping<T> implements LinkedMapping.WeightMapping {
     private static final Logger LOG = Logger.getLogger(WeightedNeuronMapping.class.getName());
 
-    List<Pair<T, Weight>> inputs;   //todo next make this return pair of iterators, i.e. hold 2 lists just like in neuron classes
+    List<Weight> weights;
     public WeightedNeuronMapping<T> previous;
 
-    public WeightedNeuronMapping(List<Pair<T, Weight>> inputs) {
+    public WeightedNeuronMapping(List<T> inputs, List<Weight> weights) {
+        super(inputs);
         this.previous = new WeightedNeuronMapping<>();
-        this.previous.inputs = new ArrayList<>(inputs);
-        this.inputs = new ArrayList<>();
+        this.previous.weights = new ArrayList<>(weights);
+        this.weights = new ArrayList<>();
     }
 
     public WeightedNeuronMapping(WeightedNeuronMapping<T> previous) {
+        super(previous);
         this.previous = previous;
-        this.inputs = new ArrayList<>();
+        this.weights = new ArrayList<>();
     }
 
     public WeightedNeuronMapping() {
-        this.inputs = new ArrayList<>();
-    }
-
-    @NotNull
-    @Override
-    public Iterator<Pair<T, Weight>> iterator() {
-        return new InputIterator<>(this);
+        super();
+        this.weights = new ArrayList<>();
     }
 
     @Override
@@ -43,16 +38,16 @@ public class WeightedNeuronMapping<T extends Neurons> implements LinkedMapping<P
     }
 
     @Override
-    public void addLink(Pair<T, Weight> input) {
-        inputs.add(input);
+    public Iterator<Weight> weightIterator() {
+        return new WeightIterator(this);
     }
 
-    private class InputIterator<T extends Neurons> implements Iterator<Pair<T, Weight>> {
+    private class WeightIterator implements Iterator<Weight> {
 
         WeightedNeuronMapping<T> actual;
         int current;
 
-        public InputIterator(WeightedNeuronMapping<T> inputMapping) {
+        public WeightIterator(WeightedNeuronMapping<T> inputMapping) {
             this.actual = inputMapping;
             this.current = actual.inputs.size() - 1;
         }
@@ -63,13 +58,13 @@ public class WeightedNeuronMapping<T extends Neurons> implements LinkedMapping<P
         }
 
         @Override
-        public Pair<T, Weight> next() {
+        public Weight next() {
             if (current >= 0)
-                return actual.inputs.get(current--);
+                return actual.weights.get(current--);
             else if (actual.previous != null) {
                 actual = actual.previous;
                 current = actual.inputs.size() - 1;
-                return actual.inputs.get(current--);
+                return actual.weights.get(current--);
             } else {
                 return null;
             }

@@ -8,6 +8,7 @@ import settings.Settings;
 import java.util.logging.Logger;
 
 /**
+ * The particular result on a single sample.
  * This pair of Values deserves own class with properly named fields to prevent confusion.
  */
 public class Result {

@@ -27,7 +27,11 @@ public abstract class StatesCache<T extends State.Neural.Structure> {
 
     protected abstract int findNeuron(int idx);
 
-    T getState(Neuron neuron) {
+    public T getState(int index){
+        return neuronStates[index];
+    }
+
+    public T getState(Neuron neuron) {
         int idx = findNeuron(neuron.index);
         if (idx < 0 || idx > neuronStates.length) {
             LOG.severe("ERROR - out of bounds access to getState of a neuron: " + neuron);

@@ -12,8 +12,4 @@ import java.util.List;
 public class LayeredNetwork extends NeuralNetwork<State.Neural.Structure> {
     List<NeuralLayer> layers;
 
-    @Override
-    public Integer getSize() {
-        return null;
-    }
 }

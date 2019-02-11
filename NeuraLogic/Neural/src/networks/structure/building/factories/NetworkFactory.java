@@ -23,7 +23,6 @@ public class NetworkFactory {
         this.settings = settings;
     }
 
-
     /**
      * Create an interface array (!) to be later filled with particular States
      *
@@ -46,6 +45,10 @@ public class NetworkFactory {
         }
     }
 
+    /**
+     * todo after creation and post-processing, add a transformation to a more optimized version (everything based on int, maybe even precompute layers, remove recursion)
+     * @return
+     */
     public NeuralNetwork buildOptimizedNetwork() {
 
     }

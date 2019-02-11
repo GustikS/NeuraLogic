@@ -2,11 +2,13 @@ package networks.computation.training.strategies;
 
 import ida.utils.tuples.Pair;
 import networks.computation.evaluation.results.Progress;
+import networks.computation.evaluation.results.Result;
 import networks.computation.evaluation.results.Results;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import settings.Settings;
 
+import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -36,6 +38,17 @@ public abstract class TrainingStrategy {
             return new StreamTrainingStrategy(settings, model, sampleStream);
         } else {
             return new IterativeTrainingStrategy(settings, model, sampleStream.collect(Collectors.toList()));
+        }
+    }
+
+
+    protected class TrainVal {
+        List<Result> training;
+        List<Result> validation;
+
+        public TrainVal(List<Result> train, List<Result> val) {
+            this.training = train;
+            this.validation = val;
         }
     }
 }

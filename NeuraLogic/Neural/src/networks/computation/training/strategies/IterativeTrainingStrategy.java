@@ -1,10 +1,11 @@
 package networks.computation.training.strategies;
 
 import ida.utils.tuples.Pair;
-import networks.computation.iteration.actions.Evaluation;
+import learning.crossvalidation.splitting.Splitter;
 import networks.computation.evaluation.results.Progress;
 import networks.computation.evaluation.results.Result;
 import networks.computation.evaluation.results.Results;
+import networks.computation.iteration.actions.Evaluation;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import networks.computation.training.strategies.Hyperparameters.LearnRateDecayStrategy;
@@ -28,7 +29,9 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     NeuralModel bestModel;
 
-    List<NeuralSample> sampleList;
+    List<NeuralSample> trainingSet;
+
+    List<NeuralSample> validationSet;
 
     Progress progress;
 
@@ -48,9 +51,19 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         this.trainer = getTrainerFrom(settings);
         this.currentModel = model.cloneWeights();
         this.bestModel = this.currentModel;
-        this.sampleList = sampleList;
+
+        Pair<List<NeuralSample>, List<NeuralSample>> trainVal = trainingValidationSplit(sampleList);
+        this.trainingSet = trainVal.r;
+        this.validationSet = trainVal.s;
+
         this.learnRateDecayStrategy = LearnRateDecayStrategy.getFrom(settings, learningRate);
         this.evaluation = new Evaluation(settings);    //todo check do we need to parallelize here?
+    }
+
+    private Pair<List<NeuralSample>, List<NeuralSample>> trainingValidationSplit(List<NeuralSample> sampleList) {
+        Splitter<NeuralSample> sampleSplitter = Splitter.getSplitter(settings);
+        List<List<NeuralSample>> partition = sampleSplitter.partition(sampleList, 2);
+        return new Pair<>(partition.get(0), partition.get(1));
     }
 
     private ListTrainer getTrainerFrom(Settings settings) {
@@ -70,7 +83,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
             initRestart();
             while (restartingStrategy.continueRestart() && epochae++ < settings.maxCumEpochCount) {
                 initEpoch(epochae);
-                List<Result> onlineEvaluations = trainer.learnEpoch(currentModel, sampleList);
+                List<Result> onlineEvaluations = trainer.learnEpoch(currentModel, trainingSet);
                 endEpoch(epochae, onlineEvaluations);
             }
             endRestart();
@@ -80,10 +93,10 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
 
     protected void initTraining() {
-        Collections.shuffle(sampleList, settings.random);
+        Collections.shuffle(trainingSet, settings.random);
         progress = new Progress();
-        List<Result> evaluations = evaluateModel();
-        progress.addTrueResults(resultsFactory.createFrom(evaluations));
+        TrainVal evaluations = evaluateModel();
+        progress.addTrueResults(resultsFactory.createFrom(evaluations.training), resultsFactory.createFrom(evaluations.validation));
     }
 
     protected void initRestart() {
@@ -97,7 +110,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
      */
     protected void initEpoch(int epochNumber) {
         if (settings.shuffleEachEpoch) {
-            Collections.shuffle(sampleList);
+            Collections.shuffle(trainingSet);
         }
         if (settings.islearnRateDecay) {
             learningRate = learnRateDecayStrategy.decay();
@@ -111,12 +124,12 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         Results onlineResults = resultsFactory.createFrom(onlineEvaluations);
         progress.addOnlineResults(onlineResults);
         if (count % settings.resultsRecalculationEpochae == 0) {
-            saveIfBest();
+            recalculateResults();
         }
     }
 
     protected void endRestart() {
-        saveIfBest();
+        recalculateResults();
     }
 
     protected Pair<NeuralModel, Progress> finish() {
@@ -124,22 +137,31 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         return new Pair<>(bestModel, progress);
     }
 
-    private List<Result> evaluateModel(NeuralModel neuralModel) {
+    private TrainVal evaluateModel(NeuralModel neuralModel) {
         currentModel.loadWeights(neuralModel);
         return evaluateModel();
     }
 
-    private List<Result> evaluateModel() {
-        return sampleList.parallelStream().map(s -> evaluation.evaluate(s)).collect(Collectors.toList());
+    private TrainVal evaluateModel() {
+        List<Result> trainingResults = trainingSet.parallelStream().map(s -> evaluation.evaluate(s)).collect(Collectors.toList());
+        List<Result> validationResults = validationSet.parallelStream().map(s -> evaluation.evaluate(s)).collect(Collectors.toList());
+        return new TrainVal(trainingResults, validationResults);
     }
 
-    private void saveIfBest() {
-        List<Result> trueEvaluations = evaluateModel();
-        Results currentResults = resultsFactory.createFrom(trueEvaluations);
-        progress.addTrueResults(currentResults);
-        if (currentResults.betterThan(progress.bestResults)) {
+    private void recalculateResults() {
+        TrainVal trueEvaluations = evaluateModel();
+        Results trainingResults = resultsFactory.createFrom(trueEvaluations.training);
+        Results validationResults = resultsFactory.createFrom(trueEvaluations.validation);
+        progress.addTrueResults(trainingResults, validationResults);
+
+        Progress.TrainVal trainVal = new Progress.TrainVal(trainingResults, validationResults);
+        saveIfBest(trainVal);
+    }
+
+    private void saveIfBest(Progress.TrainVal trainVal) {
+        if (trainVal.betterThan(progress.bestResults)) {
             bestModel = currentModel.cloneWeights();
-            progress.bestResults = currentResults;
+            progress.bestResults = trainVal;
         }
     }
 

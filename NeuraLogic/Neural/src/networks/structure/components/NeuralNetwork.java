@@ -23,10 +23,8 @@ import java.util.logging.Logger;
  * <p>
  * Created by gusta on 8.3.17.
  * <p>
- * todo next - network factory
- *     - after creation and post-processing, add a transformation to a more optimized version (everything based on int, maybe even precompute layers, remove recursion)
  */
-public abstract class NeuralNetwork<N extends State.Neural.Structure> implements Example {
+public class NeuralNetwork<N extends State.Neural.Structure> implements Example {
     private static final Logger LOG = Logger.getLogger(NeuralNetwork.class.getName());
     /**
      * Should be as unique as possible
@@ -35,10 +33,9 @@ public abstract class NeuralNetwork<N extends State.Neural.Structure> implements
     String id;
 
     /**
-     * A structure to store States and Search for neurons within this network (if available)
+     * Number of neurons
      */
-    @Nullable
-    public StatesCache<N> neuronStates;
+    int size;
 
     /**
      * If there are no shared neurons (or no parallel access to them), there is no need to store extra states of them
@@ -48,21 +45,21 @@ public abstract class NeuralNetwork<N extends State.Neural.Structure> implements
     /**
      * Whether there are neurons which do not propagate values into all the inputs (e.g. max-pooling).
      */
-    public boolean containsInputMasking;
+    public boolean containsPooling;
 
     /**
-     * A subset of all weights from a template that are used within this network.
-     * todo NOT INDEXABLE! remove? yes remove...
+     * A structure to store States and Search for neurons within this network (if available)
      */
-    @NotNull
-    @Deprecated
-    Weight[] activeWeights;
+    @Nullable
+    public StatesCache<N> neuronStates;
+
 
     public NeuralNetwork() {
     }
 
-    public NeuralNetwork(String id) {
+    public NeuralNetwork(String id, int size) {
         this.id = id;
+        this.size = size;
     }
 
     @Override
@@ -70,20 +67,37 @@ public abstract class NeuralNetwork<N extends State.Neural.Structure> implements
         return id;
     }
 
+    @Override
+    public Integer getSize() {
+        return size;
+    }
+
     public void setId(String id) {
         this.id = id;
+    }
+
+    public N getState(Neuron neuron) {
+        if (neuronStates != null) {
+            return neuronStates.getState(neuron);
+        } else
+            return null;
     }
 
 
     /**
      * Returning pair of iterators should be faster than returning iterator of pairs, which would need to actually create the pair object every time during iteration
+     *
      * @param neuron
      * @param <T>
      * @param <S>
      * @return
      */
     public <T extends Neuron, S extends State.Neural> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron) {
-        return new Pair<>(neuron.getInputs().iterator(), neuron.getWeights().iterator());
+        if (!hasSharedNeurons)
+            return new Pair<>(neuron.getInputs().iterator(), neuron.getWeights().iterator());
+        else if (neuronStates != null) {
+            neuronStates.
+        }
     }
 
     public <T extends Neuron, S extends State.Neural> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron, int[] inputMask) {

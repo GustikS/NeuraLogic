@@ -206,6 +206,11 @@ public class Settings {
 
     public double dropoutRate = 0.5;
 
+    /**
+     * Percentual size of validation set separated from training set
+     */
+    public double validationSet = 0.1;
+
     public DropoutMode dropoutMode = DropoutMode.LIFTED_DROPCONNECT;
 
     public enum DropoutMode {

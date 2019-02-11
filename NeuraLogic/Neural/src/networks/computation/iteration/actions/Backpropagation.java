@@ -62,7 +62,7 @@ public class Backpropagation {
      * @return
      */
     public TopDown getTopDownPropagator(NeuralNetwork<State.Neural.Structure> network, Neuron outputNeuron) {
-        if (network instanceof TopologicNetwork && !network.containsInputMasking) {
+        if (network instanceof TopologicNetwork && !network.containsPooling) {
             StandardNeuronVisitors.Down down = new StandardNeuronVisitors.Down(network, backproper, evaluator, weightUpdater);
             return new Topologic((TopologicNetwork<State.Neural.Structure>) network).new TDownVisitor(outputNeuron, down);
         } else if (settings.iterationMode == Settings.IterationMode.DFS_RECURSIVE) {

@@ -25,6 +25,10 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
         return allNeuronsTopologic.size();
     }
 
+    public N getState(int index) {
+        return neuronStates.getState(index);
+    }
+
     /**
      * todo replace with a more efficient version without hashset (using existing DFS iterators)
      * @param allNeurons
