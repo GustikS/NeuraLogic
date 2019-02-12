@@ -2,7 +2,7 @@ package networks.computation.training;
 
 import learning.Model;
 import networks.computation.evaluation.values.Value;
-import networks.computation.evaluation.values.ValueInitializer;
+import networks.computation.evaluation.values.distributions.ValueInitializer;
 import networks.structure.components.neurons.QueryNeuron;
 import networks.structure.components.weights.Weight;
 

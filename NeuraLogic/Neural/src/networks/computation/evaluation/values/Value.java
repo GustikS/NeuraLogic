@@ -1,38 +1,65 @@
 package networks.computation.evaluation.values;
 
+import networks.computation.evaluation.values.distributions.ValueInitializer;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Iterator;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
 /**
+ * Custom algebraic objects with standard semantics, i.e. scalar, vector and matrix with corresponding operations.
+ * By default all the operations are considered as element-wise wherever possible.
+ *
+ * @implements Iterable which is meant to return the underlying elementary values in a predefined order, i.e. a serialization.
+ *
  * Created by gusta on 8.3.17.
- * todo must - finish all the algebraic operations!
  */
 public abstract class Value implements Iterable<Double> {
     private static final Logger LOG = Logger.getLogger(Value.class.getName());
 
-    public static final Value ZERO = new Zero();
-    public static final Value ONE = new One();
-
+    /**
+     * Random elementary values
+     * @param valueInitializer
+     */
     public abstract void initialize(ValueInitializer valueInitializer);
 
+    /**
+     * Zero elementary values
+     * @return
+     */
     public abstract Value zero();
 
+    /**
+     * Deep copy
+     * @return
+     */
     public abstract Value clone();
 
     /**
-     * Equivalent to clone() + zero()
+     * Equivalent to clone() + zero(), but faster
      *
      * @return
      */
     public abstract Value getForm();
 
+    /**
+     * Dimension representation up to a 2D matrix
+     * @return
+     */
     public abstract int[] size();
 
+    /**
+     * Element-wise application of a given real function
+     * @param function
+     * @return
+     */
     public abstract Value apply(Function<Double, Double> function);
 
     /**
-     * Double-dispatch with switch of the left-right hand sides to keep in mind!
-     * todo multiplications must create new value objects!!
+     * CONSTRUCTIVE multiplication, i.e. creation of a NEW Value under the hood to be returned.
+     *
+     * Uses double-dispatch with switch of the left-right hand sides to keep in mind!
      *
      * @param value
      * @return
@@ -46,7 +73,7 @@ public abstract class Value implements Iterable<Double> {
     public abstract Value times(MatrixValue value);
 
     /**
-     * Constructive adding - will create a new Value
+     * CONSTRUCTIVE adding - will create a new Value.
      *
      * @param value
      * @return
@@ -60,7 +87,7 @@ public abstract class Value implements Iterable<Double> {
     public abstract Value plus(MatrixValue value);
 
     /**
-     * Constructive subtracting - will create a new Value
+     * CONSTRUCTIVE subtracting - will create a new Value.
      *
      * @param value
      * @return
@@ -74,7 +101,8 @@ public abstract class Value implements Iterable<Double> {
     public abstract Value minus(MatrixValue value);
 
     /**
-     * Destructive adding - faster as there is no need to create new Object Value
+     * DESTRUCTIVE adding - changes the original Value.
+     * - faster as there is no need to create new Value Object.
      *
      * @param value
      * @return
@@ -87,6 +115,12 @@ public abstract class Value implements Iterable<Double> {
 
     public abstract void increment(MatrixValue value);
 
+
+    /**
+     * Comparison with ad-hoc semantics (based on majority) for Values of different dimensions.
+     * @param maxValue
+     * @return
+     */
     public abstract boolean greaterThan(Value maxValue);
 
     public abstract boolean greaterThan(ScalarValue maxValue);
@@ -95,9 +129,13 @@ public abstract class Value implements Iterable<Double> {
 
     public abstract boolean greaterThan(MatrixValue maxValue);
 
-    /**
-     * todo consider replacing these constant classes with simple ScalarValue(1), the speedup might be small.
-     */
+
+    //----------todo consider replacing these constant classes with simple ScalarValue(0/1), the speedup might be small.
+
+    public static final Value ZERO = new Zero();
+    public static final Value ONE = new One();
+
+    @Deprecated
     private static class One extends Value {
 
         private ScalarValue one = new ScalarValue(1);
@@ -119,6 +157,16 @@ public abstract class Value implements Iterable<Double> {
         }
 
         @Override
+        public Value getForm() {
+            return null;
+        }
+
+        @Override
+        public int[] size() {
+            return new int[0];
+        }
+
+        @Override
         public Value apply(Function<Double, Double> function) {
             return null;
         }
@@ -223,8 +271,14 @@ public abstract class Value implements Iterable<Double> {
             return false;
         }
 
+        @NotNull
+        @Override
+        public Iterator<Double> iterator() {
+            return null;
+        }
     }
 
+    @Deprecated
     private static class Zero extends Value {
 
         private ScalarValue zero = new ScalarValue(0);
@@ -235,13 +289,23 @@ public abstract class Value implements Iterable<Double> {
         }
 
         @Override
-        public void zero() {
-            //void
+        public Value zero() {
+            return zero;
         }
 
         @Override
         public Value clone() {
             return null;
+        }
+
+        @Override
+        public Value getForm() {
+            return null;
+        }
+
+        @Override
+        public int[] size() {
+            return new int[0];
         }
 
         @Override
@@ -349,5 +413,10 @@ public abstract class Value implements Iterable<Double> {
             return false;
         }
 
+        @NotNull
+        @Override
+        public Iterator<Double> iterator() {
+            return null;
+        }
     }
 }

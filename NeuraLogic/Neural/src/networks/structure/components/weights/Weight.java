@@ -2,7 +2,7 @@ package networks.structure.components.weights;
 
 import constructs.template.metadata.WeightMetadata;
 import networks.computation.evaluation.values.Value;
-import networks.computation.evaluation.values.ValueInitializer;
+import networks.computation.evaluation.values.distributions.ValueInitializer;
 import org.jetbrains.annotations.Nullable;
 
 /**
