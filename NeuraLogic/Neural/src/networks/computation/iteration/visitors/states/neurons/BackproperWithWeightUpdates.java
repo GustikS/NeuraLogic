@@ -1,4 +1,4 @@
-package networks.computation.iteration.visitors.states;
+package networks.computation.iteration.visitors.states.neurons;
 
 import networks.computation.evaluation.values.Value;
 

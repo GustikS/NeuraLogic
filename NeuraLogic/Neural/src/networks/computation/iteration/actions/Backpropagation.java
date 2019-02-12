@@ -8,8 +8,8 @@ import networks.computation.iteration.modes.DFSrecursion;
 import networks.computation.iteration.modes.DFSstack;
 import networks.computation.iteration.modes.Topologic;
 import networks.computation.iteration.visitors.neurons.StandardNeuronVisitors;
-import networks.computation.iteration.visitors.states.Backproper;
-import networks.computation.iteration.visitors.states.Evaluator;
+import networks.computation.iteration.visitors.states.neurons.Backproper;
+import networks.computation.iteration.visitors.states.neurons.Evaluator;
 import networks.computation.iteration.visitors.weights.WeightUpdater;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
@@ -55,6 +55,8 @@ public class Backpropagation {
      *
      * For Max and MaxK functions, i.e. those with input mask, choose visitor instead of iterator, so that the inputs are expanded through the mask.
      *    - todo or add the mask filtering of inputs to iterators, too?
+     *
+     *    - todo check with inputMapping for topologic network
      * Also input masking cannot work with topologic ordering.
      *
      * @param network

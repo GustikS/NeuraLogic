@@ -1,6 +1,7 @@
-package networks.computation.iteration.visitors.states;
+package networks.computation.iteration.visitors.states.neurons;
 
 import networks.computation.evaluation.values.Value;
+import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.structure.metadata.states.State;
 import settings.Settings;
 
@@ -26,7 +27,7 @@ public class Backproper extends StateVisiting.Computation {
      * @return
      */
     public static Backproper getFrom(Settings settings, int i) {
-        return new Backproper(i);   //todo
+        return new Backproper(i);   //todo base on settings
     }
 
     /**

@@ -78,5 +78,24 @@ public abstract class NeuronVisitor {
          */
         abstract void visit(WeightedNeuron neuron);
 
+        public abstract static class Indexed extends Weighted {
+
+            public Indexed(NeuralNetwork<State.Structure> network, StateVisiting.Computation computationVisitor, @Nullable WeightUpdater weightUpdater) {
+                super(network, computationVisitor, weightUpdater);
+            }
+
+            public void visit(WeightedNeuron neuron){
+                visit(neuron, 0);
+            }
+
+            public void visit(Neuron neuron){
+                visit(neuron, 0);
+            }
+
+            abstract void visit(Neuron neuron, int index);
+            abstract void visit(WeightedNeuron neuron, int index);
+
+        }
+
     }
 }

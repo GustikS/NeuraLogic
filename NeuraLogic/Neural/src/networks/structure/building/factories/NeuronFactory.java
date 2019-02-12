@@ -26,9 +26,9 @@ public class NeuronFactory {
         this.settings = settings;
     }
 
-    State.Computation getComputationState(Neuron neuron) {
+    State.Neural getComputationState(Neuron neuron) {
         if (settings.minibatchSize > 1) {   //if there is minibatch, multiple threads will possibly be accessing the same neuron, i.e. we need array of states, one for each thread
-            States.ComputationStateComposite<State.Computation> stateComposite = new States.ComputationStateComposite<>(new State.Computation[settings.minibatchSize]);
+            States.ComputationStateComposite<State.Neural.Computation> stateComposite = new States.ComputationStateComposite<>(new State.Neural.Computation[settings.minibatchSize]);
             for (int i = 0; i < stateComposite.states.length; i++) {
                 stateComposite.states[i] = getBaseState(neuron);
             }
@@ -38,7 +38,7 @@ public class NeuronFactory {
         }
     }
 
-    State.Computation getBaseState(Neuron neuron) {
+    State.Neural.Computation getBaseState(Neuron neuron) {
         if (neuron.isShared) {
 
         } else {
@@ -51,22 +51,22 @@ public class NeuronFactory {
      * @return
      */
     public AtomNeuron createAtomNeuron(HeadAtom head) {
-        State.Computation state = getComputationState();
-        AtomNeuron<State.Computation> atomNeuron = new AtomNeuron<>(head, counter++, state);
+        State.Neural.Computation state = getComputationState();
+        AtomNeuron<State.Neural.Computation> atomNeuron = new AtomNeuron<>(head, counter++, state);
         atomNeuron.id = head.toString();
         return atomNeuron;
     }
 
     public AggregationNeuron createAggNeuron(WeightedRule weightedRule) {
-        State.Computation state = getComputationState();
-        AggregationNeuron<State.Computation> aggregationNeuron = new AggregationNeuron<>(weightedRule, counter++, state);
+        State.Neural.Computation state = getComputationState();
+        AggregationNeuron<State.Neural.Computation> aggregationNeuron = new AggregationNeuron<>(weightedRule, counter++, state);
         aggregationNeuron.id = weightedRule.toString();
         return aggregationNeuron;
     }
 
     public RuleNeuron createRuleNeuron(WeightedRule groundRule) {
-        State.Computation state = getComputationState();
-        RuleNeuron<State.Computation> ruleNeuron = new RuleNeuron<>(groundRule, counter++, state);
+        State.Neural.Computation state = getComputationState();
+        RuleNeuron<State.Neural.Computation> ruleNeuron = new RuleNeuron<>(groundRule, counter++, state);
         ruleNeuron.id = groundRule.toString();
         return ruleNeuron;
     }
@@ -78,15 +78,15 @@ public class NeuronFactory {
     }
 
     public NegationNeuron createNegationNeuron(AtomFact atomFact, Activation negation) {
-        State.Computation state = getComputationState();
-        NegationNeuron<State.Computation> negationNeuron = new NegationNeuron<>(atomFact, counter++, state, negation);
+        State.Neural.Computation state = getComputationState();
+        NegationNeuron<State.Neural.Computation> negationNeuron = new NegationNeuron<>(atomFact, counter++, state, negation);
         negationNeuron.id = atomFact.toString();
         return negationNeuron;
     }
 
     public WeightedRuleNeuron createWeightedRuleNeuron(WeightedRule groundRule) {
-        State.Computation state = getComputationState();
-        WeightedRuleNeuron<State.Computation> weightedRuleNeuron = new WeightedRuleNeuron<>(groundRule, counter++, state);
+        State.Neural.Computation state = getComputationState();
+        WeightedRuleNeuron<State.Neural.Computation> weightedRuleNeuron = new WeightedRuleNeuron<>(groundRule, counter++, state);
         weightedRuleNeuron.id = groundRule.toString();
         return weightedRuleNeuron;
     }

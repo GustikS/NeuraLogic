@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
- * todo add a streaming version
+ *
  */
 public class IterativeTrainingStrategy extends TrainingStrategy {
     private static final Logger LOG = Logger.getLogger(IterativeTrainingStrategy.class.getName());

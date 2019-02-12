@@ -1,6 +1,7 @@
-package networks.computation.iteration.visitors.states;
+package networks.computation.iteration.visitors.states.neurons;
 
 import networks.computation.evaluation.values.Value;
+import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.structure.metadata.states.State;
 import settings.Settings;
 
@@ -34,7 +35,7 @@ public class Evaluator extends StateVisiting.Computation {
      * @return
      */
     public static Evaluator getFrom(Settings settings, int index) {
-        return new Evaluator(index);   //todo
+        return new Evaluator(index);   //todo base on settings
     }
 
     /**

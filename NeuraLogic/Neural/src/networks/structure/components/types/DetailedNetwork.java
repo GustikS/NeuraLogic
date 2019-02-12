@@ -43,6 +43,11 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
     Neurons neurons;
 
     public DetailedNetwork() {
+        super(null, 0);
+    }
+
+    public DetailedNetwork(String id, int size) {
+        super(id, size);
     }
 
     public class Neurons {

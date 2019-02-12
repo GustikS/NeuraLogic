@@ -16,7 +16,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-//todo next introduce validation set!
 public class StreamTrainingStrategy extends TrainingStrategy {
     private static final Logger LOG = Logger.getLogger(StreamTrainingStrategy.class.getName());
 

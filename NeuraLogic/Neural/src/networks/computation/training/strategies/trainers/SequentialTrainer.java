@@ -2,8 +2,8 @@ package networks.computation.training.strategies.trainers;
 
 import networks.computation.iteration.actions.Evaluation;
 import networks.computation.evaluation.results.Result;
-import networks.computation.iteration.visitors.states.Dropouter;
-import networks.computation.iteration.visitors.states.Invalidator;
+import networks.computation.iteration.visitors.states.neurons.Dropouter;
+import networks.computation.iteration.visitors.states.neurons.Invalidator;
 import networks.computation.iteration.actions.Backpropagation;
 import networks.computation.iteration.actions.IndependentNeuronProcessing;
 import networks.computation.training.NeuralModel;
@@ -31,6 +31,7 @@ public class SequentialTrainer extends Trainer {
     }
 
     public SequentialTrainer(Settings settings, NeuralModel neuralModel, int index) {
+        this.index = index;
         evaluation = new Evaluation(settings, index);
         backpropagation = new Backpropagation(settings, neuralModel, index);
         invalidation = new IndependentNeuronProcessing(settings, new Invalidator(index));

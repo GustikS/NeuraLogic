@@ -91,7 +91,7 @@ public abstract class Grounder {
     }
 
     /**
-     * Todo optimize this for the case when the template doesnt change with every example (remember the template rules)
+     * Todo must optimize this for the case when the template doesnt change with every example (remember the template rules)
      *
      * @param raf
      * @return

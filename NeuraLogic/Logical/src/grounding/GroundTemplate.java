@@ -123,7 +123,7 @@ public class GroundTemplate extends GraphTemplate implements Example {
                 for (WeightedRule rule : entry2.getValue()) {
                     //delete pointers to the newly proved rules which are equivalent the the previously proved rules
                     LinkedHashSet<WeightedRule> rules = diff.groundRules.get(entry.getKey()).get(entry2.getKey());
-                    rules.remove(rule); //todo change to factory method which tells if new instead and go back to arraylist instead of LinkedHashSet for the groundings??(will be faster?)
+                    rules.remove(rule); //todo test change to factory method which tells if new instead and go back to arraylist instead of LinkedHashSet for the groundings??(will be faster?)
                 }
             }
         }

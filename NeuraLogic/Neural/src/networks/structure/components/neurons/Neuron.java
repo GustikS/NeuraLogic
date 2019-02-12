@@ -24,7 +24,7 @@ public class Neuron<T extends Neurons, S extends State.Neural> implements Neuron
      * Globally unique index of creation of this neuron (=fast hash)
      */
     @NotNull
-    public final int index;
+    public int index;
     /**
      * Represents original logic of creation, typically unique across all the networks (in case of neuron sharing)
      */
@@ -45,9 +45,10 @@ public class Neuron<T extends Neurons, S extends State.Neural> implements Neuron
     @Nullable
     private final S state;
     /**
-     * If not shared, an elementary State can be freely used to store any information (most efficient mode)
+     * If not shared, an elementary State can be freely used to store any information (most efficient mode).
+     * If it is shared, we need to be careful as the real outputs and inputs might be different in each network.
      */
-    public boolean isShared;
+    public boolean isShared;    //todo create new neuronVisitor who if shared asks neuralNets for inputs
     /**
      * Activation function - moved to ActivationState
      */

@@ -5,7 +5,7 @@ import networks.computation.evaluation.values.Value;
 import java.util.logging.Logger;
 
 /**
- * Replaced with WeightUpdater which carries the state - the updates - which is probably clearer design (todo check same speed also?)
+ * Replaced with WeightUpdater which carries the state - the updates - which is probably clearer design (todo test same speed also?)
  */
 @Deprecated
 public class StatefulWeight extends Weight {

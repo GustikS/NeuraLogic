@@ -1,6 +1,8 @@
 package networks.structure.building.factories;
 
 import grounding.GroundTemplate;
+import networks.computation.iteration.visitors.states.StateVisiting;
+import networks.computation.iteration.visitors.states.networks.ParentsTransfer;
 import networks.structure.metadata.states.StatesCache;
 import networks.structure.metadata.states.State;
 import networks.structure.components.NeuralNetwork;
@@ -46,7 +48,7 @@ public class NetworkFactory {
     }
 
     /**
-     * todo after creation and post-processing, add a transformation to a more optimized version (everything based on int, maybe even precompute layers, remove recursion)
+     * todo must after creation and post-processing, add a transformation to a more optimized version (everything based on int, maybe even precompute layers, remove recursion)
      * @return
      */
     public NeuralNetwork buildOptimizedNetwork() {
@@ -94,9 +96,13 @@ public class NetworkFactory {
 
         network.outputMapping = network.calculateOutputs();
 
-        setNeuronSearch(network, getStates(network, settings));
+        setNeuronSearch(network, getStates(network, settings), getStatesInitializer(settings));
 
         return network;
+    }
+
+    private StateVisiting.Computation getStatesInitializer(Settings settings) {
+        return new ParentsTransfer(-1); //todo more
     }
 
     /**
@@ -105,13 +111,13 @@ public class NetworkFactory {
      * @param neuralNetwork
      * @param states
      */
-    public void setNeuronSearch(NeuralNetwork neuralNetwork, State.Structure[] states) {
+    public void setNeuronSearch(NeuralNetwork neuralNetwork, State.Structure[] states, StateVisiting.Computation initializer) {
         if (neuralNetwork.getSize() < settings.lin2bst)
-            neuralNetwork.neuronStates = new StatesCache.LinearCache(states);
+            neuralNetwork.neuronStates = new StatesCache.LinearCache(states, initializer);
         else if (neuralNetwork.getSize() > settings.lin2bst && neuralNetwork.getSize() < settings.bst2hashmap)
-            neuralNetwork.neuronStates = new StatesCache.HeapCache(states);
+            neuralNetwork.neuronStates = new StatesCache.HeapCache(states, initializer);
         else
-            neuralNetwork.neuronStates = new StatesCache.HashCache(states);
+            neuralNetwork.neuronStates = new StatesCache.HashCache(states, initializer);
     }
 
 }

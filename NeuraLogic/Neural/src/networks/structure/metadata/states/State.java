@@ -3,7 +3,9 @@ package networks.structure.metadata.states;
 import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.visitors.states.StateVisiting;
-import networks.structure.metadata.inputMappings.LinkedMapping;
+import networks.structure.components.neurons.Neurons;
+import networks.structure.metadata.inputMappings.NeuronMapping;
+import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 
 import java.util.List;
 
@@ -87,11 +89,17 @@ public interface State<V> {
                 int getChecked(StateVisiting visitor);
 
                 void setChecked(StateVisiting visitor, int checked);
+
+                /**
+                 * For setting up from State.Structure
+                 * @param parentCount
+                 */
+                void setParents(StateVisiting visitor, int parentCount);
             }
 
             interface HasDropout {
                 double getDropout(StateVisiting visitor);
-                
+
                 void setDropout(StateVisiting visitor);
             }
 
@@ -105,14 +113,29 @@ public interface State<V> {
 
         }
 
-        /**
-         * Structural changes to neurons held as a state corresponding to each Neuron in a neural network.
-         * These are not necessarily stored by a Neuron, but rather at a separate StatesCache.
-         */
-        interface Structure extends State<LinkedMapping> {
-            //todo
+    }
+
+    /**
+     * Structural changes to neurons held as a state corresponding to each Neuron in a neural network.
+     * These are not necessarily stored by a Neuron, but rather at a separate StatesCache.
+     */
+    interface Structure<V> extends State<V> {
+
+        interface Parents extends Structure<Integer> {
+            int getParentCount();
+        }
+
+        interface InputNeuronMap extends Structure<NeuronMapping<Neurons>> {
+            NeuronMapping<Neurons> getInputMapping();
+        }
+
+        interface WeightedInputsMap extends Structure<WeightedNeuronMapping<Neurons>> {
+            WeightedNeuronMapping<Neurons> getWeightedMapping();
+        }
+
+        interface OutputNeuronMap extends Structure<NeuronMapping<Neurons>> {
+            NeuronMapping<Neurons> getOutputMapping();
         }
 
     }
-
 }

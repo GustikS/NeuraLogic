@@ -23,5 +23,4 @@ public interface Neurons {
     String getId();
 
     int inputCount();
-
 }

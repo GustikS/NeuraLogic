@@ -2,9 +2,15 @@ package networks.structure.metadata.states;
 
 import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.values.Value;
-import networks.computation.iteration.visitors.states.*;
-import networks.structure.components.neurons.Neuron;
-import networks.structure.metadata.inputMappings.LinkedMapping;
+import networks.computation.iteration.visitors.states.StateVisiting;
+import networks.computation.iteration.visitors.states.networks.ParentsTransfer;
+import networks.computation.iteration.visitors.states.neurons.Backproper;
+import networks.computation.iteration.visitors.states.neurons.Dropouter;
+import networks.computation.iteration.visitors.states.neurons.Evaluator;
+import networks.computation.iteration.visitors.states.neurons.Invalidator;
+import networks.structure.components.neurons.Neurons;
+import networks.structure.metadata.inputMappings.NeuronMapping;
+import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 import settings.Settings;
 
 import java.util.logging.Logger;
@@ -42,9 +48,7 @@ public abstract class States implements State {
             return aggregation;
         }
 
-        //todo implement all the methods redirection here, or create separate visitors for each method.
-        @Override
-        public Value accept(StateVisiting<Value> visitor) {
+        public Value accept(StateVisiting.Computation visitor) {
             return states[visitor.stateIndex].accept(visitor);
         }
 
@@ -129,9 +133,11 @@ public abstract class States implements State {
 
     /**
      * Simple storage of parent count for efficient backprop computation with DFS (may vary due to neuron sharing in different contexts).
+     *
+     * IF THE NEURONS ARE SHARED WITH DIFFERENT PARENTS, use {@link NetworkParents} it in a {@link StatesCache} for each each neuron to transfer the correct parentCount
      */
     public static class ParentCounter extends ComputationStateStandard implements Neural.Computation.HasParents {
-        public final int count; //todo next - this should be part of a structure state as the number of parents may vary from network to network!
+        public int parentCount;
         public int checked = 0;
         /**
          * A simple flag to signify whether the result of this state can be reused already (= is finished, instead of checking whether its zero as in the previous version).
@@ -139,7 +145,7 @@ public abstract class States implements State {
         boolean calculated;
 
         public ParentCounter(int count) {
-            this.count = count;
+            this.parentCount = count;
         }
 
         @Override
@@ -162,7 +168,7 @@ public abstract class States implements State {
         }
 
         public boolean ready4expansion(Backproper visitor) {
-            return checked == count;
+            return checked == parentCount;
         }
 
         public boolean ready4expansion(Evaluator visitor) {
@@ -175,7 +181,7 @@ public abstract class States implements State {
 
         @Override
         public int getParents(StateVisiting visitor) {
-            return count;
+            return parentCount;
         }
 
         @Override
@@ -186,6 +192,11 @@ public abstract class States implements State {
         @Override
         public void setChecked(StateVisiting visitor, int checked) {
             this.checked = checked;
+        }
+
+        @Override
+        public void setParents(StateVisiting visitor, int parentCount) {
+            this.parentCount = parentCount;
         }
 
         public Value getResult(Evaluator visitor) {
@@ -248,6 +259,11 @@ public abstract class States implements State {
             public void setDropout(StateVisiting visitor) {
                 DropoutStore.this.setDropout(visitor);
             }
+
+            @Override
+            public void setParents(StateVisiting visitor, int parentCount) {
+                this.parentCount = parentCount;
+            }
         }
     }
 
@@ -296,20 +312,65 @@ public abstract class States implements State {
     //-------------------
 
     /**
-     * Storing inputs and outputs of each neuron (may vary due to neuron sharing in different contexts).
+     * Storing inputs of each neuron (may vary due to neuron sharing in different contexts).
      * This information should be stored in a Network (not Neuron).
      */
-    public static final class InputsOutputsPair implements Neural.Structure {
-        LinkedMapping<Neuron> inputs;
-        LinkedMapping<Neuron> outputs;
+    public static final class Inputs implements Structure.InputNeuronMap {
+        NeuronMapping<Neurons> inputs;
 
+        public NeuronMapping<Neurons> getInputMapping() {
+            return inputs;
+        }
 
-        public final LinkedMapping getOutputs() {
+        @Override
+        public void invalidate() {
+            //void
+        }
+
+    }
+
+    public static final class WeightedInputs implements Structure.WeightedInputsMap {
+        WeightedNeuronMapping<Neurons> inputs;
+
+        public WeightedNeuronMapping<Neurons> getWeightedMapping() {
+            return inputs;
+        }
+
+        @Override
+        public void invalidate() {
+            //void
+        }
+    }
+
+    public static final class Outputs implements Structure.OutputNeuronMap {
+        NeuronMapping<Neurons> outputs;
+
+        public NeuronMapping<Neurons> getOutputMapping() {
             return outputs;
         }
 
-        public LinkedMapping<Neuron> getInputs(Neuron neuron) {
-            return inputs;
+        @Override
+        public void invalidate() {
+            //void
+        }
+    }
+
+    public static class NetworkParents implements Structure.Parents {
+        int parentCount;
+        /**
+         * This can possibly be a CompositeState of {@link ParentCounter}!
+         */
+        Neural.Computation parentCounter;
+
+        public Value accept(ParentsTransfer visitor) {
+            visitor.parentsCount = parentCount;
+            parentCounter.accept(visitor);
+            return null;
+        }
+
+        @Override
+        public int getParentCount() {
+            return parentCount;
         }
 
         @Override

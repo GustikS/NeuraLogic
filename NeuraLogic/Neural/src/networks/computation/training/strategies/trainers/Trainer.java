@@ -1,10 +1,10 @@
 package networks.computation.training.strategies.trainers;
 
-import networks.computation.iteration.actions.Evaluation;
 import networks.computation.evaluation.results.Result;
-import networks.computation.iteration.visitors.weights.WeightUpdater;
 import networks.computation.iteration.actions.Backpropagation;
+import networks.computation.iteration.actions.Evaluation;
 import networks.computation.iteration.actions.IndependentNeuronProcessing;
+import networks.computation.iteration.visitors.weights.WeightUpdater;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import networks.computation.training.optimizers.Optimizer;
@@ -16,6 +16,11 @@ public class Trainer {
     private static final Logger LOG = Logger.getLogger(Trainer.class.getName());
 
     protected Settings settings;
+
+    /**
+     * For parallel access to shared neurons
+     */
+    int index;
 
     Optimizer optimizer;
 
@@ -35,6 +40,7 @@ public class Trainer {
     }
 
     void invalidateSample(IndependentNeuronProcessing invalidation, NeuralSample neuralSample) {
+        neuralSample.query.evidence.initializeStatesCache(index);    //here we can transfer information from Structure to Computation
         invalidation.process(neuralSample.query.evidence, neuralSample.query.neuron);
     }
 

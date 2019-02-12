@@ -42,7 +42,10 @@ public class Topologic {
             }
             while (idx > 0) {
                 Neuron<Neuron, State.Neural> actualNeuron = Topologic.this.network.allNeuronsTopologic.get(idx);
+                int index = actualNeuron.index; //todo test performance of removing this indexation here
+                actualNeuron.index = idx;
                 actualNeuron.visit(neuronVisitor);      //skips 1 function call as opposed to actualNeuron.visit(this);
+                actualNeuron.index = index;
                 idx--;
             }
         }
@@ -73,10 +76,14 @@ public class Topologic {
          */
         public Value bottomUp() {
             for (int i = 0, len = Topologic.this.network.allNeuronsTopologic.size(); i < len; i++) {
-                Neuron<Neuron, State.Neural> actual = Topologic.this.network.allNeuronsTopologic.get(i);
-                actual.visit(neuronVisitor);    //skips 1 function call as opposed to actualNeuron.visit(this);
-                if (actual == outputNeuron)
+                Neuron<Neuron, State.Neural> actualNeuron = Topologic.this.network.allNeuronsTopologic.get(i);
+                int index = actualNeuron.index;
+                actualNeuron.index = i;
+                actualNeuron.visit(neuronVisitor);    //skips 1 function call as opposed to actualNeuron.visit(this);
+                actualNeuron.index = index;
+                if (actualNeuron == outputNeuron)
                     break;
+
             }
             return outputNeuron.getComputationView(neuronVisitor.stateVisitor.stateIndex).getResult(neuronVisitor.stateVisitor);
         }

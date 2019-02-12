@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 /**
  * Created by gusta on 8.3.17.
+ * todo must - finish all the algebraic operations!
  */
 public abstract class Value implements Iterable<Double> {
     private static final Logger LOG = Logger.getLogger(Value.class.getName());

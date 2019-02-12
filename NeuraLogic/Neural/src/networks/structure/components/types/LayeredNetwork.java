@@ -12,4 +12,7 @@ import java.util.List;
 public class LayeredNetwork extends NeuralNetwork<State.Neural.Structure> {
     List<NeuralLayer> layers;
 
+    public LayeredNetwork(String id, int size) {
+        super(id, size);
+    }
 }

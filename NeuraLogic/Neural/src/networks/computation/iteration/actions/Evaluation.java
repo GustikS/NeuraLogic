@@ -7,7 +7,7 @@ import networks.computation.iteration.modes.DFSrecursion;
 import networks.computation.iteration.modes.DFSstack;
 import networks.computation.iteration.modes.Topologic;
 import networks.computation.iteration.visitors.neurons.StandardNeuronVisitors;
-import networks.computation.iteration.visitors.states.Evaluator;
+import networks.computation.iteration.visitors.states.neurons.Evaluator;
 import networks.computation.training.NeuralSample;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neuron;
@@ -43,6 +43,7 @@ public class Evaluation {
 
     /**
      * Get the best mode of BottomUp iteration through this NeuralNetwork given the target of Evaluation of the output Neuron.
+     * - todo check with inputMapping for topologic network
      *
      * @param settings
      * @param network

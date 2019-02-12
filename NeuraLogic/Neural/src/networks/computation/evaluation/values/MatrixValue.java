@@ -65,7 +65,7 @@ public class MatrixValue extends Value {
     public MatrixValue times(MatrixValue value) {
         MatrixValue lhs = value;
         MatrixValue rhs = this;
-        //todo actually multiply them (with eigen?)
+        //todo must actually multiply them (with eigen?)
         return null;
     }
 

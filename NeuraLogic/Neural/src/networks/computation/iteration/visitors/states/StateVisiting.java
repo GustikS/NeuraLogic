@@ -11,26 +11,25 @@ import java.util.logging.Logger;
 public abstract class StateVisiting<V> {
     private static final Logger LOG = Logger.getLogger(StateVisiting.class.getName());
 
-    /**
-     * If multiple stateVisitors are visiting the same neuron's state at the same time, they need to have their own view
-     * of the state. This is index of such a view, as given by index of the Thread encompassing this StateVisitor.
-     */
-    public int stateIndex;
-
-    private StateVisiting() {
-        stateIndex = -1;
-    }
-
-    public StateVisiting(int stateIndex) {
-        this.stateIndex = stateIndex;
-    }
-
     public abstract V visit(State<V> state);
 
+    /**
+     * For states held by neurons.
+     */
     public abstract static class Computation extends StateVisiting<Value> {
 
+        /**
+         * If multiple stateVisitors are visiting the same neuron's state at the same time, they need to have their own view
+         * of the state. This is index of such a view, as given by index of the Thread encompassing this StateVisitor.
+         */
+        public int stateIndex;
+
+        private Computation() {
+            stateIndex = -1;
+        }
+
         public Computation(int stateIndex) {
-            super(stateIndex);
+            this.stateIndex = stateIndex;
         }
 
         @Override
@@ -46,5 +45,16 @@ public abstract class StateVisiting<V> {
          * @return
          */
         public abstract Value visit(State.Neural.Computation state);
+    }
+
+    /**
+     * For states held within neural networks' caches.
+     */
+    public abstract static class Structure<V> extends StateVisiting<V> {
+        @Override
+        public V visit(State<V> state) {
+            LOG.severe("StructureVisitor called for generic State<Structure>.");
+            return state.accept(this);
+        }
     }
 }

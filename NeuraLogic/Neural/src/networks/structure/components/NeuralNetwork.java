@@ -5,9 +5,14 @@ import learning.Example;
 import networks.computation.iteration.NeuronIterating;
 import networks.computation.iteration.modes.DFSstack;
 import networks.computation.iteration.visitors.neurons.NeuronVisitor;
+import networks.computation.iteration.visitors.states.networks.InputsGetter;
+import networks.computation.iteration.visitors.states.networks.OutputsGetter;
 import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.weights.Weight;
+import networks.structure.metadata.inputMappings.NeuronMapping;
+import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 import networks.structure.metadata.states.State;
 import networks.structure.metadata.states.StatesCache;
 import org.jetbrains.annotations.NotNull;
@@ -51,11 +56,12 @@ public class NeuralNetwork<N extends State.Neural.Structure> implements Example 
      * A structure to store States and Search for neurons within this network (if available)
      */
     @Nullable
-    public StatesCache<N> neuronStates;
+    public StatesCache<N> neuronStates; //todo use this
 
+    InputsGetter inputsGetter;
+    InputsGetter.Weighted weightedInputsGetter;
+    OutputsGetter outputsGetter;
 
-    public NeuralNetwork() {
-    }
 
     public NeuralNetwork(String id, int size) {
         this.id = id;
@@ -83,6 +89,15 @@ public class NeuralNetwork<N extends State.Neural.Structure> implements Example 
             return null;
     }
 
+    /**
+     * Load/process all information from the Structural states of neurons
+     */
+    public void initializeStatesCache(int stateView) {
+        if (neuronStates != null){
+            neuronStates.initialize(stateView);
+        }
+    }
+
 
     /**
      * Returning pair of iterators should be faster than returning iterator of pairs, which would need to actually create the pair object every time during iteration
@@ -93,16 +108,33 @@ public class NeuralNetwork<N extends State.Neural.Structure> implements Example 
      * @return
      */
     public <T extends Neuron, S extends State.Neural> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron) {
-        if (!hasSharedNeurons)
+        if (neuron.isShared) {
+            State.Structure neuralState = getState(neuron);
+            WeightedNeuronMapping<T> visit = weightedInputsGetter.visit(neuralState);
+            Iterator<T> iterator = visit.iterator();
+            Iterator<Weight> weightIterator = visit.weightIterator();
+            return new Pair<>(iterator, weightIterator);
+        } else
             return new Pair<>(neuron.getInputs().iterator(), neuron.getWeights().iterator());
-        else if (neuronStates != null) {
-            neuronStates.
-        }
     }
 
     public <T extends Neuron, S extends State.Neural> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron, int[] inputMask) {
-        ArrayList<T> inputs = neuron.getInputs();
-        ArrayList<Weight> weights = neuron.getWeights();
+        ArrayList<T> inputs;
+        ArrayList<Weight> weights;
+
+        if (neuron.isShared) {
+            State.Structure neuralState = getState(neuron);
+            WeightedNeuronMapping<T> visit = weightedInputsGetter.visit(neuralState);
+            Iterator<T> iterator = visit.iterator();
+            Iterator<Weight> weightIterator = visit.weightIterator();
+            inputs = new ArrayList<>();
+            weights = new ArrayList<>();
+            iterator.forEachRemaining(inputs::add);
+            weightIterator.forEachRemaining(weights::add);
+        } else {
+            inputs = neuron.getInputs();
+            weights = neuron.getWeights();
+        }
 
         ArrayList<T> maskedInputs = new ArrayList<>(inputMask.length);
         ArrayList<Weight> maskedWeights = new ArrayList<>(inputMask.length);
@@ -116,7 +148,16 @@ public class NeuralNetwork<N extends State.Neural.Structure> implements Example 
     }
 
     public <T extends Neuron, S extends State.Neural> Iterator<T> getInputs(Neuron<T, S> neuron, int[] inputMask) {
-        ArrayList<T> inputs = neuron.getInputs();
+        ArrayList<T> inputs;
+
+        if (neuron.isShared) {
+            State.Structure neuralState = getState(neuron);
+            NeuronMapping<T> visit = inputsGetter.visit(neuralState);
+            inputs = new ArrayList<>();
+            visit.iterator().forEachRemaining(inputs::add);
+        } else {
+            inputs = neuron.getInputs();
+        }
         ArrayList<T> maskedInputs = new ArrayList<>(inputMask.length);
 
         for (int i = 0; i < inputMask.length; i++) {
@@ -127,11 +168,18 @@ public class NeuralNetwork<N extends State.Neural.Structure> implements Example 
     }
 
     public <T extends Neuron, S extends State.Neural> Iterator<T> getInputs(Neuron<T, S> neuron) {
-        return neuron.getInputs().iterator();
+        if (neuron.isShared) {
+            State.Structure neuralState = getState(neuron);
+            NeuronMapping<T> visit = inputsGetter.visit(neuralState);
+            return visit.iterator();
+        } else
+            return neuron.getInputs().iterator();
     }
 
-    public <T extends Neuron, S extends State.Neural> Iterator<T> getOutputs(Neuron<T, S> neuron) {
-        return null;
+    public <T extends Neuron, S extends State.Neural> Iterator<Neurons> getOutputs(Neuron<T, S> neuron) {
+        State.Structure neuralState = getState(neuron);
+        NeuronMapping<Neurons> visit = outputsGetter.visit(neuralState);
+        return visit.iterator();
     }
 
     /**
@@ -151,5 +199,4 @@ public class NeuralNetwork<N extends State.Neural.Structure> implements Example 
     public <V> NeuronIterating getPreferredTDownIterator(NeuronVisitor.Weighted vNeuronVisitor, Neuron<Neuron, State.Neural> outputNeuron) {
         return new DFSstack().new TDownIterator((NeuralNetwork<State.Neural.Structure>) this, outputNeuron, vNeuronVisitor);
     }
-
 }

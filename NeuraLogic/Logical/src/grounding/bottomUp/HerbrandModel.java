@@ -118,7 +118,7 @@ public class HerbrandModel {
     }
 
     /**
-     * todo kill permutations of body literals here - return only truly unique ground rules?
+     * todo must kill permutations of body literals here - return only truly unique ground rules?
      *  - but careful for conjunction weights - aggregate them? must not be shared - same problem in Grounder merging different WeightedRules with same hornClauses
      * @param liftedRule
      * @param hc

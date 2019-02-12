@@ -1,6 +1,7 @@
-package networks.computation.iteration.visitors.states;
+package networks.computation.iteration.visitors.states.neurons;
 
 import networks.computation.evaluation.values.Value;
+import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.structure.metadata.states.State;
 import settings.Settings;
 

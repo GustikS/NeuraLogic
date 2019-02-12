@@ -20,6 +20,11 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
      */
     public List<Neuron<Neuron, State.Neural>> allNeuronsTopologic;
 
+    public TopologicNetwork(String id, int size) {
+        super(id, size);
+        allNeuronsTopologic = new ArrayList<>(size);
+    }
+
     @Override
     public Integer getSize() {
         return allNeuronsTopologic.size();
@@ -27,6 +32,19 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
 
     public N getState(int index) {
         return neuronStates.getState(index);
+    }
+
+    /**
+     * Overwriting the neuron index to point to cache must be done before calling
+     * @param neuron
+     * @return
+     */
+    @Override
+    public N getState(Neuron neuron){
+        if (neuronStates != null) {
+            return neuronStates.getState(neuron.index);
+        }
+        return null;
     }
 
     /**
