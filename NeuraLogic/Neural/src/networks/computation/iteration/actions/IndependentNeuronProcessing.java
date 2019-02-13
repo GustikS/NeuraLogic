@@ -7,7 +7,7 @@ import networks.computation.iteration.modes.Topologic;
 import networks.computation.iteration.visitors.neurons.StandardNeuronVisitors;
 import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.structure.components.NeuralNetwork;
-import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.types.TopologicNetwork;
 import networks.structure.metadata.states.State;
 import settings.Settings;
@@ -25,7 +25,7 @@ public class IndependentNeuronProcessing {
         this.visitor = visitor;
     }
 
-    private IterationStrategy getIterationStrategy(NeuralNetwork network, Neuron outputNeuron) {
+    private IterationStrategy getIterationStrategy(NeuralNetwork network, BaseNeuron outputNeuron) {
         StandardNeuronVisitors.Independent inval = new StandardNeuronVisitors.Independent(network, visitor);
         if (network instanceof TopologicNetwork) {
             return new Topologic((TopologicNetwork<State.Neural.Structure>) network).new BUpIterator(outputNeuron, inval);
@@ -36,7 +36,7 @@ public class IndependentNeuronProcessing {
         }
     }
 
-    public void process(NeuralNetwork network, Neuron outputNeuron) {
+    public void process(NeuralNetwork network, BaseNeuron outputNeuron) {
         IterationStrategy iterationStrategy = getIterationStrategy(network, outputNeuron);
         iterationStrategy.iterate();
     }

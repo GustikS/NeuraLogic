@@ -1,6 +1,6 @@
 package networks.structure.metadata.inputMappings;
 
-import networks.structure.components.neurons.Neurons;
+import networks.structure.components.neurons.Neuron;
 import networks.structure.components.weights.Weight;
 
 import java.util.ArrayList;
@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class WeightedNeuronMapping<T extends Neurons> extends NeuronMapping<T> implements LinkedMapping.WeightMapping {
+public class WeightedNeuronMapping<T extends Neuron> extends NeuronMapping<T> implements LinkedMapping.WeightMapping {
     private static final Logger LOG = Logger.getLogger(WeightedNeuronMapping.class.getName());
 
     List<Weight> weights;
@@ -40,6 +40,10 @@ public class WeightedNeuronMapping<T extends Neurons> extends NeuronMapping<T> i
     @Override
     public Iterator<Weight> weightIterator() {
         return new WeightIterator(this);
+    }
+
+    public void addWeight(Weight weight) {
+        weights.add(weight);
     }
 
     private class WeightIterator implements Iterator<Weight> {

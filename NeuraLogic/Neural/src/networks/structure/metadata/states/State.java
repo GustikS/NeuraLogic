@@ -3,7 +3,7 @@ package networks.structure.metadata.states;
 import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.visitors.states.StateVisiting;
-import networks.structure.components.neurons.Neurons;
+import networks.structure.components.neurons.Neuron;
 import networks.structure.metadata.inputMappings.NeuronMapping;
 import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 
@@ -48,7 +48,7 @@ public interface State<V> {
         /**
          * Stateful values held by a Neuron for use during neural computation, i.e. Evaluation and Backpropagation
          */
-        interface Computation extends Neural<Value> {
+        interface Computation extends Neural {
 
             AggregationState getAggregationState();
 
@@ -125,16 +125,16 @@ public interface State<V> {
             int getParentCount();
         }
 
-        interface InputNeuronMap extends Structure<NeuronMapping<Neurons>> {
-            NeuronMapping<Neurons> getInputMapping();
+        interface InputNeuronMap extends Structure<NeuronMapping<Neuron>> {
+            NeuronMapping<Neuron> getInputMapping();
         }
 
-        interface WeightedInputsMap extends Structure<WeightedNeuronMapping<Neurons>> {
-            WeightedNeuronMapping<Neurons> getWeightedMapping();
+        interface WeightedInputsMap extends Structure<WeightedNeuronMapping<Neuron>> {
+            WeightedNeuronMapping<Neuron> getWeightedMapping();
         }
 
-        interface OutputNeuronMap extends Structure<NeuronMapping<Neurons>> {
-            NeuronMapping<Neurons> getOutputMapping();
+        interface OutputNeuronMap extends Structure<NeuronMapping<Neuron>> {
+            NeuronMapping<Neuron> getOutputMapping();
         }
 
     }

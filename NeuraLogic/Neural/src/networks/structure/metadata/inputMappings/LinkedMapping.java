@@ -3,6 +3,7 @@ package networks.structure.metadata.inputMappings;
 import networks.structure.components.weights.Weight;
 
 import java.util.Iterator;
+import java.util.List;
 
 public interface LinkedMapping<T> extends Iterable<T> {
     /**
@@ -12,9 +13,13 @@ public interface LinkedMapping<T> extends Iterable<T> {
      */
     boolean isComplete();
 
+    List<T> getLastList();
+
     void addLink(T input);
 
-    public interface WeightMapping {
+    interface WeightMapping {
+
+        void addWeight(Weight weight);
 
         Iterator<Weight> weightIterator();
 

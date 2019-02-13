@@ -103,7 +103,6 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
         }
         if (settings.isoGradientCompression) {
             //todo
-
         }
         if (settings.cycleBreaking) {
             CycleBreaking breaker = CycleBreaking.getBreaker(settings);

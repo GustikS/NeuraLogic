@@ -1,7 +1,7 @@
 package networks.structure.metadata.inputMappings;
 
+import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neuron;
-import networks.structure.components.neurons.Neurons;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class NeuronMapping<T extends Neurons> implements LinkedMapping<T> {
+public class NeuronMapping<T extends Neuron> implements LinkedMapping<T> {
     private static final Logger LOG = Logger.getLogger(NeuronMapping.class.getName());
 
     List<T> inputs;
@@ -42,15 +42,20 @@ public class NeuronMapping<T extends Neurons> implements LinkedMapping<T> {
     }
 
     @Override
+    public List<T> getLastList() {
+        return inputs;
+    }
+
+    @Override
     public void addLink(T input) {
         inputs.add(input);
     }
 
-    public LinkedMapping<T> getInputs(Neuron neuron) {
+    public LinkedMapping<T> getInputs(BaseNeuron neuron) {
         return this;
     }
 
-    private class InputIterator<T extends Neurons> implements Iterator<T> {
+    private class InputIterator<T extends Neuron> implements Iterator<T> {
 
         NeuronMapping<T> actual;
         int current;

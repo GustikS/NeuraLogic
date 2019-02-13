@@ -2,14 +2,14 @@ package networks.structure.components.neurons.types;
 
 import constructs.template.components.WeightedRule;
 import networks.structure.metadata.states.State;
-import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.BaseNeuron;
 
 /**
  * Created by gusta on 8.3.17.
  */
-public class RuleNeuron<S extends State.Neural> extends Neuron<AtomFact, S> implements RuleNeurons {
+public class RuleNeuron<S extends State.Neural> extends BaseNeuron<AtomFact, S> implements RuleNeurons {
 
     public RuleNeuron(WeightedRule grounding, int index, S state) {
-        super(index, grounding.toString(), state, grounding.activationFcn);
+        super(index, grounding.toString(), state);
     }
 }

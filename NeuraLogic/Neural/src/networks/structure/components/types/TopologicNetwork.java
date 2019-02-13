@@ -2,7 +2,7 @@ package networks.structure.components.types;
 
 import ida.utils.tuples.Pair;
 import networks.structure.components.NeuralNetwork;
-import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
 
@@ -18,16 +18,16 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
     /**
      * All neurons combined in TOPOLOGICAL ORDERING.
      */
-    public List<Neuron<Neuron, State.Neural>> allNeuronsTopologic;
+    public List<BaseNeuron<BaseNeuron, State.Neural>> allNeuronsTopologic;
+
+    public TopologicNetwork(String id, List<BaseNeuron<BaseNeuron, State.Neural>> allNeurons){
+        super(id, allNeurons.size());
+        allNeuronsTopologic = topologicSort(allNeurons);
+    }
 
     public TopologicNetwork(String id, int size) {
         super(id, size);
         allNeuronsTopologic = new ArrayList<>(size);
-    }
-
-    @Override
-    public Integer getSize() {
-        return allNeuronsTopologic.size();
     }
 
     public N getState(int index) {
@@ -35,12 +35,13 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
     }
 
     /**
-     * Overwriting the neuron index to point to cache must be done before calling
+     * MAKE SURE the neuron index is properly changed to point to cache before calling!!
+     *
      * @param neuron
      * @return
      */
     @Override
-    public N getState(Neuron neuron){
+    public N getState(BaseNeuron neuron) {
         if (neuronStates != null) {
             return neuronStates.getState(neuron.index);
         }
@@ -48,32 +49,39 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
     }
 
     /**
-     * todo replace with a more efficient version without hashset (using existing DFS iterators)
+     * Sort all the neuron for topologic ordering, irrespective of what is the output.
+     * <p>
+     * This is different to using existing DFS iterators in bottom-up mode, which also return topologically ordered neurons, since we are not given a QueryNeuron to start with.
+     * - hence we need the hashset for checking whether we have already visited each neuron.
+     * - this could be possibly emulated through a stateVisitor marking the states of neurons as visited
+     * - but that would force some manipulation with the actual states of neurons, which is not desirable here
+     * - we would have to undo that in another pass, making it possibly even more computationally demanding
+     *
      * @param allNeurons
      * @return
      */
-    public List<Neuron> topologicSort(List<Neuron> allNeurons) {
-        Set<Neuron> visited = new HashSet<>();
-        Stack<Neuron> stack = new Stack<>();
+    public List<BaseNeuron<BaseNeuron, State.Neural>> topologicSort(List<BaseNeuron<BaseNeuron, State.Neural>> allNeurons) {
+        Set<BaseNeuron> visited = new HashSet<>();
+        Stack<BaseNeuron> stack = new Stack<>();
 
-        for (Neuron neuron : allNeurons) {
+        for (BaseNeuron neuron : allNeurons) {
             if (!visited.contains(neuron))
                 topoSortRecursive(neuron, visited, stack);
         }
 
-        List<Neuron> neurons = new ArrayList<>(allNeurons.size());
+        List<BaseNeuron<BaseNeuron, State.Neural>> neurons = new ArrayList<>(allNeurons.size());
         while (!stack.empty())
             neurons.add(stack.pop());
 
         return neurons;
     }
 
-    private void topoSortRecursive(Neuron neuron, Set<Neuron> visited, Stack<Neuron> stack) {
+    private void topoSortRecursive(BaseNeuron neuron, Set<BaseNeuron> visited, Stack<BaseNeuron> stack) {
         visited.add(neuron);
 
-        Iterator<Pair<Neuron, Weight>> inputs = getInputs(neuron);
+        Iterator<Pair<BaseNeuron, Weight>> inputs = getInputs(neuron);
         while (inputs.hasNext()) {
-            Pair<Neuron, Weight> next = inputs.next();
+            Pair<BaseNeuron, Weight> next = inputs.next();
             if (!visited.contains(next.r)) {
                 topoSortRecursive(next.r, visited, stack);
             }

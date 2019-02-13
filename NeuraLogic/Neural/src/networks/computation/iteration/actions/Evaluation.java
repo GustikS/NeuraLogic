@@ -10,7 +10,7 @@ import networks.computation.iteration.visitors.neurons.StandardNeuronVisitors;
 import networks.computation.iteration.visitors.states.neurons.Evaluator;
 import networks.computation.training.NeuralSample;
 import networks.structure.components.NeuralNetwork;
-import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.QueryNeuron;
 import networks.structure.components.neurons.types.AtomNeuron;
 import networks.structure.components.types.TopologicNetwork;
@@ -50,7 +50,7 @@ public class Evaluation {
      * @param evaluator
      * @return
      */
-    private BottomUp<Value> getBottomUpIterationStrategy(Settings settings, NeuralNetwork<State.Neural.Structure> network, Neuron outputNeuron, Evaluator evaluator) {
+    private BottomUp<Value> getBottomUpIterationStrategy(Settings settings, NeuralNetwork<State.Neural.Structure> network, BaseNeuron outputNeuron, Evaluator evaluator) {
         StandardNeuronVisitors.Up up = new StandardNeuronVisitors.Up(network, evaluator);
         if (network instanceof TopologicNetwork) {
             return new Topologic((TopologicNetwork<State.Neural.Structure>) network).new BUpVisitor(outputNeuron, up);

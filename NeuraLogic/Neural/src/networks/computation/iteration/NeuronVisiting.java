@@ -1,8 +1,8 @@
 package networks.computation.iteration;
 
 import networks.structure.components.NeuralNetwork;
+import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neuron;
-import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.metadata.states.State;
 
@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 public abstract class NeuronVisiting extends IterationStrategy {
     private static final Logger LOG = Logger.getLogger(NeuronVisiting.class.getName());
 
-    public NeuronVisiting(NeuralNetwork<State.Neural.Structure> network, Neuron<Neuron, State.Neural> outputNeuron) {
+    public NeuronVisiting(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<BaseNeuron, State.Neural> outputNeuron) {
         super(network, outputNeuron);
     }
 
@@ -29,7 +29,7 @@ public abstract class NeuronVisiting extends IterationStrategy {
      *
      * @param neuron
      */
-    public void visit(Neurons neuron) {
+    public void visit(Neuron neuron) {
         LOG.severe("Error: Visitor calling a default method through double dispatch.");
     }
 
@@ -38,11 +38,11 @@ public abstract class NeuronVisiting extends IterationStrategy {
      *
      * @param neuron
      */
-    public abstract void visit(Neuron<Neuron, State.Neural> neuron);
+    public abstract void visit(BaseNeuron<BaseNeuron, State.Neural> neuron);
 
     public static abstract class Weighted extends NeuronVisiting {
 
-        public Weighted(NeuralNetwork<State.Neural.Structure> network, Neuron<Neuron, State.Neural> outputNeuron) {
+        public Weighted(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<BaseNeuron, State.Neural> outputNeuron) {
             super(network, outputNeuron);
         }
 
@@ -51,6 +51,6 @@ public abstract class NeuronVisiting extends IterationStrategy {
          *
          * @param neuron
          */
-        public abstract void visit(WeightedNeuron<Neuron, State.Neural> neuron);
+        public abstract void visit(WeightedNeuron<BaseNeuron, State.Neural> neuron);
     }
 }

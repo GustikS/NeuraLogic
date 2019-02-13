@@ -11,7 +11,7 @@ import networks.structure.components.weights.Weight;
 public class AtomNeuron<S extends State.Neural> extends WeightedNeuron<AggregationNeuron, S> implements AtomFact {
 
     public AtomNeuron(HeadAtom head, int index, S state) {
-        super(head.toString(), index, state, head.getOffset(), head.activation);
+        super(head.toString(), index, state, head.getOffset());
     }
 
     @Override

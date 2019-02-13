@@ -13,7 +13,9 @@ import pipelines.Pipeline;
 import settings.Settings;
 import networks.computation.training.NeuralSample;
 
+import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -44,6 +46,7 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
      * <p>
      * todo check if sequential processing per-element doesnt break the desired side effects (when something gets deleted after sample is processed, but required for the next one) or blow up memory (when each stage with a side effect stores a separate huge Map)
      *
+     * todo must create separate pipe classes for each here
      * @return
      */
     @Override
@@ -113,8 +116,8 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
                         pairStream.sequential();
                     }
                     return pairStream.map(gs -> {
-                        if (gs.grounding.getGrounding() == null || !gs.groundingComplete) {
-                            gs.grounding.setGrounding(grounder.groundRulesAndFacts(gs.query.evidence, gs.template, stored));  //todo test for case with multiple queries on 1 example with sequential sharing (do we still increment against the last query here?)
+                        if (gs.grounding.getGroundTemplate() == null || !gs.groundingComplete) {
+                            gs.grounding.setGroundTemplate(grounder.groundRulesAndFacts(gs.query.evidence, gs.template, stored));  //todo test for case with multiple queries on 1 example with sequential sharing (do we still increment against the last query here?)
                         }
                         return gs;
                     });
@@ -123,10 +126,14 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
             nextPipe.connectAfter(groundingPipe);
             nextPipe = groundingPipe;
         } else if (settings.globallySharedGroundings) {
+
+            //Stream TERMINATING operation!
             Pipe<Stream<GroundingSample>, Stream<GroundingSample>> groundingPipe = pipeline.register(new Pipe<Stream<GroundingSample>, Stream<GroundingSample>>("GlobalSharingGroundingPipe") {
                 @Override
-                public Stream<GroundingSample> apply(Stream<GroundingSample> pairStream) {
-                    return grounder.globalGroundingSample(pairStream);  //todo get the stream out of the function call
+                public Stream<GroundingSample> apply(Stream<GroundingSample> groundingSampleStream) {
+                    List<GroundingSample> groundingSampleList = groundingSampleStream.collect(Collectors.toList());
+                    groundingSampleList = grounder.globalGroundingSample(groundingSampleList);
+                    return groundingSampleList.stream();
                 }
             });
             nextPipe.connectAfter(groundingPipe);
@@ -136,10 +143,10 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
                 @Override
                 public Stream<GroundingSample> apply(Stream<GroundingSample> pairStream) {
                     return pairStream.map(gs -> {
-                        if (gs.grounding.getGrounding() == null) {
-                            gs.grounding.setGrounding(grounder.groundRulesAndFacts(gs.query.evidence, gs.template));
+                        if (gs.grounding.getGroundTemplate() == null) {
+                            gs.grounding.setGroundTemplate(grounder.groundRulesAndFacts(gs.query.evidence, gs.template));
                         } else if (!gs.groundingComplete) {
-                            gs.grounding.setGrounding(grounder.groundRulesAndFacts(gs.query.evidence, gs.template, gs.grounding.getGrounding()));
+                            gs.grounding.setGroundTemplate(grounder.groundRulesAndFacts(gs.query.evidence, gs.template, gs.grounding.getGroundTemplate()));
                             return gs;
                         }
                         return gs;
@@ -155,7 +162,7 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
                 @Override
                 public Stream<GroundingSample> apply(Stream<GroundingSample> pairStream) {
                     return pairStream.map(p -> {
-                        p.grounding.setGrounding(p.grounding.getGrounding().prune(p.query));
+                        p.grounding.setGroundTemplate(p.grounding.getGroundTemplate().prune(p.query));
                         return p;
                     });
                 }

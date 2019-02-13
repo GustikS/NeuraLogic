@@ -4,8 +4,8 @@ import networks.computation.iteration.IterationStrategy;
 import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.computation.iteration.visitors.weights.WeightUpdater;
 import networks.structure.components.NeuralNetwork;
+import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neuron;
-import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.metadata.states.State;
 import org.jetbrains.annotations.Nullable;
@@ -20,8 +20,8 @@ import java.util.logging.Logger;
  * for extra composition of possible iteration logic.
  *
  * @see StateVisiting
- * @see Neurons
  * @see Neuron
+ * @see BaseNeuron
  */
 public abstract class NeuronVisitor {
 
@@ -44,7 +44,7 @@ public abstract class NeuronVisitor {
      *
      * @param neuron
      */
-    public void visit(Neurons neuron) {
+    public void visit(Neuron neuron) {
         Logger LOG = Logger.getLogger(NeuronVisitor.class.getName());
         LOG.severe("Error: Visitor calling a default method through double dispatch.");
     }
@@ -54,7 +54,7 @@ public abstract class NeuronVisitor {
      *
      * @param neuron
      */
-    public abstract void visit(Neuron neuron);
+    public abstract void visit(BaseNeuron neuron);
 
 
     public abstract static class Weighted extends NeuronVisitor {
@@ -88,11 +88,11 @@ public abstract class NeuronVisitor {
                 visit(neuron, 0);
             }
 
-            public void visit(Neuron neuron){
+            public void visit(BaseNeuron neuron){
                 visit(neuron, 0);
             }
 
-            abstract void visit(Neuron neuron, int index);
+            abstract void visit(BaseNeuron neuron, int index);
             abstract void visit(WeightedNeuron neuron, int index);
 
         }

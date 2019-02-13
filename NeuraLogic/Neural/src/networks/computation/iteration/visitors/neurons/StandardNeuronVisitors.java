@@ -8,7 +8,7 @@ import networks.computation.iteration.actions.IndependentNeuronProcessing;
 import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.computation.iteration.visitors.weights.WeightUpdater;
 import networks.structure.components.NeuralNetwork;
-import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
@@ -40,10 +40,10 @@ public class StandardNeuronVisitors {
         }
 
         @Override
-        public void visit(Neuron neuron) {
+        public void visit(BaseNeuron neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
-            Iterator<Neuron> inputs = network.getInputs(neuron);
-            for (Neuron input; (input = inputs.next()) != null; ) {
+            Iterator<BaseNeuron> inputs = network.getInputs(neuron);
+            for (BaseNeuron input; (input = inputs.next()) != null; ) {
                 state.store(stateVisitor, input.getComputationView(stateVisitor.stateIndex).getResult(stateVisitor));
             }
             Value value = stateVisitor.visit(state);
@@ -52,10 +52,10 @@ public class StandardNeuronVisitors {
         @Override
         public void visit(WeightedNeuron neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
-            Pair<Iterator<Neuron>, Iterator<Weight>> inputs = network.getInputs(neuron);
-            Iterator<Neuron> inputNeurons = inputs.r;
+            Pair<Iterator<BaseNeuron>, Iterator<Weight>> inputs = network.getInputs(neuron);
+            Iterator<BaseNeuron> inputNeurons = inputs.r;
             Iterator<Weight> inputWeights = inputs.s;
-            Neuron input;
+            BaseNeuron input;
             Weight weight;
 
             //state.invalidate(); //todo (a) test if faster with invalidation here (at the beginning of evaluation) instead of using separate iteration with networks.computation.iteration.visitors.states.Invalidator ?
@@ -82,13 +82,13 @@ public class StandardNeuronVisitors {
         }
 
         @Override
-        public void visit(Neuron neuron) {
+        public void visit(BaseNeuron neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             Value value = stateVisitor.visit(state);
 
-            Iterator<Neuron> inputs = network.getInputs(neuron);
+            Iterator<BaseNeuron> inputs = network.getInputs(neuron);
 
-            for (Neuron input; (input = inputs.next()) != null; ) {
+            for (BaseNeuron input; (input = inputs.next()) != null; ) {
                 input.getComputationView(stateVisitor.stateIndex).store(stateVisitor, value);
             }
         }
@@ -98,13 +98,13 @@ public class StandardNeuronVisitors {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             Value gradient = stateVisitor.visit(state);
             //state.invalidate(); //todo (b) test if faster with invalidation here (at the end of backprop) instead of using separate iteration with networks.computation.iteration.visitors.states.Invalidator ?
-            Pair<Iterator<Neuron>, Iterator<Weight>> inputs = network.getInputs(neuron);
+            Pair<Iterator<BaseNeuron>, Iterator<Weight>> inputs = network.getInputs(neuron);
 
             weightUpdater.visit(neuron.offset, gradient);
 
-            Iterator<Neuron> inputNeurons = inputs.r;
+            Iterator<BaseNeuron> inputNeurons = inputs.r;
             Iterator<Weight> inputWeights = inputs.s;
-            Neuron input;
+            BaseNeuron input;
             Weight weight;
             while ((input = inputNeurons.next()) != null && (weight = inputWeights.next()) != null) {
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
@@ -125,7 +125,7 @@ public class StandardNeuronVisitors {
         }
 
         @Override
-        public void visit(Neuron neuron) {
+        public void visit(BaseNeuron neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             stateVisitor.visit(state);
         }

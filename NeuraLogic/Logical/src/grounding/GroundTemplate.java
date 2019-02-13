@@ -9,20 +9,13 @@ import ida.ilp.logic.Clause;
 import ida.ilp.logic.Literal;
 import ida.ilp.logic.subsumption.Matching;
 import learning.Example;
-import networks.structure.metadata.inputMappings.LinkedMapping;
-import networks.structure.components.types.DetailedNetwork;
-import networks.structure.components.neurons.Neuron;
-import networks.structure.components.neurons.types.AggregationNeuron;
-import networks.structure.components.neurons.types.AtomNeuron;
-import networks.structure.components.neurons.types.FactNeuron;
-import networks.structure.components.neurons.types.RuleNeurons;
+import networks.structure.building.NeuronMaps;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 /**
- * Temporary structure created during grounding for transfer between ground Herbrand model (rules+facts) and neural network.
+ * Temporary structure created during grounding for transfer between ground Herbrand model (rules+facts) and a neural network.
  */
 public class GroundTemplate extends GraphTemplate implements Example {
     String id;
@@ -31,7 +24,7 @@ public class GroundTemplate extends GraphTemplate implements Example {
      * Temp (for current pair of Template+Example) structure (head -> rules -> ground bodies) for traversing the graph of groundings
      */
     @NotNull
-    public LinkedHashMap<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> groundRules;    //todo optimize access by further aggregating literals with the same predicate for subsumption testing?
+    public LinkedHashMap<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> groundRules;    //todo test optimize access by further aggregating literals with the same predicate for subsumption testing?
 
     /**
      * Temp (for current pair of Template+Example) set of true ground facts
@@ -39,34 +32,10 @@ public class GroundTemplate extends GraphTemplate implements Example {
     @NotNull
     public Map<Literal, ValuedFact> groundFacts;
 
-    public NeuronMaps neuronMaps;
-
-    public static class NeuronMaps {
-        public Map<Literal, AtomNeuron> atomNeurons = new HashMap<>();
-        public Map<WeightedRule, AggregationNeuron> aggNeurons = new HashMap<>();
-        public Map<WeightedRule, RuleNeurons> ruleNeurons = new LinkedHashMap<>();
-        public Map<Literal, FactNeuron> factNeurons = new HashMap<>();
-
-        /**
-         * Locally valid input overloading for some neurons to facilitate dynamic structure changes
-         */
-        @Nullable
-        public Map<Neuron, LinkedMapping> extraInputMapping = new HashMap<>();
-
-        public void addAllFrom(NeuronMaps neuronMaps) {
-            atomNeurons.putAll(neuronMaps.atomNeurons);
-            aggNeurons.putAll(neuronMaps.aggNeurons);
-            ruleNeurons.putAll(neuronMaps.ruleNeurons);
-            factNeurons.putAll(neuronMaps.factNeurons);
-
-            extraInputMapping.putAll(neuronMaps.extraInputMapping);
-        }
-    }
-
-    @Nullable
-    public
-    DetailedNetwork neuralNetwork;
-
+    /**
+     * Linking between logic literals and rules and neurons - can be possibly reused between different GroundTemplates, so it is saved here.
+     */
+    public NeuronMaps neuronMaps;   //todo move to grounding.GroundingSample for clarity
 
     public GroundTemplate() {
 

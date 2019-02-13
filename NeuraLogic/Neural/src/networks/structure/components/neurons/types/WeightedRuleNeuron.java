@@ -10,6 +10,6 @@ public class WeightedRuleNeuron<S extends State.Neural> extends WeightedNeuron<A
     private static final Logger LOG = Logger.getLogger(WeightedRuleNeuron.class.getName());
 
     public WeightedRuleNeuron(WeightedRule grounding, int index, S state) {
-        super(grounding.toString(), index, state, grounding.offset, grounding.activationFcn);
+        super(grounding.toString(), index, state, grounding.offset);
     }
 }

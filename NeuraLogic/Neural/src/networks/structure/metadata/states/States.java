@@ -8,7 +8,7 @@ import networks.computation.iteration.visitors.states.neurons.Backproper;
 import networks.computation.iteration.visitors.states.neurons.Dropouter;
 import networks.computation.iteration.visitors.states.neurons.Evaluator;
 import networks.computation.iteration.visitors.states.neurons.Invalidator;
-import networks.structure.components.neurons.Neurons;
+import networks.structure.components.neurons.Neuron;
 import networks.structure.metadata.inputMappings.NeuronMapping;
 import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 import settings.Settings;
@@ -30,7 +30,7 @@ public abstract class States implements State {
      *
      * @param <T>
      */
-    public static final class ComputationStateComposite<T extends State.Neural.Computation> implements State.Neural<Value> {
+    public static final class ComputationStateComposite<T extends Neural.Computation> implements Neural {
         public final T[] states;
         Aggregation aggregation;
 
@@ -39,7 +39,7 @@ public abstract class States implements State {
         }
 
         @Override
-        public State.Neural.Computation getComputationView(int index) {
+        public Neural.Computation getComputationView(int index) {
             return states[index];
         }
 
@@ -148,6 +148,12 @@ public abstract class States implements State {
             this.parentCount = count;
         }
 
+        /**
+         * If we do not know the parentCount in advance
+         */
+        public ParentCounter() {
+        }
+
         @Override
         public void invalidate() {
             super.invalidate();
@@ -217,6 +223,11 @@ public abstract class States implements State {
             this.dropoutRate = dropoutRate;
         }
 
+        public DropoutStore(Settings settings) {
+            this.settings = settings;
+            this.dropoutRate = settings.dropoutRate;
+        }
+
         @Override
         public void invalidate() {
             super.invalidate();
@@ -244,10 +255,13 @@ public abstract class States implements State {
 
         public final class ParentsDropoutStore extends ParentCounter implements Neural.Computation.HasDropout {
 
-            public ParentsDropoutStore(Settings settings, int count, double dropoutRate) {
-                super(count);
+            public ParentsDropoutStore(Settings settings) {
+                super();
                 DropoutStore.this.settings = settings;
-                DropoutStore.this.dropoutRate = dropoutRate;
+            }
+
+            public ParentsDropoutStore() {
+
             }
 
             @Override
@@ -316,9 +330,9 @@ public abstract class States implements State {
      * This information should be stored in a Network (not Neuron).
      */
     public static final class Inputs implements Structure.InputNeuronMap {
-        NeuronMapping<Neurons> inputs;
+        NeuronMapping<Neuron> inputs;
 
-        public NeuronMapping<Neurons> getInputMapping() {
+        public NeuronMapping<Neuron> getInputMapping() {
             return inputs;
         }
 
@@ -330,9 +344,9 @@ public abstract class States implements State {
     }
 
     public static final class WeightedInputs implements Structure.WeightedInputsMap {
-        WeightedNeuronMapping<Neurons> inputs;
+        WeightedNeuronMapping<Neuron> inputs;
 
-        public WeightedNeuronMapping<Neurons> getWeightedMapping() {
+        public WeightedNeuronMapping<Neuron> getWeightedMapping() {
             return inputs;
         }
 
@@ -343,9 +357,9 @@ public abstract class States implements State {
     }
 
     public static final class Outputs implements Structure.OutputNeuronMap {
-        NeuronMapping<Neurons> outputs;
+        NeuronMapping<Neuron> outputs;
 
-        public NeuronMapping<Neurons> getOutputMapping() {
+        public NeuronMapping<Neuron> getOutputMapping() {
             return outputs;
         }
 

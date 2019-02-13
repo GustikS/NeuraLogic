@@ -1,66 +1,53 @@
 package networks.structure.components.types;
 
 import ida.utils.tuples.Pair;
-import networks.structure.metadata.inputMappings.NeuronMapping;
+import networks.structure.components.NeuronSets;
+import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.BaseNeuron;
+import networks.structure.components.neurons.WeightedNeuron;
+import networks.structure.components.weights.Weight;
 import networks.structure.metadata.NetworkMetadata;
 import networks.structure.metadata.inputMappings.LinkedMapping;
 import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 import networks.structure.metadata.states.State;
-import networks.structure.components.neurons.Neuron;
-import networks.structure.components.neurons.WeightedNeuron;
-import networks.structure.components.neurons.types.*;
-import networks.structure.components.weights.Weight;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+/**
+ * A specific {@link networks.structure.components.NeuralNetwork} type, meant for storing all the extra information accumulated during neural net creation,
+ * which might be useful for various neural nets postprocessing steps. It provides the basic neural net functionality as well, but is not meant for regular use.
+ * <p>
+ * When the postprocessing is done, most of the information is discarded and an optimized version for both memory and speed is created, e.g. {@link TopologicNetwork}.
+ *
+ * @param <N>
+ */
 public class DetailedNetwork<N extends State.Neural.Structure> extends TopologicNetwork<N> {
     private static final Logger LOG = Logger.getLogger(DetailedNetwork.class.getName());
 
+    /**
+     * Locally valid input overloading for some neurons to facilitate dynamic structure changes.
+     * This map is only to be used before the faster neural {@link networks.structure.metadata.states.StatesCache} is created for the same thing in a regular network.
+     */
+    public @Nullable Map<BaseNeuron, LinkedMapping> extraInputMapping;
 
     /**
-     * A subset of all weights from a template that are used within this network.
-     * todo NOT INDEXABLE! remove? yes remove...
+     * Outputs of neurons, are only rarely used (not stored in a regular neural net to save space)
      */
-    @NotNull
-    @Deprecated
-    Weight[] activeWeights;
-
-    /**
-     * Locally valid input overloading for some neurons to facilitate dynamic structure changes
-     */
-    public @Nullable Map<Neuron, LinkedMapping> extraInputMapping;
-
-    public @Nullable Map<Neuron, LinkedMapping> outputMapping;
+    public @Nullable Map<BaseNeuron, LinkedMapping> outputMapping;
 
     @Nullable
-    public
-    Neurons neurons;
+    public NeuronSets allNeurons;
 
-    public DetailedNetwork() {
-        super(null, 0);
+    public DetailedNetwork(String id, List<BaseNeuron<BaseNeuron, State.Neural>> allNeurons) {
+        super(id, allNeurons);
     }
 
     public DetailedNetwork(String id, int size) {
         super(id, size);
-    }
-
-    public class Neurons {
-
-        public List<AtomNeuron> atomNeurons;
-        public List<AggregationNeuron> aggNeurons;
-        public List<RuleNeuron> ruleNeurons;
-        public List<WeightedRuleNeuron> weightedRuleNeurons;
-        public List<FactNeuron> factNeurons;
-        public List<NegationNeuron> negationNeurons;
-
-        List<Neuron> roots;
-        List<Neuron> leaves;
     }
 
     Boolean recursive;
@@ -68,22 +55,12 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
     @Nullable
     NetworkMetadata metadata;
 
-    public Map<Neuron, LinkedMapping> calculateOutputs() {
-        Map<Neuron, LinkedMapping> outputMapping = new HashMap<>();
-
-        for (Neuron parent : allNeuronsTopologic) {
-            Iterator<Neuron> inputs = getInputs(parent);
-            Neuron child;
-            while ((child = inputs.next()) != null) {
-                LinkedMapping parentMapping = outputMapping.computeIfAbsent(child, f -> new NeuronMapping());
-                parentMapping.addLink(child);
-            }
-        }
-        return outputMapping;
+    public DetailedNetwork(String id, List<BaseNeuron<BaseNeuron, State.Neural>> allNeurons, NeuronSets neurons) {
+        this(id, allNeurons);
+        this.allNeurons = neurons;
     }
 
-
-    public <T extends Neuron, S extends State.Neural> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron) {
+    public <T extends BaseNeuron, S extends State.Neural> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron) {
         WeightedNeuronMapping<T> inputMapping;
         if ((inputMapping = extraInputMapping != null ? (WeightedNeuronMapping<T>) extraInputMapping.get(neuron) : null) != null) {
             Iterator<T> iterator = inputMapping.iterator();
@@ -94,7 +71,7 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
         }
     }
 
-    public <T extends Neuron, S extends State.Neural> Iterator<T> getInputs(Neuron<T, S> neuron) {
+    public <T extends BaseNeuron, S extends State.Neural> Iterator<T> getInputs(BaseNeuron<T, S> neuron) {
         LinkedMapping<T> inputMapping;
         if ((inputMapping = extraInputMapping != null ? extraInputMapping.get(neuron) : null) != null) {
             return inputMapping.iterator();
@@ -103,8 +80,8 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
         }
     }
 
-    public <T extends Neuron, S extends State.Neural> Iterator<T> getOutputs(Neuron<T, S> neuron) {
-        LinkedMapping<T> mapping;
+    public <T extends BaseNeuron, S extends State.Neural> Iterator<Neuron> getOutputs(BaseNeuron<T, S> neuron) {
+        LinkedMapping<Neuron> mapping;
         if ((mapping = outputMapping != null ? outputMapping.get(neuron) : null) != null) {
             return mapping.iterator();
         } else {
@@ -112,17 +89,12 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
         }
     }
 
-    public void removeInput(Neuron neuron, Pair<Neuron, Weight> input) {
+    public void removeInput(BaseNeuron neuron, Pair<BaseNeuron, Weight> input) {
         //todo to use with pruning
     }
 
     public boolean isRecursive() {
         return recursive;
-    }
-
-    @Override
-    public Integer getSize() {
-        return allNeuronsTopologic.size();
     }
 
 }

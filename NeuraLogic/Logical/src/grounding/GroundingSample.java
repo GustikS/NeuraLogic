@@ -33,7 +33,7 @@ public class GroundingSample extends LogicSample {
          * Duplicate reference (to GroundingSample.Query.Evidence) but with synchronized access
          */
         private LiftedExample example;
-        private GroundTemplate grounding;
+        private GroundTemplate groundTemplate;
 
         public synchronized LiftedExample getExample() {
             return example;
@@ -47,12 +47,12 @@ public class GroundingSample extends LogicSample {
             this.example = example;
         }
 
-        public synchronized GroundTemplate getGrounding() {
-            return grounding;
+        public synchronized GroundTemplate getGroundTemplate() {
+            return groundTemplate;
         }
 
-        public synchronized void setGrounding(GroundTemplate grounding) {
-            this.grounding = grounding;
+        public synchronized void setGroundTemplate(GroundTemplate groundTemplate) {
+            this.groundTemplate = groundTemplate;
         }
     }
 

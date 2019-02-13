@@ -3,12 +3,13 @@ package networks.structure.building.factories;
 import constructs.example.ValuedFact;
 import constructs.template.components.HeadAtom;
 import constructs.template.components.WeightedRule;
-import networks.structure.components.neurons.Neuron;
+import networks.computation.evaluation.functions.Activation;
+import networks.structure.building.NeuronMaps;
+import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.types.*;
 import networks.structure.metadata.states.State;
 import networks.structure.metadata.states.States;
 import settings.Settings;
-import sun.rmi.server.Activation;
 
 import java.util.logging.Logger;
 
@@ -22,29 +23,32 @@ public class NeuronFactory {
 
     private int counter;
 
+
+    /**
+     * A mapping from ground literals and ground rules to respective neurons, which will be modified during the building process
+     */
+    public NeuronMaps neuronMaps;
+
     public NeuronFactory(Settings settings) {
         this.settings = settings;
     }
 
-    State.Neural getComputationState(Neuron neuron) {
-        if (settings.minibatchSize > 1) {   //if there is minibatch, multiple threads will possibly be accessing the same neuron, i.e. we need array of states, one for each thread
+    State.Neural getComputationState(BaseNeuron neuron) {
+        if (settings.minibatchSize > 1 && neuron.isShared) {   //if there is minibatch, multiple threads will possibly be accessing the same neuron, i.e. we need array of states, one for each thread
             States.ComputationStateComposite<State.Neural.Computation> stateComposite = new States.ComputationStateComposite<>(new State.Neural.Computation[settings.minibatchSize]);
             for (int i = 0; i < stateComposite.states.length; i++) {
-                stateComposite.states[i] = getBaseState(neuron);
+                stateComposite.states[i] = neuron.getRawState().clone();
             }
             return stateComposite;
         } else {    //otherwise just initialize the one state for this neuron
-            return getBaseState(neuron);
+            return getBaseState(neuron.getClass());
         }
     }
 
-    State.Neural.Computation getBaseState(Neuron neuron) {
-        if (neuron.isShared) {
-
-        } else {
-
-        }
+    private State.Neural.Computation getBaseState(Class<? extends BaseNeuron> aClass) {
+        if (aClass.)
     }
+
 
     /**
      * @param head
@@ -54,6 +58,7 @@ public class NeuronFactory {
         State.Neural.Computation state = getComputationState();
         AtomNeuron<State.Neural.Computation> atomNeuron = new AtomNeuron<>(head, counter++, state);
         atomNeuron.id = head.toString();
+        neuronMaps.atomNeurons.put(head.literal, atomNeuron);
         return atomNeuron;
     }
 
@@ -61,6 +66,7 @@ public class NeuronFactory {
         State.Neural.Computation state = getComputationState();
         AggregationNeuron<State.Neural.Computation> aggregationNeuron = new AggregationNeuron<>(weightedRule, counter++, state);
         aggregationNeuron.id = weightedRule.toString();
+        neuronMaps.aggNeurons.put(weightedRule, aggregationNeuron);
         return aggregationNeuron;
     }
 
@@ -68,6 +74,7 @@ public class NeuronFactory {
         State.Neural.Computation state = getComputationState();
         RuleNeuron<State.Neural.Computation> ruleNeuron = new RuleNeuron<>(groundRule, counter++, state);
         ruleNeuron.id = groundRule.toString();
+        neuronMaps.ruleNeurons.put(groundRule, ruleNeuron);
         return ruleNeuron;
     }
 

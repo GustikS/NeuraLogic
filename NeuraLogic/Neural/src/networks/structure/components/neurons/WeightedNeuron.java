@@ -1,7 +1,6 @@
 package networks.structure.components.neurons;
 
 import ida.utils.tuples.Pair;
-import networks.computation.evaluation.functions.Activation;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
 
@@ -18,7 +17,7 @@ import java.util.logging.Logger;
  * - inputs representation is better since it follows the process of calculation more naturally
  * - staying with this representation for everything then
  */
-public class WeightedNeuron<T extends Neurons, S extends State.Neural> extends Neuron<T, S> {
+public class WeightedNeuron<T extends Neuron, S extends State.Neural> extends BaseNeuron<T, S> {
     private static final Logger LOG = Logger.getLogger(WeightedNeuron.class.getName());
 
     public Weight offset;
@@ -28,8 +27,8 @@ public class WeightedNeuron<T extends Neurons, S extends State.Neural> extends N
      */
     protected ArrayList<Weight> weights;
 
-    public WeightedNeuron(String id, int index, S state, Weight offset, Activation activation) {
-        super(index, id, state, activation);
+    public WeightedNeuron(String id, int index, S state, Weight offset) {
+        super(index, id, state);
         this.offset = offset;
         weights = new ArrayList<>();
     }

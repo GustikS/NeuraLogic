@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Class responsible for logical inference/grounding, creating GroundTemplate (set of ground rules and facts) from lifted Template and Example
@@ -129,13 +128,11 @@ public abstract class Grounder {
 
     /**
      * Consume all samples, share all facts and rules between them, then ground as a single big sample.
-     * Stream TERMINATING operation!    //todo take out the stream...
      *
-     * @param samples
+     * @param sampleList
      * @return
      */
-    public Stream<GroundingSample> globalGroundingSample(Stream<GroundingSample> samples) {
-        List<GroundingSample> sampleList = samples.collect(Collectors.toList());
+    public List<GroundingSample> globalGroundingSample(List<GroundingSample> sampleList) {
         Template template = new Template();
         LiftedExample liftedExample = new LiftedExample();
 
@@ -152,7 +149,7 @@ public abstract class Grounder {
 
         GroundTemplate groundTemplate = groundRulesAndFacts(liftedExample, template);
 
-        sampleList.forEach(sample -> sample.grounding.setGrounding(groundTemplate));
-        return sampleList.stream();
+        sampleList.forEach(sample -> sample.grounding.setGroundTemplate(groundTemplate));
+        return sampleList;
     }
 }

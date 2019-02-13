@@ -96,7 +96,7 @@ public class Settings {
      */
     public boolean calculateOutputLinks;
     /**
-     * Remove recurrent edges from the neural networks
+     * Remove recurrent edges from the neural networks w.r.t. some strategy
      */
     public boolean cycleBreaking;
     /**
@@ -124,7 +124,7 @@ public class Settings {
      */
     public boolean expandEmbeddings;
     /**
-     * What particular {@link networks.structure.metadata.states.State.Neural.Computation} will the neurons have?
+     * What particular {@link networks.structure.metadata.states.State.Neural.Computation} will the neurons have by default?
      */
     public NeuralState neuralState;
 
@@ -204,7 +204,7 @@ public class Settings {
 
     public double initLearningRate = 0.1;
 
-    public double dropoutRate = 0.5;
+    public double dropoutRate = 0.1;
 
     /**
      * Percentual size of validation set separated from training set
