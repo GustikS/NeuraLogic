@@ -3,6 +3,7 @@ package networks.computation.evaluation.functions.specific;
 import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.values.ScalarValue;
 import networks.computation.evaluation.values.Value;
+import networks.structure.metadata.states.AggregationState;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -25,6 +26,11 @@ public class Maximum extends Aggregation {
     @Override
     public Value differentiate(List<Value> inputs) {
         return new ScalarValue(1);  //todo check
+    }
+
+    @Override
+    public AggregationState getAggregationState() {
+        return new AggregationState.Pooling.Max(this);
     }
 
 }

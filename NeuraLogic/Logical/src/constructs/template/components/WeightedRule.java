@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 
 /**
  * Created by Gusta on 04.10.2016.
+ *
+ * todo create hash?
  */
 public class WeightedRule {
 

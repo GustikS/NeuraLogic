@@ -2,8 +2,8 @@ package networks.structure.components.types;
 
 import ida.utils.tuples.Pair;
 import networks.structure.components.NeuronSets;
-import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.BaseNeuron;
+import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.NetworkMetadata;
@@ -12,9 +12,7 @@ import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 import networks.structure.metadata.states.State;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -42,12 +40,24 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
     @Nullable
     public NeuronSets allNeurons;
 
-    public DetailedNetwork(String id, List<BaseNeuron<BaseNeuron, State.Neural>> allNeurons) {
+    /**
+     * Cumulating all the states that will be necessary for each of the neurons before the final state objects are created to go into fast cache
+     */
+    public Map<Neuron, List<State.Neural.Structure>> cumulativeStates;
+
+    /**
+     * Number of shared neuron only AT THE TIME OF CREATION, i.e. if later some of them become shared, this needs to be recounted.
+     */
+    public int sharedNeuronsCount;
+
+    public DetailedNetwork(String id, List<BaseNeuron<Neuron, State.Neural>> allNeurons) {
         super(id, allNeurons);
+        cumulativeStates = new LinkedHashMap<>();
     }
 
     public DetailedNetwork(String id, int size) {
         super(id, size);
+        cumulativeStates = new LinkedHashMap<>();
     }
 
     Boolean recursive;
@@ -55,12 +65,12 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
     @Nullable
     NetworkMetadata metadata;
 
-    public DetailedNetwork(String id, List<BaseNeuron<BaseNeuron, State.Neural>> allNeurons, NeuronSets neurons) {
+    public DetailedNetwork(String id, List<BaseNeuron<Neuron, State.Neural>> allNeurons, NeuronSets neurons) {
         this(id, allNeurons);
         this.allNeurons = neurons;
     }
 
-    public <T extends BaseNeuron, S extends State.Neural> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron) {
+    public <T extends Neuron, S extends State.Neural> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron) {
         WeightedNeuronMapping<T> inputMapping;
         if ((inputMapping = extraInputMapping != null ? (WeightedNeuronMapping<T>) extraInputMapping.get(neuron) : null) != null) {
             Iterator<T> iterator = inputMapping.iterator();
@@ -71,7 +81,7 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
         }
     }
 
-    public <T extends BaseNeuron, S extends State.Neural> Iterator<T> getInputs(BaseNeuron<T, S> neuron) {
+    public <T extends Neuron, S extends State.Neural> Iterator<T> getInputs(BaseNeuron<T, S> neuron) {
         LinkedMapping<T> inputMapping;
         if ((inputMapping = extraInputMapping != null ? extraInputMapping.get(neuron) : null) != null) {
             return inputMapping.iterator();
@@ -80,13 +90,18 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
         }
     }
 
-    public <T extends BaseNeuron, S extends State.Neural> Iterator<Neuron> getOutputs(BaseNeuron<T, S> neuron) {
+    public <T extends Neuron, S extends State.Neural> Iterator<Neuron> getOutputs(BaseNeuron<T, S> neuron) {
         LinkedMapping<Neuron> mapping;
         if ((mapping = outputMapping != null ? outputMapping.get(neuron) : null) != null) {
             return mapping.iterator();
         } else {
             return null;
         }
+    }
+
+    public void addState(Neuron neuron, State.Structure state) {
+        List<State.Structure> states = cumulativeStates.putIfAbsent(neuron, new LinkedList<>());
+        states.add(state);
     }
 
     public void removeInput(BaseNeuron neuron, Pair<BaseNeuron, Weight> input) {

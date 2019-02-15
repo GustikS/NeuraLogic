@@ -4,8 +4,8 @@ import constructs.example.ValuedFact;
 import constructs.template.components.HeadAtom;
 import constructs.template.components.WeightedRule;
 import networks.computation.evaluation.functions.Activation;
+import networks.computation.evaluation.functions.Aggregation;
 import networks.structure.building.NeuronMaps;
-import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.types.*;
 import networks.structure.metadata.states.State;
 import networks.structure.metadata.states.States;
@@ -23,9 +23,8 @@ public class NeuronFactory {
 
     private int counter;
 
-
     /**
-     * A mapping from ground literals and ground rules to respective neurons, which will be modified during the building process
+     * A mapping from ground literals and ground rules to respective neurons, which will be incrementally modified during the building process
      */
     public NeuronMaps neuronMaps;
 
@@ -33,68 +32,50 @@ public class NeuronFactory {
         this.settings = settings;
     }
 
-    State.Neural getComputationState(BaseNeuron neuron) {
-        if (settings.minibatchSize > 1 && neuron.isShared) {   //if there is minibatch, multiple threads will possibly be accessing the same neuron, i.e. we need array of states, one for each thread
-            States.ComputationStateComposite<State.Neural.Computation> stateComposite = new States.ComputationStateComposite<>(new State.Neural.Computation[settings.minibatchSize]);
-            for (int i = 0; i < stateComposite.states.length; i++) {
-                stateComposite.states[i] = neuron.getRawState().clone();
-            }
-            return stateComposite;
-        } else {    //otherwise just initialize the one state for this neuron
-            return getBaseState(neuron.getClass());
-        }
-    }
-
-    private State.Neural.Computation getBaseState(Class<? extends BaseNeuron> aClass) {
-        if (aClass.)
-    }
-
-
-    /**
-     * @param head
-     * @return
-     */
     public AtomNeuron createAtomNeuron(HeadAtom head) {
-        State.Neural.Computation state = getComputationState();
+        Activation activation = head.activation != null ? head.activation : Activation.getActivationFunction(settings.atomNeuronActivation);
+        State.Neural.Computation state = State.createBaseState(settings, activation);
         AtomNeuron<State.Neural.Computation> atomNeuron = new AtomNeuron<>(head, counter++, state);
-        atomNeuron.id = head.toString();
         neuronMaps.atomNeurons.put(head.literal, atomNeuron);
         return atomNeuron;
     }
 
     public AggregationNeuron createAggNeuron(WeightedRule weightedRule) {
-        State.Neural.Computation state = getComputationState();
+        Aggregation aggregation = weightedRule.aggregationFcn != null ? weightedRule.activationFcn : Aggregation.getAggregation(settings.aggNeuronActivation);
+        State.Neural.Computation state = State.createBaseState(settings, aggregation);
         AggregationNeuron<State.Neural.Computation> aggregationNeuron = new AggregationNeuron<>(weightedRule, counter++, state);
-        aggregationNeuron.id = weightedRule.toString();
         neuronMaps.aggNeurons.put(weightedRule, aggregationNeuron);
         return aggregationNeuron;
     }
 
     public RuleNeuron createRuleNeuron(WeightedRule groundRule) {
-        State.Neural.Computation state = getComputationState();
+        Activation activation = groundRule.activationFcn != null ? groundRule.activationFcn : Activation.getActivationFunction(settings.ruleNeuronActivation);
+        State.Neural.Computation state = State.createBaseState(settings, activation);
         RuleNeuron<State.Neural.Computation> ruleNeuron = new RuleNeuron<>(groundRule, counter++, state);
-        ruleNeuron.id = groundRule.toString();
         neuronMaps.ruleNeurons.put(groundRule, ruleNeuron);
         return ruleNeuron;
     }
 
     public FactNeuron createFactNeuron(ValuedFact fact) {
-        FactNeuron factNeuron = new FactNeuron(fact, counter++);
-        factNeuron.id = fact.toString();
+        States.SimpleValue simpleValue = new States.SimpleValue(fact.value);
+        FactNeuron factNeuron = new FactNeuron(fact, counter++, simpleValue);
+        neuronMaps.factNeurons.put(fact.literal,factNeuron);
         return factNeuron;
     }
 
     public NegationNeuron createNegationNeuron(AtomFact atomFact, Activation negation) {
-        State.Neural.Computation state = getComputationState();
-        NegationNeuron<State.Neural.Computation> negationNeuron = new NegationNeuron<>(atomFact, counter++, state, negation);
-        negationNeuron.id = atomFact.toString();
+        Activation activation = negation != null ? negation : Activation.getActivationFunction(settings.negation);
+        State.Neural.Computation state = State.createBaseState(settings, activation);
+        NegationNeuron<State.Neural.Computation> negationNeuron = new NegationNeuron<>(atomFact, counter++, state);
+        neuronMaps.negationNeurons.add(negationNeuron);
         return negationNeuron;
     }
 
     public WeightedRuleNeuron createWeightedRuleNeuron(WeightedRule groundRule) {
-        State.Neural.Computation state = getComputationState();
+        Activation activation = groundRule.activationFcn != null ? groundRule.activationFcn : Activation.getActivationFunction(settings.ruleNeuronActivation);
+        State.Neural.Computation state = State.createBaseState(settings, activation);
         WeightedRuleNeuron<State.Neural.Computation> weightedRuleNeuron = new WeightedRuleNeuron<>(groundRule, counter++, state);
-        weightedRuleNeuron.id = groundRule.toString();
+        neuronMaps.ruleNeurons.put(groundRule, weightedRuleNeuron);
         return weightedRuleNeuron;
     }
 }

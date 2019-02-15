@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 public class NeuralProcessingSample extends NeuralSample {
     private static final Logger LOG = Logger.getLogger(NeuralProcessingSample.class.getName());
 
-    DetailedNetwork detailedNetwork;
+    public DetailedNetwork detailedNetwork;
 
     public NeuralProcessingSample(Value v, QueryNeuron q) {
         super(v, q);

@@ -1,17 +1,20 @@
 package pipelines.building;
 
 import grounding.GroundingSample;
-import networks.structure.building.Neuralizer;
+import networks.computation.training.NeuralSample;
 import networks.structure.building.NeuralProcessingSample;
+import networks.structure.building.Neuralizer;
 import networks.structure.transforming.CycleBreaking;
 import networks.structure.transforming.NetworkReducing;
+import networks.structure.transforming.ParentsExtractor;
 import pipelines.ConnectAfter;
 import pipelines.Pipe;
 import pipelines.Pipeline;
 import settings.Settings;
-import networks.computation.training.NeuralSample;
 
+import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingSample>, Stream<NeuralSample>> {
@@ -47,12 +50,30 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
             LOG.info("Warning - skipping all neural optimization steps!");
         }
 
+        Pipe<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> finalizationPipe = pipeline.register(new Pipe<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>>("NetworksFinalizationPipe") {
+            @Override
+            public Stream<NeuralProcessingSample> apply(Stream<NeuralProcessingSample> neuralProcessingSampleStream) {
+
+                if (settings.parentCounting && (settings.parallelTraining || !settings.neuralStreaming)) {
+                    ParentsExtractor parentsExtractor = new ParentsExtractor();
+                    //in the case of the need for parents extraction of shared neurons, we NEED TO TERMINATE THE STREAM
+                    List<NeuralProcessingSample> processingSamples = neuralProcessingSampleStream.collect(Collectors.toList());
+                    processingSamples.forEach(sample -> parentsExtractor.transferSharedNeuronsParents(sample.detailedNetwork));
+                    neuralProcessingSampleStream = processingSamples.stream();
+                }
+
+                return neuralProcessingSampleStream;
+            }
+        });
+        nextPipe.connectAfter(finalizationPipe);
+
         Pipe<Stream<NeuralProcessingSample>, Stream<NeuralSample>> cutoffPipe = pipeline.registerEnd(new Pipe<Stream<NeuralProcessingSample>, Stream<NeuralSample>>("ReleaseMemoryPipe") {
             @Override
             public Stream<NeuralSample> apply(Stream<NeuralProcessingSample> neuralProcessingSampleStream) {
                 return neuralProcessingSampleStream.map(s -> new NeuralSample(s.target, s.query));
             }
         });
+        finalizationPipe.connectAfter(cutoffPipe);
 
         return pipeline;
     }
@@ -127,7 +148,7 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
             //todo at the very end of all pruning, expand the networks to full size with vectorized nodes
         }
         //todo check wieghts dimensions
-        //todo process neuron sharing flags from neurons to networks - need to terminate the stream (since a neuron may become shared later on)
+
         return pipeline;
     }
 }

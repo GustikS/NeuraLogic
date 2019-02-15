@@ -38,7 +38,7 @@ public class BFS {
 
         public TDownIterator(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<BaseNeuron, State.Neural> neuron, NeuronVisitor.Weighted pureNeuronVisitor) {
             super(network, neuron, pureNeuronVisitor);
-            queue = new ArrayDeque<>(network.getSize());
+            queue = new ArrayDeque<>(network.getNeuronCount());
             queue.add(outputNeuron);
         }
 
@@ -75,7 +75,7 @@ public class BFS {
 
         public TDownVisitor(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<BaseNeuron, State.Neural> neuron, StateVisiting.Computation topDown, StateVisiting.Computation bottomUp, WeightUpdater weightUpdater) {
             super(network, neuron);
-            queue = new ArrayDeque<>(network.getSize());
+            queue = new ArrayDeque<>(network.getNeuronCount());
             queue.add(outputNeuron);
             this.bottomUp = bottomUp;
             this.weightUpdater = weightUpdater;

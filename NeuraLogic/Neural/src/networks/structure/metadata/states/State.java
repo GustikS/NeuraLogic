@@ -6,7 +6,10 @@ import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.metadata.inputMappings.NeuronMapping;
 import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
+import org.jetbrains.annotations.NotNull;
+import settings.Settings;
 
+import java.lang.reflect.Array;
 import java.util.List;
 
 /**
@@ -32,6 +35,38 @@ public interface State<V> {
         return visitor.visit(this);
     }
 
+    static State.Neural.Computation createBaseState(Settings settings, Aggregation activationFunction) {
+        switch (settings.neuralState) {
+            case STANDARD:
+                return new States.ComputationStateStandard(activationFunction);
+            case PARENTS:
+                return new States.ParentCounter(activationFunction);
+            case DROPOUT:
+                return new States.DropoutStore(settings, activationFunction);
+            case PAR_DROPOUT:
+                return new States.DropoutStore(settings, activationFunction).new ParentsDropoutStore(activationFunction);
+            default:
+                return new States.ComputationStateStandard(activationFunction);
+        }
+    }
+
+    /**
+     * If there is minibatch, multiple threads will possibly be accessing the same neuron, i.e. we need array of states, one for each thread
+     *
+     * @param baseState
+     * @param copies
+     * @param <T>
+     * @return
+     */
+    static <T extends Neural.Computation> States.ComputationStateComposite<T> createCompositeState(T baseState, int copies) {
+        @SuppressWarnings("unchecked") final T[] batch = (T[]) Array.newInstance(baseState.getClass(), copies);
+        States.ComputationStateComposite<T> stateComposite = new States.ComputationStateComposite<T>(batch);
+        for (int i = 0; i < stateComposite.states.length; i++) {
+            stateComposite.states[i] = (T) baseState.clone();
+        }
+        return stateComposite;
+    }
+
     interface Neural<V> extends State<V> {
 
         /**
@@ -43,12 +78,17 @@ public interface State<V> {
          */
         Computation getComputationView(int index);
 
+        @NotNull
         Aggregation getAggregation();
 
         /**
          * Stateful values held by a Neuron for use during neural computation, i.e. Evaluation and Backpropagation
          */
-        interface Computation extends Neural {
+        interface Computation extends Neural<Value> {
+
+            Computation clone();
+
+            void setupValueDimensions(Value value);
 
             AggregationState getAggregationState();
 
@@ -92,6 +132,7 @@ public interface State<V> {
 
                 /**
                  * For setting up from State.Structure
+                 *
                  * @param parentCount
                  */
                 void setParents(StateVisiting visitor, int parentCount);
@@ -121,8 +162,10 @@ public interface State<V> {
      */
     interface Structure<V> extends State<V> {
 
-        interface Parents extends Structure<Integer> {
+        interface Parents {
             int getParentCount();
+
+            void setParentCount(int parentCount);
         }
 
         interface InputNeuronMap extends Structure<NeuronMapping<Neuron>> {

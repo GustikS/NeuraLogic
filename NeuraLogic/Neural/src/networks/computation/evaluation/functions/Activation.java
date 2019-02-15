@@ -1,9 +1,13 @@
 package networks.computation.evaluation.functions;
 
+import networks.computation.evaluation.functions.specific.LukasiewiczSigmoid;
+import networks.computation.evaluation.functions.specific.Sigmoid;
 import networks.computation.evaluation.values.Value;
+import settings.Settings;
 
 import java.util.List;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 /**
  * Class representing activation functions, i.e. those that firstly accumulate input values via summation and then apply some non-linearity on top.
@@ -12,7 +16,7 @@ import java.util.function.Function;
  * Created by gusta on 8.3.17.
  */
 public abstract class Activation extends Aggregation {
-
+    private static final Logger LOG = Logger.getLogger(Activation.class.getName());
     /**
      * Forward-pass function
      */
@@ -51,5 +55,15 @@ public abstract class Activation extends Aggregation {
             sum.plus(inputs.get(i));
         }
         return differentiate(sum);
+    }
+
+    public static Activation getActivationFunction(Settings.ActivationFcn activationFcn){
+        switch (activationFcn){
+            case SIGMOID: return new Sigmoid();
+            case LUKASIEWICZ: return new LukasiewiczSigmoid();
+            default:
+                LOG.severe("Unimplemented activation function");
+                return null;
+        }
     }
 }

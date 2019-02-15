@@ -3,7 +3,6 @@ package networks.structure.components.neurons;
 import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.iteration.NeuronVisiting;
 import networks.computation.iteration.visitors.neurons.NeuronVisitor;
-import networks.structure.metadata.states.State;
 import settings.Settings;
 
 import java.util.ArrayList;
@@ -22,9 +21,13 @@ public interface Neuron {
 
     Aggregation getAggregation();
 
-    State.Neural.Computation getBaseState(Settings settings);
-
     String getId();
 
     int inputCount();
+
+    boolean isShared();
+
+    boolean makeShared(Settings settings);
+
+    void setShared(boolean b);
 }

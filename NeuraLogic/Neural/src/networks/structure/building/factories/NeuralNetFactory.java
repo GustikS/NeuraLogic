@@ -32,12 +32,13 @@ public class NeuralNetFactory {
     }
 
     public TopologicNetwork extractTopologicNetwork(DetailedNetwork network){
-
+        //todo next this will require building the states cache
     }
 
     public DetailedNetwork createDetailedNetwork(NeuronMaps neuronMaps, String id) {
         DetailedNetwork detailedNetwork = createDetailedNetwork(id, neuronMaps.atomNeurons.values(), neuronMaps.aggNeurons.values(), neuronMaps.ruleNeurons.values(), neuronMaps.factNeurons.values(), neuronMaps.negationNeurons);
 
+        //we take input overmaps from the neuronMaps, otherwise the inputs of the previously created neurons would be wrong
         if (neuronMaps.extraInputMapping != null && !neuronMaps.extraInputMapping.isEmpty()) {
             detailedNetwork.extraInputMapping = new HashMap<>();
             detailedNetwork.extraInputMapping.putAll(neuronMaps.extraInputMapping);

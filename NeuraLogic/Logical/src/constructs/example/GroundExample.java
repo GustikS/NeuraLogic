@@ -33,7 +33,7 @@ public class GroundExample implements Example {
     }
 
     @Override
-    public Integer getSize() {
+    public Integer getNeuronCount() {
         return null;
     }
 

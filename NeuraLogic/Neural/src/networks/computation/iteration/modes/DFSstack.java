@@ -142,7 +142,7 @@ public class DFSstack {
 
         public BUpIterator(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<BaseNeuron, State.Neural> neuron, NeuronVisitor.Weighted pureNeuronVisitor) {
             super(network, neuron, pureNeuronVisitor);
-            postStack = new ArrayDeque<>(network.getSize());
+            postStack = new ArrayDeque<>(network.getNeuronCount());
             postStack.push(new Pair<>(false, outputNeuron));
         }
 

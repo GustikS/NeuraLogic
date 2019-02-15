@@ -1,6 +1,7 @@
 package networks.computation.evaluation.functions.specific;
 
 import networks.computation.evaluation.functions.Activation;
+import networks.structure.metadata.states.AggregationState;
 
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -17,5 +18,10 @@ public class Sigmoid extends Activation {
         super(logist,
                 in -> in > 100 || in < -100 ? 0 : logist.apply(in) * (1 - logist.apply(in))
         );
+    }
+
+    @Override
+    public AggregationState getAggregationState() {
+        return new AggregationState.ActivationState(this);
     }
 }

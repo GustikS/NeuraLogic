@@ -30,7 +30,7 @@ public abstract class States implements State {
      *
      * @param <T>
      */
-    public static final class ComputationStateComposite<T extends Neural.Computation> implements Neural {
+    public static final class ComputationStateComposite<T extends Neural.Computation> implements Neural<Value> {
         public final T[] states;
         Aggregation aggregation;
 
@@ -73,6 +73,10 @@ public abstract class States implements State {
         Value outputValue;
         Value acumGradient;
 
+        public ComputationStateStandard(Aggregation activation){
+            aggregationState = activation.getAggregationState();
+        }
+
         @Override
         public void invalidate() {
             outputValue.zero();
@@ -83,6 +87,19 @@ public abstract class States implements State {
         @Override
         public Aggregation getAggregation() {
             return aggregationState.getAggregation();
+        }
+
+        @Override
+        public ComputationStateStandard clone() {
+            ComputationStateStandard clone = new ComputationStateStandard(aggregationState.getAggregation());
+            clone.outputValue = this.outputValue.clone();
+            clone.acumGradient = this.acumGradient.clone();
+            return clone;
+        }
+
+        @Override
+        public void setupValueDimensions(Value value) {
+            //todo next
         }
 
         @Override
@@ -133,7 +150,7 @@ public abstract class States implements State {
 
     /**
      * Simple storage of parent count for efficient backprop computation with DFS (may vary due to neuron sharing in different contexts).
-     *
+     * <p>
      * IF THE NEURONS ARE SHARED WITH DIFFERENT PARENTS, use {@link NetworkParents} it in a {@link StatesCache} for each each neuron to transfer the correct parentCount
      */
     public static class ParentCounter extends ComputationStateStandard implements Neural.Computation.HasParents {
@@ -144,14 +161,16 @@ public abstract class States implements State {
          */
         boolean calculated;
 
-        public ParentCounter(int count) {
+        public ParentCounter(Aggregation activationFunction, int count) {
+            super(activationFunction);
             this.parentCount = count;
         }
 
         /**
          * If we do not know the parentCount in advance
          */
-        public ParentCounter() {
+        public ParentCounter(Aggregation activationFunction) {
+            super(activationFunction);
         }
 
         @Override
@@ -159,6 +178,14 @@ public abstract class States implements State {
             super.invalidate();
             checked = 0;
             calculated = false;
+        }
+
+        public ParentCounter clone() {
+            ParentCounter clone = (ParentCounter) super.clone();
+            clone.parentCount = this.parentCount;
+            clone.checked = this.checked;
+            clone.calculated = this.calculated;
+            return clone;
         }
 
         @Override
@@ -218,12 +245,14 @@ public abstract class States implements State {
         private boolean dropoutProcessed;
         private Settings settings;
 
-        public DropoutStore(Settings settings, double dropoutRate) {
+        public DropoutStore(Settings settings, double dropoutRate, Aggregation activationFunction) {
+            super(activationFunction);
             this.settings = settings;
             this.dropoutRate = dropoutRate;
         }
 
-        public DropoutStore(Settings settings) {
+        public DropoutStore(Settings settings, Aggregation activationFunction) {
+            super(activationFunction);
             this.settings = settings;
             this.dropoutRate = settings.dropoutRate;
         }
@@ -233,6 +262,15 @@ public abstract class States implements State {
             super.invalidate();
             isDropped = false;
             dropoutProcessed = false;
+        }
+
+        public DropoutStore clone(){
+            DropoutStore clone = (DropoutStore) super.clone();
+            clone.dropoutRate = this.dropoutRate;
+            clone.isDropped = this.isDropped;
+            clone.dropoutProcessed = this.dropoutProcessed;
+            clone.settings = this.settings;
+            return clone;
         }
 
         public boolean ready4expansion(Dropouter visitor) {
@@ -255,13 +293,27 @@ public abstract class States implements State {
 
         public final class ParentsDropoutStore extends ParentCounter implements Neural.Computation.HasDropout {
 
-            public ParentsDropoutStore(Settings settings) {
-                super();
+            public ParentsDropoutStore(Settings settings, Aggregation activationFunction) {
+                super(activationFunction);
                 DropoutStore.this.settings = settings;
             }
 
-            public ParentsDropoutStore() {
+            public ParentsDropoutStore(Aggregation activationFunction) {
+                super(activationFunction);
+            }
 
+            public ParentsDropoutStore(Settings settings, double dropoutRate, Aggregation aggregation) {
+                super(aggregation);
+                DropoutStore.this.settings = settings;
+                DropoutStore.this.dropoutRate = dropoutRate;
+            }
+
+            public ParentsDropoutStore clone(){
+                ParentsDropoutStore clone = new ParentsDropoutStore(DropoutStore.this.settings, DropoutStore.this.dropoutRate, this.aggregationState.getAggregation());
+                clone.parentCount = this.parentCount;
+                clone.checked = this.checked;
+                clone.calculated = this.calculated; //todo check
+                return clone;
             }
 
             @Override
@@ -299,6 +351,16 @@ public abstract class States implements State {
         }
 
         @Override
+        public Computation clone() {
+            return new SimpleValue(value.clone());
+        }
+
+        @Override
+        public void setupValueDimensions(Value value) {
+
+        }
+
+        @Override
         public AggregationState getAggregationState() {
             return null;
         }
@@ -329,7 +391,7 @@ public abstract class States implements State {
      * Storing inputs of each neuron (may vary due to neuron sharing in different contexts).
      * This information should be stored in a Network (not Neuron).
      */
-    public static final class Inputs implements Structure.InputNeuronMap {
+    public static class Inputs implements Structure.InputNeuronMap {
         NeuronMapping<Neuron> inputs;
 
         public NeuronMapping<Neuron> getInputMapping() {
@@ -343,7 +405,7 @@ public abstract class States implements State {
 
     }
 
-    public static final class WeightedInputs implements Structure.WeightedInputsMap {
+    public static class WeightedInputs implements Structure.WeightedInputsMap {
         WeightedNeuronMapping<Neuron> inputs;
 
         public WeightedNeuronMapping<Neuron> getWeightedMapping() {
@@ -356,7 +418,7 @@ public abstract class States implements State {
         }
     }
 
-    public static final class Outputs implements Structure.OutputNeuronMap {
+    public static class Outputs implements Structure.OutputNeuronMap {
         NeuronMapping<Neuron> outputs;
 
         public NeuronMapping<Neuron> getOutputMapping() {
@@ -369,17 +431,22 @@ public abstract class States implements State {
         }
     }
 
-    public static class NetworkParents implements Structure.Parents {
+    public static class NetworkParents implements Structure<Value>, Structure.Parents {
         int parentCount;
         /**
          * This can possibly be a CompositeState of {@link ParentCounter}!
          */
-        Neural.Computation parentCounter;
+        Neural<Value> parentCounter;
 
-        public Value accept(ParentsTransfer visitor) {
+        public Value accept(ParentsTransfer visitor) {  //todo test this call
             visitor.parentsCount = parentCount;
             parentCounter.accept(visitor);
             return null;
+        }
+
+        public NetworkParents(Neural<Value> parentCounter, int parentCount){
+            this.parentCounter = parentCounter;
+            this.parentCount = parentCount;
         }
 
         @Override
@@ -388,8 +455,35 @@ public abstract class States implements State {
         }
 
         @Override
+        public void setParentCount(int parentCount) {
+            this.parentCount = parentCount;
+        }
+
+        @Override
         public void invalidate() {
             //void
+        }
+
+        public class InputsParents extends Inputs implements Structure.Parents {
+
+            public NeuronMapping<Neuron> getInputMapping() {
+                return inputs;
+            }
+
+            @Override
+            public void invalidate() {
+                //void
+            }
+
+            @Override
+            public int getParentCount() {
+                return parentCount;
+            }
+
+            @Override
+            public void setParentCount(int parentCount) {
+                NetworkParents.this.parentCount = parentCount;
+            }
         }
     }
 

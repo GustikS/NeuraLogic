@@ -59,7 +59,7 @@ public class GroundTemplate extends GraphTemplate implements Example {
     }
 
     @Override
-    public Integer getSize() {
+    public Integer getNeuronCount() {
         return groundRules.size();
     }
 

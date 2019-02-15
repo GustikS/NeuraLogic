@@ -29,6 +29,10 @@ public abstract class AggregationState implements Aggregation.State {
         Activation activation;
         Value summedInputs;
 
+        public ActivationState(Activation activation) {
+            this.activation = activation;
+        }
+
         public ActivationState(Activation activation, Value valueStore) {
             this.activation = activation;
             this.summedInputs = valueStore;
@@ -127,6 +131,10 @@ public abstract class AggregationState implements Aggregation.State {
             int count = 0;
             Value sum;
 
+            public Avg(Aggregation aggregation) {
+                super(aggregation);
+            }
+
             // these should obtain the function in construction to be more generic - builder should take care of that
             public Avg(Aggregation aggregation, Value initSum) {
                 super(aggregation);
@@ -167,8 +175,8 @@ public abstract class AggregationState implements Aggregation.State {
          */
         public static class MaxK extends Pooling {
 
-            public MaxK(int k) {
-                super(null);
+            public MaxK(Aggregation aggregation, int k) {
+                super(aggregation);
                 //todo
             }
 
@@ -207,7 +215,8 @@ public abstract class AggregationState implements Aggregation.State {
         Aggregation aggregation;
         List<Value> accumulatedInputs;
 
-        public CumulationState(){
+        public CumulationState(Aggregation aggregation) {
+            this.aggregation = aggregation;
             accumulatedInputs = new ArrayList<>();
         }
 

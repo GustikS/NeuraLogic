@@ -43,8 +43,8 @@ public class BaseNeuron<T extends Neuron, S extends State.Neural> implements Neu
      * This is thus faster than searching in explicit maps (more correctly placed in Evaluator and/or Backprop),
      * but the states need to be treated more carefully (logic of creation taken by respective factories/builders).
      */
-    @Nullable
-    private final S state;
+    @NotNull
+    private S state;
     /**
      * If not shared, an elementary State can be freely used to store any information (most efficient mode).
      * If it is shared, we need to be careful as the real outputs and inputs might be different in each network.
@@ -87,22 +87,6 @@ public class BaseNeuron<T extends Neuron, S extends State.Neural> implements Neu
         return state.getAggregation();
     }
 
-    @Override
-    public State.Neural.Computation getBaseState(Settings settings) {
-        switch (settings.neuralState) {
-            case STANDARD:
-                return new States.ComputationStateStandard();
-            case PARENTS:
-                return new States.ParentCounter();
-            case DROPOUT:
-                return new States.DropoutStore(settings);
-            case PAR_DROPOUT:
-                return new States.DropoutStore(settings).new ParentsDropoutStore();
-            default:
-                return new States.ComputationStateStandard();
-        }
-    }
-
     public final boolean hasNoInputs() {
         return (inputs == null || inputs.isEmpty());
     }
@@ -111,8 +95,29 @@ public class BaseNeuron<T extends Neuron, S extends State.Neural> implements Neu
         return inputs.size();
     }
 
+    @Override
+    public boolean isShared() {
+        return isShared;
+    }
+
+    @Override
+    public void setShared(boolean b) {
+        isShared = b;
+    }
+
+    @Override
+    public boolean makeShared(Settings settings) {
+        if (settings.parallelTraining && !(state instanceof States.ComputationStateComposite)) {  //if not yet made ready for parallel access
+            S compositeState = (S) State.createCompositeState((State.Neural) state, settings.minibatchSize);    //todo remove State S from the signature of Neuron? probably yes
+            this.state = compositeState;
+            return true;
+        } else
+            return false;
+    }
+
     /**
      * In most cases it should be possible to use index as a faster hash, but id is safer.
+     *
      * @return
      */
     @Override
@@ -131,6 +136,7 @@ public class BaseNeuron<T extends Neuron, S extends State.Neural> implements Neu
 
     /**
      * In most cases it should be possible to use index as a faster hash, but id is safer.
+     *
      * @return
      */
     @NotNull
@@ -159,5 +165,9 @@ public class BaseNeuron<T extends Neuron, S extends State.Neural> implements Neu
     @Contract(pure = true)
     public final State.Neural getRawState() {
         return state;
+    }
+
+    public void setState(S finalState) {
+        this.state = finalState;
     }
 }

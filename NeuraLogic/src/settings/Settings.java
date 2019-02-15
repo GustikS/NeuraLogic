@@ -16,7 +16,7 @@ public class Settings {
 
     //------------------High level
 
-    public Optimize mode;
+    public Optimize optimmize;
 
     public enum Optimize {
         MEMORY, SPEED, TRADEOFF
@@ -135,6 +135,11 @@ public class Settings {
         PAR_DROPOUT
     }
 
+    /**
+     * Do we need to count parents to use during neural iterations (DFS, BFS)?
+     */
+    public boolean parentCounting;
+
     //-----------------Evaluation & Training
 
     /**
@@ -181,6 +186,11 @@ public class Settings {
     public boolean asyncParallelTraining;
 
     /**
+     * Any parallel training, i.e. implying the need for parallel access to neurons' states
+     */
+    public boolean parallelTraining;
+
+    /**
      * A single-pass weight training via streaming. This can save memory, but cannot re-iterate the data (i.e. learn in epochs)
      */
     public boolean neuralStreaming;
@@ -223,8 +233,13 @@ public class Settings {
 
     public AggregationFcn errorAggregationFcn = AggregationFcn.AVG;
 
+    public ActivationFcn atomNeuronActivation = ActivationFcn.SIGMOID;
+    public AggregationFcn aggNeuronActivation = AggregationFcn.AVG;
+    public ActivationFcn ruleNeuronActivation = ActivationFcn.SIGMOID;
+    public ActivationFcn negation = ActivationFcn.REVERSE;
+
     public enum ActivationFcn {
-        SIGMOID, RELU, TANH, IDENTITY
+        SIGMOID, LUKASIEWICZ, RELU, TANH, IDENTITY, REVERSE
     }
 
     public enum ErrorFcn {
@@ -232,7 +247,7 @@ public class Settings {
     }
 
     public enum AggregationFcn {
-        AVG, MAX, MIN
+        AVG, MAX, MIN, SUM
     }
 
     public IterationMode iterationMode = IterationMode.Topologic;
@@ -319,6 +334,7 @@ public class Settings {
      */
     public class Inferred {
         //todo store dynamically inferred settings here
+
     }
 
     /**
@@ -366,6 +382,7 @@ public class Settings {
      */
     public void infer() {
         if (reduceTemplate) graphTemplate = true;
+        parentCounting = (iterationMode != IterationMode.Topologic);
         //TODO
     }
 

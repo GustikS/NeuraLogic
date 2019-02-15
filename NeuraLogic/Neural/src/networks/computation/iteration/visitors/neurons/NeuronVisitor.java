@@ -54,7 +54,7 @@ public abstract class NeuronVisitor {
      *
      * @param neuron
      */
-    public abstract void visit(BaseNeuron neuron);
+    public abstract void visit(BaseNeuron<Neuron, State.Neural> neuron);
 
 
     public abstract static class Weighted extends NeuronVisitor {
