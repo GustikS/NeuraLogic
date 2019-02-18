@@ -1,4 +1,5 @@
-package parsers.neuralogic;// Generated from /home/gusta/googledrive/Github/NeuraLogic/Parsing/src/main/antlr/Neuralogic.g4 by ANTLR 4.7
+// Generated from /home/gusta/googledrive/Github/NeuraLogic/Parsing/src/main/antlr/Neuralogic.g4 by ANTLR 4.7.2
+package parsers.neuralogic;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -255,6 +256,18 @@ public class NeuralogicBaseListener implements NeuralogicListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterTemplateMetadata(NeuralogicParser.TemplateMetadataContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTemplateMetadata(NeuralogicParser.TemplateMetadataContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterWeight(NeuralogicParser.WeightContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -322,6 +335,30 @@ public class NeuralogicBaseListener implements NeuralogicListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitVector(NeuralogicParser.VectorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterMatrix(NeuralogicParser.MatrixContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMatrix(NeuralogicParser.MatrixContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDimensions(NeuralogicParser.DimensionsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDimensions(NeuralogicParser.DimensionsContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

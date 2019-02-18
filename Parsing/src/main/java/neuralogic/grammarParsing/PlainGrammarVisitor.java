@@ -13,6 +13,7 @@ import constructs.template.components.WeightedRule;
 import constructs.template.metadata.RuleMetadata;
 import ida.ilp.logic.Term;
 import ida.utils.tuples.Pair;
+import networks.computation.evaluation.values.MatrixValue;
 import networks.computation.evaluation.values.ScalarValue;
 import networks.computation.evaluation.values.Value;
 import networks.computation.evaluation.values.VectorValue;
@@ -162,10 +163,13 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             WeightedPredicate predicate = ctx.atom().predicate().accept(new PredicateVisitor(terms.size()));
 
             Weight weight = ctx.atom().weight().accept(new WeightVisitor());
+            if (weight == null) {
+                weight = builder.weightFactory.construct("foo", new ScalarValue(0), false);
+            }
 
-            ValuedFact fact = new ValuedFact(predicate, terms, ctx.atom().negation() != null, weight.value);
+            ValuedFact fact = new ValuedFact(predicate, terms, ctx.atom().negation() != null, weight);
             fact.originalString = ctx.getText();
-            
+
             return fact;
         }
     }
@@ -219,6 +223,18 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             } else if (ctx.vector() != null) {
                 List<Double> vector = ctx.vector().number().stream().map(num -> Double.parseDouble(num.getText())).collect(Collectors.toList());
                 value = new VectorValue(vector);
+            } else if (ctx.dimensions() != null) {
+                List<Integer> dims = ctx.vector().number().stream().map(num -> Integer.parseInt(num.getText())).collect(Collectors.toList());
+                if (dims.size() == 1) {
+                    value = new ScalarValue();
+                } else if (dims.size() == 2) {
+                    if (dims.get(0) == 1)
+                        value = new VectorValue(dims.get(1));
+                    else if (dims.get(1) == 1)
+                        value = new VectorValue(dims.get(0));   //todo transposition?
+                    else
+                        value = new MatrixValue(dims.get(0), dims.get(1));
+                }
             } else {
                 LOG.severe("Value is neither number nor vector: Could not parse numeric value from " + ctx.getText());
             }
@@ -298,8 +314,10 @@ public class PlainGrammarVisitor extends GrammarVisitor {
                 Object value;
                 if (paramVal.DOLLAR() != null) {
                     value = builder.weightFactory.construct(valueText); //why we need weight object as a parameter?
+                } else if (paramVal.value() != null) {
+                    value = new WeightVisitor().parseValue(paramVal.value());
                 } else {
-                    value = builder.constantFactory.construct(valueText); //check if general enough - supports generic parameters?
+                    value = builder.constantFactory.construct(valueText); //todo check if general enough - supports generic parameters?
                 }
                 metadata.put(parameter, value);
             }

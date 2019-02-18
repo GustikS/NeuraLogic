@@ -3,6 +3,7 @@ package networks.structure.metadata.states;
 import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.visitors.states.StateVisiting;
+import networks.computation.iteration.visitors.states.networks.ParentsTransfer;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.metadata.inputMappings.NeuronMapping;
 import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
@@ -139,7 +140,14 @@ public interface State<V> {
             }
 
             interface HasDropout {
-                double getDropout(StateVisiting visitor);
+
+                default void setStartingRate(Settings settings, int layer) {
+                    setDropoutRate(settings.dropoutRate / layer);   //todo more sophisticated dropout rate strategies?
+                }
+
+                double getDropoutRate(StateVisiting visitor);
+
+                void setDropoutRate(double rate);
 
                 void setDropout(StateVisiting visitor);
             }
@@ -161,6 +169,15 @@ public interface State<V> {
      * These are not necessarily stored by a Neuron, but rather at a separate StatesCache.
      */
     interface Structure<V> extends State<V> {
+
+        static Structure createFinalState(List<Structure> structures) {
+            //todo next all combinations to produce the final state
+
+        }
+
+        static StateVisiting.Computation getStatesInitializer(Settings settings) {
+            return new ParentsTransfer(-1); //todo more
+        }
 
         interface Parents {
             int getParentCount();

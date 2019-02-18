@@ -1,4 +1,5 @@
-package parsers.neuralogic;// Generated from /home/gusta/googledrive/Github/NeuraLogic/Parsing/src/main/antlr/Neuralogic.g4 by ANTLR 4.7
+// Generated from /home/gusta/googledrive/Github/NeuraLogic/Parsing/src/main/antlr/Neuralogic.g4 by ANTLR 4.7.2
+package parsers.neuralogic;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
@@ -130,6 +131,12 @@ public interface NeuralogicVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitWeightMetadata(NeuralogicParser.WeightMetadataContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link NeuralogicParser#templateMetadata}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTemplateMetadata(NeuralogicParser.TemplateMetadataContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link NeuralogicParser#weight}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -165,6 +172,18 @@ public interface NeuralogicVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitVector(NeuralogicParser.VectorContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link NeuralogicParser#matrix}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMatrix(NeuralogicParser.MatrixContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link NeuralogicParser#dimensions}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDimensions(NeuralogicParser.DimensionsContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link NeuralogicParser#negation}.
 	 * @param ctx the parse tree

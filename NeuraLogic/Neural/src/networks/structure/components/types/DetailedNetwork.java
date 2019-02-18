@@ -112,4 +112,10 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
         return recursive;
     }
 
+
+    public void setSharedNeuronsCount(int sharedNeuronsCount) {
+        this.hasSharedNeurons = sharedNeuronsCount > 0;
+        this.sharedNeuronsCount = sharedNeuronsCount;
+    }
+
 }

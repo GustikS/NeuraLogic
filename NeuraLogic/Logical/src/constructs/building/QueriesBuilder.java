@@ -57,19 +57,19 @@ public class QueriesBuilder extends SamplesBuilder<PlainQueriesParseTree, Pair<V
 
         if (pair.r != null) {   // labeled query(ies)
             String id = pair.r.literal.toString();
-            if (pair.r.value != null) { // has importance set
-                if (pair.r.value instanceof ScalarValue) {
-                    final double importance = ((ScalarValue) pair.r.value).value;
-                    return queries.map(f -> new LogicSample(f.value, createQueryAtom(id, importance, f)));
+            if (pair.r.getValue() != null) { // has importance set
+                if (pair.r.getValue() instanceof ScalarValue) {
+                    final double importance = ((ScalarValue) pair.r.getValue()).value;
+                    return queries.map(f -> new LogicSample(f.getValue(), createQueryAtom(id, importance, f)));
                 } else {
                     LOG.warning("Query with non-scalar target value not supported (yet)");
-                    return queries.map(f -> new LogicSample(f.value, createQueryAtom(id, f)));
+                    return queries.map(f -> new LogicSample(f.getValue(), createQueryAtom(id, f)));
                 }
             } else {
-                return queries.map(f -> new LogicSample(f.value, createQueryAtom(id, f)));
+                return queries.map(f -> new LogicSample(f.getValue(), createQueryAtom(id, f)));
             }
         }
         String minibatch = String.valueOf(queryCounter);
-        return queries.map(f -> new LogicSample(f.value, createQueryAtom(minibatch, f)));
+        return queries.map(f -> new LogicSample(f.getValue(), createQueryAtom(minibatch, f)));
     }
 }

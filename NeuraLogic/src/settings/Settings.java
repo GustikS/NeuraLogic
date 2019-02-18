@@ -383,6 +383,15 @@ public class Settings {
     public void infer() {
         if (reduceTemplate) graphTemplate = true;
         parentCounting = (iterationMode != IterationMode.Topologic);
+
+        if (dropoutRate == 0 && !parentCounting) {
+            neuralState = NeuralState.STANDARD;
+        } else if (dropoutRate == 0 && parentCounting) {
+            neuralState = NeuralState.PARENTS;
+        } else if (dropoutRate > 0 && parentCounting){
+            neuralState = NeuralState.PAR_DROPOUT;
+        }
+
         //TODO
     }
 

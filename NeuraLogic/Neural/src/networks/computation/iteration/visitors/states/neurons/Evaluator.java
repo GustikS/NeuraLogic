@@ -27,7 +27,6 @@ public class Evaluator extends StateVisiting.Computation {
         return evaluation;
     }
 
-
     /**
      * Get possibly different StateVisitors of Evaluator's type to manipulate Neurons' States
      *

@@ -31,6 +31,11 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
         allNeuronsTopologic = new ArrayList<>(size);
     }
 
+    public TopologicNetwork(String id, List<BaseNeuron<Neuron, State.Neural>> allNeurons, boolean sorted){
+        super(id, allNeurons.size());
+        allNeuronsTopologic = allNeurons;
+    }
+
     public N getState(int index) {
         return neuronStates.getState(index);
     }

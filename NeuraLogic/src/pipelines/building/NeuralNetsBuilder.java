@@ -54,13 +54,17 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
             @Override
             public Stream<NeuralProcessingSample> apply(Stream<NeuralProcessingSample> neuralProcessingSampleStream) {
 
+                //if we need to access the parentStates multiple times in sequence or at once, we need to correct for the parentscounts of shared neurons that did not know they are shared at time of creation
                 if (settings.parentCounting && (settings.parallelTraining || !settings.neuralStreaming)) {
                     ParentsExtractor parentsExtractor = new ParentsExtractor();
                     //in the case of the need for parents extraction of shared neurons, we NEED TO TERMINATE THE STREAM
                     List<NeuralProcessingSample> processingSamples = neuralProcessingSampleStream.collect(Collectors.toList());
-                    processingSamples.forEach(sample -> parentsExtractor.transferSharedNeuronsParents(sample.detailedNetwork));
+                    processingSamples.forEach(sample -> parentsExtractor.extractSharedNeuronsParents(sample.detailedNetwork));
                     neuralProcessingSampleStream = processingSamples.stream();
                 }
+
+                //if we need to either store extra inputs, or store (possibly varying) parents for shared neurons, create a Neural Cache
+                neuralProcessingSampleStream.map(sample -> neuralizer.neuralNetBuilder.neuralBuilder.statesBuilder.setupFinalStatesCache(sample.detailedNetwork));
 
                 return neuralProcessingSampleStream;
             }
@@ -70,7 +74,10 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
         Pipe<Stream<NeuralProcessingSample>, Stream<NeuralSample>> cutoffPipe = pipeline.registerEnd(new Pipe<Stream<NeuralProcessingSample>, Stream<NeuralSample>>("ReleaseMemoryPipe") {
             @Override
             public Stream<NeuralSample> apply(Stream<NeuralProcessingSample> neuralProcessingSampleStream) {
-                return neuralProcessingSampleStream.map(s -> new NeuralSample(s.target, s.query));
+                return neuralProcessingSampleStream.map(s -> {
+                    s.query.evidence = neuralizer.neuralNetBuilder.neuralBuilder.networkFactory.extractOptimizedNetwork(s.detailedNetwork);
+                    return new NeuralSample(s.target, s.query);
+                });
             }
         });
         finalizationPipe.connectAfter(cutoffPipe);
@@ -141,7 +148,7 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
         }
 
         if (settings.collapseWeights) {
-            //maybe
+            //maybe not
         }
 
         if (settings.expandEmbeddings) {

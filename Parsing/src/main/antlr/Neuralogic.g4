@@ -36,7 +36,7 @@ predicate: SPECIAL? ATOMIC_NAME (SLASH INT)?; //predicates also begin with lower
 
 conjunction: atom (COMMA atom)*;
 
-metadataVal: ATOMIC_NAME ASSIGN DOLLAR? ATOMIC_NAME;
+metadataVal: ATOMIC_NAME ASSIGN ((DOLLAR? ATOMIC_NAME) | value);
 metadataList: LBRACKET (metadataVal (COMMA metadataVal)*)? RBRACKET;
 
 lrnnRule: atom IMPLIED_BY conjunction offset? '.' metadataList?;
@@ -54,10 +54,12 @@ weight: (DOLLAR ATOMIC_NAME ASSIGN)? (fixedValue | value);
 fixedValue: LANGLE value RANGLE;
 offset: weight;
 
-value: number | vector;
+value: number | vector | matrix | dimensions;
 
 number: INT | FLOAT;
 vector: LPAREN number (COMMA number)* RPAREN;
+matrix: LPAREN vector+ RPAREN;
+dimensions: LBRACKET number (COMMA number)* RBRACKET;
 
 negation: NEGATION;
 

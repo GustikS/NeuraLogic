@@ -7,6 +7,7 @@ import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.types.*;
 import networks.structure.components.types.DetailedNetwork;
 import networks.structure.components.types.TopologicNetwork;
+import networks.structure.metadata.states.State;
 import settings.Settings;
 
 import java.util.ArrayList;
@@ -24,15 +25,30 @@ public class NeuralNetFactory {
     }
 
     /**
-     * todo must after creation and post-processing, add a transformation to a more optimized version (everything based on int, maybe even precompute layers, remove recursion)
+     *
+     *
      * @return
      */
-    public NeuralNetwork extractOptimizedNetwork(DetailedNetwork network) {
-
+    public <S extends State.Structure> NeuralNetwork<S> extractOptimizedNetwork(DetailedNetwork<S> network) {
+        if (!settings.parentCounting){
+            return extractTopologicNetwork(network);
+        } else {
+            return new NeuralNetwork<>(network.getId(), network.getNeuronCount());
+        } //todo maybe add an even more optimized version? (everything based on int, precompute layers - probably not as that should probably go for export to tensorflow or dynet)
     }
 
-    public TopologicNetwork extractTopologicNetwork(DetailedNetwork network){
-        //todo next this will require building the states cache
+    /**
+     * Strips all the unnecessary info from the network to optimize for memory.
+     *
+     * @param network
+     * @return
+     */
+    public <S extends State.Structure> TopologicNetwork<S> extractTopologicNetwork(DetailedNetwork<S> network) {
+        TopologicNetwork<S> topologicNetwork = new TopologicNetwork<>(network.getId(), network.allNeuronsTopologic, true);
+        topologicNetwork.hasSharedNeurons = network.hasSharedNeurons;
+        topologicNetwork.containsPooling = network.containsPooling;
+        topologicNetwork.neuronStates = network.neuronStates;
+        return topologicNetwork;
     }
 
     public DetailedNetwork createDetailedNetwork(NeuronMaps neuronMaps, String id) {

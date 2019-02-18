@@ -1,4 +1,5 @@
-package parsers.neuralogic;// Generated from /home/gusta/googledrive/Github/NeuraLogic/Parsing/src/main/antlr/Neuralogic.g4 by ANTLR 4.7
+// Generated from /home/gusta/googledrive/Github/NeuraLogic/Parsing/src/main/antlr/Neuralogic.g4 by ANTLR 4.7.2
+package parsers.neuralogic;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
@@ -207,6 +208,16 @@ public interface NeuralogicListener extends ParseTreeListener {
 	 */
 	void exitWeightMetadata(NeuralogicParser.WeightMetadataContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link NeuralogicParser#templateMetadata}.
+	 * @param ctx the parse tree
+	 */
+	void enterTemplateMetadata(NeuralogicParser.TemplateMetadataContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link NeuralogicParser#templateMetadata}.
+	 * @param ctx the parse tree
+	 */
+	void exitTemplateMetadata(NeuralogicParser.TemplateMetadataContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link NeuralogicParser#weight}.
 	 * @param ctx the parse tree
 	 */
@@ -266,6 +277,26 @@ public interface NeuralogicListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitVector(NeuralogicParser.VectorContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link NeuralogicParser#matrix}.
+	 * @param ctx the parse tree
+	 */
+	void enterMatrix(NeuralogicParser.MatrixContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link NeuralogicParser#matrix}.
+	 * @param ctx the parse tree
+	 */
+	void exitMatrix(NeuralogicParser.MatrixContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link NeuralogicParser#dimensions}.
+	 * @param ctx the parse tree
+	 */
+	void enterDimensions(NeuralogicParser.DimensionsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link NeuralogicParser#dimensions}.
+	 * @param ctx the parse tree
+	 */
+	void exitDimensions(NeuralogicParser.DimensionsContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link NeuralogicParser#negation}.
 	 * @param ctx the parse tree

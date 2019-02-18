@@ -20,13 +20,16 @@ public class NeuralBuilder {
 
     }
 
+    public StatesBuilder statesBuilder;
     public NeuronFactory neuronFactory;
-    public WeightFactory weightFactory;
     public NeuralNetFactory networkFactory;
+
+    public WeightFactory weightFactory;
 
     public void setFactoriesFrom(NeuralBuilder other) {
         this.neuronFactory = other.neuronFactory;
         this.networkFactory = other.networkFactory;
         this.weightFactory = other.weightFactory;
+        this.statesBuilder = other.statesBuilder;
     }
 }

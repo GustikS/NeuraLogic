@@ -15,11 +15,12 @@ import java.util.List;
  */
 public class ValuedFact extends Atom {
 
-    public Value value;
+    private Weight weight;
 
-    public ValuedFact(WeightedPredicate weightedPredicate, List<Term> terms, boolean negated, Value value) {
+    public ValuedFact(WeightedPredicate weightedPredicate, List<Term> terms, boolean negated, Weight weight) {
         super(weightedPredicate, terms, negated);
-        this.value = value;
+        this.weight = weight;
+        this.setValue(weight.value);
     }
 
     public Weight getOffset() {
@@ -27,6 +28,14 @@ public class ValuedFact extends Atom {
     }
 
     public Value getFactValue() {
-        return value;
+        return getValue();
+    }
+
+    public Value getValue() {
+        return weight.value;
+    }
+
+    public void setValue(Value value) {
+        this.weight.value = value;
     }
 }

@@ -2,6 +2,7 @@ package networks.structure.metadata.states;
 
 import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.structure.components.neurons.BaseNeuron;
+import settings.Settings;
 
 import java.util.HashMap;
 import java.util.logging.Logger;
@@ -10,7 +11,7 @@ public abstract class StatesCache<T extends State.Neural.Structure> {
     private static final Logger LOG = Logger.getLogger(StatesCache.class.getName());
     /**
      * Stores a State <T> for each Neuron in this state cache (corresponding to one neural net). Neurons are translated to an index to this array with findNeuron().
-     *
+     * <p>
      * For topologicNetwork this array must be aligned (ordered the same as) the topologic neurons list - that saves one findNeuron() call.
      * For other networks without implicit neurons ordering, index of a neuron must be found first with findNeuron() against respective neuronIndices storage.
      * <p>
@@ -27,14 +28,15 @@ public abstract class StatesCache<T extends State.Neural.Structure> {
      */
     StateVisiting.Computation initializer;
 
-    public StatesCache(T[] neuronStates, StateVisiting.Computation initializer){
+    public StatesCache(T[] neuronStates, StateVisiting.Computation initializer) {
         this.neuronStates = neuronStates;
         this.initializer = initializer;
     }
 
     protected abstract int findNeuron(int idx);
 
-    public T getState(int index){
+    @Deprecated //todo test - just use the same interface with toplogic as for the others (adds 1 short function call)
+    public T getState(int index) {
         return neuronStates[index];
     }
 
@@ -114,5 +116,39 @@ public abstract class StatesCache<T extends State.Neural.Structure> {
         protected int findNeuron(int idx) {
             return neuronIndices.get(idx);
         }
+    }
+
+    /**
+     * For the use with topologic network - no index translation here, but a direct access to the cache through the index of each neuron!
+     */
+    public static class DirectCache extends StatesCache {
+
+        public DirectCache(State.Structure[] neuronStates, StateVisiting.Computation initializer) {
+            super(neuronStates, initializer);
+        }
+
+        @Override
+        protected int findNeuron(int idx) {
+            return idx;
+        }
+    }
+
+    /**
+     * todo change the interface so the sorting takes place inside here
+     * @param settings
+     * @param states
+     * @param <T>
+     * @return
+     */
+    public static <T extends State.Neural.Structure> StatesCache<T> getCache(Settings settings, T[] states) {
+        StateVisiting.Computation initializer = State.Structure.getStatesInitializer(settings);
+        if (settings.iterationMode == Settings.IterationMode.Topologic)
+            return new StatesCache.DirectCache(states, initializer);
+        else if (states.length < settings.lin2bst)
+            return new StatesCache.LinearCache(states, initializer);
+        else if (states.length > settings.lin2bst && states.length < settings.bst2hashmap)
+            return new StatesCache.HeapCache(states, initializer);
+        else
+            return new StatesCache.HashCache(states, initializer);
     }
 }

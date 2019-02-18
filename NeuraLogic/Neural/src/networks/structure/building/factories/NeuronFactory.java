@@ -57,7 +57,7 @@ public class NeuronFactory {
     }
 
     public FactNeuron createFactNeuron(ValuedFact fact) {
-        States.SimpleValue simpleValue = new States.SimpleValue(fact.value);
+        States.SimpleValue simpleValue = new States.SimpleValue(fact.getValue());
         FactNeuron factNeuron = new FactNeuron(fact, counter++, simpleValue);
         neuronMaps.factNeurons.put(fact.literal,factNeuron);
         return factNeuron;

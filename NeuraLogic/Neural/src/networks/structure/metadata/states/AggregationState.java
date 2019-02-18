@@ -22,6 +22,7 @@ public abstract class AggregationState implements Aggregation.State {
 
     public abstract Aggregation getAggregation();
 
+    public abstract void setupValueDimensions(Value value);
     /**
      * State for standard Activation function, e.g. Sigmoid, which sums all the inputs and then applies some non-linearity to the result.
      */
@@ -65,6 +66,11 @@ public abstract class AggregationState implements Aggregation.State {
         @Override
         public Activation getAggregation() {
             return activation;
+        }
+
+        @Override
+        public void setupValueDimensions(Value value) {
+            this.summedInputs = value.getForm();
         }
     }
 
@@ -125,6 +131,11 @@ public abstract class AggregationState implements Aggregation.State {
             public Value evaluate() {
                 return maxValue;
             }
+
+            @Override
+            public void setupValueDimensions(Value value) {
+                this.maxValue = value.getForm();
+            }
         }
 
         public static class Avg extends Pooling {
@@ -167,6 +178,11 @@ public abstract class AggregationState implements Aggregation.State {
             public Value evaluate() {
                 return sum.times(new ScalarValue(1.0 / count));
             }
+
+            @Override
+            public void setupValueDimensions(Value value) {
+                this.sum = value.getForm();
+            }
         }
 
         /**
@@ -204,6 +220,11 @@ public abstract class AggregationState implements Aggregation.State {
             public Value evaluate() {
                 return null;
             }
+
+            @Override
+            public void setupValueDimensions(Value value) {
+
+            }
         }
     }
 
@@ -223,6 +244,11 @@ public abstract class AggregationState implements Aggregation.State {
         @Override
         public Aggregation getAggregation() {
             return aggregation;
+        }
+
+        @Override
+        public void setupValueDimensions(Value value) {
+
         }
 
         @Override

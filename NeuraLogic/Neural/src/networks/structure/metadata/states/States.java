@@ -99,7 +99,9 @@ public abstract class States implements State {
 
         @Override
         public void setupValueDimensions(Value value) {
-            //todo next
+            aggregationState.setupValueDimensions(value);
+            outputValue = value.getForm();
+            acumGradient = value.getForm();
         }
 
         @Override
@@ -278,8 +280,13 @@ public abstract class States implements State {
         }
 
         @Override
-        public double getDropout(StateVisiting visitor) {
+        public double getDropoutRate(StateVisiting visitor) {
             return dropoutRate;
+        }
+
+        @Override
+        public void setDropoutRate(double rate) {
+            this.dropoutRate = rate;
         }
 
         @Override
@@ -317,8 +324,13 @@ public abstract class States implements State {
             }
 
             @Override
-            public double getDropout(StateVisiting visitor) {
-                return DropoutStore.this.getDropout(visitor);
+            public double getDropoutRate(StateVisiting visitor) {
+                return DropoutStore.this.getDropoutRate(visitor);
+            }
+
+            @Override
+            public void setDropoutRate(double rate) {
+                dropoutRate = rate;
             }
 
             @Override
@@ -332,7 +344,6 @@ public abstract class States implements State {
             }
         }
     }
-
 
     /**
      * Nothing but a Value. E.g. for Fact Neurons.
@@ -357,11 +368,12 @@ public abstract class States implements State {
 
         @Override
         public void setupValueDimensions(Value value) {
-
+            this.value = value.getForm();
         }
 
         @Override
         public AggregationState getAggregationState() {
+            LOG.severe("Fact neurons cannot be evaluated, you can only obtain the value via getResult!");
             return null;
         }
 
@@ -394,6 +406,10 @@ public abstract class States implements State {
     public static class Inputs implements Structure.InputNeuronMap {
         NeuronMapping<Neuron> inputs;
 
+        public Inputs(NeuronMapping<Neuron> inputs){
+            this.inputs = inputs;
+        }
+
         public NeuronMapping<Neuron> getInputMapping() {
             return inputs;
         }
@@ -407,6 +423,10 @@ public abstract class States implements State {
 
     public static class WeightedInputs implements Structure.WeightedInputsMap {
         WeightedNeuronMapping<Neuron> inputs;
+
+        public WeightedInputs(WeightedNeuronMapping<Neuron> inputs){
+            this.inputs = inputs;
+        }
 
         public WeightedNeuronMapping<Neuron> getWeightedMapping() {
             return inputs;
@@ -465,6 +485,10 @@ public abstract class States implements State {
         }
 
         public class InputsParents extends Inputs implements Structure.Parents {
+
+            public InputsParents(NeuronMapping<Neuron> inputs) {
+                super(inputs);
+            }
 
             public NeuronMapping<Neuron> getInputMapping() {
                 return inputs;

@@ -2,11 +2,9 @@ package networks.structure.components.neurons;
 
 import networks.computation.evaluation.functions.Aggregation;
 import networks.structure.metadata.states.State;
-import networks.structure.metadata.states.States;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import settings.Settings;
 
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -51,6 +49,12 @@ public class BaseNeuron<T extends Neuron, S extends State.Neural> implements Neu
      */
     public boolean isShared;
     /**
+     * The neuron was created as not shared, but was later shared by some other neural network.
+     * This flag is to signify that the neuron might need some state recalculation due to the later sharing with which it
+     * might not have calculated at the time of creation.
+     */
+    public boolean sharedAfterCreation;
+    /**
      * We want fast iteration over inputs - todo test - consider array here with grounder storing the inputMappings in a list first
      */
     @NotNull
@@ -59,7 +63,7 @@ public class BaseNeuron<T extends Neuron, S extends State.Neural> implements Neu
     /**
      * Depth of this neuron. Might be useful e.g. for Dropout or some transformations. todo
      */
-    int layer;
+    public int layer;
 
     public BaseNeuron(int index, String id, S state) {
         this.index = index;
@@ -106,13 +110,18 @@ public class BaseNeuron<T extends Neuron, S extends State.Neural> implements Neu
     }
 
     @Override
-    public boolean makeShared(Settings settings) {
-        if (settings.parallelTraining && !(state instanceof States.ComputationStateComposite)) {  //if not yet made ready for parallel access
-            S compositeState = (S) State.createCompositeState((State.Neural) state, settings.minibatchSize);    //todo remove State S from the signature of Neuron? probably yes
-            this.state = compositeState;
-            return true;
-        } else
-            return false;
+    public Integer getIndex() {
+        return index;
+    }
+
+    @Override
+    public void setLayer(int i) {
+        this.layer = i;
+    }
+
+    @Override
+    public int getLayer() {
+        return this.layer;
     }
 
     /**

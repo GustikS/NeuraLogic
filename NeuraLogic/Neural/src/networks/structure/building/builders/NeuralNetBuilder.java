@@ -4,12 +4,8 @@ import constructs.example.ValuedFact;
 import constructs.template.components.BodyAtom;
 import constructs.template.components.WeightedRule;
 import ida.ilp.logic.Literal;
-import networks.computation.iteration.visitors.states.StateVisiting;
-import networks.computation.iteration.visitors.states.networks.ParentsTransfer;
 import networks.structure.building.NeuronMaps;
-import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
-import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.neurons.types.*;
 import networks.structure.components.types.DetailedNetwork;
@@ -19,8 +15,6 @@ import networks.structure.metadata.inputMappings.LinkedMapping;
 import networks.structure.metadata.inputMappings.NeuronMapping;
 import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 import networks.structure.metadata.states.State;
-import networks.structure.metadata.states.States;
-import networks.structure.metadata.states.StatesCache;
 import org.jetbrains.annotations.NotNull;
 import settings.Settings;
 
@@ -195,92 +189,32 @@ public class NeuralNetBuilder {
     public DetailedNetwork finalizeStoredNetwork(String id) {
         DetailedNetwork neuralNetwork = neuralBuilder.networkFactory.createDetailedNetwork(neuralBuilder.neuronFactory.neuronMaps, id);
 
+        StatesBuilder statesBuilder = neuralBuilder.statesBuilder;
         //fill all the states with correct dimension values
-        createValues(neuralNetwork);
+        statesBuilder.inferValues(neuralNetwork);
 
         if (settings.dropoutRate > 0) {
-            setupDropoutStates(neuralNetwork);  //setup individual dropout rates for each neuron
+            statesBuilder.setupDropoutStates(neuralNetwork);  //setup individual dropout rates for each neuron
         }
 
-        //if there is the need, create states cache in the neural network
-        if (!neuralNetwork.extraInputMapping.isEmpty())
-            setupNeuronStatesCache(neuralNetwork, getStates(neuralNetwork, settings), getStatesInitializer(settings));
+        //if there are input overmappings, create appropriate states for them to be later stored in neural cache
+        if (!neuralNetwork.extraInputMapping.isEmpty()) {
+            statesBuilder.addLinkedInputsToNetworkStates(neuralNetwork);
+        }
 
+        //if there is the need, check parentCounts and store them by the network if needed
         if (settings.parentCounting) {
             neuralNetwork.outputMapping = calculateOutputs(neuralNetwork);
-            setupParentStateNumbers(neuralNetwork);
+            statesBuilder.setupParentStateNumbers(neuralNetwork);
         }
 
-        int sharedNeuronsCount = makeSharedNeuronsRecursively(neuralNetwork);
+        int sharedNeuronsCount = statesBuilder.makeSharedStatesRecursively(neuralNetwork);
 
-        neuralNetwork.hasSharedNeurons = sharedNeuronsCount > 0;
-        neuralNetwork.sharedNeuronsCount = sharedNeuronsCount;
+        neuralNetwork.setSharedNeuronsCount(sharedNeuronsCount);
 
         return neuralNetwork;
     }
 
-    /**
-     * Infer correct dimensions of all the value tensors within this network and create respective {@link networks.computation.evaluation.values.Value} objects.
-     *
-     * @param neuralNetwork
-     */
-    private void createValues(DetailedNetwork neuralNetwork) {
-        //todo next
-    }
-
-    private void setupDropoutStates(DetailedNetwork neuralNetwork) {
-        //todo next
-    }
-
-    /**
-     * Here we use the current network's input mapping to go trough all the neurons recursively.
-     * Although it is not necessary that all the neurons marked as such will be actually shared, as those input
-     * mappings added by this network and used by only this network will get marked as shared too, but it is much easier
-     * than remembering for each neuron what was the last network that added inputs to it - which would be the actual network
-     * to use the input mappings from for sharing flags marking, because that must be the one the inputs of which for the
-     * respective neuron should be used, because those are surely all shared.
-     * I.e. just exclude inputs possibly added by this network.
-     * todo improve by adding the pointer to the inputmapping for the network - if it is equal to this one, do not consider the last input list in inputovermaps
-     *
-     * @param detailedNetwork
-     * @return
-     */
-    private int makeSharedNeuronsRecursively(DetailedNetwork<State.Neural.Structure> detailedNetwork) {
-        int sharedCount = 0;
-        for (int i = detailedNetwork.allNeuronsTopologic.size() - 1; i > 0; i--) {
-            BaseNeuron<Neuron, State.Neural> neuron = detailedNetwork.allNeuronsTopologic.get(i);
-            if (neuron.isShared) {
-                sharedCount++;
-                neuron.makeShared(settings);
-                Iterator<Neuron> inputs = detailedNetwork.getInputs(neuron);
-                while (inputs.hasNext()) {
-                    inputs.next().setShared(true);
-                }
-            }
-        }
-        return sharedCount;
-    }
-
-    private void setupParentStateNumbers(DetailedNetwork<State.Neural.Structure> network) {
-        Map<BaseNeuron, LinkedMapping> neuronOutputs = network.outputMapping;
-        neuronOutputs.forEach((neuron, outputs) -> {
-            if (neuron.getRawState() instanceof State.Neural.Computation.HasParents || neuron.getRawState() instanceof States.ComputationStateComposite) {
-                State.Neural.Computation.HasParents state = (State.Neural.Computation.HasParents) neuron.getComputationView(0);  //all computation views should be exactly the same at this stage
-                int parents = state.getParents(null);
-                if (parents != 0 && parents != outputs.getLastList().size()) { //if the parents for this neuron are already set differently, we need to store the parentCount in the network
-                    State.Neural finalState = (State.Neural.Computation) state;
-                    if (settings.parallelTraining) {
-                        finalState = State.createCompositeState(finalState, settings.minibatchSize);
-                        neuron.setState(finalState);
-                    }
-                    States.NetworkParents networkParents = new States.NetworkParents(finalState, outputs.getLastList().size());
-                    network.addState(neuron, networkParents);
-                } else {
-                    state.setParents(null, outputs.getLastList().size());
-                }
-            }
-        });
-    }
 
     public Map<BaseNeuron, LinkedMapping> calculateOutputs(TopologicNetwork<State.Neural.Structure> network) {
         Map<BaseNeuron, LinkedMapping> outputMapping = new HashMap<>();
@@ -294,49 +228,6 @@ public class NeuralNetBuilder {
             }
         }
         return outputMapping;
-    }
-
-    private StateVisiting.Computation getStatesInitializer(Settings settings) {
-        return new ParentsTransfer(-1); //todo more
-    }
-
-    /**
-     * Choose todo this is only necessary if there are shared neurons or states to store
-     *
-     * @param neuralNetwork
-     * @param states
-     */
-    public void setupNeuronStatesCache(NeuralNetwork neuralNetwork, State.Structure[] states, StateVisiting.Computation initializer) {
-        if (neuralNetwork.getNeuronCount() < settings.lin2bst)
-            neuralNetwork.neuronStates = new StatesCache.LinearCache(states, initializer);
-        else if (neuralNetwork.getNeuronCount() > settings.lin2bst && neuralNetwork.getNeuronCount() < settings.bst2hashmap)
-            neuralNetwork.neuronStates = new StatesCache.HeapCache(states, initializer);
-        else
-            neuralNetwork.neuronStates = new StatesCache.HashCache(states, initializer);
-    }
-
-
-    /**
-     * Create an interface array (!) to be later filled with particular States
-     *
-     * @param network
-     * @param settings
-     * @return
-     */
-    public static State.Structure[] getStates(DetailedNetwork network, Settings settings) {
-        State.Structure[] structures = new State.Structure[network.allNeuronsTopologic.size()];
-        //todo next fill with particual base states;
-        return structures;
-    }
-
-    /**
-     * Get true state for this neuron of this network
-     *
-     * @return
-     */
-    State.Structure getNeuronState(DetailedNetwork network, BaseNeuron neuron) {
-        if (network.extraInputMapping // todo next;
-
     }
 
 

@@ -29,7 +29,7 @@ public class Weight {
     public static Weight unitWeight = new Weight(-1, "unitWeight", Value.ONE, true);
     public static Weight zeroWeight = new Weight(-1, "zeroWeight" ,Value.ZERO, true);
 
-    protected Weight(int index, String name, Value value, boolean fixed) {
+    public Weight(int index, String name, Value value, boolean fixed) {
         this.index = index;
         this.name = name;
         this.value = value;
