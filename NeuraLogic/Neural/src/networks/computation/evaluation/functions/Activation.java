@@ -57,10 +57,12 @@ public abstract class Activation extends Aggregation {
         return differentiate(sum);
     }
 
-    public static Activation getActivationFunction(Settings.ActivationFcn activationFcn){
-        switch (activationFcn){
-            case SIGMOID: return new Sigmoid();
-            case LUKASIEWICZ: return new LukasiewiczSigmoid();
+    public static Activation getActivationFunction(Settings.ActivationFcn activationFcn) {
+        switch (activationFcn) {
+            case SIGMOID:
+                return new Sigmoid();
+            case LUKASIEWICZ:
+                return new LukasiewiczSigmoid();
             default:
                 LOG.severe("Unimplemented activation function");
                 return null;

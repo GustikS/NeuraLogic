@@ -1,20 +1,23 @@
 package networks.computation.evaluation.functions;
 
 import networks.computation.evaluation.values.Value;
+import networks.structure.metadata.states.AggregationState;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * Element-wise dimension-aligned (all inputs must have equal dimensions) application of (sum-based) activation
+ * Element-wise dimension-aligned (all inputs must have equal dimensions) application of (sum-based) activation.
+ * Essentially this is just a summation aggregation when properly dimensioned inputs are provided.
  */
-public class ElementProduct extends Aggregation {
+public class ElementProduct extends Activation {
     private static final Logger LOG = Logger.getLogger(ElementProduct.class.getName());
 
     Activation activation;
 
     public ElementProduct(Activation activation) {
+        super(activation.evaluation, activation.gradient);
         this.activation = activation;
     }
 
@@ -28,6 +31,11 @@ public class ElementProduct extends Aggregation {
     public Value differentiate(List<Value> inputs) {
         Value sum = sumInputs(inputs);
         return activation.differentiate(sum);
+    }
+
+    @Override
+    public AggregationState getAggregationState() {
+        return new AggregationState.CumulationState(this);
     }
 
     private Value sumInputs(List<Value> inputs){

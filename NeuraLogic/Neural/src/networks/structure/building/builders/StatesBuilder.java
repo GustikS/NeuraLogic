@@ -1,6 +1,7 @@
 package networks.structure.building.builders;
 
 import ida.utils.tuples.Pair;
+import networks.computation.evaluation.functions.CrossProduct;
 import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.visitors.states.neurons.Evaluator;
 import networks.computation.training.strategies.Hyperparameters.DropoutRateStrategy;
@@ -70,17 +71,19 @@ public class StatesBuilder {
 
     private void inferWeightedDimension(DetailedNetwork<State.Structure> detailedNetwork, Evaluator evaluator, BaseNeuron<Neuron, State.Neural> neuron) {
         WeightedNeuron<Neuron, State.Neural> weightedNeuron = (WeightedNeuron) neuron;
+        List<Value> inputValues = new ArrayList<>();
+
         Pair<Iterator<Neuron>, Iterator<Weight>> inputs = detailedNetwork.getInputs(weightedNeuron);
         Iterator<Neuron> neuronIterator = inputs.r;
         Iterator<Weight> weightIterator = inputs.s;
         Value value = neuronIterator.next().getComputationView(0).getResult(evaluator);
         Value weight = weightIterator.next().value;
 
-        if (value == null || weight == null){
+        if (value == null || weight == null) {
             LOG.severe("Value dimension cannot be inferred!" + neuron);
         }
         Value sum = weight.times(value);
-        if (sum == null){
+        if (sum == null) {
             LOG.severe("Weight-Value dimension mismatch at neuron:" + neuron);
         }
         while (neuronIterator.hasNext()) {
@@ -90,23 +93,32 @@ public class StatesBuilder {
                 LOG.severe("Value dimension cannot be inferred!" + neuron);
             } else {
                 Value increment = weight.times(value);
-                if (increment == null){
+                if (increment == null) {
                     LOG.severe("Weight-Value dimension mismatch at neuron:" + neuron);
                 } else {
-                    Value plus = sum.plus(increment);
-                    if (plus == null){
-                        LOG.severe("Input Values dimension mismatch at neuron:" + neuron);
+                    if (neuron.getAggregation() instanceof CrossProduct) {
+                        inputValues.add(increment);
                     } else {
-                        sum.increment(increment);
+                        Value plus = sum.plus(increment);
+                        if (plus == null) {
+                            LOG.severe("Input Values dimension mismatch at neuron:" + neuron);
+                        } else {
+                            sum.increment(increment);
+                        }
                     }
                 }
             }
+        }
+        if (neuron.getAggregation() instanceof CrossProduct) {
+            sum = neuron.getAggregation().evaluate(inputValues);
         }
         neuron.getComputationView(0).setupValueDimensions(sum);
     }
 
     private void inferUnweightedDimension(DetailedNetwork<State.Structure> detailedNetwork, Evaluator evaluator, BaseNeuron<Neuron, State.Neural> neuron) {
         Iterator<Neuron> inputs = detailedNetwork.getInputs(neuron);
+        List<Value> inputValues = new ArrayList<>();
+
         Value sum = inputs.next().getComputationView(0).getResult(evaluator);
         if (sum == null) {
             LOG.severe("Value dimension cannot be inferred!" + neuron);
@@ -117,13 +129,20 @@ public class StatesBuilder {
             if (result == null) {
                 LOG.severe("Value dimension cannot be inferred!" + neuron);
             } else {
-                Value increment = sum.plus(result);
-                if (increment == null){
-                    LOG.severe("Input Values dimension mismatch at neuron:" + neuron);
+                if (neuron.getAggregation() instanceof CrossProduct) {
+                    inputValues.add(result);
                 } else {
-                    sum.increment(result);
+                    Value increment = sum.plus(result);
+                    if (increment == null) {
+                        LOG.severe("Input Values dimension mismatch at neuron:" + neuron);
+                    } else {
+                        sum.increment(result);
+                    }
                 }
             }
+        }
+        if (neuron.getAggregation() instanceof CrossProduct) {
+            sum = neuron.getAggregation().evaluate(inputValues);
         }
         neuron.getComputationView(0).setupValueDimensions(sum);
     }

@@ -5,6 +5,7 @@ import constructs.template.components.HeadAtom;
 import constructs.template.components.WeightedRule;
 import networks.computation.evaluation.functions.Activation;
 import networks.computation.evaluation.functions.Aggregation;
+import networks.computation.evaluation.functions.CrossProduct;
 import networks.structure.building.NeuronMaps;
 import networks.structure.components.neurons.types.*;
 import networks.structure.metadata.states.State;
@@ -50,6 +51,9 @@ public class NeuronFactory {
 
     public RuleNeuron createRuleNeuron(WeightedRule groundRule) {
         Activation activation = groundRule.activationFcn != null ? groundRule.activationFcn : Activation.getActivationFunction(settings.ruleNeuronActivation);
+        if (groundRule.crossProduct){
+            activation = new CrossProduct(activation);
+        }
         State.Neural.Computation state = State.createBaseState(settings, activation);
         RuleNeuron<State.Neural.Computation> ruleNeuron = new RuleNeuron<>(groundRule, counter++, state);
         neuronMaps.ruleNeurons.put(groundRule, ruleNeuron);
@@ -73,6 +77,9 @@ public class NeuronFactory {
 
     public WeightedRuleNeuron createWeightedRuleNeuron(WeightedRule groundRule) {
         Activation activation = groundRule.activationFcn != null ? groundRule.activationFcn : Activation.getActivationFunction(settings.ruleNeuronActivation);
+        if (groundRule.crossProduct){
+            activation = new CrossProduct(activation);
+        }
         State.Neural.Computation state = State.createBaseState(settings, activation);
         WeightedRuleNeuron<State.Neural.Computation> weightedRuleNeuron = new WeightedRuleNeuron<>(groundRule, counter++, state);
         neuronMaps.ruleNeurons.put(groundRule, weightedRuleNeuron);

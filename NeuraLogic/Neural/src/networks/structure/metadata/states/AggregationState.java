@@ -230,7 +230,8 @@ public abstract class AggregationState implements Aggregation.State {
 
     /**
      * In the most general case, we need to feed the whole list of inputs into the activation function, not just the sum.
-     * There could possibly be functions that cannot be calculated in a cumulative fashion, e.g. when we need to process all elements twice (e.g. normalize/softmax ?).
+     * There could possibly be functions that cannot be calculated in a cumulative fashion, e.g. when we need to process all elements twice (e.g. normalize/softmax ?),
+     * Or with the special {@link networks.computation.evaluation.functions.CrossProduct} construct!
      */
     public static class CumulationState extends AggregationState {
         Aggregation aggregation;
