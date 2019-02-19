@@ -246,7 +246,6 @@ public abstract class States implements State {
     }
 
     public static final class DropoutStore extends ComputationStateStandard implements Neural.Computation.HasDropout {
-
         public double dropoutRate;
         public boolean isDropped;
         private boolean dropoutProcessed;
@@ -485,6 +484,11 @@ public abstract class States implements State {
         }
 
         @Override
+        public Neural<Value> getParentCounter() {
+            return parentCounter;
+        }
+
+        @Override
         public void invalidate() {
             //void
         }
@@ -513,7 +517,44 @@ public abstract class States implements State {
             public void setParentCount(int parentCount) {
                 NetworkParents.this.parentCount = parentCount;
             }
+
+            @Override
+            public Neural<Value> getParentCounter() {
+                return parentCounter;
+            }
         }
+
+        public class WeightedInputsParents extends WeightedInputs implements Structure.Parents {
+
+            public WeightedInputsParents(WeightedNeuronMapping<Neuron> inputs) {
+                super(inputs);
+            }
+
+            public WeightedNeuronMapping<Neuron> getWeightedMapping() {
+                return inputs;
+            }
+
+            @Override
+            public void invalidate() {
+                //void
+            }
+
+            @Override
+            public int getParentCount() {
+                return parentCount;
+            }
+
+            @Override
+            public void setParentCount(int parentCount) {
+                NetworkParents.this.parentCount = parentCount;
+            }
+
+            @Override
+            public Neural<Value> getParentCounter() {
+                return parentCounter;
+            }
+        }
+
     }
 
 }

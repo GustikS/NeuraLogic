@@ -11,6 +11,8 @@ import java.util.logging.Logger;
 /**
  * Takes all combinations of dimensions of all inputs -> sum into a long vector -> activation
  * This is a possible rule neuron's activation function! todo test this
+ *
+ * todo if too slow in evaluation, precalculate the final vector via pointers to the underyling values via special aggregationState?
  */
 public class CrossProduct extends Activation {
     private static final Logger LOG = Logger.getLogger(CrossProduct.class.getName());

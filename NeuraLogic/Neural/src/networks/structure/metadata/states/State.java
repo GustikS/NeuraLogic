@@ -170,11 +170,6 @@ public interface State<V> {
      */
     interface Structure<V> extends State<V> {
 
-        static Structure createFinalState(List<Structure> structures) {
-            //todo next all combinations to produce the final state
-
-        }
-
         static StateVisiting.Computation getStatesInitializer(Settings settings) {
             return new ParentsTransfer(-1); //todo more
         }
@@ -183,6 +178,8 @@ public interface State<V> {
             int getParentCount();
 
             void setParentCount(int parentCount);
+
+            Neural<Value> getParentCounter();
         }
 
         interface InputNeuronMap extends Structure<NeuronMapping<Neuron>> {

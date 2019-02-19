@@ -230,6 +230,52 @@ public class StatesBuilder {
         });
     }
 
+
+    /**
+     * Consider all combinations of cumulatively stored states to produce the final single composite state for fast access
+     */
+    private State.Structure createFinalState(List<State.Structure> structures) {
+
+        if (structures.size() == 1) {
+            return structures.get(0);
+        } else if (structures.isEmpty()) {
+            return null;
+        }
+
+        State.Structure result = null;
+
+        boolean parents = false;
+        boolean inputs = false;
+        boolean weightedInputs = false;
+        boolean outputs = false;
+
+        State.Structure.Parents hasParents = null;
+        State.Structure.InputNeuronMap inputNeuronMap = null;
+        State.Structure.WeightedInputsMap weightedInputsMap = null;
+
+        for (State.Structure structure : structures) {
+            if (structure instanceof State.Structure.Parents) {
+                parents = true;
+                hasParents = (State.Structure.Parents) structure;
+            } else if (structure instanceof State.Structure.InputNeuronMap) {
+                inputs = true;
+                inputNeuronMap = (State.Structure.InputNeuronMap) structure;
+            } else if (structure instanceof State.Structure.WeightedInputsMap) {
+                weightedInputs = true;
+                weightedInputsMap = (State.Structure.WeightedInputsMap) structure;
+            } else if (structure instanceof State.Structure.OutputNeuronMap) {
+                outputs = true;
+            }
+        }
+
+        if (parents && inputs && !weightedInputs && !outputs) {
+            result = new States.NetworkParents(hasParents.getParentCounter(), hasParents.getParentCount()).new InputsParents(inputNeuronMap.getInputMapping());
+        } else if (parents && !inputs && weightedInputs && !outputs) {
+            result = new States.NetworkParents(hasParents.getParentCounter(), hasParents.getParentCount()).new WeightedInputsParents(weightedInputsMap.getWeightedMapping());
+        }
+        return result;
+    }
+
     /**
      * If we need to either store extra inputs, or store (possibly varying) parents for shared neurons etc., create a Neural Cache.
      * This method turns the accumulated states into their final, optimized, representation to be stored in the cache for fast access.
@@ -251,7 +297,7 @@ public class StatesBuilder {
                 BaseNeuron<Neuron, State.Neural> neuron = neuralNetwork.allNeuronsTopologic.get(i);
                 List<State.Structure> structures = cumulativeStates.get(neuron);
                 if (structures != null) {
-                    State.Structure finalState = State.Structure.createFinalState(structures);
+                    State.Structure finalState = createFinalState(structures);
                     structureStates[i] = finalState;
                 }
             }
@@ -260,7 +306,7 @@ public class StatesBuilder {
 
             SortedMap<Integer, State.Structure> finalStates = new TreeMap<>(); //states are sorted by neurons' indices!!
             cumulativeStates.forEach((neuron, structures) -> {
-                State.Structure finalState = State.Structure.createFinalState(structures);
+                State.Structure finalState = createFinalState(structures);
                 finalStates.put(neuron.getIndex(), finalState);
             });
             finalStates.forEach((index, finalState) -> {
