@@ -13,7 +13,6 @@ public interface TemplateReducing {
     <T extends Template> T reduce(T itemplate, QueryAtom queryAtom);
 
     static TemplateReducing getReducer(Settings settings) {
-        //TODO provide more reducers
         return new LinearChainReducer(settings);
     }
 }

@@ -5,6 +5,7 @@ import constructs.Conjunction;
 import constructs.WeightedPredicate;
 import constructs.example.ValuedFact;
 import constructs.template.components.WeightedRule;
+import constructs.template.metadata.Metadata;
 import ida.utils.tuples.Pair;
 import networks.structure.components.weights.Weight;
 import neuralogic.grammarParsing.PlainGrammarVisitor;
@@ -55,6 +56,11 @@ public class PlainTemplateParseTreeExtractor extends TemplateParseTreeExtractor<
     @Override
     public List<Pair<WeightedPredicate, Map<String, Object>>> getPredicatesMetadata(@NotNull TemplateFileContext ctx) {
         return new PredicatesMetadataVisitor().visitTemplateFile(ctx);
+    }
+
+    @Override
+    public Map<String, Object> getTemplateMetadata(TemplateFileContext ctx) {
+        return null;
     }
 
     public class RuleLinesVisitor extends NeuralogicBaseVisitor<List<WeightedRule>> {
@@ -108,6 +114,9 @@ public class PlainTemplateParseTreeExtractor extends TemplateParseTreeExtractor<
         }
     }
 
+    /**
+     * Merge all metadata together.
+     */
     public class WeightsMetadataVisitor extends NeuralogicBaseVisitor<List<Pair<Weight, Map<String, Object>>>> {
 
         @Override
@@ -119,12 +128,19 @@ public class PlainTemplateParseTreeExtractor extends TemplateParseTreeExtractor<
             List<Pair<Weight, Map<String, Object>>> weightMetadataList = template_lines.stream()
                     .filter(line -> line.weightMetadata() != null)
                     .map(line -> line.lrnnRule().accept(weightMetadataVisitor))
+                    .collect(Collectors.toMap(pair -> pair.r, pair -> pair.s, Metadata::merge))
+                    .entrySet().stream()
+                    .map(entry -> new Pair<>(entry.getKey(), entry.getValue()))
                     .collect(Collectors.toList());
 
             return weightMetadataList;
         }
     }
 
+    /**
+     * Setup offsets.
+     * Merge all other metadata together.
+     */
     public class PredicatesMetadataVisitor extends NeuralogicBaseVisitor<List<Pair<WeightedPredicate, Map<String, Object>>>> {
 
         @Override
@@ -143,10 +159,32 @@ public class PlainTemplateParseTreeExtractor extends TemplateParseTreeExtractor<
             List<Pair<WeightedPredicate, Map<String, Object>>> predicateMetadataList = template_lines.stream()
                     .filter(line -> line.predicateMetadata() != null)
                     .map(line -> line.lrnnRule().accept(predicateMetadataVisitor))
+                    .collect(Collectors.toMap(pair -> pair.r, pair -> pair.s, Metadata::merge))
+                    .entrySet().stream()
+                    .map(entry -> new Pair<>(entry.getKey(), entry.getValue()))
                     .collect(Collectors.toList());
 
             return predicateMetadataList;
         }
     }
 
+    /**
+     * Merge all template metadata together
+     */
+    public class TemplateMetadataVisitor extends NeuralogicBaseVisitor< Map<String, Object>> {
+
+        @Override
+        public Map<String, Object> visitTemplateFile(@NotNull TemplateFileContext ctx) {
+
+            List<NeuralogicParser.TemplateLineContext> template_lines = ctx.templateLine();
+
+            PlainGrammarVisitor.TemplateMetadataVisitor templateMetadataVisitor = visitor.new TemplateMetadataVisitor();
+            Map<String, Object> metadata = template_lines.stream()
+                    .filter(line -> line.templateMetadata() != null)
+                    .map(line -> line.templateMetadata().accept(templateMetadataVisitor))
+                    .flatMap(map -> map.entrySet().stream())
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, null));
+            return metadata;
+        }
+    }
 }

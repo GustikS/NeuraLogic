@@ -171,6 +171,7 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
             nextPipe = groundReducingPipe;
         }
 
+        //todo must take this out as a separate (not nested) pipeline
         NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, new Neuralizer(grounder));
         Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> neuralizationPipeline = pipeline.registerEnd(neuralNetsBuilder.buildPipeline());
 

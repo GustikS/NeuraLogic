@@ -53,7 +53,7 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
             return new Pipe<Source, Stream<LogicSample>>("SamplesExtractionPipe") {
                 @Override
                 public Stream<LogicSample> apply(Source source) {
-                    if (source.QueriesSeparate && source.ExamplesProvided) {    //todo move the if's outside to pipeline creation
+                    if (source.QueriesSeparate && source.ExamplesProvided) {    //todo next move the if's outside to pipeline creation
                         ExamplesBuilder examplesBuilder = new ExamplesBuilder(settings);
                         Stream<LogicSample> examples = examplesBuilder.buildSamplesFrom(examplesBuilder.parseTreeFrom(source.ExamplesReader));
 

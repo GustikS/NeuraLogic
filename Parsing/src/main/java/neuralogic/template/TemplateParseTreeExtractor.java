@@ -29,5 +29,12 @@ public abstract class TemplateParseTreeExtractor<T extends GrammarVisitor> {
 
     public abstract List<Pair<Weight, Map<String, Object>>> getWeightsMetadata(@NotNull NeuralogicParser.TemplateFileContext ctx);
 
+    /**
+     * Predicate offsets are being set as a part of this
+     * @param ctx
+     * @return
+     */
     public abstract List<Pair<WeightedPredicate, Map<String, Object>>> getPredicatesMetadata(@NotNull NeuralogicParser.TemplateFileContext ctx);
+
+    public abstract Map<String, Object> getTemplateMetadata(@NotNull NeuralogicParser.TemplateFileContext ctx);
 }

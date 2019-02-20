@@ -23,6 +23,7 @@ public class WeightedPredicate {
     public Predicate predicate;
 
     @Nullable
+    public
     PredicateMetadata metadata;
 
     public WeightedPredicate(Predicate predicate, Weight weight) {

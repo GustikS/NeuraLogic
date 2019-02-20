@@ -3,10 +3,12 @@ package pipelines.building;
 import constructs.template.Template;
 import ida.utils.tuples.Pair;
 import learning.crossvalidation.TrainTestResults;
+import networks.computation.evaluation.results.Progress;
 import networks.computation.evaluation.results.Results;
 import pipelines.Pipe;
 import pipelines.Pipeline;
 import pipelines.pipes.generic.SecondFromPairPipe;
+import pipelines.pipes.specific.ResultsFromProgressPipe;
 import settings.Settings;
 import settings.Sources;
 import networks.computation.training.NeuralModel;
@@ -50,9 +52,11 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
             trainTestPipeline.connectAfter(pipeline.registerEnd(getTestResultsPipe()));
 
         } else if (sources.trainOnly) {
-            Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Results>> trainingPipeline = pipeline.registerStart(new TrainingBuilder(settings, sources).buildPipeline());
-            SecondFromPairPipe<Pair<Template, NeuralModel>, Results> secondFromPairPipe = pipeline.registerEnd(new SecondFromPairPipe<>());
+            Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> trainingPipeline = pipeline.registerStart(new TrainingBuilder(settings, sources).buildPipeline());
+            SecondFromPairPipe<Pair<Template, NeuralModel>, Progress> secondFromPairPipe = pipeline.register(new SecondFromPairPipe<>());
             trainingPipeline.connectAfter(secondFromPairPipe);
+            ResultsFromProgressPipe resultsFromProgressPipe = pipeline.registerEnd(new ResultsFromProgressPipe());
+            secondFromPairPipe.connectAfter(resultsFromProgressPipe);
 
         } else if (sources.testOnly) {
             Pipeline<Sources, Results> testingPipeline = pipeline.registerEnd(pipeline.registerStart(new TestingBuilder(settings, sources).buildPipeline()));

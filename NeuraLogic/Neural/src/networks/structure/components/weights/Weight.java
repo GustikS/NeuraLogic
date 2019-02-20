@@ -24,7 +24,7 @@ public class Weight {
     double learningRate;
     //public String originalString;
 
-    WeightMetadata metadata;
+    public WeightMetadata metadata;
 
     public static Weight unitWeight = new Weight(-1, "unitWeight", Value.ONE, true);
     public static Weight zeroWeight = new Weight(-1, "zeroWeight" ,Value.ZERO, true);
@@ -55,4 +55,5 @@ public class Weight {
     public void init(ValueInitializer valueInitializer) {
         value.initialize(valueInitializer);
     }
+
 }

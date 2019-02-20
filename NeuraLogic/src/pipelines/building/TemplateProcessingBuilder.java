@@ -2,10 +2,10 @@ package pipelines.building;
 
 import constructs.building.TemplateBuilder;
 import constructs.template.Template;
-import constructs.template.types.GraphTemplate;
-import constructs.template.types.ParsedTemplate;
 import constructs.template.transforming.MetadataProcessor;
 import constructs.template.transforming.TemplateReducing;
+import constructs.template.types.GraphTemplate;
+import constructs.template.types.ParsedTemplate;
 import pipelines.Pipe;
 import pipelines.Pipeline;
 import settings.Settings;
@@ -29,25 +29,35 @@ public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, 
     }
 
     @Override
-    public Pipeline<Sources, Template> buildPipeline() { //todo make correct combination logic
+    public Pipeline<Sources, Template> buildPipeline() {
         Pipeline<Sources, Template> pipeline = new Pipeline<>("TemplateProcessingPipeline");
         if (sources.templateProvided) {
             Pipe<Sources, ParsedTemplate> sourcesTemplatePipe = pipeline.registerStart(extractTemplate(sources));
+            Pipe<ParsedTemplate, Template> nextPipe;
             if (settings.processMetadata) {
-                Pipe<ParsedTemplate, Template> metadataPipe = pipeline.registerEnd(processMetadata());
-                sourcesTemplatePipe.connectAfter(metadataPipe);
-                if (settings.reduceTemplate) {
-                    Pipe<Template, GraphTemplate> graphTemplatePipe = pipeline.register(buildTemplateGraph());
-                    metadataPipe.connectAfter(graphTemplatePipe);
-                    Pipe<GraphTemplate, Template> reduceTemplatePipe = reduceTemplate();
-                    graphTemplatePipe.connectAfter(pipeline.registerEnd(reduceTemplatePipe));
-                }
-                if (settings.inferTemplateFacts){
-                    Pipe<Template, Template> inferencePipe = pipeline.registerEnd(inferFacts());
-                    metadataPipe.connectAfter(inferencePipe);
-                }
+                nextPipe = pipeline.registerEnd(processMetadata());
+                sourcesTemplatePipe.connectAfter(nextPipe);
+            } else {
+                nextPipe = pipeline.registerEnd(new Pipe<ParsedTemplate, Template>("SkippingMetadataPipe") {
+                    @Override
+                    public Template apply(ParsedTemplate parsedTemplate) {
+                        return parsedTemplate;
+                    }
+                });
+                sourcesTemplatePipe.connectAfter(nextPipe);
             }
-            //TODO rest of template transformations
+            Pipe<?, Template> nextPipe1 = null;
+            if (settings.reduceTemplate) {
+                Pipe<Template, GraphTemplate> graphTemplatePipe = pipeline.register(buildTemplateGraph());
+                nextPipe.connectAfter(graphTemplatePipe);
+                Pipe<GraphTemplate, Template> reduceTemplatePipe = reduceTemplate();
+                graphTemplatePipe.connectAfter(pipeline.registerEnd(reduceTemplatePipe));
+                nextPipe1 = reduceTemplatePipe;
+            }
+            if (settings.inferTemplateFacts) {
+                Pipe<Template, Template> inferencePipe = pipeline.registerEnd(inferFacts());
+                nextPipe1.connectAfter(inferencePipe);
+            }
             return pipeline;
         } else {
             LOG.warning("Template extraction from sources requested but no template provided.");
@@ -104,7 +114,7 @@ public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, 
             @Override
             public GraphTemplate apply(Template template) {
                 GraphTemplate graphTemplate = new GraphTemplate(template);
-                return  graphTemplate;
+                return graphTemplate;
             }
         };
     }

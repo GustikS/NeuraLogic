@@ -36,7 +36,7 @@ predicate: SPECIAL? ATOMIC_NAME (SLASH INT)?; //predicates also begin with lower
 
 conjunction: atom (COMMA atom)*;
 
-metadataVal: ATOMIC_NAME ASSIGN ((DOLLAR? ATOMIC_NAME) | value);
+metadataVal: ATOMIC_NAME ASSIGN (value | (DOLLAR? ATOMIC_NAME));
 metadataList: LBRACKET (metadataVal (COMMA metadataVal)*)? RBRACKET;
 
 lrnnRule: atom IMPLIED_BY conjunction offset? '.' metadataList?;

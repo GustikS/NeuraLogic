@@ -4,6 +4,7 @@ import networks.structure.components.neurons.WeightedNeuron;
 
 import java.util.Map;
 
+@Deprecated
 public class NetworkMetadata {
 
     public Map<WeightedNeuron, Integer> parentsCount;

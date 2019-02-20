@@ -6,6 +6,7 @@ import constructs.example.ValuedFact;
 import constructs.template.Template;
 import constructs.template.components.WeightedRule;
 import constructs.template.metadata.PredicateMetadata;
+import constructs.template.metadata.TemplateMetadata;
 import constructs.template.metadata.WeightMetadata;
 import constructs.template.types.ParsedTemplate;
 import ida.utils.tuples.Pair;
@@ -69,13 +70,13 @@ public class TemplateBuilder extends LogicSourceBuilder<PlainTemplateParseTree, 
 
         List<Pair<WeightedPredicate, Map<String, Object>>> predicatesMetadata = templateParseTreeExtractor.getPredicatesMetadata(plainParseTree.getRoot());
         List<Pair<Weight, Map<String, Object>>> weightsMetadata = templateParseTreeExtractor.getWeightsMetadata(plainParseTree.getRoot());
-
+        Map<String, Object> templateMetadata = templateParseTreeExtractor.getTemplateMetadata(plainParseTree.getRoot());
 
         ParsedTemplate template = new ParsedTemplate(weightedRules, valuedFacts);
         template.addConstraints(weightedConjunctions);  //todo check what are weighted conjunctions in template
         template.originalString = plainParseTree.toString();    //todo check where is the real string
 
-        template.templateMetadata = null; //TODO add support for this in the template loading
+        template.templateMetadata = new TemplateMetadata(templateMetadata);
         template.predicatesMetadata = predicatesMetadata.stream().map(pair -> new Pair<>(pair.r, new PredicateMetadata(pair.s))).collect(Collectors.toList());
         template.weightsMetadata = weightsMetadata.stream().map(pair -> new Pair<>(pair.r, new WeightMetadata(pair.s))).collect(Collectors.toList());
 
@@ -86,5 +87,4 @@ public class TemplateBuilder extends LogicSourceBuilder<PlainTemplateParseTree, 
         //TODO later
         return null;
     }
-
 }

@@ -17,10 +17,16 @@ public class StringValue extends Value {
 
     String value;
 
+    public StringValue(String valueText) {
+        this.value = valueText;
+    }
+
     @Override
     public void initialize(ValueInitializer valueInitializer) {
 
     }
+
+
 
     @Override
     public Value zero() {

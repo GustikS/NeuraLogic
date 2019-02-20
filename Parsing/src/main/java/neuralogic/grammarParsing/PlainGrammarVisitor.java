@@ -13,10 +13,7 @@ import constructs.template.components.WeightedRule;
 import constructs.template.metadata.RuleMetadata;
 import ida.ilp.logic.Term;
 import ida.utils.tuples.Pair;
-import networks.computation.evaluation.values.MatrixValue;
-import networks.computation.evaluation.values.ScalarValue;
-import networks.computation.evaluation.values.Value;
-import networks.computation.evaluation.values.VectorValue;
+import networks.computation.evaluation.values.*;
 import networks.structure.components.weights.Weight;
 import parsers.neuralogic.NeuralogicBaseVisitor;
 import parsers.neuralogic.NeuralogicParser;
@@ -62,7 +59,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             rule.body = ctx.conjunction().accept(bodyVisitor);
 
             rule.offset = ctx.offset() != null ? ctx.offset().accept(new WeightVisitor()) : null;
-            rule.metadata = ctx.metadataList() != null ? new RuleMetadata(ctx.metadataList().accept(new MetadataListVisitor())) : null;
+            rule.metadata = ctx.metadataList() != null ? new RuleMetadata(ctx.metadataList().accept(new MetadataListVisitor())) : null; //rule metadata are set directly here, as they cannot appear at arbitrary place as opposed to the other metadata, which are processed in a later stage
 
             return rule;
         }
@@ -304,6 +301,11 @@ public class PlainGrammarVisitor extends GrammarVisitor {
         }
     }
 
+    /**
+     * Metadata are parsed as a mere String->Object mappings.
+     * The extraction of the particular {@link constructs.template.metadata.Parameter} to {@link constructs.template.metadata.ParameterValue} mappings
+     * is done during postprocessing/building of logiacl constructs as it may require more complex recognition logic than just parsing.
+     */
     private class MetadataListVisitor extends NeuralogicBaseVisitor<Map<String, Object>> {
         @Override
         public Map<String, Object> visitMetadataList(@NotNull NeuralogicParser.MetadataListContext ctx) {
@@ -313,14 +315,22 @@ public class PlainGrammarVisitor extends GrammarVisitor {
                 String valueText = paramVal.ATOMIC_NAME(1).getText();
                 Object value;
                 if (paramVal.DOLLAR() != null) {
-                    value = builder.weightFactory.construct(valueText); //why we need weight object as a parameter?
+                    value = builder.weightFactory.construct(valueText);
                 } else if (paramVal.value() != null) {
                     value = new WeightVisitor().parseValue(paramVal.value());
                 } else {
-                    value = builder.constantFactory.construct(valueText); //todo check if general enough - supports generic parameters?
+                    value = new StringValue(valueText);
                 }
                 metadata.put(parameter, value);
             }
+            return metadata;
+        }
+    }
+
+    public class TemplateMetadataVisitor extends NeuralogicBaseVisitor<Map<String, Object>> {
+        @Override
+        public Map<String, Object> visitTemplateMetadata(@NotNull NeuralogicParser.TemplateMetadataContext ctx) {
+            Map<String, Object> metadata = ctx.metadataList().accept(new MetadataListVisitor());
             return metadata;
         }
     }

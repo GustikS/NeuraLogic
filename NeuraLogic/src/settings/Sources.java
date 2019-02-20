@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * Container for data sources of trainExamples, trainQueries and template
+ * Container for data sources of train/test Examples, train/test Queries and Template
  * <p>
  * Created by gusta on 26.3.17.
  */

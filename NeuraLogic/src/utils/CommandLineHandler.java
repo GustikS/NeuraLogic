@@ -36,11 +36,11 @@ public class CommandLineHandler {
         // Selection of one of evaluation modes
         OptionGroup evalGroup = new OptionGroup();
         // with test file given
-        evalGroup.addOption(new Option("test", "testQueries", true, "file with test trainQueries (" + settings.testFile + ")"));
+        evalGroup.addOption(new Option("test", "testQueries", true, "file with test trainQueries (" + settings.testQueriesFile + ")"));
         // with crossvalidation folds given
         evalGroup.addOption(Option.builder("folds").optionalArg(true).longOpt("foldPrefix").numberOfArgs(1).desc("folds folder names prefix (" + settings.foldsPrefix + ")").build());
         // with single file to split given
-        evalGroup.addOption(new Option("xval", "crossvalidation", true, "number of folds to split for crossvalidation (" + settings.folds + ")"));
+        evalGroup.addOption(new Option("xval", "crossvalidation", true, "number of folds to split for crossvalidation (" + settings.foldsCount + ")"));
         options.addOptionGroup(evalGroup);
 
         options.addOption(new Option("strat", "stratified", true, "stratified crossvalidation (" + settings.stratification + ")"));

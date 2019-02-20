@@ -1,22 +1,46 @@
 package constructs.template.metadata;
 
 import ida.ilp.logic.Constant;
-import networks.computation.evaluation.values.Value;
+import networks.computation.evaluation.values.*;
 import networks.structure.components.weights.Weight;
 
 import java.util.logging.Logger;
 
+/**
+ * A dictionary of all possible values corresponding to the possible {@link Parameter} types.
+ */
 public class ParameterValue {
     private static final Logger LOG = Logger.getLogger(ParameterValue.class.getName());
 
     Type type;
 
     public enum Type {
-        CONSTANT, WEIGHT, VALUE, STRING, INT, DOUBLE, BOOLEAN
+        CONSTANT, WEIGHT, VALUE, INT, DOUBLE, BOOLEAN, STRING
     }
 
     String stringValue;
     Object value;
+
+    public ParameterValue(Object value) {
+        this.value = value;
+        this.stringValue = value.toString();
+
+        if (value instanceof Weight) {
+            type = Type.WEIGHT;
+        } else if (value instanceof StringValue) {
+            type = Type.STRING;
+        } else if (value instanceof Value) {
+            if (value instanceof ScalarValue) {
+                //todo
+            } else if (value instanceof VectorValue) {
+
+            } else if (value instanceof MatrixValue) {
+
+            }
+        } else {
+            LOG.warning("Metadata value not recognized!");
+        }
+    }
 
     public ParameterValue(Constant constant) {
         stringValue = constant.toString();

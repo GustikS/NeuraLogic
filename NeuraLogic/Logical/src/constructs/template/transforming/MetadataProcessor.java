@@ -1,14 +1,18 @@
 package constructs.template.transforming;
 
-import constructs.template.Template;
-import constructs.template.metadata.*;
+import constructs.WeightedPredicate;
+import constructs.template.components.WeightedRule;
+import constructs.template.metadata.PredicateMetadata;
+import constructs.template.metadata.WeightMetadata;
 import constructs.template.types.ParsedTemplate;
+import ida.utils.tuples.Pair;
+import networks.structure.components.weights.Weight;
 import settings.Settings;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.logging.Logger;
 
 /**
+ *
  * Created by gusta on 6.3.18.
  */
 public class MetadataProcessor {
@@ -17,23 +21,38 @@ public class MetadataProcessor {
     public MetadataProcessor(Settings settings) {
     }
 
-    public Template processMetadata(Template template, TemplateMetadata metadata) {
-        throw new NotImplementedException();
-    }
-
-    public Template processMetadata(Template template, PredicateMetadata metadata) {
-
-    }
-
-    public Template processMetadata(Template template, WeightMetadata metadata) {
-
-    }
-
-    public Template processMetadata(Template template, RuleMetadata metadata) {
-
-    }
-
+    /**
+     * Assign and process all the metadata.
+     * @param template
+     * @return
+     */
     public ParsedTemplate processMetadata(ParsedTemplate template) {
-        //TODO process all metadata for all elements
+        for (Pair<WeightedPredicate, PredicateMetadata> predicatesMetadatum : template.predicatesMetadata) {
+            if (predicatesMetadatum.r.metadata == null){
+                predicatesMetadatum.r.metadata = predicatesMetadatum.s;
+            } else {
+                predicatesMetadatum.r.metadata.addAll(predicatesMetadatum.s);
+            }
+
+            predicatesMetadatum.r.metadata.applyTo(predicatesMetadatum.r);
+        }
+
+        for (Pair<Weight, WeightMetadata> weightsMetadatum : template.weightsMetadata) {
+            if (weightsMetadatum.r.metadata == null){
+                weightsMetadatum.r.metadata = weightsMetadatum.s;
+            } else {
+                weightsMetadatum.r.metadata.addAll(weightsMetadatum.s);
+            }
+
+            weightsMetadatum.s.applyTo(weightsMetadatum.r);
+        }
+
+        for (WeightedRule rule : template.rules) {
+            rule.metadata.applyTo(rule);
+        }
+
+        template.templateMetadata.applyTo(template);
+
+        return template;
     }
 }
