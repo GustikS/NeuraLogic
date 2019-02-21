@@ -2,10 +2,12 @@ package pipelines.building;
 
 import constructs.example.LogicSample;
 import constructs.template.Template;
+import grounding.GroundingSample;
 import ida.utils.tuples.Pair;
 import networks.computation.evaluation.results.Progress;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
+import networks.structure.building.Neuralizer;
 import pipelines.Merge;
 import pipelines.Pipe;
 import pipelines.Pipeline;
@@ -77,7 +79,7 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
     }
 
     /**
-     * TODO - in case that some of the samples did not ground succesfully, hack the pipeline and start StructureLearning in the current context
+     * todo - in case that some of the samples did not ground succesfully, hack the pipeline and start StructureLearning in the current context
      */
     public class LogicLearningBuilder extends AbstractPipelineBuilder<Pair<Template, Stream<LogicSample>>, Pair<Pair<Template, NeuralModel>, Progress>> {
 
@@ -92,7 +94,12 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
             FirstFromPairExtractionBranch<Template, Stream<LogicSample>> templateSamplesBranch = pipeline.registerStart(new FirstFromPairExtractionBranch<>());
             DuplicateBranch<Template> duplicateBranch = pipeline.register(new DuplicateBranch<>());
 
-            Pipeline<Pair<Template, Stream<LogicSample>>, Stream<NeuralSample>> groundingPipeline = pipeline.register(new GroundingBuilder(settings).buildPipeline());
+            GroundingBuilder groundingBuilder = new GroundingBuilder(settings);
+            Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> groundingPipeline = pipeline.register(groundingBuilder.buildPipeline());
+
+
+            NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, new Neuralizer(groundingBuilder.grounder));
+            Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> neuralizationPipeline = pipeline.register(neuralNetsBuilder.buildPipeline());
 
             TemplateToNeuralPipe templateToNeuralPipe = pipeline.register(new TemplateToNeuralPipe());
 
@@ -110,10 +117,12 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
             templateSamplesBranch.connectAfterL(groundingPipeline);
             templateSamplesBranch.connectAfterR(duplicateBranch);
 
+            groundingPipeline.connectAfter(neuralizationPipeline);
+
             duplicateBranch.connectAfterL(templateToNeuralPipe);
 
             pairMerge.connectBeforeL(templateToNeuralPipe);
-            pairMerge.connectBeforeR(groundingPipeline);
+            pairMerge.connectBeforeR(neuralizationPipeline);
 
             pairMerge.connectAfter(trainingPipeline);
 

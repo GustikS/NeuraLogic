@@ -53,8 +53,8 @@ public class Progress {
     }
 
     public static class TrainVal {
-        Results training;
-        Results validation;
+        public Results training;
+        public Results validation;
 
         public TrainVal(Results train, Results validation) {
             this.training = train;

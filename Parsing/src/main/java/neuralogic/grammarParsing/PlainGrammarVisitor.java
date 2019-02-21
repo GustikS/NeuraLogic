@@ -59,7 +59,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             rule.body = ctx.conjunction().accept(bodyVisitor);
 
             rule.offset = ctx.offset() != null ? ctx.offset().accept(new WeightVisitor()) : null;
-            rule.metadata = ctx.metadataList() != null ? new RuleMetadata(ctx.metadataList().accept(new MetadataListVisitor())) : null; //rule metadata are set directly here, as they cannot appear at arbitrary place as opposed to the other metadata, which are processed in a later stage
+            rule.metadata = ctx.metadataList() != null ? new RuleMetadata(builder.settings, ctx.metadataList().accept(new MetadataListVisitor())) : null; //rule metadata are set directly here, as they cannot appear at arbitrary place as opposed to the other metadata, which are processed in a later stage
 
             return rule;
         }

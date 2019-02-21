@@ -2,6 +2,7 @@ package constructs.template.metadata;
 
 import networks.computation.evaluation.values.Value;
 import networks.structure.components.weights.Weight;
+import settings.Settings;
 
 import java.util.Map;
 import java.util.logging.Logger;
@@ -12,8 +13,8 @@ import java.util.logging.Logger;
 public class WeightMetadata extends Metadata<Weight> {
     private static final Logger LOG = Logger.getLogger(WeightMetadata.class.getName());
 
-    public WeightMetadata(Map<String, Object> stringObjectMap) {
-        super(stringObjectMap);
+    public WeightMetadata(Settings settings, Map<String, Object> stringObjectMap) {
+        super(settings, stringObjectMap);
     }
 
     @Override

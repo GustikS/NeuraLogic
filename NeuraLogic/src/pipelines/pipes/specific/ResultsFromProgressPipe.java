@@ -15,6 +15,6 @@ public class ResultsFromProgressPipe extends Pipe<Progress, Results> {
 
     @Override
     public Results apply(Progress progress) {
-        //todo next
+        return progress.getLastTrueResults().training;
     }
 }

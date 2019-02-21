@@ -1,6 +1,7 @@
 package constructs.template.metadata;
 
 import constructs.WeightedPredicate;
+import settings.Settings;
 
 import java.util.Map;
 import java.util.logging.Logger;
@@ -11,8 +12,8 @@ import java.util.logging.Logger;
 public class PredicateMetadata extends Metadata<WeightedPredicate> {
     private static final Logger LOG = Logger.getLogger(PredicateMetadata.class.getName());
 
-    public PredicateMetadata(Map<String, Object> pairs) {
-        super(pairs);
+    public PredicateMetadata(Settings settings, Map<String, Object> pairs) {
+        super(settings,pairs);
     }
 
     @Override

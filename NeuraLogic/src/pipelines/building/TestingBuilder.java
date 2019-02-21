@@ -2,8 +2,10 @@ package pipelines.building;
 
 import constructs.example.LogicSample;
 import constructs.template.Template;
+import grounding.GroundingSample;
 import ida.utils.tuples.Pair;
 import networks.computation.evaluation.results.Results;
+import networks.structure.building.Neuralizer;
 import pipelines.Branch;
 import pipelines.Pipe;
 import pipelines.Pipeline;
@@ -75,7 +77,8 @@ public class TestingBuilder extends AbstractPipelineBuilder<Sources, Results> {
 
     public class LogicTestingBuilder extends AbstractPipelineBuilder<Pair<Pair<Template, NeuralModel>, Stream<LogicSample>>, Results> {
 
-        Pipeline<Pair<Template, Stream<LogicSample>>, Stream<NeuralSample>> groundingPipeline;
+        Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> groundingPipeline;
+        Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> neuralizationPipeline;
         Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Results> neuralTestingPipeline;
 
         public LogicTestingBuilder(Settings settings) {
@@ -88,6 +91,9 @@ public class TestingBuilder extends AbstractPipelineBuilder<Sources, Results> {
             if (groundingPipeline == null) {
                 GroundingBuilder groundingBuilder = new GroundingBuilder(settings);
                 groundingPipeline = pipeline.register(groundingBuilder.buildPipeline());
+
+                NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, new Neuralizer(groundingBuilder.grounder));
+                neuralizationPipeline = pipeline.register(neuralNetsBuilder.buildPipeline());
             }
 
             if (neuralTestingPipeline == null) {
@@ -105,9 +111,11 @@ public class TestingBuilder extends AbstractPipelineBuilder<Sources, Results> {
 
             modelSplitBranch.connectAfterL(groundingPipeline);
 
+            groundingPipeline.connectAfter(neuralizationPipeline);
+
             PairMerge<NeuralModel, Stream<NeuralSample>> testMerge = pipeline.register(new PairMerge<>());
             testMerge.connectBeforeL(modelSplitBranch.output2);
-            testMerge.connectBeforeR(groundingPipeline);
+            testMerge.connectBeforeR(neuralizationPipeline);
             testMerge.connectAfter(neuralTestingPipeline);
 
             return pipeline;

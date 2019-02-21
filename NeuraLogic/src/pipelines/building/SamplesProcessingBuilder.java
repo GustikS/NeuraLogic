@@ -7,6 +7,7 @@ import constructs.example.LogicSample;
 import learning.Query;
 import pipelines.Pipe;
 import pipelines.Pipeline;
+import pipelines.pipes.generic.IdentityGenPipe;
 import settings.Settings;
 import settings.Source;
 
@@ -49,40 +50,53 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
 
     public Pipe<Source, Stream<LogicSample>> extractSamplesPipe(Source source) {
 
-        if (source.ExamplesReader != null || source.QueriesReader != null) {
-            return new Pipe<Source, Stream<LogicSample>>("SamplesExtractionPipe") {
+        if (source.ExamplesReader == null && source.QueriesReader == null) {
+            LOG.severe("No sources found to assemble Samples at construction");
+        }
+
+        Pipe<Source, Stream<LogicSample>> sampleExtractionPipe = null;
+
+        if (source.QueriesSeparate && source.ExamplesProvided) {
+            sampleExtractionPipe = new Pipe<Source, Stream<LogicSample>>("QueriesWithExamplesPipe") {
                 @Override
                 public Stream<LogicSample> apply(Source source) {
-                    if (source.QueriesSeparate && source.ExamplesProvided) {    //todo next move the if's outside to pipeline creation
-                        ExamplesBuilder examplesBuilder = new ExamplesBuilder(settings);
-                        Stream<LogicSample> examples = examplesBuilder.buildSamplesFrom(examplesBuilder.parseTreeFrom(source.ExamplesReader));
+                    ExamplesBuilder examplesBuilder = new ExamplesBuilder(settings);
+                    Stream<LogicSample> examples = examplesBuilder.buildSamplesFrom(examplesBuilder.parseTreeFrom(source.ExamplesReader));
 
-                        QueriesBuilder queriesBuilder = new QueriesBuilder(settings);
-                        queriesBuilder.setFactoriesFrom(examplesBuilder);   //TODO check if this is indeed desirable
-                        Stream<LogicSample> queries = queriesBuilder.buildSamplesFrom(queriesBuilder.parseTreeFrom(source.QueriesReader));
+                    QueriesBuilder queriesBuilder = new QueriesBuilder(settings);
+                    queriesBuilder.setFactoriesFrom(examplesBuilder);   //todo check if this is indeed desirable
+                    Stream<LogicSample> queries = queriesBuilder.buildSamplesFrom(queriesBuilder.parseTreeFrom(source.QueriesReader));
 
-                        return queriesBuilder.merge2streams(queries, examples);
-                    } else if (!source.QueriesSeparate && source.ExamplesProvided) {
-                        ExamplesBuilder examplesBuilder = new ExamplesBuilder(settings);
-                        return examplesBuilder.buildSamplesFrom(examplesBuilder.parseTreeFrom(source.ExamplesReader));
-                    } else if (source.QueriesSeparate && !source.ExamplesProvided) {
-                        QueriesBuilder queriesBuilder = new QueriesBuilder(settings);
-                        return queriesBuilder.buildSamplesFrom(queriesBuilder.parseTreeFrom(source.QueriesReader));
-                    } else {
-                        LOG.severe("No sources found to assemble Samples at pipe run");
-                        return null;
-                    }
+                    return queriesBuilder.merge2streams(queries, examples);
+                }
+            };
+        } else if (!source.QueriesSeparate && source.ExamplesProvided) {
+            sampleExtractionPipe = new Pipe<Source, Stream<LogicSample>>("UnsupervisedExamplesPipe") {
+                @Override
+                public Stream<LogicSample> apply(Source source) {
+                    ExamplesBuilder examplesBuilder = new ExamplesBuilder(settings);
+                    return examplesBuilder.buildSamplesFrom(examplesBuilder.parseTreeFrom(source.ExamplesReader));
+                }
+            };
+        } else if (source.QueriesSeparate && !source.ExamplesProvided) {
+            sampleExtractionPipe = new Pipe<Source, Stream<LogicSample>>("QueriesOnlyPipe") {
+                @Override
+                public Stream<LogicSample> apply(Source source) {
+                    QueriesBuilder queriesBuilder = new QueriesBuilder(settings);
+                    return queriesBuilder.buildSamplesFrom(queriesBuilder.parseTreeFrom(source.QueriesReader));
                 }
             };
         } else {
-            LOG.severe("No sources found to assemble Samples at construction");
+            LOG.severe("No sources found to assemble Samples at pipe construction");
             return null;
         }
+        return sampleExtractionPipe;
     }
 
 
     public Pipe<Stream<LogicSample>, Stream<LogicSample>> postprocessSamplesPipe() {
-        //TODO for instance order by example id
-        return null;
+        //todo for instance order by example id
+        Pipe<Stream<LogicSample>, Stream<LogicSample>> postProcessPipe = new IdentityGenPipe<>();
+        return postProcessPipe;
     }
 }

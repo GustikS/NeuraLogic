@@ -98,6 +98,7 @@ public class SourceFiles extends Sources {
             }
             switch (Utilities.identifyFileTypeUsingFilesProbeContentType(template.toString())) {
                 case "text/plain":
+                    settings.plaintextInput = true;
                     LOG.info("Input template file type identified as plain text");
                     break;
                 case "application/xml":

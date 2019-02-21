@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 public abstract class LogicSourceBuilder<I extends PlainParseTree<? extends ParserRuleContext>, O> {
     private static final Logger LOG = Logger.getLogger(LogicSourceBuilder.class.getName());
 
-    Settings settings;
+    public Settings settings;
 
     // Constants are shared over the whole logic source
     public ConstantFactory constantFactory = new ConstantFactory();

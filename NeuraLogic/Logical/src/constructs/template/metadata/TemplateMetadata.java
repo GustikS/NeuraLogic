@@ -1,6 +1,7 @@
 package constructs.template.metadata;
 
 import constructs.template.Template;
+import settings.Settings;
 
 import java.util.Map;
 import java.util.logging.Logger;
@@ -11,8 +12,8 @@ import java.util.logging.Logger;
 public class TemplateMetadata extends Metadata<Template> {
     private static final Logger LOG = Logger.getLogger(TemplateMetadata.class.getName());
 
-    public TemplateMetadata(Map<String, Object> stringObjectMap) {
-        super(stringObjectMap);
+    public TemplateMetadata(Settings settings, Map<String, Object> stringObjectMap) {
+        super(settings, stringObjectMap);
     }
 
     @Override

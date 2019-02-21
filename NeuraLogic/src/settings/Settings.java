@@ -261,6 +261,10 @@ public class Settings {
 
     //-----------------Source files
     /**
+     * Format of the input (file) readers is for plain-text parsers (and not e.g. xml)
+     */
+    public boolean plaintextInput;
+    /**
      * Are the data sources files? (not e.g. streams from memory/internet)
      */
     public boolean sourceFiles = true;

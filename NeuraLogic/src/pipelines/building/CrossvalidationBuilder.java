@@ -2,12 +2,14 @@ package pipelines.building;
 
 import constructs.example.LogicSample;
 import constructs.template.Template;
+import grounding.GroundingSample;
 import ida.utils.tuples.Pair;
 import learning.LearningSample;
 import learning.Model;
 import learning.crossvalidation.Crossvalidation;
 import learning.crossvalidation.TrainTestResults;
 import learning.crossvalidation.splitting.Splitter;
+import networks.structure.building.Neuralizer;
 import pipelines.*;
 import pipelines.pipes.generic.*;
 import pipelines.pipes.specific.TemplateToNeuralPipe;
@@ -153,12 +155,19 @@ public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Tra
                         resultsMultiMerge.connectBefore(neuralTrainTestPipelines);
 
                         MultiMerge<Stream<NeuralSample>, Crossvalidation<NeuralSample>> neuralCrossvalidation = pipeline.register(assembleCV(NeuralSample.class, sources.folds.size()));
-                        List<Pipeline<Pair<Template, Stream<LogicSample>>, Stream<NeuralSample>>> groundingPipelines = new GroundingBuilder(settings).buildPipelines(sources.folds.size());
+                        GroundingBuilder groundingBuilder = new GroundingBuilder(settings);
+                        List<Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>>> groundingPipelines = groundingBuilder.buildPipelines(sources.folds.size());
+
+                        NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, new Neuralizer(groundingBuilder.grounder));
+                        List<Pipeline<Stream<GroundingSample>, Stream<NeuralSample>>> neuralizationPipelines = neuralNetsBuilder.buildPipelines(sources.folds.size());
+
                         groundingPipelines.forEach(pipeline::register);
+                        neuralizationPipelines.forEach(pipeline::register);
                         List<Merge<Template, Stream<LogicSample>, Pair<Template, Stream<LogicSample>>>> templateSamplesMerges = new PairMerge<Template, Stream<LogicSample>>().parallel(sources.folds.size());
                         templateSamplesMerges.forEach(pipeline::register);
 
-                        neuralCrossvalidation.connectBefore(groundingPipelines);
+                        Pipe.connect(groundingPipelines, neuralizationPipelines);
+                        neuralCrossvalidation.connectBefore(neuralizationPipelines);
                         Merge.connectBeforeR(templateSamplesMerges, samplesExtract);
                         Pipe.connect(templateSamplesMerges, groundingPipelines);
 
@@ -262,8 +271,14 @@ public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Tra
 
                     List<Pipeline<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>, TrainTestResults>> neuralTrainTestPipeline = trainTestBuilder.new NeuralTrainTestBuilder(settings).buildPipelines(sources.folds.size());
                     neuralTrainTestPipeline.forEach(pipeline::register);
-                    List<Pipeline<Pair<Template, Stream<LogicSample>>, Stream<NeuralSample>>> groundingPipelines = new GroundingBuilder(settings).buildPipelines(sources.folds.size());
+
+                    GroundingBuilder groundingBuilder = new GroundingBuilder(settings);
+                    List<Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>>> groundingPipelines = groundingBuilder.buildPipelines(sources.folds.size());
                     groundingPipelines.forEach(pipeline::register);
+
+                    NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, new Neuralizer(groundingBuilder.grounder));
+                    List<Pipeline<Stream<GroundingSample>, Stream<NeuralSample>>> neuralizationPipelines = neuralNetsBuilder.buildPipelines(sources.folds.size());
+                    neuralizationPipelines.forEach(pipeline::register);
 
                     DuplicateBranch<Template> duplicateTemplate = pipeline.register(new DuplicateBranch<>());
                     DuplicateListBranch<Template> templateListBranch = pipeline.register(new DuplicateListBranch<>(sources.folds.size()));
@@ -292,8 +307,9 @@ public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Tra
                     Merge.connectBeforeL(templateSamplesMerges, templateListBranch.outputs);
                     Merge.connectBeforeR(templateSamplesMerges, foldsBranch.outputs);
                     Pipe.connect(templateSamplesMerges, groundingPipelines);
+                    Pipe.connect(groundingPipelines,neuralizationPipelines);
 
-                    neuralCrossvalidation.connectBefore(groundingPipelines);
+                    neuralCrossvalidation.connectBefore(neuralizationPipelines);
                     duplicateTemplate.connectAfterR(templateToNeuralPipe);
 
                     modelCVmerge.connectBeforeL(templateToNeuralPipe);

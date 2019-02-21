@@ -35,10 +35,14 @@ public class TemplateBuilder extends LogicSourceBuilder<PlainTemplateParseTree, 
 
     @Override
     public PlainTemplateParseTree parseTreeFrom(Reader reader) {
-        try {
-            return new PlainTemplateParseTree(reader);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (settings.plaintextInput) {
+            try {
+                return new PlainTemplateParseTree(reader);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            LOG.severe("Formats other than plaintext are not supported yet!");
         }
         return null;
     }
@@ -76,9 +80,9 @@ public class TemplateBuilder extends LogicSourceBuilder<PlainTemplateParseTree, 
         template.addConstraints(weightedConjunctions);  //todo check what are weighted conjunctions in template
         template.originalString = plainParseTree.toString();    //todo check where is the real string
 
-        template.templateMetadata = new TemplateMetadata(templateMetadata);
-        template.predicatesMetadata = predicatesMetadata.stream().map(pair -> new Pair<>(pair.r, new PredicateMetadata(pair.s))).collect(Collectors.toList());
-        template.weightsMetadata = weightsMetadata.stream().map(pair -> new Pair<>(pair.r, new WeightMetadata(pair.s))).collect(Collectors.toList());
+        template.templateMetadata = new TemplateMetadata(settings, templateMetadata);
+        template.predicatesMetadata = predicatesMetadata.stream().map(pair -> new Pair<>(pair.r, new PredicateMetadata(settings, pair.s))).collect(Collectors.toList());
+        template.weightsMetadata = weightsMetadata.stream().map(pair -> new Pair<>(pair.r, new WeightMetadata(settings, pair.s))).collect(Collectors.toList());
 
         return template;
     }

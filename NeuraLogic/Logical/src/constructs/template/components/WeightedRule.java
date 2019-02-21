@@ -39,7 +39,6 @@ public class WeightedRule {
 
     /**
      * Apply {@link networks.computation.evaluation.functions.CrossProduct} activation on the inputs of the rule?
-     * todo must process this from metadata of the rule
      */
     public boolean crossProduct;
 

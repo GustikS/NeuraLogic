@@ -1,5 +1,7 @@
 package constructs.template.metadata;
 
+import settings.Settings;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -10,9 +12,12 @@ import java.util.logging.Logger;
 public abstract class Metadata<T> {
     private static final Logger LOG = Logger.getLogger(Metadata.class.getName());
 
+    Settings settings;
+
     public Map<Parameter, ParameterValue> metadata;
 
-    public Metadata(Map<String, Object> stringObjectMap) {
+    public Metadata(Settings settings, Map<String, Object> stringObjectMap) {
+        this.settings = settings;
         metadata = new LinkedHashMap<>();
 
         for (Map.Entry<String, Object> ent : stringObjectMap.entrySet()) {
