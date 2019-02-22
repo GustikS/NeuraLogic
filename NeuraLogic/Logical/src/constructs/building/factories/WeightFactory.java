@@ -1,8 +1,10 @@
 package constructs.building.factories;
 
+import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.values.Value;
 import networks.structure.components.weights.Weight;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +45,7 @@ public class WeightFactory {
 
     public Weight construct(Weight from) {
         Weight result = weight2weight.get(from);
-        if (result != null){
+        if (result != null) {
             str2weight.put(result.toString(), result);
             weight2weight.put(result, result);
         }
@@ -60,7 +62,10 @@ public class WeightFactory {
         return result;
     }
 
-    public Weight mergeWeights(Weight a, Weight b) {
-        return new Weight(index, a.name, a.value.plus(b.value), a.isFixed);  //todo improve this - //todo correct for explicit weight sharing - cannot just add shared weight
+    public Weight mergeWeights(Aggregation aggregationFcn, Weight a, Weight b) {
+        if ((a.isShared || b.isShared) && !a.equals(b)) {
+            LOG.severe("Trying to merge two different shared weights" + a + " != " + b);
+        }
+        return new Weight(index++, a.name + b.name, aggregationFcn.evaluate(Arrays.asList(a.value, b.value)), a.isFixed && b.isFixed);
     }
 }

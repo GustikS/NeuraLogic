@@ -3,18 +3,10 @@ package networks.structure.transforming;
 import networks.structure.components.NeuralNetwork;
 import settings.Settings;
 
-import java.util.HashSet;
-
 /**
  * Created by gusta on 14.3.17.
  */
-public abstract class CycleBreaking {
-
-    HashSet<String> processedNets;
-
-    public CycleBreaking(){
-        processedNets = new HashSet<>();
-    }
+public interface CycleBreaking {
 
     public abstract NeuralNetwork breakCycles(NeuralNetwork inet);
 

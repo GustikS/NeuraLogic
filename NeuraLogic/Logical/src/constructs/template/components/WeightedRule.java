@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 
 /**
  * Created by Gusta on 04.10.2016.
+ * <p>
  *
- * todo create hash?
  */
 public class WeightedRule {
 
@@ -93,6 +93,33 @@ public class WeightedRule {
             if (bodyAtom.weight != null) {
                 return false;
             }
+        }
+        return true;
+    }
+
+    /**
+     * todo test go back to default hash?
+     * @return
+     */
+    @Override
+    public int hashCode() {
+        return head.hashCode() + body.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof WeightedRule)) {
+            return false;
+        }
+        WeightedRule other = (WeightedRule) obj;
+        if (!weight.equals(other.weight) || !offset.equals(other.offset)) {
+            return false;
+        }
+        if (!aggregationFcn.equals(other.aggregationFcn) || ! activationFcn.equals(other.activationFcn)){
+            return false;
+        }
+        if (!head.equals(other.head) || ! body.equals(other.body)){
+            return false;
         }
         return true;
     }

@@ -8,6 +8,7 @@ import grounding.GroundTemplate;
 import grounding.Grounder;
 import ida.ilp.logic.HornClause;
 import ida.ilp.logic.Literal;
+import ida.ilp.logic.Term;
 import ida.utils.tuples.Pair;
 import org.jetbrains.annotations.NotNull;
 import settings.Settings;
@@ -33,9 +34,16 @@ public class BottomUp extends Grounder {
 
     @NotNull
     public GroundTemplate groundRulesAndFacts(LiftedExample example, Template template) {
-        Pair<Map<HornClause, WeightedRule>, Map<Literal, ValuedFact>> rulesAndFacts = mapToLogic(rulesAndFacts(example, template));
-        Map<HornClause, WeightedRule> ruleMap = rulesAndFacts.r;
-        Map<Literal, ValuedFact> groundFacts = rulesAndFacts.s;
+        Map<HornClause, List<WeightedRule>> ruleMap = template.hornClauses;
+        Map<Literal, ValuedFact> groundFacts = null;
+        if (example.rules.isEmpty() && ruleMap != null) {  //no new rules here, only facts, reuse the rules mapping from template
+            groundFacts = mapToLogic(rulesAndFacts(example, template).s);
+        } else {
+            Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> rulesAndFacts = mapToLogic(rulesAndFacts(example, template));
+            ruleMap = rulesAndFacts.r;
+            groundFacts = rulesAndFacts.s;
+            template.hornClauses = ruleMap;
+        }
 
         LinkedHashMap<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> groundRules = new LinkedHashMap<>();
 
@@ -46,14 +54,17 @@ public class BottomUp extends Grounder {
 
         herbrandModel.inferModel(ruleMap.keySet(), facts);
 
-        for (Map.Entry<HornClause, WeightedRule> ruleEntry : ruleMap.entrySet()) {
-            List<WeightedRule> groundings = herbrandModel.groundRules(ruleEntry.getValue(), ruleEntry.getKey());
-            for (WeightedRule grounding : groundings) {
-                Map<WeightedRule, LinkedHashSet<WeightedRule>> rules2groundings =
-                        groundRules.computeIfAbsent(grounding.head.getLiteral(), k -> new LinkedHashMap<>());
-                LinkedHashSet<WeightedRule> ruleGroundings =
-                        rules2groundings.computeIfAbsent(ruleEntry.getValue(), k -> new LinkedHashSet<>());
-                ruleGroundings.add(grounding);
+        for (Map.Entry<HornClause, List<WeightedRule>> ruleEntry : ruleMap.entrySet()) {
+            Pair<Term[], List<Term[]>> groundingSubstitutions = herbrandModel.groundingSubstitutions(ruleEntry.getKey());
+            for (WeightedRule weightedRule : ruleEntry.getValue()) {
+                List<WeightedRule> groundings = herbrandModel.groundRules(weightedRule, groundingSubstitutions);
+                for (WeightedRule grounding : groundings) {
+                    Map<WeightedRule, LinkedHashSet<WeightedRule>> rules2groundings =
+                            groundRules.computeIfAbsent(grounding.head.getLiteral(), k -> new LinkedHashMap<>());
+                    LinkedHashSet<WeightedRule> ruleGroundings =
+                            rules2groundings.computeIfAbsent(weightedRule, k -> new LinkedHashSet<>());
+                    ruleGroundings.add(grounding);
+                }
             }
         }
         GroundTemplate groundTemplate = new GroundTemplate(groundRules, groundFacts);
@@ -65,6 +76,7 @@ public class BottomUp extends Grounder {
      * Performs incremental grounding over the memory GroundTemplate.
      * Returns GroundTemplate that carries diff w.r.t. ground rules and facts but union w.r.t. neurons.
      * Updates the memory with the union of ground rules and facts.
+     *
      * @param example
      * @param template
      * @param memory

@@ -79,7 +79,7 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
     }
 
     /**
-     * todo - in case that some of the samples did not ground succesfully, hack the pipeline and start StructureLearning in the current context
+     * todo - in case that some of the samples did not ground successfully, hack the pipeline and start StructureLearning in the current context
      */
     public class LogicLearningBuilder extends AbstractPipelineBuilder<Pair<Template, Stream<LogicSample>>, Pair<Pair<Template, NeuralModel>, Progress>> {
 

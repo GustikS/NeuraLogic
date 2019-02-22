@@ -60,6 +60,11 @@ public class Settings {
         BUP, TDOWN, GRINGO
     }
 
+    /**
+     * How to aggregate 2 identical facts stated with 2 different truth values (e.g., 0.3 person(petr).; 0.9 person(petr).)
+     */
+    public AggregationFcn factMergeActivation = AggregationFcn.MAX;
+
     //-----------------Neural nets creation
     /**
      * Prune out ground rules with no support for a given query EXPLICITLY in advance (even though in a supervised pipeline, only support will be taken recursively)

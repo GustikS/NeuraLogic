@@ -35,14 +35,14 @@ public class Atom {
     public boolean dropout;
 
     public Atom(WeightedPredicate weightedPredicate, List<Term> terms, boolean negated) {
-        if (weightedPredicate.predicate.arity != terms.size()){
+        if (weightedPredicate.predicate.arity != terms.size()) {
             LOG.severe("Predicate arity and terms size mismatch while creating an Atom");   //tried some workarounds with injecting predicate factory, but this probably has to be here (since predicate and terms are created at separate places)
         }
         this.offsettedPredicate = weightedPredicate;
         this.literal = new Literal(weightedPredicate.predicate, negated, terms);
     }
 
-    public Atom(Atom another){
+    public Atom(Atom another) {
         this.offsettedPredicate = another.offsettedPredicate;
         this.literal = another.literal;
         this.activation = another.activation;
@@ -65,10 +65,23 @@ public class Atom {
         return literal;
     }
 
-    public Atom ground(Map<Term,Term> var2term){
+    public Atom ground(Map<Term, Term> var2term) {
         Atom copy = new Atom(this);
         copy.literal = copy.literal.subsCopy(var2term);
         return copy;
     }
 
+    @Override
+    public int hashCode() {
+        return literal.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Atom)) {
+            return false;
+        }
+        Atom other = (Atom) obj;
+        return literal.equals(other.literal);
+    }
 }

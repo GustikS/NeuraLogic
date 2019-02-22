@@ -25,7 +25,9 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
- * Contains logic of construction of logical structures while walking/visiting parse trees of logic programs (templates or samples)
+ * Contains logic of construction of logical structures while walking/visiting parse trees of logic programs (templates or samples).
+ *
+ * Rules and atom are constructed independently. Predicates, constants and variables are shared via factory methods.
  */
 public class PlainGrammarVisitor extends GrammarVisitor {
     private static final Logger LOG = Logger.getLogger(PlainGrammarVisitor.class.getName());

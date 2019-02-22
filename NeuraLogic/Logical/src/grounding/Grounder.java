@@ -10,20 +10,18 @@ import grounding.topDown.TopDown;
 import ida.ilp.logic.HornClause;
 import ida.ilp.logic.Literal;
 import ida.utils.tuples.Pair;
+import networks.computation.evaluation.functions.Aggregation;
+import networks.computation.evaluation.values.Value;
 import settings.Settings;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
  * Class responsible for logical inference/grounding, creating GroundTemplate (set of ground rules and facts) from lifted Template and Example
- *
+ * <p>
  * Created by Gusta on 06.10.2016.
- *
  */
 public abstract class Grounder {
     private static final Logger LOG = Logger.getLogger(Grounder.class.getName());
@@ -74,56 +72,75 @@ public abstract class Grounder {
 
     /**
      * Extracting set of rules and facts from the merge of an example and template
+     *
      * @param example
      * @param template
      * @return
      */
     public Pair<Set<WeightedRule>, Set<ValuedFact>> rulesAndFacts(LiftedExample example, Template template) {
-        LinkedHashSet<ValuedFact> flatFacts = new LinkedHashSet<>(example.flatFacts);
-        flatFacts.addAll(example.conjunctions.stream().flatMap(conj -> conj.facts.stream()).collect(Collectors.toList()));
-        flatFacts.addAll(template.facts);
+        LinkedHashSet<ValuedFact> flatFacts;
+        if (!template.facts.isEmpty() || !example.conjunctions.isEmpty()) {
+            flatFacts=new LinkedHashSet<>(example.flatFacts);
+            flatFacts.addAll(example.conjunctions.stream().flatMap(conj -> conj.facts.stream()).collect(Collectors.toList()));
+            flatFacts.addAll(template.facts);
+        } else {
+            flatFacts = example.flatFacts;
+        }
 
-        LinkedHashSet<WeightedRule> rules = new LinkedHashSet<>(template.rules);
-        //rules.addAll(template.constraints) todo what to do with constraints?
-        rules.addAll(example.rules);
+        LinkedHashSet<WeightedRule> rules;
+        if (example.rules.isEmpty()) {
+            rules = template.rules;
+            //rules.addAll(template.constraints) todo what to do with constraints?
+        } else {
+            rules=new LinkedHashSet<>(template.rules);
+            rules.addAll(example.rules);
+        }
         return new Pair<>(rules, flatFacts);
     }
 
     /**
-     * Todo must optimize this for the case when the template doesnt change with every example (remember the template rules)
      *
      * @param raf
      * @return
      */
-    public Pair<Map<HornClause, WeightedRule>, Map<Literal, ValuedFact>> mapToLogic(Pair<Set<WeightedRule>, Set<ValuedFact>> raf) {
-        Map<HornClause, WeightedRule> ruleMap = raf.r.stream().collect(Collectors.toMap(WeightedRule::toHornClause, wr -> wr, this::merge2rules));
-        Map<Literal, ValuedFact> factMap = raf.s.stream().collect(Collectors.toMap(ValuedFact::getLiteral, vf -> vf, this::merge2facts));
+    public Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> mapToLogic(Pair<Set<WeightedRule>, Set<ValuedFact>> raf) {
+        Map<HornClause, List<WeightedRule>> ruleMap = raf.r.stream().collect(Collectors.toMap(WeightedRule::toHornClause, Arrays::asList, this::merge2rules));
+        Map<Literal, ValuedFact> factMap = mapToLogic(raf.s);
         return new Pair<>(ruleMap, factMap);
     }
 
     /**
-     * On a clash of two WeightedRules having the same underlying HornClause logic, add their weights (linearity of differentiation).
-     * But must be careful to check for edge cases -> outsourcing to weightFactory
+     *
+     * @param facts
+     * @return
+     */
+    public  Map<Literal, ValuedFact> mapToLogic(Set<ValuedFact> facts) {
+        return facts.stream().collect(Collectors.toMap(ValuedFact::getLiteral, vf -> vf, this::merge2facts));
+    }
+
+    /**
+     * On a clash of two WeightedRules having the same underlying HornClause logic.
      *
      * @param a
      * @param b
      * @return
      */
-    private WeightedRule merge2rules(WeightedRule a, WeightedRule b) {
-        WeightedRule weightedRule = new WeightedRule(a);
-        weightedRule.weight = weightFactory.mergeWeights(a.weight,b.weight);
-        return weightedRule;
+    private List<WeightedRule> merge2rules(List<WeightedRule> a, List<WeightedRule> b) {
+        a.addAll(b);
+        return a;
     }
 
     /**
-     * On a clash of two ValuedFacts having the same underlying Literal logic, add their Values (linearity of differentiation) //todo check
+     * On a clash of two ValuedFacts having the same underlying Literal logic, take their max or other settings.factMergeActivation directly now.
      *
      * @param a
      * @param b
      * @return
      */
     private ValuedFact merge2facts(ValuedFact a, ValuedFact b) {
-        return new ValuedFact(a.getOffsettedPredicate(), a.getLiteral().termList(), a.getLiteral().isNegated(), weightFactory.construct("foo",a.getFactValue().plus(b.getFactValue()), false));
+        Aggregation factAggregation = Aggregation.getAggregation(settings.factMergeActivation);
+        Value evaluation = factAggregation.evaluate(Arrays.asList(a.getValue(), b.getValue()));
+        return new ValuedFact(a.getOffsettedPredicate(), a.getLiteral().termList(), a.getLiteral().isNegated(), weightFactory.construct("foo", evaluation, false));
     }
 
     /**

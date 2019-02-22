@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
- * todo remove unnecessary edges
+ * todo remove unnecessary edges, bot long chains and merging of unnecessary parallel edges
  */
 public class PruningPipe extends Pipe<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> {
     private static final Logger LOG = Logger.getLogger(PruningPipe.class.getName());

@@ -41,4 +41,13 @@ public class BodyAtom extends Atom {
         copy.literal = copy.literal.subsCopy(var2term);
         return copy;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj)){
+            return false;
+        }
+        BodyAtom other = (BodyAtom) obj;
+        return weight.equals(other.weight);
+    }
 }

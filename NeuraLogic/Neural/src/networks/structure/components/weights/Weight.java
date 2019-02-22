@@ -15,6 +15,8 @@ public class Weight {
     public Value value;
     public boolean isFixed = false;
 
+    public boolean isShared;
+
     /**
      * The flag needs to be set by an external routine.
      */

@@ -44,6 +44,11 @@ public class NeuralNetwork<N extends State.Neural.Structure> implements Example 
     int neuronCount;
 
     /**
+     * todo
+     */
+    int edgeCount;
+
+    /**
      * If there are no shared neurons (or no parallel access to them), there is no need to store extra states of them
      */
     public boolean hasSharedNeurons;

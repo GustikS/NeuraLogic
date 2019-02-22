@@ -82,7 +82,7 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
             //todo - remove maps by recursive copying (here?)
         }
 
-        if (settings.pruneNetworks) {
+        if (settings.pruneNetworks) {//todo must
             Pipe<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> pruningPipe = pipeline.registerEnd(new PruningPipe(settings));
             nextPipe.connectAfter(pruningPipe);
             nextPipe = pruningPipe;

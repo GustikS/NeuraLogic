@@ -12,14 +12,11 @@ import ida.ilp.logic.Predicate;
 import ida.utils.collections.MultiMap;
 import learning.Model;
 import networks.computation.evaluation.values.Value;
+import networks.computation.training.NeuralModel;
 import networks.structure.components.weights.Weight;
 import org.jetbrains.annotations.Nullable;
-import networks.computation.training.NeuralModel;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -37,6 +34,12 @@ public class Template implements Model<QueryAtom> {
 
     @Nullable
     Set<Literal> inferredLiterals;
+
+    /**
+     * This is merely for computational reuse (it can be computed any time from the rules).
+     */
+    @Nullable
+    public Map<HornClause, List<WeightedRule>> hornClauses;
 
     public Template() {
     }
@@ -81,10 +84,11 @@ public class Template implements Model<QueryAtom> {
     }
 
     public Set<Literal> getAllFacts() {
-        HashSet<Literal> literals = new HashSet<>();
-        literals.addAll(inferTemplateFacts());
-        literals.addAll(facts.stream().map(ValuedFact::getLiteral).collect(Collectors.toList()));
-        return literals;
+        if (inferredLiterals == null){
+            inferredLiterals = inferTemplateFacts();
+            inferredLiterals.addAll(facts.stream().map(ValuedFact::getLiteral).collect(Collectors.toList()));
+        }
+        return inferredLiterals;
     }
 
     public void setFacts(LinkedHashSet<ValuedFact> facts) {
@@ -111,7 +115,7 @@ public class Template implements Model<QueryAtom> {
     }
 
     public void addAllFrom(Template template) {
-        if (template == this){
+        if (template == this) {
             return;
         }
         rules.addAll(template.rules);

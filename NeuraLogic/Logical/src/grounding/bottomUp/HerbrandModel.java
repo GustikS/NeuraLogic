@@ -110,7 +110,8 @@ public class HerbrandModel {
     }
 
     public Pair<Term[], List<Term[]>> groundingSubstitutions(HornClause hornClause) {
-        return matching.allSubstitutions(hornClause.toClause(), 0, Integer.MAX_VALUE);  //todo check negations here
+        Clause clause = new Clause(LogicUtils.flipSigns(hornClause.toClause().literals())); //todo check negations here
+        return matching.allSubstitutions(clause, 0, Integer.MAX_VALUE);
     }
 
     public List<WeightedRule> groundRules(WeightedRule liftedRule) {
@@ -118,15 +119,20 @@ public class HerbrandModel {
     }
 
     /**
-     * todo must kill permutations of body literals here - return only truly unique ground rules?
-     *  - but careful for conjunction weights - aggregate them? must not be shared - same problem in Grounder merging different WeightedRules with same hornClauses
+     * We cannot simply merge logically identical body literals in a ground rule's body, nor can we merge two permuted bodies.
+     * These merging transformations can only be done depending on the properties of the used activation/aggregation functions,
+     * and so it is taken care of later in {@link pipelines.building.NeuralNetsBuilder} with {@link networks.structure.transforming.ParallelEdgeMerger}.
      * @param liftedRule
      * @param hc
      * @return
      */
     public List<WeightedRule> groundRules(WeightedRule liftedRule, HornClause hc) {
-        List<WeightedRule> weightedRules = new ArrayList<>();
         Pair<Term[], List<Term[]>> substitutions = groundingSubstitutions(hc);
+        return groundRules(liftedRule, substitutions);
+    }
+
+    public List<WeightedRule> groundRules(WeightedRule liftedRule, Pair<Term[], List<Term[]>> substitutions) {
+        List<WeightedRule> weightedRules = new ArrayList<>();
         for (int i = 0; i < substitutions.s.size(); i++) {
             weightedRules.add(liftedRule.ground(substitutions.r, substitutions.s.get(i)));
         }
