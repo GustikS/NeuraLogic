@@ -1,4 +1,4 @@
-package constructs.building.parsing_old;
+package neuralogic.alternatives.parsing_old;
 
 import learning.Example;
 
@@ -6,9 +6,10 @@ import java.io.Reader;
 import java.util.stream.Stream;
 
 /**
- * Created by gusta on 16.3.17.
+ * Created by gusta on 14.3.17.
  */
-public class SQLdumpExampleParser implements ExampleParser{
+public class PlainTextExampleParser implements ExampleParser {
+
     @Override
     public boolean isValid(String input) {
         return false;

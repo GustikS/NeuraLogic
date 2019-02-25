@@ -7,7 +7,7 @@ import networks.structure.metadata.states.State;
 
 import java.util.ArrayList;
 
-public interface Neuron {
+public interface Neuron<T extends Neuron, S extends State.Neural> {
 
     default void visit(NeuronVisitor visitor) {
         visitor.visit(this);
@@ -17,7 +17,7 @@ public interface Neuron {
         visitor.visit(this);
     }
 
-    ArrayList<? extends Neuron> getInputs();
+    ArrayList<T> getInputs();
 
     Aggregation getAggregation();
 

@@ -58,7 +58,7 @@ public class InheritanceTest {
         }
 
         @Override
-        public BaseNeuron<BaseNeuron, State.Computation> next() {
+        public BaseNeuron<Neuron, State.Computation> next() {
             return null;
         }
 

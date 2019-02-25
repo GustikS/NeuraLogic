@@ -31,6 +31,7 @@ public class WeightUpdater implements WeightVisitor {
     }
 
 
+    @Deprecated
     public void visit(StatefulWeight weight, Value value) {
         weight.getAccumulatedUpdate().increment(value); //todo this will probably never get called, is StatefulWeight necessary?
     }

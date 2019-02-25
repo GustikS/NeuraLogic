@@ -37,6 +37,7 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
     ConcurrentHashMap<String, Merge> merges;
     ConcurrentHashMap<String, Pipe> pipes;
 
+    @Deprecated
     ConcurrentHashMap<String, ParallelPipe> multiPipes;
     ConcurrentHashMap<String, MultiBranch> multiBranches;
     ConcurrentHashMap<String, MultiMerge> multiMerges;

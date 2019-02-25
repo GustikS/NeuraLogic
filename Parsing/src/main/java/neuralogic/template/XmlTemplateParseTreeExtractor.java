@@ -1,5 +1,6 @@
 package neuralogic.template;
 
+import constructs.Conjunction;
 import constructs.example.ValuedFact;
 import constructs.WeightedPredicate;
 import constructs.template.components.WeightedRule;
@@ -32,12 +33,22 @@ public class XmlTemplateParseTreeExtractor extends TemplateParseTreeExtractor {
     }
 
     @Override
+    public List<Conjunction> getWeightedConjunctions(NeuralogicParser.TemplateFileContext ctx) {
+        return null;
+    }
+
+    @Override
     public List<Pair<Weight, Map<String, Object>>> getWeightsMetadata(NeuralogicParser.TemplateFileContext ctx) {
         return null;
     }
 
     @Override
     public List<Pair<WeightedPredicate, Map<String, Object>>> getPredicatesMetadata(NeuralogicParser.TemplateFileContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getTemplateMetadata(NeuralogicParser.TemplateFileContext ctx) {
         return null;
     }
 }

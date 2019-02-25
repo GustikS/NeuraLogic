@@ -50,7 +50,7 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
      */
     public int sharedNeuronsCount;
 
-    public DetailedNetwork(String id, List<BaseNeuron<Neuron, State.Neural>> allNeurons) {
+    public DetailedNetwork(String id, List<BaseNeuron<BaseNeuron, State.Neural>> allNeurons) {
         super(id, allNeurons);
         cumulativeStates = new LinkedHashMap<>();
     }
@@ -65,12 +65,12 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
     @Nullable
     NetworkMetadata metadata;
 
-    public DetailedNetwork(String id, List<BaseNeuron<Neuron, State.Neural>> allNeurons, NeuronSets neurons) {
+    public DetailedNetwork(String id, List<BaseNeuron<BaseNeuron, State.Neural>> allNeurons, NeuronSets neurons) {
         this(id, allNeurons);
         this.allNeurons = neurons;
     }
 
-    public <T extends Neuron, S extends State.Neural> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron) {
+    public <T extends BaseNeuron, S extends State.Neural> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron) {
         WeightedNeuronMapping<T> inputMapping;
         if ((inputMapping = extraInputMapping != null ? (WeightedNeuronMapping<T>) extraInputMapping.get(neuron) : null) != null) {
             Iterator<T> iterator = inputMapping.iterator();
@@ -81,7 +81,7 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
         }
     }
 
-    public <T extends Neuron, S extends State.Neural> Iterator<T> getInputs(BaseNeuron<T, S> neuron) {
+    public <T extends BaseNeuron, S extends State.Neural> Iterator<T> getInputs(BaseNeuron<T, S> neuron) {
         LinkedMapping<T> inputMapping;
         if ((inputMapping = extraInputMapping != null ? extraInputMapping.get(neuron) : null) != null) {
             return inputMapping.iterator();
@@ -90,7 +90,7 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
         }
     }
 
-    public <T extends Neuron, S extends State.Neural> Iterator<Neuron> getOutputs(BaseNeuron<T, S> neuron) {
+    public <T extends BaseNeuron, S extends State.Neural> Iterator<Neuron> getOutputs(BaseNeuron<T, S> neuron) {
         LinkedMapping<Neuron> mapping;
         if ((mapping = outputMapping != null ? outputMapping.get(neuron) : null) != null) {
             return mapping.iterator();

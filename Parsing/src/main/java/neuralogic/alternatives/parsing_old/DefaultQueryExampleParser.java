@@ -1,4 +1,4 @@
-package constructs.building.parsing_old;
+package neuralogic.alternatives.parsing_old;
 
 import learning.Example;
 import learning.Query;

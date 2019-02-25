@@ -11,7 +11,7 @@ import java.util.ArrayList;
 /**
  * Created by gusta on 8.3.17.
  */
-public class FactNeuron extends WeightedNeuron<BaseNeuron, States.SimpleValue> implements AtomFact {
+public class FactNeuron extends WeightedNeuron<BaseNeuron, States.SimpleValue> implements AtomFact<BaseNeuron, States.SimpleValue> {
 
     public FactNeuron(ValuedFact fact, int index, States.SimpleValue state) {
         super(fact.toString(), index, state, fact.getOffset());

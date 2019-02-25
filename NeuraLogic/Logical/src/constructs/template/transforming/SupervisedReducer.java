@@ -27,6 +27,7 @@ public class SupervisedReducer implements TemplateReducing {
         return reduce(itemplate,queryAtomSet);
     }
 
+    @Override
     public Template reduce(Template itemplate, QueryAtom query) {
         //TODO
         return null;
@@ -37,7 +38,6 @@ public class SupervisedReducer implements TemplateReducing {
         return null;
     }
 
-    @Override
     public Template reduce(GraphTemplate itemplate) {
         return null;
     }

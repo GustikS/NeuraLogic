@@ -3,7 +3,6 @@ package networks.structure.components.types;
 import ida.utils.tuples.Pair;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
-import networks.structure.components.neurons.Neuron;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
 
@@ -19,9 +18,9 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
     /**
      * All neurons combined in TOPOLOGICAL ORDERING.
      */
-    public List<BaseNeuron<Neuron, State.Neural>> allNeuronsTopologic;
+    public List<BaseNeuron<BaseNeuron, State.Neural>> allNeuronsTopologic;
 
-    public TopologicNetwork(String id, List<BaseNeuron<Neuron, State.Neural>> allNeurons){
+    public TopologicNetwork(String id, List<BaseNeuron<BaseNeuron, State.Neural>> allNeurons){
         super(id, allNeurons.size());
         allNeuronsTopologic = topologicSort(allNeurons);
     }
@@ -31,11 +30,12 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
         allNeuronsTopologic = new ArrayList<>(size);
     }
 
-    public TopologicNetwork(String id, List<BaseNeuron<Neuron, State.Neural>> allNeurons, boolean sorted){
+    public TopologicNetwork(String id, List<BaseNeuron<BaseNeuron, State.Neural>> allNeurons, boolean sorted){
         super(id, allNeurons.size());
         allNeuronsTopologic = allNeurons;
     }
 
+    @Deprecated
     public N getState(int index) {
         return neuronStates.getState(index);
     }
@@ -66,7 +66,7 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
      * @param allNeurons
      * @return
      */
-    public List<BaseNeuron<Neuron, State.Neural>> topologicSort(List<BaseNeuron<Neuron, State.Neural>> allNeurons) {
+    public List<BaseNeuron<BaseNeuron, State.Neural>> topologicSort(List<BaseNeuron<BaseNeuron, State.Neural>> allNeurons) {
         Set<BaseNeuron> visited = new HashSet<>();
         Stack<BaseNeuron> stack = new Stack<>();
 
@@ -75,7 +75,7 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
                 topoSortRecursive(neuron, visited, stack);
         }
 
-        List<BaseNeuron<Neuron, State.Neural>> neurons = new ArrayList<>(allNeurons.size());
+        List<BaseNeuron<BaseNeuron, State.Neural>> neurons = new ArrayList<>(allNeurons.size());
         while (!stack.empty())
             neurons.add(stack.pop());
 

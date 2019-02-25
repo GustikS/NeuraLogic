@@ -4,10 +4,12 @@ import networks.structure.components.neurons.WeightedNeuron;
 
 import java.util.Map;
 
-@Deprecated
 public class NetworkMetadata {
 
+    @Deprecated
     public Map<WeightedNeuron, Integer> parentsCount;
 
+
+    @Deprecated
     public Map<WeightedNeuron, Double> cumulatedGradient;
 }

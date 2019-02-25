@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 public class StreamParallelizationPipe<I,O> extends Pipe<Stream<I>, Stream<O>> {
     private static final Logger LOG = Logger.getLogger(StreamParallelizationPipe.class.getName());
 
-    protected StreamParallelizationPipe() {
+    public StreamParallelizationPipe() {
         super("ParallelizationPipe");
     }
 

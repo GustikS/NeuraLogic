@@ -1,4 +1,4 @@
-package constructs.building.parsing_old;
+package neuralogic.alternatives.parsing_old;
 
 /**
  * Created by gusta on 8.3.17.

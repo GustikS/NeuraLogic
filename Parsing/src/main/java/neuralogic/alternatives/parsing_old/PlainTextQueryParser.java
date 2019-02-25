@@ -1,13 +1,12 @@
-package constructs.building.parsing_old;
+package neuralogic.alternatives.parsing_old;
 
-import constructs.example.QueryAtom;
-import constructs.example.CompositeQuery;
 import learning.Query;
 
 import java.io.BufferedReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 
@@ -15,6 +14,7 @@ import java.util.stream.Stream;
  * Created by gusta on 14.3.17.
  */
 public class PlainTextQueryParser implements QueryParser {
+    private static final Logger LOG = Logger.getLogger(PlainTextQueryParser.class.getName());
     String querySeprator = ";";
 
     @Override
@@ -39,11 +39,8 @@ public class PlainTextQueryParser implements QueryParser {
     }
 
     private Query parseQuery(String s) {
-        if (s.contains(":-")){
-            return CompositeQuery.parse(s);
-        } else {
-            return QueryAtom.parse(s);
-        }
+        LOG.severe("Calling old void parser");
+        return null;
     }
 
 }

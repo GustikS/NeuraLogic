@@ -20,7 +20,6 @@ import ida.utils.tuples.Pair;
 import ida.utils.tuples.Tuple;
 
 import java.util.*;
-import java.util.function.ObjDoubleConsumer;
 
 /**
  * Assumes that maxCard = max arity of alldiff

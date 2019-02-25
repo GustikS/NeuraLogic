@@ -9,7 +9,7 @@ import java.util.ArrayList;
 /**
  * Created by gusta on 14.3.17.
  */
-public class NegationNeuron<S extends State.Neural> extends BaseNeuron<AtomFact, S> implements AtomFact {
+public class NegationNeuron<S extends State.Neural> extends BaseNeuron<AtomFact, S> implements AtomFact<AtomFact, S> {
 
     public NegationNeuron(AtomFact atom, int index, S state) {
         super(index, "neg_" + atom.getId(), state);
