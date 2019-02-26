@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../Logic/Logic.iml" filepath="$PROJECT_DIR$/../Logic/Logic.iml" />
+      <module fileurl="file://$PROJECT_DIR$/NeuraLogic.iml" filepath="$PROJECT_DIR$/NeuraLogic.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Utils/Utils.iml" filepath="$PROJECT_DIR$/../Utils/Utils.iml" />
+    </modules>
+  </component>
+</project>
