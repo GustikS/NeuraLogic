@@ -8,7 +8,7 @@ import ida.ilp.logic.subsumption.SolutionConsumer;
 import ida.utils.Sugar;
 import ida.utils.VectorUtils;
 import ida.utils.collections.MultiMap;
-import ida.utils.tuples.Pair;
+import utils.generic.Pair;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -41,7 +41,6 @@ public class HerbrandModel {
 
 
     /**
-     *
      * @param clauses - may contain facts and rules
      * @return
      */
@@ -111,7 +110,8 @@ public class HerbrandModel {
 
     public Pair<Term[], List<Term[]>> groundingSubstitutions(HornClause hornClause) {
         Clause clause = new Clause(LogicUtils.flipSigns(hornClause.toClause().literals())); //todo check negations here
-        return matching.allSubstitutions(clause, 0, Integer.MAX_VALUE);
+        ida.utils.tuples.Pair<Term[], List<Term[]>> listPair = matching.allSubstitutions(clause, 0, Integer.MAX_VALUE);
+        return new Pair<>(listPair.r, listPair.s);
     }
 
     public List<WeightedRule> groundRules(WeightedRule liftedRule) {
@@ -122,6 +122,7 @@ public class HerbrandModel {
      * We cannot simply merge logically identical body literals in a ground rule's body, nor can we merge two permuted bodies.
      * These merging transformations can only be done depending on the properties of the used activation/aggregation functions,
      * and so it is taken care of later in {@link pipelines.building.NeuralNetsBuilder} with {@link networks.structure.transforming.ParallelEdgeMerger}.
+     *
      * @param liftedRule
      * @param hc
      * @return

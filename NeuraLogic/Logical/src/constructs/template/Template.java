@@ -1,5 +1,6 @@
 package constructs.template;
 
+import com.sun.istack.internal.Nullable;
 import constructs.Conjunction;
 import constructs.example.QueryAtom;
 import constructs.example.ValuedFact;
@@ -14,7 +15,6 @@ import learning.Model;
 import networks.computation.evaluation.values.Value;
 import networks.computation.training.NeuralModel;
 import networks.structure.components.weights.Weight;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.logging.Logger;

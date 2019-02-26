@@ -1,7 +1,7 @@
 package pipelines;
 
-import ida.utils.tuples.Pair;
 import pipelines.pipes.generic.IdentityGenPipe;
+import utils.generic.Pair;
 
 import java.util.ArrayList;
 import java.util.List;

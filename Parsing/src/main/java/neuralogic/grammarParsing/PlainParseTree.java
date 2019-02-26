@@ -3,8 +3,8 @@ package neuralogic.grammarParsing;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.TokenStream;
-import parsers.neuralogic.NeuralogicLexer;
-import parsers.neuralogic.NeuralogicParser;
+import parsing.antlr.NeuralogicLexer;
+import parsing.antlr.NeuralogicParser;
 
 import java.io.IOException;
 import java.io.Reader;

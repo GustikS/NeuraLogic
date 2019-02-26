@@ -1,5 +1,6 @@
 package networks.computation.iteration;
 
+import networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
@@ -15,7 +16,7 @@ public class InheritanceTest {
     public class A extends IterationStrategy implements networks.computation.iteration.BottomUp, networks.computation.iteration.TopDown {
 
         public A(StateVisiting stateVisitor, NeuralNetwork network, BaseNeuron outputNeuron) {
-            super(stateVisitor, network, outputNeuron);
+            super( network, outputNeuron);
         }
 
         @Override
@@ -27,12 +28,17 @@ public class InheritanceTest {
         public void topdown() {
 
         }
+
+        @Override
+        public void iterate() {
+            topdown();
+        }
     }
 
     public class B extends NeuronVisiting implements networks.computation.iteration.BottomUp {
 
         public B(StateVisiting stateVisitor, NeuralNetwork network, BaseNeuron outputNeuron) {
-            super(stateVisitor, network, outputNeuron);
+            super( network, outputNeuron);
         }
 
         @Override
@@ -45,7 +51,6 @@ public class InheritanceTest {
 
         }
 
-        @Override
         public void visit(WeightedNeuron neuron) {
 
         }
@@ -53,12 +58,12 @@ public class InheritanceTest {
 
     public class C extends NeuronIterating implements networks.computation.iteration.TopDown {
 
-        public C(StateVisiting stateVisitor, NeuralNetwork network, BaseNeuron outputNeuron, NeuronVisitorWeighted pureNeuronVisitor) {
-            super(stateVisitor, network, outputNeuron, pureNeuronVisitor);
+        public C(StateVisiting stateVisitor, NeuralNetwork network, BaseNeuron outputNeuron, NeuronVisitor.Weighted pureNeuronVisitor) {
+            super( network, outputNeuron, pureNeuronVisitor);
         }
 
         @Override
-        public BaseNeuron<Neuron, State.Computation> next() {
+        public BaseNeuron<BaseNeuron, State.Neural> next() {
             return null;
         }
 

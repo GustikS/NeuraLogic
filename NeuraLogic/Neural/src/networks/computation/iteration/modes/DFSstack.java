@@ -1,6 +1,5 @@
 package networks.computation.iteration.modes;
 
-import ida.utils.tuples.Pair;
 import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.BottomUp;
 import networks.computation.iteration.NeuronIterating;
@@ -14,6 +13,7 @@ import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
+import utils.generic.Pair;
 
 import java.util.ArrayDeque;
 import java.util.Deque;

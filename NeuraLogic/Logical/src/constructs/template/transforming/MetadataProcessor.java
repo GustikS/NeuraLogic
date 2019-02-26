@@ -5,9 +5,9 @@ import constructs.template.components.WeightedRule;
 import constructs.template.metadata.PredicateMetadata;
 import constructs.template.metadata.WeightMetadata;
 import constructs.template.types.ParsedTemplate;
-import ida.utils.tuples.Pair;
 import networks.structure.components.weights.Weight;
 import settings.Settings;
+import utils.generic.Pair;
 
 import java.util.logging.Logger;
 

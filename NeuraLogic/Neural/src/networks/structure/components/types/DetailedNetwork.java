@@ -1,6 +1,6 @@
 package networks.structure.components.types;
 
-import ida.utils.tuples.Pair;
+import com.sun.istack.internal.Nullable;
 import networks.structure.components.NeuronSets;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neuron;
@@ -10,7 +10,7 @@ import networks.structure.metadata.NetworkMetadata;
 import networks.structure.metadata.inputMappings.LinkedMapping;
 import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 import networks.structure.metadata.states.State;
-import org.jetbrains.annotations.Nullable;
+import utils.generic.Pair;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -30,7 +30,8 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
      * Locally valid input overloading for some neurons to facilitate dynamic structure changes.
      * This map is only to be used before the faster neural {@link networks.structure.metadata.states.StatesCache} is created for the same thing in a regular network.
      */
-    public @Nullable Map<BaseNeuron, LinkedMapping> extraInputMapping;
+    public @Nullable
+    Map<BaseNeuron, LinkedMapping> extraInputMapping;
 
     /**
      * Outputs of neurons, are only rarely used (not stored in a regular neural net to save space)

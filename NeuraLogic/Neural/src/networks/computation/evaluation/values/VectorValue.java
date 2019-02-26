@@ -1,7 +1,7 @@
 package networks.computation.evaluation.values;
 
+import com.sun.istack.internal.NotNull;
 import networks.computation.evaluation.values.distributions.ValueInitializer;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 import java.util.List;

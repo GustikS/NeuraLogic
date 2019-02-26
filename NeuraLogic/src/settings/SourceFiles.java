@@ -1,8 +1,8 @@
 package settings;
 
-import ida.utils.tuples.Pair;
 import org.apache.commons.cli.CommandLine;
 import utils.Utilities;
+import utils.generic.Pair;
 
 import java.io.File;
 import java.io.FileNotFoundException;

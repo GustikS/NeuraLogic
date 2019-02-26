@@ -1,7 +1,7 @@
 package learning;
 
+import com.sun.istack.internal.Nullable;
 import networks.computation.evaluation.values.Value;
-import org.jetbrains.annotations.Nullable;
 import settings.Settings;
 
 /**

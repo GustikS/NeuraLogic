@@ -5,7 +5,7 @@ import constructs.Conjunction;
 import constructs.example.LiftedExample;
 import ida.utils.tuples.Pair;
 import neuralogic.grammarParsing.PlainGrammarVisitor;
-import parsers.neuralogic.NeuralogicParser;
+import parsing.antlr.NeuralogicParser;
 
 import java.util.logging.Logger;
 import java.util.stream.Stream;

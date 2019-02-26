@@ -1,17 +1,17 @@
 package pipelines.building;
 
 import constructs.template.Template;
-import ida.utils.tuples.Pair;
 import learning.crossvalidation.TrainTestResults;
 import networks.computation.evaluation.results.Progress;
 import networks.computation.evaluation.results.Results;
+import networks.computation.training.NeuralModel;
 import pipelines.Pipe;
 import pipelines.Pipeline;
 import pipelines.pipes.generic.SecondFromPairPipe;
 import pipelines.pipes.specific.ResultsFromProgressPipe;
 import settings.Settings;
 import settings.Sources;
-import networks.computation.training.NeuralModel;
+import utils.generic.Pair;
 
 import java.util.logging.Logger;
 

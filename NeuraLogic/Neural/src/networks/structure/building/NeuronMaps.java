@@ -1,11 +1,11 @@
 package networks.structure.building;
 
+import com.sun.istack.internal.Nullable;
 import constructs.template.components.WeightedRule;
 import ida.ilp.logic.Literal;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.types.*;
 import networks.structure.metadata.inputMappings.LinkedMapping;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 

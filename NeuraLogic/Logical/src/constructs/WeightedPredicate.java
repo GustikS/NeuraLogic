@@ -1,9 +1,9 @@
 package constructs;
 
+import com.sun.istack.internal.Nullable;
 import constructs.template.metadata.PredicateMetadata;
 import ida.ilp.logic.Predicate;
 import networks.structure.components.weights.Weight;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.logging.Logger;
 

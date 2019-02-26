@@ -3,9 +3,9 @@ package pipelines.pipes.specific;
 import constructs.example.LogicSample;
 import constructs.template.Template;
 import grounding.GroundingSample;
-import ida.utils.tuples.Pair;
 import pipelines.Pipe;
 import settings.Settings;
+import utils.generic.Pair;
 
 import java.util.logging.Logger;
 import java.util.stream.Stream;

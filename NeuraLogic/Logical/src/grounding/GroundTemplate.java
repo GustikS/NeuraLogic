@@ -1,5 +1,6 @@
 package grounding;
 
+import com.sun.istack.internal.NotNull;
 import constructs.example.QueryAtom;
 import constructs.example.ValuedFact;
 import constructs.template.components.BodyAtom;
@@ -10,7 +11,6 @@ import ida.ilp.logic.Literal;
 import ida.ilp.logic.subsumption.Matching;
 import learning.Example;
 import networks.structure.building.NeuronMaps;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 

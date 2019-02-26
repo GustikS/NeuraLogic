@@ -1,8 +1,8 @@
 package pipelines;
 
-import ida.utils.tuples.Pair;
 import settings.Settings;
 import utils.Exporter;
+import utils.generic.Pair;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;

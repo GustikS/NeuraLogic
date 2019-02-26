@@ -5,12 +5,12 @@ import constructs.example.LogicSample;
 import constructs.example.QueryAtom;
 import constructs.example.ValuedFact;
 import constructs.template.components.HeadAtom;
-import ida.utils.tuples.Pair;
 import learning.LearningSample;
-import neuralogic.grammarParsing.PlainParseTree;
 import org.antlr.v4.runtime.ParserRuleContext;
+import parsing.grammarParsing.PlainParseTree;
 import settings.Settings;
 import utils.Utilities;
+import utils.generic.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;

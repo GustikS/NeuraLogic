@@ -1,8 +1,8 @@
 package constructs.building.factories;
 
 import constructs.WeightedPredicate;
-import ida.utils.tuples.Pair;
 import networks.structure.components.weights.Weight;
+import utils.generic.Pair;
 
 import java.util.Collection;
 import java.util.HashMap;

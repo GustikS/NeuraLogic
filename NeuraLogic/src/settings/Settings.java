@@ -1,7 +1,7 @@
 package settings;
 
-import ida.utils.tuples.Pair;
 import org.apache.commons.cli.CommandLine;
+import utils.generic.Pair;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;

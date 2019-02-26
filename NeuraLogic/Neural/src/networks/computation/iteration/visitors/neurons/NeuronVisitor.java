@@ -1,5 +1,6 @@
 package networks.computation.iteration.visitors.neurons;
 
+import com.sun.istack.internal.Nullable;
 import networks.computation.iteration.IterationStrategy;
 import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.computation.iteration.visitors.weights.WeightUpdater;
@@ -8,7 +9,6 @@ import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.metadata.states.State;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.logging.Logger;
 

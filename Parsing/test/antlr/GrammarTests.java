@@ -3,8 +3,8 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.Test;
 import parsers.hello_world.hello_worldLexer;
 import parsers.hello_world.hello_worldParser;
-import parsers.neuralogic.NeuralogicLexer;
-import parsers.neuralogic.NeuralogicParser;
+import parsers.antlr.NeuralogicLexer;
+import parsers.antlr.NeuralogicParser;
 
 import java.io.IOException;
 

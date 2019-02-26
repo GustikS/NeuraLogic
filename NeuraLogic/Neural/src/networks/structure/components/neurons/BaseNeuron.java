@@ -1,10 +1,9 @@
 package networks.structure.components.neurons;
 
+import com.sun.istack.internal.NotNull;
+import com.sun.istack.internal.Nullable;
 import networks.computation.evaluation.functions.Aggregation;
 import networks.structure.metadata.states.State;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -161,7 +160,6 @@ public class BaseNeuron<T extends Neuron, S extends State.Neural> implements Neu
      * @param index
      * @return
      */
-    @Contract(pure = true)
     public final State.Neural.Computation getComputationView(int index) {
         return state.getComputationView(index);
     }
@@ -171,7 +169,6 @@ public class BaseNeuron<T extends Neuron, S extends State.Neural> implements Neu
      *
      * @return
      */
-    @Contract(pure = true)
     public final State.Neural getRawState() {
         return state;
     }

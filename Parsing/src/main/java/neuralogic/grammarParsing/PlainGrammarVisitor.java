@@ -15,8 +15,8 @@ import ida.ilp.logic.Term;
 import ida.utils.tuples.Pair;
 import networks.computation.evaluation.values.*;
 import networks.structure.components.weights.Weight;
-import parsers.neuralogic.NeuralogicBaseVisitor;
-import parsers.neuralogic.NeuralogicParser;
+import parsing.antlr.NeuralogicBaseVisitor;
+import parsing.antlr.NeuralogicParser;
 
 import java.util.LinkedHashMap;
 import java.util.List;

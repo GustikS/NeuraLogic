@@ -4,13 +4,13 @@ import constructs.example.LogicSample;
 import constructs.template.Template;
 import grounding.Grounder;
 import grounding.GroundingSample;
-import ida.utils.tuples.Pair;
 import pipelines.ConnectAfter;
 import pipelines.Pipe;
 import pipelines.Pipeline;
 import pipelines.pipes.generic.StreamParallelizationPipe;
 import pipelines.pipes.specific.*;
 import settings.Settings;
+import utils.generic.Pair;
 
 import java.util.logging.Logger;
 import java.util.stream.Stream;

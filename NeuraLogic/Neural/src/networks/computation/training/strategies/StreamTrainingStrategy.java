@@ -1,6 +1,5 @@
 package networks.computation.training.strategies;
 
-import ida.utils.tuples.Pair;
 import networks.computation.evaluation.results.Progress;
 import networks.computation.evaluation.results.Result;
 import networks.computation.evaluation.results.Results;
@@ -10,6 +9,7 @@ import networks.computation.training.strategies.trainers.MiniBatchTrainer;
 import networks.computation.training.strategies.trainers.SequentialTrainer;
 import networks.computation.training.strategies.trainers.StreamTrainer;
 import settings.Settings;
+import utils.generic.Pair;
 
 import java.util.List;
 import java.util.logging.Logger;

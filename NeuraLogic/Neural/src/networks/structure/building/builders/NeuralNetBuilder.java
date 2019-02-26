@@ -1,5 +1,6 @@
 package networks.structure.building.builders;
 
+import com.sun.istack.internal.NotNull;
 import constructs.example.ValuedFact;
 import constructs.template.components.BodyAtom;
 import constructs.template.components.WeightedRule;
@@ -15,7 +16,6 @@ import networks.structure.metadata.inputMappings.LinkedMapping;
 import networks.structure.metadata.inputMappings.NeuronMapping;
 import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 import networks.structure.metadata.states.State;
-import org.jetbrains.annotations.NotNull;
 import settings.Settings;
 
 import java.util.*;

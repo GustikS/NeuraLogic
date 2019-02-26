@@ -1,5 +1,6 @@
 package networks.structure.metadata.states;
 
+import com.sun.istack.internal.NotNull;
 import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.visitors.states.StateVisiting;
@@ -7,7 +8,6 @@ import networks.computation.iteration.visitors.states.networks.ParentsTransfer;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.metadata.inputMappings.NeuronMapping;
 import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
-import org.jetbrains.annotations.NotNull;
 import settings.Settings;
 
 import java.lang.reflect.Array;

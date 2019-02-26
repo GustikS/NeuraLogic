@@ -1,7 +1,7 @@
 package pipelines.pipes.generic;
 
-import ida.utils.tuples.Pair;
 import pipelines.Branch;
+import utils.generic.Pair;
 
 import java.util.logging.Logger;
 

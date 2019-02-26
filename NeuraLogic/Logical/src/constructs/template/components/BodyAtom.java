@@ -1,11 +1,11 @@
 package constructs.template.components;
 
+import com.sun.istack.internal.Nullable;
 import constructs.Atom;
 import constructs.WeightedPredicate;
 import ida.ilp.logic.Term;
 import networks.computation.evaluation.functions.Activation;
 import networks.structure.components.weights.Weight;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;

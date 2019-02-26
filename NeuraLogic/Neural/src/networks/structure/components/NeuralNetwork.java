@@ -1,6 +1,7 @@
 package networks.structure.components;
 
-import ida.utils.tuples.Pair;
+import com.sun.istack.internal.NotNull;
+import com.sun.istack.internal.Nullable;
 import learning.Example;
 import networks.computation.iteration.NeuronIterating;
 import networks.computation.iteration.modes.DFSstack;
@@ -15,8 +16,7 @@ import networks.structure.metadata.inputMappings.NeuronMapping;
 import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 import networks.structure.metadata.states.State;
 import networks.structure.metadata.states.StatesCache;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import utils.generic.Pair;
 
 import java.util.ArrayList;
 import java.util.Iterator;

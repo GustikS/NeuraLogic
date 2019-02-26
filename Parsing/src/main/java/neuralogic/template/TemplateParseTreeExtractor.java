@@ -8,7 +8,7 @@ import constructs.template.components.WeightedRule;
 import ida.utils.tuples.Pair;
 import networks.structure.components.weights.Weight;
 import neuralogic.grammarParsing.GrammarVisitor;
-import parsers.neuralogic.NeuralogicParser;
+import parsing.antlr.NeuralogicParser;
 
 import java.util.List;
 import java.util.Map;

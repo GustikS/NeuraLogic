@@ -7,8 +7,8 @@ import constructs.template.components.WeightedRule;
 import constructs.template.metadata.PredicateMetadata;
 import constructs.template.metadata.TemplateMetadata;
 import constructs.template.metadata.WeightMetadata;
-import ida.utils.tuples.Pair;
 import networks.structure.components.weights.Weight;
+import utils.generic.Pair;
 
 import java.util.List;
 import java.util.logging.Logger;

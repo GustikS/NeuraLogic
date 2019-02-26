@@ -1,8 +1,8 @@
 package networks.structure.metadata.inputMappings;
 
+import com.sun.istack.internal.NotNull;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neuron;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Iterator;

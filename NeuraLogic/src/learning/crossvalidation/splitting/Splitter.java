@@ -1,8 +1,8 @@
 package learning.crossvalidation.splitting;
 
+import com.sun.istack.internal.NotNull;
 import learning.LearningSample;
 import learning.crossvalidation.Fold;
-import org.jetbrains.annotations.NotNull;
 import settings.Settings;
 
 import java.util.ArrayList;

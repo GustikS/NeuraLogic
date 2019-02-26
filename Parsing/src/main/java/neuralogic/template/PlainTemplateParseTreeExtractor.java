@@ -9,9 +9,9 @@ import constructs.template.metadata.Metadata;
 import ida.utils.tuples.Pair;
 import networks.structure.components.weights.Weight;
 import neuralogic.grammarParsing.PlainGrammarVisitor;
-import parsers.neuralogic.NeuralogicBaseVisitor;
-import parsers.neuralogic.NeuralogicParser;
-import parsers.neuralogic.NeuralogicParser.TemplateFileContext;
+import parsing.antlr.NeuralogicBaseVisitor;
+import parsing.antlr.NeuralogicParser;
+import parsing.antlr.NeuralogicParser.TemplateFileContext;
 
 import java.util.List;
 import java.util.Map;

@@ -1,6 +1,5 @@
 package networks.structure.building.builders;
 
-import ida.utils.tuples.Pair;
 import networks.computation.evaluation.functions.CrossProduct;
 import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.visitors.states.neurons.Evaluator;
@@ -17,6 +16,7 @@ import networks.structure.metadata.states.State;
 import networks.structure.metadata.states.States;
 import networks.structure.metadata.states.StatesCache;
 import settings.Settings;
+import utils.generic.Pair;
 
 import java.util.*;
 import java.util.logging.Logger;

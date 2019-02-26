@@ -9,10 +9,10 @@ import grounding.bottomUp.BottomUp;
 import grounding.topDown.TopDown;
 import ida.ilp.logic.HornClause;
 import ida.ilp.logic.Literal;
-import ida.utils.tuples.Pair;
 import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.values.Value;
 import settings.Settings;
+import utils.generic.Pair;
 
 import java.util.*;
 import java.util.logging.Logger;

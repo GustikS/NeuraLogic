@@ -3,12 +3,12 @@ package constructs.building;
 import constructs.Conjunction;
 import constructs.example.LogicSample;
 import constructs.example.ValuedFact;
-import ida.utils.tuples.Pair;
 import networks.computation.evaluation.values.ScalarValue;
-import neuralogic.grammarParsing.PlainGrammarVisitor;
-import neuralogic.queries.PlainQueriesParseTree;
-import neuralogic.queries.PlainQueriesParseTreeExtractor;
+import parsing.grammarParsing.PlainGrammarVisitor;
+import parsing.queries.PlainQueriesParseTree;
+import parsing.queries.PlainQueriesParseTreeExtractor;
 import settings.Settings;
+import utils.generic.Pair;
 
 import java.io.IOException;
 import java.io.Reader;

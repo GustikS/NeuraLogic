@@ -3,7 +3,6 @@ package pipelines.building;
 import constructs.example.LogicSample;
 import constructs.template.Template;
 import grounding.GroundingSample;
-import ida.utils.tuples.Pair;
 import networks.computation.evaluation.results.Progress;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
@@ -20,6 +19,7 @@ import pipelines.pipes.specific.TemplateToNeuralPipe;
 import settings.Settings;
 import settings.Source;
 import settings.Sources;
+import utils.generic.Pair;
 
 import java.util.logging.Logger;
 import java.util.stream.Stream;

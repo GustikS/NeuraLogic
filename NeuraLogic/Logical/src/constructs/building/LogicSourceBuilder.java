@@ -1,10 +1,10 @@
 package constructs.building;
 
 import constructs.building.factories.ConstantFactory;
-import constructs.building.factories.WeightedPredicateFactory;
 import constructs.building.factories.WeightFactory;
-import neuralogic.grammarParsing.PlainParseTree;
+import constructs.building.factories.WeightedPredicateFactory;
 import org.antlr.v4.runtime.ParserRuleContext;
+import parsing.grammarParsing.PlainParseTree;
 import settings.Settings;
 
 import java.io.Reader;

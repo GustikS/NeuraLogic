@@ -1,9 +1,9 @@
 package networks.structure.components.weights;
 
+import com.sun.istack.internal.Nullable;
 import constructs.template.metadata.WeightMetadata;
 import networks.computation.evaluation.values.Value;
 import networks.computation.evaluation.values.distributions.ValueInitializer;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Created by gusta on 8.3.17.

@@ -1,8 +1,8 @@
 package constructs.example;
 
+import com.sun.istack.internal.Nullable;
 import constructs.Conjunction;
 import constructs.template.components.WeightedRule;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashSet;
 import java.util.List;

@@ -1,5 +1,6 @@
 package grounding.bottomUp;
 
+import com.sun.istack.internal.NotNull;
 import constructs.example.LiftedExample;
 import constructs.example.ValuedFact;
 import constructs.template.Template;
@@ -9,9 +10,8 @@ import grounding.Grounder;
 import ida.ilp.logic.HornClause;
 import ida.ilp.logic.Literal;
 import ida.ilp.logic.Term;
-import ida.utils.tuples.Pair;
-import org.jetbrains.annotations.NotNull;
 import settings.Settings;
+import utils.generic.Pair;
 
 import java.util.*;
 import java.util.logging.Logger;

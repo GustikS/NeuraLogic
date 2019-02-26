@@ -1,6 +1,5 @@
 package networks.computation.training.strategies;
 
-import ida.utils.tuples.Pair;
 import learning.crossvalidation.splitting.Splitter;
 import networks.computation.evaluation.results.Progress;
 import networks.computation.evaluation.results.Result;
@@ -15,6 +14,7 @@ import networks.computation.training.strategies.trainers.ListTrainer;
 import networks.computation.training.strategies.trainers.MiniBatchTrainer;
 import networks.computation.training.strategies.trainers.SequentialTrainer;
 import settings.Settings;
+import utils.generic.Pair;
 
 import java.util.Collections;
 import java.util.List;

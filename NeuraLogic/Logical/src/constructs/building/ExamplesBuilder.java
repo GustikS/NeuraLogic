@@ -4,11 +4,11 @@ import constructs.Conjunction;
 import constructs.example.LiftedExample;
 import constructs.example.LogicSample;
 import constructs.example.ValuedFact;
-import ida.utils.tuples.Pair;
-import neuralogic.examples.PlainExamplesParseTree;
-import neuralogic.examples.PlainExamplesParseTreeExtractor;
-import neuralogic.grammarParsing.PlainGrammarVisitor;
+import parsing.examples.PlainExamplesParseTree;
+import parsing.examples.PlainExamplesParseTreeExtractor;
+import parsing.grammarParsing.PlainGrammarVisitor;
 import settings.Settings;
+import utils.generic.Pair;
 
 import java.io.IOException;
 import java.io.Reader;

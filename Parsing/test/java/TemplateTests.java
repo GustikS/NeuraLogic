@@ -4,8 +4,8 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.junit.Test;
-import parsers.neuralogic.neuralogicLexer;
-import parsers.neuralogic.neuralogicParser;
+import parsers.antlr.neuralogicLexer;
+import parsers.antlr.neuralogicParser;
 
 import java.io.IOException;
 

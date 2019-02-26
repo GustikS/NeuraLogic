@@ -1,8 +1,8 @@
 package settings;
 
-import ida.utils.tuples.Pair;
 import org.apache.commons.cli.CommandLine;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import utils.generic.Pair;
 
 import java.io.Reader;
 import java.util.List;

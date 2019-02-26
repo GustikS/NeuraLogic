@@ -1,5 +1,6 @@
 package networks.structure.building;
 
+import com.sun.istack.internal.NotNull;
 import constructs.example.QueryAtom;
 import constructs.template.components.BodyAtom;
 import constructs.template.components.WeightedRule;
@@ -14,7 +15,6 @@ import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.QueryNeuron;
 import networks.structure.components.neurons.types.AtomNeuron;
 import networks.structure.components.types.DetailedNetwork;
-import org.jetbrains.annotations.NotNull;
 import settings.Settings;
 
 import java.util.*;

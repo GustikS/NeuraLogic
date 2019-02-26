@@ -1,10 +1,10 @@
 package networks.structure.components.types;
 
-import ida.utils.tuples.Pair;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
+import utils.generic.Pair;
 
 import java.util.*;
 import java.util.logging.Logger;

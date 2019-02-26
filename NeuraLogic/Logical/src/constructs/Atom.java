@@ -1,11 +1,11 @@
 package constructs;
 
+import com.sun.istack.internal.NotNull;
+import com.sun.istack.internal.Nullable;
 import ida.ilp.logic.Literal;
 import ida.ilp.logic.Predicate;
 import ida.ilp.logic.Term;
 import networks.computation.evaluation.functions.Activation;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;

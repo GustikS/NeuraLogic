@@ -1,7 +1,7 @@
 package neuralogic.template;
 
 import neuralogic.grammarParsing.PlainParseTree;
-import parsers.neuralogic.NeuralogicParser;
+import parsing.antlr.NeuralogicParser;
 
 import java.io.IOException;
 import java.io.Reader;

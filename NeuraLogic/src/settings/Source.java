@@ -1,6 +1,6 @@
 package settings;
 
-import ida.utils.tuples.Pair;
+import utils.generic.Pair;
 
 import java.io.Reader;
 import java.util.logging.Logger;

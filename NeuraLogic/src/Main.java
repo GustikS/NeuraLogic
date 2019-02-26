@@ -1,12 +1,12 @@
-import ida.utils.tuples.Pair;
+import networks.computation.evaluation.results.Results;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 import pipelines.Pipeline;
 import pipelines.building.LearningSchemeBuilder;
 import settings.Settings;
 import settings.Sources;
-import networks.computation.evaluation.results.Results;
 import utils.CommandLineHandler;
+import utils.generic.Pair;
 import utils.logging.Logging;
 
 import java.io.IOException;

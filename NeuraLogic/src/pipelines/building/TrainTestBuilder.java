@@ -2,10 +2,11 @@ package pipelines.building;
 
 import constructs.example.LogicSample;
 import constructs.template.Template;
-import ida.utils.tuples.Pair;
 import learning.crossvalidation.TrainTestResults;
 import networks.computation.evaluation.results.Progress;
 import networks.computation.evaluation.results.Results;
+import networks.computation.training.NeuralModel;
+import networks.computation.training.NeuralSample;
 import pipelines.Merge;
 import pipelines.Pipe;
 import pipelines.Pipeline;
@@ -15,8 +16,7 @@ import pipelines.pipes.generic.PairMerge;
 import settings.Settings;
 import settings.Source;
 import settings.Sources;
-import networks.computation.training.NeuralModel;
-import networks.computation.training.NeuralSample;
+import utils.generic.Pair;
 
 import java.util.logging.Logger;
 import java.util.stream.Stream;

@@ -9,12 +9,12 @@ import constructs.template.metadata.PredicateMetadata;
 import constructs.template.metadata.TemplateMetadata;
 import constructs.template.metadata.WeightMetadata;
 import constructs.template.types.ParsedTemplate;
-import ida.utils.tuples.Pair;
 import networks.structure.components.weights.Weight;
-import neuralogic.grammarParsing.PlainGrammarVisitor;
-import neuralogic.template.PlainTemplateParseTree;
-import neuralogic.template.PlainTemplateParseTreeExtractor;
+import parsing.grammarParsing.PlainGrammarVisitor;
+import parsing.template.PlainTemplateParseTree;
+import parsing.template.PlainTemplateParseTreeExtractor;
 import settings.Settings;
+import utils.generic.Pair;
 
 import java.io.IOException;
 import java.io.Reader;
