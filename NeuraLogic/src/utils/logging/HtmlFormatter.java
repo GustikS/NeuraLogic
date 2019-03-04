@@ -10,7 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 // this custom formatter formats pipes of a log record to a single line
-class LogFormatter extends Formatter {
+class HtmlFormatter extends Formatter {
     // this method is called for every log records
     public String format(LogRecord rec) {
         StringBuffer buf = new StringBuffer(1000);

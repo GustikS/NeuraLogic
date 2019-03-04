@@ -88,7 +88,7 @@ public class SourceFiles extends Sources {
 
         try {
             if ((this.template = Paths.get(foldDir.toString(), cmd.getOptionValue("template", settings.templateFile)).toFile()).exists()) {
-                if (parent.templateReader != null) {
+                if (parent != null && parent.templateReader != null) {
                     LOG.warning("Inconsistent setting - there are templates both in parent folder and fold folder (don't know which one to use)");
                 }
                 this.templateReader = new FileReader(this.template);
@@ -99,13 +99,13 @@ public class SourceFiles extends Sources {
             switch (Utilities.identifyFileTypeUsingFilesProbeContentType(template.toString())) {
                 case "text/plain":
                     settings.plaintextInput = true;
-                    LOG.info("Input template file type identified as plain text");
+                    LOG.finer("Input template file type identified as plain text");
                     break;
                 case "application/xml":
-                    LOG.info("Input template file type identified as xml");
+                    LOG.finer("Input template file type identified as xml");
                     break;
                 case "application/json":
-                    LOG.info("Input template file type identified as json");
+                    LOG.finer("Input template file type identified as json");
                     break;
                 default:
                     throw new UnknownFormatFlagsException("File type of input template/rules not recognized!");
@@ -118,7 +118,7 @@ public class SourceFiles extends Sources {
             this.train.ExamplesReader = new FileReader(this.trainExamples = Paths.get(foldDir.toString(), cmd.getOptionValue("trainExamples", settings.trainExamplesFile)).toFile());
             switch (Utilities.identifyFileTypeUsingFilesProbeContentType(trainExamples.toString())) {
                 case "text/plain":
-                    LOG.info("Input train examples file type identified as plain text");
+                    LOG.finer("Input train examples file type identified as plain text");
                     break;
                 default:
                     throw new UnknownFormatFlagsException("File type of input examples not recognized!");
@@ -132,7 +132,7 @@ public class SourceFiles extends Sources {
             this.test.ExamplesReader = new FileReader(this.testExamples = Paths.get(foldDir.toString(), cmd.getOptionValue("testExamples", settings.testExamplesFile)).toFile());
             switch (Utilities.identifyFileTypeUsingFilesProbeContentType(testExamples.toString())) {
                 case "text/plain":
-                    LOG.info("Input test examples file type identified as plain text");
+                    LOG.finer("Input test examples file type identified as plain text");
                     break;
                 default:
                     throw new UnknownFormatFlagsException("File type of input test examples not recognized!");
@@ -147,7 +147,7 @@ public class SourceFiles extends Sources {
 
             switch (Utilities.identifyFileTypeUsingFilesProbeContentType(trainQueries.toString())) {
                 case "text/plain":
-                    LOG.info("Input train queries file type identified as plain text");
+                    LOG.finer("Input train queries file type identified as plain text");
                     break;
                 default:
                     throw new UnknownFormatFlagsException("File type of input train queries not recognized!");
@@ -161,7 +161,7 @@ public class SourceFiles extends Sources {
             this.test.QueriesReader = new FileReader(this.testQueries = Paths.get(foldDir.toString(), cmd.getOptionValue("testQueries", settings.testQueriesFile)).toFile());
             switch (Utilities.identifyFileTypeUsingFilesProbeContentType(testQueries.toString())) {
                 case "text/plain":
-                    LOG.info("Input tst queries file type identified as plain text");
+                    LOG.finer("Input tst queries file type identified as plain text");
                     break;
                 default:
                     throw new UnknownFormatFlagsException("File type of input test queries not recognized!");

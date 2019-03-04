@@ -36,7 +36,7 @@ public class Main {
             settings.setupFromCommandline(cmd);
             sources = Sources.setupFromCommandline(settings, cmd);
         } catch (ParseException ex) {
-            LOG.severe("Unable to parse Commandline arguments into settings/sources\n" + ex.getMessage());
+            LOG.severe("Unable to parse Commandline arguments into settings/sources: " + ex.getMessage());
             System.exit(1);
         }
 

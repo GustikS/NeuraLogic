@@ -6,6 +6,7 @@ import utils.generic.Pair;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Random;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -13,6 +14,22 @@ import java.util.logging.Logger;
  */
 public class Settings {
     private static final Logger LOG = Logger.getLogger(Settings.class.getName());
+    /**
+     * Format for logging output file ./logging
+     */
+    public static boolean htmlLogging = false;
+    /**
+     * No console output
+     */
+    public static boolean supressConsoleOutput = false;
+    /**
+     * No logfile (./logging.txt) output
+     */
+    public static boolean supressLogFileOutput = false;
+    /**
+     * How detailed the log should be in general
+     */
+    public static Level loggingLevel = Level.FINEST;
 
     //------------------High level
 
