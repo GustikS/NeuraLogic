@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 /**
  * Contains logic of construction of logical structures while walking/visiting parse trees of logic programs (templates or samples).
- *
+ * <p>
  * Rules and atom are constructed independently. Predicates, constants and variables are shared via factory methods.
  */
 public class PlainGrammarVisitor extends GrammarVisitor {
@@ -97,7 +97,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
                     .collect(Collectors.toList());
 
             WeightedPredicate predicate = ctx.predicate().accept(new PredicateVisitor(terms.size()));
-            Weight weight = ctx.weight().accept(new WeightVisitor());
+            Weight weight = ctx.weight() != null ? ctx.weight().accept(new WeightVisitor()) : null;
 
             BodyAtom bodyAtom = new BodyAtom(predicate, terms, ctx.negation() != null, weight);
             bodyAtom.originalString = ctx.getText();

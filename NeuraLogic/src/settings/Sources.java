@@ -34,7 +34,7 @@ public class Sources {
     public boolean foldFiles;   //i.e. external x-val files
 
     //-----------------Learning modes
-    public boolean crossvalidation = true;
+    public boolean crossvalidation = false;
     public boolean trainTest = false;
     public boolean trainOnly = false;
     public boolean testOnly = false;

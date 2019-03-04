@@ -40,8 +40,6 @@ public class Main {
             System.exit(1);
         }
 
-        //place for external changes in setting object for non-standard pipelines
-
         Pair<Boolean, String> validation = settings.validate();
         if (!validation.r) {
             LOG.severe("Invalid pipelines setting.\n" + validation.s);

@@ -24,6 +24,7 @@ public class WeightedPredicateFactory {
 
     public WeightedPredicateFactory() {
         str2pred = new HashMap<>();
+        pred2pred = new HashMap<>();
     }
 
     public WeightedPredicateFactory(Collection<WeightedPredicate> preds) {

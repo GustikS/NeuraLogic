@@ -80,7 +80,8 @@ public class TemplateBuilder extends LogicSourceBuilder<PlainTemplateParseTree, 
         template.addConstraints(weightedConjunctions);  //todo check what are weighted conjunctions in template
         template.originalString = plainParseTree.toString();    //todo check where is the real string
 
-        template.templateMetadata = new TemplateMetadata(settings, templateMetadata);
+        if (templateMetadata != null)
+            template.templateMetadata = new TemplateMetadata(settings, templateMetadata);
         template.predicatesMetadata = predicatesMetadata.stream().map(pair -> new Pair<>(pair.r, new PredicateMetadata(settings, pair.s))).collect(Collectors.toList());
         template.weightsMetadata = weightsMetadata.stream().map(pair -> new Pair<>(pair.r, new WeightMetadata(settings, pair.s))).collect(Collectors.toList());
 

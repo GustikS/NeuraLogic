@@ -47,7 +47,7 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
         LiftedExample example = pair.s;
 
         if (pair.r.facts == null || pair.r.facts.size() == 0) {
-            LOG.warning("Cannot extract LogicSample(s) without a query provided - emmiting unlabeled LogicSample(s)");
+            LOG.warning("Cannot extract LogicSample(s) without a query provided - emitting unlabeled LogicSample(s)");
             return Stream.of(createEmptySample(String.valueOf(queryCounter), example));
         } else if ((pair.r.facts.size() == 1) && (pair.r.facts.get(0).getValue() == null)) { // the query literal is a LINK to query file
             ValuedFact query = pair.r.facts.get(0);

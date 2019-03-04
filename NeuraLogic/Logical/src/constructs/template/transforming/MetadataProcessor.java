@@ -12,7 +12,6 @@ import utils.generic.Pair;
 import java.util.logging.Logger;
 
 /**
- *
  * Created by gusta on 6.3.18.
  */
 public class MetadataProcessor {
@@ -23,12 +22,13 @@ public class MetadataProcessor {
 
     /**
      * Assign and process all the metadata.
+     *
      * @param template
      * @return
      */
     public ParsedTemplate processMetadata(ParsedTemplate template) {
         for (Pair<WeightedPredicate, PredicateMetadata> predicatesMetadatum : template.predicatesMetadata) {
-            if (predicatesMetadatum.r.metadata == null){
+            if (predicatesMetadatum.r.metadata == null) {
                 predicatesMetadatum.r.metadata = predicatesMetadatum.s;
             } else {
                 predicatesMetadatum.r.metadata.addAll(predicatesMetadatum.s);
@@ -38,7 +38,7 @@ public class MetadataProcessor {
         }
 
         for (Pair<Weight, WeightMetadata> weightsMetadatum : template.weightsMetadata) {
-            if (weightsMetadatum.r.metadata == null){
+            if (weightsMetadatum.r.metadata == null) {
                 weightsMetadatum.r.metadata = weightsMetadatum.s;
             } else {
                 weightsMetadatum.r.metadata.addAll(weightsMetadatum.s);
@@ -48,9 +48,11 @@ public class MetadataProcessor {
         }
 
         for (WeightedRule rule : template.rules) {
-            rule.metadata.applyTo(rule);
+            if (rule.metadata != null)
+                rule.metadata.applyTo(rule);
         }
 
+        if (template.templateMetadata != null)
         template.templateMetadata.applyTo(template);
 
         return template;

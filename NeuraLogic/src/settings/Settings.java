@@ -30,6 +30,10 @@ public class Settings {
      * How detailed the log should be in general
      */
     public static Level loggingLevel = Level.FINEST;
+    /**
+     * Colorful console output?
+     */
+    public static boolean customLogColors = true;
 
     //------------------High level
 

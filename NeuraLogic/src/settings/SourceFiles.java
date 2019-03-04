@@ -28,11 +28,12 @@ public class SourceFiles extends Sources {
     public Pair<Boolean, String> validate(Settings settings) {
         Pair<Boolean, String> basePair = isValid(settings);
         String msg = "";
-        for (Sources fold : folds) {
-            Pair<Boolean, String> foldpair = fold.validate(settings);
-            basePair.r &= foldpair.r;
-            basePair.s += "due to fold: " + foldpair.s;
-        }
+        if (folds != null)
+            for (Sources fold : folds) {
+                Pair<Boolean, String> foldpair = fold.validate(settings);
+                basePair.r &= foldpair.r;
+                basePair.s += "due to fold: " + foldpair.s;
+            }
         return basePair;
     }
 

@@ -33,16 +33,16 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
      */
     public ConnectAfter<T> terminal;
 
-    ConcurrentHashMap<String, Branch> branches;
-    ConcurrentHashMap<String, Merge> merges;
-    ConcurrentHashMap<String, Pipe> pipes;
+    ConcurrentHashMap<String, Branch> branches = new ConcurrentHashMap<>();
+    ConcurrentHashMap<String, Merge> merges = new ConcurrentHashMap<>();
+    ConcurrentHashMap<String, Pipe> pipes = new ConcurrentHashMap<>();
 
     @Deprecated
-    ConcurrentHashMap<String, ParallelPipe> multiPipes;
-    ConcurrentHashMap<String, MultiBranch> multiBranches;
-    ConcurrentHashMap<String, MultiMerge> multiMerges;
+    ConcurrentHashMap<String, ParallelPipe> multiPipes = new ConcurrentHashMap<>();
+    ConcurrentHashMap<String, MultiBranch> multiBranches = new ConcurrentHashMap<>();
+    ConcurrentHashMap<String, MultiMerge> multiMerges = new ConcurrentHashMap<>();
 
-    ConcurrentHashMap<String, Pipeline> pipelines;
+    ConcurrentHashMap<String, Pipeline> pipelines = new ConcurrentHashMap<>();
 
     /**
      * input BEFORE this pipeline

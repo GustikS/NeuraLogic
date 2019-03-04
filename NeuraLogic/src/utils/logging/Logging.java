@@ -14,7 +14,9 @@ import java.util.logging.*;
 
 public class Logging {
     private FileHandler loggingFile;
-    private Formatter formatter;
+
+    Formatter fileFormatter;
+    Formatter consoleFormatter;
 
     public void initialize() throws IOException {
         System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tF %1$tT [%4$s] (%2$s) : %5$s%6$s%n");
@@ -26,29 +28,36 @@ public class Logging {
         //get the ROOT logger (higher than global logger)
         Logger rootLogger = Logger.getLogger("");
 
-        // suppress the logging output to the console
-
+        // remove the default logging output to the console - it outputs everything to standard error output - not nice
         Handler[] handlers = rootLogger.getHandlers();
-        if (handlers[0] instanceof ConsoleHandler) {
-            handlers[0].setLevel(Settings.loggingLevel);
-            handlers[0].setFormatter(new ColoredFormatter());
-            if (Settings.supressConsoleOutput) {
-                rootLogger.removeHandler(handlers[0]);
+        Handler defaultConsoleHandler = handlers[0];
+        if (defaultConsoleHandler instanceof ConsoleHandler) {
+            rootLogger.removeHandler(defaultConsoleHandler);
+            if (!Settings.supressConsoleOutput) {
+
+                if (Settings.customLogColors) {
+                    consoleFormatter = new ColoredFormatter();
+                } else {
+                    consoleFormatter = new SimpleFormatter();
+                }
+                StreamHandler sh = new StreamHandler(System.out, consoleFormatter);
+                sh.setLevel(Settings.loggingLevel);
+                rootLogger.addHandler(sh);
             }
         }
 
         rootLogger.setLevel(Settings.loggingLevel);
 
         if (!Settings.supressLogFileOutput) {
+
             if (Settings.htmlLogging) {
                 loggingFile = new FileHandler("Logging.html");
-                formatter = new HtmlFormatter();
+                fileFormatter = new HtmlFormatter();
             } else {
                 loggingFile = new FileHandler("Logging.txt");
-                // create a TXT formatter for the handler
-                formatter = new SimpleFormatter();
+                fileFormatter = new SimpleFormatter();
             }
-            loggingFile.setFormatter(formatter);
+            loggingFile.setFormatter(fileFormatter);
             rootLogger.addHandler(loggingFile);
         }
     }

@@ -20,8 +20,9 @@ public class Source {
     public boolean QueriesLinkedById;
 
     public Pair<Boolean, String> validate(Settings settings) {
+        Pair<Boolean, String> validation = new Pair<>(true,"");
         //TODO
-        return null;
+        return validation;
     }
 
     public void infer(Settings settings) {
