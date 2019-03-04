@@ -1,6 +1,5 @@
 out
 .DS_Store
-*.iml
 
 # Compiled class file
 *.class
@@ -115,8 +114,12 @@ fabric.properties
 .idea/sonarlint
 
 # End of https://www.gitignore.io/api/jetbrains
+
 /NeuraLogic/.idea/libraries/
+/NeuraLogic/.idea/workspace.xml 
 /NeuraLogic/.idea/uiDesigner.xml
 /Logic/.idea/workspace.xml
+/Utils/.idea/workspace.xml
+/NeuraLogic/.idea/workspace.xml
 
 Logging.txt
