@@ -151,22 +151,26 @@ public class PlainGrammarVisitor extends GrammarVisitor {
 
         @Override
         public ValuedFact visitFact(@NotNull NeuralogicParser.FactContext ctx) {
+            return visitAtom(ctx.atom());
+        }
 
+        @Override
+        public ValuedFact visitAtom(@NotNull NeuralogicParser.AtomContext ctx) {
             TermVisitor termVisitor = new TermVisitor();
             termVisitor.variableFactory = this.variableFactory;
-            List<Term> terms = ctx.atom().termList().term()
+            List<Term> terms = ctx.termList().term()
                     .stream()
                     .map(term -> term.accept(termVisitor))
                     .collect(Collectors.toList());
 
-            WeightedPredicate predicate = ctx.atom().predicate().accept(new PredicateVisitor(terms.size()));
+            WeightedPredicate predicate = ctx.predicate().accept(new PredicateVisitor(terms.size()));
 
-            Weight weight = ctx.atom().weight().accept(new WeightVisitor());
+            Weight weight = ctx.weight().accept(new WeightVisitor());
             if (weight == null) {
                 weight = builder.weightFactory.construct("foo", new ScalarValue(0), false);
             }
 
-            ValuedFact fact = new ValuedFact(predicate, terms, ctx.atom().negation() != null, weight);
+            ValuedFact fact = new ValuedFact(predicate, terms, ctx.negation() != null, weight);
             fact.originalString = ctx.getText();
 
             return fact;
@@ -198,7 +202,6 @@ public class PlainGrammarVisitor extends GrammarVisitor {
     private class WeightVisitor extends NeuralogicBaseVisitor<Weight> {
         @Override
         public Weight visitWeight(@NotNull NeuralogicParser.WeightContext ctx) {
-            String name = ctx.ATOMIC_NAME().getText();
             Value value = null;
             boolean fixed = false;
             if (ctx.fixedValue() != null) {
@@ -210,7 +213,13 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             } else {
                 LOG.severe("Weight is neither fixed nor learnable");
             }
-            Weight weight = builder.weightFactory.construct(name, value, fixed);
+            Weight weight;
+            if (ctx.ATOMIC_NAME() != null) {
+                String name = ctx.ATOMIC_NAME().getText();
+                weight = builder.weightFactory.construct(name, value, fixed);
+            } else {
+                weight = builder.weightFactory.construct(value, fixed);
+            }
 
             return weight;
         }

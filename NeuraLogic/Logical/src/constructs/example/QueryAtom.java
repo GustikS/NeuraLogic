@@ -18,13 +18,13 @@ public class QueryAtom extends Query<LiftedExample, Template> {
     public HeadAtom headAtom;
 
     public QueryAtom(String id, int queryCounter, double importance, HeadAtom query, LiftedExample evidence) {
-        super(id, queryCounter, importance);
+        super(id, queryCounter, importance, evidence);
         this.headAtom = query;
-        this.evidence = evidence;
     }
 
     public QueryAtom(String id, int queryCounter, double importance, HeadAtom query) {
-        super(id, queryCounter, importance);
+        super(id, queryCounter, importance, null);
+        this.headAtom = query;
     }
 
     @Override

@@ -50,9 +50,11 @@ public class Main {
             LOG.severe("Invalid source files configuration.\n" + validation.s);
             System.exit(2);
         }
-
+        LOG.finest("Building LearningScheme pipeline...");
         LearningSchemeBuilder pipelineBuilder = new LearningSchemeBuilder(settings,sources);
+        LOG.finest("LearningScheme pipeline has been built");
         Pipeline<Sources, Results> pipeline = pipelineBuilder.buildPipeline();
+        LOG.finest("Running LearningScheme pipeline...");
         Pair<String, Results> target = pipeline.execute(sources);
 
         LOG.info(target.r + " : " + target.s);

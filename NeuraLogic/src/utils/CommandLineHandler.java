@@ -27,28 +27,37 @@ public class CommandLineHandler {
     public Options getOptions(Settings settings) {
         Options options = new Options();
 
+        options.addOption(new Option("seed", "randomSeed", true, "int seed for random generator (" + settings.seed + ")"));
+
+        //-----------source files
         options.addRequiredOption("q", "trainQueries", true, "trainQueries file (" + settings.trainQueriesFile + ")");
         options.addOption("t", "template", true, "template file (" + settings.templateFile + ")");
         options.addOption("e", "trainExamples", true, "trainExamples file containing facts (" + settings.trainExamplesFile + ")");
 
         options.addOption("path", "sourcePath", true, "path to source files (" + settings.sourcePath + ")");
 
-        // Selection of one of evaluation modes
+        //-----------selection of one of evaluation modes
         OptionGroup evalGroup = new OptionGroup();
         // with test file given
         evalGroup.addOption(new Option("test", "testQueries", true, "file with test trainQueries (" + settings.testQueriesFile + ")"));
         // with crossvalidation folds given
         evalGroup.addOption(Option.builder("folds").optionalArg(true).longOpt("foldPrefix").numberOfArgs(1).desc("folds folder names prefix (" + settings.foldsPrefix + ")").build());
-        // with single file to split given
+        // with single file to xval split given
         evalGroup.addOption(new Option("xval", "crossvalidation", true, "number of folds to split for crossvalidation (" + settings.foldsCount + ")"));
         options.addOptionGroup(evalGroup);
 
-        options.addOption(new Option("strat", "stratified", true, "stratified crossvalidation (" + settings.stratification + ")"));
+        //grounding
+        options.addOption(new Option("gm", "groundingMode", true, "groundings mode - normal, sequential, or global (" + "normal" + ")"));
+        options.addOption(new Option("ga", "groundingAlgorithm", true, "groundings algorithm - BUp, TDown, or Gringo (" + "BUp" + ")"));
 
-        options.addOption(new Option("seed", "randomSeed", true, "int seed for random generator (" + settings.seed + ")"));
+        //training
+        options.addOption(new Option("ts", "trainingSteps", true, "cumulative number of epochae in neural training (" + settings.maxCumEpochCount + ")"));
 
+        //evaluation
+        options.addOption(new Option("em", "evaluationMode", true, "evaluation is either regression or classification (" + "classification" + ")"));
+        options.addOption(new Option("ef", "errorFunction", true, "type of error function - MSE, or XEnt (" + "MSE" + ")"));
 
-        //TODO rest of the commandline options
+        //todo rest of the commandline options that might be useful
 
         return options;
     }

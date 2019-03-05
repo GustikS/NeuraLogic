@@ -57,6 +57,7 @@ public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, 
             if (settings.inferTemplateFacts) {
                 Pipe<Template, Template> inferencePipe = pipeline.registerEnd(inferFacts());
                 nextPipe1.connectAfter(inferencePipe);
+                nextPipe1 = inferencePipe;
             }
             return pipeline;
         } else {

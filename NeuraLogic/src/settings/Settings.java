@@ -37,7 +37,7 @@ public class Settings {
 
     //------------------High level
 
-    public Optimize optimmize;
+    public Optimize optimmize = Optimize.SPEED;
 
     public enum Optimize {
         MEMORY, SPEED, TRADEOFF
@@ -52,25 +52,26 @@ public class Settings {
     /**
      * Global number format for all printing
      */
-    NumberFormat nf = new DecimalFormat("#.##########");
+    public NumberFormat nf = new DecimalFormat("#.##########");
 
     //------------------Grounding
     /**
      * Ground train+test example sets TOGETHER (with the same cache)
      */
     public boolean trainTestJointGrounding; //TODO implement this
-    /**
-     * Ground networks (in a given Grounder context) may share common parts (i.e. Grounder has a cache)
-     */
-    public boolean globallySharedGroundings;
-    /**
-     * Ground networks are grounded in a specific given sequence (i.e. sharing only with previous examples)
-     */
-    public boolean sequentiallySharedGroundings;
+
+    public GroundingMode groundingMode = GroundingMode.NORMAL;
+
+    public enum GroundingMode {
+        NORMAL,
+        SEQUENTIAL, // Ground networks are grounded in a specific given sequence (i.e. sharing only with previous examples)
+        GLOBAL  //Ground networks (in a given Grounder context) may share common parts (i.e. Grounder has a cache)
+    }
+
     /**
      * If there's no need for keeping the given sequence, ground in parallel in the given context
      */
-    public boolean parallelGrounding = !sequentiallySharedGroundings;
+    public boolean parallelGrounding = groundingMode != GroundingMode.SEQUENTIAL;
 
     /**
      * Type of grounder
@@ -379,8 +380,58 @@ public class Settings {
 
         String _seed = cmd.getOptionValue("seed", String.valueOf(seed));
         random = new Random(Integer.parseInt(_seed));
-        //TODO fill all the settings
 
+        String _groundingAlgorithm = cmd.getOptionValue("groundingAlgorithm", grounding.name());
+        switch (_groundingAlgorithm) {
+            case "BUp":
+                grounding = GroundingAlgo.BUP;
+                break;
+            case "TDown":
+                grounding = GroundingAlgo.TDOWN;
+                break;
+            case "Gringo":
+                grounding = GroundingAlgo.GRINGO;
+                break;
+        }
+
+        String _groundingMode = cmd.getOptionValue("groundingMode", "normal");
+        switch (_groundingMode) {
+            case "normal":
+                groundingMode = GroundingMode.NORMAL;
+                break;
+            case "sequential":
+                groundingMode = GroundingMode.SEQUENTIAL;
+                break;
+            case "global":
+                groundingMode = GroundingMode.GLOBAL;
+                break;
+        }
+
+        String _trainingSteps = cmd.getOptionValue("trainingSteps", String.valueOf(maxCumEpochCount));
+        maxCumEpochCount = Integer.parseInt(_trainingSteps);
+
+        String _evaluationMode = cmd.getOptionValue("evaluationMode", "classification");
+        switch (_evaluationMode){
+            case "classification" :
+                regression = false;
+                break;
+            case "regression":
+                regression = true;
+                break;
+        }
+
+        String _errorFunction = cmd.getOptionValue("errorFunction", "MSE");
+        switch (_errorFunction){
+            case "MSE" :
+                errorFunction = ErrorFcn.SQUARED_DIFF;
+                errorAggregationFcn = AggregationFcn.AVG;
+                break;
+            case "XEnt":
+                LOG.severe("XEnt not yet implemented");
+                break;
+        }
+
+        //todo fill all the settings
     }
 
 
@@ -393,7 +444,7 @@ public class Settings {
         boolean valid = true;
         StringBuilder message = new StringBuilder();
 
-        if (sequentiallySharedGroundings) {
+        if (groundingMode == GroundingMode.SEQUENTIAL) {
             if (parallelGrounding)
                 valid = false;
             message.append("Not possible");
@@ -418,7 +469,7 @@ public class Settings {
             neuralState = NeuralState.STANDARD;
         } else if (dropoutRate == 0 && parentCounting) {
             neuralState = NeuralState.PARENTS;
-        } else if (dropoutRate > 0 && parentCounting){
+        } else if (dropoutRate > 0 && parentCounting) {
             neuralState = NeuralState.PAR_DROPOUT;
         }
 

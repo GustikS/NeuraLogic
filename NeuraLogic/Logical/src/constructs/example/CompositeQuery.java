@@ -24,7 +24,7 @@ public class CompositeQuery extends Query<LiftedExample, Template> {
     Activation activationFcn;
 
     public CompositeQuery(String id, int queryCounter, double importance, List<Pair<HeadAtom, Activation>> queryAtoms) {
-        super(id, queryCounter, importance);
+        super(id, queryCounter, importance, null);
         this.queryAtoms = queryAtoms;
     }
 

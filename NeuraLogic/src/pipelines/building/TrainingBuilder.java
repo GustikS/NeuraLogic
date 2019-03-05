@@ -54,13 +54,13 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
         getTrainSource.connectAfter(getLogicSampleStream);
 
         if (sources.templateProvided) {
-            DuplicateBranch<Sources> duplicateBranch = pipeline.registerStart(new DuplicateBranch<>());
+            DuplicateBranch<Sources> duplicateBranch = pipeline.registerStart(new DuplicateBranch<>("TemplateSamplesBranch"));
             duplicateBranch.connectAfterL(getTrainSource);
 
             TemplateProcessingBuilder templateProcessor = new TemplateProcessingBuilder(settings, sources);
             Pipeline<Sources, Template> sourcesTemplatePipeline = pipeline.register(templateProcessor.buildPipeline());
 
-            PairMerge<Template, Stream<LogicSample>> pairMerge = pipeline.register(new PairMerge<>());
+            PairMerge<Template, Stream<LogicSample>> pairMerge = pipeline.register(new PairMerge<>("TemplateSamplesMerge"));
             LogicLearningBuilder logicTrainingBuilder = new LogicLearningBuilder(settings);
             Pipeline<Pair<Template, Stream<LogicSample>>, Pair<Pair<Template, NeuralModel>, Progress>> trainingPipeline = pipeline.registerEnd(logicTrainingBuilder.buildPipeline());
 

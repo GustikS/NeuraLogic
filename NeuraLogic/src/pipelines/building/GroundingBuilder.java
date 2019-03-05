@@ -68,12 +68,12 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
             nextPipe = templateReducing;
         }
 
-        if (settings.sequentiallySharedGroundings) {  //sequential = contradicts parallel grounding - checked in settings
+        if (settings.groundingMode == Settings.GroundingMode.SEQUENTIAL) {  //sequential = contradicts parallel grounding - checked in settings
             Pipe<Stream<GroundingSample>, Stream<GroundingSample>> groundingPipe = pipeline.register(new SequentiallySharedGroundingPipe(grounder));
 
             nextPipe.connectAfter(groundingPipe);
             nextPipe = groundingPipe;
-        } else if (settings.globallySharedGroundings) { //Stream TERMINATING operation!
+        } else if (settings.groundingMode == Settings.GroundingMode.GLOBAL) { //Stream TERMINATING operation!
             Pipe<Stream<GroundingSample>, Stream<GroundingSample>> groundingPipe = pipeline.register(new GlobalSharingGroundingPipe(grounder));
 
             nextPipe.connectAfter(groundingPipe);

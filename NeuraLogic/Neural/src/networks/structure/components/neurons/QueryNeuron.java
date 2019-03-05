@@ -16,14 +16,14 @@ public class QueryNeuron extends Query<NeuralNetwork<State.Neural.Structure>, Ne
 
     public AtomNeuron<State.Neural> neuron;
 
+    @Deprecated
     public QueryNeuron(String id, int queryCounter, double importance) {
-        super(id, queryCounter, importance);
+        super(id, queryCounter, importance, null);
     }
 
     public QueryNeuron(String id, int position, double importance, AtomNeuron<State.Neural> targetNeuron, NeuralNetwork<State.Neural.Structure> neuralNetwork) {
-        super(id, position, importance);
+        super(id, position, importance, neuralNetwork);
         this.neuron = targetNeuron;
-        this.evidence = neuralNetwork;
     }
 
     @Override

@@ -55,7 +55,7 @@ public class QueriesBuilder extends SamplesBuilder<PlainQueriesParseTree, Pair<V
         }
         Stream<ValuedFact> queries = pair.s.facts.stream();
 
-        if (pair.r != null) {   // labeled query(ies)
+        if (pair.r != null) {   // jointly labeled query(ies)
             String id = pair.r.literal.toString();
             if (pair.r.getValue() != null) { // has importance set
                 if (pair.r.getValue() instanceof ScalarValue) {
@@ -69,6 +69,7 @@ public class QueriesBuilder extends SamplesBuilder<PlainQueriesParseTree, Pair<V
                 return queries.map(f -> new LogicSample(f.getValue(), createQueryAtom(id, f)));
             }
         }
+
         String minibatch = String.valueOf(queryCounter);
         return queries.map(f -> new LogicSample(f.getValue(), createQueryAtom(minibatch, f)));
     }

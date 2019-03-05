@@ -51,10 +51,10 @@ public class Logging {
         if (!Settings.supressLogFileOutput) {
 
             if (Settings.htmlLogging) {
-                loggingFile = new FileHandler("Logging.html");
+                loggingFile = new FileHandler("out/Logging.html");
                 fileFormatter = new HtmlFormatter();
             } else {
-                loggingFile = new FileHandler("Logging.txt");
+                loggingFile = new FileHandler("out/Logging.txt");
                 fileFormatter = new SimpleFormatter();
             }
             loggingFile.setFormatter(fileFormatter);

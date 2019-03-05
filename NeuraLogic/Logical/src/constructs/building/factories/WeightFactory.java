@@ -20,6 +20,11 @@ public class WeightFactory {
 
     private int index = 0;
 
+    /**
+     * Prefix for an unknown weight
+     */
+    public String genericName = "w";
+
     private Map<String, Weight> str2weight;
     private Map<Weight, Weight> weight2weight;
 
@@ -53,12 +58,32 @@ public class WeightFactory {
     }
 
     public Weight construct(String name, Value value, boolean fixed) {
+        if (value == null){
+            return null;
+        }
         Weight result = str2weight.get(name);
         if (result == null) {
             result = new Weight(index++, name, value, fixed);
             str2weight.put(name, result);
             weight2weight.put(result, result);
         }
+        return result;
+    }
+
+    /**
+     * Generic unknown weights are not put into cache.
+     * @param value
+     * @param fixed
+     * @return
+     */
+    public Weight construct(Value value, boolean fixed) {
+        if (value == null){
+            return null;
+        }
+        Weight result = new Weight(index, genericName + index++, value, fixed);
+        //str2weight.put(genericName, result);
+        //weight2weight.put(result, result);
+
         return result;
     }
 

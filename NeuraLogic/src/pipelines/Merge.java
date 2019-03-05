@@ -27,14 +27,14 @@ public abstract class Merge<I1, I2, O> extends Block implements ConnectAfter<O> 
 
     public Merge(String id) {
         ID = id;
-        input1 = new Pipe<I1, I1>(id + "Input1") {
+        input1 = new Pipe<I1, I1>(id + "-Input1") {
             @Override
             public I1 apply(I1 i1) {
                 Merge.this.accept(i1);
                 return i1;
             }
         };
-        input2 = new Pipe<I2, I2>(id + "Input2") {
+        input2 = new Pipe<I2, I2>(id + "-Input2") {
             @Override
             public I2 apply(I2 i2) {
                 Merge.this.accept(i2);
@@ -46,9 +46,7 @@ public abstract class Merge<I1, I2, O> extends Block implements ConnectAfter<O> 
     @Override
     public O get() {
         if (outputReady == null) {
-            LOG.severe("The result of this Merge " + ID + " is requested but not yet calculated");
-            LOG.severe("Pipeline is broken");
-            System.exit(3);
+            LOG.severe("The result of this Merge " + ID + " is requested but not yet calculated (backtracking in the execution graph).");
         }
 
         return outputReady;
@@ -65,7 +63,7 @@ public abstract class Merge<I1, I2, O> extends Block implements ConnectAfter<O> 
         if ((i1 = input1.get()) != null && (i2 = input2.get()) != null)
             accept(i1, i2);
         else
-            LOG.warning("Trying to run a Merge " + ID + " by Object " + o + " without both inputs provided");
+            LOG.info("Trying to run a Merge " + ID + " by " + o + " without both inputs provided (backtracking in the execution graph).");
     }
 
     public void accept(I1 input1, I2 input2) {

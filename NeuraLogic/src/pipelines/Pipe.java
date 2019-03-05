@@ -40,16 +40,12 @@ public abstract class Pipe<I, O> extends Block implements Function<I, O>, Connec
         }
     }
 
-
     public O get() {
         if (outputReady == null) {
-            LOG.severe("The result of pipe " + ID + " is requested but not yet calculated");
-            LOG.severe("Pipeline is broken");
-            System.exit(3);
+            LOG.info("The result of pipe " + ID + " is requested but not yet calculated (backtracking in the execution graph).");
         }
         return outputReady;
     }
-
 
     /**
      * Do not use much, it won't be executed by the run method

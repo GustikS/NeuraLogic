@@ -23,10 +23,11 @@ public abstract class Query<E extends Example, M extends Model> {
         this.importance = importance;
     }
 
-    public Query(String id, int queryCounter, double importance) {
+    public Query(String id, int queryCounter, double importance, E evidence) {
         this.ID = id;
         this.position = queryCounter;
         this.importance = importance;
+        this.evidence = evidence;
     }
 
     /**

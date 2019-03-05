@@ -67,13 +67,34 @@ public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRu
             map = new HashMap<>();
         }
         //the remaining 1 example to Many queries solution
-        examples.forEach(ls -> map.put(ls.getId(), new Pair<>(ls.query.evidence, new ArrayList<>())));
-        queries.forEach(ls -> {
-            Pair<LiftedExample, List<LogicSample>> pair = map.get(ls.getId());
-            ls.query.evidence = pair.r;
-            List<LogicSample> qs = pair.s;
-            qs.add(ls);
-        });
+        examples.forEach(
+                ls -> map.put(ls.getId(), new Pair<>(ls.query.evidence, new ArrayList<>()))
+        );
+
+        //this is where the examples get finally calculated
+        if (map.size() == 0){
+            LOG.severe("There are no learning examples created!");
+        }
+        if (map.size() == 1) {
+            LOG.info("A single large example detected.");
+            Pair<LiftedExample, List<LogicSample>> pair = map.values().iterator().next();
+            queries.forEach(ls -> {
+                LOG.finest(ls.query.headAtom.literal.toString());
+                ls.query.evidence = pair.r;
+                List<LogicSample> qs = pair.s;
+                qs.add(ls);
+            });
+        } else {
+            LOG.info("Multiple examples detected. Will try to match them against the provided queries");
+            queries.forEach(ls -> {
+                LOG.finest(ls.query.headAtom.literal.toString());
+                Pair<LiftedExample, List<LogicSample>> pair = map.get(ls.getId());
+                ls.query.evidence = pair.r;
+                List<LogicSample> qs = pair.s;
+                qs.add(ls);
+            });
+        }
+
         return map.values().stream().map(pair -> pair.s.stream()).flatMap(f -> f);
     }
 
@@ -97,7 +118,13 @@ public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRu
     }
 
     public QueryAtom createQueryAtom(String id, ValuedFact f, LiftedExample example) {
-        return new QueryAtom(prefix + id, queryCounter++, settings.defaultSampleImportance, new HeadAtom(f.offsettedPredicate, f.literal.termList()), example);
+        HeadAtom headAtom;
+        if (f == null)
+            headAtom = null;
+        else
+            headAtom = new HeadAtom(f.offsettedPredicate, f.literal.termList());
+
+        return new QueryAtom(prefix + id, queryCounter++, settings.defaultSampleImportance, headAtom, example);
     }
 
     public QueryAtom createQueryAtom(String id, double importance, ValuedFact f) {

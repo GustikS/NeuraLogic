@@ -35,6 +35,11 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
         return null;
     }
 
+    /**
+     * We return getLabeledExamples by default, even if the labels are to be null
+     * @param parseTree
+     * @return
+     */
     @Override
     public Stream<Pair<Conjunction, LiftedExample>> buildFrom(PlainExamplesParseTree parseTree) {
         PlainGrammarVisitor plainGrammarVisitor = new PlainGrammarVisitor(this);
@@ -46,9 +51,9 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
     public Stream<LogicSample> sampleFrom(Pair<Conjunction, LiftedExample> pair) {
         LiftedExample example = pair.s;
 
-        if (pair.r.facts == null || pair.r.facts.size() == 0) {
-            LOG.warning("Cannot extract LogicSample(s) without a query provided - emitting unlabeled LogicSample(s)");
-            return Stream.of(createEmptySample(String.valueOf(queryCounter), example));
+        if (pair.r == null || pair.r.facts == null || pair.r.facts.size() == 0) {
+            LOG.finer("Unlabeled input examples detected - queries must be provided in a separate file");
+            return Stream.of(createUnlabeledSample(String.valueOf(queryCounter), example));
         } else if ((pair.r.facts.size() == 1) && (pair.r.facts.get(0).getValue() == null)) { // the query literal is a LINK to query file
             ValuedFact query = pair.r.facts.get(0);
             return Stream.of(new LogicSample(null, createQueryAtom(query.literal.toString(), query, example)));
@@ -57,7 +62,7 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
             return pair.r.facts.stream().map(f -> new LogicSample(f.getValue(), createQueryAtom(settings.queriesBatchPrefix + minibatch, f, example)));
         }
     }
-    private LogicSample createEmptySample(String id, LiftedExample example) {
+    private LogicSample createUnlabeledSample(String id, LiftedExample example) {
         return new LogicSample(null, createQueryAtom(id, null, example));
     }
 }

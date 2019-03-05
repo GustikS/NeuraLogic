@@ -55,11 +55,11 @@ public class SourceFiles extends Sources {
                 LOG.severe("Invalid folds prefix name, it must not contain file separators: " + foldPrefix);
                 throw new IllegalArgumentException(foldPrefix);
             }
-            setupFromDir(settings, cmd, Paths.get(".").toAbsolutePath().toFile());
+            setupFromDir(settings, cmd, Paths.get(settings.sourcePath).toAbsolutePath().toFile());
 
-            crawlFolds(settings, cmd, sourcePath, foldPrefix);
+            crawlFolds(settings, cmd, settings.sourcePath, foldPrefix);
         } else {
-            setupFromDir(settings, cmd, Paths.get(".").toAbsolutePath().toFile());
+            setupFromDir(settings, cmd, Paths.get(settings.sourcePath).toAbsolutePath().toFile());
         }
     }
 

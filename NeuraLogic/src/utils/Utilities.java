@@ -1,6 +1,6 @@
 package utils;
 
-import ida.utils.tuples.Pair;
+import utils.generic.Pair;
 
 import java.io.File;
 import java.io.IOException;
