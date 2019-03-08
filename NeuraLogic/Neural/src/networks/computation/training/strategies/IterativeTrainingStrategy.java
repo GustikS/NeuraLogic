@@ -58,6 +58,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
         this.learnRateDecayStrategy = LearnRateDecayStrategy.getFrom(settings, learningRate);
         this.evaluation = new Evaluation(settings);    //todo check do we need to parallelize here?
+        this.restartingStrategy = RestartingStrategy.getFrom(settings);
     }
 
     private Pair<List<NeuralSample>, List<NeuralSample>> trainingValidationSplit(List<NeuralSample> sampleList) {
@@ -81,7 +82,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         int epochae = 0;
         for (int restart = 0; restart < settings.restartCount; restart++) {
             initRestart();
-            while (restartingStrategy.continueRestart() && epochae++ < settings.maxCumEpochCount) {
+            while (restartingStrategy.continueRestart(progress) && epochae++ < settings.maxCumEpochCount) {
                 initEpoch(epochae);
                 List<Result> onlineEvaluations = trainer.learnEpoch(currentModel, trainingSet);
                 endEpoch(epochae, onlineEvaluations);

@@ -23,7 +23,7 @@ public class Evaluator extends StateVisiting.Computation {
     public Value visit(State.Neural.Computation state) {
         Value evaluation = state.getAggregationState().evaluate();
         //with evaluation of this Neuron's Computation State, we also STORE the resulting value for immediate reuse (instead of calling the ActivationState.evaluation (again))
-        state.setResult(this, evaluation);
+        state.setValue(evaluation);
         return evaluation;
     }
 

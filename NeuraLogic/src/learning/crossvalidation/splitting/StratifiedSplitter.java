@@ -29,9 +29,7 @@ public class StratifiedSplitter<T extends LearningSample> implements Splitter<T>
     @Override
     public Pair<List<T>, List<T>> partition(List<T> samples, double percentage) {
         //todo next
-        List<T> validation = samples.subList(0, (int) percentage * samples.size());
-        List<T> training = samples.subList((int) percentage * samples.size() + 1, samples.size()-1);
-        return new Pair<>(training,validation);
+        return null;
     }
 
 }

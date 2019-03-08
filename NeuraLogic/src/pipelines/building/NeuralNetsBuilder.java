@@ -35,8 +35,11 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
 
         Pipe<Stream<GroundingSample>, Stream<NeuralProcessingSample>> neuralizationPipe = pipeline.registerStart(new Pipe<Stream<GroundingSample>, Stream<NeuralProcessingSample>>("SupervisedNeuralizationPipe") {
             @Override
-            public Stream<NeuralProcessingSample> apply(Stream<GroundingSample> pairStream) {
-                return pairStream.map(pair -> neuralizer.neuralize(pair).stream()).flatMap(f -> f);
+            public Stream<NeuralProcessingSample> apply(Stream<GroundingSample> groundingSampleStream) {
+                return groundingSampleStream
+                        .map(sample -> neuralizer.neuralize(sample).stream())
+                        .flatMap(f -> f)
+                        .peek(s -> LOG.info(s.toString()));
             }
         });
 

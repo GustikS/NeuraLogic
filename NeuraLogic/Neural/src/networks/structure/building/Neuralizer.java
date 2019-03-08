@@ -57,12 +57,16 @@ public class Neuralizer {
         neuralNetBuilder.setNeuronMaps(groundingSample.grounding.getGroundTemplate().neuronMaps); //loading stored context from previous neural nets building
 
         List<QueryNeuron> queryNeurons = supervisedNeuralization(groundingSample.query, groundingSample.grounding.getGroundTemplate());
+        if (queryNeurons.isEmpty()) {
+            LOG.warning("No inference network created for " + groundingSample.query);
+        }
 
         groundingSample.grounding.getGroundTemplate().neuronMaps = neuralNetBuilder.getNeuronMaps(); //storing the context back again
 
-        return queryNeurons.stream()
+        List<NeuralProcessingSample> samples = queryNeurons.stream()
                 .map(queryNeuron -> new NeuralProcessingSample(groundingSample.target, queryNeuron))
                 .collect(Collectors.toList());
+        return samples;
     }
 
     /**

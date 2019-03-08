@@ -109,7 +109,7 @@ public class Settings {
     /**
      * A whole pipeline of all postprocessing steps
      */
-    public boolean neuralNetsPostProcessing;
+    public boolean neuralNetsPostProcessing = false;
     /**
      * Remove everything outside QueryNeuron's support (can appear if network have shared parts)
      */
@@ -205,7 +205,7 @@ public class Settings {
     /**
      * Parallel training with minibatches (the only truly correct parallel training). Batch size = Number of threads. SGD = 1.
      */
-    public int minibatchSize = 4;
+    public int minibatchSize = 1;
 
     /**
      * EXPERIMENTAL parallel training with asynchronous updates - fastest mode, but the gradients can be very wrongly overwritten (+dynamic size minibatches)
@@ -241,7 +241,7 @@ public class Settings {
 
     public double initLearningRate = 0.1;
 
-    public double dropoutRate = 0.1;
+    public double dropoutRate = 0.0;
 
     /**
      * Percentual size of validation set separated from training set
@@ -313,7 +313,7 @@ public class Settings {
     //----------------Crossvaldiation
 
     public int foldsCount = 5;
-    public boolean stratification = true;
+    public boolean stratification = false;
     public boolean exportFolds = true;
     /**
      * Are the train folds to be completely isolated, even though they share common subsets? (test folds are always isolated).

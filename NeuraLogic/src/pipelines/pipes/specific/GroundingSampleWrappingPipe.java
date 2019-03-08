@@ -29,11 +29,12 @@ public class GroundingSampleWrappingPipe extends Pipe<Pair<Template, Stream<Logi
         final GroundingSample.Wrap lastGroundingWrap = new GroundingSample.Wrap(null);
         Stream<GroundingSample> groundingSampleStream = templateStreamPair.s.map(sample -> {
             GroundingSample groundingSample = new GroundingSample(sample, templateStreamPair.r);
+            groundingSample.grounding = lastGroundingWrap;
             if (sample.query.evidence.equals(lastGroundingWrap.getExample())) {
-                groundingSample.grounding = lastGroundingWrap;
                 groundingSample.groundingComplete = true;
             } else {
                 lastGroundingWrap.setExample(sample.query.evidence);
+                groundingSample.groundingComplete = false;
             }
             return groundingSample;
         });

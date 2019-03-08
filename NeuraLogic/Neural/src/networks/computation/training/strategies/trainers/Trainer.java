@@ -24,6 +24,13 @@ public class Trainer {
 
     Optimizer optimizer;
 
+    public Trainer(Settings settings) {
+        this.settings = settings;
+    }
+
+    public Trainer() {
+    }
+
     protected Result learnFromSample(NeuralModel neuralModel, NeuralSample neuralSample, IndependentNeuronProcessing dropouter, IndependentNeuronProcessing invalidation, Evaluation evaluation, Backpropagation backpropagation) {
         if (settings.dropoutMode == Settings.DropoutMode.DROPOUT && settings.dropoutRate > 0) {
             dropoutSample(dropouter, neuralSample);
@@ -54,6 +61,7 @@ public class Trainer {
 
     /**
      * todo test remove synchronized for speedup?
+     *
      * @param model
      * @param weightUpdater
      */

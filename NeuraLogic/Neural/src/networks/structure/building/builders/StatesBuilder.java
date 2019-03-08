@@ -2,7 +2,6 @@ package networks.structure.building.builders;
 
 import networks.computation.evaluation.functions.CrossProduct;
 import networks.computation.evaluation.values.Value;
-import networks.computation.iteration.visitors.states.neurons.Evaluator;
 import networks.computation.training.strategies.Hyperparameters.DropoutRateStrategy;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neuron;
@@ -59,20 +58,19 @@ public class StatesBuilder {
      * @param detailedNetwork
      */
     void inferValues(DetailedNetwork<State.Structure> detailedNetwork) {
-        Evaluator evaluator = new Evaluator(0);
-        for (int i = 0; i < detailedNetwork.allNeuronsTopologic.size(); i++) {
+        for (int i = detailedNetwork.allNeuronsTopologic.size()-1; i >= 0 ; i--) {
             BaseNeuron<BaseNeuron, State.Neural> neuron = detailedNetwork.allNeuronsTopologic.get(i);
             if (neuron instanceof WeightedNeuron) {
-                inferWeightedDimension(detailedNetwork, evaluator, neuron);
+                inferWeightedDimension(detailedNetwork, neuron);
             } else {
-                inferUnweightedDimension(detailedNetwork, evaluator, neuron);
+                inferUnweightedDimension(detailedNetwork, neuron);
             }
         }
     }
 
-    private void inferWeightedDimension(DetailedNetwork<State.Structure> detailedNetwork, Evaluator evaluator, BaseNeuron<BaseNeuron, State.Neural> neuron) {
+    private void inferWeightedDimension(DetailedNetwork<State.Structure> detailedNetwork, BaseNeuron<BaseNeuron, State.Neural> neuron) {
 
-        if (((BaseNeuron) neuron) instanceof FactNeuron){
+        if (((BaseNeuron) neuron) instanceof FactNeuron) {
             //facts neurons have no inputs to infer the generics
             return;
         }
@@ -87,7 +85,7 @@ public class StatesBuilder {
         Value weight = null;
         if (neuronIterator.hasNext()) {
             State.Neural.Computation computationView = neuronIterator.next().getComputationView(0);
-            value = computationView.getResult((Evaluator) evaluator);
+            value = computationView.getValue();
             weight = weightIterator.next().value;
         }
 
@@ -100,7 +98,7 @@ public class StatesBuilder {
             LOG.severe("Weight-Value dimension mismatch at neuron:" + neuron);
         }
         while (neuronIterator.hasNext()) {
-            value = neuronIterator.next().getComputationView(0).getResult(evaluator);
+            value = neuronIterator.next().getComputationView(0).getValue();
             weight = weightIterator.next().value;
             if (value == null || weight == null) {
                 LOG.severe("Value dimension cannot be inferred!" + neuron);
@@ -128,17 +126,17 @@ public class StatesBuilder {
         neuron.getComputationView(0).setupValueDimensions(sum);
     }
 
-    private void inferUnweightedDimension(DetailedNetwork<State.Structure> detailedNetwork, Evaluator evaluator, BaseNeuron<BaseNeuron, State.Neural> neuron) {
+    private void inferUnweightedDimension(DetailedNetwork<State.Structure> detailedNetwork, BaseNeuron<BaseNeuron, State.Neural> neuron) {
         Iterator<BaseNeuron> inputs = detailedNetwork.getInputs(neuron);
         List<Value> inputValues = new ArrayList<>();
 
-        Value sum = inputs.next().getComputationView(0).getResult(evaluator);
+        Value sum = inputs.next().getComputationView(0).getValue();
         if (sum == null) {
             LOG.severe("Value dimension cannot be inferred!" + neuron);
         }
         while (inputs.hasNext()) {
             Neuron next = inputs.next();
-            Value result = next.getComputationView(0).getResult(evaluator);
+            Value result = next.getComputationView(0).getValue();
             if (result == null) {
                 LOG.severe("Value dimension cannot be inferred!" + neuron);
             } else {

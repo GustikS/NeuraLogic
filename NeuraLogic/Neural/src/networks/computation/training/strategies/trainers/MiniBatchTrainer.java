@@ -33,6 +33,7 @@ public class MiniBatchTrainer extends Trainer {
     }
 
     public MiniBatchTrainer(Settings settings, NeuralModel neuralModel, int minibatchSize) {
+        super(settings);
         this.minibatchSize = minibatchSize;
         trainers = new ArrayList<>(minibatchSize);
         for (int i = 0; i < minibatchSize; i++) {
@@ -43,7 +44,7 @@ public class MiniBatchTrainer extends Trainer {
     /**
      * Learning by iterating a given {@link List} of samples in minibatches.
      */
-    public class MinibatchListTrainer extends MiniBatchTrainer implements ListTrainer {
+    public class MinibatchListTrainer implements ListTrainer {
 
         @Override
         public List<Result> learnEpoch(NeuralModel neuralModel, List<NeuralSample> sampleList) {
@@ -61,7 +62,7 @@ public class MiniBatchTrainer extends Trainer {
     /**
      * Learning by iterating a given {@link Stream} of samples in minibatches.
      */
-    public class MinibatchStreamTrainer extends MiniBatchTrainer implements StreamTrainer {
+    public class MinibatchStreamTrainer implements StreamTrainer {
 
         /**
          * The input stream should not be parallel otherwise the batches will be processed in parallel which is not correct.

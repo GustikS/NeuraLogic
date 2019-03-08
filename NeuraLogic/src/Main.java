@@ -40,6 +40,7 @@ public class Main {
             System.exit(1);
         }
 
+        settings.infer();
         Pair<Boolean, String> validation = settings.validate();
         if (!validation.r) {
             LOG.severe("Invalid pipelines setting.\n" + validation.s);

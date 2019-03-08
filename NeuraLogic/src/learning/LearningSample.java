@@ -16,4 +16,8 @@ public abstract class LearningSample<Q extends Query> {
         return query.importance;
     }
 
+    @Override
+    public String toString() {
+        return target.toString() + " " + query.toString();
+    }
 }

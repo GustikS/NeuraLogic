@@ -69,9 +69,9 @@ public abstract class States implements State {
      */
     public static class ComputationStateStandard implements Neural.Computation {
 
-        AggregationState aggregationState;
-        Value outputValue;
-        Value acumGradient;
+        public AggregationState aggregationState;
+        public Value outputValue;
+        public Value acumGradient;
 
         public ComputationStateStandard(Aggregation activation) {
             aggregationState = activation.getAggregationState();
@@ -100,8 +100,8 @@ public abstract class States implements State {
         @Override
         public void setupValueDimensions(Value value) {
             if (acumGradient != null) {
-                if (value.size() != acumGradient.size())
-                    LOG.severe("Collision with previously inferred Value dimensions1");
+                if (value.size().equals(acumGradient.size()))
+                    LOG.severe("Collision with previously inferred Value dimensions!");
                 return;
             }
             aggregationState.setupValueDimensions(value);
@@ -114,43 +114,28 @@ public abstract class States implements State {
             return aggregationState;
         }
 
-        @Override
-        public Value getResult(StateVisiting<Value> visitor) {
-            LOG.severe("Error: Visitor calling a default method through dynamic dispatch.");
-            return null;
-        }
-
-        @Override
-        public void setResult(StateVisiting<Value> visitor, Value value) {
-            LOG.severe("Error: Visitor calling a default method through dynamic dispatch.");
-        }
-
-        public void setResult(Evaluator visitor, Value value) {
+        public void setValue(Value value) {
             outputValue = value;
         }
 
-        public void setResult(Backproper visitor, Value value) {
-            acumGradient = value;
+        public void setGradient(Value gradient) {
+            acumGradient = gradient;
         }
 
-        public Value getResult(Evaluator visitor) {
+        public Value getValue() {
             return outputValue;
         }
 
-        public Value getResult(Backproper visitor) {
+        public Value getGradient() {
             return acumGradient;
         }
 
-        @Override
-        public void store(StateVisiting<Value> visitor, Value value) {
-            LOG.severe("Error: Visitor calling a default method through dynamic dispatch.");
-        }
 
-        public void store(Evaluator visitor, Value value) {
+        public void storeValue(Value value) {
             aggregationState.cumulate(value);
         }
 
-        public void store(Backproper visitor, Value value) {
+        public void storeGradient(Value value) {
             acumGradient.increment(value);
         }
     }
@@ -196,8 +181,8 @@ public abstract class States implements State {
         }
 
         @Override
-        public void store(Backproper visitor, Value value) {
-            super.store(visitor, value);
+        public void storeGradient(Value gradient) {
+            super.storeGradient(gradient);
             checked++;
         }
 
@@ -239,9 +224,9 @@ public abstract class States implements State {
             this.parentCount = parentCount;
         }
 
-        public Value getResult(Evaluator visitor) {
+        public Value getValue() {
             calculated = true;
-            return super.getResult(visitor);
+            return super.getValue();
         }
     }
 
@@ -382,22 +367,39 @@ public abstract class States implements State {
         }
 
         @Override
-        public Value getResult(StateVisiting<Value> visitor) {
+        public Value getValue() {
             return value;
         }
 
         @Override
-        public void setResult(StateVisiting<Value> visitor, Value value) {
+        public Value getGradient() {
+            LOG.severe("FactNeurons stored no gradient.");
+            return null;
+        }
+
+        @Override
+        public void setValue(Value value) {
             //void
         }
 
         @Override
-        public void store(StateVisiting<Value> visitor, Value value) {
+        public void setGradient(Value gradient) {
+            //void
+        }
+
+        @Override
+        public void storeValue(Value value) {
+            //void
+        }
+
+        @Override
+        public void storeGradient(Value gradient) {
             //void
         }
 
         @Override
         public Aggregation getAggregation() {
+            LOG.severe("FactNeurons have no aggregation.");
             return null;
         }
     }

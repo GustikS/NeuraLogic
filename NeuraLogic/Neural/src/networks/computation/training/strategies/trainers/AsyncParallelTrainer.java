@@ -33,7 +33,7 @@ public class AsyncParallelTrainer extends SequentialTrainer {
     protected AsyncParallelTrainer() {
     }
 
-    public class AsyncListTrainer extends AsyncParallelTrainer implements ListTrainer {
+    public class AsyncListTrainer implements ListTrainer {
 
 
         @Override
@@ -44,7 +44,7 @@ public class AsyncParallelTrainer extends SequentialTrainer {
         }
     }
 
-    public class AsyncStreamTrainer extends AsyncParallelTrainer implements StreamTrainer {
+    public class AsyncStreamTrainer implements StreamTrainer {
 
         @Override
         public Stream<Result> learnEpoch(NeuralModel neuralModel, Stream<NeuralSample> sampleStream) {

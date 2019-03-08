@@ -27,9 +27,11 @@ public class Progress {
     }
 
     public void addTrueResults(Results training, Results validation) {
-        currentRestart.trueTrainingResults.get(currentRestart.trueTrainingResults.size() - 1).evaluations = null; //delete the particular outputs from the past Results to save space (store only statistics)
+        if (!currentRestart.trueTrainingResults.isEmpty())
+            currentRestart.trueTrainingResults.get(currentRestart.trueTrainingResults.size() - 1).evaluations = null; //delete the particular outputs from the past Results to save space (store only statistics)
         currentRestart.trueTrainingResults.add(training);
-        currentRestart.validationResults.get(currentRestart.validationResults.size() - 1).evaluations = null; //delete the particular outputs from the past Results to save space (store only statistics)
+        if (!currentRestart.validationResults.isEmpty())
+            currentRestart.validationResults.get(currentRestart.validationResults.size() - 1).evaluations = null; //delete the particular outputs from the past Results to save space (store only statistics)
         currentRestart.validationResults.add(validation);
     }
 
@@ -63,6 +65,7 @@ public class Progress {
 
         /**
          * Decide what is better - whether to use training or validation or both
+         *
          * @param other
          * @return
          */

@@ -29,11 +29,9 @@ public class DFSrecursion {
 
         StateVisiting.Computation stateVisitor;
         WeightUpdater weightUpdater;
-        StateVisiting.Computation bottomUp;
 
-        public TDownVisitor(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<BaseNeuron, State.Neural> neuron, StateVisiting.Computation topDown, StateVisiting.Computation bottomUp, WeightUpdater weightUpdater) {
+        public TDownVisitor(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<BaseNeuron, State.Neural> neuron, StateVisiting.Computation topDown, WeightUpdater weightUpdater) {
             super(network, neuron);
-            this.bottomUp = bottomUp;
             this.weightUpdater = weightUpdater;
             this.stateVisitor = topDown;
         }
@@ -45,7 +43,7 @@ public class DFSrecursion {
             Iterator<BaseNeuron> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());
             for (BaseNeuron input; (input = inputs.next()) != null; ) {
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
-                computationView.store(stateVisitor, gradient);
+                computationView.storeGradient(gradient);
                 if (computationView.ready4expansion(stateVisitor)) {    //we can check the children in advance here since we expanded them already ourselves
                     input.visit(this);
                 }
@@ -67,8 +65,8 @@ public class DFSrecursion {
             while ((input = inputNeurons.next()) != null && (weight = inputWeights.next()) != null) {
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
 
-                weightUpdater.visit(weight, gradient.times(computationView.getResult(bottomUp)));
-                computationView.store(stateVisitor, gradient.times(weight.value));
+                weightUpdater.visit(weight, gradient.times(computationView.getValue()));
+                computationView.storeGradient(gradient.times(weight.value));
 
                 if (computationView.ready4expansion(stateVisitor)) {
                     input.visit(this);
@@ -95,7 +93,7 @@ public class DFSrecursion {
         @Override
         public Value bottomUp() {
             outputNeuron.visit(this);
-            return outputNeuron.getComputationView(stateVisitor.stateIndex).getResult(stateVisitor);
+            return outputNeuron.getComputationView(stateVisitor.stateIndex).getValue();
         }
 
         @Override

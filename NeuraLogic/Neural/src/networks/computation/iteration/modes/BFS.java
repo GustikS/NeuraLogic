@@ -71,13 +71,11 @@ public class BFS {
     public class TDownVisitor extends NeuronVisiting.Weighted implements TopDown {
         StateVisiting.Computation stateVisitor;
         WeightUpdater weightUpdater;
-        StateVisiting.Computation bottomUp;
 
-        public TDownVisitor(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<BaseNeuron, State.Neural> neuron, StateVisiting.Computation topDown, StateVisiting.Computation bottomUp, WeightUpdater weightUpdater) {
+        public TDownVisitor(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<BaseNeuron, State.Neural> neuron, StateVisiting.Computation topDown, WeightUpdater weightUpdater) {
             super(network, neuron);
             queue = new ArrayDeque<>(network.getNeuronCount());
             queue.add(outputNeuron);
-            this.bottomUp = bottomUp;
             this.weightUpdater = weightUpdater;
             this.stateVisitor = topDown;
         }
@@ -89,7 +87,7 @@ public class BFS {
             Iterator<BaseNeuron> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());
             for (BaseNeuron input; (input = inputs.next()) != null; ) {
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
-                computationView.store(stateVisitor, value);
+                computationView.storeGradient(value);
                 if (computationView.ready4expansion(stateVisitor)) {    //we can check the children in advance here since we expanded them already ourselves
                     queue.add(input);
                 }
@@ -111,8 +109,8 @@ public class BFS {
             while ((input = inputNeurons.next()) != null && (weight = inputWeights.next()) != null) {
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
 
-                weightUpdater.visit(weight, gradient.times(computationView.getResult(bottomUp)));
-                computationView.store(stateVisitor, gradient.times(weight.value));
+                weightUpdater.visit(weight, gradient.times(computationView.getValue()));
+                computationView.storeGradient(gradient.times(weight.value));
 
                 if (computationView.ready4expansion(stateVisitor)) {
                     queue.add(input);

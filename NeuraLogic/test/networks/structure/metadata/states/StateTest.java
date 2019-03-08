@@ -13,6 +13,6 @@ public class StateTest {
 
         Evaluator evaluator = new Evaluator(0);
 
-        Value result = state.getResult(evaluator);
+        Value result = state.getValue();
     }
 }

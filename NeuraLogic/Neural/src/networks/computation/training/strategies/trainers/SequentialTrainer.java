@@ -1,11 +1,11 @@
 package networks.computation.training.strategies.trainers;
 
-import networks.computation.iteration.actions.Evaluation;
 import networks.computation.evaluation.results.Result;
+import networks.computation.iteration.actions.Backpropagation;
+import networks.computation.iteration.actions.Evaluation;
+import networks.computation.iteration.actions.IndependentNeuronProcessing;
 import networks.computation.iteration.visitors.states.neurons.Dropouter;
 import networks.computation.iteration.visitors.states.neurons.Invalidator;
-import networks.computation.iteration.actions.Backpropagation;
-import networks.computation.iteration.actions.IndependentNeuronProcessing;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import settings.Settings;
@@ -31,6 +31,7 @@ public class SequentialTrainer extends Trainer {
     }
 
     public SequentialTrainer(Settings settings, NeuralModel neuralModel, int index) {
+        super(settings);
         this.index = index;
         evaluation = new Evaluation(settings, index);
         backpropagation = new Backpropagation(settings, neuralModel, index);
@@ -41,7 +42,7 @@ public class SequentialTrainer extends Trainer {
     protected SequentialTrainer() {
     }
 
-    public class SequentialListTrainer extends SequentialTrainer implements ListTrainer {
+    public class SequentialListTrainer implements ListTrainer {
 
         @Override
         public List<Result> learnEpoch(NeuralModel neuralModel, List<NeuralSample> sampleList) {
@@ -54,7 +55,7 @@ public class SequentialTrainer extends Trainer {
         }
     }
 
-    public class SequentialStreamTrainer extends SequentialTrainer implements StreamTrainer {
+    public class SequentialStreamTrainer implements StreamTrainer {
 
         @Override
         public Stream<Result> learnEpoch(NeuralModel neuralModel, Stream<NeuralSample> sampleStream) {

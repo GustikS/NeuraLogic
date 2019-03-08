@@ -44,7 +44,7 @@ public class StandardNeuronVisitors {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             Iterator<BaseNeuron> inputs = network.getInputs(neuron);
             for (BaseNeuron input; (input = inputs.next()) != null; ) {
-                state.store(stateVisitor, input.getComputationView(stateVisitor.stateIndex).getResult(stateVisitor));
+                state.storeValue(input.getComputationView(stateVisitor.stateIndex).getValue());
             }
             Value value = stateVisitor.visit(state);
         }
@@ -59,9 +59,9 @@ public class StandardNeuronVisitors {
             Weight weight;
 
             //state.invalidate(); //todo (a) test if faster with invalidation here (at the beginning of evaluation) instead of using separate iteration with networks.computation.iteration.visitors.states.Invalidator ?
-            state.store(stateVisitor, neuron.offset.value);
+            state.storeValue(neuron.offset.value);
             while ((input = inputNeurons.next()) != null && (weight = inputWeights.next()) != null) { //todo test version with fori
-                state.store(stateVisitor, input.getComputationView(stateVisitor.stateIndex).getResult(stateVisitor).times(weight.value));
+                state.storeValue( input.getComputationView(stateVisitor.stateIndex).getValue().times(weight.value));
             }
             Value value = stateVisitor.visit(state);
         }
@@ -74,11 +74,8 @@ public class StandardNeuronVisitors {
      */
     public static class Down extends NeuronVisitor.Weighted {
 
-        StateVisiting.Computation bottomUp;
-
-        public Down(NeuralNetwork<State.Neural.Structure> network, StateVisiting.Computation topDown, StateVisiting.Computation bottomUp, WeightUpdater weightUpdater) {
+        public Down(NeuralNetwork<State.Neural.Structure> network, StateVisiting.Computation topDown, WeightUpdater weightUpdater) {
             super(network, topDown, weightUpdater);
-            this.bottomUp = bottomUp;
         }
 
         @Override
@@ -89,7 +86,7 @@ public class StandardNeuronVisitors {
             Iterator<BaseNeuron> inputs = network.getInputs(neuron);
 
             for (BaseNeuron input; (input = inputs.next()) != null; ) {
-                input.getComputationView(stateVisitor.stateIndex).store(stateVisitor, value);
+                input.getComputationView(stateVisitor.stateIndex).storeGradient(value);
             }
         }
 
@@ -109,8 +106,8 @@ public class StandardNeuronVisitors {
             while ((input = inputNeurons.next()) != null && (weight = inputWeights.next()) != null) {
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
 
-                weightUpdater.visit(weight, gradient.times(computationView.getResult(bottomUp)));
-                computationView.store(stateVisitor, gradient.times(weight.value));
+                weightUpdater.visit(weight, gradient.times(computationView.getValue()));
+                computationView.storeGradient(gradient.times(weight.value));
             }
         }
     }

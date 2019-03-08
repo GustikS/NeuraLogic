@@ -48,7 +48,7 @@ public class Backproper extends StateVisiting.Computation {
 
     @Override
     public Value visit(State.Neural.Computation state) {
-        Value acumGradient = state.getResult(this); //top-down accumulation //todo test add check if non-zero and cut otherwise?
+        Value acumGradient = state.getGradient(); //top-down accumulation //todo test add check if non-zero and cut otherwise?
         Value inputDerivative = state.getAggregationState().gradient(); //bottom-up accumulation
 
         Value currentLevelDerivative = acumGradient.times(inputDerivative);

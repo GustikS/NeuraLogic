@@ -67,13 +67,11 @@ public class DFSstack {
     public class TDownVisitor extends NeuronVisiting.Weighted implements TopDown {
         StateVisiting.Computation stateVisitor;
         WeightUpdater weightUpdater;
-        StateVisiting.Computation bottomUp;
 
-        public TDownVisitor(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<BaseNeuron, State.Neural> neuron, StateVisiting.Computation topDown, StateVisiting.Computation bottomUp, WeightUpdater weightUpdater) {
+        public TDownVisitor(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<BaseNeuron, State.Neural> neuron, StateVisiting.Computation topDown, WeightUpdater weightUpdater) {
             super(network, neuron);
             stack = new ArrayDeque<>();
             stack.push(outputNeuron);
-            this.bottomUp = bottomUp;
             this.weightUpdater = weightUpdater;
             this.stateVisitor = topDown;
         }
@@ -85,7 +83,7 @@ public class DFSstack {
             Iterator<BaseNeuron> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());
             for (BaseNeuron input; (input = inputs.next()) != null; ) {
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
-                computationView.store(stateVisitor, value);
+                computationView.storeGradient( value);
                 if (computationView.ready4expansion(stateVisitor)) {    //we can check the children in advance here since we expanded them already ourselves
                     stack.push(input);
                 }
@@ -107,8 +105,8 @@ public class DFSstack {
             while ((input = inputNeurons.next()) != null && (weight = inputWeights.next()) != null) {
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
 
-                weightUpdater.visit(weight, gradient.times(computationView.getResult(bottomUp)));
-                computationView.store(stateVisitor, gradient.times(weight.value));
+                weightUpdater.visit(weight, gradient.times(computationView.getValue()));
+                computationView.storeGradient(gradient.times(weight.value));
 
                 if (computationView.ready4expansion(stateVisitor)) {
                     stack.push(input);
@@ -170,7 +168,7 @@ public class DFSstack {
         @Override
         public Value bottomUp() {
             iterate();
-            return outputNeuron.getComputationView(neuronVisitor.stateVisitor.stateIndex).getResult(neuronVisitor.stateVisitor);
+            return outputNeuron.getComputationView(neuronVisitor.stateVisitor.stateIndex).getValue();
         }
     }
 
@@ -200,7 +198,7 @@ public class DFSstack {
                 BaseNeuron<BaseNeuron, State.Neural> next = bUpStackIterator.next();
                 next.visit(neuronVisitor);
             }
-            return outputNeuron.getComputationView(neuronVisitor.stateVisitor.stateIndex).getResult(neuronVisitor.stateVisitor);
+            return outputNeuron.getComputationView(neuronVisitor.stateVisitor.stateIndex).getValue();
         }
 
         @Override

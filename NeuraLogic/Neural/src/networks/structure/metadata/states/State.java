@@ -93,11 +93,17 @@ public interface State<V> {
 
             AggregationState getAggregationState();
 
-            Value getResult(StateVisiting<Value> visitor);
+            Value getValue();
 
-            void setResult(StateVisiting<Value> visitor, Value value);
+            Value getGradient();
 
-            void store(StateVisiting<Value> visitor, Value value);
+            void setValue(Value value);
+
+            void setGradient(Value gradient);
+
+            void storeValue(Value value);
+
+            void storeGradient(Value gradient);
 
             /**
              * tunnel for the composite state

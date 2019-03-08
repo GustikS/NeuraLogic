@@ -85,7 +85,7 @@ public class Topologic {
                     break;
 
             }
-            return outputNeuron.getComputationView(neuronVisitor.stateVisitor.stateIndex).getResult(neuronVisitor.stateVisitor);
+            return outputNeuron.getComputationView(neuronVisitor.stateVisitor.stateIndex).getValue();
         }
 
         @Override
@@ -147,7 +147,7 @@ public class Topologic {
         @Override
         public Value bottomUp() {
             iterate();
-            return outputNeuron.getComputationView(neuronVisitor.stateVisitor.stateIndex).getResult(neuronVisitor.stateVisitor);
+            return outputNeuron.getComputationView(neuronVisitor.stateVisitor.stateIndex).getValue();
         }
     }
 }

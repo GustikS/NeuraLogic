@@ -68,8 +68,8 @@ public interface Splitter<T extends LearningSample> {
     static <T extends LearningSample> Splitter<T> getSplitter(Settings settings) {
         if (settings.stratification) {
             return new StratifiedSplitter<>();
+        } else {
+            return new LinearSplitter<>();
         }
-        //TODO
-        return new StratifiedSplitter<>();
     }
 }

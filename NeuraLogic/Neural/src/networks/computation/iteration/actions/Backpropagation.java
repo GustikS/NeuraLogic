@@ -9,7 +9,6 @@ import networks.computation.iteration.modes.DFSstack;
 import networks.computation.iteration.modes.Topologic;
 import networks.computation.iteration.visitors.neurons.StandardNeuronVisitors;
 import networks.computation.iteration.visitors.states.neurons.Backproper;
-import networks.computation.iteration.visitors.states.neurons.Evaluator;
 import networks.computation.iteration.visitors.weights.WeightUpdater;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
@@ -33,15 +32,9 @@ public class Backpropagation {
      */
     Backproper backproper;
 
-    /**
-     * We will need evaluator as well for backpropagation as the gradient computation requires values, too
-     */
-    Evaluator evaluator;
-
     public Backpropagation(Settings settings, NeuralModel model, int index) {
         this.settings = settings;
         this.backproper = Backproper.getFrom(settings, index);
-        this.evaluator = Evaluator.getFrom(settings, index);
         this.weightUpdater = new WeightUpdater(model.weights);
     }
 
@@ -65,14 +58,14 @@ public class Backpropagation {
      */
     public TopDown getTopDownPropagator(NeuralNetwork<State.Neural.Structure> network, BaseNeuron outputNeuron) {
         if (network instanceof TopologicNetwork && !network.containsPooling) {
-            StandardNeuronVisitors.Down down = new StandardNeuronVisitors.Down(network, backproper, evaluator, weightUpdater);
+            StandardNeuronVisitors.Down down = new StandardNeuronVisitors.Down(network, backproper, weightUpdater);
             return new Topologic((TopologicNetwork<State.Neural.Structure>) network).new TDownVisitor(outputNeuron, down);
         } else if (settings.iterationMode == Settings.IterationMode.DFS_RECURSIVE) {
-            return new DFSrecursion().new TDownVisitor(network, outputNeuron, backproper, evaluator, weightUpdater);
+            return new DFSrecursion().new TDownVisitor(network, outputNeuron, backproper,  weightUpdater);
         } else if (settings.iterationMode == Settings.IterationMode.DFS_STACK) {
-            return new DFSstack().new TDownVisitor(network, outputNeuron, backproper, evaluator, weightUpdater);
+            return new DFSstack().new TDownVisitor(network, outputNeuron, backproper,  weightUpdater);
         } else {
-            return new BFS().new TDownVisitor(network, outputNeuron, backproper, evaluator, weightUpdater);
+            return new BFS().new TDownVisitor(network, outputNeuron, backproper,  weightUpdater);
         }
     }
 
@@ -81,7 +74,7 @@ public class Backpropagation {
         AtomNeuron<State.Neural> outputNeuron = neuralSample.query.neuron;
         Value errorGradient = evaluatedResult.errorGradient();
 
-        outputNeuron.getComputationView(backproper.stateIndex).store(backproper, errorGradient); //store the error gradient into the output neuron, from where it will be further propagated
+        outputNeuron.getComputationView(backproper.stateIndex).storeGradient(errorGradient); //store the error gradient into the output neuron, from where it will be further propagated
 
         TopDown topDownPropagator = getTopDownPropagator(neuralNetwork, outputNeuron);
         topDownPropagator.topdown();
