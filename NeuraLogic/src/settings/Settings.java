@@ -153,7 +153,7 @@ public class Settings {
     /**
      * What particular {@link networks.structure.metadata.states.State.Neural.Computation} will the neurons have by default?
      */
-    public NeuralState neuralState;
+    public NeuralState neuralState = NeuralState.STANDARD;
 
     public enum NeuralState {
         STANDARD,
@@ -283,6 +283,11 @@ public class Settings {
         Topologic, DFS_RECURSIVE, DFS_STACK, BFS
     }
 
+    /**
+     * Percentage of samples from train-set used for validation
+     */
+    public double trainValidationPercentage;
+
     //-----------------Structure Learning
     public boolean structureLearning;
 
@@ -342,7 +347,7 @@ public class Settings {
     /**
      * In advance of grounding (theorem proving), remove rules that are irrelevant to the given query (with no chance to be in support)
      */
-    public boolean supervisedTemplateGraphPruning = true;   //todo measure if this actually helps
+    public boolean supervisedTemplateGraphPruning = false;   //todo measure if this actually helps
 
     //----------------Learning Samples
 

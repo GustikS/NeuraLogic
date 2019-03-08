@@ -4,6 +4,7 @@ import com.sun.istack.internal.NotNull;
 import learning.LearningSample;
 import learning.crossvalidation.Fold;
 import settings.Settings;
+import utils.generic.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,8 @@ public interface Splitter<T extends LearningSample> {
     List<Stream<T>> partition(Stream<T> samples, int foldCount);
 
     List<List<T>> partition(List<T> samples, int foldCount);
+
+    Pair<List<T>, List<T>> partition(List<T> samples, double percentage);
 
     default List<Fold<T>> splitIntoFolds(Stream<T> samples, int foldCount) {
         return splitIntoFolds(partition(samples, foldCount));

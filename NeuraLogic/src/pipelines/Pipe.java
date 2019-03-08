@@ -34,6 +34,7 @@ public abstract class Pipe<I, O> extends Block implements Function<I, O>, Connec
      * @param input - can be a Stream!
      */
     public void accept(I input) {
+        LOG.finest("Entering: " + ID);
         outputReady = apply(input);
         if (this.output != null) {
             this.output.accept(outputReady);

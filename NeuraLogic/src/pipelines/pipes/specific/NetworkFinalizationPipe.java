@@ -34,8 +34,9 @@ public class NetworkFinalizationPipe extends Pipe<Stream<NeuralProcessingSample>
         }
 
         //if we need to either store extra inputs, or store (possibly varying) parents for shared neurons, create a Neural Cache
-        neuralProcessingSampleStream.map(sample -> neuralNetBuilder.neuralBuilder.statesBuilder.setupFinalStatesCache(sample.detailedNetwork));
-
-        return neuralProcessingSampleStream;
+        return neuralProcessingSampleStream.map(sample -> {
+            sample.detailedNetwork = neuralNetBuilder.neuralBuilder.statesBuilder.setupFinalStatesCache(sample.detailedNetwork);
+            return sample;
+        });
     }
 }

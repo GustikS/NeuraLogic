@@ -177,7 +177,7 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
         return p;
     }
 
-    public <U> Pipeline<S, U> connectAfter(Pipeline<T, U> next) {
+    public <U> Pipeline<S, U> mergeAfter(Pipeline<T, U> next) {
         Pipeline<S, U> pipeline = new Pipeline(this.ID + "+" + next.ID);
         pipeline.start = this.start;
         pipeline.terminal = next.terminal;
@@ -192,8 +192,9 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
 
     @Override
     public void accept(S sources) {
+        LOG.finest("Entering pipeline: " + ID);
         start.accept(sources);
-        //TODO no need to wait here?
+        //all the processing happen recursively here
         if (this.output != null) {
             this.output.accept(terminal.get());
         }

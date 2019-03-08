@@ -7,6 +7,7 @@ import networks.computation.training.strategies.Hyperparameters.DropoutRateStrat
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.WeightedNeuron;
+import networks.structure.components.neurons.types.FactNeuron;
 import networks.structure.components.types.DetailedNetwork;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.inputMappings.LinkedMapping;
@@ -70,17 +71,29 @@ public class StatesBuilder {
     }
 
     private void inferWeightedDimension(DetailedNetwork<State.Structure> detailedNetwork, Evaluator evaluator, BaseNeuron<BaseNeuron, State.Neural> neuron) {
+
+        if (((BaseNeuron) neuron) instanceof FactNeuron){
+            //facts neurons have no inputs to infer the generics
+            return;
+        }
+
         WeightedNeuron<BaseNeuron, State.Neural> weightedNeuron = (WeightedNeuron) neuron;
         List<Value> inputValues = new ArrayList<>();
 
         Pair<Iterator<BaseNeuron>, Iterator<Weight>> inputs = detailedNetwork.getInputs(weightedNeuron);
         Iterator<BaseNeuron> neuronIterator = inputs.r;
         Iterator<Weight> weightIterator = inputs.s;
-        Value value = neuronIterator.next().getComputationView(0).getResult(evaluator);
-        Value weight = weightIterator.next().value;
+        Value value = null;
+        Value weight = null;
+        if (neuronIterator.hasNext()) {
+            State.Neural.Computation computationView = neuronIterator.next().getComputationView(0);
+            value = computationView.getResult((Evaluator) evaluator);
+            weight = weightIterator.next().value;
+        }
 
         if (value == null || weight == null) {
-            LOG.severe("Value dimension cannot be inferred!" + neuron);
+            LOG.warning("Value dimension cannot be inferred for " + neuron);
+            return;
         }
         Value sum = weight.times(value);
         if (sum == null) {

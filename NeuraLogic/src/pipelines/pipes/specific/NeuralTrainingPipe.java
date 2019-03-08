@@ -16,7 +16,7 @@ public class NeuralTrainingPipe extends Pipe<Pair<NeuralModel, Stream<NeuralSamp
     Settings settings;
 
     public NeuralTrainingPipe(Settings settings) {
-        super("NeuralEvaluationPipe");
+        super("NeuralTrainingPipe");
         this.settings = settings;
     }
 

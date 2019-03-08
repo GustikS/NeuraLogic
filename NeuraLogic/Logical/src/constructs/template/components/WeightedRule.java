@@ -8,6 +8,7 @@ import ida.ilp.logic.Term;
 import networks.computation.evaluation.functions.Activation;
 import networks.structure.components.weights.Weight;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,10 +47,15 @@ public class WeightedRule {
 
     }
 
+    /**
+     * This does not really clone the rule, only references
+     * @param other
+     */
     public WeightedRule(WeightedRule other) {
         this.weight = other.weight;
         this.head = other.head;
-        this.body = other.body;
+        this.body = new ArrayList<>(other.body.size());
+        this.body.addAll(other.body);
         this.offset = other.offset;
         this.aggregationFcn = other.aggregationFcn;
         this.activationFcn = other.activationFcn;
@@ -63,6 +69,12 @@ public class WeightedRule {
         return new HornClause(head.getLiteral(), new Clause(collected));
     }
 
+    /**
+     * Grounding of individual atoms will create new copies of them.
+     * @param variables
+     * @param terms
+     * @return
+     */
     public WeightedRule ground(Term[] variables, Term[] terms) {
         WeightedRule ruleCopy = new WeightedRule(this);
 
@@ -71,9 +83,9 @@ public class WeightedRule {
             var2term.put(variables[i], terms[i]);
         }
 
-        ruleCopy.head = ruleCopy.head.ground(var2term);
+        ruleCopy.head = head.ground(var2term);
         for (int i = 0; i < body.size(); i++) {
-            body.set(i, body.get(i).ground(var2term));
+            ruleCopy.body.set(i, body.get(i).ground(var2term));
         }
 
         return ruleCopy;
@@ -91,10 +103,10 @@ public class WeightedRule {
     public boolean hasWeightedBody() {
         for (BodyAtom bodyAtom : body) {
             if (bodyAtom.weight != null) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     /**

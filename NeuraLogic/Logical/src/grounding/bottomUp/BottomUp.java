@@ -49,8 +49,11 @@ public class BottomUp extends Grounder {
 
         Set<Literal> facts = groundFacts.keySet();
         // add already inferred facts as a hack to speedup the Herbrand model calculation
-        if (settings.inferTemplateFacts)
-            facts.addAll(template.getAllFacts());
+        if (settings.inferTemplateFacts) {
+            Set<Literal> templateAllFacts = template.getAllFacts();
+            if (templateAllFacts != null)
+                facts.addAll(templateAllFacts);
+        }
 
         herbrandModel.inferModel(ruleMap.keySet(), facts);
 

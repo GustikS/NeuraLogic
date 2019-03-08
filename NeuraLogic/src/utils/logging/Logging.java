@@ -40,7 +40,7 @@ public class Logging {
                 } else {
                     consoleFormatter = new SimpleFormatter();
                 }
-                StreamHandler sh = new StreamHandler(System.out, consoleFormatter);
+                StreamHandler sh = new FlushStreamHandler(System.out, consoleFormatter);
                 sh.setLevel(Settings.loggingLevel);
                 rootLogger.addHandler(sh);
             }

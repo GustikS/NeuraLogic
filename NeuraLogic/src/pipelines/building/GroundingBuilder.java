@@ -69,24 +69,24 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
         }
 
         if (settings.groundingMode == Settings.GroundingMode.SEQUENTIAL) {  //sequential = contradicts parallel grounding - checked in settings
-            Pipe<Stream<GroundingSample>, Stream<GroundingSample>> groundingPipe = pipeline.register(new SequentiallySharedGroundingPipe(grounder));
+            Pipe<Stream<GroundingSample>, Stream<GroundingSample>> groundingPipe = pipeline.registerEnd(new SequentiallySharedGroundingPipe(grounder));
 
             nextPipe.connectAfter(groundingPipe);
             nextPipe = groundingPipe;
         } else if (settings.groundingMode == Settings.GroundingMode.GLOBAL) { //Stream TERMINATING operation!
-            Pipe<Stream<GroundingSample>, Stream<GroundingSample>> groundingPipe = pipeline.register(new GlobalSharingGroundingPipe(grounder));
+            Pipe<Stream<GroundingSample>, Stream<GroundingSample>> groundingPipe = pipeline.registerEnd(new GlobalSharingGroundingPipe(grounder));
 
             nextPipe.connectAfter(groundingPipe);
             nextPipe = groundingPipe;
         } else {   //standard grounding of each example individually
-            Pipe<Stream<GroundingSample>, Stream<GroundingSample>> groundingPipe = pipeline.register(new StandardGroundingPipe(grounder));
+            Pipe<Stream<GroundingSample>, Stream<GroundingSample>> groundingPipe = pipeline.registerEnd(new StandardGroundingPipe(grounder));
 
             nextPipe.connectAfter(groundingPipe);
             nextPipe = groundingPipe;
         }
 
         if (settings.explicitSupervisedGroundTemplatePruning) {
-            Pipe<Stream<GroundingSample>, Stream<GroundingSample>> groundReducingPipe = pipeline.register(new SupervisedGroundTemplatePruning());
+            Pipe<Stream<GroundingSample>, Stream<GroundingSample>> groundReducingPipe = pipeline.registerEnd(new SupervisedGroundTemplatePruning());
 
             nextPipe.connectAfter(groundReducingPipe);
             nextPipe = groundReducingPipe;

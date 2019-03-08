@@ -46,7 +46,7 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
             nextPipe.connectAfter(postprocessingPipeline);
             nextPipe = postprocessingPipeline;
         } else {
-            LOG.info("Warning - skipping all neural optimization steps!");
+            LOG.warning("Skipping all neural optimization steps!");
         }
 
         Pipe<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> finalizationPipe = pipeline.register(new NetworkFinalizationPipe(settings, neuralizer.neuralNetBuilder));

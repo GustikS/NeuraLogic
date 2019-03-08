@@ -30,6 +30,7 @@ public abstract class Merge<I1, I2, O> extends Block implements ConnectAfter<O> 
         input1 = new Pipe<I1, I1>(id + "-Input1") {
             @Override
             public I1 apply(I1 i1) {
+                this.outputReady = i1;
                 Merge.this.accept(i1);
                 return i1;
             }
@@ -37,6 +38,7 @@ public abstract class Merge<I1, I2, O> extends Block implements ConnectAfter<O> 
         input2 = new Pipe<I2, I2>(id + "-Input2") {
             @Override
             public I2 apply(I2 i2) {
+                this.outputReady = i2;
                 Merge.this.accept(i2);
                 return i2;
             }
@@ -60,10 +62,12 @@ public abstract class Merge<I1, I2, O> extends Block implements ConnectAfter<O> 
     public void accept(Object o) {
         I1 i1;
         I2 i2;
-        if ((i1 = input1.get()) != null && (i2 = input2.get()) != null)
+        if ((i1 = input1.get()) != null && (i2 = input2.get()) != null) {
+            LOG.finest("Entering: " + ID);
             accept(i1, i2);
+        }
         else
-            LOG.info("Trying to run a Merge " + ID + " by " + o + " without both inputs provided (backtracking in the execution graph).");
+            LOG.finer("Backtracking: " + ID );
     }
 
     public void accept(I1 input1, I2 input2) {

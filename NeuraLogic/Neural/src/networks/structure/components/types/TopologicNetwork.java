@@ -2,9 +2,7 @@ package networks.structure.components.types;
 
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
-import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
-import utils.generic.Pair;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -85,11 +83,11 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
     private void topoSortRecursive(BaseNeuron neuron, Set<BaseNeuron> visited, Stack<BaseNeuron> stack) {
         visited.add(neuron);
 
-        Iterator<Pair<BaseNeuron, Weight>> inputs = getInputs(neuron);
+        Iterator<BaseNeuron> inputs = getInputs(neuron);
         while (inputs.hasNext()) {
-            Pair<BaseNeuron, Weight> next = inputs.next();
-            if (!visited.contains(next.r)) {
-                topoSortRecursive(next.r, visited, stack);
+            BaseNeuron next = inputs.next();
+            if (!visited.contains(next)) {
+                topoSortRecursive(next, visited, stack);
             }
         }
         stack.push(neuron);

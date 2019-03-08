@@ -64,8 +64,8 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
             LogicLearningBuilder logicTrainingBuilder = new LogicLearningBuilder(settings);
             Pipeline<Pair<Template, Stream<LogicSample>>, Pair<Pair<Template, NeuralModel>, Progress>> trainingPipeline = pipeline.registerEnd(logicTrainingBuilder.buildPipeline());
 
-            sourcesTemplatePipeline.connectAfter(pairMerge.input1);
             duplicateBranch.connectAfterR(sourcesTemplatePipeline);
+            pairMerge.connectBeforeL(sourcesTemplatePipeline);
             pairMerge.connectBeforeR(getLogicSampleStream);
             pairMerge.connectAfter(trainingPipeline);
 
@@ -103,7 +103,7 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
 
             TemplateToNeuralPipe templateToNeuralPipe = pipeline.register(new TemplateToNeuralPipe());
 
-            PairMerge<NeuralModel, Stream<NeuralSample>> pairMerge = pipeline.register(new PairMerge<>());
+            PairMerge<NeuralModel, Stream<NeuralSample>> neuralMerge = pipeline.register(new PairMerge<>("NeuralMerge"));
 
             Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Progress>> trainingPipeline = pipeline.register(new NeuralLearningBuilder(settings).buildPipeline());
 
@@ -121,10 +121,10 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
 
             duplicateBranch.connectAfterL(templateToNeuralPipe);
 
-            pairMerge.connectBeforeL(templateToNeuralPipe);
-            pairMerge.connectBeforeR(neuralizationPipeline);
+            neuralMerge.connectBeforeL(templateToNeuralPipe);
+            neuralMerge.connectBeforeR(neuralizationPipeline);
 
-            pairMerge.connectAfter(trainingPipeline);
+            neuralMerge.connectAfter(trainingPipeline);
 
             finalMerge.connectBeforeL(duplicateBranch.output2);
             finalMerge.connectBeforeR(trainingPipeline);

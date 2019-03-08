@@ -84,4 +84,9 @@ public class Atom {
         Atom other = (Atom) obj;
         return literal.equals(other.literal);
     }
+
+    @Override
+    public String toString() {
+        return literal.toString();
+    }
 }

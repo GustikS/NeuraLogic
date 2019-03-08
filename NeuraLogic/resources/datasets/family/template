@@ -1,2 +1,2 @@
-foal(X) :- parent(X,Y), horse(Y).
-foal(X) :- sibling(X,Y), horse(Y).
+0.9 foal(X) :- parent(X,Y), horse(Y).
+0.7 foal(X) :- sibling(X,Y), horse(Y).

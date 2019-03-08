@@ -36,7 +36,7 @@ public class NeuralNetBuilder {
     }
 
     public NeuralNetBuilder(Settings settings) {
-        this.neuralBuilder = new NeuralBuilder();
+        this.neuralBuilder = new NeuralBuilder(settings);
         this.settings = settings;
     }
 
@@ -161,10 +161,9 @@ public class NeuralNetBuilder {
                     if (factNeuron == null) {
                         LOG.severe("Error: no input found for this neuron!!: " + bodyAtom);
                     } else {
-                        factNeuron.isShared = true;
+                        //factNeuron.isShared = true; //they might not be shared as all the fact neurons are created in advance
                     }
                     input = factNeuron;
-                    //weight = new Weight(new ScalarValue(settings.aggNeuronInputWeight));
                 }
                 if (bodyAtom.isNegated()) {
                     NegationNeuron negationNeuron = neuralBuilder.neuronFactory.createNegationNeuron(input, bodyAtom.getNegationActivation());
@@ -198,7 +197,7 @@ public class NeuralNetBuilder {
         }
 
         //if there are input overmappings, create appropriate states for them to be later stored in neural cache
-        if (!neuralNetwork.extraInputMapping.isEmpty()) {
+        if (neuralNetwork.extraInputMapping != null && !neuralNetwork.extraInputMapping.isEmpty()) {
             statesBuilder.addLinkedInputsToNetworkStates(neuralNetwork);
         }
 

@@ -14,6 +14,7 @@ public class StandardGroundingPipe extends Pipe<Stream<GroundingSample>, Stream<
 
     public StandardGroundingPipe(Grounder grounder) {
         super("StandardGroundingPipe");
+        this.grounder = grounder;
     }
 
     @Override

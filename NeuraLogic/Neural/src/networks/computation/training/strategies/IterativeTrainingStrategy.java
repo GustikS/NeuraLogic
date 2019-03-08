@@ -62,8 +62,8 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     private Pair<List<NeuralSample>, List<NeuralSample>> trainingValidationSplit(List<NeuralSample> sampleList) {
         Splitter<NeuralSample> sampleSplitter = Splitter.getSplitter(settings);
-        List<List<NeuralSample>> partition = sampleSplitter.partition(sampleList, 2);
-        return new Pair<>(partition.get(0), partition.get(1));
+        Pair<List<NeuralSample>, List<NeuralSample>> partition = sampleSplitter.partition(sampleList, settings.trainValidationPercentage);
+        return new Pair<>(partition.r, partition.s);
     }
 
     private ListTrainer getTrainerFrom(Settings settings) {

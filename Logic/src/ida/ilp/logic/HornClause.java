@@ -29,7 +29,6 @@ public class HornClause {
 
     private Literal head;
 
-
     public static Literal head(Clause c) {
         Literal head = null;
         int pos = 0;
@@ -121,6 +120,12 @@ public class HornClause {
     public Set<Literal> getLiterals() {
         Set<Literal> literalSet = new HashSet<>(body.literals());
         literalSet.add(head);
+        return literalSet;
+    }
+
+    public Set<Literal> getNegatedLiterals() {
+        Set<Literal> literalSet = new HashSet<>(body.literals());
+        literalSet.add(head.negation());
         return literalSet;
     }
 

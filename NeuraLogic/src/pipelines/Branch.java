@@ -25,6 +25,7 @@ public abstract class Branch<I, O1, O2> extends Block implements ConnectBefore<I
     }
 
     public void accept(I outputFromInputPipe) {
+        LOG.finest("Entering: " + ID);
         outputReady =  branch(outputFromInputPipe);
         output1.accept(outputReady.r);
         output2.accept(outputReady.s);

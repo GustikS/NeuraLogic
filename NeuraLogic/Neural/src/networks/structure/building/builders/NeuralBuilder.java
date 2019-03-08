@@ -13,12 +13,12 @@ public class NeuralBuilder {
 
     public NeuralBuilder(Settings settings) {
         this.settings = settings;
+        statesBuilder = new StatesBuilder(settings);
+        neuronFactory = new NeuronFactory(settings);
+        networkFactory = new NeuralNetFactory(settings);
+        weightFactory = new WeightFactory();
     }
 
-
-    public NeuralBuilder() {
-
-    }
 
     public StatesBuilder statesBuilder;
     public NeuronFactory neuronFactory;

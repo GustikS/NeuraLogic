@@ -120,12 +120,14 @@ public class Neuralizer {
         closedSet.add(literal);
 
         LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>> ruleMap = groundTemplate.groundRules.get(literal);
-        neuralNetBuilder.loadNeuronsFromRules(literal, ruleMap);
+        if (ruleMap != null) {
+            neuralNetBuilder.loadNeuronsFromRules(literal, ruleMap);
 
-        for (LinkedHashSet<WeightedRule> groundings : ruleMap.values()) {
-            for (WeightedRule grounding : groundings) {
-                for (BodyAtom bodyAtom : grounding.body) {
-                    recursiveNeuronsCreation(bodyAtom.literal, groundTemplate, closedSet);
+            for (LinkedHashSet<WeightedRule> groundings : ruleMap.values()) {
+                for (WeightedRule grounding : groundings) {
+                    for (BodyAtom bodyAtom : grounding.body) {
+                        recursiveNeuronsCreation(bodyAtom.literal, groundTemplate, closedSet);
+                    }
                 }
             }
         }
@@ -150,8 +152,8 @@ public class Neuralizer {
         Set<Literal> closedSet = new HashSet<>();
 
         for (Literal queryLiteral : queryLiterals) {
-            closedSet.add(queryLiteral);
             recursiveNeuronsCreation(queryLiteral, groundTemplate, closedSet);
+            closedSet.add(queryLiteral);
         }
 
         return neuralNetBuilder;

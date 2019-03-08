@@ -27,7 +27,7 @@ public class GroundingSampleWrappingPipe extends Pipe<Pair<Template, Stream<Logi
                 templateStreamPair.s = templateStreamPair.s.sequential();
         }
         final GroundingSample.Wrap lastGroundingWrap = new GroundingSample.Wrap(null);
-        templateStreamPair.s.map(sample -> {
+        Stream<GroundingSample> groundingSampleStream = templateStreamPair.s.map(sample -> {
             GroundingSample groundingSample = new GroundingSample(sample, templateStreamPair.r);
             if (sample.query.evidence.equals(lastGroundingWrap.getExample())) {
                 groundingSample.grounding = lastGroundingWrap;
@@ -37,6 +37,6 @@ public class GroundingSampleWrappingPipe extends Pipe<Pair<Template, Stream<Logi
             }
             return groundingSample;
         });
-        return null;
+        return groundingSampleStream;
     }
 }

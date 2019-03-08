@@ -4,6 +4,7 @@ import com.sun.istack.internal.Nullable;
 import constructs.Conjunction;
 import constructs.example.QueryAtom;
 import constructs.example.ValuedFact;
+import constructs.template.components.BodyAtom;
 import constructs.template.components.WeightedRule;
 import constructs.template.types.GraphTemplate;
 import grounding.bottomUp.HerbrandModel;
@@ -69,10 +70,20 @@ public class Template implements Model<QueryAtom> {
         return null;
     }
 
-
     @Override
     public List<Weight> getAllWeights() {
-        return null;
+        List<Weight> weightList = new ArrayList<>();
+        for (WeightedRule rule : rules) {
+            if (rule.weight != null)
+            weightList.add(rule.weight);
+            if (rule.head.getOffset() != null)
+            weightList.add(rule.head.getOffset());
+            for (BodyAtom bodyAtom : rule.body) {
+                if (bodyAtom.getConjunctWeight() != null)
+                weightList.add(bodyAtom.getConjunctWeight());
+            }
+        }
+        return weightList;
     }
 
     public void updateWeightsFrom(NeuralModel neural) {
@@ -84,9 +95,10 @@ public class Template implements Model<QueryAtom> {
     }
 
     public Set<Literal> getAllFacts() {
-        if (inferredLiterals == null){
+        if (inferredLiterals == null) {
             inferredLiterals = inferTemplateFacts();
-            inferredLiterals.addAll(facts.stream().map(ValuedFact::getLiteral).collect(Collectors.toList()));
+            if (inferredLiterals != null)
+                inferredLiterals.addAll(facts.stream().map(ValuedFact::getLiteral).collect(Collectors.toList()));
         }
         return inferredLiterals;
     }

@@ -71,10 +71,10 @@ public class HerbrandModel {
         boolean changed;
         do {
             int herbrandSize0 = VectorUtils.sum(herbrand.sizes());
-            LOG.fine("herbrand size before round: " + herbrandSize0);
+            LOG.finer("herbrand size before round: " + herbrandSize0);
             //get all valid literals from current herbrand in to matching
             matching = new Matching(Sugar.<Clause>list(new Clause(Sugar.flatten(herbrand.values())))); //todo somehow change this to incrementally pass only NEW facts (ClauseE) to existing Matching object for speedup? Try version without example indexing
-            LOG.finer("Matching created.");
+            //LOG.finest("Matching created.");
             for (Predicate predicate : headSignatures) {
                 //may overwrite the previous ones which is actually what we want (?)
                 matching.getEngine().addCustomPredicate(new TupleNotIn(predicate, herbrand.get(predicate))); //predicate that evaluates to true if the head-mapping set does not containt such a literal yet
@@ -95,22 +95,22 @@ public class HerbrandModel {
                     }
                 } else {
                     //if it is not ground, extend the rule with restriction that the head substitution solution must not be contained in the herbrand yet (for speedup instead of just adding them repetitively to the set)
-                    Clause query = new Clause(LogicUtils.flipSigns(Sugar.union(rule.getLiterals(), new Literal(tupleNotInPredicateName(head.predicate()), true, head.arguments()))));
+                    Clause query = new Clause(Sugar.union(rule.getNegatedLiterals(), new Literal(tupleNotInPredicateName(head.predicate()), false, head.arguments())));
                     matching.allSubstitutions(query, 0, Integer.MAX_VALUE); //then find (and through consumer add to herbrand) all NEW substitutions for the head literal - todo add version where these substitutions will be iteratively saved into some hashmap instead of repeating final substitutions
                 }
                 matching.getEngine().removeSolutionConsumer(solutionConsumer); //the found substitutions should be applied only to the head of the currently solved rule
             }
-            LOG.finer(rules.size() + " rules grounded.");
+            LOG.finest(rules.size() + " rules grounded.");
             int herbrandSize1 = VectorUtils.sum(herbrand.sizes());
-            LOG.fine("herbrand size after round: " + herbrandSize1);
+            LOG.finer("herbrand size after round: " + herbrandSize1);
             changed = herbrandSize1 > herbrandSize0;
         } while (changed);
         return herbrand;
     }
 
     public Pair<Term[], List<Term[]>> groundingSubstitutions(HornClause hornClause) {
-        Clause clause = new Clause(LogicUtils.flipSigns(hornClause.toClause().literals())); //todo check negations here
-        ida.utils.tuples.Pair<Term[], List<Term[]>> listPair = matching.allSubstitutions(clause, 0, Integer.MAX_VALUE);
+        Clause query = new Clause(hornClause.getLiterals()); //todo check negations here
+        ida.utils.tuples.Pair<Term[], List<Term[]>> listPair = matching.allSubstitutions(query, 0, Integer.MAX_VALUE);
         return new Pair<>(listPair.r, listPair.s);
     }
 

@@ -78,7 +78,7 @@ public class TemplateBuilder extends LogicSourceBuilder<PlainTemplateParseTree, 
 
         ParsedTemplate template = new ParsedTemplate(weightedRules, valuedFacts);
         template.addConstraints(weightedConjunctions);  //todo check what are weighted conjunctions in template
-        template.originalString = plainParseTree.toString();    //todo check where is the real string
+        template.originalString = plainParseTree.parseTree.getInputStream().getText();    //todo check where is the real string
 
         if (templateMetadata != null)
             template.templateMetadata = new TemplateMetadata(settings, templateMetadata);
