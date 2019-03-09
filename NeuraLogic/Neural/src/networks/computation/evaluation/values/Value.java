@@ -101,10 +101,10 @@ public abstract class Value implements Iterable<Double> {
     public abstract Value minus(MatrixValue value);
 
     /**
-     * DESTRUCTIVE adding - changes the original Value.
+     * DESTRUCTIVE adding - changes the INPUT Value.
      * - faster as there is no need to create new Value Object.
      *
-     * @param value
+     * @param value -THIS ONE WILL GET INCREMENTED BY THE CALLER!!
      * @return
      */
     public abstract void increment(Value value);
@@ -153,11 +153,13 @@ public abstract class Value implements Iterable<Double> {
 
         @Override
         public Value clone() {
-            return null;
+            LOG.warning("Cloning a constant ONE");
+            return this;
         }
 
         @Override
         public Value getForm() {
+            LOG.warning("Constant One cannot be zeroed/getForm from!");
             return null;
         }
 
@@ -168,7 +170,7 @@ public abstract class Value implements Iterable<Double> {
 
         @Override
         public Value apply(Function<Double, Double> function) {
-            return null;
+            return one.apply(function);
         }
 
         @Override
@@ -213,68 +215,69 @@ public abstract class Value implements Iterable<Double> {
 
         @Override
         public Value minus(Value value) {
-            return null;
+            return value.minus(one);
         }
 
         @Override
         public Value minus(ScalarValue value) {
-            return null;
+            return one.minus(value);
         }
 
         @Override
         public Value minus(VectorValue value) {
-            return null;
+            return one.minus(value);
         }
 
         @Override
         public Value minus(MatrixValue value) {
-            return null;
+            return one.minus(value);
         }
 
         @Override
         public void increment(Value value) {
-
+            value.increment(one);
         }
 
         @Override
         public void increment(ScalarValue value) {
-
+            LOG.warning("Trying to increment a constant ONE");
+            //void
         }
 
         @Override
         public void increment(VectorValue value) {
-
+            LOG.warning("Trying to increment a constant ONE");
         }
 
         @Override
         public void increment(MatrixValue value) {
-
+            LOG.warning("Trying to increment a constant ONE");
         }
 
         @Override
         public boolean greaterThan(Value maxValue) {
-            return false;
+            return maxValue.greaterThan(one);
         }
 
         @Override
         public boolean greaterThan(ScalarValue maxValue) {
-            return false;
+            return one.greaterThan(maxValue);
         }
 
         @Override
         public boolean greaterThan(VectorValue maxValue) {
-            return false;
+            return one.greaterThan(maxValue);
         }
 
         @Override
         public boolean greaterThan(MatrixValue maxValue) {
-            return false;
+            return one.greaterThan(maxValue);
         }
 
         @NotNull
         @Override
         public Iterator<Double> iterator() {
-            return null;
+            return one.iterator();
         }
     }
 
@@ -295,12 +298,13 @@ public abstract class Value implements Iterable<Double> {
 
         @Override
         public Value clone() {
-            return null;
+            LOG.warning("Cloning a constant ZERO");
+            return this;
         }
 
         @Override
         public Value getForm() {
-            return null;
+            return this;
         }
 
         @Override
@@ -310,7 +314,7 @@ public abstract class Value implements Iterable<Double> {
 
         @Override
         public Value apply(Function<Double, Double> function) {
-            return null;
+            return zero.apply(function);
         }
 
         @Override
@@ -355,68 +359,68 @@ public abstract class Value implements Iterable<Double> {
 
         @Override
         public Value minus(Value value) {
-            return null;
+            return value;
         }
 
         @Override
         public Value minus(ScalarValue value) {
-            return null;
+            return value;
         }
 
         @Override
         public Value minus(VectorValue value) {
-            return null;
+            return value;
         }
 
         @Override
         public Value minus(MatrixValue value) {
-            return null;
+            return value;
         }
 
         @Override
         public void increment(Value value) {
-
+            //void
         }
 
         @Override
         public void increment(ScalarValue value) {
-
+            LOG.warning("Trying to increment a constant ZERO");
         }
 
         @Override
         public void increment(VectorValue value) {
-
+            LOG.warning("Trying to increment a constant ZERO");
         }
 
         @Override
         public void increment(MatrixValue value) {
-
+            LOG.warning("Trying to increment a constant ZERO");
         }
 
         @Override
         public boolean greaterThan(Value maxValue) {
-            return false;
+            return maxValue.greaterThan(zero);
         }
 
         @Override
         public boolean greaterThan(ScalarValue maxValue) {
-            return false;
+            return zero.greaterThan(maxValue);
         }
 
         @Override
         public boolean greaterThan(VectorValue maxValue) {
-            return false;
+            return zero.greaterThan(maxValue);
         }
 
         @Override
         public boolean greaterThan(MatrixValue maxValue) {
-            return false;
+            return zero.greaterThan(maxValue);
         }
 
         @NotNull
         @Override
         public Iterator<Double> iterator() {
-            return null;
+            return zero.iterator();
         }
     }
 }

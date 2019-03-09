@@ -1,7 +1,7 @@
 package networks.structure.components.neurons.types;
 
-import networks.structure.components.weights.Weight;
 import networks.structure.components.neurons.Neuron;
+import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
 
 /**

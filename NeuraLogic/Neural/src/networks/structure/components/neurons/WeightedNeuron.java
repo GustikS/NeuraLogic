@@ -1,5 +1,7 @@
 package networks.structure.components.neurons;
 
+import networks.computation.iteration.NeuronVisiting;
+import networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
 import utils.generic.Pair;
@@ -29,7 +31,11 @@ public class WeightedNeuron<T extends Neuron, S extends State.Neural> extends Ba
 
     public WeightedNeuron(String id, int index, S state, Weight offset) {
         super(index, id, state);
-        this.offset = offset;
+        if (offset == null){
+            this.offset = Weight.zeroWeight;
+        } else {
+            this.offset = offset;
+        }
         weights = new ArrayList<>();
     }
 
@@ -107,5 +113,13 @@ public class WeightedNeuron<T extends Neuron, S extends State.Neural> extends Ba
             pairedInputs.add(new Pair<>(inputs.get(i), weights.get(i)));
         }
         return pairedInputs;
+    }
+
+    public void visit(NeuronVisitor.Weighted visitor){
+        visitor.visit(this);
+    }
+
+    public void visit(NeuronVisiting.Weighted visitor){
+        visitor.visit(this);
     }
 }

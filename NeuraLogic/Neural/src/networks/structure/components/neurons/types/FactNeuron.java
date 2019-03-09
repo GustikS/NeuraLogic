@@ -1,6 +1,8 @@
 package networks.structure.components.neurons.types;
 
 import constructs.example.ValuedFact;
+import networks.computation.iteration.NeuronVisiting;
+import networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.weights.Weight;
@@ -22,5 +24,13 @@ public class FactNeuron extends WeightedNeuron<BaseNeuron, States.SimpleValue> i
     @Override
     public Weight getOffset() {
         return offset;
+    }
+
+    public void visit(NeuronVisitor.Weighted visitor){
+        //there is nothing to do with fact neurons
+    }
+
+    public void visit(NeuronVisiting.Weighted visitor){
+        //there is nothing to do with fact neurons
     }
 }

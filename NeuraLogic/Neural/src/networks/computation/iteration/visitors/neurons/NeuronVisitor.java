@@ -10,8 +10,6 @@ import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.metadata.states.State;
 
-import java.util.logging.Logger;
-
 /**
  * Abstract representation for all the actions performed on the level of Neurons while iterating ({@link IterationStrategy}.
  * This is a pure container for the action, completely decoupled from the logic of iteration, i.e. no expansion of nodes
@@ -40,21 +38,11 @@ public abstract class NeuronVisitor {
     }
 
     /**
-     * Default double dispatch, some of the specific Neuron classes should be passed as an argument instead!
-     *
-     * @param neuron
-     */
-    public void visit(Neuron neuron) {
-        Logger LOG = Logger.getLogger(NeuronVisitor.class.getName());
-        LOG.severe("Error: Visitor calling a default method through double dispatch.");
-    }
-
-    /**
      * Expand neighbours, Propagate result of this neuron into the neighbours (inputs or outputs).
      *
      * @param neuron
      */
-    public abstract void visit(BaseNeuron<Neuron, State.Neural> neuron);
+    public abstract <T extends Neuron, S extends State.Neural> void visit(BaseNeuron<T, S> neuron);
 
 
     public abstract static class Weighted extends NeuronVisitor {
@@ -76,7 +64,7 @@ public abstract class NeuronVisitor {
          *
          * @param neuron
          */
-        abstract void visit(WeightedNeuron neuron);
+        public abstract <T extends Neuron, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron);
 
         public abstract static class Indexed extends Weighted {
 
@@ -84,15 +72,16 @@ public abstract class NeuronVisitor {
                 super(network, computationVisitor, weightUpdater);
             }
 
-            public void visit(WeightedNeuron neuron){
+            public void visit(WeightedNeuron neuron) {
                 visit(neuron, 0);
             }
 
-            public void visit(BaseNeuron neuron){
+            public void visit(BaseNeuron neuron) {
                 visit(neuron, 0);
             }
 
             abstract void visit(BaseNeuron neuron, int index);
+
             abstract void visit(WeightedNeuron neuron, int index);
 
         }

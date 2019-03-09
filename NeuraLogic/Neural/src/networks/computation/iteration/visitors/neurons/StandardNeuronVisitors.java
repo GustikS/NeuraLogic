@@ -8,12 +8,14 @@ import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.computation.iteration.visitors.weights.WeightUpdater;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
+import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
 import utils.generic.Pair;
 
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 /**
  * Some classic implementations of {@link NeuronVisitor} for standard uses. That is for going:
@@ -27,7 +29,7 @@ import java.util.Iterator;
  * @see NeuronVisitor
  */
 public class StandardNeuronVisitors {
-
+    private static final Logger LOG = Logger.getLogger(StandardNeuronVisitors.class.getName());
     public static class Up extends NeuronVisitor.Weighted {
 
         /**
@@ -40,27 +42,29 @@ public class StandardNeuronVisitors {
         }
 
         @Override
-        public void visit(BaseNeuron neuron) {
+        public <T extends Neuron, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
-            Iterator<BaseNeuron> inputs = network.getInputs(neuron);
-            for (BaseNeuron input; (input = inputs.next()) != null; ) {
+            Iterator<T> inputs = network.getInputs(neuron);
+            for (T input = null; inputs.hasNext(); input = inputs.next()) {
                 state.storeValue(input.getComputationView(stateVisitor.stateIndex).getValue());
             }
             Value value = stateVisitor.visit(state);
         }
 
         @Override
-        public void visit(WeightedNeuron neuron) {
+        public <T extends Neuron, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
-            Pair<Iterator<BaseNeuron>, Iterator<Weight>> inputs = network.getInputs(neuron);
-            Iterator<BaseNeuron> inputNeurons = inputs.r;
+            Pair<Iterator<T>, Iterator<Weight>> inputs = network.getInputs(neuron);
+            Iterator<T> inputNeurons = inputs.r;
             Iterator<Weight> inputWeights = inputs.s;
-            BaseNeuron input;
+            T input;
             Weight weight;
 
             //state.invalidate(); //todo (a) test if faster with invalidation here (at the beginning of evaluation) instead of using separate iteration with networks.computation.iteration.visitors.states.Invalidator ?
             state.storeValue(neuron.offset.value);
-            while ((input = inputNeurons.next()) != null && (weight = inputWeights.next()) != null) { //todo test version with fori
+            while (inputNeurons.hasNext()) { //todo test version with fori
+                input = inputNeurons.next();
+                weight = inputWeights.next();
                 state.storeValue( input.getComputationView(stateVisitor.stateIndex).getValue().times(weight.value));
             }
             Value value = stateVisitor.visit(state);
@@ -128,7 +132,7 @@ public class StandardNeuronVisitors {
         }
 
         @Override
-        void visit(WeightedNeuron neuron) {
+        public void visit(WeightedNeuron neuron) {
 
         }
     }

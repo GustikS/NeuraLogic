@@ -3,6 +3,8 @@ package networks.structure.components.neurons;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 import networks.computation.evaluation.functions.Aggregation;
+import networks.computation.iteration.NeuronVisiting;
+import networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import networks.structure.metadata.states.State;
 
 import java.util.ArrayList;
@@ -123,6 +125,14 @@ public class BaseNeuron<T extends Neuron, S extends State.Neural> implements Neu
         return this.layer;
     }
 
+    public void visit(NeuronVisitor.Weighted visitor){
+        visitor.visit(this);
+    }
+
+    public void visit(NeuronVisiting.Weighted visitor){
+        visitor.visit(this);
+    }
+
     /**
      * In most cases it should be possible to use index as a faster hash, but id is safer.
      *
@@ -169,7 +179,7 @@ public class BaseNeuron<T extends Neuron, S extends State.Neural> implements Neu
      *
      * @return
      */
-    public final State.Neural getRawState() {
+    public final S getRawState() {
         return state;
     }
 

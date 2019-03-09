@@ -59,7 +59,7 @@ public class StatesBuilder {
      */
     void inferValues(DetailedNetwork<State.Structure> detailedNetwork) {
         for (int i = detailedNetwork.allNeuronsTopologic.size()-1; i >= 0 ; i--) {
-            BaseNeuron<BaseNeuron, State.Neural> neuron = detailedNetwork.allNeuronsTopologic.get(i);
+            BaseNeuron<Neuron, State.Neural> neuron = detailedNetwork.allNeuronsTopologic.get(i);
             if (neuron instanceof WeightedNeuron) {
                 inferWeightedDimension(detailedNetwork, neuron);
             } else {
@@ -68,7 +68,7 @@ public class StatesBuilder {
         }
     }
 
-    private void inferWeightedDimension(DetailedNetwork<State.Structure> detailedNetwork, BaseNeuron<BaseNeuron, State.Neural> neuron) {
+    private void inferWeightedDimension(DetailedNetwork<State.Structure> detailedNetwork, BaseNeuron<Neuron, State.Neural> neuron) {
 
         if (((BaseNeuron) neuron) instanceof FactNeuron) {
             //facts neurons have no inputs to infer the generics
@@ -114,7 +114,7 @@ public class StatesBuilder {
                         if (plus == null) {
                             LOG.severe("Input Values dimension mismatch at neuron:" + neuron);
                         } else {
-                            sum.increment(increment);
+                            increment.increment(sum);
                         }
                     }
                 }
@@ -126,8 +126,8 @@ public class StatesBuilder {
         neuron.getComputationView(0).setupValueDimensions(sum);
     }
 
-    private void inferUnweightedDimension(DetailedNetwork<State.Structure> detailedNetwork, BaseNeuron<BaseNeuron, State.Neural> neuron) {
-        Iterator<BaseNeuron> inputs = detailedNetwork.getInputs(neuron);
+    private void inferUnweightedDimension(DetailedNetwork<State.Structure> detailedNetwork, BaseNeuron<Neuron, State.Neural> neuron) {
+        Iterator<Neuron> inputs = detailedNetwork.getInputs(neuron);
         List<Value> inputValues = new ArrayList<>();
 
         Value sum = inputs.next().getComputationView(0).getValue();
@@ -147,7 +147,7 @@ public class StatesBuilder {
                     if (increment == null) {
                         LOG.severe("Input Values dimension mismatch at neuron:" + neuron);
                     } else {
-                        sum.increment(result);
+                        result.increment(sum);
                     }
                 }
             }
@@ -166,12 +166,12 @@ public class StatesBuilder {
     void setupDropoutStates(DetailedNetwork<State.Neural.Structure> detailedNetwork) {
         DropoutRateStrategy dropoutRateStrategy = new DropoutRateStrategy(settings);
         for (int i = detailedNetwork.allNeuronsTopologic.size() - 1; i > 0; i--) {
-            BaseNeuron<BaseNeuron, State.Neural> neuron = detailedNetwork.allNeuronsTopologic.get(i);
+            BaseNeuron<Neuron, State.Neural> neuron = detailedNetwork.allNeuronsTopologic.get(i);
             if (neuron.layer == 0) {
                 neuron.layer = 1;
             }
             dropoutRateStrategy.setDropout(neuron);
-            Iterator<BaseNeuron> inputs = detailedNetwork.getInputs(neuron);
+            Iterator<Neuron> inputs = detailedNetwork.getInputs(neuron);
             while (inputs.hasNext()) {
                 Neuron next = inputs.next();
                 if (next.getLayer() < neuron.layer + 1) //todo check
@@ -196,11 +196,11 @@ public class StatesBuilder {
     int makeSharedStatesRecursively(DetailedNetwork<State.Neural.Structure> detailedNetwork) {
         int sharedCount = 0;
         for (int i = detailedNetwork.allNeuronsTopologic.size() - 1; i > 0; i--) {
-            BaseNeuron<BaseNeuron, State.Neural> neuron = detailedNetwork.allNeuronsTopologic.get(i);
+            BaseNeuron<Neuron, State.Neural> neuron = detailedNetwork.allNeuronsTopologic.get(i);
             if (neuron.isShared) {
                 sharedCount++;
                 makeParallel(neuron);
-                Iterator<BaseNeuron> inputs = detailedNetwork.getInputs(neuron);
+                Iterator<Neuron> inputs = detailedNetwork.getInputs(neuron);
                 while (inputs.hasNext()) {
                     inputs.next().setShared(true);
                 }
@@ -305,7 +305,7 @@ public class StatesBuilder {
         if (settings.iterationMode == Settings.IterationMode.Topologic) {
             structureStates = new State.Structure[neuralNetwork.allNeuronsTopologic.size()];
             for (int i = 0; i < neuralNetwork.allNeuronsTopologic.size(); i++) {
-                BaseNeuron<BaseNeuron, State.Neural> neuron = neuralNetwork.allNeuronsTopologic.get(i);
+                BaseNeuron<Neuron, State.Neural> neuron = neuralNetwork.allNeuronsTopologic.get(i);
                 List<State.Structure> structures = cumulativeStates.get(neuron);
                 if (structures != null) {
                     State.Structure finalState = createFinalState(structures);

@@ -3,6 +3,7 @@ package networks.computation.iteration;
 import networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
+import networks.structure.components.neurons.Neuron;
 import networks.structure.metadata.states.State;
 
 /**
@@ -14,9 +15,9 @@ public abstract class NeuronIterating extends IterationStrategy implements Neuro
     /**
      * Takes care of aggregating/propagating values to neighbours
      */
-    protected NeuronVisitor neuronVisitor;
+    protected NeuronVisitor.Weighted neuronVisitor;
 
-    public NeuronIterating(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<BaseNeuron, State.Neural> outputNeuron, NeuronVisitor pureNeuronVisitor) {
+    public NeuronIterating(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<Neuron, State.Neural> outputNeuron, NeuronVisitor.Weighted pureNeuronVisitor) {
         super(network, outputNeuron);
         this.neuronVisitor = pureNeuronVisitor;
     }
@@ -28,7 +29,7 @@ public abstract class NeuronIterating extends IterationStrategy implements Neuro
     @Override
     public void iterate() {
         while (hasNext()){
-            BaseNeuron<BaseNeuron, State.Neural> nextNeuron = next();
+            BaseNeuron<Neuron, State.Neural> nextNeuron = next();
             nextNeuron.visit(neuronVisitor);
         }
     }

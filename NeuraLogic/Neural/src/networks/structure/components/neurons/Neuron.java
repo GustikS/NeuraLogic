@@ -9,15 +9,13 @@ import java.util.ArrayList;
 
 public interface Neuron<T extends Neuron, S extends State.Neural> {
 
-    default void visit(NeuronVisitor visitor) {
-        visitor.visit(this);
-    }
+    void visit(NeuronVisitor.Weighted visitor);
 
-    default void visit(NeuronVisiting visitor) {
-        visitor.visit(this);
-    }
+    void visit(NeuronVisiting.Weighted visitor);
 
     ArrayList<T> getInputs();
+
+    S getRawState();
 
     Aggregation getAggregation();
 

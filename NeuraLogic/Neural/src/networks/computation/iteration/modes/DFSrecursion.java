@@ -9,6 +9,7 @@ import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.computation.iteration.visitors.weights.WeightUpdater;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
+import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
@@ -30,18 +31,18 @@ public class DFSrecursion {
         StateVisiting.Computation stateVisitor;
         WeightUpdater weightUpdater;
 
-        public TDownVisitor(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<BaseNeuron, State.Neural> neuron, StateVisiting.Computation topDown, WeightUpdater weightUpdater) {
+        public TDownVisitor(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<Neuron, State.Neural> neuron, StateVisiting.Computation topDown, WeightUpdater weightUpdater) {
             super(network, neuron);
             this.weightUpdater = weightUpdater;
             this.stateVisitor = topDown;
         }
 
         @Override
-        public void visit(BaseNeuron<BaseNeuron, State.Neural> neuron) {
+        public <T extends Neuron, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             Value gradient = stateVisitor.visit(state);
-            Iterator<BaseNeuron> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());
-            for (BaseNeuron input; (input = inputs.next()) != null; ) {
+            Iterator<T> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());
+            for (T input; (input = inputs.next()) != null; ) {
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
                 computationView.storeGradient(gradient);
                 if (computationView.ready4expansion(stateVisitor)) {    //we can check the children in advance here since we expanded them already ourselves
@@ -51,16 +52,16 @@ public class DFSrecursion {
         }
 
         @Override
-        public void visit(WeightedNeuron<BaseNeuron, State.Neural> neuron) {
+        public <T extends Neuron, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             Value gradient = stateVisitor.visit(state);
-            Pair<Iterator<BaseNeuron>, Iterator<Weight>> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());
+            Pair<Iterator<T>, Iterator<Weight>> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());
 
             weightUpdater.visit(neuron.offset, gradient);
 
-            Iterator<BaseNeuron> inputNeurons = inputs.r;
+            Iterator<T> inputNeurons = inputs.r;
             Iterator<Weight> inputWeights = inputs.s;
-            BaseNeuron input;
+            T input;
             Weight weight;
             while ((input = inputNeurons.next()) != null && (weight = inputWeights.next()) != null) {
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
@@ -78,13 +79,14 @@ public class DFSrecursion {
         public void topdown() {
             outputNeuron.visit(this);
         }
+
     }
 
     public class BUpVisitor extends NeuronVisiting.Weighted implements BottomUp<Value> {
         NeuronVisitor.Weighted neuronVisitor;
         StateVisiting.Computation stateVisitor;
 
-        public BUpVisitor(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<BaseNeuron, State.Neural> outputNeuron, NeuronVisitor.Weighted pureNeuronVisitor) {
+        public BUpVisitor(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<Neuron, State.Neural> outputNeuron, NeuronVisitor.Weighted pureNeuronVisitor) {
             super(network, outputNeuron);
             this.neuronVisitor = pureNeuronVisitor;
             this.stateVisitor = pureNeuronVisitor.stateVisitor;
@@ -97,10 +99,10 @@ public class DFSrecursion {
         }
 
         @Override
-        public void visit(BaseNeuron<BaseNeuron, State.Neural> neuron) {
+        public <T extends Neuron, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
             //1st evaluate all the inputs
-            Iterator<BaseNeuron> inputs = network.getInputs(neuron);
-            for (BaseNeuron input; (input = inputs.next()) != null; ) {
+            Iterator<T> inputs = network.getInputs(neuron);
+            for (T input; (input = inputs.next()) != null; ) {
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
                 if (!computationView.ready4expansion(stateVisitor))     // is not yet evaluated?
                     input.visit(this);
@@ -110,11 +112,11 @@ public class DFSrecursion {
         }
 
         @Override
-        public void visit(WeightedNeuron<BaseNeuron, State.Neural> neuron) {
-            Pair<Iterator<BaseNeuron>, Iterator<Weight>> inputs = network.getInputs(neuron);
-            Iterator<BaseNeuron> inputNeurons = inputs.r;
+        public <T extends Neuron, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron) {
+            Pair<Iterator<T>, Iterator<Weight>> inputs = network.getInputs(neuron);
+            Iterator<T> inputNeurons = inputs.r;
             //1st evaluate all the inputs
-            for (BaseNeuron input; (input = inputNeurons.next()) != null; ) {
+            for (T input; (input = inputNeurons.next()) != null; ) {
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
                 if (!computationView.ready4expansion(stateVisitor))     // is not yet evaluated?
                     input.visit(this);
@@ -123,5 +125,7 @@ public class DFSrecursion {
             //2nd evaluate current neuron from its inputs
             neuron.visit(neuronVisitor);
         }
+
+
     }
 }

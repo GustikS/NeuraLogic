@@ -20,17 +20,8 @@ import java.util.logging.Logger;
 public abstract class NeuronVisiting extends IterationStrategy {
     private static final Logger LOG = Logger.getLogger(NeuronVisiting.class.getName());
 
-    public NeuronVisiting(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<BaseNeuron, State.Neural> outputNeuron) {
+    public NeuronVisiting(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<Neuron, State.Neural> outputNeuron) {
         super(network, outputNeuron);
-    }
-
-    /**
-     * Default double dispatch, some of the specific Neuron classes should be passed as an argument instead!
-     *
-     * @param neuron
-     */
-    public void visit(Neuron neuron) {
-        LOG.severe("Error: Visitor calling a default method through double dispatch.");
     }
 
     /**
@@ -38,11 +29,11 @@ public abstract class NeuronVisiting extends IterationStrategy {
      *
      * @param neuron
      */
-    public abstract void visit(BaseNeuron<BaseNeuron, State.Neural> neuron);
+    public abstract <T extends Neuron, S extends State.Neural> void visit(BaseNeuron<T,S> neuron);
 
     public static abstract class Weighted extends NeuronVisiting {
 
-        public Weighted(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<BaseNeuron, State.Neural> outputNeuron) {
+        public Weighted(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<Neuron, State.Neural> outputNeuron) {
             super(network, outputNeuron);
         }
 
@@ -51,6 +42,6 @@ public abstract class NeuronVisiting extends IterationStrategy {
          *
          * @param neuron
          */
-        public abstract void visit(WeightedNeuron<BaseNeuron, State.Neural> neuron);
+        public abstract <T extends Neuron, S extends State.Neural> void visit(WeightedNeuron<T,S> neuron);
     }
 }

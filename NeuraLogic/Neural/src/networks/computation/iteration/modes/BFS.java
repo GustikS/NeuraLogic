@@ -9,6 +9,7 @@ import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.computation.iteration.visitors.weights.WeightUpdater;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
+import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
@@ -32,23 +33,23 @@ import java.util.logging.Logger;
 public class BFS {
     private static final Logger LOG = Logger.getLogger(BFS.class.getName());
 
-    Queue<BaseNeuron<BaseNeuron, State.Neural>> queue;
+    Queue<Neuron<Neuron, State.Neural>> queue;
 
     public class TDownIterator extends NeuronIterating implements TopDown {
 
-        public TDownIterator(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<BaseNeuron, State.Neural> neuron, NeuronVisitor.Weighted pureNeuronVisitor) {
+        public TDownIterator(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<Neuron, State.Neural> neuron, NeuronVisitor.Weighted pureNeuronVisitor) {
             super(network, neuron, pureNeuronVisitor);
             queue = new ArrayDeque<>(network.getNeuronCount());
             queue.add(outputNeuron);
         }
 
         @Override
-        public BaseNeuron<BaseNeuron, State.Neural> next() {
+        public BaseNeuron<Neuron, State.Neural> next() {
             while (!queue.isEmpty()) {
-                BaseNeuron<BaseNeuron, State.Neural> poll = queue.poll();
+                BaseNeuron<Neuron, State.Neural> poll = (BaseNeuron<Neuron, State.Neural>) queue.poll();
                 if (poll.getComputationView(neuronVisitor.stateVisitor.stateIndex).ready4expansion(neuronVisitor.stateVisitor)) {
-                    Iterator<BaseNeuron> inputs = network.getInputs(poll);
-                    for (BaseNeuron next; (next = inputs.next()) != null; ) {
+                    Iterator<Neuron> inputs = network.getInputs(poll);
+                    for (Neuron next; (next = inputs.next()) != null; ) {
                         queue.add(next);
                     }
                     return poll;
@@ -72,7 +73,7 @@ public class BFS {
         StateVisiting.Computation stateVisitor;
         WeightUpdater weightUpdater;
 
-        public TDownVisitor(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<BaseNeuron, State.Neural> neuron, StateVisiting.Computation topDown, WeightUpdater weightUpdater) {
+        public TDownVisitor(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<Neuron, State.Neural> neuron, StateVisiting.Computation topDown, WeightUpdater weightUpdater) {
             super(network, neuron);
             queue = new ArrayDeque<>(network.getNeuronCount());
             queue.add(outputNeuron);
@@ -81,11 +82,11 @@ public class BFS {
         }
 
         @Override
-        public void visit(BaseNeuron<BaseNeuron, State.Neural> neuron) {
+        public <T extends Neuron, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             Value value = stateVisitor.visit(state);
-            Iterator<BaseNeuron> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());
-            for (BaseNeuron input; (input = inputs.next()) != null; ) {
+            Iterator<T> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());
+            for (T input; (input = inputs.next()) != null; ) {
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
                 computationView.storeGradient(value);
                 if (computationView.ready4expansion(stateVisitor)) {    //we can check the children in advance here since we expanded them already ourselves
@@ -95,16 +96,16 @@ public class BFS {
         }
 
         @Override
-        public void visit(WeightedNeuron<BaseNeuron, State.Neural> neuron) {
+        public <T extends Neuron, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             Value gradient = stateVisitor.visit(state);
-            Pair<Iterator<BaseNeuron>, Iterator<Weight>> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());
+            Pair<Iterator<T>, Iterator<Weight>> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());
 
             weightUpdater.visit(neuron.offset, gradient);
 
-            Iterator<BaseNeuron> inputNeurons = inputs.r;
+            Iterator<T> inputNeurons = inputs.r;
             Iterator<Weight> inputWeights = inputs.s;
-            BaseNeuron input;
+            T input;
             Weight weight;
             while ((input = inputNeurons.next()) != null && (weight = inputWeights.next()) != null) {
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
@@ -121,9 +122,10 @@ public class BFS {
         @Override
         public void topdown() {
             while (!queue.isEmpty()) {
-                BaseNeuron<BaseNeuron, State.Neural> neuron = queue.poll();
+                Neuron<Neuron, State.Neural> neuron = queue.poll();
                 neuron.visit(this);
             }
         }
+
     }
 }
