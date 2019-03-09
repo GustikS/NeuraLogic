@@ -135,4 +135,14 @@ public class WeightedRule {
         }
         return true;
     }
+
+    public String toShortString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(head.toString()).append(":-");
+        for (BodyAtom bodyAtom : body) {
+            sb.append(bodyAtom.toString()).append(",");
+        }
+        sb.setCharAt(sb.length()-1,'.');
+        return sb.toString();
+    }
 }

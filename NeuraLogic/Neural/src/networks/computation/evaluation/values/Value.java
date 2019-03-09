@@ -56,6 +56,9 @@ public abstract class Value implements Iterable<Double> {
      */
     public abstract Value apply(Function<Double, Double> function);
 
+    @Override
+    public abstract String toString();
+
     /**
      * CONSTRUCTIVE multiplication, i.e. creation of a NEW Value under the hood to be returned.
      *
@@ -171,6 +174,11 @@ public abstract class Value implements Iterable<Double> {
         @Override
         public Value apply(Function<Double, Double> function) {
             return one.apply(function);
+        }
+
+        @Override
+        public String toString() {
+            return "1";
         }
 
         @Override
@@ -315,6 +323,11 @@ public abstract class Value implements Iterable<Double> {
         @Override
         public Value apply(Function<Double, Double> function) {
             return zero.apply(function);
+        }
+
+        @Override
+        public String toString() {
+            return "0";
         }
 
         @Override

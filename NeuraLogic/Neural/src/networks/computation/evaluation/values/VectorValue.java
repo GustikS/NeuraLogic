@@ -3,6 +3,7 @@ package networks.computation.evaluation.values;
 import com.sun.istack.internal.NotNull;
 import networks.computation.evaluation.values.distributions.ValueInitializer;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
@@ -94,6 +95,11 @@ public class VectorValue extends Value {
             resultValues[i] = function.apply(values[i]);
         }
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(values);
     }
 
     /**

@@ -54,6 +54,11 @@ public class StringValue extends Value {
     }
 
     @Override
+    public String toString() {
+        return value;
+    }
+
+    @Override
     public Value times(Value value) {
         return null;
     }

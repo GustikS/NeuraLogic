@@ -6,6 +6,7 @@ import networks.structure.components.neurons.Neuron;
 import networks.structure.metadata.states.State;
 
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -22,6 +23,9 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
     public TopologicNetwork(String id, List<BaseNeuron<Neuron, State.Neural>> allNeurons) {
         super(id, allNeurons.size());
         allNeuronsTopologic = topologicSort(allNeurons);
+
+        if (LOG.isLoggable(Level.FINEST))
+            LOG.finest(allNeuronsTopologic.toString());
     }
 
     public TopologicNetwork(String id, int size) {
@@ -65,32 +69,28 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
      * @param allNeurons
      * @return
      */
-    public List<BaseNeuron<Neuron, State.Neural>> topologicSort(List<BaseNeuron<Neuron, State.Neural>> allNeurons) {    //todo next reverse?
+    public List<BaseNeuron<Neuron, State.Neural>> topologicSort(List<BaseNeuron<Neuron, State.Neural>> allNeurons) {
         Set<Neuron> visited = new HashSet<>();
-        Stack<Neuron> stack = new Stack<>();
+        LinkedList<BaseNeuron<Neuron, State.Neural>> stack = new LinkedList<>();
 
-        for (BaseNeuron neuron : allNeurons) {
+        for (BaseNeuron<Neuron, State.Neural> neuron : allNeurons) {
             if (!visited.contains(neuron))
                 topoSortRecursive(neuron, visited, stack);
         }
-
-        List<BaseNeuron<Neuron, State.Neural>> neurons = new ArrayList<>(allNeurons.size());
-        while (!stack.empty())
-            neurons.add((BaseNeuron<Neuron, State.Neural>) stack.pop());
-
-        return neurons;
+        Collections.reverse(stack);
+        return stack;
     }
 
-    private void topoSortRecursive(Neuron neuron, Set<Neuron> visited, Stack<Neuron> stack) {
+    private void topoSortRecursive(BaseNeuron<Neuron, State.Neural> neuron, Set<Neuron> visited, LinkedList<BaseNeuron<Neuron, State.Neural>> stack) {
         visited.add(neuron);
 
-        Iterator<Neuron> inputs = getInputs((BaseNeuron<Neuron, State.Neural>) neuron);
+        Iterator<Neuron> inputs = getInputs(neuron);
         while (inputs.hasNext()) {
             Neuron next = inputs.next();
             if (!visited.contains(next)) {
-                topoSortRecursive(next, visited, stack);
+                topoSortRecursive((BaseNeuron<Neuron, State.Neural>) next, visited, stack);
             }
         }
-        stack.push(neuron);
+        stack.addFirst(neuron);
     }
 }

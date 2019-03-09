@@ -10,6 +10,6 @@ import networks.structure.components.neurons.BaseNeuron;
 public class AggregationNeuron<S extends State.Neural> extends BaseNeuron<RuleNeurons, S> {
 
     public AggregationNeuron(WeightedRule groundRule, int index, S state) {
-        super(index, groundRule.toString(), state);
+        super(index, groundRule.originalString, state);
     }
 }

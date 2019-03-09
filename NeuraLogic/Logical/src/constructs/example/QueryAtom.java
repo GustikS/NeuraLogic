@@ -41,4 +41,8 @@ public class QueryAtom extends Query<LiftedExample, Template> {
         return present;
     }
 
+    @Override
+    public String toString() {
+        return headAtom.toString();
+    }
 }

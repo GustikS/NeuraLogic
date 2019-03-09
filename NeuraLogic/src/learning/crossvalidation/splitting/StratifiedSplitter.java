@@ -21,14 +21,13 @@ public class StratifiedSplitter<T extends LearningSample> implements Splitter<T>
     @Override
     public List<List<T>> partition(List<T> samples, int foldCount) {
 
-        //todo next;
         LOG.severe("StratifiedSplitter no implemented yet");
         return null;
     }
 
     @Override
     public Pair<List<T>, List<T>> partition(List<T> samples, double percentage) {
-        //todo next
+        //todo
         return null;
     }
 

@@ -10,6 +10,6 @@ import networks.structure.components.neurons.BaseNeuron;
 public class RuleNeuron<S extends State.Neural> extends BaseNeuron<AtomFact, S> implements RuleNeurons<AtomFact, S> {
 
     public RuleNeuron(WeightedRule grounding, int index, S state) {
-        super(index, grounding.toString(), state);
+        super(index, grounding.toShortString(), state);
     }
 }

@@ -82,6 +82,11 @@ public class ScalarValue extends Value {
         return new ScalarValue(function.apply(value));
     }
 
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
+
     /**
      * Default Double Dispatch
      *

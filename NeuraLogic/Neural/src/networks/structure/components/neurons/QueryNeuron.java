@@ -31,4 +31,9 @@ public class QueryNeuron extends Query<NeuralNetwork<State.Neural.Structure>, Ne
         Evaluation evaluation = new Evaluation(settings);
         return evaluation.evaluate(this);
     }
+
+    @Override
+    public String toString() {
+        return neuron.toString();
+    }
 }

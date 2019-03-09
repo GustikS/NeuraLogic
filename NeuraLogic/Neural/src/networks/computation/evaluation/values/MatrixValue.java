@@ -3,6 +3,7 @@ package networks.computation.evaluation.values;
 import com.sun.istack.internal.NotNull;
 import networks.computation.evaluation.values.distributions.ValueInitializer;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -111,6 +112,11 @@ public class MatrixValue extends Value {
             }
         }
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.deepToString(values);
     }
 
     /**

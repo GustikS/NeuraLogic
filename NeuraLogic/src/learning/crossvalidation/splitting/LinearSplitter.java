@@ -24,7 +24,7 @@ public class LinearSplitter<T extends LearningSample> implements Splitter<T> {
     public Pair<List<T>, List<T>> partition(List<T> samples, double percentage) {
         int split = (int) percentage * samples.size();
         if (split == 0 || split == samples.size()){
-            LOG.severe("Problem with samples partitioning, there are too few?");
+            LOG.severe("Problem with samples partitioning, there are too few to be splitted: " + samples.size());
         }
         List<T> validation = samples.subList(0, split);
         List<T> training = samples.subList(split, samples.size());

@@ -45,7 +45,9 @@ public class StandardNeuronVisitors {
         public <T extends Neuron, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             Iterator<T> inputs = network.getInputs(neuron);
-            for (T input = null; inputs.hasNext(); input = inputs.next()) {
+            T input;
+            while (inputs.hasNext()) {
+                input = inputs.next();
                 state.storeValue(input.getComputationView(stateVisitor.stateIndex).getValue());
             }
             Value value = stateVisitor.visit(state);

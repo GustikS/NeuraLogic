@@ -186,4 +186,9 @@ public class BaseNeuron<T extends Neuron, S extends State.Neural> implements Neu
     public void setState(S finalState) {
         this.state = finalState;
     }
+
+    @Override
+    public String toString() {
+        return id;
+    }
 }

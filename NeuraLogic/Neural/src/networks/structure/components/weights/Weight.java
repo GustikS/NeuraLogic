@@ -58,4 +58,8 @@ public class Weight {
         value.initialize(valueInitializer);
     }
 
+    @Override
+    public String toString() {
+        return value.toString();
+    }
 }
