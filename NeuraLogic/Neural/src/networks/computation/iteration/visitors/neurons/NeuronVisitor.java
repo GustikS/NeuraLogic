@@ -8,6 +8,10 @@ import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neuron;
 import networks.structure.components.neurons.WeightedNeuron;
+import networks.structure.components.neurons.types.AggregationNeuron;
+import networks.structure.components.neurons.types.AtomNeuron;
+import networks.structure.components.neurons.types.FactNeuron;
+import networks.structure.components.neurons.types.RuleNeuron;
 import networks.structure.metadata.states.State;
 
 /**
@@ -44,7 +48,9 @@ public abstract class NeuronVisitor {
      */
     public abstract <T extends Neuron, S extends State.Neural> void visit(BaseNeuron<T, S> neuron);
 
-
+    /**
+     * Class to inherit for Visitors that want to recognize between weighted and unweighted neurons
+     */
     public abstract static class Weighted extends NeuronVisitor {
 
         /**
@@ -65,6 +71,21 @@ public abstract class NeuronVisitor {
          * @param neuron
          */
         public abstract <T extends Neuron, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron);
+
+        /**
+         * To be used if operation specific to individual neuron classes (other than just recognizing un/weighted neurons) is necessary
+         */
+        public abstract static class Detailed extends Weighted {
+
+            public Detailed(NeuralNetwork<State.Structure> network, StateVisiting.Computation computationVisitor, WeightUpdater weightUpdater) {
+                super(network, computationVisitor, weightUpdater);
+            }
+
+            abstract void visit(AggregationNeuron neuron);
+            abstract void visit(RuleNeuron neuron);
+            abstract void visit(AtomNeuron neuron);
+            abstract void visit(FactNeuron neuron);
+        }
 
         public abstract static class Indexed extends Weighted {
 

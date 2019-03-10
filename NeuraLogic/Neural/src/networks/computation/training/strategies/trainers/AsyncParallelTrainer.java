@@ -3,6 +3,7 @@ package networks.computation.training.strategies.trainers;
 import networks.computation.evaluation.results.Result;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
+import networks.computation.training.optimizers.Optimizer;
 import settings.Settings;
 
 import java.util.List;
@@ -26,8 +27,8 @@ public class AsyncParallelTrainer extends SequentialTrainer {
     //todo correctly there should be as many trainers as there are samples, i.e. no two samples should be trained with the same trainer in parallel
     // otherwise they might be overwriting/mixing up their results in shared neurons, but this trainer is kind of flawed anyway
 
-    public AsyncParallelTrainer(Settings settings, NeuralModel neuralModel) {
-        super(settings, neuralModel);
+    public AsyncParallelTrainer(Settings settings, Optimizer optimizer, NeuralModel neuralModel) {
+        super(settings, optimizer, neuralModel);
     }
 
     protected AsyncParallelTrainer() {

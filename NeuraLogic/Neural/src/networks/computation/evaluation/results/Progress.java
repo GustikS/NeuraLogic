@@ -22,7 +22,8 @@ public class Progress {
     }
 
     public void addOnlineResults(Results next) {
-        currentRestart.onlineTrainingResults.get(currentRestart.onlineTrainingResults.size() - 1).evaluations = null; //delete the particular outputs from the past Results to save space (store only statistics)
+        if (!currentRestart.trueTrainingResults.isEmpty())
+            currentRestart.onlineTrainingResults.get(currentRestart.onlineTrainingResults.size() - 1).evaluations = null; //delete the particular outputs from the past Results to save space (store only statistics)
         currentRestart.onlineTrainingResults.add(next);
     }
 
@@ -70,7 +71,7 @@ public class Progress {
          * @return
          */
         public boolean betterThan(TrainVal other) {
-            if (!other.validation.evaluations.isEmpty()) {
+            if (other.validation.evaluations != null && !other.validation.evaluations.isEmpty()) {
                 return validation.betterThan(other.validation);
             } else {
                 return training.betterThan(training);

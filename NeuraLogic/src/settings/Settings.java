@@ -37,7 +37,7 @@ public class Settings {
 
     //------------------High level
 
-    public Optimize optimmize = Optimize.SPEED;
+    public Optimize optimize = Optimize.SPEED;
 
     public enum Optimize {
         MEMORY, SPEED, TRADEOFF
@@ -242,6 +242,12 @@ public class Settings {
     public double initLearningRate = 0.1;
 
     public double dropoutRate = 0.0;
+
+    public OptimizerSet optimizer = OptimizerSet.SGD;
+
+    public enum OptimizerSet {
+        SGD, ADAM
+    }
 
     /**
      * Percentual size of validation set separated from training set

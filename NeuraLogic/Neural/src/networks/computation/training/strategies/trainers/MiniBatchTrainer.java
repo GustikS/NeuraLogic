@@ -3,6 +3,7 @@ package networks.computation.training.strategies.trainers;
 import networks.computation.evaluation.results.Result;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
+import networks.computation.training.optimizers.Optimizer;
 import settings.Settings;
 import utils.Utilities;
 
@@ -32,12 +33,12 @@ public class MiniBatchTrainer extends Trainer {
     private MiniBatchTrainer() {
     }
 
-    public MiniBatchTrainer(Settings settings, NeuralModel neuralModel, int minibatchSize) {
-        super(settings);
+    public MiniBatchTrainer(Settings settings, Optimizer optimizer, NeuralModel neuralModel, int minibatchSize) {
+        super(settings, optimizer);
         this.minibatchSize = minibatchSize;
         trainers = new ArrayList<>(minibatchSize);
         for (int i = 0; i < minibatchSize; i++) {
-            trainers.add(new SequentialTrainer(settings, neuralModel, i));
+            trainers.add(new SequentialTrainer(settings, optimizer, neuralModel, i));
         }
     }
 

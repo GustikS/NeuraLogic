@@ -30,9 +30,11 @@ public abstract class Results {
         evaluations = new ArrayList<>();
     }
 
-    public Results(List<Result> evaluations) {
+    public Results(List<Result> evaluations, Aggregation aggregationFcn) {
         this.evaluations = evaluations;
-        this.recalculate();
+        this.aggregationFcn = aggregationFcn;
+        if (!evaluations.isEmpty())
+            this.recalculate();
     }
 
     public void addResult(Result result) {
@@ -49,7 +51,7 @@ public abstract class Results {
 
         Aggregation aggregation;
 
-        public Factory(Aggregation aggregation){
+        public Factory(Aggregation aggregation) {
             this.aggregation = aggregation;
         }
 
@@ -66,7 +68,7 @@ public abstract class Results {
         }
 
         private static Aggregation getAggregation(Settings settings) {
-            if (settings.errorAggregationFcn == Settings.AggregationFcn.AVG){
+            if (settings.errorAggregationFcn == Settings.AggregationFcn.AVG) {
                 return new Average();
             } else {
                 LOG.severe("Unsupported errorAggregationFcn.");
@@ -85,8 +87,7 @@ public abstract class Results {
 
         @Override
         public Results createFrom(List<Result> outputs) {
-            RegressionResults regressionResults = new RegressionResults(outputs);
-            regressionResults.aggregationFcn = aggregation;
+            RegressionResults regressionResults = new RegressionResults(outputs, aggregation);
             return regressionResults;
         }
     }
@@ -99,8 +100,7 @@ public abstract class Results {
 
         @Override
         public Results createFrom(List<Result> outputs) {
-            DetailedClassificationResults detailedClassificationResults = new DetailedClassificationResults(outputs);
-            detailedClassificationResults.aggregationFcn = aggregation;
+            DetailedClassificationResults detailedClassificationResults = new DetailedClassificationResults(outputs, aggregation);
             return detailedClassificationResults;
         }
     }
@@ -113,8 +113,7 @@ public abstract class Results {
 
         @Override
         public Results createFrom(List<Result> outputs) {
-            ClassificationResults classificationResults = new ClassificationResults(outputs);
-            classificationResults.aggregationFcn = aggregation;
+            ClassificationResults classificationResults = new ClassificationResults(outputs, aggregation);
             return classificationResults;
         }
     }

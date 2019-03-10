@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 /**
  * Transfering stored parentsCount in Network to computation state in neuron
  */
-public class ParentsTransfer extends StateVisiting.Computation {
+public class ParentsTransfer extends StateVisiting.Computation.Detailed {
     private static final Logger LOG = Logger.getLogger(ParentsTransfer.class.getName());
 
     public int parentsCount;
@@ -20,7 +20,7 @@ public class ParentsTransfer extends StateVisiting.Computation {
 
     @Override
     public Value visit(State.Neural.Computation state) {
-        LOG.warning("ParentsTransfer Default double dispatch call");
+        LOG.severe("ParentsTransfer Default double dispatch call");
         return null;
     }
 
@@ -31,6 +31,18 @@ public class ParentsTransfer extends StateVisiting.Computation {
      */
     public Value visit(State.Neural.Computation.HasParents state) {
         state.setParents(this, parentsCount);
+        return null;
+    }
+
+    @Override
+    public Value visit(State.Neural.Computation.HasDropout state) {
+        LOG.severe("incompetent dispatch call");
+        return null;
+    }
+
+    @Override
+    public Value visit(State.Neural.Computation.Detailed state) {
+        LOG.severe("incompetent dispatch call");
         return null;
     }
 }

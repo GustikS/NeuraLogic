@@ -7,6 +7,7 @@ import networks.computation.evaluation.results.Results;
 import networks.computation.iteration.actions.Evaluation;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
+import networks.computation.training.optimizers.Optimizer;
 import networks.computation.training.strategies.Hyperparameters.LearnRateDecayStrategy;
 import networks.computation.training.strategies.Hyperparameters.RestartingStrategy;
 import networks.computation.training.strategies.trainers.AsyncParallelTrainer;
@@ -69,11 +70,11 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     private ListTrainer getTrainerFrom(Settings settings) {
         if (settings.asyncParallelTraining) {
-            return new AsyncParallelTrainer(settings, currentModel).new AsyncListTrainer();
+            return new AsyncParallelTrainer(settings, Optimizer.getFrom(settings), currentModel).new AsyncListTrainer();
         } else if (settings.minibatchSize > 1) {
-            return new MiniBatchTrainer(settings, currentModel, settings.minibatchSize).new MinibatchListTrainer();
+            return new MiniBatchTrainer(settings, Optimizer.getFrom(settings), currentModel, settings.minibatchSize).new MinibatchListTrainer();
         } else {
-            return new SequentialTrainer(settings, currentModel).new SequentialListTrainer();
+            return new SequentialTrainer(settings, Optimizer.getFrom(settings), currentModel).new SequentialListTrainer();
         }
     }
 
@@ -160,7 +161,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     }
 
     private void saveIfBest(Progress.TrainVal trainVal) {
-        if (trainVal.betterThan(progress.bestResults)) {
+        if (progress.bestResults == null || trainVal.betterThan(progress.bestResults)) {
             bestModel = currentModel.cloneWeights();
             progress.bestResults = trainVal;
         }

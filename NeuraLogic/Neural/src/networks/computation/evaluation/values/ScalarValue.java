@@ -167,7 +167,7 @@ public class ScalarValue extends Value {
      */
     @Override
     public Value minus(Value value) {
-        return value.plus(this);
+        return value.minus(this);
     }
 
     /**

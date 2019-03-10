@@ -7,6 +7,7 @@ import networks.structure.components.neurons.QueryNeuron;
 import networks.structure.components.weights.Weight;
 
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +22,8 @@ public class NeuralModel implements Model<QueryNeuron> {
     }
 
     public NeuralModel cloneWeights() {
-        return null;
+        List<Weight> clone = new ArrayList<>(weights);
+        return new NeuralModel(clone);
     }
 
     public void resetWeights(ValueInitializer valueInitializer) {

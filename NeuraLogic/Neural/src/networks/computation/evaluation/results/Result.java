@@ -31,6 +31,10 @@ public class Result {
         this.output = output;
     }
 
+    public Value errorValue() {
+        return errorFcn.evaluate(output, target);
+    }
+
     public Value errorGradient() {
         return errorFcn.differentiate(output, target);
     }

@@ -1,5 +1,9 @@
 package networks.computation.evaluation.results;
 
+import networks.computation.evaluation.functions.Aggregation;
+import networks.computation.evaluation.values.Value;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -8,12 +12,12 @@ import java.util.List;
 public class ClassificationResults extends RegressionResults {
     private Double precision;
     private Double recall;
-    private Double error;
+    private Value error;
     private Double f_Measure;
     private Double majorityErr;
 
-    public ClassificationResults(List<Result> outputs) {
-        super(outputs);
+    public ClassificationResults(List<Result> outputs, Aggregation aggregationFcn) {
+        super(outputs, aggregationFcn);
     }
 
     @Override
@@ -23,6 +27,11 @@ public class ClassificationResults extends RegressionResults {
 
     @Override
     public boolean recalculate() {
-        return false;
+        List<Value> errors = new ArrayList<>(evaluations.size());
+        for (Result evaluation : evaluations) {
+            errors.add(evaluation.errorValue());
+        }
+        error = aggregationFcn.evaluate(errors);
+        return false;   //todo next rest
     }
 }

@@ -24,8 +24,9 @@ public class Trainer {
 
     Optimizer optimizer;
 
-    public Trainer(Settings settings) {
+    public Trainer(Settings settings, Optimizer optimizer) {
         this.settings = settings;
+        this.optimizer = optimizer;
     }
 
     public Trainer() {

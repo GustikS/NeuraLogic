@@ -8,6 +8,7 @@ import networks.computation.iteration.visitors.states.neurons.Dropouter;
 import networks.computation.iteration.visitors.states.neurons.Invalidator;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
+import networks.computation.training.optimizers.Optimizer;
 import settings.Settings;
 
 import java.util.ArrayList;
@@ -26,12 +27,12 @@ public class SequentialTrainer extends Trainer {
     Evaluation evaluation;
     Backpropagation backpropagation;
 
-    public SequentialTrainer(Settings settings, NeuralModel neuralModel) {
-        this(settings, neuralModel, -1);
+    public SequentialTrainer(Settings settings, Optimizer optimizer, NeuralModel neuralModel) {
+        this(settings, optimizer, neuralModel, -1);
     }
 
-    public SequentialTrainer(Settings settings, NeuralModel neuralModel, int index) {
-        super(settings);
+    public SequentialTrainer(Settings settings, Optimizer optimizer, NeuralModel neuralModel, int index) {
+        super(settings,optimizer);
         this.index = index;
         evaluation = new Evaluation(settings, index);
         backpropagation = new Backpropagation(settings, neuralModel, index);

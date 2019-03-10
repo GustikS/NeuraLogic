@@ -1,5 +1,7 @@
 package networks.computation.evaluation.results;
 
+import networks.computation.evaluation.functions.Aggregation;
+
 import java.util.List;
 
 /**
@@ -9,8 +11,8 @@ public class RegressionResults extends Results{
     private Double dispersion;
     private Double mse;
 
-    public RegressionResults(List<Result> outputs) {
-        super(outputs);
+    public RegressionResults(List<Result> outputs, Aggregation aggregationFcn) {
+        super(outputs, aggregationFcn);
     }
 
     @Override

@@ -11,23 +11,33 @@ public class WeightUpdater implements WeightVisitor {
     private static final Logger LOG = Logger.getLogger(WeightUpdater.class.getName());
 
     /**
-     *  To be used instead of storing the gradient update in the weight object (StetefulWeight) for PARALLEL backproping.
-     *  Since the number of all unique weights is typically low, each thread has its own full index of weightUpdates.
-     *
+     * To be used instead of storing the gradient update in the weight object (StetefulWeight) for PARALLEL backproping.
+     * Since the number of all unique weights is typically low, each thread has its own full index of weightUpdates.
+     * <p>
      * UNSYCHRONIZED storage of weight updates.
      */
     public Value[] weightUpdates;
 
     public WeightUpdater(List<Weight> weights) {
         weightUpdates = new Value[weights.size()];
-        for (int i = 0; i < weightUpdates.length; i++) {
-            weightUpdates[i] = weights.get(i).value.getForm();
+
+        for (Weight weight : weights) {
+            int index = weight.index;
+            if (index < 0) {
+                //void, these are constant weights not to be updated
+            } else if (index > weightUpdates.length) {
+                LOG.severe("Weight index exceeding number of all extracted weights");
+            } else {
+                weightUpdates[index] = weight.value.getForm();
+            }
         }
     }
 
     @Override
     public void visit(Weight weight, Value value) {
-        value.increment(weightUpdates[weight.index]);
+        int index = weight.index;
+        if (index > 0)
+            value.increment(weightUpdates[index]);
     }
 
     @Deprecated

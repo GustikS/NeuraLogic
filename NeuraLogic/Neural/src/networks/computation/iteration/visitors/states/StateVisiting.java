@@ -34,8 +34,8 @@ public abstract class StateVisiting<V> {
 
         @Override
         public Value visit(State<Value> state) {
-            LOG.severe("ComputationVisitor called for generic State<Value>.");
-            return state.accept(this);
+            LOG.severe("Default double dispatch - computationVisitor called for generic State<Value>.");
+            return visit((State.Neural.Computation) state);
         }
 
         /**
@@ -45,6 +45,22 @@ public abstract class StateVisiting<V> {
          * @return
          */
         public abstract Value visit(State.Neural.Computation state);
+
+        /**
+         * To be used when individual detailed interfaces of the state need to be recognized by the visitor.
+         */
+        public abstract static class Detailed extends StateVisiting.Computation {
+
+            public Detailed(int stateIndex) {
+                super(stateIndex);
+            }
+
+            public abstract Value visit(State.Neural.Computation.HasParents state);
+
+            public abstract Value visit(State.Neural.Computation.HasDropout state);
+
+            public abstract Value visit(State.Neural.Computation.Detailed state);
+        }
     }
 
     /**

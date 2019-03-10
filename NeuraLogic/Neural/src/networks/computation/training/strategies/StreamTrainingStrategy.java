@@ -5,6 +5,7 @@ import networks.computation.evaluation.results.Result;
 import networks.computation.evaluation.results.Results;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
+import networks.computation.training.optimizers.Optimizer;
 import networks.computation.training.strategies.trainers.MiniBatchTrainer;
 import networks.computation.training.strategies.trainers.SequentialTrainer;
 import networks.computation.training.strategies.trainers.StreamTrainer;
@@ -31,9 +32,9 @@ public class StreamTrainingStrategy extends TrainingStrategy {
 
     private StreamTrainer getTrainerFrom(Settings settings) {
         if (settings.minibatchSize > 1) {
-            return new MiniBatchTrainer(settings, currentModel, settings.minibatchSize).new MinibatchStreamTrainer();
+            return new MiniBatchTrainer(settings, Optimizer.getFrom(settings), currentModel, settings.minibatchSize).new MinibatchStreamTrainer();
         } else {
-            return new SequentialTrainer(settings, currentModel).new SequentialStreamTrainer();
+            return new SequentialTrainer(settings, Optimizer.getFrom(settings),currentModel).new SequentialStreamTrainer();
         }
     }
 

@@ -7,7 +7,7 @@ import settings.Settings;
 
 import java.util.logging.Logger;
 
-public class Dropouter extends StateVisiting.Computation {
+public class Dropouter extends StateVisiting.Computation.Detailed {
     private static final Logger LOG = Logger.getLogger(Dropouter.class.getName());
     Settings settings;
 
@@ -17,19 +17,26 @@ public class Dropouter extends StateVisiting.Computation {
         this.settings = settings;
     }
 
-    /**
-     * Default double dispatch call.
-     * @param state
-     * @return
-     */
     @Override
     public Value visit(State.Neural.Computation state) {
-        LOG.warning("Default double dispatch call");
+        LOG.severe("Default double dispatch call");
+        return null;
+    }
+
+    @Override
+    public Value visit(State.Neural.Computation.HasParents state) {
+        LOG.severe("incompetent dispatch call");
         return null;
     }
 
     public Value visit(State.Neural.Computation.HasDropout state) {
         state.setDropout(this);
+        return null;
+    }
+
+    @Override
+    public Value visit(State.Neural.Computation.Detailed state) {
+        LOG.severe("incompetent dispatch call");
         return null;
     }
 }

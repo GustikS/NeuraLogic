@@ -19,21 +19,23 @@ import java.util.logging.Logger;
 
 /**
  * Some classic implementations of {@link NeuronVisitor} for standard uses. That is for going:
- *  - Up = loading some values from inputs of actual neuron into its State - e.g. for {@link Evaluation}
- *  - Down = propagating some values from actual neuron's State to its inputs - e.g. for ({@link Backpropagation}
- *
- *  The actual values/messages being propagated between the neurons are calculated by the corresponding {@link NeuronVisitor#stateVisitor}.
- *
- *  These visitors DO NOT support input masking (i.e. max pooling).
+ * - Up = loading some values from inputs of actual neuron into its State - e.g. for {@link Evaluation}
+ * - Down = propagating some values from actual neuron's State to its inputs - e.g. for ({@link Backpropagation}
+ * <p>
+ * The actual values/messages being propagated between the neurons are calculated by the corresponding {@link NeuronVisitor#stateVisitor}.
+ * <p>
+ * These visitors DO NOT support input masking (i.e. max pooling).
  *
  * @see NeuronVisitor
  */
 public class StandardNeuronVisitors {
     private static final Logger LOG = Logger.getLogger(StandardNeuronVisitors.class.getName());
+
     public static class Up extends NeuronVisitor.Weighted {
 
         /**
          * Up = loading some values from inputs of actual neuron into its State - e.g. for {@link Evaluation}
+         *
          * @param network
          * @param computationVisitor
          */
@@ -67,7 +69,7 @@ public class StandardNeuronVisitors {
             while (inputNeurons.hasNext()) { //todo test version with fori
                 input = inputNeurons.next();
                 weight = inputWeights.next();
-                state.storeValue( input.getComputationView(stateVisitor.stateIndex).getValue().times(weight.value));
+                state.storeValue(input.getComputationView(stateVisitor.stateIndex).getValue().times(weight.value));
             }
             Value value = stateVisitor.visit(state);
         }
@@ -75,7 +77,7 @@ public class StandardNeuronVisitors {
 
     /**
      * Down = propagating some values from actual neuron's State to its inputs - e.g. for ({@link Backpropagation}
-     *
+     * <p>
      * These visitors DO NOT support input masking (i.e. max pooling).
      */
     public static class Down extends NeuronVisitor.Weighted {
@@ -91,7 +93,9 @@ public class StandardNeuronVisitors {
 
             Iterator<BaseNeuron> inputs = network.getInputs(neuron);
 
-            for (BaseNeuron input; (input = inputs.next()) != null; ) {
+            BaseNeuron input;
+            while (inputs.hasNext()) {
+                input = inputs.next();
                 input.getComputationView(stateVisitor.stateIndex).storeGradient(value);
             }
         }
@@ -109,7 +113,9 @@ public class StandardNeuronVisitors {
             Iterator<Weight> inputWeights = inputs.s;
             BaseNeuron input;
             Weight weight;
-            while ((input = inputNeurons.next()) != null && (weight = inputWeights.next()) != null) {
+            while (inputNeurons.hasNext()) {    //neurons and weights should always be aligned correctly, so skipping the check here for some speedup
+                input = inputNeurons.next();
+                weight = inputWeights.next();
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
 
                 weightUpdater.visit(weight, gradient.times(computationView.getValue()));
