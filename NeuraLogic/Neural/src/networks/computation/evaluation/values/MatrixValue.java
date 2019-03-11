@@ -286,29 +286,44 @@ public class MatrixValue extends Value {
      * @param value
      */
     @Override
-    public void increment(Value value) {
-        value.increment(this);
+    public void incrementBy(Value value) {
+        value.incrementBy(this);
     }
 
+    /**
+     * DD - switch of sides!!
+     *
+     * @param value
+     */
     @Override
-    public void increment(ScalarValue value) {
+    public void incrementBy(ScalarValue value) {
         LOG.severe("Incompatible dimensions of algebraic operation - scalar increment by matrix");
     }
 
+    /**
+     * DD - switch of sides!!
+     *
+     * @param value
+     */
     @Override
-    public void increment(VectorValue value) {
+    public void incrementBy(VectorValue value) {
         LOG.severe("Incompatible dimensions of algebraic operation - vector increment by matrix");
     }
 
+    /**
+     * DD - switch of sides!!
+     *
+     * @param value
+     */
     @Override
-    public void increment(MatrixValue value) {
+    public void incrementBy(MatrixValue value) {
         if (rows != value.rows || cols != value.cols) {
             LOG.severe("Incompatible incrementing of matrix with matrix ");
         }
         double[][] otherValues = value.values;
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                values[i][j] += otherValues[i][j];
+                otherValues[i][j] += values[i][j];
             }
         }
     }

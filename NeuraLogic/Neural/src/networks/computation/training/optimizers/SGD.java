@@ -14,7 +14,7 @@ public class SGD implements Optimizer {
 
     ScalarValue learningRate;
 
-    public SGD(double learningRate){
+    public SGD(double learningRate) {
         this.learningRate = new ScalarValue(learningRate);
     }
 
@@ -27,7 +27,9 @@ public class SGD implements Optimizer {
         for (int i = 0; i < weights.size(); i++) {
             Weight weight = weights.get(i);
             if (!weight.isFixed) {  //todo speedup - update only those weights that have been changed? (i.e. no zero increment calls - i.e. hold list of updates somewhere?)
-                weightUpdates[i].times(learningRate).increment(weight.value); //todo check if we cannot just multiply once at beginning of backprop!
+                Value update = weightUpdates[i].times(learningRate);
+                weight.value.incrementBy(update); //todo check if we cannot just multiply once at beginning of backprop!
+                LOG.finest("Incrementing " + weight + " with " + update);
             }
         }
     }

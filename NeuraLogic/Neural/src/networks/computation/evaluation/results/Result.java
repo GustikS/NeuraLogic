@@ -63,4 +63,9 @@ public class Result {
             else return null; //todo move all getters for the enum types into Settings?
         }
     }
+
+    @Override
+    public String toString() {
+        return sampleId + " -> " + output + " : " + target;
+    }
 }

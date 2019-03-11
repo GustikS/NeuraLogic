@@ -20,6 +20,6 @@ public class SquaredDiff implements ErrorFcn {
 
     @Override
     public Value differentiate(Value output, Value target) {
-        return output.minus(target);
+        return target.minus(output);
     }
 }

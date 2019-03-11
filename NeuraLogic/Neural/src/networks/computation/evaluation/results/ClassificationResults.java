@@ -21,11 +21,6 @@ public class ClassificationResults extends RegressionResults {
     }
 
     @Override
-    public String toString() {
-        return null;
-    }
-
-    @Override
     public boolean recalculate() {
         List<Value> errors = new ArrayList<>(evaluations.size());
         for (Result evaluation : evaluations) {
@@ -33,5 +28,10 @@ public class ClassificationResults extends RegressionResults {
         }
         error = aggregationFcn.evaluate(errors);
         return false;   //todo next rest
+    }
+
+    @Override
+    public String toString(){
+        return error.toString();
     }
 }

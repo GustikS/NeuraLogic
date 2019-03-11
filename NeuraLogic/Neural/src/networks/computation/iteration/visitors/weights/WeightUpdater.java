@@ -36,12 +36,12 @@ public class WeightUpdater implements WeightVisitor {
     @Override
     public void visit(Weight weight, Value value) {
         int index = weight.index;
-        if (index > 0)
-            value.increment(weightUpdates[index]);
+        if (index >= 0)
+            weightUpdates[index].incrementBy(value);
     }
 
     @Deprecated
     public void visit(StatefulWeight weight, Value value) {
-        value.increment(weight.getAccumulatedUpdate()); //todo this will probably never get called, is StatefulWeight necessary?
+        weight.getAccumulatedUpdate().incrementBy(value); //todo this will probably never get called, is StatefulWeight necessary?
     }
 }

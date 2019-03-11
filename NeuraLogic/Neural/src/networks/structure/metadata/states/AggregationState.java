@@ -41,7 +41,7 @@ public abstract class AggregationState implements Aggregation.State {
 
         @Override
         public void cumulate(Value value) {
-            value.increment(summedInputs);
+            summedInputs.incrementBy(value);
         }
 
         @Override
@@ -154,7 +154,7 @@ public abstract class AggregationState implements Aggregation.State {
 
             @Override
             public void cumulate(Value value) {
-                value.increment(sum);
+                sum.incrementBy(value);
                 count++;
             }
 

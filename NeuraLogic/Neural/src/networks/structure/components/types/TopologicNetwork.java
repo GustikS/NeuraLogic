@@ -24,6 +24,10 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
         super(id, allNeurons.size());
         allNeuronsTopologic = topologicSort(allNeurons);
 
+        if (allNeuronsTopologic.size() != allNeurons.size()){
+            LOG.warning("Some neurons connected in the network are not in neuronmaps!");
+        }
+
         if (LOG.isLoggable(Level.FINEST))
             LOG.finest(allNeuronsTopologic.toString());
     }

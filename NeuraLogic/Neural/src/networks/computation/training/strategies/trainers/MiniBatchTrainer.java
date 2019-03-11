@@ -58,6 +58,18 @@ public class MiniBatchTrainer extends Trainer {
             }
             return resultList;
         }
+
+        @Override
+        public List<Result> evaluate(List<NeuralSample> trainingSet) {
+            List<Result> resultList = new ArrayList<>(trainingSet.size());
+            MiniBatchIterator miniBatchIterator = new MiniBatchIterator(settings, trainingSet);
+            while (miniBatchIterator.hasNext()) {
+                List<NeuralSample> minibatch = miniBatchIterator.next();
+                List<Result> results = minibatchParallelEvaluate(minibatch);
+                resultList.addAll(results);
+            }
+            return resultList;
+        }
     }
 
     /**
@@ -97,9 +109,19 @@ public class MiniBatchTrainer extends Trainer {
         if (sampleList.size() > minibatchSize) {
             LOG.severe("Minibatch size mismatch");
         }
-        List<Result> resultList = IntStream.range(0, minibatchSize).parallel().mapToObj(i -> new Task(trainers.get(i), sampleList.get(i))).map(task -> task.run(neuralModel)).collect(Collectors.toList());
+        List<Result> resultList = IntStream.range(0, minibatchSize).parallel().mapToObj(i -> new Task(trainers.get(i), sampleList.get(i))).map(task -> task.runLearning(neuralModel)).collect(Collectors.toList());
         return resultList;
     }
+
+    private List<Result> minibatchParallelEvaluate(List<NeuralSample> minibatch) {
+        List<Result> results = new ArrayList<>(minibatch.size());
+        if (minibatch.size() > minibatchSize) {
+            LOG.severe("Minibatch size mismatch");
+        }
+        List<Result> resultList = IntStream.range(0, minibatchSize).parallel().mapToObj(i -> new Task(trainers.get(i), minibatch.get(i))).map(task -> task.runEvaluation()).collect(Collectors.toList());
+        return resultList;
+    }
+
 
     /**
      * Single sample training task object encompassing the necessary resources. Used for parallel execution.
@@ -113,8 +135,13 @@ public class MiniBatchTrainer extends Trainer {
             this.sample = sample;
         }
 
-        public Result run(NeuralModel neuralModel) {
+        public Result runLearning(NeuralModel neuralModel) {
             return learnFromSample(neuralModel, sample, trainer.dropout, trainer.invalidation, trainer.evaluation, trainer.backpropagation);
+        }
+
+        public Result runEvaluation() {
+            invalidateSample(trainer.invalidation, sample);
+            return evaluateSample(trainer.evaluation, sample);
         }
     }
 

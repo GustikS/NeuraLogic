@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 
 /**
  * We consider vectors as both column and row vectors so that the multiplication with a matrix can return a vector.
- *
+ * <p>
  * Created by gusta on 8.3.17.
  */
 public class VectorValue extends Value {
@@ -104,6 +104,7 @@ public class VectorValue extends Value {
 
     /**
      * Default Double Dispatch
+     *
      * @param value
      * @return
      */
@@ -124,14 +125,16 @@ public class VectorValue extends Value {
     }
 
     //todo take care of an element-wise multiplication vs matrix
+
     /**
      * ELEMENT-WISE multiplication
+     *
      * @param value
      * @return
      */
     @Override
     public Value times(VectorValue value) {
-        if (value.values.length != values.length){
+        if (value.values.length != values.length) {
             LOG.severe("Vector element-wise multiplication dimension mismatch");
         }
         VectorValue result = value.getForm();
@@ -145,14 +148,15 @@ public class VectorValue extends Value {
 
     /**
      * Vectors are by default taken as columns, so multiplication is against the rows of the matrix.
-     *
+     * <p>
      * The result is naturally a vector of size rows(Matrix)
+     *
      * @param value
      * @return
      */
     @Override
     public VectorValue times(MatrixValue value) {
-        if (value.cols != values.length){
+        if (value.cols != values.length) {
             LOG.severe("Matrix row length mismatch with vector length for multiplication");
         }
         VectorValue result = new VectorValue(value.rows);
@@ -168,6 +172,7 @@ public class VectorValue extends Value {
 
     /**
      * Default double dispatch
+     *
      * @param value
      * @return
      */
@@ -189,7 +194,7 @@ public class VectorValue extends Value {
 
     @Override
     public VectorValue plus(VectorValue value) {
-        if (value.values.length != values.length){
+        if (value.values.length != values.length) {
             LOG.severe("Vector element-wise addition dimension mismatch");
         }
         VectorValue result = value.getForm();
@@ -203,6 +208,7 @@ public class VectorValue extends Value {
 
     /**
      * This is just not allowed unless the matrix is degenerated to vector, but it is just safer to disallow.
+     *
      * @param value
      * @return
      */
@@ -214,6 +220,7 @@ public class VectorValue extends Value {
 
     /**
      * Default Double Dispatch
+     *
      * @param value
      * @return
      */
@@ -235,7 +242,7 @@ public class VectorValue extends Value {
 
     @Override
     public Value minus(VectorValue value) {
-        if (value.values.length != values.length){
+        if (value.values.length != values.length) {
             LOG.severe("Vector element-wise addition dimension mismatch");
         }
         VectorValue result = value.getForm();
@@ -255,21 +262,32 @@ public class VectorValue extends Value {
 
     /**
      * Default double dispatch
+     *
      * @param value
      */
     @Override
-    public void increment(Value value) {
-        value.increment(this);
+    public void incrementBy(Value value) {
+        value.incrementBy(this);
     }
 
+    /**
+     * DD - switch of sides!!
+     *
+     * @param value
+     */
     @Override
-    public void increment(ScalarValue value) {
+    public void incrementBy(ScalarValue value) {
         LOG.severe("Incompatible dimensions of algebraic operation - scalar increment by vector");
     }
 
+    /**
+     * DD - switch of sides!!
+     *
+     * @param value
+     */
     @Override
-    public void increment(VectorValue value) {
-        if (value.values.length != values.length){
+    public void incrementBy(VectorValue value) {
+        if (value.values.length != values.length) {
             LOG.severe("Vector element-wise increment dimension mismatch");
         }
         double[] otherValues = value.values;
@@ -278,13 +296,19 @@ public class VectorValue extends Value {
         }
     }
 
+    /**
+     * DD - switch of sides!!
+     *
+     * @param value
+     */
     @Override
-    public void increment(MatrixValue value) {
+    public void incrementBy(MatrixValue value) {
         LOG.severe("Incompatible dimensions of algebraic operation - matrix increment by vector");
     }
 
     /**
      * Default double dispatch
+     *
      * @param maxValue
      * @return
      */
@@ -301,12 +325,12 @@ public class VectorValue extends Value {
                 greater++;
             }
         }
-        return greater > values.length/2;
+        return greater > values.length / 2;
     }
 
     @Override
     public boolean greaterThan(VectorValue maxValue) {
-        if (maxValue.values.length != values.length){
+        if (maxValue.values.length != values.length) {
             LOG.severe("Vector element-wise comparison dimension mismatch");
         }
         int greater = 0;
@@ -315,7 +339,7 @@ public class VectorValue extends Value {
                 greater++;
             }
         }
-        return greater > values.length/2;
+        return greater > values.length / 2;
     }
 
     @Override

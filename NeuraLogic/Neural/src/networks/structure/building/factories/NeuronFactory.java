@@ -51,7 +51,7 @@ public class NeuronFactory {
 
     public RuleNeuron createRuleNeuron(WeightedRule groundRule) {
         Activation activation = groundRule.activationFcn != null ? groundRule.activationFcn : Activation.getActivationFunction(settings.ruleNeuronActivation);
-        if (groundRule.crossProduct){
+        if (groundRule.crossProduct) {
             activation = new CrossProduct(activation);
         }
         State.Neural.Computation state = State.createBaseState(settings, activation);
@@ -61,10 +61,15 @@ public class NeuronFactory {
     }
 
     public FactNeuron createFactNeuron(ValuedFact fact) {
-        States.SimpleValue simpleValue = new States.SimpleValue(fact.getValue());
-        FactNeuron factNeuron = new FactNeuron(fact, counter++, simpleValue);
-        neuronMaps.factNeurons.put(fact.literal,factNeuron);
-        return factNeuron;
+        FactNeuron result = neuronMaps.factNeurons.get(fact.literal);
+        if (result == null) {    //fact neuron might have been created already and for them it is ok
+            States.SimpleValue simpleValue = new States.SimpleValue(fact.getValue());
+            FactNeuron factNeuron = new FactNeuron(fact, counter++, simpleValue);
+            neuronMaps.factNeurons.put(fact.literal, factNeuron);
+            return factNeuron;
+        } else {
+            return result;
+        }
     }
 
     public NegationNeuron createNegationNeuron(AtomFact atomFact, Activation negation) {
@@ -77,7 +82,7 @@ public class NeuronFactory {
 
     public WeightedRuleNeuron createWeightedRuleNeuron(WeightedRule groundRule) {
         Activation activation = groundRule.activationFcn != null ? groundRule.activationFcn : Activation.getActivationFunction(settings.ruleNeuronActivation);
-        if (groundRule.crossProduct){
+        if (groundRule.crossProduct) {
             activation = new CrossProduct(activation);
         }
         State.Neural.Computation state = State.createBaseState(settings, activation);

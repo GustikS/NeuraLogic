@@ -136,7 +136,7 @@ public abstract class States implements State {
         }
 
         public void storeGradient(Value value) {
-            value.increment(acumGradient);
+            acumGradient.incrementBy(value);
         }
     }
 

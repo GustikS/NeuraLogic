@@ -16,7 +16,7 @@ public class Sigmoid extends Activation {
 
     public Sigmoid() {
         super(logist,
-                in -> in > 100 || in < -100 ? 0 : logist.apply(in) * (1 - logist.apply(in))
+                in -> in > 100 || in < -100 ? 0 : logist.apply(in) * (1 - logist.apply(in))     //todo next optimize
         );
     }
 

@@ -24,7 +24,7 @@ public class Main {
         try {
             logging.initialize();
         } catch (IOException ex) {
-            LOG.severe("Could not initialize Logging\n" + ex.getMessage());
+            LOG.severe("Could not initialize Logging.\n" + ex.getMessage());
             System.exit(1);
         }
 
@@ -36,7 +36,7 @@ public class Main {
             settings.setupFromCommandline(cmd);
             sources = Sources.setupFromCommandline(settings, cmd);
         } catch (ParseException ex) {
-            LOG.severe("Unable to parse Commandline arguments into settings/sources: " + ex.getMessage());
+            LOG.severe("Unable to parse Commandline arguments into settings/source files.\n" + ex.getMessage());
             System.exit(1);
         }
 
@@ -53,12 +53,10 @@ public class Main {
         }
         LOG.finest("Building LearningScheme pipeline...");
         LearningSchemeBuilder pipelineBuilder = new LearningSchemeBuilder(settings,sources);
-        LOG.finest("LearningScheme pipeline has been built");
         Pipeline<Sources, Results> pipeline = pipelineBuilder.buildPipeline();
+        LOG.finest("LearningScheme pipeline has been built");
         LOG.finest("Running LearningScheme pipeline...");
         Pair<String, Results> target = pipeline.execute(sources);
-
-        LOG.info(target.r + " : " + target.s);
-        LOG.info("Pipeline " + pipeline + " has been successfully executed.");
+        LOG.info("Pipeline: " + target.r + " finished with result: " + target.s);
     }
 }

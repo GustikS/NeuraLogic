@@ -229,7 +229,7 @@ public class Settings {
     /**
      * Over all the restarts, how many epoch can be done at maximum.
      */
-    public int maxCumEpochCount = 10000;
+    public int maxCumEpochCount = 20;
 
     /**
      * with Minibatch = Shuffle samples with each epoch to create different minibatches.

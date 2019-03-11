@@ -147,7 +147,7 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
     }
 
     public <O, A extends Pipeline<S, O>> A registerStart(A p) {
-        start = p.start;
+        start = p;
         register(p);
         return p;
     }

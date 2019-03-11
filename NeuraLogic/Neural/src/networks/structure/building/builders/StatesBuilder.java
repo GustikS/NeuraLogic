@@ -114,7 +114,7 @@ public class StatesBuilder {
                         if (plus == null) {
                             LOG.severe("Input Values dimension mismatch at neuron:" + neuron);
                         } else {
-                            increment.increment(sum);
+                            sum.incrementBy(increment);
                         }
                     }
                 }
@@ -133,6 +133,8 @@ public class StatesBuilder {
         Value sum = inputs.next().getComputationView(0).getValue();
         if (sum == null) {
             LOG.severe("Value dimension cannot be inferred!" + neuron);
+        } else {
+            sum = sum.clone();  //we do not want to change any existing value here
         }
         while (inputs.hasNext()) {
             Neuron next = inputs.next();
@@ -147,7 +149,7 @@ public class StatesBuilder {
                     if (increment == null) {
                         LOG.severe("Input Values dimension mismatch at neuron:" + neuron);
                     } else {
-                        result.increment(sum);
+                        sum.incrementBy(result);
                     }
                 }
             }

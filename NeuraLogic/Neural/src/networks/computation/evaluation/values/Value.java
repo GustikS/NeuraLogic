@@ -12,7 +12,7 @@ import java.util.logging.Logger;
  * By default all the operations are considered as element-wise wherever possible.
  *
  * @implements Iterable which is meant to return the underlying elementary values in a predefined order, i.e. a serialization.
- *
+ * <p>
  * Created by gusta on 8.3.17.
  */
 public abstract class Value implements Iterable<Double> {
@@ -20,18 +20,21 @@ public abstract class Value implements Iterable<Double> {
 
     /**
      * Random elementary values
+     *
      * @param valueInitializer
      */
     public abstract void initialize(ValueInitializer valueInitializer);
 
     /**
      * Zero elementary values
+     *
      * @return
      */
     public abstract Value zero();
 
     /**
      * Deep copy
+     *
      * @return
      */
     public abstract Value clone();
@@ -45,12 +48,14 @@ public abstract class Value implements Iterable<Double> {
 
     /**
      * Dimension representation up to a 2D matrix
+     *
      * @return
      */
     public abstract int[] size();
 
     /**
      * Element-wise application of a given real function
+     *
      * @param function
      * @return
      */
@@ -61,7 +66,7 @@ public abstract class Value implements Iterable<Double> {
 
     /**
      * CONSTRUCTIVE multiplication, i.e. creation of a NEW Value under the hood to be returned.
-     *
+     * <p>
      * Uses double-dispatch with switch of the left-right hand sides to keep in mind!
      *
      * @param value
@@ -110,17 +115,18 @@ public abstract class Value implements Iterable<Double> {
      * @param value -THIS ONE WILL GET INCREMENTED BY THE CALLER!!
      * @return
      */
-    public abstract void increment(Value value);
+    public abstract void incrementBy(Value value);
 
-    public abstract void increment(ScalarValue value);
+    public abstract void incrementBy(ScalarValue value);
 
-    public abstract void increment(VectorValue value);
+    public abstract void incrementBy(VectorValue value);
 
-    public abstract void increment(MatrixValue value);
+    public abstract void incrementBy(MatrixValue value);
 
 
     /**
      * Comparison with ad-hoc semantics (based on majority) for Values of different dimensions.
+     *
      * @param maxValue
      * @return
      */
@@ -242,24 +248,23 @@ public abstract class Value implements Iterable<Double> {
         }
 
         @Override
-        public void increment(Value value) {
-            value.increment(one);
-        }
-
-        @Override
-        public void increment(ScalarValue value) {
-            LOG.warning("Trying to increment a constant ONE");
-            //void
-        }
-
-        @Override
-        public void increment(VectorValue value) {
+        public void incrementBy(Value value) {
             LOG.warning("Trying to increment a constant ONE");
         }
 
         @Override
-        public void increment(MatrixValue value) {
-            LOG.warning("Trying to increment a constant ONE");
+        public void incrementBy(ScalarValue value) {
+            one.incrementBy(value);
+        }
+
+        @Override
+        public void incrementBy(VectorValue value) {
+            one.incrementBy(value);
+        }
+
+        @Override
+        public void incrementBy(MatrixValue value) {
+            one.incrementBy(value);
         }
 
         @Override
@@ -391,23 +396,23 @@ public abstract class Value implements Iterable<Double> {
         }
 
         @Override
-        public void increment(Value value) {
-            //void
-        }
-
-        @Override
-        public void increment(ScalarValue value) {
+        public void incrementBy(Value value) {
             LOG.warning("Trying to increment a constant ZERO");
         }
 
         @Override
-        public void increment(VectorValue value) {
-            LOG.warning("Trying to increment a constant ZERO");
+        public void incrementBy(ScalarValue value) {
+            //increment by zero = no increment
         }
 
         @Override
-        public void increment(MatrixValue value) {
-            LOG.warning("Trying to increment a constant ZERO");
+        public void incrementBy(VectorValue value) {
+            //increment by zero = no increment
+        }
+
+        @Override
+        public void incrementBy(MatrixValue value) {
+            //increment by zero = no increment
         }
 
         @Override

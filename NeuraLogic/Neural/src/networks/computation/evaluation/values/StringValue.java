@@ -119,22 +119,22 @@ public class StringValue extends Value {
     }
 
     @Override
-    public void increment(Value value) {
+    public void incrementBy(Value value) {
 
     }
 
     @Override
-    public void increment(ScalarValue value) {
+    public void incrementBy(ScalarValue value) {
 
     }
 
     @Override
-    public void increment(VectorValue value) {
+    public void incrementBy(VectorValue value) {
 
     }
 
     @Override
-    public void increment(MatrixValue value) {
+    public void incrementBy(MatrixValue value) {
 
     }
 

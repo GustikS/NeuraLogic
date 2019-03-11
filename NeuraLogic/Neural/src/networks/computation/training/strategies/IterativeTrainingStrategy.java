@@ -4,7 +4,6 @@ import learning.crossvalidation.splitting.Splitter;
 import networks.computation.evaluation.results.Progress;
 import networks.computation.evaluation.results.Result;
 import networks.computation.evaluation.results.Results;
-import networks.computation.iteration.actions.Evaluation;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import networks.computation.training.optimizers.Optimizer;
@@ -20,7 +19,6 @@ import utils.generic.Pair;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -42,11 +40,6 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     ListTrainer trainer;
 
-    /**
-     * Iterative strategy needs a separrate {@link Evaluation} on its own (not just in the trainer).
-     */
-    Evaluation evaluation;
-
     public IterativeTrainingStrategy(Settings settings, NeuralModel model, List<NeuralSample> sampleList) {
         super(settings, model);
         this.trainer = getTrainerFrom(settings);
@@ -58,7 +51,6 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         this.validationSet = trainVal.s;
 
         this.learnRateDecayStrategy = LearnRateDecayStrategy.getFrom(settings, learningRate);
-        this.evaluation = new Evaluation(settings);    //todo check do we need to parallelize here?
         this.restartingStrategy = RestartingStrategy.getFrom(settings);
     }
 
@@ -145,8 +137,8 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     }
 
     private TrainVal evaluateModel() {
-        List<Result> trainingResults = trainingSet.parallelStream().map(s -> evaluation.evaluate(s)).collect(Collectors.toList());
-        List<Result> validationResults = validationSet.parallelStream().map(s -> evaluation.evaluate(s)).collect(Collectors.toList());
+        List<Result> trainingResults = trainer.evaluate(trainingSet);
+        List<Result> validationResults = trainer.evaluate(validationSet);
         return new TrainVal(trainingResults, validationResults);
     }
 

@@ -18,4 +18,5 @@ public interface ListTrainer {
      */
     List<Result> learnEpoch(NeuralModel neuralModel, List<NeuralSample> sampleList);
 
+    List<Result> evaluate(List<NeuralSample> trainingSet);
 }

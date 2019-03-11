@@ -47,7 +47,7 @@ public class Trainer {
         dropouter.process(neuralSample.query.evidence, neuralSample.query.neuron);
     }
 
-    void invalidateSample(IndependentNeuronProcessing invalidation, NeuralSample neuralSample) {
+    public void invalidateSample(IndependentNeuronProcessing invalidation, NeuralSample neuralSample) {
         neuralSample.query.evidence.initializeStatesCache(index);    //here we can transfer information from Structure to Computation
         invalidation.process(neuralSample.query.evidence, neuralSample.query.neuron);
     }

@@ -60,6 +60,6 @@ public class Weight {
 
     @Override
     public String toString() {
-        return value.toString();
+        return name + " " + value.toString();
     }
 }

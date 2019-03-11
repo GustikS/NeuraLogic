@@ -43,6 +43,13 @@ public class AsyncParallelTrainer extends SequentialTrainer {
                     map(neuralSample -> learnFromSample(neuralModel, neuralSample, dropout, invalidation, evaluation, backpropagation)).collect(Collectors.toList());
             return resultList;
         }
+
+        @Override
+        public List<Result> evaluate(List<NeuralSample> sampleList) {
+            List<Result> resultList = sampleList.parallelStream().
+                    map(neuralSample -> evaluateSample(evaluation, neuralSample)).collect(Collectors.toList());
+            return resultList;
+        }
     }
 
     public class AsyncStreamTrainer implements StreamTrainer {

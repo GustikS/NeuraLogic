@@ -31,7 +31,7 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
     }
 
     public Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> buildPipeline() {
-        Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> pipeline = new Pipeline<Stream<GroundingSample>, Stream<NeuralSample>>("NeuralNetsCreation");
+        Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> pipeline = new Pipeline<Stream<GroundingSample>, Stream<NeuralSample>>("NeuralNetsCreationPipeline");
 
         Pipe<Stream<GroundingSample>, Stream<NeuralProcessingSample>> neuralizationPipe = pipeline.registerStart(new Pipe<Stream<GroundingSample>, Stream<NeuralProcessingSample>>("SupervisedNeuralizationPipe") {
             @Override

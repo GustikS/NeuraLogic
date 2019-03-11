@@ -219,24 +219,39 @@ public class ScalarValue extends Value {
      * @param value
      */
     @Override
-    public void increment(Value value) {
-        value.increment(this);
+    public void incrementBy(Value value) {
+        value.incrementBy(this);
     }
 
+    /**
+     * DD - switch of sides!!
+     *
+     * @param value
+     */
     @Override
-    public void increment(ScalarValue value) {
+    public void incrementBy(ScalarValue value) {
         value.value += this.value;
     }
 
+    /**
+     * DD - switch of sides!!
+     *
+     * @param value
+     */
     @Override
-    public void increment(VectorValue value) {
+    public void incrementBy(VectorValue value) {
         for (int i = 0; i < value.values.length; i++) {
             value.values[i] += this.value;
         }
     }
 
+    /**
+     * DD - switch of sides!!
+     *
+     * @param value
+     */
     @Override
-    public void increment(MatrixValue value) {
+    public void incrementBy(MatrixValue value) {
         for (int i = 0; i < value.rows; i++) {
             for (int j = 0; j < value.cols; j++) {
                 value.values[i][j] += this.value;
@@ -256,6 +271,7 @@ public class ScalarValue extends Value {
 
     /**
      * Greater iff greater than majority
+     *
      * @param maxValue
      * @return
      */
@@ -267,11 +283,12 @@ public class ScalarValue extends Value {
                 greater++;
             }
         }
-        return greater > maxValue.values.length/2;
+        return greater > maxValue.values.length / 2;
     }
 
     /**
      * Greater iff greater than majority
+     *
      * @param maxValue
      * @return
      */

@@ -49,7 +49,7 @@ public class ElementProduct extends Activation {
         Value sum = inputs.get(0).clone().zero();
         for (Value input : inputs) {
             //"Scalar" element-wise aligned summation
-            input.increment(sum);
+            sum.incrementBy(input);
         }
         return sum;
     }
