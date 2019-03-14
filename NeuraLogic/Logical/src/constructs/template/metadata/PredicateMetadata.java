@@ -19,7 +19,7 @@ public class PredicateMetadata extends Metadata<WeightedPredicate> {
     @Override
     public boolean addValidateMetadatum(String parameterText, Object value) {
         Parameter parameter = new Parameter(parameterText);
-        ParameterValue parameterValue = null;
+        ParameterValue parameterValue = new ParameterValue(value);
 
         boolean valid = false;
         if (parameter.type == Parameter.Type.OFFSET && parameterValue.type == ParameterValue.Type.VALUE) {

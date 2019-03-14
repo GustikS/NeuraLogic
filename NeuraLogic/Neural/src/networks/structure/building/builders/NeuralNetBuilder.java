@@ -61,7 +61,7 @@ public class NeuralNetBuilder {
             headAtomNeuron = neuralBuilder.neuronFactory.createAtomNeuron(rules.entrySet().iterator().next().getValue().iterator().next().head); //it doesn't matter which rule's head (they are all the same)
         } else {
             headAtomNeuron.isShared = true;
-            if (rules.entrySet().size() > 0) {  //if there are NEW rules for this headAtomNeuron to be processed, it means that we need to change its inputs in context of this new network! todo check for normal mode if really only the new rules are passed in
+            if (rules.entrySet().size() > 0) {  //if there are NEW rules for this headAtomNeuron to be processed, it means that we need to change its inputs in context of this new network!
                 WeightedNeuronMapping<AggregationNeuron> inputMapping;
                 if ((inputMapping = (WeightedNeuronMapping<AggregationNeuron>) neuronMaps.extraInputMapping.get(headAtomNeuron)) != null) {    //if previously existing atom neuron already had input overmapping, create a new (incremental) one
                     neuronMaps.extraInputMapping.put(headAtomNeuron, new WeightedNeuronMapping<>(inputMapping));
@@ -135,6 +135,7 @@ public class NeuralNetBuilder {
         for (Map.Entry<Literal, ValuedFact> factEntry : groundFacts.entrySet()) {
             neuralBuilder.neuronFactory.createFactNeuron(factEntry.getValue());
         }
+        groundFacts.clear();  //remove facts that will already have corresponding neurons with them
     }
 
     /**

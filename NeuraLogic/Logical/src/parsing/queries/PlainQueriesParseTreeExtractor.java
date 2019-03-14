@@ -1,6 +1,7 @@
 package parsing.queries;
 
 import constructs.Conjunction;
+import constructs.building.factories.VariableFactory;
 import constructs.example.ValuedFact;
 import parsing.antlr.NeuralogicParser;
 import parsing.grammarParsing.PlainGrammarVisitor;
@@ -31,8 +32,11 @@ public class PlainQueriesParseTreeExtractor extends QueriesParseTreeExtractor<Pl
 
     @Override
     public Stream<Pair<ValuedFact, Conjunction>> getLabeledQueries(NeuralogicParser.QueriesFileContext ctx) {
+        VariableFactory variableFactory = new VariableFactory();
         PlainGrammarVisitor.FactVisitor factVisitor = visitor.new FactVisitor();
+        factVisitor.variableFactory = variableFactory;
         PlainGrammarVisitor.FactConjunctionVisitor factConjunctionVisitor = visitor.new FactConjunctionVisitor();
+        factConjunctionVisitor.variableFactory = variableFactory;
         if (ctx.conjunction() != null) {
             Stream<Conjunction> queriesStream = ctx.conjunction().stream().map(line -> line.accept(factConjunctionVisitor));
             if (ctx.atom() != null && ctx.atom().size() > 0) {

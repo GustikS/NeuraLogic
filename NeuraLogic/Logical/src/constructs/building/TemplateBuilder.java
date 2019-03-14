@@ -10,6 +10,7 @@ import constructs.template.metadata.TemplateMetadata;
 import constructs.template.metadata.WeightMetadata;
 import constructs.template.types.ParsedTemplate;
 import networks.structure.components.weights.Weight;
+import parsing.antlr.NeuralogicParser;
 import parsing.grammarParsing.PlainGrammarVisitor;
 import parsing.template.PlainTemplateParseTree;
 import parsing.template.PlainTemplateParseTreeExtractor;
@@ -68,13 +69,14 @@ public class TemplateBuilder extends LogicSourceBuilder<PlainTemplateParseTree, 
      */
     public ParsedTemplate buildFrom(PlainTemplateParseTree plainParseTree, PlainTemplateParseTreeExtractor templateParseTreeExtractor) {
 
-        List<WeightedRule> weightedRules = templateParseTreeExtractor.getWeightedRules(plainParseTree.getRoot());
-        List<ValuedFact> valuedFacts = templateParseTreeExtractor.getWeightedFacts(plainParseTree.getRoot());
-        List<Conjunction> weightedConjunctions = templateParseTreeExtractor.getWeightedConjunctions(plainParseTree.getRoot());
+        NeuralogicParser.TemplateFileContext parseTreeRoot = plainParseTree.getRoot();
+        List<WeightedRule> weightedRules = templateParseTreeExtractor.getWeightedRules(parseTreeRoot);
+        List<ValuedFact> valuedFacts = templateParseTreeExtractor.getWeightedFacts(parseTreeRoot);
+        List<Conjunction> weightedConjunctions = templateParseTreeExtractor.getWeightedConjunctions(parseTreeRoot);
 
-        List<Pair<WeightedPredicate, Map<String, Object>>> predicatesMetadata = templateParseTreeExtractor.getPredicatesMetadata(plainParseTree.getRoot());
-        List<Pair<Weight, Map<String, Object>>> weightsMetadata = templateParseTreeExtractor.getWeightsMetadata(plainParseTree.getRoot());
-        Map<String, Object> templateMetadata = templateParseTreeExtractor.getTemplateMetadata(plainParseTree.getRoot());
+        List<Pair<WeightedPredicate, Map<String, Object>>> predicatesMetadata = templateParseTreeExtractor.getPredicatesMetadata(parseTreeRoot);
+        List<Pair<Weight, Map<String, Object>>> weightsMetadata = templateParseTreeExtractor.getWeightsMetadata(parseTreeRoot);
+        Map<String, Object> templateMetadata = templateParseTreeExtractor.getTemplateMetadata(parseTreeRoot);
 
         ParsedTemplate template = new ParsedTemplate(weightedRules, valuedFacts);
         template.addConstraints(weightedConjunctions);  //todo check what are weighted conjunctions in template

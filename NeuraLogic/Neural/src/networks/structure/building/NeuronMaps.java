@@ -1,6 +1,8 @@
 package networks.structure.building;
 
+import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
+import constructs.example.ValuedFact;
 import constructs.template.components.WeightedRule;
 import ida.ilp.logic.Literal;
 import networks.structure.components.neurons.BaseNeuron;
@@ -10,6 +12,18 @@ import networks.structure.metadata.inputMappings.LinkedMapping;
 import java.util.*;
 
 public class NeuronMaps {
+
+    /**
+     * Ground rules that are NOT yet in the neuronmaps
+     */
+    @NotNull
+    public LinkedHashMap<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> groundRules;    //todo next
+
+    /**
+     * Facts that are NOT yet in the neuronmaps
+     */
+    @NotNull
+    public Map<Literal, ValuedFact> groundFacts;
 
     public Map<Literal, AtomNeuron> atomNeurons = new HashMap<>();
     public Map<WeightedRule, AggregationNeuron> aggNeurons = new HashMap<>();
@@ -22,6 +36,11 @@ public class NeuronMaps {
      */
     @Nullable
     public Map<BaseNeuron, LinkedMapping> extraInputMapping = new HashMap<>();
+
+    public NeuronMaps(LinkedHashMap<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> groundRules, Map<Literal, ValuedFact> groundFacts) {
+        this.groundRules = new LinkedHashMap<>(groundRules);
+        this.groundFacts = new HashMap<>(groundFacts);
+    }
 
     public void addAllFrom(NeuronMaps neuronMaps) {
         atomNeurons.putAll(neuronMaps.atomNeurons);

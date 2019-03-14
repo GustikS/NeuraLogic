@@ -158,7 +158,7 @@ public class PlainTemplateParseTreeExtractor extends TemplateParseTreeExtractor<
             PlainGrammarVisitor.PredicateMetadataVisitor predicateMetadataVisitor = visitor.new PredicateMetadataVisitor();
             List<Pair<WeightedPredicate, Map<String, Object>>> predicateMetadataList = template_lines.stream()
                     .filter(line -> line.predicateMetadata() != null)
-                    .map(line -> line.lrnnRule().accept(predicateMetadataVisitor))
+                    .map(line -> line.predicateMetadata().accept(predicateMetadataVisitor))
                     .collect(Collectors.toMap(pair -> pair.r, pair -> pair.s, Metadata::merge))
                     .entrySet().stream()
                     .map(entry -> new Pair<>(entry.getKey(), entry.getValue()))

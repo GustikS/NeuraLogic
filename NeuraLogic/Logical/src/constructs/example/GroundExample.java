@@ -18,7 +18,10 @@ public class GroundExample implements Example {
 
     public LinkedHashSet<ValuedFact> flatFacts;
 
-    public GroundExample(){}
+    public GroundExample() {
+        conjunctions = new LinkedHashSet<>();
+        flatFacts = new LinkedHashSet<>();
+    }
 
     public GroundExample(List<Conjunction> body) {
         conjunctions = new LinkedHashSet<>();

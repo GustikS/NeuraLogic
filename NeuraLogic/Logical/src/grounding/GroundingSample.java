@@ -7,7 +7,7 @@ import constructs.template.Template;
 public class GroundingSample extends LogicSample {
 
     public Template template;
-    public Wrap grounding;
+    public Wrap groundingWrap;
 
     /**
      * Switch between reusing the Wrapped grounding without change, or just in incremental grounding mode
@@ -17,7 +17,7 @@ public class GroundingSample extends LogicSample {
     public GroundingSample(LogicSample sample, Template template) {
         super(sample.target, sample.query);
         this.template = template;
-        grounding = new Wrap(sample.query.evidence);
+        groundingWrap = new Wrap(sample.query.evidence);
     }
 
     /**

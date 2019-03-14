@@ -33,6 +33,11 @@ public class GroundTemplate extends GraphTemplate implements Example {
     public Map<Literal, ValuedFact> groundFacts;
 
     /**
+     * Inferred ground facts from heads of the inferred ground rules
+     */
+    public Set<Literal> derivedGroundFacts; //todo next where are these useful?
+
+    /**
      * Linking between logic literals and rules and neurons - can be possibly reused between different GroundTemplates, so it is saved here.
      */
     public NeuronMaps neuronMaps;   //todo move to grounding.GroundingSample for clarity
@@ -44,12 +49,14 @@ public class GroundTemplate extends GraphTemplate implements Example {
     public GroundTemplate(LinkedHashMap<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> groundRules, Map<Literal, ValuedFact> groundFacts) {
         this.groundRules = groundRules;
         this.groundFacts = groundFacts;
-        this.neuronMaps = new NeuronMaps();
+        this.derivedGroundFacts = getFactsFromGroundRules(groundRules);
+        this.neuronMaps = new NeuronMaps(groundRules, groundFacts);
     }
 
     public GroundTemplate(GroundTemplate other) {
         this.groundRules = other.groundRules;
         this.groundFacts = other.groundFacts;
+        this.derivedGroundFacts = other.derivedGroundFacts;
         this.neuronMaps = other.neuronMaps;
     }
 
@@ -64,9 +71,16 @@ public class GroundTemplate extends GraphTemplate implements Example {
     }
 
 
+    private Set<Literal> getFactsFromGroundRules(LinkedHashMap<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> groundRules) {
+        Set<Literal> derivedFacts = new HashSet<>();
+        derivedFacts.addAll(groundRules.keySet());
+        return derivedFacts;
+    }
+
     /**
      * Returns set difference of this GroundTemplate w.r.t. memory in terms of Rules and Facts,
      * but takes all the previous neurons from memory.
+     *
      * @param memory
      * @return
      */

@@ -16,7 +16,7 @@ public class SupervisedGroundTemplatePruning extends Pipe<Stream<GroundingSample
     @Override
     public Stream<GroundingSample> apply(Stream<GroundingSample> groundingSampleStream) {
         return groundingSampleStream.map(p -> {
-            p.grounding.setGroundTemplate(p.grounding.getGroundTemplate().prune(p.query));
+            p.groundingWrap.setGroundTemplate(p.groundingWrap.getGroundTemplate().prune(p.query));
             return p;
         });
     }

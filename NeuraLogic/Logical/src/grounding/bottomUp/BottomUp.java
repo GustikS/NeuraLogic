@@ -90,11 +90,13 @@ public class BottomUp extends Grounder {
         if (memory == null) {
             memory = new GroundTemplate();
         }
-        herbrandModel.populateHerbrand(memory.groundFacts.keySet());
+        herbrandModel.populateHerbrand(memory.groundFacts.keySet());    //add what was known before
+        herbrandModel.populateHerbrand(memory.derivedGroundFacts);  //also add what has been previously derived!
         GroundTemplate bigger = groundRulesAndFacts(example, template);
         GroundTemplate diff = bigger.diffAgainst(memory);
         memory.groundRules = bigger.groundRules;
         memory.groundFacts = bigger.groundFacts;
+        memory.derivedGroundFacts = bigger.derivedGroundFacts;
         return diff;
     }
 }

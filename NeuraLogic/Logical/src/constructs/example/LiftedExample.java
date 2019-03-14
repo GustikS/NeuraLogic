@@ -18,6 +18,8 @@ public class LiftedExample extends GroundExample {
     public LinkedHashSet<WeightedRule> rules;
 
     public LiftedExample() {
+        super();
+        rules = new LinkedHashSet<>();
     }
 
     public LiftedExample(List<Conjunction> conjunctions, List<WeightedRule> irules) {

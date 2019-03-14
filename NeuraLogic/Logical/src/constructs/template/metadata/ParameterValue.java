@@ -28,8 +28,16 @@ public class ParameterValue {
         if (value instanceof Weight) {
             type = Type.WEIGHT;
         } else if (value instanceof StringValue) {
-            type = Type.STRING;
+            if (stringValue.equals("true")) {
+                type = Type.BOOLEAN;
+                this.value = (boolean) true;
+            } else if (stringValue.equals("false")) {
+                type = Type.BOOLEAN;
+                this.value = (boolean) false;
+            } else
+                type = Type.STRING;
         } else if (value instanceof Value) {
+            type = Type.VALUE;
             if (value instanceof ScalarValue) {
                 //todo
             } else if (value instanceof VectorValue) {

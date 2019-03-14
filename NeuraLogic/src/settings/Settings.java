@@ -405,7 +405,7 @@ public class Settings {
                 break;
         }
 
-        String _groundingMode = cmd.getOptionValue("groundingMode", "normal");
+        String _groundingMode = cmd.getOptionValue("groundingMode", "global");
         switch (_groundingMode) {
             case "normal":
                 groundingMode = GroundingMode.NORMAL;
@@ -482,6 +482,10 @@ public class Settings {
             neuralState = NeuralState.PARENTS;
         } else if (dropoutRate > 0 && parentCounting) {
             neuralState = NeuralState.PAR_DROPOUT;
+        }
+
+        if (groundingMode == GroundingMode.SEQUENTIAL){
+            forceFullNetworks = true;   //if we sequentially add new facts/rules, and then after grounding we take just the diff, the rules might not be connected, i.e. we need to turn them all blindly to neurons.
         }
 
         //TODO

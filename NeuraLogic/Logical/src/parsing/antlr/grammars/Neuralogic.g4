@@ -57,8 +57,8 @@ offset: weight;
 value: number | vector | matrix | dimensions;
 
 number: INT | FLOAT;
-vector: LPAREN number (COMMA number)* RPAREN;
-matrix: LPAREN vector+ RPAREN;
+vector: LBRACKET number (COMMA number)* RBRACKET;
+matrix: LBRACKET vector+ RBRACKET;
 dimensions: LBRACKET number (COMMA number)* RBRACKET;
 
 negation: NEGATION;

@@ -27,8 +27,8 @@ public class SequentiallySharedGroundingPipe extends Pipe<Stream<GroundingSample
             groundingSampleStream.sequential();
         }
         return groundingSampleStream.map(gs -> {
-            if (gs.grounding.getGroundTemplate() == null || !gs.groundingComplete) {
-                gs.grounding.setGroundTemplate(grounder.groundRulesAndFacts(gs.query.evidence, gs.template, stored));  //todo test for case with multiple queries on 1 example with sequential sharing (do we still increment against the last query here?)
+            if (gs.groundingWrap.getGroundTemplate() == null || !gs.groundingComplete) {
+                gs.groundingWrap.setGroundTemplate(grounder.groundRulesAndFacts(gs.query.evidence, gs.template, stored));  //todo test for case with multiple queries on 1 example with sequential sharing (do we still increment against the last query here?)
             }
             return gs;
         });

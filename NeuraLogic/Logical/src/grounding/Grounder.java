@@ -166,7 +166,7 @@ public abstract class Grounder {
 
         GroundTemplate groundTemplate = groundRulesAndFacts(liftedExample, template);
 
-        sampleList.forEach(sample -> sample.grounding.setGroundTemplate(groundTemplate));
+        sampleList.forEach(sample -> sample.groundingWrap.setGroundTemplate(groundTemplate));
         return sampleList;
     }
 }

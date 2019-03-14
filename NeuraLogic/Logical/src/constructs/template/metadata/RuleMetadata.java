@@ -26,14 +26,20 @@ public class RuleMetadata extends Metadata<WeightedRule> {
 
         boolean valid = false;
         if (parameter.type == Parameter.Type.OFFSET && parameterValue.type == ParameterValue.Type.VALUE) {
-
-        } else if (parameter.type == Parameter.Type.ACTIVATION && parameterValue.type == ParameterValue.Type.STRING) {
-            switch ((String) parameterValue.value) {
+            valid = true;
+        } else if ( parameter.type == Parameter.Type.LEARNABLE && parameterValue.type == ParameterValue.Type.BOOLEAN){
+            valid = true;
+        }
+        else if (parameter.type == Parameter.Type.ACTIVATION && parameterValue.type == ParameterValue.Type.STRING) {
+            switch (parameterValue.stringValue) {
                 case "sigmoid":
                     parameterValue.value = new Sigmoid();
+                    valid = true;
                     break;
                 case "crossproduct":
                     parameterValue.value = new CrossProduct(Activation.getActivationFunction(settings.ruleNeuronActivation));
+                    valid = true;
+                    break;
             }
             //todo
         }

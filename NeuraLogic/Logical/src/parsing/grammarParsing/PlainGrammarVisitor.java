@@ -18,6 +18,7 @@ import parsing.antlr.NeuralogicBaseVisitor;
 import parsing.antlr.NeuralogicParser;
 import utils.generic.Pair;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,10 +92,15 @@ public class PlainGrammarVisitor extends GrammarVisitor {
 
             TermVisitor termVisitor = new TermVisitor();
             termVisitor.variableFactory = this.variableFactory;
-            List<Term> terms = ctx.termList().term()
-                    .stream()
-                    .map(term -> term.accept(termVisitor))
-                    .collect(Collectors.toList());
+            List<Term> terms;
+            if (ctx.termList() != null) {
+                terms = ctx.termList().term()
+                        .stream()
+                        .map(term -> term.accept(termVisitor))
+                        .collect(Collectors.toList());
+            } else {
+                terms = new ArrayList<>(0);
+            }
 
             WeightedPredicate predicate = ctx.predicate().accept(new PredicateVisitor(terms.size()));
             Weight weight = ctx.weight() != null ? ctx.weight().accept(new WeightVisitor()) : null;
@@ -132,7 +138,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
     }
 
     public class FactConjunctionVisitor extends NeuralogicBaseVisitor<Conjunction> {
-        VariableFactory variableFactory;
+        public VariableFactory variableFactory;
 
         @Override
         public Conjunction visitConjunction(@NotNull NeuralogicParser.ConjunctionContext ctx) {
@@ -147,7 +153,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
     }
 
     public class FactVisitor extends NeuralogicBaseVisitor<ValuedFact> {
-        VariableFactory variableFactory;
+        public VariableFactory variableFactory;
 
         @Override
         public ValuedFact visitFact(@NotNull NeuralogicParser.FactContext ctx) {
@@ -158,10 +164,15 @@ public class PlainGrammarVisitor extends GrammarVisitor {
         public ValuedFact visitAtom(@NotNull NeuralogicParser.AtomContext ctx) {
             TermVisitor termVisitor = new TermVisitor();
             termVisitor.variableFactory = this.variableFactory;
-            List<Term> terms = ctx.termList().term()
-                    .stream()
-                    .map(term -> term.accept(termVisitor))
-                    .collect(Collectors.toList());
+            List<Term> terms;
+            if (ctx.termList() != null) {
+                terms = ctx.termList().term()
+                        .stream()
+                        .map(term -> term.accept(termVisitor))
+                        .collect(Collectors.toList());
+            } else {
+                terms = new ArrayList<>(0);
+            }
 
             WeightedPredicate predicate = ctx.predicate().accept(new PredicateVisitor(terms.size()));
 
@@ -323,7 +334,10 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             Map<String, Object> metadata = new LinkedHashMap<>();
             for (NeuralogicParser.MetadataValContext paramVal : ctx.metadataVal()) {
                 String parameter = paramVal.ATOMIC_NAME(0).getText();
-                String valueText = paramVal.ATOMIC_NAME(1).getText();
+                String valueText = null;
+                if (paramVal.ATOMIC_NAME(1) != null) {
+                    valueText = paramVal.ATOMIC_NAME(1).getText();
+                }
                 Object value;
                 if (paramVal.DOLLAR() != null) {
                     value = builder.weightFactory.construct(valueText);

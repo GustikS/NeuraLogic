@@ -38,6 +38,7 @@ public class NeuronFactory {
         State.Neural.Computation state = State.createBaseState(settings, activation);
         AtomNeuron<State.Neural.Computation> atomNeuron = new AtomNeuron<>(head, counter++, state);
         neuronMaps.atomNeurons.put(head.literal, atomNeuron);
+        LOG.finest("Created atom neuron: " + atomNeuron);
         return atomNeuron;
     }
 
@@ -46,6 +47,7 @@ public class NeuronFactory {
         State.Neural.Computation state = State.createBaseState(settings, aggregation);
         AggregationNeuron<State.Neural.Computation> aggregationNeuron = new AggregationNeuron<>(weightedRule, counter++, state);
         neuronMaps.aggNeurons.put(weightedRule, aggregationNeuron);
+        LOG.finest("Created aggregation neuron: " + aggregationNeuron);
         return aggregationNeuron;
     }
 
@@ -57,6 +59,7 @@ public class NeuronFactory {
         State.Neural.Computation state = State.createBaseState(settings, activation);
         RuleNeuron<State.Neural.Computation> ruleNeuron = new RuleNeuron<>(groundRule, counter++, state);
         neuronMaps.ruleNeurons.put(groundRule, ruleNeuron);
+        LOG.finest("Created rule neuron: " + ruleNeuron);
         return ruleNeuron;
     }
 
@@ -66,6 +69,7 @@ public class NeuronFactory {
             States.SimpleValue simpleValue = new States.SimpleValue(fact.getValue());
             FactNeuron factNeuron = new FactNeuron(fact, counter++, simpleValue);
             neuronMaps.factNeurons.put(fact.literal, factNeuron);
+            LOG.finest("Created fact neuron: " + factNeuron);
             return factNeuron;
         } else {
             return result;
@@ -77,6 +81,7 @@ public class NeuronFactory {
         State.Neural.Computation state = State.createBaseState(settings, activation);
         NegationNeuron<State.Neural.Computation> negationNeuron = new NegationNeuron<>(atomFact, counter++, state);
         neuronMaps.negationNeurons.add(negationNeuron);
+        LOG.finest("Created negation neuron: " + negationNeuron);
         return negationNeuron;
     }
 
@@ -88,6 +93,7 @@ public class NeuronFactory {
         State.Neural.Computation state = State.createBaseState(settings, activation);
         WeightedRuleNeuron<State.Neural.Computation> weightedRuleNeuron = new WeightedRuleNeuron<>(groundRule, counter++, state);
         neuronMaps.ruleNeurons.put(groundRule, weightedRuleNeuron);
+        LOG.finest("Created weightedRule neuron: " + weightedRuleNeuron);
         return weightedRuleNeuron;
     }
 }
