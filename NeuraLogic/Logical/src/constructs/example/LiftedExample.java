@@ -34,4 +34,8 @@ public class LiftedExample extends GroundExample {
         rules.addAll(evidence.rules);
     }
 
+    @Override
+    public String toString() {
+        return "ex:" + getId() + "- facts: " + flatFacts.size() + ", conjunctions: " + conjunctions.size() + ", rules: " + rules.size();
+    }
 }

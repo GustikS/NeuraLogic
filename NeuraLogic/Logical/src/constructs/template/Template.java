@@ -138,4 +138,9 @@ public class Template implements Model<QueryAtom> {
         facts.addAll(template.facts);
         constraints.addAll(template.constraints);
     }
+
+    @Override
+    public String toString() {
+        return id + ", rules: " + rules.size() + ", facts: " + facts.size() + ", constraints: " + constraints.size();
+    }
 }

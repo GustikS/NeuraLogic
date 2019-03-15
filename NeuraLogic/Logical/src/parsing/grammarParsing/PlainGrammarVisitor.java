@@ -53,7 +53,13 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             headVisitor.variableFactory = this.variableFactory;
             // we hack it through BodyAtom here to pass the weight of the rule
             BodyAtom headAtom = ctx.atom().accept(headVisitor);
-            rule.weight = headAtom.getConjunctWeight();  //rule weight
+            Weight weight = headAtom.getConjunctWeight();//rule weight
+
+            if (weight == null){
+                rule.weight = Weight.unitWeight;
+            } else {
+                rule.weight = weight;
+            }
 
             rule.head = new HeadAtom(headAtom);
 
@@ -133,6 +139,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
                     .collect(Collectors.toList());
 
             LiftedExample liftedExample = new LiftedExample(conjunctions, rules);
+            LOG.info("Example extracted: " + liftedExample);
             return liftedExample;
         }
     }
@@ -176,9 +183,12 @@ public class PlainGrammarVisitor extends GrammarVisitor {
 
             WeightedPredicate predicate = ctx.predicate().accept(new PredicateVisitor(terms.size()));
 
-            Weight weight = ctx.weight().accept(new WeightVisitor());
+            Weight weight = null;
+            if (ctx.weight() != null) {
+                weight = ctx.weight().accept(new WeightVisitor());
+            }
             if (weight == null) {
-                weight = builder.weightFactory.construct("foo", new ScalarValue(0), false);
+                weight = builder.weightFactory.construct("foo", new ScalarValue(1), false);
             }
 
             ValuedFact fact = new ValuedFact(predicate, terms, ctx.negation() != null, weight);

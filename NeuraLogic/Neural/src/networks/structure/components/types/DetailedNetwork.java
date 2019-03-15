@@ -118,5 +118,4 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
         this.hasSharedNeurons = sharedNeuronsCount > 0;
         this.sharedNeuronsCount = sharedNeuronsCount;
     }
-
 }

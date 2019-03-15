@@ -79,6 +79,7 @@ public class Neuralizer {
         GroundTemplate groundTemplate = groundingSample.groundingWrap.getGroundTemplate();
 
         List<Literal> queryMatchingLiterals = getQueryMatchingLiterals(queryAtom, groundTemplate.groundRules);
+        LOG.finest("QueryMatchingLiterals: "+ queryMatchingLiterals);
 
         DetailedNetwork neuralNetwork;
         if (settings.forceFullNetworks) {   //we can possibly still be forced to create the whole network, even if parts of it are not connected to the query, e.g. if the rules are not connected
@@ -86,8 +87,11 @@ public class Neuralizer {
         } else {
             neuralNetBuilder = loadAllNeuronsStartingFromQueryLiterals(groundTemplate, queryMatchingLiterals);
             neuralNetBuilder.loadNeuronsFromFacts(groundTemplate.neuronMaps.groundFacts);
+            LOG.finer("Neurons created: " + neuralNetBuilder.getNeuronMaps());
             neuralNetBuilder.connectAllNeurons();
+            LOG.finer("All neurons connected.");
             neuralNetwork = neuralNetBuilder.finalizeStoredNetwork(groundTemplate.getId());
+            LOG.finer("Neural network created: " + neuralNetwork);
         }
 
         return getQueryNeurons(queryAtom, neuralNetBuilder.getNeuronMaps(), neuralNetwork, queryMatchingLiterals);

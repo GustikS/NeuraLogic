@@ -43,6 +43,9 @@ public class QueryAtom extends Query<LiftedExample, Template> {
 
     @Override
     public String toString() {
-        return headAtom.toString();
+        if (headAtom != null)
+            return headAtom.toString();
+        else
+            return "null";
     }
 }

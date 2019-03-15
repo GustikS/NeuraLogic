@@ -29,7 +29,7 @@ public class Settings {
     /**
      * How detailed the log should be in general
      */
-    public static Level loggingLevel = Level.FINEST;
+    public static Level loggingLevel = Level.FINER;
     /**
      * Colorful console output?
      */
@@ -71,7 +71,7 @@ public class Settings {
     /**
      * If there's no need for keeping the given sequence, ground in parallel in the given context
      */
-    public boolean parallelGrounding = groundingMode != GroundingMode.SEQUENTIAL;
+    public boolean parallelGrounding = false;
 
     /**
      * Type of grounder
@@ -405,7 +405,7 @@ public class Settings {
                 break;
         }
 
-        String _groundingMode = cmd.getOptionValue("groundingMode", "global");
+        String _groundingMode = cmd.getOptionValue("groundingMode", "normal");
         switch (_groundingMode) {
             case "normal":
                 groundingMode = GroundingMode.NORMAL;

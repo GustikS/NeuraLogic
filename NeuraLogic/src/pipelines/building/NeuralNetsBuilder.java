@@ -39,7 +39,7 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
                 return groundingSampleStream
                         .map(sample -> neuralizer.neuralize(sample).stream())
                         .flatMap(f -> f)
-                        .peek(s -> LOG.info("q: " + s.toString()));
+                        .peek(s -> LOG.info("NeuralNet created: " + s.toString()));
             }
         });
 

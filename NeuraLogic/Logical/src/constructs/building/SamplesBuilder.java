@@ -72,7 +72,7 @@ public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRu
         );
 
         //this is where the examples get finally calculated
-        if (map.size() == 0){
+        if (map.size() == 0) {
             LOG.severe("There are no learning examples created!");
         }
         if (map.size() == 1) {
@@ -114,6 +114,7 @@ public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRu
             LOG.severe("Example-Query merging inconsistency: " + q1 + " + " + q2);
         }
         query.query.evidence = example.query.evidence;
+        LOG.info("Example and query have been merged into: " + query);
         return query;
     }
 

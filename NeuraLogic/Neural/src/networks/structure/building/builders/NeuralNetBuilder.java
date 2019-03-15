@@ -188,10 +188,13 @@ public class NeuralNetBuilder {
      */
     public DetailedNetwork finalizeStoredNetwork(String id) {
         DetailedNetwork neuralNetwork = neuralBuilder.networkFactory.createDetailedNetwork(neuralBuilder.neuronFactory.neuronMaps, id);
+        LOG.finer("DetailedNetwork created.");
 
         StatesBuilder statesBuilder = neuralBuilder.statesBuilder;
         //fill all the states with correct dimension values
         statesBuilder.inferValues(neuralNetwork);
+
+        LOG.finer("Neuron dimensions inferred.");
 
         if (settings.dropoutRate > 0) {
             statesBuilder.setupDropoutStates(neuralNetwork);  //setup individual dropout rates for each neuron
@@ -209,7 +212,7 @@ public class NeuralNetBuilder {
         }
 
         int sharedNeuronsCount = statesBuilder.makeSharedStatesRecursively(neuralNetwork);
-
+        LOG.finer("Shared neurons marked.");
         neuralNetwork.setSharedNeuronsCount(sharedNeuronsCount);
 
         return neuralNetwork;

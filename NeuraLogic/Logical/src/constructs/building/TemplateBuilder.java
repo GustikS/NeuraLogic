@@ -87,6 +87,7 @@ public class TemplateBuilder extends LogicSourceBuilder<PlainTemplateParseTree, 
         template.predicatesMetadata = predicatesMetadata.stream().map(pair -> new Pair<>(pair.r, new PredicateMetadata(settings, pair.s))).collect(Collectors.toList());
         template.weightsMetadata = weightsMetadata.stream().map(pair -> new Pair<>(pair.r, new WeightMetadata(settings, pair.s))).collect(Collectors.toList());
 
+        LOG.fine("Template has been built : " + template);
         return template;
     }
 

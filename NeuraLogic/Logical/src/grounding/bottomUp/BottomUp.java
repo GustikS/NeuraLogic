@@ -10,6 +10,7 @@ import grounding.Grounder;
 import ida.ilp.logic.HornClause;
 import ida.ilp.logic.Literal;
 import ida.ilp.logic.Term;
+import ida.utils.VectorUtils;
 import settings.Settings;
 import utils.generic.Pair;
 
@@ -55,8 +56,11 @@ public class BottomUp extends Grounder {
                 facts.addAll(templateAllFacts);
         }
 
+        LOG.fine("Infering Herbrand model...");
         herbrandModel.inferModel(ruleMap.keySet(), facts);
+        LOG.fine("...HerbrandModel inferred with " + VectorUtils.sum(herbrandModel.herbrand.sizes()) + " facts");
 
+        LOG.fine("Grounding of " + ruleMap.size() + " rules...");
         for (Map.Entry<HornClause, List<WeightedRule>> ruleEntry : ruleMap.entrySet()) {
             Pair<Term[], List<Term[]>> groundingSubstitutions = herbrandModel.groundingSubstitutions(ruleEntry.getKey());
             for (WeightedRule weightedRule : ruleEntry.getValue()) {
@@ -64,12 +68,18 @@ public class BottomUp extends Grounder {
                 for (WeightedRule grounding : groundings) {
                     Map<WeightedRule, LinkedHashSet<WeightedRule>> rules2groundings =
                             groundRules.computeIfAbsent(grounding.head.getLiteral(), k -> new LinkedHashMap<>());
+
+                    //aggregation neurons correspond to lifted rule with particular ground head
+                    WeightedRule groundHeadRule = new WeightedRule(weightedRule);
+                    groundHeadRule.head = grounding.head;
+
                     LinkedHashSet<WeightedRule> ruleGroundings =
-                            rules2groundings.computeIfAbsent(weightedRule, k -> new LinkedHashSet<>());
+                            rules2groundings.computeIfAbsent(groundHeadRule, k -> new LinkedHashSet<>());
                     ruleGroundings.add(grounding);
                 }
             }
         }
+        LOG.fine("...ground rules created.");
         GroundTemplate groundTemplate = new GroundTemplate(groundRules, groundFacts);
         herbrandModel.clear();
         return groundTemplate;

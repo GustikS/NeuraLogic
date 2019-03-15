@@ -18,6 +18,6 @@ public abstract class LearningSample<Q extends Query> {
 
     @Override
     public String toString() {
-        return getId() + ":" + target.toString() + " " + query.toString();
+        return getId() + ":" + target + " " + query;
     }
 }

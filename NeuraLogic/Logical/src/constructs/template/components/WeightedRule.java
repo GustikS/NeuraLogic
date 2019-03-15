@@ -124,10 +124,16 @@ public class WeightedRule {
             return false;
         }
         WeightedRule other = (WeightedRule) obj;
-        if (!weight.equals(other.weight) || !offset.equals(other.offset)) {
+        if (weight == null && other.weight != null || weight != null && other.weight == null){
             return false;
         }
-        if (!aggregationFcn.equals(other.aggregationFcn) || ! activationFcn.equals(other.activationFcn)){
+        if (offset == null && other.offset != null || offset != null && other.offset == null){
+            return false;
+        }
+        if (weight != null && !weight.equals(other.weight) || offset != null && !offset.equals(other.offset)) {
+            return false;
+        }
+        if (aggregationFcn != null && !aggregationFcn.equals(other.aggregationFcn) || activationFcn != null && !activationFcn.equals(other.activationFcn)) {
             return false;
         }
         if (!head.equals(other.head) || ! body.equals(other.body)){

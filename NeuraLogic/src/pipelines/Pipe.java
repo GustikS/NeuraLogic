@@ -43,7 +43,7 @@ public abstract class Pipe<I, O> extends Block implements Function<I, O>, Connec
 
     public O get() {
         if (outputReady == null) {
-            LOG.info("The result of pipe " + ID + " is requested but not yet calculated (backtracking in the execution graph).");
+            LOG.finer("The result of pipe " + ID + " is requested but not yet calculated (backtracking in the execution graph).");
         }
         return outputReady;
     }

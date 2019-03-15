@@ -50,4 +50,17 @@ public class NeuronMaps {
 
         extraInputMapping.putAll(neuronMaps.extraInputMapping);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Nmaps: groundRules: ").append(groundRules.size());
+        sb.append(", groundFacts: ").append(groundFacts.size());
+        sb.append(", atomNeurons: ").append(atomNeurons.size());
+        sb.append(", aggNeurons: ").append(aggNeurons.size());
+        sb.append(", ruleNeurons: ").append(ruleNeurons.size());
+        sb.append(", factNeurons: ").append(factNeurons.size());
+        sb.append(", negationNeurons: ").append(negationNeurons.size());
+        return sb.toString();
+    }
 }

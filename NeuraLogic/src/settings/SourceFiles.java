@@ -116,7 +116,8 @@ public class SourceFiles extends Sources {
         }
 
         try {
-            this.train.ExamplesReader = new FileReader(this.trainExamples = Paths.get(foldDir.toString(), cmd.getOptionValue("trainExamples", settings.trainExamplesFile)).toFile());
+            this.trainExamples = Paths.get(foldDir.toString(), cmd.getOptionValue("trainExamples", settings.trainExamplesFile)).toFile();
+            this.train.ExamplesReader = new FileReader(this.trainExamples);
             switch (Utilities.identifyFileTypeUsingFilesProbeContentType(trainExamples.toString())) {
                 case "text/plain":
                     LOG.finer("Input train examples file type identified as plain text");

@@ -4,6 +4,7 @@ import constructs.Conjunction;
 import constructs.example.LogicSample;
 import constructs.example.ValuedFact;
 import networks.computation.evaluation.values.ScalarValue;
+import parsing.antlr.NeuralogicParser;
 import parsing.grammarParsing.PlainGrammarVisitor;
 import parsing.queries.PlainQueriesParseTree;
 import parsing.queries.PlainQueriesParseTreeExtractor;
@@ -36,7 +37,9 @@ public class QueriesBuilder extends SamplesBuilder<PlainQueriesParseTree, Pair<V
     public Stream<Pair<ValuedFact, Conjunction>> buildFrom(PlainQueriesParseTree parseTree) {
         PlainGrammarVisitor plainGrammarVisitor = new PlainGrammarVisitor(this);
         PlainQueriesParseTreeExtractor queriesParseTreeExtractor = new PlainQueriesParseTreeExtractor(plainGrammarVisitor);
-        return queriesParseTreeExtractor.getLabeledQueries(parseTree.getRoot());
+        NeuralogicParser.QueriesFileContext queriesFileContext = parseTree.getRoot();
+        inferInputFormatSettings(queriesFileContext);
+        return queriesParseTreeExtractor.getLabeledQueries(queriesFileContext);
     }
 
     /**
@@ -72,5 +75,23 @@ public class QueriesBuilder extends SamplesBuilder<PlainQueriesParseTree, Pair<V
 
         String minibatch = String.valueOf(queryCounter);
         return queries.map(f -> new LogicSample(f.getValue(), createQueryAtom(minibatch, f)));
+    }
+
+    private void inferInputFormatSettings(NeuralogicParser.QueriesFileContext queriesFileContext) {
+        if (queriesFileContext.atom() != null && !queriesFileContext.atom().isEmpty()){
+            LOG.info("Detecting queries to have Ids (to examples) with them!");
+        }
+        int size = queriesFileContext.conjunction().size();
+        if (size == 0){
+            LOG.warning("There are no queries in the queries source (file)!");
+        } else if (size == 1){
+            LOG.warning("There is only 1 query to learn from!");
+        }
+        if (queriesFileContext.conjunction(0).atom().size() > 1){   //todo this is just a heuristic
+            LOG.info("Detecting multiple individual queries per example.");
+            settings.oneQueryPerExample = false;
+        } else {
+            settings.oneQueryPerExample = true;
+        }
     }
 }

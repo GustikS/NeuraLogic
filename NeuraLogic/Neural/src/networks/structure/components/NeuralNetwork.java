@@ -98,7 +98,7 @@ public class NeuralNetwork<N extends State.Neural.Structure> implements Example 
      * Load/process all information from the Structural states of neurons
      */
     public void initializeStatesCache(int stateView) {
-        if (neuronStates != null){
+        if (neuronStates != null) {
             neuronStates.initialize(stateView);
         }
     }
@@ -202,6 +202,11 @@ public class NeuralNetwork<N extends State.Neural.Structure> implements Example 
 
     @Deprecated
     public <V> NeuronIterating getPreferredTDownIterator(NeuronVisitor.Weighted vNeuronVisitor, BaseNeuron<Neuron, State.Neural> outputNeuron) {
-        return new DFSstack().new TDownIterator( (NeuralNetwork<State.Neural.Structure>)this, outputNeuron, vNeuronVisitor);
+        return new DFSstack().new TDownIterator((NeuralNetwork<State.Neural.Structure>) this, outputNeuron, vNeuronVisitor);
+    }
+
+    @Override
+    public String toString() {
+        return "net: " + id + ", neurons: " + neuronCount;
     }
 }

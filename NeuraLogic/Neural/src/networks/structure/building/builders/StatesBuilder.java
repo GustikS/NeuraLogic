@@ -86,7 +86,11 @@ public class StatesBuilder {
         if (neuronIterator.hasNext()) {
             State.Neural.Computation computationView = neuronIterator.next().getComputationView(0);
             value = computationView.getValue();
-            weight = weightIterator.next().value;
+            Weight nextWeight = weightIterator.next();
+            if (nextWeight == null){
+                LOG.warning("");
+            }
+            weight = nextWeight.value;
         }
 
         if (value == null || weight == null) {

@@ -44,10 +44,13 @@ public class BodyAtom extends Atom {
 
     @Override
     public boolean equals(Object obj) {
-        if (!super.equals(obj)){
+        if (!super.equals(obj)) {
             return false;
         }
         BodyAtom other = (BodyAtom) obj;
-        return weight.equals(other.weight);
+        if (weight != null)
+            return weight.equals(other.weight);
+        else
+            return other.weight == null;
     }
 }
