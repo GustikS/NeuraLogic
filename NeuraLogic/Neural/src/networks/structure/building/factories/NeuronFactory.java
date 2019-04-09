@@ -43,7 +43,7 @@ public class NeuronFactory {
     }
 
     public AggregationNeuron createAggNeuron(WeightedRule weightedRule) {
-        Aggregation aggregation = weightedRule.aggregationFcn != null ? weightedRule.activationFcn : Aggregation.getAggregation(settings.aggNeuronActivation);
+        Aggregation aggregation = weightedRule.getAggregationFcn() != null ? weightedRule.getActivationFcn() : Aggregation.getAggregation(settings.aggNeuronActivation);
         State.Neural.Computation state = State.createBaseState(settings, aggregation);
         AggregationNeuron<State.Neural.Computation> aggregationNeuron = new AggregationNeuron<>(weightedRule, counter++, state);
         neuronMaps.aggNeurons.put(weightedRule, aggregationNeuron);
@@ -52,12 +52,12 @@ public class NeuronFactory {
     }
 
     public RuleNeuron createRuleNeuron(WeightedRule groundRule) {
-        Activation activation = groundRule.activationFcn != null ? groundRule.activationFcn : Activation.getActivationFunction(settings.ruleNeuronActivation);
-        if (groundRule.crossProduct) {
+        Activation activation = groundRule.getActivationFcn() != null ? groundRule.getActivationFcn() : Activation.getActivationFunction(settings.ruleNeuronActivation);
+        if (groundRule.isCrossProduct()) {
             activation = new CrossProduct(activation);
         }
         State.Neural.Computation state = State.createBaseState(settings, activation);
-        RuleNeuron<State.Neural.Computation> ruleNeuron = new RuleNeuron<>(groundRule, counter++, state);
+        RuleNeuron<State.Neural.Computation> ruleNeuron = new RuleNeuron<>(settings.fullRuleNeuronStrings ? groundRule.toRuleNeuronString() : groundRule.getOriginalString(), counter++, state);
         neuronMaps.ruleNeurons.put(groundRule, ruleNeuron);
         LOG.finest("Created rule neuron: " + ruleNeuron);
         return ruleNeuron;
@@ -86,8 +86,8 @@ public class NeuronFactory {
     }
 
     public WeightedRuleNeuron createWeightedRuleNeuron(WeightedRule groundRule) {
-        Activation activation = groundRule.activationFcn != null ? groundRule.activationFcn : Activation.getActivationFunction(settings.ruleNeuronActivation);
-        if (groundRule.crossProduct) {
+        Activation activation = groundRule.getActivationFcn() != null ? groundRule.getActivationFcn() : Activation.getActivationFunction(settings.ruleNeuronActivation);
+        if (groundRule.isCrossProduct()) {
             activation = new CrossProduct(activation);
         }
         State.Neural.Computation state = State.createBaseState(settings, activation);

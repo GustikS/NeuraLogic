@@ -7,7 +7,6 @@ import constructs.example.LogicSample;
 import learning.Query;
 import pipelines.Pipe;
 import pipelines.Pipeline;
-import pipelines.pipes.generic.IdentityGenPipe;
 import settings.Settings;
 import settings.Source;
 
@@ -96,7 +95,16 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
 
     public Pipe<Stream<LogicSample>, Stream<LogicSample>> postprocessSamplesPipe() {
         //todo for instance order by example id
-        Pipe<Stream<LogicSample>, Stream<LogicSample>> postProcessPipe = new IdentityGenPipe<>();
+        Pipe<Stream<LogicSample>, Stream<LogicSample>> postProcessPipe = new Pipe<Stream<LogicSample>, Stream<LogicSample>>("PostprocessSamplesPipe") {
+            @Override
+            public Stream<LogicSample> apply(Stream<LogicSample> logicSampleStream) {
+                if (settings.limitSamples > 0){
+                    LOG.warning("Limiting the learning samples to the first: " + settings.limitSamples);
+                    logicSampleStream = logicSampleStream.limit(settings.limitSamples);
+                }
+                return logicSampleStream;
+            }
+        };
         return postProcessPipe;
     }
 }

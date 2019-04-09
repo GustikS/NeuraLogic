@@ -1,4 +1,5 @@
 import org.junit.Test;
+import settings.Settings;
 
 public class MainTest {
 
@@ -17,6 +18,11 @@ public class MainTest {
     @Test
     public void mutagenesis() {
         String[] args = new String("-e ./resources/datasets/mutagenesis/examples -t ./resources/datasets/mutagenesis/template_old -q ./resources/datasets/mutagenesis/queries").split(" ");
-        Main.main(args);
+
+        Settings settings = new Settings();
+        settings.limitSamples = 100;
+        settings.maxCumEpochCount = 0;
+
+        Main.main(args, settings);
     }
 }

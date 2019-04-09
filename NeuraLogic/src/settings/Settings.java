@@ -87,6 +87,8 @@ public class Settings {
      */
     public AggregationFcn factMergeActivation = AggregationFcn.MAX;
 
+    public int limitSamples = 60;
+
     //-----------------Neural nets creation
     /**
      * Prune out ground rules with no support for a given query EXPLICITLY in advance (even though in a supervised pipeline, only support will be taken recursively)
@@ -166,6 +168,11 @@ public class Settings {
      * Do we need to count parents to use during neural iterations (DFS, BFS)?
      */
     public boolean parentCounting;
+
+    /**
+     * Each rule neuron to have the actual grounding combination string with it? (may create a lot of unique strings and consume memory)
+     */
+    public boolean fullRuleNeuronStrings = false;
 
     //-----------------Evaluation & Training
 

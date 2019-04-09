@@ -57,9 +57,9 @@ public class RuleMetadata extends Metadata<WeightedRule> {
     private void apply(WeightedRule object, Parameter param, ParameterValue value) {
         if (param.type == Parameter.Type.ACTIVATION) {
             if (value.value instanceof CrossProduct){
-                object.activationFcn = object.activationFcn != null ? new CrossProduct(object.activationFcn) : new CrossProduct(Activation.getActivationFunction(settings.ruleNeuronActivation));
+                object.setActivationFcn(object.getActivationFcn() != null ? new CrossProduct(object.getActivationFcn()) : new CrossProduct(Activation.getActivationFunction(settings.ruleNeuronActivation)));
             }
-            object.activationFcn = (Activation) value.value;
+            object.setActivationFcn((Activation) value.value);
         }
     }
 }

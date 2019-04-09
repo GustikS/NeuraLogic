@@ -3,8 +3,6 @@ package utils.logging;
 /**
  * Created by gusta on 27.2.18.
  */
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -29,7 +27,7 @@ class HtmlFormatter extends Formatter {
 
         buf.append("</td>\n");
         buf.append("\t<td>");
-        buf.append(calcDate(rec.getMillis()));
+        buf.append(Logging.calcDate(rec.getMillis()));
         buf.append("</td>\n");
         buf.append("\t<td>");
         buf.append(formatMessage(rec));
@@ -37,11 +35,5 @@ class HtmlFormatter extends Formatter {
         buf.append("</tr>\n");
 
         return buf.toString();
-    }
-
-    private String calcDate(long millisecs) {
-        SimpleDateFormat date_format = new SimpleDateFormat("MMM dd,yyyy HH:mm");
-        Date resultdate = new Date(millisecs);
-        return date_format.format(resultdate);
     }
 }

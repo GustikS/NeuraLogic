@@ -32,6 +32,6 @@ public class ClassificationResults extends RegressionResults {
 
     @Override
     public String toString(){
-        return error.toString();
+        return "error: " + error.toString();
     }
 }

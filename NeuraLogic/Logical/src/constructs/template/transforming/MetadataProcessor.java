@@ -48,8 +48,8 @@ public class MetadataProcessor {
         }
 
         for (WeightedRule rule : template.rules) {
-            if (rule.metadata != null)
-                rule.metadata.applyTo(rule);
+            if (rule.getMetadata() != null)
+                rule.getMetadata().applyTo(rule);
         }
 
         if (template.templateMetadata != null)

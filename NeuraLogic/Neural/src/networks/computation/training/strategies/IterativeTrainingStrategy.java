@@ -71,7 +71,9 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     }
 
     public Pair<NeuralModel, Progress> train() {
+        LOG.finer("Starting with neural training.");
         initTraining();
+        LOG.finer("Training initialized.");
         int epochae = 0;
         for (int restart = 0; restart < settings.restartCount; restart++) {
             initRestart();
@@ -117,6 +119,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     protected void endEpoch(int count, List<Result> onlineEvaluations) {
         Results onlineResults = resultsFactory.createFrom(onlineEvaluations);
         progress.addOnlineResults(onlineResults);
+        LOG.finer(count + " : " + onlineResults);
         if (count % settings.resultsRecalculationEpochae == 0) {
             recalculateResults();
         }

@@ -1,7 +1,5 @@
 package utils.logging;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -20,8 +18,12 @@ public class ColoredFormatter extends Formatter {
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_WHITE = "\u001B[37m";
 
-    // Here you can configure the format of the output and
-    // its color by using the ANSI escape codes defined above.
+    private long finestTimer = System.currentTimeMillis();
+    private long finerTimer = System.currentTimeMillis();
+    private long fineTimer = System.currentTimeMillis();
+    private long infoTimer = System.currentTimeMillis();
+    private long warningTimer = System.currentTimeMillis();
+    private long severeTimer = System.currentTimeMillis();
 
     // format is called for every console log message
     @Override
@@ -31,28 +33,46 @@ public class ColoredFormatter extends Formatter {
         // followed by the log message and it's parameters in white .
         StringBuilder builder = new StringBuilder();
         Level level = record.getLevel();
+
+        long clock = record.getMillis();
+        long delta = 0;
+
         switch (level.getName()){
             case "FINEST":
+                delta = clock - finestTimer;
+                finestTimer = clock;
                 builder.append(ANSI_YELLOW);
                 break;
             case "FINER":
+                delta = clock - finerTimer;
+                finerTimer = clock;
                 builder.append(ANSI_CYAN);
                 break;
             case "FINE":
+                delta = clock - fineTimer;
+                fineTimer = clock;
                 builder.append(ANSI_BLUE);
                 break;
             case "INFO":
+                delta = clock - infoTimer;
+                infoTimer = clock;
                 builder.append(ANSI_BLACK);
                 break;
             case "WARNING":
+                delta = clock - warningTimer;
+                warningTimer = clock;
                 builder.append(ANSI_PURPLE);
                 break;
             case "SEVERE":
+                delta = clock - severeTimer;
+                severeTimer = clock;
                 builder.append(ANSI_RED);
                 break;
         }
 
-        builder.append(calcDate(record.getMillis()));
+        builder.append("+").append(delta).append("ms - ");
+
+        builder.append(Logging.calcDate(record.getMillis()));
 
         builder.append(" <");
         builder.append(record.getSourceClassName());
@@ -86,11 +106,5 @@ public class ColoredFormatter extends Formatter {
         builder.append(ANSI_RESET);
         builder.append("\n");
         return builder.toString();
-    }
-
-    private String calcDate(long millisecs) {
-        SimpleDateFormat date_format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SS");
-        Date resultdate = new Date(millisecs);
-        return date_format.format(resultdate);
     }
 }

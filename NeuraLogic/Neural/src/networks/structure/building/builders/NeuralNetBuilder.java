@@ -58,7 +58,7 @@ public class NeuralNetBuilder {
         //1) head AtomNeuron creation
         if ((headAtomNeuron = neuronMaps.atomNeurons.get(head)) == null) {
             newAtomNeuron = true;
-            headAtomNeuron = neuralBuilder.neuronFactory.createAtomNeuron(rules.entrySet().iterator().next().getValue().iterator().next().head); //it doesn't matter which rule's head (they are all the same)
+            headAtomNeuron = neuralBuilder.neuronFactory.createAtomNeuron(rules.entrySet().iterator().next().getValue().iterator().next().getHead()); //it doesn't matter which rule's head (they are all the same)
         } else {
             headAtomNeuron.isShared = true;
             if (rules.entrySet().size() > 0) {  //if there are NEW rules for this headAtomNeuron to be processed, it means that we need to change its inputs in context of this new network!
@@ -90,12 +90,12 @@ public class NeuralNetBuilder {
                 }
             }
             if (newAtomNeuron) {
-                headAtomNeuron.addInput(aggNeuron, rules2groundings.getKey().weight);
+                headAtomNeuron.addInput(aggNeuron, rules2groundings.getKey().getWeight());
             } else {
                 LOG.info("Warning-  modifying previous state - Creating input overmapping for this Atom neuron: " + headAtomNeuron);
                 WeightedNeuronMapping<AggregationNeuron> inputMapping = (WeightedNeuronMapping<AggregationNeuron>) neuronMaps.extraInputMapping.get(headAtomNeuron);
                 inputMapping.addLink(aggNeuron);
-                inputMapping.addWeight(rules2groundings.getKey().weight);
+                inputMapping.addWeight(rules2groundings.getKey().getWeight());
             }
             //3) RuleNeurons creation
             for (WeightedRule grounding : rules2groundings.getValue()) {
@@ -150,10 +150,10 @@ public class NeuralNetBuilder {
 
         for (Map.Entry<WeightedRule, RuleNeurons> entry : neuronMaps.ruleNeurons.entrySet()) {
             RuleNeurons ruleNeuron = entry.getValue();
-            if (ruleNeuron.inputCount() == entry.getKey().body.size()) {
+            if (ruleNeuron.inputCount() == entry.getKey().getBody().size()) {
                 continue;   //this rule neuron is already connected (was created and taken from previous sample), connect only the newly created RuleNeurons
             }
-            for (BodyAtom bodyAtom : entry.getKey().body) {
+            for (BodyAtom bodyAtom : entry.getKey().getBody()) {
                 Weight weight = bodyAtom.getConjunctWeight();
 
                 AtomFact input = neuronMaps.atomNeurons.get(bodyAtom.getLiteral()); //input is an atom neuron?
@@ -190,6 +190,10 @@ public class NeuralNetBuilder {
         DetailedNetwork neuralNetwork = neuralBuilder.networkFactory.createDetailedNetwork(neuralBuilder.neuronFactory.neuronMaps, id);
         LOG.finer("DetailedNetwork created.");
 
+        //todo next - Aggregation neuron count
+
+        /*
+
         StatesBuilder statesBuilder = neuralBuilder.statesBuilder;
         //fill all the states with correct dimension values
         statesBuilder.inferValues(neuralNetwork);
@@ -214,7 +218,7 @@ public class NeuralNetBuilder {
         int sharedNeuronsCount = statesBuilder.makeSharedStatesRecursively(neuralNetwork);
         LOG.finer("Shared neurons marked.");
         neuralNetwork.setSharedNeuronsCount(sharedNeuronsCount);
-
+*/
         return neuralNetwork;
     }
 

@@ -19,6 +19,10 @@ public class Main {
     private static final Logger LOG = Logger.getLogger(Main.class.getName());
 
     public static void main(String[] args) {
+        main(args, null);
+    }
+
+    public static void main(String[] args, Settings settings) {
 
         Logging logging = new Logging();
         try {
@@ -29,7 +33,9 @@ public class Main {
         }
 
         CommandLineHandler cmdh = new CommandLineHandler();
-        Settings settings = new Settings();
+        if (settings == null) {
+            settings = new Settings();
+        }
         Sources sources = null;
         try {
             CommandLine cmd = cmdh.parseParams(args, settings);
@@ -52,11 +58,12 @@ public class Main {
             System.exit(2);
         }
         LOG.finest("Building LearningScheme pipeline...");
-        LearningSchemeBuilder pipelineBuilder = new LearningSchemeBuilder(settings,sources);
+        LearningSchemeBuilder pipelineBuilder = new LearningSchemeBuilder(settings, sources);
         Pipeline<Sources, Results> pipeline = pipelineBuilder.buildPipeline();
         LOG.finest("LearningScheme pipeline has been built");
         LOG.finest("Running LearningScheme pipeline...");
         Pair<String, Results> target = pipeline.execute(sources);
         LOG.info("Pipeline: " + target.r + " finished with result: " + target.s);
+        logging.finish();
     }
 }

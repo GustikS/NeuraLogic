@@ -26,22 +26,21 @@ public class WeightedRule {
      */
     boolean isEditable = false;
 
-    public Weight weight;
-    public Weight offset;
+    private Weight weight;
+    private Weight offset;
 
-    public HeadAtom head;
-    public List<BodyAtom> body;
+    private HeadAtom head;
+    private List<BodyAtom> body;
 
-    public Activation aggregationFcn;
-    public Activation activationFcn;
+    private Activation aggregationFcn;
+    private Activation activationFcn;
 
-    public RuleMetadata metadata;
-    public String originalString;
+    private RuleMetadata metadata;
+    private String originalString;
 
-    /**
-     * Apply {@link networks.computation.evaluation.functions.CrossProduct} activation on the inputs of the rule?
-     */
-    public boolean crossProduct;
+    int hashcode = -1;
+
+    private boolean crossProduct;
 
     public WeightedRule() {
 
@@ -52,21 +51,21 @@ public class WeightedRule {
      * @param other
      */
     public WeightedRule(WeightedRule other) {
-        this.weight = other.weight;
-        this.head = other.head;
-        this.body = new ArrayList<>(other.body.size());
-        this.body.addAll(other.body);
-        this.offset = other.offset;
-        this.aggregationFcn = other.aggregationFcn;
-        this.activationFcn = other.activationFcn;
-        this.metadata = other.metadata;
-        this.originalString = other.originalString;
+        this.setWeight(other.getWeight());
+        this.setHead(other.getHead());
+        this.setBody(new ArrayList<>(other.getBody().size()));
+        this.getBody().addAll(other.getBody());
+        this.setOffset(other.getOffset());
+        this.setAggregationFcn(other.getAggregationFcn());
+        this.setActivationFcn(other.getActivationFcn());
+        this.setMetadata(other.getMetadata());
+        this.setOriginalString(other.getOriginalString());
         this.isEditable = other.isEditable;
     }
 
     public HornClause toHornClause() {
-        List<Literal> collected = body.stream().map(bodyLit -> bodyLit.getLiteral()).collect(Collectors.toList());
-        return new HornClause(head.getLiteral(), new Clause(collected));
+        List<Literal> collected = getBody().stream().map(bodyLit -> bodyLit.getLiteral()).collect(Collectors.toList());
+        return new HornClause(getHead().getLiteral(), new Clause(collected));
     }
 
     /**
@@ -83,9 +82,9 @@ public class WeightedRule {
             var2term.put(variables[i], terms[i]);
         }
 
-        ruleCopy.head = head.ground(var2term);
-        for (int i = 0; i < body.size(); i++) {
-            ruleCopy.body.set(i, body.get(i).ground(var2term));
+        ruleCopy.setHead(getHead().ground(var2term));
+        for (int i = 0; i < getBody().size(); i++) {
+            ruleCopy.getBody().set(i, getBody().get(i).ground(var2term));
         }
 
         return ruleCopy;
@@ -93,15 +92,15 @@ public class WeightedRule {
 
     public String signatureString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(head.getPredicate()).append(":-");
-        for (BodyAtom bodyAtom : body) {
+        sb.append(getHead().getPredicate()).append(":-");
+        for (BodyAtom bodyAtom : getBody()) {
             sb.append(bodyAtom.getPredicate()).append(",");
         }
         return sb.toString();
     }
 
     public boolean hasWeightedBody() {
-        for (BodyAtom bodyAtom : body) {
+        for (BodyAtom bodyAtom : getBody()) {
             if (bodyAtom.weight != null) {
                 return true;
             }
@@ -109,46 +108,120 @@ public class WeightedRule {
         return false;
     }
 
-    /**
-     * todo test go back to default hash?
-     * @return
-     */
     @Override
     public int hashCode() {
-        return head.hashCode() + body.hashCode();
+        return getHead().hashCode() + getBody().hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
+        if (obj == this){   //this should catch absolute majority of all calls (due to factory creation and unique hash)
+            return true;
+        }
         if (!(obj instanceof WeightedRule)) {
             return false;
         }
         WeightedRule other = (WeightedRule) obj;
-        if (weight == null && other.weight != null || weight != null && other.weight == null){
+        if (getWeight() == null && other.getWeight() != null || getWeight() != null && other.getWeight() == null){
             return false;
         }
-        if (offset == null && other.offset != null || offset != null && other.offset == null){
+        if (getOffset() == null && other.getOffset() != null || getOffset() != null && other.getOffset() == null){
             return false;
         }
-        if (weight != null && !weight.equals(other.weight) || offset != null && !offset.equals(other.offset)) {
+        if (getWeight() != null && !getWeight().equals(other.getWeight()) || getOffset() != null && !getOffset().equals(other.getOffset())) {
             return false;
         }
-        if (aggregationFcn != null && !aggregationFcn.equals(other.aggregationFcn) || activationFcn != null && !activationFcn.equals(other.activationFcn)) {
+        if (getAggregationFcn() != null && !getAggregationFcn().equals(other.getAggregationFcn()) || getActivationFcn() != null && !getActivationFcn().equals(other.getActivationFcn())) {
             return false;
         }
-        if (!head.equals(other.head) || ! body.equals(other.body)){
+        if (!getHead().equals(other.getHead()) || ! getBody().equals(other.getBody())){
             return false;
         }
         return true;
     }
 
-    public String toShortString() {
+    public String toRuleNeuronString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(head.toString()).append(":-");
-        for (BodyAtom bodyAtom : body) {
+        sb.append(getHead().toString()).append(":-");
+        for (BodyAtom bodyAtom : getBody()) {
             sb.append(bodyAtom.toString()).append(",");
         }
         sb.setCharAt(sb.length()-1,'.');
         return sb.toString();
+    }
+
+    public Weight getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Weight weight) {
+        this.weight = weight;
+    }
+
+    public Weight getOffset() {
+        return offset;
+    }
+
+    public void setOffset(Weight offset) {
+        this.offset = offset;
+    }
+
+    public HeadAtom getHead() {
+        return head;
+    }
+
+    public void setHead(HeadAtom head) {
+        this.head = head;
+    }
+
+    public List<BodyAtom> getBody() {
+        return body;
+    }
+
+    public void setBody(List<BodyAtom> body) {
+        this.body = body;
+    }
+
+    public Activation getAggregationFcn() {
+        return aggregationFcn;
+    }
+
+    public void setAggregationFcn(Activation aggregationFcn) {
+        this.aggregationFcn = aggregationFcn;
+    }
+
+    public Activation getActivationFcn() {
+        return activationFcn;
+    }
+
+    public void setActivationFcn(Activation activationFcn) {
+        this.activationFcn = activationFcn;
+    }
+
+    public RuleMetadata getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(RuleMetadata metadata) {
+        this.metadata = metadata;
+    }
+
+    public String getOriginalString() {
+        return originalString;
+    }
+
+    public void setOriginalString(String originalString) {
+        this.originalString = originalString;
+    }
+
+    /**
+     * Apply {@link networks.computation.evaluation.functions.CrossProduct} activation on the inputs of the rule?
+     */
+    public boolean isCrossProduct() {
+        return crossProduct;
+    }
+
+    public void setCrossProduct(boolean crossProduct) {
+        this.crossProduct = crossProduct;
     }
 }

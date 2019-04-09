@@ -143,7 +143,7 @@ public class GroundTemplate extends GraphTemplate implements Example {
     }
 
     private void recursePrune(WeightedRule grounding, LinkedHashMap<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> support, Set<Literal> closedList) {
-        for (BodyAtom bodyAtom : grounding.body) {
+        for (BodyAtom bodyAtom : grounding.getBody()) {
             if (closedList.contains(bodyAtom.literal)) {
                 continue;
             }

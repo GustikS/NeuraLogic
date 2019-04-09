@@ -136,7 +136,7 @@ public class Neuralizer {
 
             for (LinkedHashSet<WeightedRule> groundings : ruleMap.values()) {
                 for (WeightedRule grounding : groundings) {
-                    for (BodyAtom bodyAtom : grounding.body) {
+                    for (BodyAtom bodyAtom : grounding.getBody()) {
                         recursiveNeuronsCreation(bodyAtom.literal, groundTemplate, closedSet);
                     }
                 }

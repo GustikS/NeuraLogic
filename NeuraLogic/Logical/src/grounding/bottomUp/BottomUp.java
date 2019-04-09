@@ -67,14 +67,13 @@ public class BottomUp extends Grounder {
                 List<WeightedRule> groundings = herbrandModel.groundRules(weightedRule, groundingSubstitutions);
                 for (WeightedRule grounding : groundings) {
                     Map<WeightedRule, LinkedHashSet<WeightedRule>> rules2groundings =
-                            groundRules.computeIfAbsent(grounding.head.getLiteral(), k -> new LinkedHashMap<>());
+                            groundRules.computeIfAbsent(grounding.getHead().getLiteral(), k -> new LinkedHashMap<>());
 
-                    //aggregation neurons correspond to lifted rule with particular ground head
+                    //aggregation neurons correspond to lifted rule with particular ground head     -todo next this deserves a speedup
                     WeightedRule groundHeadRule = new WeightedRule(weightedRule);
-                    groundHeadRule.head = grounding.head;
+                    groundHeadRule.setHead(grounding.getHead());
 
-                    LinkedHashSet<WeightedRule> ruleGroundings =
-                            rules2groundings.computeIfAbsent(groundHeadRule, k -> new LinkedHashSet<>());
+                    LinkedHashSet<WeightedRule> ruleGroundings = rules2groundings.computeIfAbsent(groundHeadRule, k -> new LinkedHashSet<>());
                     ruleGroundings.add(grounding);
                 }
             }

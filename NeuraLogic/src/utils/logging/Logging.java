@@ -9,7 +9,10 @@ package utils.logging;
 
 import settings.Settings;
 
+import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.logging.*;
 
 public class Logging {
@@ -17,6 +20,8 @@ public class Logging {
 
     Formatter fileFormatter;
     Formatter consoleFormatter;
+
+    long startupTime = System.currentTimeMillis();
 
     public void initialize() throws IOException {
         System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tF %1$tT [%4$s] (%2$s) : %5$s%6$s%n");
@@ -49,7 +54,7 @@ public class Logging {
         rootLogger.setLevel(Settings.loggingLevel);
 
         if (!Settings.supressLogFileOutput) {
-
+            new File("out").mkdirs();
             if (Settings.htmlLogging) {
                 loggingFile = new FileHandler("out/Logging.html");
                 fileFormatter = new HtmlFormatter();
@@ -60,5 +65,17 @@ public class Logging {
             loggingFile.setFormatter(fileFormatter);
             rootLogger.addHandler(loggingFile);
         }
+    }
+
+    public void finish() {
+        Logger rootLogger = Logger.getLogger("");
+        rootLogger.info("Total time: " + calcDate(System.currentTimeMillis() - startupTime));
+    }
+
+
+    public static String calcDate(long millisecs) {
+        SimpleDateFormat date_format = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss:SS");
+        Date resultdate = new Date(millisecs);
+        return date_format.format(resultdate);
     }
 }

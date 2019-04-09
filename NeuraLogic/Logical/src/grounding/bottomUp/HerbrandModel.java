@@ -96,11 +96,12 @@ public class HerbrandModel {
                 } else {
                     //if it is not ground, extend the rule with restriction that the head substitution solution must not be contained in the herbrand yet (for speedup instead of just adding them repetitively to the set)
                     Clause query = new Clause(Sugar.union(rule.getNegatedLiterals(), new Literal(tupleNotInPredicateName(head.predicate()), false, head.arguments())));
-                    matching.allSubstitutions(query, 0, Integer.MAX_VALUE); //then find (and through consumer add to herbrand) all NEW substitutions for the head literal - todo add version where these substitutions will be iteratively saved into some hashmap instead of repeating final substitutions
+                    ida.utils.tuples.Pair<Term[], List<Term[]>> listPair = matching.allSubstitutions(query, 0, Integer.MAX_VALUE);//then find (and through consumer add to herbrand) all NEW substitutions for the head literal - todo add version where these substitutions will be iteratively saved into some hashmap instead of repeating final substitutions
+                    System.out.printf("");
                 }
                 matching.getEngine().removeSolutionConsumer(solutionConsumer); //the found substitutions should be applied only to the head of the currently solved rule
             }
-            LOG.finest(rules.size() + " rules grounded.");
+            LOG.finest(irules.size() + " rules grounded.");
             int herbrandSize1 = VectorUtils.sum(herbrand.sizes());
             LOG.finer("herbrand size after round: " + herbrandSize1);
             changed = herbrandSize1 > herbrandSize0;

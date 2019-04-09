@@ -9,6 +9,9 @@ import networks.computation.evaluation.values.distributions.ValueInitializer;
  * Created by gusta on 8.3.17.
  */
 public class Weight {
+    /**
+     * Weights should be created via factory => this is a unique identifier
+     */
     public final int index;
 
     public String name;
@@ -29,7 +32,7 @@ public class Weight {
     public WeightMetadata metadata;
 
     public static Weight unitWeight = new Weight(-1, "unitWeight", Value.ONE, true);
-    public static Weight zeroWeight = new Weight(-1, "zeroWeight" ,Value.ZERO, true);
+    public static Weight zeroWeight = new Weight(-1, "zeroWeight", Value.ZERO, true);
 
     public Weight(int index, String name, Value value, boolean fixed) {
         this.index = index;
@@ -46,12 +49,16 @@ public class Weight {
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        return index;
     }
 
     @Override
     public boolean equals(Object obj) {
-        return name.equals(obj);
+        if (!(obj instanceof Weight)) {
+            return false;
+        }
+        Weight obj1 = (Weight) obj;
+        return index == obj1.index;
     }
 
     public void init(ValueInitializer valueInitializer) {

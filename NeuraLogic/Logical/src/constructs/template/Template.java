@@ -78,11 +78,11 @@ public class Template implements Model<QueryAtom> {
     public List<Weight> getAllWeights() {
         List<Weight> weightList = new ArrayList<>();
         for (WeightedRule rule : rules) {
-            if (rule.weight != null)
-            weightList.add(rule.weight);
-            if (rule.head.getOffset() != null)
-            weightList.add(rule.head.getOffset());
-            for (BodyAtom bodyAtom : rule.body) {
+            if (rule.getWeight() != null)
+            weightList.add(rule.getWeight());
+            if (rule.getHead().getOffset() != null)
+            weightList.add(rule.getHead().getOffset());
+            for (BodyAtom bodyAtom : rule.getBody()) {
                 if (bodyAtom.getConjunctWeight() != null)
                 weightList.add(bodyAtom.getConjunctWeight());
             }

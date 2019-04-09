@@ -47,7 +47,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
 
             WeightedRule rule = new WeightedRule();
 
-            rule.originalString = ctx.getText();
+            rule.setOriginalString(ctx.getText());
 
             AtomVisitor headVisitor = new AtomVisitor();
             headVisitor.variableFactory = this.variableFactory;
@@ -56,19 +56,19 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             Weight weight = headAtom.getConjunctWeight();//rule weight
 
             if (weight == null){
-                rule.weight = Weight.unitWeight;
+                rule.setWeight(Weight.unitWeight);
             } else {
-                rule.weight = weight;
+                rule.setWeight(weight);
             }
 
-            rule.head = new HeadAtom(headAtom);
+            rule.setHead(new HeadAtom(headAtom));
 
             AtomConjunctionVisitor bodyVisitor = new AtomConjunctionVisitor();
             bodyVisitor.variableFactory = this.variableFactory;
-            rule.body = ctx.conjunction().accept(bodyVisitor);
+            rule.setBody(ctx.conjunction().accept(bodyVisitor));
 
-            rule.offset = ctx.offset() != null ? ctx.offset().accept(new WeightVisitor()) : null;
-            rule.metadata = ctx.metadataList() != null ? new RuleMetadata(builder.settings, ctx.metadataList().accept(new MetadataListVisitor())) : null; //rule metadata are set directly here, as they cannot appear at arbitrary place as opposed to the other metadata, which are processed in a later stage
+            rule.setOffset(ctx.offset() != null ? ctx.offset().accept(new WeightVisitor()) : null);
+            rule.setMetadata(ctx.metadataList() != null ? new RuleMetadata(builder.settings, ctx.metadataList().accept(new MetadataListVisitor())) : null); //rule metadata are set directly here, as they cannot appear at arbitrary place as opposed to the other metadata, which are processed in a later stage
 
             return rule;
         }

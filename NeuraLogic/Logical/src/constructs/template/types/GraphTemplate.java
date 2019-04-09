@@ -49,21 +49,21 @@ public class GraphTemplate extends Template {
 
 
         for (WeightedRule rule : template.rules) {
-            List<WeightedRule> list = predicate2heads.computeIfAbsent(rule.head.literal.predicate(), k -> new ArrayList<>());
+            List<WeightedRule> list = predicate2heads.computeIfAbsent(rule.getHead().literal.predicate(), k -> new ArrayList<>());
             list.add(rule);
-            List<WeightedRule> list2 = atom2rules.computeIfAbsent(rule.head.literal, k -> new ArrayList<>());
+            List<WeightedRule> list2 = atom2rules.computeIfAbsent(rule.getHead().literal, k -> new ArrayList<>());
             list2.add(rule);
         }
 
         for (Map.Entry<Predicate, List<WeightedRule>> entry : predicate2heads.entrySet()) {
             for (WeightedRule anyRule : entry.getValue()) {
-                for (BodyAtom bodyAtom : anyRule.body) {
+                for (BodyAtom bodyAtom : anyRule.getBody()) {
                     List<WeightedRule> possibleRules = predicate2heads.get(bodyAtom.literal.predicate());
                     boolean hasChildren = false;
                     if (possibleRules != null) {
                         for (WeightedRule possibleRule : possibleRules) {
                             // if the head of this possibleRule can be unified with the bodyatom, add such a possible path
-                            if (matching.subsumption(new Clause(possibleRule.head.literal), new Clause(bodyAtom.literal))) { //todo check and optimize this
+                            if (matching.subsumption(new Clause(possibleRule.getHead().literal), new Clause(bodyAtom.literal))) { //todo check and optimize this
                                 hasChildren = true;
                                 List<WeightedRule> rules4atom = atom2rules.computeIfAbsent(bodyAtom.literal, k -> new ArrayList<>());
                                 rules4atom.add(possibleRule);
@@ -108,7 +108,7 @@ public class GraphTemplate extends Template {
 
         for (WeightedRule rule : childrenRules) {
             rules.add(rule);
-            for (BodyAtom bodyAtom : rule.body) {
+            for (BodyAtom bodyAtom : rule.getBody()) {
                 recursePrune(bodyAtom.literal, rules);
             }
         }
