@@ -3,8 +3,8 @@ package grounding;
 import com.sun.istack.internal.NotNull;
 import constructs.example.QueryAtom;
 import constructs.example.ValuedFact;
-import constructs.template.components.BodyAtom;
-import constructs.template.components.WeightedRule;
+import constructs.template.components.GroundHeadRule;
+import constructs.template.components.GroundRule;
 import constructs.template.types.GraphTemplate;
 import ida.ilp.logic.Clause;
 import ida.ilp.logic.Literal;
@@ -24,7 +24,7 @@ public class GroundTemplate extends GraphTemplate implements Example {
      * Temp (for current pair of Template+Example) structure (head -> rules -> ground bodies) for traversing the graph of groundings
      */
     @NotNull
-    public LinkedHashMap<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> groundRules;    //todo test optimize access by further aggregating literals with the same predicate for subsumption testing?
+    public LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> groundRules;    //todo test optimize access by further aggregating literals with the same predicate for subsumption testing?
 
     /**
      * Temp (for current pair of Template+Example) set of true ground facts
@@ -46,7 +46,7 @@ public class GroundTemplate extends GraphTemplate implements Example {
 
     }
 
-    public GroundTemplate(LinkedHashMap<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> groundRules, Map<Literal, ValuedFact> groundFacts) {
+    public GroundTemplate(LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> groundRules, Map<Literal, ValuedFact> groundFacts) {
         this.groundRules = groundRules;
         this.groundFacts = groundFacts;
         this.derivedGroundFacts = getFactsFromGroundRules(groundRules);
@@ -71,7 +71,7 @@ public class GroundTemplate extends GraphTemplate implements Example {
     }
 
 
-    private Set<Literal> getFactsFromGroundRules(LinkedHashMap<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> groundRules) {
+    private Set<Literal> getFactsFromGroundRules(LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> groundRules) {
         Set<Literal> derivedFacts = new HashSet<>();
         derivedFacts.addAll(groundRules.keySet());
         return derivedFacts;
@@ -89,10 +89,10 @@ public class GroundTemplate extends GraphTemplate implements Example {
 
         //1) copy all ground rules into new diff
         diff.groundRules = new LinkedHashMap<>();
-        for (Map.Entry<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> entry : this.groundRules.entrySet()) {
-            LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>> put = diff.groundRules.put(entry.getKey(), new LinkedHashMap<>());
-            for (Map.Entry<WeightedRule, LinkedHashSet<WeightedRule>> entry2 : entry.getValue().entrySet()) {
-                LinkedHashSet<WeightedRule> put1 = put.put(entry2.getKey(), new LinkedHashSet<>());
+        for (Map.Entry<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> entry : this.groundRules.entrySet()) {
+            LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>> put = diff.groundRules.put(entry.getKey(), new LinkedHashMap<>());
+            for (Map.Entry<GroundHeadRule, LinkedHashSet<GroundRule>> entry2 : entry.getValue().entrySet()) {
+                LinkedHashSet<GroundRule> put1 = put.put(entry2.getKey(), new LinkedHashSet<>());
                 put1.addAll(entry2.getValue());
             }
         }
@@ -101,11 +101,11 @@ public class GroundTemplate extends GraphTemplate implements Example {
         diff.groundFacts.putAll(this.groundFacts);
 
         //forget repetitive ground rules
-        for (Map.Entry<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> entry : memory.groundRules.entrySet()) {
-            for (Map.Entry<WeightedRule, LinkedHashSet<WeightedRule>> entry2 : entry.getValue().entrySet()) {
-                for (WeightedRule rule : entry2.getValue()) {
+        for (Map.Entry<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> entry : memory.groundRules.entrySet()) {
+            for (Map.Entry<GroundHeadRule, LinkedHashSet<GroundRule>> entry2 : entry.getValue().entrySet()) {
+                for (GroundRule rule : entry2.getValue()) {
                     //delete pointers to the newly proved rules which are equivalent the the previously proved rules
-                    LinkedHashSet<WeightedRule> rules = diff.groundRules.get(entry.getKey()).get(entry2.getKey());
+                    LinkedHashSet<GroundRule> rules = diff.groundRules.get(entry.getKey()).get(entry2.getKey());
                     rules.remove(rule); //todo test change to factory method which tells if new instead and go back to arraylist instead of LinkedHashSet for the groundings??(will be faster?)
                 }
             }
@@ -121,17 +121,17 @@ public class GroundTemplate extends GraphTemplate implements Example {
 
     public GroundTemplate prune(QueryAtom queryAtom) {
         GroundTemplate groundTemplate = new GroundTemplate(this);
-        LinkedHashMap<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> support = new LinkedHashMap<>();
+        LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> support = new LinkedHashMap<>();
         Matching matching = new Matching();
-        for (Map.Entry<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> entry : groundRules.entrySet()) {
+        for (Map.Entry<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> entry : groundRules.entrySet()) {
 
             if (queryAtom.headAtom.literal.predicate().equals(entry.getKey().predicate()) && matching.subsumption(new Clause(queryAtom.headAtom.literal), new Clause(entry.getKey()))) { //todo check this method
-                LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>> ruleMap = support.computeIfAbsent(entry.getKey(), f -> new LinkedHashMap<>());
+                LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>> ruleMap = support.computeIfAbsent(entry.getKey(), f -> new LinkedHashMap<>());
 
-                for (Map.Entry<WeightedRule, LinkedHashSet<WeightedRule>> groundings : entry.getValue().entrySet()) {
-                    LinkedHashSet<WeightedRule> weightedRules = ruleMap.computeIfAbsent(groundings.getKey(), f -> new LinkedHashSet<>());
+                for (Map.Entry<GroundHeadRule, LinkedHashSet<GroundRule>> groundings : entry.getValue().entrySet()) {
+                    LinkedHashSet<GroundRule> weightedRules = ruleMap.computeIfAbsent(groundings.getKey(), f -> new LinkedHashSet<>());
 
-                    for (WeightedRule grounding : groundings.getValue()) {
+                    for (GroundRule grounding : groundings.getValue()) {
                         weightedRules.add(grounding);
                         recursePrune(grounding, support, new HashSet<>());
                     }
@@ -142,20 +142,20 @@ public class GroundTemplate extends GraphTemplate implements Example {
         return this;
     }
 
-    private void recursePrune(WeightedRule grounding, LinkedHashMap<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> support, Set<Literal> closedList) {
-        for (BodyAtom bodyAtom : grounding.getBody()) {
-            if (closedList.contains(bodyAtom.literal)) {
+    private void recursePrune(GroundRule grounding, LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> support, Set<Literal> closedList) {
+        for (Literal bodyAtom : grounding.groundBody) {
+            if (closedList.contains(bodyAtom)) {
                 continue;
             }
-            closedList.add(bodyAtom.literal);
+            closedList.add(bodyAtom);
 
-            LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>> validRules = groundRules.get(bodyAtom.literal);
-            LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>> nextRules = support.computeIfAbsent(bodyAtom.literal, f -> new LinkedHashMap<>());
+            LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>> validRules = groundRules.get(bodyAtom);
+            LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>> nextRules = support.computeIfAbsent(bodyAtom, f -> new LinkedHashMap<>());
 
-            for (Map.Entry<WeightedRule, LinkedHashSet<WeightedRule>> validGroundings : validRules.entrySet()) {
-                LinkedHashSet<WeightedRule> weightedRules = nextRules.computeIfAbsent(validGroundings.getKey(), f -> new LinkedHashSet<>());
+            for (Map.Entry<GroundHeadRule, LinkedHashSet<GroundRule>> validGroundings : validRules.entrySet()) {
+                LinkedHashSet<GroundRule> weightedRules = nextRules.computeIfAbsent(validGroundings.getKey(), f -> new LinkedHashSet<>());
 
-                for (WeightedRule nextGrounding : validGroundings.getValue()) {
+                for (GroundRule nextGrounding : validGroundings.getValue()) {
                     weightedRules.add(nextGrounding);
                     recursePrune(nextGrounding, support, closedList);
                 }

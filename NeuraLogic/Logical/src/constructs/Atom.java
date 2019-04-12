@@ -8,7 +8,6 @@ import ida.ilp.logic.Term;
 import networks.computation.evaluation.functions.Activation;
 
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 public class Atom {
@@ -65,11 +64,6 @@ public class Atom {
         return literal;
     }
 
-    public Atom ground(Map<Term, Term> var2term) {
-        Atom copy = new Atom(this);
-        copy.literal = copy.literal.subsCopy(var2term);
-        return copy;
-    }
 
     @Override
     public int hashCode() {

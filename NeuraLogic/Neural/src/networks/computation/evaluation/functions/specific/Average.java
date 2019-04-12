@@ -11,6 +11,10 @@ import java.util.logging.Logger;
 public class Average extends Aggregation {
     private static final Logger LOG = Logger.getLogger(Average.class.getName());
 
+    public Average replaceWithSingleton() {
+        return Singletons.average;
+    }
+
     @Override
     public Value evaluate(List<Value> inputs) {
         Value sum = inputs.get(0).clone();

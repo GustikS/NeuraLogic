@@ -17,6 +17,7 @@ import java.util.logging.Logger;
  */
 public abstract class Activation extends Aggregation {
     private static final Logger LOG = Logger.getLogger(Activation.class.getName());
+
     /**
      * Forward-pass function
      */
@@ -26,7 +27,7 @@ public abstract class Activation extends Aggregation {
      */
     Function<Double, Double> gradient;
 
-    public Activation(Function<Double, Double> evaluation, Function<Double, Double> gradient) {
+    protected Activation(Function<Double, Double> evaluation, Function<Double, Double> gradient) {
         this.evaluation = evaluation;
         this.gradient = gradient;
     }
@@ -60,12 +61,17 @@ public abstract class Activation extends Aggregation {
     public static Activation getActivationFunction(Settings.ActivationFcn activationFcn) {
         switch (activationFcn) {
             case SIGMOID:
-                return new Sigmoid();
+                return Singletons.sigmoid;
             case LUKASIEWICZ:
-                return new LukasiewiczSigmoid();
+                return Singletons.lukasiewiczSigmoid;
             default:
                 LOG.severe("Unimplemented activation function");
                 return null;
         }
+    }
+
+    public static class Singletons {
+        public static LukasiewiczSigmoid lukasiewiczSigmoid = new LukasiewiczSigmoid();
+        public static Sigmoid sigmoid = new Sigmoid();
     }
 }

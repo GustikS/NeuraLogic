@@ -4,18 +4,21 @@ import com.sun.istack.internal.NotNull;
 import constructs.example.LiftedExample;
 import constructs.example.ValuedFact;
 import constructs.template.Template;
+import constructs.template.components.GroundHeadRule;
+import constructs.template.components.GroundRule;
 import constructs.template.components.WeightedRule;
 import grounding.GroundTemplate;
 import grounding.Grounder;
 import ida.ilp.logic.HornClause;
 import ida.ilp.logic.Literal;
 import ida.ilp.logic.Term;
-import ida.utils.VectorUtils;
+import ida.utils.Sugar;
 import settings.Settings;
 import utils.generic.Pair;
 
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Created by Gusta on 06.10.2016.
@@ -46,7 +49,7 @@ public class BottomUp extends Grounder {
             template.hornClauses = ruleMap;
         }
 
-        LinkedHashMap<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> groundRules = new LinkedHashMap<>();
+        LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> groundRules = new LinkedHashMap<>();
 
         Set<Literal> facts = groundFacts.keySet();
         // add already inferred facts as a hack to speedup the Herbrand model calculation
@@ -58,22 +61,23 @@ public class BottomUp extends Grounder {
 
         LOG.fine("Infering Herbrand model...");
         herbrandModel.inferModel(ruleMap.keySet(), facts);
-        LOG.fine("...HerbrandModel inferred with " + VectorUtils.sum(herbrandModel.herbrand.sizes()) + " facts");
+        Map<Literal, Literal> allLiterals = Sugar.flatten(herbrandModel.herbrand.values()).stream().collect(Collectors.toMap(l -> l, l -> l));
+        LOG.fine("...HerbrandModel inferred with " + allLiterals.size() + " facts");
 
         LOG.fine("Grounding of " + ruleMap.size() + " rules...");
         for (Map.Entry<HornClause, List<WeightedRule>> ruleEntry : ruleMap.entrySet()) {
             Pair<Term[], List<Term[]>> groundingSubstitutions = herbrandModel.groundingSubstitutions(ruleEntry.getKey());
             for (WeightedRule weightedRule : ruleEntry.getValue()) {
-                List<WeightedRule> groundings = herbrandModel.groundRules(weightedRule, groundingSubstitutions);
-                for (WeightedRule grounding : groundings) {
-                    Map<WeightedRule, LinkedHashSet<WeightedRule>> rules2groundings =
-                            groundRules.computeIfAbsent(grounding.getHead().getLiteral(), k -> new LinkedHashMap<>());
+                List<GroundRule> groundings = herbrandModel.groundRules(weightedRule, groundingSubstitutions);
+                for (GroundRule grounding : groundings) {
+                    grounding.internLiterals(allLiterals);
+                    Map<GroundHeadRule, LinkedHashSet<GroundRule>> rules2groundings =
+                            groundRules.computeIfAbsent(grounding.groundHead, k -> new LinkedHashMap<>());
 
-                    //aggregation neurons correspond to lifted rule with particular ground head     -todo next this deserves a speedup
-                    WeightedRule groundHeadRule = new WeightedRule(weightedRule);
-                    groundHeadRule.setHead(grounding.getHead());
+                    //aggregation neurons correspond to lifted rule with particular ground head
+                    GroundHeadRule groundHeadRule = weightedRule.groundHeadRule(grounding.groundHead);
 
-                    LinkedHashSet<WeightedRule> ruleGroundings = rules2groundings.computeIfAbsent(groundHeadRule, k -> new LinkedHashSet<>());
+                    LinkedHashSet<GroundRule> ruleGroundings = rules2groundings.computeIfAbsent(groundHeadRule, k -> new LinkedHashSet<>());
                     ruleGroundings.add(grounding);
                 }
             }

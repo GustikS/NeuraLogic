@@ -17,21 +17,21 @@ public class Predicate {
     }
 
     public Predicate(String predicate, int arity) {
-        this.name = predicate;
+        this.name = predicate.intern();
         this.arity = arity;
     }
 
     public Predicate(String from) {
         if (from.contains("/")) {
             String[] split = from.split("/");
-            name = split[0];
+            name = split[0].intern();
             try {
                 arity = Integer.parseInt(split[1]);
             } catch (Exception ex) {
                 LOG.severe("Cannot parse predicate arity");
             }
         } else {
-            name = from;
+            name = from.intern();
         }
     }
 
@@ -43,7 +43,7 @@ public class Predicate {
     public static Predicate construct(String name, int arity, Boolean special) {
         //TODO factory method with weak cache
         Predicate predicate = new Predicate();
-        predicate.name = name;
+        predicate.name = name.intern();
         predicate.arity = arity;
         predicate.special = special != null ? special : false;
         return predicate;

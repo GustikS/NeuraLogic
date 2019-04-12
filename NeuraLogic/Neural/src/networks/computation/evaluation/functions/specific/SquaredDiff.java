@@ -11,6 +11,8 @@ public class SquaredDiff implements ErrorFcn {
 
     Value oneHalf = new ScalarValue(0.5);
 
+    static SquaredDiff singleton = new SquaredDiff();
+
     @Override
     public Value evaluate(Value output, Value target) {
         Value diff = output.minus(target);
@@ -21,5 +23,10 @@ public class SquaredDiff implements ErrorFcn {
     @Override
     public Value differentiate(Value output, Value target) {
         return target.minus(output);
+    }
+
+    @Override
+    public SquaredDiff getSingleton() {
+        return singleton;
     }
 }

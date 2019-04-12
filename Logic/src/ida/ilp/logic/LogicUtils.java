@@ -579,10 +579,10 @@ public class LogicUtils {
         return substitute(c, subs);
     }
 
-    public static Clause substitute(Clause c, Map<? extends Term,? extends Term> substitution){
+    public static Clause substitute(Clause c, Map<Term,Term> substitution){
         Set<Literal> literals = new HashSet<Literal>();
         for (Literal l : c.literals()){
-            Literal groundCopy = l.subsCopy(substitution);
+            Literal groundCopy = substitute(l, substitution);
             literals.add(groundCopy);
         }
         return new Clause(literals);

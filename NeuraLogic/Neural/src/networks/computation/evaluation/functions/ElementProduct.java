@@ -22,6 +22,12 @@ public class ElementProduct extends Activation {
     }
 
     @Override
+    public Aggregation replaceWithSingleton() {
+        LOG.severe("ElementProduct cannot be singleton.");
+        return null;
+    }
+
+    @Override
     public Value evaluate(List<Value> inputs) {
         Value sum = sumInputs(inputs);
         return activation.evaluate(sum);

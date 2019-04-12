@@ -1,8 +1,11 @@
 package networks.structure.building.factories;
 
 import constructs.example.ValuedFact;
+import constructs.template.components.GroundHeadRule;
+import constructs.template.components.GroundRule;
 import constructs.template.components.HeadAtom;
 import constructs.template.components.WeightedRule;
+import ida.ilp.logic.Literal;
 import networks.computation.evaluation.functions.Activation;
 import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.functions.CrossProduct;
@@ -33,34 +36,49 @@ public class NeuronFactory {
         this.settings = settings;
     }
 
-    public AtomNeuron createAtomNeuron(HeadAtom head) {
+    public AtomNeuron createAtomNeuron(HeadAtom head, Literal groundHead) {
         Activation activation = head.activation != null ? head.activation : Activation.getActivationFunction(settings.atomNeuronActivation);
         State.Neural.Computation state = State.createBaseState(settings, activation);
-        AtomNeuron<State.Neural.Computation> atomNeuron = new AtomNeuron<>(head, counter++, state);
-        neuronMaps.atomNeurons.put(head.literal, atomNeuron);
+        AtomNeuron<State.Neural.Computation> atomNeuron = new AtomNeuron<>(groundHead, head.getOffset(), counter++, state);
+        neuronMaps.atomNeurons.put(groundHead, atomNeuron);
         LOG.finest("Created atom neuron: " + atomNeuron);
         return atomNeuron;
     }
 
-    public AggregationNeuron createAggNeuron(WeightedRule weightedRule) {
+    public AggregationNeuron createAggNeuron(GroundHeadRule groundHeadRule) {
+        WeightedRule weightedRule = groundHeadRule.weightedRule;
         Aggregation aggregation = weightedRule.getAggregationFcn() != null ? weightedRule.getActivationFcn() : Aggregation.getAggregation(settings.aggNeuronActivation);
         State.Neural.Computation state = State.createBaseState(settings, aggregation);
-        AggregationNeuron<State.Neural.Computation> aggregationNeuron = new AggregationNeuron<>(weightedRule, counter++, state);
-        neuronMaps.aggNeurons.put(weightedRule, aggregationNeuron);
+        AggregationNeuron<State.Neural.Computation> aggregationNeuron = new AggregationNeuron<>(settings.fullAggNeuronStrings ? groundHeadRule.toFullString() : weightedRule.getOriginalString(), counter++, state);
+        neuronMaps.aggNeurons.put(groundHeadRule, aggregationNeuron);
         LOG.finest("Created aggregation neuron: " + aggregationNeuron);
         return aggregationNeuron;
     }
 
-    public RuleNeuron createRuleNeuron(WeightedRule groundRule) {
-        Activation activation = groundRule.getActivationFcn() != null ? groundRule.getActivationFcn() : Activation.getActivationFunction(settings.ruleNeuronActivation);
-        if (groundRule.isCrossProduct()) {
+    public RuleNeuron createRuleNeuron(GroundRule groundRule) {
+        WeightedRule weightedRule = groundRule.weightedRule;
+        Activation activation = weightedRule.getActivationFcn() != null ? weightedRule.getActivationFcn() : Activation.getActivationFunction(settings.ruleNeuronActivation);
+        if (weightedRule.isCrossProduct()) {
             activation = new CrossProduct(activation);
         }
         State.Neural.Computation state = State.createBaseState(settings, activation);
-        RuleNeuron<State.Neural.Computation> ruleNeuron = new RuleNeuron<>(settings.fullRuleNeuronStrings ? groundRule.toRuleNeuronString() : groundRule.getOriginalString(), counter++, state);
+        RuleNeuron<State.Neural.Computation> ruleNeuron = new RuleNeuron<>(settings.fullRuleNeuronStrings ? groundRule.toFullString() : weightedRule.getOriginalString(), counter++, state);
         neuronMaps.ruleNeurons.put(groundRule, ruleNeuron);
         LOG.finest("Created rule neuron: " + ruleNeuron);
         return ruleNeuron;
+    }
+
+    public WeightedRuleNeuron createWeightedRuleNeuron(GroundRule groundRule) {
+        WeightedRule weightedRule = groundRule.weightedRule;
+        Activation activation = weightedRule.getActivationFcn() != null ? weightedRule.getActivationFcn() : Activation.getActivationFunction(settings.ruleNeuronActivation);
+        if (weightedRule.isCrossProduct()) {
+            activation = new CrossProduct(activation);
+        }
+        State.Neural.Computation state = State.createBaseState(settings, activation);
+        WeightedRuleNeuron<State.Neural.Computation> weightedRuleNeuron = new WeightedRuleNeuron<>(settings.fullRuleNeuronStrings ? groundRule.toFullString() : weightedRule.getOriginalString(), weightedRule.getOffset(), counter++, state);
+        neuronMaps.ruleNeurons.put(groundRule, weightedRuleNeuron);
+        LOG.finest("Created weightedRule neuron: " + weightedRuleNeuron);
+        return weightedRuleNeuron;
     }
 
     public FactNeuron createFactNeuron(ValuedFact fact) {
@@ -85,15 +103,4 @@ public class NeuronFactory {
         return negationNeuron;
     }
 
-    public WeightedRuleNeuron createWeightedRuleNeuron(WeightedRule groundRule) {
-        Activation activation = groundRule.getActivationFcn() != null ? groundRule.getActivationFcn() : Activation.getActivationFunction(settings.ruleNeuronActivation);
-        if (groundRule.isCrossProduct()) {
-            activation = new CrossProduct(activation);
-        }
-        State.Neural.Computation state = State.createBaseState(settings, activation);
-        WeightedRuleNeuron<State.Neural.Computation> weightedRuleNeuron = new WeightedRuleNeuron<>(groundRule, counter++, state);
-        neuronMaps.ruleNeurons.put(groundRule, weightedRuleNeuron);
-        LOG.finest("Created weightedRule neuron: " + weightedRuleNeuron);
-        return weightedRuleNeuron;
-    }
 }

@@ -19,6 +19,12 @@ public class CrossProduct extends Activation {
 
     Activation activation;
 
+    @Override
+    public Aggregation replaceWithSingleton() {
+        LOG.severe("CrossProduct cannot be singleton");
+        return null;
+    }
+
     public CrossProduct(Activation activation) {
         super(activation.evaluation, activation.gradient);
         this.activation = activation;

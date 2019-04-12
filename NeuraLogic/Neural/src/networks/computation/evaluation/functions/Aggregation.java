@@ -19,6 +19,12 @@ public abstract class Aggregation {
     private static final Logger LOG = Logger.getLogger(Aggregation.class.getName());
 
     /**
+     * We do not want to create a new object for the same activation function that gets repeated over milions of neurons, even if it's very lightweight
+     * @return
+     */
+    public abstract Aggregation replaceWithSingleton();
+
+    /**
      * Return the result of corresponding Aggregation function applied to the list of inputs.
      *
      * @param inputs
@@ -31,14 +37,19 @@ public abstract class Aggregation {
     public static Aggregation getAggregation(Settings.AggregationFcn aggregationFcn) {
         switch (aggregationFcn) {
             case AVG:
-                return new Average();
+                return Singletons.average;
             case MAX:
-                return new Maximum();
+                return Singletons.maximum;
             //todo rest
             default:
                 LOG.severe("Unimplemented aggregation function");
                 return null;
         }
+    }
+
+    public static class Singletons {
+        public static Average average = new Average();
+        public static Maximum maximum = new Maximum();
     }
 
     public abstract AggregationState getAggregationState();

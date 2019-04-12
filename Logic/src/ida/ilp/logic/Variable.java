@@ -35,7 +35,7 @@ public class Variable implements Term {
 
     private String toString;
 
-    private boolean dummy;
+    private int indexWithinSubstitution = -1;
     
     private int hashCode = Integer.MIN_VALUE;
     
@@ -44,7 +44,7 @@ public class Variable implements Term {
     private static Cache<Pair<String,String>,Variable> cache2 = new Cache<Pair<String,String>,Variable>();
     
     /** Creates a new instance of Constant */
-    private Variable(String name) {
+    protected Variable(String name) {
         this.name = name.trim().intern();
         this.toString = this.name;
     }
@@ -124,5 +124,15 @@ public class Variable implements Term {
     public static void clearCache(){
         cache.clear();
         cache2.clear();
+    }
+
+    @Override
+    public int getIndexWithinSubstitution() {
+        return indexWithinSubstitution;
+    }
+
+    @Override
+    public void setIndexWithinSubstitution(int indexWithinSubstitution) {
+        this.indexWithinSubstitution = indexWithinSubstitution;
     }
 }

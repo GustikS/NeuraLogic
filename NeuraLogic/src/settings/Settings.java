@@ -174,6 +174,11 @@ public class Settings {
      */
     public boolean fullRuleNeuronStrings = false;
 
+    /**
+     * Each aggregation neuron to have actual ground-head string with it?
+     */
+    public boolean fullAggNeuronStrings = false;
+
     //-----------------Evaluation & Training
 
     /**

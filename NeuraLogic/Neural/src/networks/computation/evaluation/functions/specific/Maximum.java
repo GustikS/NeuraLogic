@@ -12,6 +12,11 @@ public class Maximum extends Aggregation {
     private static final Logger LOG = Logger.getLogger(Maximum.class.getName());
 
     @Override
+    public Maximum replaceWithSingleton() {
+        return Singletons.maximum;
+    }
+
+    @Override
     public Value evaluate(List<Value> inputs) {
         Value max = inputs.get(0);
         for (int i = 1; i < inputs.size(); i++) {

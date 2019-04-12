@@ -104,7 +104,7 @@ public abstract class Grounder {
      * @return
      */
     public Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> mapToLogic(Pair<Set<WeightedRule>, Set<ValuedFact>> raf) {
-        Map<HornClause, List<WeightedRule>> ruleMap = raf.r.stream().collect(Collectors.toMap(WeightedRule::toHornClause, Arrays::asList, this::merge2rules));
+        Map<HornClause, List<WeightedRule>> ruleMap = raf.r.stream().collect(Collectors.toMap(WeightedRule::toHornClause, Arrays::asList, this::merge2rules, LinkedHashMap::new));
         Map<Literal, ValuedFact> factMap = mapToLogic(raf.s);
         return new Pair<>(ruleMap, factMap);
     }

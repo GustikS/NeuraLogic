@@ -3,7 +3,8 @@ package networks.structure.building.builders;
 import com.sun.istack.internal.NotNull;
 import constructs.example.ValuedFact;
 import constructs.template.components.BodyAtom;
-import constructs.template.components.WeightedRule;
+import constructs.template.components.GroundHeadRule;
+import constructs.template.components.GroundRule;
 import ida.ilp.logic.Literal;
 import networks.structure.building.NeuronMaps;
 import networks.structure.components.neurons.BaseNeuron;
@@ -49,7 +50,7 @@ public class NeuralNetBuilder {
      * @param head  a head of all the subsequent rules
      * @param rules all the rules with all the groundings where it appears as a head
      */
-    public void loadNeuronsFromRules(Literal head, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>> rules) {
+    public void loadNeuronsFromRules(Literal head, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>> rules) {
         NeuronMaps neuronMaps = neuralBuilder.neuronFactory.neuronMaps;
 
         boolean newAtomNeuron = false;
@@ -58,7 +59,8 @@ public class NeuralNetBuilder {
         //1) head AtomNeuron creation
         if ((headAtomNeuron = neuronMaps.atomNeurons.get(head)) == null) {
             newAtomNeuron = true;
-            headAtomNeuron = neuralBuilder.neuronFactory.createAtomNeuron(rules.entrySet().iterator().next().getValue().iterator().next().getHead()); //it doesn't matter which rule's head (they are all the same)
+            GroundRule next = rules.entrySet().iterator().next().getValue().iterator().next();
+            headAtomNeuron = neuralBuilder.neuronFactory.createAtomNeuron(next.weightedRule.getHead(), next.groundHead); //it doesn't matter which rule's head (they are all the same)
         } else {
             headAtomNeuron.isShared = true;
             if (rules.entrySet().size() > 0) {  //if there are NEW rules for this headAtomNeuron to be processed, it means that we need to change its inputs in context of this new network!
@@ -71,7 +73,7 @@ public class NeuralNetBuilder {
             }
         }
         //2) AggregationNeurons creation
-        for (Map.Entry<WeightedRule, LinkedHashSet<WeightedRule>> rules2groundings : rules.entrySet()) {
+        for (Map.Entry<GroundHeadRule, LinkedHashSet<GroundRule>> rules2groundings : rules.entrySet()) {
             boolean newAggNeuron = false;
             AggregationNeuron aggNeuron;
 
@@ -90,19 +92,19 @@ public class NeuralNetBuilder {
                 }
             }
             if (newAtomNeuron) {
-                headAtomNeuron.addInput(aggNeuron, rules2groundings.getKey().getWeight());
+                headAtomNeuron.addInput(aggNeuron, rules2groundings.getKey().weightedRule.getWeight());
             } else {
                 LOG.info("Warning-  modifying previous state - Creating input overmapping for this Atom neuron: " + headAtomNeuron);
                 WeightedNeuronMapping<AggregationNeuron> inputMapping = (WeightedNeuronMapping<AggregationNeuron>) neuronMaps.extraInputMapping.get(headAtomNeuron);
                 inputMapping.addLink(aggNeuron);
-                inputMapping.addWeight(rules2groundings.getKey().getWeight());
+                inputMapping.addWeight(rules2groundings.getKey().weightedRule.getWeight());
             }
             //3) RuleNeurons creation
-            for (WeightedRule grounding : rules2groundings.getValue()) {
+            for (GroundRule grounding : rules2groundings.getValue()) {
                 RuleNeurons ruleNeuron;
 
                 if ((ruleNeuron = neuronMaps.ruleNeurons.get(grounding)) == null) {
-                    if (grounding.hasWeightedBody()) {
+                    if (grounding.weightedRule.hasWeightedBody()) {
                         ruleNeuron = neuralBuilder.neuronFactory.createWeightedRuleNeuron(grounding);
                     } else {
                         ruleNeuron = neuralBuilder.neuronFactory.createRuleNeuron(grounding);
@@ -148,26 +150,30 @@ public class NeuralNetBuilder {
     public void connectAllNeurons() {
         NeuronMaps neuronMaps = neuralBuilder.neuronFactory.neuronMaps;
 
-        for (Map.Entry<WeightedRule, RuleNeurons> entry : neuronMaps.ruleNeurons.entrySet()) {
+        for (Map.Entry<GroundRule, RuleNeurons> entry : neuronMaps.ruleNeurons.entrySet()) {
             RuleNeurons ruleNeuron = entry.getValue();
-            if (ruleNeuron.inputCount() == entry.getKey().getBody().size()) {
+            if (ruleNeuron.inputCount() == entry.getKey().weightedRule.getBody().size()) {
                 continue;   //this rule neuron is already connected (was created and taken from previous sample), connect only the newly created RuleNeurons
             }
-            for (BodyAtom bodyAtom : entry.getKey().getBody()) {
-                Weight weight = bodyAtom.getConjunctWeight();
 
-                AtomFact input = neuronMaps.atomNeurons.get(bodyAtom.getLiteral()); //input is an atom neuron?
+            for (int i = 0; i < entry.getKey().groundBody.length; i++) {
+                BodyAtom liftedBodyAtom = entry.getKey().weightedRule.getBody().get(i);
+                Literal literal = entry.getKey().groundBody[i];
+
+                Weight weight = liftedBodyAtom.getConjunctWeight();
+
+                AtomFact input = neuronMaps.atomNeurons.get(literal); //input is an atom neuron?
                 if (input == null) { //input is a fact neuron!
-                    FactNeuron factNeuron = neuronMaps.factNeurons.get(bodyAtom.getLiteral());
+                    FactNeuron factNeuron = neuronMaps.factNeurons.get(literal);
                     if (factNeuron == null) {
-                        LOG.severe("Error: no input found for this neuron!!: " + bodyAtom);
+                        LOG.severe("Error: no input found for this neuron!!: " + literal);
                     } else {
                         //factNeuron.isShared = true; //they might not be shared as all the fact neurons are created in advance
                     }
                     input = factNeuron;
                 }
-                if (bodyAtom.isNegated()) {
-                    NegationNeuron negationNeuron = neuralBuilder.neuronFactory.createNegationNeuron(input, bodyAtom.getNegationActivation());
+                if (liftedBodyAtom.isNegated()) {
+                    NegationNeuron negationNeuron = neuralBuilder.neuronFactory.createNegationNeuron(input, liftedBodyAtom.getNegationActivation());
                     input = negationNeuron;
                 }
                 if (ruleNeuron instanceof WeightedNeuron) {

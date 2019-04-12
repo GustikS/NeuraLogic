@@ -9,9 +9,7 @@ import networks.computation.evaluation.functions.Activation;
 import networks.structure.components.weights.Weight;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -38,7 +36,7 @@ public class WeightedRule {
     private RuleMetadata metadata;
     private String originalString;
 
-    int hashcode = -1;
+    private int hashCode = -1;
 
     private boolean crossProduct;
 
@@ -70,24 +68,28 @@ public class WeightedRule {
 
     /**
      * Grounding of individual atoms will create new copies of them.
-     * @param variables
      * @param terms
      * @return
      */
-    public WeightedRule ground(Term[] variables, Term[] terms) {
-        WeightedRule ruleCopy = new WeightedRule(this);
+    public GroundRule groundRule(Term[] terms) {
 
-        Map<Term, Term> var2term = new HashMap<Term, Term>();
-        for (int i = 0; i < variables.length; i++) {
-            var2term.put(variables[i], terms[i]);
+        Literal groundHead = head.literal.subsCopy(terms);
+
+        int size = getBody().size();
+        Literal[] groundBody = new Literal[size];
+
+        for (int i = 0; i < size; i++) {
+            groundBody[i] = getBody().get(i).literal.subsCopy(terms);
         }
 
-        ruleCopy.setHead(getHead().ground(var2term));
-        for (int i = 0; i < getBody().size(); i++) {
-            ruleCopy.getBody().set(i, getBody().get(i).ground(var2term));
-        }
+        GroundRule groundRule = new GroundRule(this, groundHead, groundBody);
 
-        return ruleCopy;
+        return groundRule;
+    }
+
+    public GroundHeadRule groundHeadRule(Literal groundHead) {
+        GroundHeadRule groundRule = new GroundHeadRule(this, groundHead);
+        return groundRule;
     }
 
     public String signatureString() {
@@ -110,7 +112,10 @@ public class WeightedRule {
 
     @Override
     public int hashCode() {
-        return getHead().hashCode() + getBody().hashCode();
+        if (hashCode != -1)
+            return hashCode;
+        hashCode = head.hashCode() + body.hashCode();
+        return hashCode;
     }
 
     @Override

@@ -3,7 +3,6 @@ package constructs.template.metadata;
 import constructs.template.components.WeightedRule;
 import networks.computation.evaluation.functions.Activation;
 import networks.computation.evaluation.functions.CrossProduct;
-import networks.computation.evaluation.functions.specific.Sigmoid;
 import settings.Settings;
 
 import java.util.Map;
@@ -33,7 +32,7 @@ public class RuleMetadata extends Metadata<WeightedRule> {
         else if (parameter.type == Parameter.Type.ACTIVATION && parameterValue.type == ParameterValue.Type.STRING) {
             switch (parameterValue.stringValue) {
                 case "sigmoid":
-                    parameterValue.value = new Sigmoid();
+                    parameterValue.value = Activation.Singletons.sigmoid;
                     valid = true;
                     break;
                 case "crossproduct":

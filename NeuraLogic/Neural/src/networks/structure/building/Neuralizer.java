@@ -2,8 +2,8 @@ package networks.structure.building;
 
 import com.sun.istack.internal.NotNull;
 import constructs.example.QueryAtom;
-import constructs.template.components.BodyAtom;
-import constructs.template.components.WeightedRule;
+import constructs.template.components.GroundHeadRule;
+import constructs.template.components.GroundRule;
 import grounding.GroundTemplate;
 import grounding.Grounder;
 import grounding.GroundingSample;
@@ -87,11 +87,11 @@ public class Neuralizer {
         } else {
             neuralNetBuilder = loadAllNeuronsStartingFromQueryLiterals(groundTemplate, queryMatchingLiterals);
             neuralNetBuilder.loadNeuronsFromFacts(groundTemplate.neuronMaps.groundFacts);
-            LOG.finer("Neurons created: " + neuralNetBuilder.getNeuronMaps());
+            LOG.fine("Neurons created: " + neuralNetBuilder.getNeuronMaps());
             neuralNetBuilder.connectAllNeurons();
-            LOG.finer("All neurons connected.");
+            LOG.fine("All neurons connected.");
             neuralNetwork = neuralNetBuilder.finalizeStoredNetwork(groundTemplate.getId());
-            LOG.finer("Neural network created: " + neuralNetwork);
+            LOG.fine("Neural network created: " + neuralNetwork);
         }
 
         return getQueryNeurons(queryAtom, neuralNetBuilder.getNeuronMaps(), neuralNetwork, queryMatchingLiterals);
@@ -105,7 +105,7 @@ public class Neuralizer {
      */
     private DetailedNetwork blindNeuralization(GroundTemplate groundTemplate) {
         //simply create neurons for all the ground rules
-        for (Map.Entry<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> entry : groundTemplate.neuronMaps.groundRules.entrySet()) {
+        for (Map.Entry<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> entry : groundTemplate.neuronMaps.groundRules.entrySet()) {
             neuralNetBuilder.loadNeuronsFromRules(entry.getKey(), entry.getValue());
         }
         groundTemplate.neuronMaps.groundRules.clear();   //remove rules that will have their neurons already created
@@ -130,14 +130,14 @@ public class Neuralizer {
         }
         closedSet.add(literal);
 
-        LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>> ruleMap = groundTemplate.neuronMaps.groundRules.remove(literal);
+        LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>> ruleMap = groundTemplate.neuronMaps.groundRules.remove(literal);
         if (ruleMap != null) {
             neuralNetBuilder.loadNeuronsFromRules(literal, ruleMap);
 
-            for (LinkedHashSet<WeightedRule> groundings : ruleMap.values()) {
-                for (WeightedRule grounding : groundings) {
-                    for (BodyAtom bodyAtom : grounding.getBody()) {
-                        recursiveNeuronsCreation(bodyAtom.literal, groundTemplate, closedSet);
+            for (LinkedHashSet<GroundRule> groundings : ruleMap.values()) {
+                for (GroundRule grounding : groundings) {
+                    for (Literal bodyAtom : grounding.groundBody) {
+                        recursiveNeuronsCreation(bodyAtom, groundTemplate, closedSet);
                     }
                 }
             }
@@ -145,13 +145,13 @@ public class Neuralizer {
     }
 
     @NotNull
-    protected List<Literal> getQueryMatchingLiterals(QueryAtom queryAtom, @NotNull LinkedHashMap<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> groundRules) {
+    protected List<Literal> getQueryMatchingLiterals(QueryAtom queryAtom, @NotNull LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> groundRules) {
 
         Matching matching = new Matching();
 
         List<Literal> queryLiterals = new ArrayList<>();
 
-        for (Map.Entry<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> entry : groundRules.entrySet()) {  //find rules the head of which matches the query
+        for (Map.Entry<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> entry : groundRules.entrySet()) {  //find rules the head of which matches the query
             if (queryAtom.headAtom.literal.predicate().equals(entry.getKey().predicate()) && matching.subsumption(new Clause(queryAtom.headAtom.literal), new Clause(entry.getKey()))) { //todo check this method, also for speed
                 queryLiterals.add(entry.getKey());
             }

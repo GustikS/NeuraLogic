@@ -21,6 +21,11 @@ public class Sigmoid extends Activation {
     }
 
     @Override
+    public Sigmoid replaceWithSingleton() {
+        return Singletons.sigmoid;
+    }
+
+    @Override
     public AggregationState getAggregationState() {
         return new AggregationState.ActivationState(this);
     }

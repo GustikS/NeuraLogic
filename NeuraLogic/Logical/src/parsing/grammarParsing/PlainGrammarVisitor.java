@@ -39,11 +39,12 @@ public class PlainGrammarVisitor extends GrammarVisitor {
 
 
     public class RuleLineVisitor extends NeuralogicBaseVisitor<WeightedRule> {
-        // Variable factory gets initialized here - variable scope is per rule
-        VariableFactory variableFactory = new VariableFactory();
+        VariableFactory variableFactory;
 
         @Override
         public WeightedRule visitLrnnRule(@NotNull NeuralogicParser.LrnnRuleContext ctx) {
+            // Variable factory gets initialized here - variable scope is per rule
+            variableFactory = new VariableFactory();
 
             WeightedRule rule = new WeightedRule();
 

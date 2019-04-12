@@ -8,7 +8,6 @@ import networks.computation.evaluation.functions.Activation;
 import networks.structure.components.weights.Weight;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by gusta on 13.3.17.
@@ -35,12 +34,6 @@ public class BodyAtom extends Atom {
         return weight;
     }
 
-    @Override
-    public BodyAtom ground(Map<Term, Term> var2term) {
-        BodyAtom copy = new BodyAtom(this);
-        copy.literal = copy.literal.subsCopy(var2term);
-        return copy;
-    }
 
     @Override
     public boolean equals(Object obj) {

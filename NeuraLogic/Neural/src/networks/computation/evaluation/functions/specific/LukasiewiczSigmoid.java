@@ -25,4 +25,7 @@ public class LukasiewiczSigmoid extends Activation {
         return new AggregationState.ActivationState(this);
     }
 
+    public LukasiewiczSigmoid replaceWithSingleton() {
+        return Singletons.lukasiewiczSigmoid;
+    }
 }

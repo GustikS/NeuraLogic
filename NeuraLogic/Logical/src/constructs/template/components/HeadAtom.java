@@ -6,7 +6,6 @@ import ida.ilp.logic.Term;
 import networks.structure.components.weights.Weight;
 
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -29,10 +28,4 @@ public class HeadAtom extends Atom {
         return offsettedPredicate.weight;
     }
 
-    @Override
-    public HeadAtom ground(Map<Term, Term> var2term) {
-        HeadAtom copy = new HeadAtom(this);
-        copy.literal = copy.literal.subsCopy(var2term);
-        return copy;
-    }
 }

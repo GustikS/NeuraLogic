@@ -1,8 +1,8 @@
 package networks.structure.metadata;
 
-import ida.utils.tuples.Pair;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.weights.Weight;
+import utils.generic.Pair;
 
 import java.util.ArrayList;
 

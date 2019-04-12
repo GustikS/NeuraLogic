@@ -69,7 +69,7 @@ public class Literal {
     public Literal(String name, int arity) {
         this.id = (int) UniqueIDs.getUniqueName();
         this.terms = new Term[arity];
-        this.predicate = new Predicate(name.intern(), arity);
+        this.predicate = new Predicate(name, arity);
     }
 
     /**
@@ -95,7 +95,7 @@ public class Literal {
         this.id = (int) UniqueIDs.getUniqueName();
         this.terms = new Term[terms.size()];
         System.arraycopy(terms.toArray(), 0, this.terms, 0, terms.size());
-        this.predicate = new Predicate(name.intern(), terms.size());
+        this.predicate = new Predicate(name, terms.size());
     }
 
     public Literal(String name, boolean negated, int arity) {
@@ -115,7 +115,7 @@ public class Literal {
 
     public Literal(Predicate predicate, boolean negated, List<Term> terms) {
         this(predicate);
-        if (predicate.arity != terms.size()){
+        if (predicate.arity != terms.size()) {
             LOG.severe("Arity mismatch while creating a literal from predicate+terms");
         }
         System.arraycopy(terms.toArray(), 0, this.terms, 0, terms.size());
@@ -391,7 +391,7 @@ public class Literal {
         return this.terms;
     }
 
-    public List<Term> termList(){
+    public List<Term> termList() {
         return Arrays.asList(terms);
     }
 
@@ -409,28 +409,48 @@ public class Literal {
     }
 
     /**
-     * Creates a copy of this literal.
+     * Creates a copy of this literal WITHOUT TERMS.
      *
      * @return copy of this literal
      */
-    public Literal copy() {
+    public Literal emptyCopy() {
         Literal p = new Literal();
         p.predicate = this.predicate;
         p.terms = new Term[this.terms.length];
-        p.id = this.id;
-        p.hashCode = this.hashCode;
+        //p.id = this.id;
+        //p.hashCode = -1;
         p.negated = this.negated;
-        for (int i = 0; i < terms.length; i++)
-            p.terms[i] = terms[i];
+        p.hashCode = -1;
+        //for (int i = 0; i < terms.length; i++)
+        //    p.terms[i] = terms[i];
         return p;
     }
 
-    public Literal subsCopy(Map<? extends Term,? extends Term> substitution){
-        Literal copy = this.copy();
-        for (int j = 0; j < this.arity(); j++){
-            if (substitution.containsKey(copy.get(j))){
-                copy.set(substitution.get(get(j)),j);
+    /**
+     * This is SLOW, use direct indexing instead
+     * @param substitution
+     * @return
+     */
+    @Deprecated
+    public Literal subsCopy(Map<? extends Term, ? extends Term> substitution) {
+        Literal copy = this.emptyCopy();
+        copy.hashCode = -1;
+        for (int j = 0; j < this.arity(); j++) {
+            if (substitution.containsKey(copy.get(j))) {
+                copy.set(substitution.get(get(j)), j);
             }
+        }
+        return copy;
+    }
+
+    public Literal subsCopy(Term[] substitution) {
+        Literal copy = this.emptyCopy();
+        for (int j = 0; j < this.arity(); j++) {
+            int indexWithinSubstitution = this.terms[j].getIndexWithinSubstitution();
+            if (indexWithinSubstitution >= 0)   //if a variable
+                copy.terms[j] = substitution[indexWithinSubstitution];
+            else    // if a constant
+                copy.terms[j] = this.terms[j];
         }
         return copy;
     }

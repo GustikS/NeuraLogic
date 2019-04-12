@@ -32,5 +32,13 @@ public interface Term {
     public String name();
 
     public String type();
-    
+
+    default void setIndexWithinSubstitution(int i){
+        //System.err.println("Default call of setIndexWithinSubstitution.");
+    }
+
+    default int getIndexWithinSubstitution(){
+        //System.err.println("Default call of setIndexWithinSubstitution.");
+        return -1;
+    }
 }

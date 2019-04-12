@@ -1,5 +1,6 @@
 package grounding.bottomUp;
 
+import constructs.template.components.GroundRule;
 import constructs.template.components.WeightedRule;
 import ida.ilp.logic.*;
 import ida.ilp.logic.subsumption.CustomPredicate;
@@ -112,10 +113,16 @@ public class HerbrandModel {
     public Pair<Term[], List<Term[]>> groundingSubstitutions(HornClause hornClause) {
         Clause query = new Clause(hornClause.getLiterals()); //todo check negations here
         ida.utils.tuples.Pair<Term[], List<Term[]>> listPair = matching.allSubstitutions(query, 0, Integer.MAX_VALUE);
-        return new Pair<>(listPair.r, listPair.s);
+
+        Term[] variables = listPair.r;
+        for (int i = 0; i < variables.length; i++) {
+            variables[i].setIndexWithinSubstitution(i);
+        }
+
+        return new Pair<>(variables, listPair.s);
     }
 
-    public List<WeightedRule> groundRules(WeightedRule liftedRule) {
+    public List<GroundRule> groundRules(WeightedRule liftedRule) {
         return groundRules(liftedRule, liftedRule.toHornClause());
     }
 
@@ -128,17 +135,18 @@ public class HerbrandModel {
      * @param hc
      * @return
      */
-    public List<WeightedRule> groundRules(WeightedRule liftedRule, HornClause hc) {
+    public List<GroundRule> groundRules(WeightedRule liftedRule, HornClause hc) {
         Pair<Term[], List<Term[]>> substitutions = groundingSubstitutions(hc);
         return groundRules(liftedRule, substitutions);
     }
 
-    public List<WeightedRule> groundRules(WeightedRule liftedRule, Pair<Term[], List<Term[]>> substitutions) {
-        List<WeightedRule> weightedRules = new ArrayList<>();
+    public List<GroundRule> groundRules(WeightedRule liftedRule, Pair<Term[], List<Term[]>> substitutions) {
+        List<GroundRule> groundRules = new ArrayList<>();
         for (int i = 0; i < substitutions.s.size(); i++) {
-            weightedRules.add(liftedRule.ground(substitutions.r, substitutions.s.get(i)));
+            GroundRule groundRule = liftedRule.groundRule(substitutions.s.get(i));
+            groundRules.add(groundRule);
         }
-        return weightedRules;
+        return groundRules;
     }
 
     /**
@@ -202,7 +210,10 @@ public class HerbrandModel {
 
         @Override
         public void solution(Term[] template, Term[] solution) {
-            headGroundings.add(LogicUtils.substitute(ruleHead, template, solution));
+            for (int i = 0; i < template.length; i++) {
+                template[i].setIndexWithinSubstitution(i);
+            }
+            headGroundings.add(ruleHead.subsCopy(solution));
         }
     }
 

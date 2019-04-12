@@ -9,4 +9,6 @@ public interface ErrorFcn {
     Value evaluate(Value output, Value target);
 
     Value differentiate(Value output, Value target);
+
+    ErrorFcn getSingleton();
 }

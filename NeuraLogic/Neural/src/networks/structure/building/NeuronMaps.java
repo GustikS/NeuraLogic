@@ -3,7 +3,8 @@ package networks.structure.building;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 import constructs.example.ValuedFact;
-import constructs.template.components.WeightedRule;
+import constructs.template.components.GroundHeadRule;
+import constructs.template.components.GroundRule;
 import ida.ilp.logic.Literal;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.types.*;
@@ -17,7 +18,7 @@ public class NeuronMaps {
      * Ground rules that are NOT yet in the neuronmaps
      */
     @NotNull
-    public LinkedHashMap<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> groundRules;    //todo next
+    public LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> groundRules;    //todo next
 
     /**
      * Facts that are NOT yet in the neuronmaps
@@ -26,8 +27,8 @@ public class NeuronMaps {
     public Map<Literal, ValuedFact> groundFacts;
 
     public Map<Literal, AtomNeuron> atomNeurons = new HashMap<>();
-    public Map<WeightedRule, AggregationNeuron> aggNeurons = new HashMap<>();
-    public Map<WeightedRule, RuleNeurons> ruleNeurons = new LinkedHashMap<>();
+    public Map<GroundHeadRule, AggregationNeuron> aggNeurons = new HashMap<>();
+    public Map<GroundRule, RuleNeurons> ruleNeurons = new LinkedHashMap<>();
     public Map<Literal, FactNeuron> factNeurons = new HashMap<>();
     public Set<NegationNeuron> negationNeurons = new HashSet<>();
 
@@ -37,7 +38,7 @@ public class NeuronMaps {
     @Nullable
     public Map<BaseNeuron, LinkedMapping> extraInputMapping = new HashMap<>();
 
-    public NeuronMaps(LinkedHashMap<Literal, LinkedHashMap<WeightedRule, LinkedHashSet<WeightedRule>>> groundRules, Map<Literal, ValuedFact> groundFacts) {
+    public NeuronMaps(LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> groundRules, Map<Literal, ValuedFact> groundFacts) {
         this.groundRules = new LinkedHashMap<>(groundRules);
         this.groundFacts = new HashMap<>(groundFacts);
     }
