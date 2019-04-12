@@ -18,7 +18,7 @@ public class NeuronMaps {
      * Ground rules that are NOT yet in the neuronmaps
      */
     @NotNull
-    public LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> groundRules;    //todo next
+    public LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> groundRules;
 
     /**
      * Facts that are NOT yet in the neuronmaps

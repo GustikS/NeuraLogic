@@ -81,8 +81,13 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
             if (!visited.contains(neuron))
                 topoSortRecursive(neuron, visited, stack);
         }
-        Collections.reverse(stack);
-        return stack;
+        //Collections.reverse(stack);
+        List<BaseNeuron<Neuron, State.Neural>> reverse = new ArrayList<>(stack.size());
+        Iterator<BaseNeuron<Neuron, State.Neural>> descendingIterator = stack.descendingIterator();
+        while (descendingIterator.hasNext()){
+            reverse.add(descendingIterator.next());
+        }
+        return reverse;
     }
 
     private void topoSortRecursive(BaseNeuron<Neuron, State.Neural> neuron, Set<Neuron> visited, LinkedList<BaseNeuron<Neuron, State.Neural>> stack) {
