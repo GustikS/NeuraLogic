@@ -47,7 +47,7 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
      */
     @Override
     public Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> buildPipeline() {
-        Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> pipeline = new Pipeline<>("GroundingPipeline");
+        Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> pipeline = new Pipeline<>("GroundingPipeline", this);
 
         Pipe<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> groundingSamples = pipeline.registerStart(new GroundingSampleWrappingPipe(settings));
 

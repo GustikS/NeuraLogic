@@ -19,7 +19,7 @@ public class Main {
     private static final Logger LOG = Logger.getLogger(Main.class.getName());
 
     public static void main(String[] args) {
-        main(args, null);
+        main(args, new Settings());
     }
 
     public static void main(String[] args, Settings settings) {
@@ -60,6 +60,7 @@ public class Main {
         LOG.finest("Building LearningScheme pipeline...");
         LearningSchemeBuilder pipelineBuilder = new LearningSchemeBuilder(settings, sources);
         Pipeline<Sources, Results> pipeline = pipelineBuilder.buildPipeline();
+        settings.root = pipeline;
         LOG.finest("LearningScheme pipeline has been built");
         LOG.finest("Running LearningScheme pipeline...");
         Pair<String, Results> target = pipeline.execute(sources);

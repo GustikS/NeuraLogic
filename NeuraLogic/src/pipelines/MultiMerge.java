@@ -12,8 +12,6 @@ import java.util.logging.Logger;
 public abstract class MultiMerge<I, O> extends Block implements ConnectAfter<O>{
     private static final Logger LOG = Logger.getLogger(MultiMerge.class.getName());
 
-    public String ID;
-
     public List<Pipe<I,I>> inputs;
     public ConnectBefore<O> output;
 

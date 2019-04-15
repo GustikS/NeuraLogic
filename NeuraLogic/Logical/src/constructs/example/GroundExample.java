@@ -18,21 +18,25 @@ public class GroundExample implements Example {
 
     public LinkedHashSet<ValuedFact> flatFacts;
 
+    String id;
+
+    static int exampleCounter = 0;
+
     public GroundExample() {
+        id = "ex" + exampleCounter++;
         conjunctions = new LinkedHashSet<>();
         flatFacts = new LinkedHashSet<>();
     }
 
     public GroundExample(List<Conjunction> body) {
-        conjunctions = new LinkedHashSet<>();
+        this();
         conjunctions.addAll(body);
-        flatFacts = new LinkedHashSet<>();
         flatFacts.addAll(body.stream().flatMap(conj -> conj.facts.stream()).collect(Collectors.toList()));
     }
 
     @Override
     public String getId() {
-        return null;
+        return id;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package settings;
 
 import org.apache.commons.cli.CommandLine;
+import pipelines.Pipeline;
 import utils.generic.Pair;
 
 import java.text.DecimalFormat;
@@ -54,6 +55,18 @@ public class Settings {
      */
     public NumberFormat nf = new DecimalFormat("#.##########");
 
+    //------------------Abstract Pipelines
+
+    /**
+     * A root pipeline of the actual program flow.
+     */
+    public Pipeline root;
+
+    /**
+     * Some major settings that influence pipelines creation have been changed on the run, implying the need for rebuilding of every pipeline when entered (accept) during run
+     */
+    public boolean rebuildPipeline = false;
+
     //------------------Grounding
     /**
      * Ground train+test example sets TOGETHER (with the same cache)
@@ -87,7 +100,7 @@ public class Settings {
      */
     public AggregationFcn factMergeActivation = AggregationFcn.MAX;
 
-    public int limitSamples = 60;
+    public int limitSamples = 1000000;
 
     //-----------------Neural nets creation
     /**

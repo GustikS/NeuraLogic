@@ -42,7 +42,7 @@ public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Tra
     }
 
     public Pipeline<Sources, TrainTestResults> buildPipeline(Sources sources) {
-        Pipeline<Sources, TrainTestResults> pipeline = new Pipeline<>("CrossvalidationPipeline");
+        Pipeline<Sources, TrainTestResults> pipeline = new Pipeline<>("CrossvalidationPipeline", this);
 
         MultiMerge<TrainTestResults, TrainTestResults> resultsMultiMerge = pipeline.registerEnd(new MultiMerge<TrainTestResults, TrainTestResults>("ResultsAggregateMerge", settings.foldsCount) {
             @Override

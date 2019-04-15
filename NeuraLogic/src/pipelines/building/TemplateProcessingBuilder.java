@@ -30,7 +30,7 @@ public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, 
 
     @Override
     public Pipeline<Sources, Template> buildPipeline() {
-        Pipeline<Sources, Template> pipeline = new Pipeline<>("TemplateProcessingPipeline");
+        Pipeline<Sources, Template> pipeline = new Pipeline<>("TemplateProcessingPipeline", this);
         if (sources.templateProvided) {
             Pipe<Sources, ParsedTemplate> sourcesTemplatePipe = pipeline.registerStart(extractTemplate(sources));
             Pipe<ParsedTemplate, Template> nextPipe;

@@ -20,7 +20,6 @@ public abstract class Pipe<I, O> extends Block implements Function<I, O>, Connec
         ID = id;
     }
 
-    public String ID;
     /**
      * Storage of the (intermediate) result of calculation of this Pipe. It will only be not null once someone has
      * actually run (called accept) this Pipe.
@@ -34,7 +33,7 @@ public abstract class Pipe<I, O> extends Block implements Function<I, O>, Connec
      * @param input - can be a Stream!
      */
     public void accept(I input) {
-        LOG.finest("Entering: " + ID);
+        LOG.finer("Entering: " + ID);
         outputReady = apply(input);
         if (this.output != null) {
             this.output.accept(outputReady);

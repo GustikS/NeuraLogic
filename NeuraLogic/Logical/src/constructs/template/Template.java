@@ -26,6 +26,9 @@ import java.util.stream.Collectors;
  */
 public class Template implements Model<QueryAtom> {
     private static final Logger LOG = Logger.getLogger(Template.class.getName());
+
+    static int counter = 0;
+
     String id;
 
     public LinkedHashSet<WeightedRule> rules;
@@ -43,9 +46,7 @@ public class Template implements Model<QueryAtom> {
     public Map<HornClause, List<WeightedRule>> hornClauses;
 
     public Template() {
-        this.rules = new LinkedHashSet<>();
-        this.facts = new LinkedHashSet<>();
-        this.constraints = new LinkedHashSet<>();
+        this.id = "template" + counter++;
     }
 
     public Template(Template other) {
@@ -55,6 +56,7 @@ public class Template implements Model<QueryAtom> {
     }
 
     public Template(List<WeightedRule> rules, List<ValuedFact> facts) {
+        this();
         this.rules = new LinkedHashSet<>(rules);
         this.facts = new LinkedHashSet<>(facts);
         this.constraints = new LinkedHashSet<>();

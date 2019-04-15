@@ -39,7 +39,7 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
      * @return
      */
     public Pipeline<Sources, Results> buildPipeline(Sources sources) {
-        Pipeline<Sources, Results> pipeline = new Pipeline<>("LearningSchemePipeline");
+        Pipeline<Sources, Results> pipeline = new Pipeline<>("LearningSchemePipeline", this);
 
         if (sources.crossvalidation) { //returns only test results in this case
             CrossvalidationBuilder crossvalidationSchemeBuilder = new CrossvalidationBuilder(settings, sources);

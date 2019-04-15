@@ -36,6 +36,6 @@ public class LiftedExample extends GroundExample {
 
     @Override
     public String toString() {
-        return "ex:" + getId() + "- facts: " + flatFacts.size() + ", conjunctions: " + conjunctions.size() + ", rules: " + rules.size();
+        return "ex:" + getId() + ", facts: " + flatFacts.size() + ", conjunctions: " + conjunctions.size() + ", rules: " + rules.size();
     }
 }

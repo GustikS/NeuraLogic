@@ -16,8 +16,6 @@ public abstract class Branch<I, O1, O2> extends Block implements ConnectBefore<I
 
     Pair<O1,O2> outputReady;
 
-    public String ID;
-
     public Branch(String id) {
         ID = id;
         output1 = new IdentityGenPipe<>(id + "Output1");

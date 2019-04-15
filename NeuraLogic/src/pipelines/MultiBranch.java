@@ -18,8 +18,6 @@ public abstract class MultiBranch<I, O> extends Block implements ConnectBefore<I
 
     List<O> outputReady;
 
-    public String ID;
-
     boolean parallelBranching = true;
 
     protected MultiBranch(String id, int count) {

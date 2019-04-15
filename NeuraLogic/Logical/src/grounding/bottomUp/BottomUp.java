@@ -70,7 +70,7 @@ public class BottomUp extends Grounder {
             for (WeightedRule weightedRule : ruleEntry.getValue()) {
                 List<GroundRule> groundings = herbrandModel.groundRules(weightedRule, groundingSubstitutions);
                 for (GroundRule grounding : groundings) {
-                    //replace literals that have been created via the rule grounding with their original versions from the Herbrand model inferred before (saves some memory if the examples are retained, these literal can still be immediately GC'ed)
+
                     grounding.internLiterals(allLiterals);
                     Map<GroundHeadRule, LinkedHashSet<GroundRule>> rules2groundings =
                             groundRules.computeIfAbsent(grounding.groundHead, k -> new LinkedHashMap<>());

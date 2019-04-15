@@ -18,7 +18,6 @@ public abstract class Merge<I1, I2, O> extends Block implements ConnectAfter<O> 
     public Pipe<I2, I2> input2;
     public ConnectBefore<O> output;
 
-    public String ID;
     /**
      * Storage of the (intermediate) result of calculation of this Pipe. It will only be not null once someone has
      * actually run (called accept) this Pipe.

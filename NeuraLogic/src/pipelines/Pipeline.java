@@ -1,5 +1,6 @@
 package pipelines;
 
+import pipelines.building.AbstractPipelineBuilder;
 import settings.Settings;
 import utils.Exporter;
 import utils.generic.Pair;
@@ -22,7 +23,7 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
 
     private static final Logger LOG = Logger.getLogger(Pipeline.class.getName());
 
-    public String ID;
+    public AbstractPipelineBuilder<S,T> originalBuilder;
 
     /**
      * first node INSIDE this pipeline
@@ -53,9 +54,20 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
      */
     public ConnectBefore<T> output;
 
+    /**
+     * This pipeline needs to be rebuilt before execution
+     */
+    private boolean invalidated = false;
 
-    public Pipeline(String id) {
+
+    private Pipeline(String id) {
         this.ID = id;
+    }
+
+    public Pipeline(String id, AbstractPipelineBuilder<S,T> originalBuilder){
+        this.ID = id;
+        this.originalBuilder = originalBuilder;
+        this.settings = originalBuilder.settings;
     }
 
     public Pipeline(String id, Settings settings) {
@@ -193,11 +205,38 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
     @Override
     public void accept(S sources) {
         LOG.finest("Entering pipeline: " + ID);
+        if (this.invalidated){
+            this.rebuild(settings);
+        }
         start.accept(sources);
         //all the processing happen recursively here
         if (this.output != null) {
             this.output.accept(terminal.get());
         }
+    }
+
+    public void rebuild(Settings settings) {
+        LOG.warning("Rebuilding pipeline " + this.ID);
+        Pipeline<S,T> pipeline = originalBuilder.buildPipeline();
+        if (!this.start.toString().equals(pipeline.start.toString())){
+            LOG.severe("Pipeline start changed after rebuild");
+        }
+        if (!this.terminal.toString().equals(pipeline.terminal.toString())){
+            LOG.severe("Pipeline terminal changed after rebuild");
+        }
+        pipeline.start.setInput(this.start.getInput());
+        pipeline.terminal.setOutput(this.terminal.getOutput());
+        this.copyFrom(pipeline);
+    }
+
+    private void copyFrom(Pipeline<S, T> pipeline) {
+        this.start = pipeline.start;
+        this.terminal = pipeline.terminal;
+        this.branches = pipeline.branches;
+        this.merges = pipeline.merges;
+        this.pipes = pipeline.pipes;
+        this.multiBranches = pipeline.multiBranches;
+        this.multiMerges = pipeline.multiMerges;
     }
 
     @Override
@@ -228,6 +267,25 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
     @Override
     public T apply(S s) {
         return execute(s).s;
+    }
+
+    public Pipeline findPipeline(String id){
+        if (this.ID.equals(id)){
+            return this;
+        } else {
+            Pipeline pipeline = pipelines.get(id);
+            if (pipeline != null){
+                return pipeline;
+            } else {
+                for (Pipeline value : pipelines.values()) {
+                    Pipeline inner = value.findPipeline(id);
+                    if (inner != null) {
+                        return inner;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
 }

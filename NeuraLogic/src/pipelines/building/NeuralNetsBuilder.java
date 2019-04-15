@@ -31,7 +31,7 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
     }
 
     public Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> buildPipeline() {
-        Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> pipeline = new Pipeline<Stream<GroundingSample>, Stream<NeuralSample>>("NeuralNetsCreationPipeline");
+        Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> pipeline = new Pipeline<Stream<GroundingSample>, Stream<NeuralSample>>("NeuralNetsCreationPipeline", this);
 
         Pipe<Stream<GroundingSample>, Stream<NeuralProcessingSample>> neuralizationPipe = pipeline.registerStart(new Pipe<Stream<GroundingSample>, Stream<NeuralProcessingSample>>("SupervisedNeuralizationPipe") {
             @Override
@@ -73,7 +73,7 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
      * @return
      */
     public Pipeline<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> buildProcessingPipeline() {
-        Pipeline<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> pipeline = new Pipeline<>("NeuralNetsPostprocessing");
+        Pipeline<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> pipeline = new Pipeline<>("NeuralNetsPostprocessing", settings);
 
         ConnectAfter<Stream<NeuralProcessingSample>> nextPipe = null;
 

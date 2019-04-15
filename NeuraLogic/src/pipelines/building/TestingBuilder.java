@@ -38,7 +38,7 @@ public class TestingBuilder extends AbstractPipelineBuilder<Sources, Results> {
 
 
     public Pipeline<Sources, Results> buildPipeline(Sources sources) {
-        Pipeline<Sources, Results> pipeline = new Pipeline<>("TestingPipeline");
+        Pipeline<Sources, Results> pipeline = new Pipeline<>("TestingPipeline", this);
         DuplicateBranch<Sources> duplicateSources = pipeline.registerStart(new DuplicateBranch<>());
         Pipe<Sources, Source> getTestSourcePipe = pipeline.register(new Pipe<Sources, Source>("getTestSourcePipe") {
             @Override
@@ -87,7 +87,7 @@ public class TestingBuilder extends AbstractPipelineBuilder<Sources, Results> {
 
         @Override
         public Pipeline<Pair<Pair<Template, NeuralModel>, Stream<LogicSample>>, Results> buildPipeline() {
-            Pipeline<Pair<Pair<Template, NeuralModel>, Stream<LogicSample>>, Results> pipeline = new Pipeline<>("LogicTestingPipeline");
+            Pipeline<Pair<Pair<Template, NeuralModel>, Stream<LogicSample>>, Results> pipeline = new Pipeline<>("LogicTestingPipeline", this);
             if (groundingPipeline == null) {
                 GroundingBuilder groundingBuilder = new GroundingBuilder(settings);
                 groundingPipeline = pipeline.register(groundingBuilder.buildPipeline());
@@ -129,7 +129,7 @@ public class TestingBuilder extends AbstractPipelineBuilder<Sources, Results> {
 
         @Override
         public Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Results> buildPipeline() {
-            Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Results> pipeline = new Pipeline<>("NeuralTestingPipeline");
+            Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Results> pipeline = new Pipeline<>("NeuralTestingPipeline", this);
             NeuralEvaluationPipe neuralEvaluationPipe = pipeline.registerEnd(pipeline.registerStart(new NeuralEvaluationPipe(settings)));
             return pipeline;
         }

@@ -58,11 +58,11 @@ public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRu
 
         Map<String, Pair<LiftedExample, List<LogicSample>>> map;
         if (queries.isParallel() || examples.isParallel()) {
-            if (settings.oneQueryPerExample)
+            if (settings.oneQueryPerExample && settings.groundingMode != Settings.GroundingMode.GLOBAL)
                 return Stream.concat(queries, examples).collect(Collectors.toConcurrentMap(LearningSample::getId, q -> q, SamplesBuilder::merge2samples)).values().stream();
             map = new ConcurrentHashMap<>();
         } else {
-            if (settings.oneQueryPerExample)
+            if (settings.oneQueryPerExample && settings.groundingMode != Settings.GroundingMode.GLOBAL)
                 return Stream.concat(queries, examples).collect(Collectors.toMap(LearningSample::getId, q -> q, SamplesBuilder::merge2samples)).values().stream();
             map = new HashMap<>();
         }

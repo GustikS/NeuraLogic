@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.logging.*;
 
 public class Logging {
@@ -74,7 +75,8 @@ public class Logging {
 
 
     public static String calcDate(long millisecs) {
-        SimpleDateFormat date_format = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss:SS");
+        SimpleDateFormat date_format = new SimpleDateFormat("HH:mm:ss:SS");
+        date_format.setTimeZone(TimeZone.getTimeZone("GMT+0"));
         Date resultdate = new Date(millisecs);
         return date_format.format(resultdate);
     }

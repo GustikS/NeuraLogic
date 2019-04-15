@@ -55,7 +55,7 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
     }
 
     public Pipeline<Sources, TrainTestResults> buildPipeline(Sources sources) {
-        Pipeline<Sources, TrainTestResults> pipeline = new Pipeline<>("TrainTestPipeline");
+        Pipeline<Sources, TrainTestResults> pipeline = new Pipeline<>("TrainTestPipeline", this);
 
         DuplicateBranch<Sources> duplicateSources = pipeline.registerStart(new DuplicateBranch<>());
         Pipe<Sources, Source> testExtrPipe = pipeline.register(new Pipe<Sources, Source>("TestExtractionPipe") {
@@ -104,7 +104,7 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
          */
         @Override
         public Pipeline<Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>, TrainTestResults> buildPipeline() {
-            Pipeline<Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>, TrainTestResults> pipeline = new Pipeline<>("LogicTrainTestPipeline");
+            Pipeline<Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>, TrainTestResults> pipeline = new Pipeline<>("LogicTrainTestPipeline", this);
 
             PairBranch<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>> templateSamplesBranch = pipeline.registerStart(new PairBranch<>());
             PairBranch<Stream<LogicSample>, Stream<LogicSample>> trainTestBranch = pipeline.register(new PairBranch<>());
@@ -149,7 +149,7 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
 
         @Override
         public Pipeline<Pair<Stream<LogicSample>, Stream<LogicSample>>, TrainTestResults> buildPipeline() {
-            Pipeline<Pair<Stream<LogicSample>, Stream<LogicSample>>, TrainTestResults> pipeline = new Pipeline<>("StructureTrainTestPipeline");
+            Pipeline<Pair<Stream<LogicSample>, Stream<LogicSample>>, TrainTestResults> pipeline = new Pipeline<>("StructureTrainTestPipeline", this);
 
             PairBranch<Stream<LogicSample>, Stream<LogicSample>> trainTestBranch = pipeline.registerStart(new PairBranch<>());
             Pipeline<Stream<LogicSample>, Pair<Pair<Template, NeuralModel>, Progress>> trainingPipeline = pipeline.register(trainingBuilder.new StructureLearningBuilder(settings).buildPipeline());
@@ -188,7 +188,7 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
          */
         @Override
         public Pipeline<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>, TrainTestResults> buildPipeline() {
-            Pipeline<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>, TrainTestResults> pipeline = new Pipeline<>("NeuralTrainTestPipeline");
+            Pipeline<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>, TrainTestResults> pipeline = new Pipeline<>("NeuralTrainTestPipeline", this);
             TrainingBuilder.NeuralLearningBuilder neuralLearningBuilder = new TrainingBuilder(settings, sources).new NeuralLearningBuilder(settings);
             Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Progress>> neuralLearning = pipeline.register(neuralLearningBuilder.buildPipeline());
             TestingBuilder.NeuralTestingBuilder neuralTestingBuilder = new TestingBuilder(settings, sources).new NeuralTestingBuilder(settings);

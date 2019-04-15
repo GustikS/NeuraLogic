@@ -29,7 +29,7 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
     }
 
     public Pipeline<Source, Stream<LogicSample>> buildPipeline(Source source) {
-        Pipeline<Source, Stream<LogicSample>> samplesProcessingPipeline = new Pipeline<>("SamplesProcessingPipeline");
+        Pipeline<Source, Stream<LogicSample>> samplesProcessingPipeline = new Pipeline<>("SamplesProcessingPipeline", this);
         Pipe<Source, Stream<LogicSample>> sourcesSamplesPipe = samplesProcessingPipeline.registerStart(extractSamplesPipe(source));
         Pipe<Stream<LogicSample>, Stream<LogicSample>> samplesPostprocessPipe = samplesProcessingPipeline.registerEnd(postprocessSamplesPipe());
         sourcesSamplesPipe.connectAfter(samplesPostprocessPipe);

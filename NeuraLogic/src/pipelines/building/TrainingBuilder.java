@@ -40,7 +40,7 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
 
 
     public Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> buildPipeline(Sources sources) {
-        Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> pipeline = new Pipeline<>("TrainingPipeline");
+        Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> pipeline = new Pipeline<>("TrainingPipeline", this);
 
         Pipe<Sources, Source> getTrainSource = pipeline.register(new Pipe<Sources, Source>("getTrainSourcePipe") {
             @Override
@@ -89,7 +89,7 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
 
         @Override
         public Pipeline<Pair<Template, Stream<LogicSample>>, Pair<Pair<Template, NeuralModel>, Progress>> buildPipeline() {
-            Pipeline<Pair<Template, Stream<LogicSample>>, Pair<Pair<Template, NeuralModel>, Progress>> pipeline = new Pipeline<>("LogicLearningPipeline");
+            Pipeline<Pair<Template, Stream<LogicSample>>, Pair<Pair<Template, NeuralModel>, Progress>> pipeline = new Pipeline<>("LogicLearningPipeline", this);
 
             FirstFromPairExtractionBranch<Template, Stream<LogicSample>> templateSamplesBranch = pipeline.registerStart(new FirstFromPairExtractionBranch<>());
             DuplicateBranch<Template> duplicateBranch = pipeline.register(new DuplicateBranch<>());
@@ -160,7 +160,7 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
 
         @Override
         public Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Progress>> buildPipeline() {
-            Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Progress>> pipeline = new Pipeline<>("NeuralTrainingPipeline");
+            Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Progress>> pipeline = new Pipeline<>("NeuralTrainingPipeline", this);
             NeuralTrainingPipe neuralTrainingPipe = pipeline.registerEnd(pipeline.registerStart(new NeuralTrainingPipe(settings)));
             return pipeline;
         }
