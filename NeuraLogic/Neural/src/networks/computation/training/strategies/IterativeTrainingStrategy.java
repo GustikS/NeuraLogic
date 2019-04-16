@@ -119,7 +119,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     protected void endEpoch(int count, List<Result> onlineEvaluations) {
         Results onlineResults = resultsFactory.createFrom(onlineEvaluations);
         progress.addOnlineResults(onlineResults);
-        LOG.fine(count + " : " + onlineResults);
+        LOG.info("epoch " + count + " results : " + onlineResults);
         if (count % settings.resultsRecalculationEpochae == 0) {
             recalculateResults();
         }

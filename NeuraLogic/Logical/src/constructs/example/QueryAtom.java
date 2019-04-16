@@ -43,9 +43,11 @@ public class QueryAtom extends Query<LiftedExample, Template> {
 
     @Override
     public String toString() {
+        StringBuilder sb = new StringBuilder();
         if (headAtom != null)
-            return headAtom.toString();
-        else
-            return "null";
+            sb.append(headAtom.toString());
+        if (evidence != null)
+            sb.append(" <-" + evidence.toString());
+        return sb.toString();
     }
 }

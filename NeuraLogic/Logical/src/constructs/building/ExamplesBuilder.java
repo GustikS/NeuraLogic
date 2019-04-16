@@ -54,7 +54,6 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
     @Override
     public Stream<LogicSample> sampleFrom(Pair<Conjunction, LiftedExample> pair) {
         LiftedExample example = pair.s;
-
         if (pair.r == null || pair.r.facts == null || pair.r.facts.size() == 0) {
             //LOG.finest("Unlabeled input examples detected - queries must be provided in a separate file");
             return Stream.of(createUnlabeledSample(String.valueOf(queryCounter), example));
@@ -63,14 +62,16 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
             return Stream.of(new LogicSample(null, createQueryAtom(query.literal.toString(), query, example)));
         } else {    // these are not for merging
             String minibatch = String.valueOf(queryCounter);
-            return pair.r.facts.stream().map(f -> new LogicSample(f.getValue(), createQueryAtom(settings.queriesBatchPrefix + minibatch, f, example)));
+            return pair.r.facts.stream()
+                    .map(f -> new LogicSample(f.getValue(), createQueryAtom(settings.queriesBatchPrefix + minibatch, f, example)))
+                    .peek(s -> LOG.fine("New Sample created " + s.toString()));
         }
     }
     private LogicSample createUnlabeledSample(String id, LiftedExample example) {
         return new LogicSample(null, createQueryAtom(id, null, example));
     }
 
-    private void inferInputFormatSettings(NeuralogicParser.ExamplesFileContext examplesFileContext) {   //todo next move these at the beginning - before pipeline creation!
+    private void inferInputFormatSettings(NeuralogicParser.ExamplesFileContext examplesFileContext) {
         if (examplesFileContext.liftedExample().size() == 0){
             LOG.warning("There are no examples in the example source (file)!");
         } else if (examplesFileContext.liftedExample().size() == 1){
@@ -92,6 +93,7 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
             }
         }
         if (examplesFileContext.label() != null && !examplesFileContext.label().isEmpty()){
+            settings.queriesAlignedWithExamples = false;
             LOG.info("Detecting examples to have ids/queries with them.");
         }
     }

@@ -17,9 +17,4 @@ public class LogicSample extends LearningSample<QueryAtom> {
         this.query = q;
         this.target = v;
     }
-
-    @Override
-    public String toString() {
-        return super.toString() + ", " + query.evidence;
-    }
 }

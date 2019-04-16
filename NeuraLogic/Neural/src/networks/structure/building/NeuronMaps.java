@@ -55,8 +55,8 @@ public class NeuronMaps {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Nmaps: groundRules: ").append(groundRules.size());
-        sb.append(", groundFacts: ").append(groundFacts.size());
+        sb.append("Nmaps: unused ground head literals: ").append(groundRules.size());
+        sb.append(", unused groundFacts: ").append(groundFacts.size());
         sb.append(", atomNeurons: ").append(atomNeurons.size());
         sb.append(", aggNeurons: ").append(aggNeurons.size());
         sb.append(", ruleNeurons: ").append(ruleNeurons.size());

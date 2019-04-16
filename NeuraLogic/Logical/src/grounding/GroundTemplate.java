@@ -18,6 +18,9 @@ import java.util.*;
  * Temporary structure created during grounding for transfer between ground Herbrand model (rules+facts) and a neural network.
  */
 public class GroundTemplate extends GraphTemplate implements Example {
+
+    static int counter = 0;
+
     String id;
 
     /**
@@ -43,10 +46,11 @@ public class GroundTemplate extends GraphTemplate implements Example {
     public NeuronMaps neuronMaps;   //todo move to grounding.GroundingSample for clarity
 
     public GroundTemplate() {
-
+        this.id = "g" + counter++;
     }
 
     public GroundTemplate(LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> groundRules, Map<Literal, ValuedFact> groundFacts) {
+        this();
         this.groundRules = groundRules;
         this.groundFacts = groundFacts;
         this.derivedGroundFacts = getFactsFromGroundRules(groundRules);
@@ -54,6 +58,7 @@ public class GroundTemplate extends GraphTemplate implements Example {
     }
 
     public GroundTemplate(GroundTemplate other) {
+        this();
         this.groundRules = other.groundRules;
         this.groundFacts = other.groundFacts;
         this.derivedGroundFacts = other.derivedGroundFacts;

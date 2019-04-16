@@ -30,7 +30,7 @@ public class Settings {
     /**
      * How detailed the log should be in general
      */
-    public static Level loggingLevel = Level.FINER;
+    public static Level loggingLevel = Level.FINEST;
     /**
      * Colorful console output?
      */
@@ -319,9 +319,9 @@ public class Settings {
     }
 
     /**
-     * Percentage of samples from train-set used for validation
+     * Percentage of samples from train-set used for validation, 0 = empty validation set
      */
-    public double trainValidationPercentage;
+    public double trainValidationPercentage = 0;
 
     //-----------------Structure Learning
     public boolean structureLearning;

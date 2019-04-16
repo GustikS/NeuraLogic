@@ -34,6 +34,11 @@ public class QueryNeuron extends Query<NeuralNetwork<State.Neural.Structure>, Ne
 
     @Override
     public String toString() {
-        return neuron.toString();
+        StringBuilder sb = new StringBuilder();
+        if (neuron != null)
+            sb.append(neuron.toString());
+        if (evidence != null)
+            sb.append(" <-" + evidence.toString());
+        return sb.toString();
     }
 }

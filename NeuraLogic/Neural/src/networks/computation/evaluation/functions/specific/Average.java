@@ -21,7 +21,7 @@ public class Average extends Aggregation {
         for (int i = 1, len = inputs.size(); i < len; i++) {
             sum.plus(inputs.get(i));
         }
-        return sum.times(new ScalarValue(1/inputs.size()));
+        return sum.times(new ScalarValue(1.0/inputs.size()));
     }
 
     @Override

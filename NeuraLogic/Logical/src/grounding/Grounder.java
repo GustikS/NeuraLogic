@@ -80,7 +80,7 @@ public abstract class Grounder {
     public Pair<Set<WeightedRule>, Set<ValuedFact>> rulesAndFacts(LiftedExample example, Template template) {
         LinkedHashSet<ValuedFact> flatFacts;
         if (!template.facts.isEmpty() || !example.conjunctions.isEmpty()) {
-            flatFacts=new LinkedHashSet<>(example.flatFacts);
+            flatFacts = new LinkedHashSet<>(example.flatFacts);
             flatFacts.addAll(example.conjunctions.stream().flatMap(conj -> conj.facts.stream()).collect(Collectors.toList()));
             flatFacts.addAll(template.facts);
         } else {
@@ -92,14 +92,13 @@ public abstract class Grounder {
             rules = template.rules;
             //rules.addAll(template.constraints) todo what to do with constraints?
         } else {
-            rules=new LinkedHashSet<>(template.rules);
+            rules = new LinkedHashSet<>(template.rules);
             rules.addAll(example.rules);
         }
         return new Pair<>(rules, flatFacts);
     }
 
     /**
-     *
      * @param raf
      * @return
      */
@@ -110,11 +109,10 @@ public abstract class Grounder {
     }
 
     /**
-     *
      * @param facts
      * @return
      */
-    public  Map<Literal, ValuedFact> mapToLogic(Set<ValuedFact> facts) {
+    public Map<Literal, ValuedFact> mapToLogic(Set<ValuedFact> facts) {
         return facts.stream().collect(Collectors.toMap(ValuedFact::getLiteral, vf -> vf, this::merge2facts));
     }
 
@@ -150,6 +148,7 @@ public abstract class Grounder {
      * @return
      */
     public List<GroundingSample> globalGroundingSample(List<GroundingSample> sampleList) {
+        LOG.info("Global grounding for " + sampleList.size() + " samples.");
         Template template = new Template();
         LiftedExample liftedExample = new LiftedExample();
 

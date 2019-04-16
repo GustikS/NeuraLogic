@@ -91,7 +91,7 @@ public class Neuralizer {
             neuralNetBuilder.connectAllNeurons();
             LOG.fine("All neurons connected.");
             neuralNetwork = neuralNetBuilder.finalizeStoredNetwork(groundTemplate.getId());
-            LOG.fine("Neural network created: " + neuralNetwork);
+            LOG.fine("Final neural network created: " + neuralNetwork);
         }
 
         return getQueryNeurons(queryAtom, neuralNetBuilder.getNeuronMaps(), neuralNetwork, queryMatchingLiterals);
@@ -112,8 +112,11 @@ public class Neuralizer {
 
         //and create facts
         neuralNetBuilder.loadNeuronsFromFacts(groundTemplate.neuronMaps.groundFacts);
+        LOG.fine("Neurons created: " + neuralNetBuilder.getNeuronMaps());
         neuralNetBuilder.connectAllNeurons();
+        LOG.fine("All neurons connected.");
         DetailedNetwork detailedNetwork = neuralNetBuilder.finalizeStoredNetwork(groundTemplate.getId());
+        LOG.fine("Final neural network created: " + detailedNetwork);
         return detailedNetwork;
     }
 

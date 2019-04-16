@@ -47,6 +47,9 @@ public class Template implements Model<QueryAtom> {
 
     public Template() {
         this.id = "template" + counter++;
+        this.rules = new LinkedHashSet<>();
+        this.facts = new LinkedHashSet<>();
+        this.constraints = new LinkedHashSet<>();
     }
 
     public Template(Template other) {
@@ -57,9 +60,8 @@ public class Template implements Model<QueryAtom> {
 
     public Template(List<WeightedRule> rules, List<ValuedFact> facts) {
         this();
-        this.rules = new LinkedHashSet<>(rules);
-        this.facts = new LinkedHashSet<>(facts);
-        this.constraints = new LinkedHashSet<>();
+        this.rules.addAll(rules);
+        this.facts.addAll(facts);
     }
 
     public void addConstraints(List<Conjunction> constr) {

@@ -37,6 +37,7 @@ public abstract class MultiMerge<I, O> extends Block implements ConnectAfter<O>{
     private void accept(I i) {
         inputsReady.add(i);
         if (inputsReady.size() == inputs.size()){
+            LOG.finer("Entering: " + ID);
             merge(new ArrayList<>(inputsReady));
         }
     }

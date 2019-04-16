@@ -98,11 +98,11 @@ public class Sources {
         infer(settings);
 
         if (!train.QueriesProvided && !test.QueriesProvided && folds == null) {
-            LOG.severe(msg += "Invalid learning setup - no trainQueriesSeparate nor testing samples provided");
+            LOG.severe(msg += "Invalid learning setup - no training queries nor testing queries provided");
             valid = false;
         }
         if (templateReader == null && train.QueriesReader == null && test.QueriesReader == null) {
-            LOG.severe(msg += "Invalid learning setup - no template nor trainQueriesSeparate or testing samples provided");
+            LOG.severe(msg += "Invalid learning setup - no template nor queries provided");
             valid = false;
         }
         if (crossvalidation && (testOnly || trainTest || trainOnly)){

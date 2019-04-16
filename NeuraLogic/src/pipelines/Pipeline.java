@@ -204,7 +204,7 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
 
     @Override
     public void accept(S sources) {
-        LOG.finest("Entering pipeline: " + ID);
+        LOG.finer("Entering pipeline: " + ID);
         if (this.invalidated){
             this.rebuild(settings);
         }
@@ -216,13 +216,13 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
     }
 
     public void rebuild(Settings settings) {
-        LOG.warning("Rebuilding pipeline " + this.ID);
+        LOG.info("Rebuilding pipeline " + this.ID);
         Pipeline<S,T> pipeline = originalBuilder.buildPipeline();
         if (!this.start.toString().equals(pipeline.start.toString())){
-            LOG.severe("Pipeline start changed after rebuild");
+            LOG.warning("Pipeline start changed after rebuild from " + this.start.toString() + " to " + pipeline.start.toString());
         }
         if (!this.terminal.toString().equals(pipeline.terminal.toString())){
-            LOG.severe("Pipeline terminal changed after rebuild");
+            LOG.warning("Pipeline terminal changed after rebuild from " + this.terminal.toString() + " to " + pipeline.terminal.toString());
         }
         pipeline.start.setInput(this.start.getInput());
         pipeline.terminal.setOutput(this.terminal.getOutput());

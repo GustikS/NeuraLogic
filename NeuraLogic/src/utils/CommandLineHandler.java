@@ -31,12 +31,9 @@ public class CommandLineHandler {
 
         //-----------source files
         options.addOption("t", "template", true, "template file (" + settings.templateFile + ")");
-        //either examples or queries must be provided
-        OptionGroup queriesGroup = new OptionGroup();
-        queriesGroup.addOption(new Option("q", "trainQueries", true, "trainQueries file (" + settings.trainQueriesFile + ")"));
-        queriesGroup.addOption(new Option("e", "trainExamples", true, "trainExamples file containing facts (" + settings.trainExamplesFile + ")"));
-        queriesGroup.setRequired(true);
-        options.addOptionGroup(queriesGroup);
+
+        options.addOption("q", "trainQueries", true, "trainQueries file (" + settings.trainQueriesFile + ")");
+        options.addOption("e", "trainExamples", true, "trainExamples file containing facts (" + settings.trainExamplesFile + ")");
 
         options.addOption("path", "sourcePath", true, "path to source files (" + settings.sourcePath + ")");
 

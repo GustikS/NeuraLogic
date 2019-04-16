@@ -86,11 +86,14 @@ public class QueriesBuilder extends SamplesBuilder<PlainQueriesParseTree, Pair<V
             LOG.warning("There are no queries in the queries source (file)!");
         } else if (size == 1){
             LOG.warning("There is only 1 query to learn from!");
+        } else {
+            LOG.info("Detecting multiple independent queries.");
         }
         if (queriesFileContext.conjunction(0).atom().size() > 1){   //todo this is just a heuristic
             LOG.info("Detecting multiple individual queries per example.");
             settings.oneQueryPerExample = false;
         } else {
+            LOG.info("Heuristically detecting atomic queries (no batch queries)");
             settings.oneQueryPerExample = true;
         }
     }

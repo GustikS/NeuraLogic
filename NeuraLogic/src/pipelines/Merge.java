@@ -62,7 +62,7 @@ public abstract class Merge<I1, I2, O> extends Block implements ConnectAfter<O> 
         I1 i1;
         I2 i2;
         if ((i1 = input1.get()) != null && (i2 = input2.get()) != null) {
-            LOG.finest("Entering: " + ID);
+            LOG.finer("Entering: " + ID);
             accept(i1, i2);
         }
         else
