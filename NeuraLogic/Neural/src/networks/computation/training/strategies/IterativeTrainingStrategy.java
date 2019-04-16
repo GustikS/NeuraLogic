@@ -89,7 +89,9 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
 
     protected void initTraining() {
-        Collections.shuffle(trainingSet, settings.random);
+        if (settings.shuffleBeforeTraining) {
+            Collections.shuffle(trainingSet, settings.random);
+        }
         progress = new Progress();
         TrainVal evaluations = evaluateModel();
         progress.addTrueResults(resultsFactory.createFrom(evaluations.training), resultsFactory.createFrom(evaluations.validation));

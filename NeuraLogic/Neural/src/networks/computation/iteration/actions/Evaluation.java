@@ -72,7 +72,7 @@ public class Evaluation {
         AtomNeuron<State.Neural> outputNeuron = queryNeuron.neuron;
 
         BottomUp<Value> propagator = getBottomUpIterationStrategy(settings, network, outputNeuron, evaluator);
-        Value output = propagator.bottomUp();
+        Value output = propagator.bottomUp().clone();
         return output;
     }
 }

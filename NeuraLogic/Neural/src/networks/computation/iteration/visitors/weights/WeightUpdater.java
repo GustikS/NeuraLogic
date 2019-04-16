@@ -44,4 +44,12 @@ public class WeightUpdater implements WeightVisitor {
     public void visit(StatefulWeight weight, Value value) {
         weight.getAccumulatedUpdate().incrementBy(value); //todo this will probably never get called, is StatefulWeight necessary?
     }
+
+    public void clearUpdates() {
+        for (int i = 0; i < weightUpdates.length; i++) {
+            Value weightUpdate = weightUpdates[i];
+            if (weightUpdate != null)
+                weightUpdate.zero();
+        }
+    }
 }

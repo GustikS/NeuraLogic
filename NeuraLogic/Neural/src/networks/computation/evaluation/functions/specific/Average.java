@@ -19,14 +19,14 @@ public class Average extends Aggregation {
     public Value evaluate(List<Value> inputs) {
         Value sum = inputs.get(0).clone();
         for (int i = 1, len = inputs.size(); i < len; i++) {
-            sum.plus(inputs.get(i));
+            sum.incrementBy(inputs.get(i));
         }
-        return sum.times(new ScalarValue(1.0/inputs.size()));
+        return sum.times(new ScalarValue(1.0 / inputs.size()));
     }
 
     @Override
     public Value differentiate(List<Value> inputs) {
-        return new ScalarValue(1/inputs.size());    //todo check
+        return new ScalarValue(1.0 / inputs.size());    //todo check
     }
 
     @Override

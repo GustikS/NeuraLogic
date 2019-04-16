@@ -211,7 +211,7 @@ public class Settings {
     /**
      * Recalculate results after every N epochae
      */
-    public int resultsRecalculationEpochae = 1;
+    public int resultsRecalculationEpochae = 10;
 
     /**
      * Default algorithm for neural cache searching
@@ -259,6 +259,11 @@ public class Settings {
      * Over all the restarts, how many epoch can be done at maximum.
      */
     public int maxCumEpochCount = 20;
+
+    /**
+     * Shuffle samples before neural training (only turn off for debugging purposes)
+     */
+    public boolean shuffleBeforeTraining = true;
 
     /**
      * with Minibatch = Shuffle samples with each epoch to create different minibatches.

@@ -141,7 +141,8 @@ public class StandardNeuronVisitors {
 
         @Override
         public void visit(WeightedNeuron neuron) {
-
+            State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
+            stateVisitor.visit(state);
         }
     }
 }

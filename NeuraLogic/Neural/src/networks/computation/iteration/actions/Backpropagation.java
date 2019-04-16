@@ -74,6 +74,7 @@ public class Backpropagation {
         AtomNeuron<State.Neural> outputNeuron = neuralSample.query.neuron;
         Value errorGradient = evaluatedResult.errorGradient();
 
+        weightUpdater.clearUpdates();
         outputNeuron.getComputationView(backproper.stateIndex).storeGradient(errorGradient); //store the error gradient into the output neuron, from where it will be further propagated
 
         TopDown topDownPropagator = getTopDownPropagator(neuralNetwork, outputNeuron);

@@ -12,12 +12,17 @@ import java.util.logging.Logger;
 public class Sigmoid extends Activation {
     private static final Logger LOG = Logger.getLogger(Sigmoid.class.getName());
 
-    static Function<Double, Double> logist = in -> in > 100 ? 1 : (in < -100 ? 0 : 1 / (1 + Math.exp(-in)));
+    private static final Function<Double, Double> logist = in -> in > 100 ? 1 : (in < -100 ? 0 : 1 / (1 + Math.exp(-in)));
+
+    private static final Function<Double, Double> diffLogist = in -> {
+        if (in > 100 || in < -100)
+            return 0.0;
+        double sigm = 1.0 / (1.0 + Math.exp(-in));  //need to store this local variable here for speedup
+        return sigm * (1.0 - sigm);
+    };
 
     public Sigmoid() {
-        super(logist,
-                in -> in > 100 || in < -100 ? 0 : logist.apply(in) * (1 - logist.apply(in))     //todo next optimize
-        );
+        super(logist, diffLogist);
     }
 
     @Override

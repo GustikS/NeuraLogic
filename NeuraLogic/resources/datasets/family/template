@@ -1,3 +1,3 @@
-0.5 foal0(X) :- parent(X,Y), horse(Y).
-0.5 foal1(X) :- foal0(X).
-0.5 foal2(X) :- sibling(X,Y), horse(Y).
+0.0 foal0(X) :- parent(X,Y), horse(Y).
+0.0 foal1(X) :- foal0(X).
+0.0 foal2(X) :- sibling(X,Y), horse(Y).

@@ -15,6 +15,9 @@ public class MainTest {
     public void family() {
         String[] args = new String("-e ./resources/datasets/family/examples -t ./resources/datasets/family/template -q ./resources/datasets/family/queries").split(" ");
         Settings settings = new Settings();
+        settings.shuffleBeforeTraining = false;
+        settings.initLearningRate = 1;
+        settings.maxCumEpochCount = 20;
         Settings.loggingLevel = Level.FINEST;
         Main.main(args,settings);
     }
@@ -38,8 +41,9 @@ public class MainTest {
 
         Settings settings = new Settings();
         Settings.loggingLevel = Level.FINER;
-        //settings.limitSamples = 10;
-        settings.maxCumEpochCount = 20;
+        settings.initLearningRate = 0.1;
+        settings.maxCumEpochCount = 2000;
+        settings.shuffleBeforeTraining = false;
         //settings.oneQueryPerExample = true;
 
         Main.main(args, settings);
