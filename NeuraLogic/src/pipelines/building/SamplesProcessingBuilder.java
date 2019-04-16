@@ -55,7 +55,7 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
 
         Pipe<Source, Stream<LogicSample>> sampleExtractionPipe = null;
 
-        if (source.QueriesSeparate && source.ExamplesProvided) {
+        if (source.QueriesSeparate && source.ExamplesSeparate) {
             sampleExtractionPipe = new Pipe<Source, Stream<LogicSample>>("QueriesWithExamplesPipe") {
                 @Override
                 public Stream<LogicSample> apply(Source source) {
@@ -69,12 +69,22 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
                     return queriesBuilder.merge2streams(queries, examples);
                 }
             };
-        } else if (!source.QueriesSeparate && source.ExamplesProvided) {
+        } else if (!source.QueriesSeparate && source.QueriesProvided && source.ExamplesSeparate) {
+            sampleExtractionPipe = new Pipe<Source, Stream<LogicSample>>("QueriesWithinExamplesPipe") {
+                @Override
+                public Stream<LogicSample> apply(Source source) {
+                    ExamplesBuilder examplesBuilder = new ExamplesBuilder(settings);
+                    Stream<LogicSample> labeledExamples = examplesBuilder.buildSamplesFrom(examplesBuilder.parseTreeFrom(source.ExamplesReader));
+                    return labeledExamples;
+                }
+            };
+        } else if (!source.QueriesProvided && source.ExamplesSeparate) {
             sampleExtractionPipe = new Pipe<Source, Stream<LogicSample>>("UnsupervisedExamplesPipe") {
                 @Override
                 public Stream<LogicSample> apply(Source source) {
                     ExamplesBuilder examplesBuilder = new ExamplesBuilder(settings);
-                    return examplesBuilder.buildSamplesFrom(examplesBuilder.parseTreeFrom(source.ExamplesReader));
+                    Stream<LogicSample> unlabeledExamples = examplesBuilder.buildSamplesFrom(examplesBuilder.parseTreeFrom(source.ExamplesReader));
+                    return unlabeledExamples;
                 }
             };
         } else if (source.QueriesSeparate && !source.ExamplesProvided) {
@@ -98,7 +108,7 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
         Pipe<Stream<LogicSample>, Stream<LogicSample>> postProcessPipe = new Pipe<Stream<LogicSample>, Stream<LogicSample>>("PostprocessSamplesPipe") {
             @Override
             public Stream<LogicSample> apply(Stream<LogicSample> logicSampleStream) {
-                if (settings.limitSamples > 0){
+                if (settings.limitSamples > 0) {
                     LOG.warning("Limiting the learning samples to the first: " + settings.limitSamples);
                     logicSampleStream = logicSampleStream.limit(settings.limitSamples);
                 }

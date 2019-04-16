@@ -30,9 +30,13 @@ public class CommandLineHandler {
         options.addOption(new Option("seed", "randomSeed", true, "int seed for random generator (" + settings.seed + ")"));
 
         //-----------source files
-        options.addRequiredOption("q", "trainQueries", true, "trainQueries file (" + settings.trainQueriesFile + ")");
         options.addOption("t", "template", true, "template file (" + settings.templateFile + ")");
-        options.addOption("e", "trainExamples", true, "trainExamples file containing facts (" + settings.trainExamplesFile + ")");
+        //either examples or queries must be provided
+        OptionGroup queriesGroup = new OptionGroup();
+        queriesGroup.addOption(new Option("q", "trainQueries", true, "trainQueries file (" + settings.trainQueriesFile + ")"));
+        queriesGroup.addOption(new Option("e", "trainExamples", true, "trainExamples file containing facts (" + settings.trainExamplesFile + ")"));
+        queriesGroup.setRequired(true);
+        options.addOptionGroup(queriesGroup);
 
         options.addOption("path", "sourcePath", true, "path to source files (" + settings.sourcePath + ")");
 

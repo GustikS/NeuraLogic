@@ -63,9 +63,15 @@ public class Settings {
     public Pipeline root;
 
     /**
-     * Some major settings that influence pipelines creation have been changed on the run, implying the need for rebuilding of every pipeline when entered (accept) during run
+     * Some major settings that influence pipelines creation have been changed on the run,
+     * implying the need for rebuilding of every pipeline when entered (accept) during run
      */
-    public boolean rebuildPipeline = false;
+    public boolean rebuildPipelines = false;
+
+    /**
+     * Limiting the input Sample stream to the first N samples. N <= 0 for no limit
+     */
+    public int limitSamples = 0;
 
     //------------------Grounding
     /**
@@ -73,10 +79,10 @@ public class Settings {
      */
     public boolean trainTestJointGrounding; //TODO implement this
 
-    public GroundingMode groundingMode = GroundingMode.NORMAL;
+    public GroundingMode groundingMode = GroundingMode.STANDARD;
 
     public enum GroundingMode {
-        NORMAL,
+        STANDARD,   //Separate independent example graphs
         SEQUENTIAL, // Ground networks are grounded in a specific given sequence (i.e. sharing only with previous examples)
         GLOBAL  //Ground networks (in a given Grounder context) may share common parts (i.e. Grounder has a cache)
     }
@@ -99,8 +105,6 @@ public class Settings {
      * How to aggregate 2 identical facts stated with 2 different truth values (e.g., 0.3 person(petr).; 0.9 person(petr).)
      */
     public AggregationFcn factMergeActivation = AggregationFcn.MAX;
-
-    public int limitSamples = 1000000;
 
     //-----------------Neural nets creation
     /**
@@ -207,7 +211,7 @@ public class Settings {
     /**
      * Recalculate results after every N epochae
      */
-    public int resultsRecalculationEpochae = 10;
+    public int resultsRecalculationEpochae = 1;
 
     /**
      * Default algorithm for neural cache searching
@@ -341,6 +345,8 @@ public class Settings {
 
     public String foldsPrefix = "fold";
 
+    public String queryExampleSeparator = ":-";
+
     //----------------Crossvaldiation
 
     public int foldsCount = 5;
@@ -433,7 +439,7 @@ public class Settings {
         String _groundingMode = cmd.getOptionValue("groundingMode", "normal");
         switch (_groundingMode) {
             case "normal":
-                groundingMode = GroundingMode.NORMAL;
+                groundingMode = GroundingMode.STANDARD;
                 break;
             case "sequential":
                 groundingMode = GroundingMode.SEQUENTIAL;

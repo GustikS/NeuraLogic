@@ -97,7 +97,7 @@ public class Sources {
 
         infer(settings);
 
-        if (train.QueriesReader == null && test.QueriesReader == null && folds == null) {
+        if (!train.QueriesProvided && !test.QueriesProvided && folds == null) {
             LOG.severe(msg += "Invalid learning setup - no trainQueriesSeparate nor testing samples provided");
             valid = false;
         }

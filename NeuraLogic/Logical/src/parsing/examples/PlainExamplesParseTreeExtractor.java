@@ -38,9 +38,9 @@ public class PlainExamplesParseTreeExtractor extends ExamplesParseTreeExtractor<
 
     @Override
     public Stream<Conjunction> getQueries(@NotNull NeuralogicParser.ExamplesFileContext ctx) {
-        PlainGrammarVisitor.FactConjunctionVisitor factConjunctionVisitor = visitor.new FactConjunctionVisitor();
+        PlainGrammarVisitor.LabelVisitor labelVisitor = visitor.new LabelVisitor();
         if (ctx.label() != null)
-            return ctx.liftedExample().stream().map(line -> line.accept(factConjunctionVisitor));
+            return ctx.label().stream().map(line -> line.accept(labelVisitor));
         else
             LOG.severe("Could not extract any trainQueries (weighted facts)");
         return null;

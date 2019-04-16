@@ -26,4 +26,16 @@ public class MainTest {
 
         Main.main(args, settings);
     }
+
+    @Test
+    public void mutamini() {
+        String[] args = new String("-e ./resources/datasets/muta_mini/examples -t ./resources/datasets/muta_mini/template_old").split(" ");
+
+        Settings settings = new Settings();
+        //settings.limitSamples = 10;
+        settings.maxCumEpochCount = 20;
+        //settings.oneQueryPerExample = true;
+
+        Main.main(args, settings);
+    }
 }

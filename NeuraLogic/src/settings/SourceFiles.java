@@ -4,9 +4,7 @@ import org.apache.commons.cli.CommandLine;
 import utils.Utilities;
 import utils.generic.Pair;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.UnknownFormatFlagsException;
@@ -37,12 +35,25 @@ public class SourceFiles extends Sources {
         return basePair;
     }
 
+    @Override
+    public void infer(Settings settings) {
+        if (checkForSubstring(trainExamples, settings.queryExampleSeparator, 2)) {
+            LOG.info("Queries within train example file detected via separator " + settings.queryExampleSeparator);
+            this.train.QueriesProvided = true;
+        }
+        if (checkForSubstring(testExamples, settings.queryExampleSeparator, 2)) {
+            LOG.info("Queries within test example file detected via separator " + settings.queryExampleSeparator);
+            this.test.QueriesProvided = true;
+        }
+
+        super.infer(settings);
+    }
+
     public Pair<Boolean, String> isValid(Settings settings) {
         Pair<Boolean, String> validate = super.validate(settings);
         //TODO is complete?
         return validate;
     }
-
 
     public SourceFiles(Settings settings, CommandLine cmd) {
         super(settings);
@@ -174,5 +185,28 @@ public class SourceFiles extends Sources {
         }
 
         return this;
+    }
+
+    public boolean checkForSubstring(File file, String substring, int numberOfLines) {
+
+        //are queries hidden in the example file? Quick check
+        BufferedReader bufferedReader = null;
+        try {
+            bufferedReader = new BufferedReader(new FileReader(file));
+        } catch (FileNotFoundException e) {
+            return false;
+        }
+        try {
+            String line;
+            int i = 0;
+            while ((line = bufferedReader.readLine()) != null && i++ < numberOfLines) {
+                if (line.contains(substring))
+                    return true;
+            }
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

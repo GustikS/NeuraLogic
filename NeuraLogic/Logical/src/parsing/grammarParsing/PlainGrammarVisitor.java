@@ -145,6 +145,17 @@ public class PlainGrammarVisitor extends GrammarVisitor {
         }
     }
 
+    public class LabelVisitor extends NeuralogicBaseVisitor<Conjunction> {
+        public VariableFactory variableFactory;
+
+        @Override
+        public Conjunction visitLabel(NeuralogicParser.LabelContext ctx) {
+            FactConjunctionVisitor factConjunctionVisitor = new FactConjunctionVisitor();
+            Conjunction label = ctx.conjunction().accept(factConjunctionVisitor);
+            return label;
+        }
+    }
+
     public class FactConjunctionVisitor extends NeuralogicBaseVisitor<Conjunction> {
         public VariableFactory variableFactory;
 
