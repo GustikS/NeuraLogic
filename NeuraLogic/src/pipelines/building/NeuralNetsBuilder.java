@@ -12,6 +12,7 @@ import pipelines.pipes.specific.CycleBreakingPipe;
 import pipelines.pipes.specific.NetworkFinalizationPipe;
 import pipelines.pipes.specific.PruningPipe;
 import settings.Settings;
+import utils.Utilities;
 
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -61,6 +62,7 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
             public Stream<NeuralSample> apply(Stream<NeuralProcessingSample> neuralProcessingSampleStream) {
                 return neuralProcessingSampleStream.map(s -> {
                     s.query.evidence = neuralizer.neuralNetBuilder.neuralBuilder.networkFactory.extractOptimizedNetwork(s.detailedNetwork);
+                    Utilities.logMemory();
                     return new NeuralSample(s.target, s.query);
                 });
             }

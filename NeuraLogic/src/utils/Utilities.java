@@ -4,6 +4,8 @@ import utils.generic.Pair;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.GarbageCollectorMXBean;
+import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.function.BiFunction;
@@ -21,10 +23,45 @@ public class Utilities {
 
     private static final Logger LOG = Logger.getLogger(Utilities.class.getName());
 
+    public static int mb = 1024 * 1024;
+
+
+    private static long tic = System.currentTimeMillis();
+    private static long lastGarbageCollectionTime = 0;
+    public static double gcPercentLimit = 0.1;
+
+    public static void logMemory() {
+        long appRemainingMemory = Utilities.getAppRemainingMemory();
+        if (appRemainingMemory < 500)
+            LOG.warning("Possible performance decrease due to GC and sweeping - please increase memory via -Xmx ! Remaining Java application memory only : " + appRemainingMemory + "mb");
+        else
+            LOG.finer("Remaining Java application memory : " + appRemainingMemory + "mb");
+        logGCStats();
+    }
+
     public static long getAppRemainingMemory() {
         long allocatedMemory = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
         long presumableFreeMemory = Runtime.getRuntime().maxMemory() - allocatedMemory;
-        return presumableFreeMemory;
+        return presumableFreeMemory / mb;
+    }
+
+    public static void logGCStats() {
+        long totalGarbageCollections = 0;
+        long garbageCollectionTime = 0;
+
+        for (GarbageCollectorMXBean gc : ManagementFactory.getGarbageCollectorMXBeans()) {
+            totalGarbageCollections += gc.getCollectionCount();
+            garbageCollectionTime += gc.getCollectionTime();
+        }
+        long now = System.currentTimeMillis();
+        double gcDelta = (garbageCollectionTime - lastGarbageCollectionTime);
+        double gcPercent = gcDelta / (now - tic);
+        if (gcPercent > gcPercentLimit) {
+            LOG.warning("Garbage collection takes more than " + gcPercentLimit + " of calculation time!");
+        }
+        LOG.info(totalGarbageCollections + " garbage colletions with total time: " + garbageCollectionTime / 1000 + "s, made " + gcPercent*100 + "% of time spent in GC.");
+        tic = now;
+        lastGarbageCollectionTime = garbageCollectionTime;
     }
 
     public static String identifyFileTypeUsingFilesProbeContentType(final String fileName) {
@@ -102,7 +139,7 @@ public class Utilities {
         @Override
         public boolean tryAdvance(Consumer<? super List<E>> action) {
             final List<E> batch = new ArrayList<>(batchSize);
-            for (int i=0; i < batchSize && base.tryAdvance(batch::add); i++)
+            for (int i = 0; i < batchSize && base.tryAdvance(batch::add); i++)
                 ;
             if (batch.isEmpty())
                 return false;
