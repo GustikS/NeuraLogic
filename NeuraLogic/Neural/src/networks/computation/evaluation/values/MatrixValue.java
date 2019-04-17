@@ -131,7 +131,7 @@ public class MatrixValue extends Value {
     }
 
     @Override
-    public MatrixValue times(ScalarValue value) {
+    protected MatrixValue times(ScalarValue value) {
         MatrixValue clone = this.clone();
         double value1 = value.value;
         for (int i = 0; i < clone.rows; i++) {
@@ -143,7 +143,7 @@ public class MatrixValue extends Value {
     }
 
     @Override
-    public VectorValue times(VectorValue value) {
+    protected VectorValue times(VectorValue value) {
         if (rows != value.values.length) {
             LOG.severe("Matrix row length mismatch with vector length for multiplication");
         }
@@ -171,7 +171,7 @@ public class MatrixValue extends Value {
      * @return
      */
     @Override
-    public MatrixValue times(MatrixValue value) {
+    protected MatrixValue times(MatrixValue value) {
         if (value.cols != rows) {
             LOG.severe("Matrix to matrix dimension mismatch for multiplication");
         }
@@ -201,7 +201,7 @@ public class MatrixValue extends Value {
     }
 
     @Override
-    public MatrixValue plus(ScalarValue value) {
+    protected MatrixValue plus(ScalarValue value) {
         MatrixValue clone = clone();
         double value1 = value.value;
         for (int i = 0; i < clone.rows; i++) {
@@ -213,13 +213,13 @@ public class MatrixValue extends Value {
     }
 
     @Override
-    public Value plus(VectorValue value) {
+    protected Value plus(VectorValue value) {
         LOG.severe("Incompatible summation of matrix plus vector ");
         return null;
     }
 
     @Override
-    public Value plus(MatrixValue value) {
+    protected Value plus(MatrixValue value) {
         if (rows != value.rows || cols != value.cols) {
             LOG.severe("Incompatible summation of matrix plus matrix ");
         }
@@ -246,7 +246,7 @@ public class MatrixValue extends Value {
     }
 
     @Override
-    public Value minus(ScalarValue value) {
+    protected Value minus(ScalarValue value) {
         MatrixValue result = new MatrixValue(rows, cols);
         double[][] resultValues = result.values;
         double value1 = value.value;
@@ -259,13 +259,13 @@ public class MatrixValue extends Value {
     }
 
     @Override
-    public Value minus(VectorValue value) {
+    protected Value minus(VectorValue value) {
         LOG.severe("Incompatible dimensions of algebraic operation - vector minus matrix");
         return null;
     }
 
     @Override
-    public Value minus(MatrixValue value) {
+    protected Value minus(MatrixValue value) {
         if (rows != value.rows || cols != value.cols) {
             LOG.severe("Incompatible subtracting of matrix minus matrix ");
         }
@@ -296,7 +296,7 @@ public class MatrixValue extends Value {
      * @param value
      */
     @Override
-    public void incrementBy(ScalarValue value) {
+    protected void incrementBy(ScalarValue value) {
         LOG.severe("Incompatible dimensions of algebraic operation - scalar increment by matrix");
     }
 
@@ -306,7 +306,7 @@ public class MatrixValue extends Value {
      * @param value
      */
     @Override
-    public void incrementBy(VectorValue value) {
+    protected void incrementBy(VectorValue value) {
         LOG.severe("Incompatible dimensions of algebraic operation - vector increment by matrix");
     }
 
@@ -316,7 +316,7 @@ public class MatrixValue extends Value {
      * @param value
      */
     @Override
-    public void incrementBy(MatrixValue value) {
+    protected void incrementBy(MatrixValue value) {
         if (rows != value.rows || cols != value.cols) {
             LOG.severe("Incompatible incrementing of matrix with matrix ");
         }
@@ -340,7 +340,7 @@ public class MatrixValue extends Value {
     }
 
     @Override
-    public boolean greaterThan(ScalarValue maxValue) {
+    protected boolean greaterThan(ScalarValue maxValue) {
         int greater = 0;
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
@@ -353,13 +353,13 @@ public class MatrixValue extends Value {
     }
 
     @Override
-    public boolean greaterThan(VectorValue maxValue) {
+    protected boolean greaterThan(VectorValue maxValue) {
         LOG.severe("Incompatible dimensions of algebraic operation - vector greaterThan matrix");
         return false;
     }
 
     @Override
-    public boolean greaterThan(MatrixValue maxValue) {
+    protected boolean greaterThan(MatrixValue maxValue) {
         if (rows != maxValue.rows || cols != maxValue.cols) {
             LOG.severe("Matrix element-wise comparison dimension mismatch");
         }

@@ -74,11 +74,11 @@ public abstract class Value implements Iterable<Double> {
      */
     public abstract Value times(Value value);
 
-    public abstract Value times(ScalarValue value);
+    protected abstract Value times(ScalarValue value);
 
-    public abstract Value times(VectorValue value);
+    protected abstract Value times(VectorValue value);
 
-    public abstract Value times(MatrixValue value);
+    protected abstract Value times(MatrixValue value);
 
     /**
      * CONSTRUCTIVE adding - will create a new Value.
@@ -88,11 +88,11 @@ public abstract class Value implements Iterable<Double> {
      */
     public abstract Value plus(Value value);
 
-    public abstract Value plus(ScalarValue value);
+    protected abstract Value plus(ScalarValue value);
 
-    public abstract Value plus(VectorValue value);
+    protected abstract Value plus(VectorValue value);
 
-    public abstract Value plus(MatrixValue value);
+    protected abstract Value plus(MatrixValue value);
 
     /**
      * CONSTRUCTIVE subtracting - will create a new Value.
@@ -102,11 +102,11 @@ public abstract class Value implements Iterable<Double> {
      */
     public abstract Value minus(Value value);   //todo this must be element-wise!
 
-    public abstract Value minus(ScalarValue value);
+    protected abstract Value minus(ScalarValue value);
 
-    public abstract Value minus(VectorValue value);
+    protected abstract Value minus(VectorValue value);
 
-    public abstract Value minus(MatrixValue value);
+    protected abstract Value minus(MatrixValue value);
 
     /**
      * DESTRUCTIVE adding - changes the INPUT Value.
@@ -117,11 +117,11 @@ public abstract class Value implements Iterable<Double> {
      */
     public abstract void incrementBy(Value value);
 
-    public abstract void incrementBy(ScalarValue value);
+    protected abstract void incrementBy(ScalarValue value);
 
-    public abstract void incrementBy(VectorValue value);
+    protected abstract void incrementBy(VectorValue value);
 
-    public abstract void incrementBy(MatrixValue value);
+    protected abstract void incrementBy(MatrixValue value);
 
 
     /**
@@ -130,13 +130,13 @@ public abstract class Value implements Iterable<Double> {
      * @param maxValue
      * @return
      */
-    public abstract boolean greaterThan(Value maxValue);
+    public abstract boolean greaterThan(Value maxValue);    //todo add GTE version and Equals version, too
 
-    public abstract boolean greaterThan(ScalarValue maxValue);
+    protected abstract boolean greaterThan(ScalarValue maxValue);
 
-    public abstract boolean greaterThan(VectorValue maxValue);
+    protected abstract boolean greaterThan(VectorValue maxValue);
 
-    public abstract boolean greaterThan(MatrixValue maxValue);
+    protected abstract boolean greaterThan(MatrixValue maxValue);
 
 
     //----------todo consider replacing these constant classes with simple ScalarValue(0/1), the speedup might be small.

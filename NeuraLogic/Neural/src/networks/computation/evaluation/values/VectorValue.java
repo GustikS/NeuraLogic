@@ -2,8 +2,8 @@ package networks.computation.evaluation.values;
 
 import com.sun.istack.internal.NotNull;
 import networks.computation.evaluation.values.distributions.ValueInitializer;
+import settings.Settings;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
@@ -99,7 +99,11 @@ public class VectorValue extends Value {
 
     @Override
     public String toString() {
-        return Arrays.toString(values);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < values.length; i++) {
+            sb.append(Settings.nf.format(values[i]));
+        }
+        return sb.toString();
     }
 
     /**
@@ -114,7 +118,7 @@ public class VectorValue extends Value {
     }
 
     @Override
-    public VectorValue times(ScalarValue value) {
+    protected VectorValue times(ScalarValue value) {
         VectorValue result = this.getForm();
         double[] resultValues = result.values;
         double otherValue = value.value;
@@ -133,7 +137,7 @@ public class VectorValue extends Value {
      * @return
      */
     @Override
-    public Value times(VectorValue value) {
+    protected Value times(VectorValue value) {
         if (value.values.length != values.length) {
             LOG.severe("Vector element-wise multiplication dimension mismatch");
         }
@@ -155,7 +159,7 @@ public class VectorValue extends Value {
      * @return
      */
     @Override
-    public VectorValue times(MatrixValue value) {
+    protected VectorValue times(MatrixValue value) {
         if (value.cols != values.length) {
             LOG.severe("Matrix row length mismatch with vector length for multiplication");
         }
@@ -178,11 +182,11 @@ public class VectorValue extends Value {
      */
     @Override
     public Value plus(Value value) {
-        return null;
+        return value.times(this);
     }
 
     @Override
-    public VectorValue plus(ScalarValue value) {
+    protected VectorValue plus(ScalarValue value) {
         double other = value.value;
         VectorValue result = this.getForm();
         double[] resultValues = result.values;
@@ -193,7 +197,7 @@ public class VectorValue extends Value {
     }
 
     @Override
-    public VectorValue plus(VectorValue value) {
+    protected VectorValue plus(VectorValue value) {
         if (value.values.length != values.length) {
             LOG.severe("Vector element-wise addition dimension mismatch");
         }
@@ -213,7 +217,7 @@ public class VectorValue extends Value {
      * @return
      */
     @Override
-    public Value plus(MatrixValue value) {
+    protected Value plus(MatrixValue value) {
         LOG.severe("Incompatible summation of matrix plus vector ");
         return null;
     }
@@ -230,7 +234,7 @@ public class VectorValue extends Value {
     }
 
     @Override
-    public Value minus(ScalarValue value) {
+    protected Value minus(ScalarValue value) {
         double other = value.value;
         VectorValue result = this.getForm();
         double[] resultValues = result.values;
@@ -241,7 +245,7 @@ public class VectorValue extends Value {
     }
 
     @Override
-    public Value minus(VectorValue value) {
+    protected Value minus(VectorValue value) {
         if (value.values.length != values.length) {
             LOG.severe("Vector element-wise addition dimension mismatch");
         }
@@ -255,7 +259,7 @@ public class VectorValue extends Value {
     }
 
     @Override
-    public Value minus(MatrixValue value) {
+    protected Value minus(MatrixValue value) {
         LOG.severe("Incompatible dimensions of algebraic operation - matrix minus vector");
         return null;
     }
@@ -276,7 +280,7 @@ public class VectorValue extends Value {
      * @param value
      */
     @Override
-    public void incrementBy(ScalarValue value) {
+    protected void incrementBy(ScalarValue value) {
         LOG.severe("Incompatible dimensions of algebraic operation - scalar increment by vector");
     }
 
@@ -286,7 +290,7 @@ public class VectorValue extends Value {
      * @param value
      */
     @Override
-    public void incrementBy(VectorValue value) {
+    protected void incrementBy(VectorValue value) {
         if (value.values.length != values.length) {
             LOG.severe("Vector element-wise increment dimension mismatch");
         }
@@ -302,7 +306,7 @@ public class VectorValue extends Value {
      * @param value
      */
     @Override
-    public void incrementBy(MatrixValue value) {
+    protected void incrementBy(MatrixValue value) {
         LOG.severe("Incompatible dimensions of algebraic operation - matrix increment by vector");
     }
 
@@ -318,7 +322,7 @@ public class VectorValue extends Value {
     }
 
     @Override
-    public boolean greaterThan(ScalarValue maxValue) {
+    protected boolean greaterThan(ScalarValue maxValue) {
         int greater = 0;
         for (int i = 0; i < values.length; i++) {
             if (maxValue.value > values[i]) {
@@ -329,7 +333,7 @@ public class VectorValue extends Value {
     }
 
     @Override
-    public boolean greaterThan(VectorValue maxValue) {
+    protected boolean greaterThan(VectorValue maxValue) {
         if (maxValue.values.length != values.length) {
             LOG.severe("Vector element-wise comparison dimension mismatch");
         }
@@ -343,7 +347,7 @@ public class VectorValue extends Value {
     }
 
     @Override
-    public boolean greaterThan(MatrixValue maxValue) {
+    protected boolean greaterThan(MatrixValue maxValue) {
         LOG.severe("Incompatible dimensions of algebraic operation - matrix greaterThan vector");
         return false;
     }

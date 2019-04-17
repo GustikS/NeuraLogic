@@ -80,7 +80,7 @@ public class Sources {
                 }
                 testOnly = true;
             } else {
-                LOG.warning("Incosistent learning mode inference for this Source.");
+                LOG.warning("Incosistent learning mode inferred for this Source.");
             }
         }
     }
@@ -98,15 +98,15 @@ public class Sources {
         infer(settings);
 
         if (!train.QueriesProvided && !test.QueriesProvided && folds == null) {
-            LOG.severe(msg += "Invalid learning setup - no training queries nor testing queries provided");
+            LOG.severe(msg += "Invalid learning setup - no training queries nor testing queries provided\n");
             valid = false;
         }
         if (templateReader == null && train.QueriesReader == null && test.QueriesReader == null) {
-            LOG.severe(msg += "Invalid learning setup - no template nor queries provided");
+            LOG.severe(msg += "Invalid learning setup - no template nor queries provided\n");
             valid = false;
         }
         if (crossvalidation && (testOnly || trainTest || trainOnly)){
-            LOG.severe(msg += "Invalid learning setup - cannot decide between crossvalidation and other modes.");
+            LOG.severe(msg += "Invalid learning setup - cannot decide between crossvalidation and other modes.\n");
             valid = false;
         }
         if (foldFiles){

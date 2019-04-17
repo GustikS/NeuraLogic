@@ -53,7 +53,7 @@ public class Settings {
     /**
      * Global number format for all printing
      */
-    public NumberFormat nf = new DecimalFormat("#.##########");
+    public static NumberFormat nf = new DecimalFormat("#.#####");
 
     //------------------Abstract Pipelines
 

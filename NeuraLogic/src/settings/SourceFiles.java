@@ -106,7 +106,12 @@ public class SourceFiles extends Sources {
                 this.templateReader = new FileReader(this.template);
             } else {
                 // if no template is provided in current folder, take the one from the parent folder
-                this.templateReader = parent.templateReader;
+                if (parent != null)
+                    this.templateReader = parent.templateReader;
+                else {
+                    LOG.severe("There is no template found at the specified path!");
+                    throw new FileNotFoundException();
+                }
             }
             switch (Utilities.identifyFileTypeUsingFilesProbeContentType(template.toString())) {
                 case "text/plain":
@@ -167,7 +172,7 @@ public class SourceFiles extends Sources {
             }
 
         } catch (FileNotFoundException e) {
-            LOG.warning("There are no trainQueriesSeparate queries");
+            LOG.warning("There are no separate queries found at the path!");
         }
 
         try {

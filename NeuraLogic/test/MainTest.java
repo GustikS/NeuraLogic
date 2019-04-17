@@ -51,7 +51,7 @@ public class MainTest {
 
     @Test
     public void mutanokappa() {
-        String[] args = new String("-e ./resources/datasets/muta_mini/examples -t ./resources/datasets/mutagenesis/template_new").split(" ");
+        String[] args = new String("-e ./resources/datasets/mutagenesis/examples -t ./resources/datasets/mutagenesis/template_new -q ./resources/datasets/mutagenesis/queries").split(" ");
 
         Settings settings = new Settings();
         Settings.loggingLevel = Level.FINER;

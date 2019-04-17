@@ -24,15 +24,15 @@ public class Utilities {
     private static final Logger LOG = Logger.getLogger(Utilities.class.getName());
 
     public static int mb = 1024 * 1024;
-
+    public static double gcPercentLimit = 0.1;
+    public static long remainingMemoryLimit = 500;
 
     private static long tic = System.currentTimeMillis();
     private static long lastGarbageCollectionTime = 0;
-    public static double gcPercentLimit = 0.1;
 
     public static void logMemory() {
         long appRemainingMemory = Utilities.getAppRemainingMemory();
-        if (appRemainingMemory < 500)
+        if (appRemainingMemory < remainingMemoryLimit)
             LOG.warning("Possible performance decrease due to GC and sweeping - please increase memory via -Xmx ! Remaining Java application memory only : " + appRemainingMemory + "mb");
         else
             LOG.finer("Remaining Java application memory : " + appRemainingMemory + "mb");
@@ -57,9 +57,9 @@ public class Utilities {
         double gcDelta = (garbageCollectionTime - lastGarbageCollectionTime);
         double gcPercent = gcDelta / (now - tic);
         if (gcPercent > gcPercentLimit) {
-            LOG.warning("Garbage collection takes more than " + gcPercentLimit + " of calculation time!");
+            LOG.warning("Garbage collection takes more than " + gcPercentLimit*100 + "% of calculation time!");
         }
-        LOG.info(totalGarbageCollections + " garbage colletions with total time: " + garbageCollectionTime / 1000 + "s, made " + gcPercent*100 + "% of time spent in GC.");
+        LOG.info(totalGarbageCollections + " garbage colletions with total time: " + garbageCollectionTime / 1000 + "s, made " + gcPercent * 100 + "% of time spent in GC.");
         tic = now;
         lastGarbageCollectionTime = garbageCollectionTime;
     }
