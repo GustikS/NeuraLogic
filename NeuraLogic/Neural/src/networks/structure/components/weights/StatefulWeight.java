@@ -14,7 +14,7 @@ public class StatefulWeight extends Weight {
     private Value accumulatedUpdate;
 
     public StatefulWeight(int index, String name, Value value, boolean fixed) {
-        super(index, name, value, fixed);
+        super(index, name, value, fixed, false);
     }
 
     synchronized public Value getAccumulatedUpdate() {

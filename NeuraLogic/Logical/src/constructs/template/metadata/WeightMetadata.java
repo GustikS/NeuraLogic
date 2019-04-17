@@ -4,6 +4,7 @@ import networks.computation.evaluation.values.Value;
 import networks.structure.components.weights.Weight;
 import settings.Settings;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -12,6 +13,11 @@ import java.util.logging.Logger;
  */
 public class WeightMetadata extends Metadata<Weight> {
     private static final Logger LOG = Logger.getLogger(WeightMetadata.class.getName());
+
+    public WeightMetadata(Value initValue){
+        metadata = new LinkedHashMap<>();
+        addValidateMetadatum("initValue", initValue);
+    }
 
     public WeightMetadata(Settings settings, Map<String, Object> stringObjectMap) {
         super(settings, stringObjectMap);

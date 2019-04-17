@@ -28,9 +28,7 @@ public class NeuralModel implements Model<QueryNeuron> {
 
     public void resetWeights(ValueInitializer valueInitializer) {
         for (Weight weight : weights) {
-            if (!weight.isFixed) {
-                weight.init(valueInitializer);
-            }
+            weight.init(valueInitializer);
         }
     }
 

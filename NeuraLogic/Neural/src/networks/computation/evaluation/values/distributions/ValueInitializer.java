@@ -15,7 +15,7 @@ public interface ValueInitializer {
 
     void initMatrix(MatrixValue matrix);
 
-    default ValueInitializer getInitializer(Settings settings){
+    static ValueInitializer getInitializer(Settings settings){
         return new SimpleInitializer(settings); //todo some other initializers, e.g. where the individual element values are not drawn as i.i.d.
     }
 }

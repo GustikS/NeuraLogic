@@ -4,6 +4,7 @@ import learning.crossvalidation.splitting.Splitter;
 import networks.computation.evaluation.results.Progress;
 import networks.computation.evaluation.results.Result;
 import networks.computation.evaluation.results.Results;
+import networks.computation.evaluation.values.distributions.ValueInitializer;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import networks.computation.training.optimizers.Optimizer;
@@ -40,11 +41,14 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     ListTrainer trainer;
 
+    ValueInitializer valueInitializer;
+
     public IterativeTrainingStrategy(Settings settings, NeuralModel model, List<NeuralSample> sampleList) {
         super(settings, model);
         this.trainer = getTrainerFrom(settings);
         this.currentModel = model.cloneWeights();
         this.bestModel = this.currentModel;
+        this.valueInitializer = ValueInitializer.getInitializer(settings);
 
         Pair<List<NeuralSample>, List<NeuralSample>> trainVal = trainingValidationSplit(sampleList);
         this.trainingSet = trainVal.r;
@@ -87,7 +91,6 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         return finish();
     }
 
-
     protected void initTraining() {
         if (settings.shuffleBeforeTraining) {
             Collections.shuffle(trainingSet, settings.random);
@@ -98,6 +101,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     }
 
     protected void initRestart() {
+        currentModel.resetWeights(valueInitializer);
         progress.nextRestart();
     }
 

@@ -41,6 +41,10 @@ public class Progress {
         currentRestart = new Restart();
     }
 
+    public int getEpochCount(){
+        return currentRestart.onlineTrainingResults.size();
+    }
+
     public Results getCurrentOnlineTrainingResults() {
         return currentRestart.onlineTrainingResults.get(currentRestart.onlineTrainingResults.size() - 1);
     }

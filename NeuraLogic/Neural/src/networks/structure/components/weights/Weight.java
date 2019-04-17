@@ -17,6 +17,7 @@ public class Weight {
     public String name;
     public Value value;
     public boolean isFixed = false;
+    public boolean manualInitialization = false;   //todo add the init weight value to weight metadata
 
     public boolean isShared;
 
@@ -31,20 +32,18 @@ public class Weight {
 
     public WeightMetadata metadata;
 
-    public static Weight unitWeight = new Weight(-1, "unitWeight", Value.ONE, true);
-    public static Weight zeroWeight = new Weight(-1, "zeroWeight", Value.ZERO, true);
+    public static Weight unitWeight = new Weight(-1, "unitWeight", Value.ONE, true, true);
+    public static Weight zeroWeight = new Weight(-1, "zeroWeight", Value.ZERO, true, true);
 
-    public Weight(int index, String name, Value value, boolean fixed) {
+    public Weight(int index, String name, Value value, boolean fixed, boolean isInitialized) {
         this.index = index;
         this.name = name;
         this.value = value;
         this.isFixed = fixed;
-    }
-
-    protected Weight(int index, Value value) {
-        this.index = index;
-        this.value = value;
-        this.isFixed = true;
+        this.manualInitialization = isInitialized;
+        if (isInitialized){
+            this.metadata = new WeightMetadata(value);
+        }
     }
 
     @Override
@@ -62,6 +61,13 @@ public class Weight {
     }
 
     public void init(ValueInitializer valueInitializer) {
+        if (this.isFixed){
+            return;
+        }
+        if (this.manualInitialization) {
+            this.value = (Value) metadata.getByName("initValue");
+            return;
+        }
         value.initialize(valueInitializer);
     }
 

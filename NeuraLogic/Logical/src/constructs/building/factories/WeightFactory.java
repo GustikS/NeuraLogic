@@ -41,7 +41,7 @@ public class WeightFactory {
     public Weight construct(String from) {
         Weight result = str2weight.get(from);
         if (result == null) {
-            result = new Weight(index++, from, null, false);
+            result = new Weight(index++, from, null, false, false);
             str2weight.put(from, result);
             weight2weight.put(result, result);
         }
@@ -57,13 +57,13 @@ public class WeightFactory {
         return from;
     }
 
-    public Weight construct(String name, Value value, boolean fixed) {
+    public Weight construct(String name, Value value, boolean fixed, boolean isInitialized) {
         if (value == null){
             return null;
         }
         Weight result = str2weight.get(name);
         if (result == null) {
-            result = new Weight(index++, name, value, fixed);
+            result = new Weight(index++, name, value, fixed, isInitialized);
             str2weight.put(name, result);
             weight2weight.put(result, result);
         }
@@ -76,11 +76,11 @@ public class WeightFactory {
      * @param fixed
      * @return
      */
-    public Weight construct(Value value, boolean fixed) {
+    public Weight construct(Value value, boolean fixed, boolean isInitialized) {
         if (value == null){
             return null;
         }
-        Weight result = new Weight(index, genericName + index++, value, fixed);
+        Weight result = new Weight(index, genericName + index++, value, fixed, isInitialized);
         //str2weight.put(genericName, result);
         //weight2weight.put(result, result);
 
@@ -91,6 +91,6 @@ public class WeightFactory {
         if ((a.isShared || b.isShared) && !a.equals(b)) {
             LOG.severe("Trying to merge two different shared weights" + a + " != " + b);
         }
-        return new Weight(index++, a.name + b.name, aggregationFcn.evaluate(Arrays.asList(a.value, b.value)), a.isFixed && b.isFixed);
+        return new Weight(index++, a.name + b.name, aggregationFcn.evaluate(Arrays.asList(a.value, b.value)), a.isFixed && b.isFixed, false);
     }
 }

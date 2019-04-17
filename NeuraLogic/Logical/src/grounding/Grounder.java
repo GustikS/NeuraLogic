@@ -138,7 +138,7 @@ public abstract class Grounder {
     private ValuedFact merge2facts(ValuedFact a, ValuedFact b) {
         Aggregation factAggregation = Aggregation.getAggregation(settings.factMergeActivation);
         Value evaluation = factAggregation.evaluate(Arrays.asList(a.getValue(), b.getValue()));
-        return new ValuedFact(a.getOffsettedPredicate(), a.getLiteral().termList(), a.getLiteral().isNegated(), weightFactory.construct("foo", evaluation, false));
+        return new ValuedFact(a.getOffsettedPredicate(), a.getLiteral().termList(), a.getLiteral().isNegated(), weightFactory.construct("foo", evaluation, true, true));
     }
 
     /**

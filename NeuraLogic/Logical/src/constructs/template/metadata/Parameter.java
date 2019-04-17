@@ -38,6 +38,9 @@ public class Parameter {
             case "value":
                 type = Type.VALUE;
                 break;
+            case "initValue":
+                type = Type.VALUE;
+                break;
             default:
                 type = Type.ADHOC;
                 break;

@@ -56,7 +56,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             BodyAtom headAtom = ctx.atom().accept(headVisitor);
             Weight weight = headAtom.getConjunctWeight();//rule weight
 
-            if (weight == null){
+            if (weight == null) {
                 rule.setWeight(Weight.unitWeight);
             } else {
                 rule.setWeight(weight);
@@ -200,7 +200,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
                 weight = ctx.weight().accept(new WeightVisitor());
             }
             if (weight == null) {
-                weight = builder.weightFactory.construct("foo", new ScalarValue(1), false);
+                weight = builder.weightFactory.construct("foo", new ScalarValue(1), true, true);
             }
 
             ValuedFact fact = new ValuedFact(predicate, terms, ctx.negation() != null, weight);
@@ -235,7 +235,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
     private class WeightVisitor extends NeuralogicBaseVisitor<Weight> {
         @Override
         public Weight visitWeight(@NotNull NeuralogicParser.WeightContext ctx) {
-            Value value = null;
+            Pair<Boolean, Value> value = null;
             boolean fixed = false;
             if (ctx.fixedValue() != null) {
                 fixed = true;
@@ -249,25 +249,33 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             Weight weight;
             if (ctx.ATOMIC_NAME() != null) {
                 String name = ctx.ATOMIC_NAME().getText();
-                weight = builder.weightFactory.construct(name, value, fixed);
+                weight = builder.weightFactory.construct(name, value.s, fixed, value.r);
             } else {
-                weight = builder.weightFactory.construct(value, fixed);
+                weight = builder.weightFactory.construct(value.s, fixed, value.r);
             }
-
             return weight;
         }
 
-        public Value parseValue(NeuralogicParser.ValueContext ctx) {
+        public Pair<Boolean, Value> parseValue(NeuralogicParser.ValueContext ctx) {
             Value value = null;
+            boolean isInitialized = true;
             if (ctx.number() != null) {
                 value = new ScalarValue(Float.parseFloat(ctx.number().getText()));
             } else if (ctx.vector() != null) {
                 List<Double> vector = ctx.vector().number().stream().map(num -> Double.parseDouble(num.getText())).collect(Collectors.toList());
                 value = new VectorValue(vector);
-            } else if (ctx.dimensions() != null) {
-                List<Integer> dims = ctx.vector().number().stream().map(num -> Integer.parseInt(num.getText())).collect(Collectors.toList());
+            } else if (ctx.matrix() != null) {
+                LOG.severe("Matrix parsing not yet implemented");
+                //todo
+            }
+            else if (ctx.dimensions() != null) {
+                isInitialized = false;
+                List<Integer> dims = ctx.dimensions().number().stream().map(num -> Integer.parseInt(num.getText())).collect(Collectors.toList());
                 if (dims.size() == 1) {
-                    value = new ScalarValue();
+                    if (dims.get(0) == 1)
+                        value = new ScalarValue();
+                    else
+                        value = new VectorValue(dims.get(0));
                 } else if (dims.size() == 2) {
                     if (dims.get(0) == 1)
                         value = new VectorValue(dims.get(1));
@@ -282,7 +290,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             if (value == null) {
                 LOG.severe("Error during constructs.building numeric value from " + ctx.getText());
             }
-            return value;
+            return new Pair<>(isInitialized, value);
         }
     }
 

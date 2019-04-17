@@ -43,7 +43,6 @@ public class MetadataProcessor {
             } else {
                 weightsMetadatum.r.metadata.addAll(weightsMetadatum.s);
             }
-
             weightsMetadatum.s.applyTo(weightsMetadatum.r);
         }
 

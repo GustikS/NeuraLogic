@@ -5,7 +5,7 @@ import settings.Settings;
 
 import java.util.logging.Logger;
 
-public class RestartingStrategy {
+public abstract class RestartingStrategy {
     private static final Logger LOG = Logger.getLogger(RestartingStrategy.class.getName());
 
     public RestartingStrategy(){
@@ -13,12 +13,8 @@ public class RestartingStrategy {
     }
 
     public static RestartingStrategy getFrom(Settings settings) {
-        return new RestartingStrategy();
+        return new StaticRestartingStrategy(1000);
     }
 
-    public boolean continueRestart(Progress progress){
-        return true;    //todo something intelligent
-    }
-
-
+    public abstract boolean continueRestart(Progress progress);
 }

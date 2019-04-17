@@ -14,7 +14,10 @@ public abstract class Metadata<T> {
 
     Settings settings;
 
-    public Map<Parameter, ParameterValue> metadata;
+    protected Map<Parameter, ParameterValue> metadata;
+
+    protected Metadata() {
+    }
 
     public Metadata(Settings settings, Map<String, Object> stringObjectMap) {
         this.settings = settings;
@@ -34,8 +37,16 @@ public abstract class Metadata<T> {
         return o;
     }
 
-    public static Map<String,Object> merge(Map<String,Object> set1, Map<String,Object> set2) {
+    public static Map<String, Object> merge(Map<String, Object> set1, Map<String, Object> set2) {
         set1.putAll(set2);
         return set1;
+    }
+
+    public Object getByName(String name) {
+        ParameterValue parameterValue = metadata.get(new Parameter(name));
+        if (parameterValue != null)
+            return parameterValue.value;
+        else
+            return null;
     }
 }

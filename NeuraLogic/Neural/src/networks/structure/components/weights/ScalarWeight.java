@@ -14,6 +14,6 @@ public class ScalarWeight extends Weight {
     double value;
 
     public ScalarWeight(String name, Value value, boolean fixed) {
-        super(0, name, value, fixed);
+        super(0, name, value, fixed, false);
     }
 }

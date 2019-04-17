@@ -19,7 +19,7 @@ public class ParameterValue {
     }
 
     String stringValue;
-    Object value;
+    public Object value;
 
     public ParameterValue(Object value) {
         this.value = value;
