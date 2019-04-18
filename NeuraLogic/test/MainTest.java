@@ -31,6 +31,7 @@ public class MainTest {
         //settings.limitSamples = 10;
         settings.maxCumEpochCount = 20;
         //settings.oneQueryPerExample = true;
+        settings.pruneNetworks = true;
 
         Main.main(args, settings);
     }
@@ -45,6 +46,8 @@ public class MainTest {
         settings.maxCumEpochCount = 20;
         settings.shuffleBeforeTraining = false;
         //settings.oneQueryPerExample = true;
+        settings.neuralNetsPostProcessing = true;
+        settings.pruneNetworks = true;
 
         Main.main(args, settings);
     }

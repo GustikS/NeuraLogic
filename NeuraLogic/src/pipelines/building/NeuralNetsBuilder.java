@@ -7,6 +7,7 @@ import networks.structure.building.Neuralizer;
 import pipelines.ConnectAfter;
 import pipelines.Pipe;
 import pipelines.Pipeline;
+import pipelines.pipes.generic.IdentityGenPipe;
 import pipelines.pipes.specific.CompressionPipe;
 import pipelines.pipes.specific.CycleBreakingPipe;
 import pipelines.pipes.specific.NetworkFinalizationPipe;
@@ -78,7 +79,7 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
     public Pipeline<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> buildProcessingPipeline() {
         Pipeline<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> pipeline = new Pipeline<>("NeuralNetsPostprocessing", settings);
 
-        ConnectAfter<Stream<NeuralProcessingSample>> nextPipe = null;
+        ConnectAfter<Stream<NeuralProcessingSample>> nextPipe = pipeline.registerStart(new IdentityGenPipe<>());
 
         if (settings.neuralNetsSupervisedPruning) {
             //todo
@@ -88,7 +89,7 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
             //todo - remove maps by recursive copying (here?)
         }
 
-        if (settings.pruneNetworks) {//todo must
+        if (settings.pruneNetworks) {
             Pipe<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> pruningPipe = pipeline.registerEnd(new PruningPipe(settings));
             nextPipe.connectAfter(pruningPipe);
             nextPipe = pruningPipe;

@@ -9,7 +9,6 @@ import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.neurons.types.FactNeuron;
 import networks.structure.components.types.DetailedNetwork;
 import networks.structure.components.weights.Weight;
-import networks.structure.metadata.inputMappings.LinkedMapping;
 import networks.structure.metadata.inputMappings.NeuronMapping;
 import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 import networks.structure.metadata.states.State;
@@ -223,7 +222,7 @@ public class StatesBuilder {
      * @param network
      */
     void setupParentStateNumbers(DetailedNetwork<State.Neural.Structure> network) {
-        Map<BaseNeuron, LinkedMapping> neuronOutputs = network.outputMapping;
+        Map<BaseNeuron, NeuronMapping<Neuron>> neuronOutputs = network.outputMapping;
         neuronOutputs.forEach((neuron, outputs) -> {
             State.Neural.Computation state = neuron.getComputationView(0); //all computation views should be exactly the same at this stage
             if (state instanceof State.Neural.Computation.HasParents) {

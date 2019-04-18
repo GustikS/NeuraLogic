@@ -8,6 +8,7 @@ import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.NetworkMetadata;
 import networks.structure.metadata.inputMappings.LinkedMapping;
+import networks.structure.metadata.inputMappings.NeuronMapping;
 import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 import networks.structure.metadata.states.State;
 import utils.generic.Pair;
@@ -30,13 +31,14 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
      * Locally valid input overloading for some neurons to facilitate dynamic structure changes.
      * This map is only to be used before the faster neural {@link networks.structure.metadata.states.StatesCache} is created for the same thing in a regular network.
      */
-    public @Nullable
-    Map<BaseNeuron, LinkedMapping> extraInputMapping;
+    @Nullable
+    public Map<BaseNeuron, NeuronMapping<Neuron>> extraInputMapping;
 
     /**
      * Outputs of neurons, are only rarely used (not stored in a regular neural net to save space)
      */
-    public @Nullable Map<BaseNeuron, LinkedMapping> outputMapping;
+    @Nullable
+    public Map<BaseNeuron, NeuronMapping<Neuron>> outputMapping;
 
     @Nullable
     public NeuronSets allNeurons;
@@ -82,9 +84,10 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
         }
     }
 
+    //todo move getInputs methods into neurons? = avoid casting, as the neuron knows its type
     public <T extends Neuron, S extends State.Neural> Iterator<T> getInputs(BaseNeuron<T, S> neuron) {
-        LinkedMapping<T> inputMapping;
-        if ((inputMapping = extraInputMapping != null ? extraInputMapping.get(neuron) : null) != null) {
+        NeuronMapping<T> inputMapping;
+        if ((inputMapping = extraInputMapping != null ? (NeuronMapping<T>) extraInputMapping.get(neuron) : null) != null) {
             return inputMapping.iterator();
         } else {
             return neuron.getInputs().iterator();
@@ -105,10 +108,6 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
         states.add(state);
     }
 
-    public void removeInput(BaseNeuron neuron, Pair<BaseNeuron, Weight> input) {
-        //todo to use with pruning
-    }
-
     public boolean isRecursive() {
         return recursive;
     }
@@ -117,5 +116,37 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
     public void setSharedNeuronsCount(int sharedNeuronsCount) {
         this.hasSharedNeurons = sharedNeuronsCount > 0;
         this.sharedNeuronsCount = sharedNeuronsCount;
+    }
+
+    /**
+     * Replace input neuron with another neuron (used e.g. in linear chain pruning)
+     *
+     * @param parentNeuron
+     * @param toReplace
+     * @param replaceWith
+     */
+    public void replaceInput(BaseNeuron<Neuron, State.Neural> parentNeuron, Neuron toReplace, Neuron replaceWith) {
+        if (extraInputMapping != null) {
+            NeuronMapping<Neuron> parentInputs = extraInputMapping.get(parentNeuron);
+            if (parentInputs != null) {
+                parentInputs.replace(toReplace, replaceWith);
+            }
+        } else {
+            for (int i = 0; i < parentNeuron.getInputs().size(); i++) {
+                if (parentNeuron.getInputs().get(i).equals(toReplace)) {
+                    parentNeuron.getInputs().set(i, replaceWith);
+                    break;
+                }
+            }
+        }
+    }
+
+    public void replaceOutput(BaseNeuron<Neuron, State.Neural> child, Neuron middle, Neuron parent) {
+        NeuronMapping<Neuron> outputs;
+        if (outputMapping == null || (outputs = outputMapping.get(child)) == null) {
+            LOG.severe("OutputMapping requested but missing!");
+            return;
+        }
+        outputs.replace(middle, parent);
     }
 }

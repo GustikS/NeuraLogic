@@ -32,23 +32,39 @@ public class ClassificationResults extends RegressionResults {
         error = aggregationFcn.evaluate(errors);
         accuracy = getAccuracy(evaluations);
 
-        return false;   //todo next rest
+        return false;   //todo rest
     }
 
     private Double getAccuracy(List<Result> evaluations) {
         Value oneHalf = new ScalarValue(0.5);       //CAREFUL FOR THE SWITCH OF SIDES WITH DD (must be declared as generic Value)
         int goodCount = 0;
+        int zeroCount = 0;
+        int oneCount = 0;
         for (Result evaluation : evaluations) {
-            if (evaluation.output.greaterThan(oneHalf) && evaluation.target.greaterThan(oneHalf)
-                    || oneHalf.greaterThan(evaluation.output) && oneHalf.greaterThan(evaluation.target)) {
-                goodCount++;
+            if (evaluation.target.greaterThan(oneHalf)) {
+                oneCount++;
+                if (evaluation.output.greaterThan(oneHalf)) {
+                    goodCount++;
+                }
+            }
+            if (oneHalf.greaterThan(evaluation.target)) {
+                zeroCount++;
+                if (oneHalf.greaterThan(evaluation.output)) {
+                    goodCount++;
+                }
             }
         }
+        majorityErr = Math.max(zeroCount, oneCount) / (double) evaluations.size();
         return (double) goodCount / evaluations.size();
     }
 
     @Override
     public String toString() {
-        return "accuracy: " + Settings.nf.format(accuracy.doubleValue()*100) + "%, error function value: " + error.toString();
+        StringBuilder sb = new StringBuilder();
+        if (accuracy != null)
+            sb.append("accuracy: " + Settings.nf.format(accuracy.doubleValue() * 100) + "% (majority " + majorityErr * 100 + "%)");
+        if (error != null)
+            sb.append(", error function value: " + error.toString());
+        return sb.toString();
     }
 }

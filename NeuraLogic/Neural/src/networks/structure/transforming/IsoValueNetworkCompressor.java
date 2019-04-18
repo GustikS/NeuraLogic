@@ -1,6 +1,9 @@
 package networks.structure.transforming;
 
 import networks.structure.components.NeuralNetwork;
+import networks.structure.components.neurons.types.AtomNeuron;
+import networks.structure.components.types.DetailedNetwork;
+import networks.structure.metadata.states.State;
 
 /**
  * Created by gusta on 14.3.17.
@@ -12,7 +15,7 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
     }
 
     @Override
-    public NeuralNetwork reduce(NeuralNetwork inet) {
+    public NeuralNetwork reduce(DetailedNetwork<State.Structure> inet, AtomNeuron<State.Neural> outputStart) {
         return null;
     }
 }

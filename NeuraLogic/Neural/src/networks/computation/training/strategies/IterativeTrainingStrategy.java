@@ -75,9 +75,8 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     }
 
     public Pair<NeuralModel, Progress> train() {
-        LOG.finer("Starting with neural training.");
+        LOG.finer("Starting with iterative mode neural training.");
         initTraining();
-        LOG.finer("Training initialized.");
         int epochae = 0;
         for (int restart = 0; restart < settings.restartCount; restart++) {
             initRestart();
@@ -92,17 +91,18 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     }
 
     protected void initTraining() {
+        LOG.info("Initializing training (shuffling examples etc.)");
         if (settings.shuffleBeforeTraining) {
             Collections.shuffle(trainingSet, settings.random);
         }
         progress = new Progress();
-        TrainVal evaluations = evaluateModel();
-        progress.addTrueResults(resultsFactory.createFrom(evaluations.training), resultsFactory.createFrom(evaluations.validation));
     }
 
     protected void initRestart() {
+        LOG.info("Initializing new restart (resetting weights).");
         currentModel.resetWeights(valueInitializer);
         progress.nextRestart();
+        recalculateResults();
     }
 
     /**
@@ -125,7 +125,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     protected void endEpoch(int count, List<Result> onlineEvaluations) {
         Results onlineResults = resultsFactory.createFrom(onlineEvaluations);
         progress.addOnlineResults(onlineResults);
-        LOG.info("epoch " + count + " results : " + onlineResults);
+        LOG.info("epoch " + count + " online results : " + onlineResults);
         if (count % settings.resultsRecalculationEpochae == 0) {
             recalculateResults();
         }
@@ -156,6 +156,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         Results trainingResults = resultsFactory.createFrom(trueEvaluations.training);
         Results validationResults = resultsFactory.createFrom(trueEvaluations.validation);
         progress.addTrueResults(trainingResults, validationResults);
+        LOG.info("true results :- train: " + trainingResults + ", validation: " + validationResults);
 
         Progress.TrainVal trainVal = new Progress.TrainVal(trainingResults, validationResults);
         saveIfBest(trainVal);

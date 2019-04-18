@@ -143,7 +143,7 @@ public class SourceFiles extends Sources {
             }
 
         } catch (FileNotFoundException e) {
-            LOG.info("There are no examples");
+            LOG.info("There are no train examples");
         }
 
         try {
@@ -157,7 +157,7 @@ public class SourceFiles extends Sources {
             }
 
         } catch (FileNotFoundException e) {
-            LOG.info("There are no test examples");
+            LOG.info("There are no test examples found.");
         }
 
         try {
@@ -172,7 +172,7 @@ public class SourceFiles extends Sources {
             }
 
         } catch (FileNotFoundException e) {
-            LOG.warning("There are no separate queries found at the path!");
+            LOG.info("There are no separate train queries found.");
         }
 
         try {
@@ -186,7 +186,7 @@ public class SourceFiles extends Sources {
             }
 
         } catch (FileNotFoundException e) {
-            LOG.info("There are no test queries");
+            LOG.info("There are no separate test queries found.");
         }
 
         return this;

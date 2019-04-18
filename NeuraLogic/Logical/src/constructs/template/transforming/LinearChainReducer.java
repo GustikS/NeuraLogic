@@ -17,13 +17,13 @@ public class LinearChainReducer implements TemplateReducing {
 
     @Override
     public Template reduce(Template itemplate) {
-        LOG.warning("LinearChainReducer not implemented yet");
+        LOG.warning("LinearChainReducer for Template not implemented yet");
         return itemplate;
     }
 
     @Override
     public <T extends Template> T reduce(T itemplate, QueryAtom queryAtom) {
-        LOG.warning("LinearChainReducer not implemented yet");
+        LOG.warning("LinearChainReducer for Template not implemented yet");
         return itemplate;
     }
 }

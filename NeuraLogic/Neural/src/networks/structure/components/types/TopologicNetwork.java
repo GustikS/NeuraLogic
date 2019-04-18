@@ -90,7 +90,7 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
         return reverse;
     }
 
-    private void topoSortRecursive(BaseNeuron<Neuron, State.Neural> neuron, Set<Neuron> visited, LinkedList<BaseNeuron<Neuron, State.Neural>> stack) {
+    public void topoSortRecursive(BaseNeuron<Neuron, State.Neural> neuron, Set<Neuron> visited, LinkedList<BaseNeuron<Neuron, State.Neural>> stack) {
         visited.add(neuron);
 
         Iterator<Neuron> inputs = getInputs(neuron);

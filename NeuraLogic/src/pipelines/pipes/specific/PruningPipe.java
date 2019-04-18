@@ -24,7 +24,7 @@ public class PruningPipe extends Pipe<Stream<NeuralProcessingSample>, Stream<Neu
     @Override
     public Stream<NeuralProcessingSample> apply(Stream<NeuralProcessingSample> neuralProcessingSampleStream) {
         return neuralProcessingSampleStream.map(net -> {
-            net.query.evidence = reducer.reduce(net.query.evidence);
+            net.query.evidence = reducer.reduce(net.detailedNetwork, net.query.neuron);
             return net;
         });
     }

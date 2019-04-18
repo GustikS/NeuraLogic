@@ -25,7 +25,7 @@ public class CompressionPipe extends Pipe<Stream<NeuralProcessingSample>, Stream
     @Override
     public Stream<NeuralProcessingSample> apply(Stream<NeuralProcessingSample> neuralProcessingSampleStream) {
         return neuralProcessingSampleStream.map(net -> {
-            net.query.evidence = compressor.reduce(net.query.evidence);
+            net.query.evidence = compressor.reduce(net.detailedNetwork, net.query.neuron);
             return net;
         });
     }

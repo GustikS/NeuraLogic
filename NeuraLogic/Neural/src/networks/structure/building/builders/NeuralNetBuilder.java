@@ -212,7 +212,7 @@ public class NeuralNetBuilder {
         }
 
         //if there is the need, check parentCounts and store them by the network if needed
-        if (settings.parentCounting) {
+        if (settings.parentCounting || settings.pruneNetworks)  {
             neuralNetwork.outputMapping = calculateOutputs(neuralNetwork);
             statesBuilder.setupParentStateNumbers(neuralNetwork);
         }
@@ -231,9 +231,9 @@ public class NeuralNetBuilder {
         for (BaseNeuron parent : network.allNeuronsTopologic) {
             Iterator<BaseNeuron> inputs = network.getInputs(parent);
             BaseNeuron child;
-            while ((child = inputs.next()) != null) {
+            while (inputs.hasNext() && (child = inputs.next()) != null) {
                 LinkedMapping parentMapping = outputMapping.computeIfAbsent(child, f -> new NeuronMapping());
-                parentMapping.addLink(child);
+                parentMapping.addLink(parent);
             }
         }
         return outputMapping;

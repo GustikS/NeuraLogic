@@ -196,6 +196,12 @@ public class Settings {
      */
     public boolean fullAggNeuronStrings = false;
 
+    /**
+     * When pruning networks for linear chains, we compress unweighted edges as they do not provide any extra functionality.
+     * With this on, we delete also weighted edges - more aggressive pruning, but may reduce network capability to learn!
+     */
+    public boolean pruneEvenWeightedNeurons = false;
+
     //-----------------Evaluation & Training
 
     /**

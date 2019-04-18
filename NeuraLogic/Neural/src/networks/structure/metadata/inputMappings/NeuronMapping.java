@@ -55,6 +55,25 @@ public class NeuronMapping<T extends Neuron> implements LinkedMapping<T> {
         return this;
     }
 
+    public void replace(T toReplace, T replaceWith) {
+        InputIterator<T> inputIterator = new InputIterator<>(this);
+        while (inputIterator.hasNext()) {
+            NeuronMapping<T> lastMapping = inputIterator.actual;
+            T next = inputIterator.next();
+            if (next.equals(toReplace)) {
+                if (inputIterator.current == inputIterator.actual.inputs.size() - 1) {   //if it was the last element in the previous list (iterator jumped already onto a new list)
+                    lastMapping.replaceLocal(0, replaceWith);   //recall the last list and replace the last element (going decreasingly)
+                } else {
+                    inputIterator.actual.replaceLocal(inputIterator.current + 1, replaceWith);  //otherwise simply replace the previous element from the actual list
+                }
+            }
+        }
+    }
+
+    private void replaceLocal(int i, T replaceWith) {
+        inputs.set(i, replaceWith);
+    }
+
     private class InputIterator<T extends Neuron> implements Iterator<T> {
 
         NeuronMapping<T> actual;
@@ -67,7 +86,7 @@ public class NeuronMapping<T extends Neuron> implements LinkedMapping<T> {
 
         @Override
         public boolean hasNext() {
-            return !(actual.previous == null && current <= 0);
+            return !(actual.previous == null && current < 0);
         }
 
         @Override

@@ -1,6 +1,9 @@
 package networks.structure.transforming;
 
 import networks.structure.components.NeuralNetwork;
+import networks.structure.components.neurons.types.AtomNeuron;
+import networks.structure.components.types.DetailedNetwork;
+import networks.structure.metadata.states.State;
 
 import java.util.logging.Logger;
 
@@ -13,7 +16,7 @@ public class ParallelEdgeMerger implements NetworkReducing {
     private static final Logger LOG = Logger.getLogger(ParallelEdgeMerger.class.getName());
 
     @Override
-    public NeuralNetwork reduce(NeuralNetwork inet) {
+    public NeuralNetwork reduce(DetailedNetwork<State.Structure> inet, AtomNeuron<State.Neural> outputStart) {
         return null;
     }
 }

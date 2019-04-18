@@ -17,12 +17,11 @@ public class Progress {
     public TrainVal bestResults;
 
     public Progress() {
-        currentRestart = new Restart();
         restarts = new LinkedList<>();
     }
 
     public void addOnlineResults(Results next) {
-        if (!currentRestart.trueTrainingResults.isEmpty())
+        if (!currentRestart.onlineTrainingResults.isEmpty())
             currentRestart.onlineTrainingResults.get(currentRestart.onlineTrainingResults.size() - 1).evaluations = null; //delete the particular outputs from the past Results to save space (store only statistics)
         currentRestart.onlineTrainingResults.add(next);
     }
@@ -37,11 +36,11 @@ public class Progress {
     }
 
     public void nextRestart() {
-        restarts.add(currentRestart);
         currentRestart = new Restart();
+        restarts.add(currentRestart);
     }
 
-    public int getEpochCount(){
+    public int getEpochCount() {
         return currentRestart.onlineTrainingResults.size();
     }
 

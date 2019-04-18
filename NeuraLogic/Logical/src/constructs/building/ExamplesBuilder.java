@@ -39,6 +39,7 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
 
     /**
      * We return getLabeledExamples by default, even if the labels are to be null
+     *
      * @param parseTree
      * @return
      */
@@ -55,26 +56,31 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
     public Stream<LogicSample> sampleFrom(Pair<Conjunction, LiftedExample> pair) {
         LiftedExample example = pair.s;
         if (pair.r == null || pair.r.facts == null || pair.r.facts.size() == 0) {
-            //LOG.finest("Unlabeled input examples detected - queries must be provided in a separate file");
+            //LOG.finest("Unlabeled input examples detected - queries must be provided in an ordered separate file");
             return Stream.of(createUnlabeledSample(String.valueOf(queryCounter), example));
         } else if ((pair.r.facts.size() == 1) && (pair.r.facts.get(0).getValue() == null)) { // the query literal is a LINK to query file
             ValuedFact query = pair.r.facts.get(0);
             return Stream.of(new LogicSample(null, createQueryAtom(query.literal.toString(), query, example)));
-        } else {    // these are not for merging
+        } else if (pair.r.facts.size() == 1 && (pair.r.facts.get(0).getValue() != null)) {  // these are not for merging => normal single query
+            ValuedFact query = pair.r.facts.get(0);
+            return Stream.of(new LogicSample(query.getValue(), createQueryAtom(String.valueOf(queryCounter), query, example)))
+                    .peek(s -> LOG.fine("New Sample created " + s.toString()));
+        } else {    // these are not for merging => batch queries
             String minibatch = String.valueOf(queryCounter);
             return pair.r.facts.stream()
-                    .map(f -> new LogicSample(f.getValue(), createQueryAtom(settings.queriesBatchPrefix + minibatch, f, example)))
-                    .peek(s -> LOG.fine("New Sample created " + s.toString()));
+                    .map(query -> new LogicSample(query.getValue(), createQueryAtom(settings.queriesBatchPrefix + minibatch, query, example)))
+                    .peek(s -> LOG.fine("New Batch Sample created " + s.toString()));
         }
     }
+
     private LogicSample createUnlabeledSample(String id, LiftedExample example) {
         return new LogicSample(null, createQueryAtom(id, null, example));
     }
 
     private void inferInputFormatSettings(NeuralogicParser.ExamplesFileContext examplesFileContext) {
-        if (examplesFileContext.liftedExample().size() == 0){
+        if (examplesFileContext.liftedExample().size() == 0) {
             LOG.warning("There are no examples in the example source (file)!");
-        } else if (examplesFileContext.liftedExample().size() == 1){
+        } else if (examplesFileContext.liftedExample().size() == 1) {
             LOG.info("Detecting exactly 1 (big) example in the examples source (file), switching to knowledge-base mode.");
             if (settings.groundingMode != Settings.GroundingMode.GLOBAL) {
                 settings.groundingMode = Settings.GroundingMode.GLOBAL;
@@ -92,7 +98,7 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
                 groundingPipeline.rebuild(settings);
             }
         }
-        if (examplesFileContext.label() != null && !examplesFileContext.label().isEmpty()){
+        if (examplesFileContext.label() != null && !examplesFileContext.label().isEmpty()) {
             settings.queriesAlignedWithExamples = false;
             LOG.info("Detecting examples to have ids/queries with them.");
         }
