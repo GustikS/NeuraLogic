@@ -1,2 +1,2 @@
 # NeuraLogic
-LRNN 2.0 reimplementation (prev. implementation https://github.com/GustikS/Neurologic)
+reimplementation of LRNN (prev. implementation https://github.com/GustikS/Neurologic)
