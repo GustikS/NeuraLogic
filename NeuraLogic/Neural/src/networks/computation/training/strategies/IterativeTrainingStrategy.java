@@ -15,6 +15,7 @@ import networks.computation.training.strategies.trainers.ListTrainer;
 import networks.computation.training.strategies.trainers.MiniBatchTrainer;
 import networks.computation.training.strategies.trainers.SequentialTrainer;
 import settings.Settings;
+import utils.Utilities;
 import utils.generic.Pair;
 
 import java.util.Collections;
@@ -126,6 +127,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         Results onlineResults = resultsFactory.createFrom(onlineEvaluations);
         progress.addOnlineResults(onlineResults);
         LOG.info("epoch " + count + " online results : " + onlineResults);
+        Utilities.logMemory();
         if (count % settings.resultsRecalculationEpochae == 0) {
             recalculateResults();
         }
@@ -133,6 +135,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     protected void endRestart() {
         recalculateResults();
+        restartingStrategy.nextRestart();
     }
 
     protected Pair<NeuralModel, Progress> finish() {

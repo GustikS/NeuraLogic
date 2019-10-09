@@ -29,9 +29,11 @@ public class MainTest {
         Settings settings = new Settings();
         Settings.loggingLevel = Level.FINER;
         //settings.limitSamples = 10;
-        settings.maxCumEpochCount = 20;
+        settings.maxCumEpochCount = 10000;
         //settings.oneQueryPerExample = true;
-        settings.pruneNetworks = true;
+        settings.neuralNetsPostProcessing = true;
+        settings.pruneNetworks = false;
+        settings.isoValueCompression = true;
 
         Main.main(args, settings);
     }
@@ -60,6 +62,20 @@ public class MainTest {
         Settings.loggingLevel = Level.FINER;
         settings.initLearningRate = 0.1;
         settings.maxCumEpochCount = 20;
+        settings.shuffleBeforeTraining = false;
+        //settings.oneQueryPerExample = true;
+
+        Main.main(args, settings);
+    }
+
+    @Test
+    public void p388() {
+        String[] args = new String("-e ./resources/datasets/p388/examples -t ./resources/datasets/p388/normalFully").split(" ");
+
+        Settings settings = new Settings();
+        Settings.loggingLevel = Level.FINER;
+        settings.initLearningRate = 0.1;
+        settings.maxCumEpochCount = 2000;
         settings.shuffleBeforeTraining = false;
         //settings.oneQueryPerExample = true;
 

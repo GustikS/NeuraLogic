@@ -1,6 +1,5 @@
 import networks.computation.evaluation.results.Results;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.ParseException;
 import pipelines.Pipeline;
 import pipelines.building.LearningSchemeBuilder;
 import settings.Settings;
@@ -32,6 +31,8 @@ public class Main {
             System.exit(1);
         }
 
+        LOG.info("Launched NeuraLogic from location " + System.getProperty("user.dir"));
+
         CommandLineHandler cmdh = new CommandLineHandler();
         if (settings == null) {
             settings = new Settings();
@@ -40,9 +41,11 @@ public class Main {
         try {
             CommandLine cmd = cmdh.parseParams(args, settings);
             settings.setupFromCommandline(cmd);
+            LOG.info("Settings loaded and set up.");
             sources = Sources.setupFromCommandline(settings, cmd);
-        } catch (ParseException ex) {
-            LOG.severe("Unable to parse Commandline arguments into settings/source files.\n" + ex.getMessage());
+            LOG.info("Sources loaded and set up.");
+        } catch (Exception ex) {
+            LOG.severe("Unable to parse Commandline arguments into settings/source files.\n" + ex);
             System.exit(1);
         }
 

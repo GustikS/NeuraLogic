@@ -24,7 +24,7 @@ public class Utilities {
     private static final Logger LOG = Logger.getLogger(Utilities.class.getName());
 
     public static int mb = 1024 * 1024;
-    public static double gcPercentLimit = 0.1;
+    public static double gcPercentLimit = 0.2;
     public static long remainingMemoryLimit = 500;
 
     private static long tic = System.currentTimeMillis();
@@ -57,7 +57,7 @@ public class Utilities {
         double gcDelta = (garbageCollectionTime - lastGarbageCollectionTime);
         double gcPercent = gcDelta / (now - tic);
         if (gcPercent > gcPercentLimit) {
-            LOG.warning("Garbage collection takes more than " + gcPercentLimit*100 + "% of calculation time!");
+            LOG.warning("Garbage collection takes more than " + gcPercentLimit * 100 + "% of calculation time!");
         }
         LOG.info(totalGarbageCollections + " garbage colletions with total time: " + garbageCollectionTime / 1000 + "s, made " + gcPercent * 100 + "% of time spent in GC since the last time.");
         tic = now;
@@ -65,12 +65,16 @@ public class Utilities {
     }
 
     public static String identifyFileTypeUsingFilesProbeContentType(final String fileName) {
-        String fileType = "Undetermined";
+        String fileType = null;
         final File file = new File(fileName);
         try {
             fileType = Files.probeContentType(file.toPath());
         } catch (IOException ioException) {
-            LOG.severe("ERROR: Unable to determine file type for " + fileName + " due to exception " + ioException);
+            LOG.severe("ERROR: Unable to determine file type for " + fileName + " due to IOException " + ioException);
+        }
+        if (fileType == null) {
+            LOG.severe("ERROR: Unable to determine file type (for unknown reason, probably opened by other process?): " + fileName + " defaulting to text/plain");
+            fileType = "text/plain";
         }
         return fileType;
     }

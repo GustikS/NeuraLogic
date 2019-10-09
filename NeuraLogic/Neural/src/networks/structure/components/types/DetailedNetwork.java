@@ -73,6 +73,17 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
         this.allNeurons = neurons;
     }
 
+    public List<Weight> getAllWeights() {
+        List<Weight> allWeights = new ArrayList<>();
+        for (BaseNeuron<Neuron, State.Neural> neuron : allNeuronsTopologic) {
+            if (neuron instanceof WeightedNeuron){
+                WeightedNeuron weightedNeuron = (WeightedNeuron) neuron;
+                allWeights.addAll(weightedNeuron.getWeights());
+            }
+        }
+        return allWeights;
+    }
+
     public <T extends Neuron, S extends State.Neural> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron) {
         WeightedNeuronMapping<T> inputMapping;
         if ((inputMapping = extraInputMapping != null ? (WeightedNeuronMapping<T>) extraInputMapping.get(neuron) : null) != null) {

@@ -19,4 +19,9 @@ public class StaticRestartingStrategy extends RestartingStrategy {
         }
         return true;
     }
+
+    @Override
+    public void nextRestart() {
+
+    }
 }

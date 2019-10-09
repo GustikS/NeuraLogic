@@ -22,4 +22,9 @@ public class DynamicRestartingStrategy extends RestartingStrategy {
         }
         return true;
     }
+
+    @Override
+    public void nextRestart() {
+
+    }
 }

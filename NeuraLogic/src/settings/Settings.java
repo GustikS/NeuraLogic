@@ -2,6 +2,7 @@ package settings;
 
 import org.apache.commons.cli.CommandLine;
 import pipelines.Pipeline;
+import utils.Exporter;
 import utils.generic.Pair;
 
 import java.text.DecimalFormat;
@@ -35,6 +36,18 @@ public class Settings {
      * Colorful console output?
      */
     public static boolean customLogColors = true;
+
+    public static String logFile = "./out/Logging";
+
+    //------------------Exporting
+
+    public Exporter exporter;
+
+    public String resultFile = "./out/results";
+
+    public String tmpFile = "./out/tmpFile";
+
+    public String console = "./out/consoleOutput";
 
     //------------------High level
 
@@ -202,6 +215,11 @@ public class Settings {
      */
     public boolean pruneEvenWeightedNeurons = false;
 
+    /**
+     * Number of iterations for iso-value compression
+     */
+    public int isoValuePrecision = 2;
+
     //-----------------Evaluation & Training
 
     /**
@@ -348,7 +366,7 @@ public class Settings {
     public boolean sourceFiles = true;
 
     public String sourcePath = ".";
-    public String templateFile = "template.txt";
+    public String  templateFile = "template.txt";
     public String trainExamplesFile = "trainExamples.txt";
     public String testExamplesFile = "testExamples.txt";
     public String trainQueriesFile = "trainQueries.txt";
@@ -425,8 +443,7 @@ public class Settings {
      * TODO Setup globally default settings here
      */
     public Settings() {
-
-
+        exporter = new Exporter(this);
     }
 
     public void setupFromCommandline(CommandLine cmd) {

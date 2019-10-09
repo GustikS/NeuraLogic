@@ -3,6 +3,7 @@ package utils;
 import org.apache.commons.cli.*;
 import settings.Settings;
 
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 /**
@@ -15,9 +16,14 @@ public class CommandLineHandler {
         Options options = getOptions(settings);
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = null;
+        LOG.info("with arguments: " + Arrays.toString(args) + " ...parsed into:");
         try {
             cmd = parser.parse(options, args);
-        } catch (ParseException ex) {
+            for (Option option : cmd.getOptions()) {
+                LOG.info(option.getLongOpt() + " : " + option.getValue());
+            }
+        } catch (Exception ex) {
+            LOG.severe("Unable to parse arguments!");
             printHelp(options);
             throw ex;
         }

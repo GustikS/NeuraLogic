@@ -24,7 +24,7 @@ public interface NetworkReducing {
 
     public static NetworkReducing getCompressor(Settings settings) {
         //todo add more
-        return new IsoValueNetworkCompressor();
+        return new IsoValueNetworkCompressor(settings);
     }
 
     static void supervisedNetPruning(DetailedNetwork<State.Neural.Structure> inet, BaseNeuron<Neuron, State.Neural> outputStart){

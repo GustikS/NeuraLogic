@@ -55,12 +55,14 @@ public class Logging {
         rootLogger.setLevel(Settings.loggingLevel);
 
         if (!Settings.supressLogFileOutput) {
-            new File("out").mkdirs();
+            File parentFile = new File(Settings.logFile).getParentFile();
+            if (parentFile != null)
+                parentFile.mkdirs();
             if (Settings.htmlLogging) {
-                loggingFile = new FileHandler("out/Logging.html");
+                loggingFile = new FileHandler(Settings.logFile + ".html");
                 fileFormatter = new HtmlFormatter();
             } else {
-                loggingFile = new FileHandler("out/Logging.txt");
+                loggingFile = new FileHandler(Settings.logFile + ".txt");
                 fileFormatter = new SimpleFormatter();
             }
             loggingFile.setFormatter(fileFormatter);

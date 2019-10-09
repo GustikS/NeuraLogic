@@ -306,4 +306,19 @@ public class ScalarValue extends Value {
         return greater > maxValue.cols * maxValue.rows / 2;
     }
 
+    @Override
+    public int hashCode() {
+        return (int) value * 1000000;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ScalarValue) {
+            ScalarValue obj1 = (ScalarValue) obj;
+            if (obj1.value == this.value) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
