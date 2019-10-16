@@ -1,5 +1,3 @@
-import logging
-
 import neuralogic as nl
 from py4j.java_gateway import JavaGateway, GatewayParameters
 

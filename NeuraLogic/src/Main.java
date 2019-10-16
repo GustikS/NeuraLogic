@@ -88,7 +88,7 @@ public class Main {
         return sources;
     }
 
-    public static String test(String[] args){
-        return args[0];
+    public static String testConnection(String msg) {
+        return msg + " succesfully connected";
     }
 }

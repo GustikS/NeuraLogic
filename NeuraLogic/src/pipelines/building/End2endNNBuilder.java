@@ -84,7 +84,6 @@ public class End2endNNBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair
         pairMerge.connectBeforeR(getLogicSampleStream);
         pairMerge.connectAfter(neuralPipeline);
 
-        System.out.println("pipeline successfully returned");
         settings.root = pipeline;
         return pipeline;
     }
