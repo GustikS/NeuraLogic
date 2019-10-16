@@ -1,7 +1,7 @@
 import networks.computation.evaluation.results.Results;
 import org.apache.commons.cli.CommandLine;
 import pipelines.Pipeline;
-import pipelines.building.LearningSchemeBuilder;
+import pipelines.building.AbstractPipelineBuilder;
 import settings.Settings;
 import settings.Sources;
 import utils.CommandLineHandler;
@@ -23,20 +23,45 @@ public class Main {
 
     public static void main(String[] args, Settings settings) {
 
+        Logging logging = initLogging();
+
+        if (settings == null) {
+            settings = new Settings();
+        }
+
+        Sources sources = getSources(args, settings);
+        Pipeline<Sources, Results> pipeline = getPipeline(settings, sources);
+        settings.root = pipeline;
+
+        LOG.finest("Running the main pipeline on the provided sources...");
+        Pair<String, Results> target = pipeline.execute(sources);
+        LOG.info("Pipeline: " + target.r + " finished with result: " + target.s.toString());
+
+        logging.finish();
+    }
+
+    public static Logging initLogging() {
         Logging logging = new Logging();
         try {
             logging.initialize();
+            LOG.info("Launched NeuraLogic from location " + System.getProperty("user.dir"));
         } catch (IOException ex) {
             LOG.severe("Could not initialize Logging.\n" + ex.getMessage());
             System.exit(1);
         }
+        return logging;
+    }
 
-        LOG.info("Launched NeuraLogic from location " + System.getProperty("user.dir"));
+    public static Pipeline<Sources, Results> getPipeline(Settings settings, Sources sources) {
+        LOG.finest("Building the main pipeline...");
+        AbstractPipelineBuilder<Sources, Results> pipelineBuilder = AbstractPipelineBuilder.getBuilder(sources, settings);
+        Pipeline<Sources, Results> pipeline = pipelineBuilder.buildPipeline();
+        LOG.finest("The main pipeline has been built");
+        return pipeline;
+    }
 
+    public static Sources getSources(String[] args, Settings settings) {
         CommandLineHandler cmdh = new CommandLineHandler();
-        if (settings == null) {
-            settings = new Settings();
-        }
         Sources sources = null;
         try {
             CommandLine cmd = cmdh.parseParams(args, settings);
@@ -60,14 +85,10 @@ public class Main {
             LOG.severe("Invalid source files configuration.\n" + validation.s);
             System.exit(2);
         }
-        LOG.finest("Building LearningScheme pipeline...");
-        LearningSchemeBuilder pipelineBuilder = new LearningSchemeBuilder(settings, sources);
-        Pipeline<Sources, Results> pipeline = pipelineBuilder.buildPipeline();
-        settings.root = pipeline;
-        LOG.finest("LearningScheme pipeline has been built");
-        LOG.finest("Running LearningScheme pipeline...");
-        Pair<String, Results> target = pipeline.execute(sources);
-        LOG.info("Pipeline: " + target.r + " finished with result: " + target.s);
-        logging.finish();
+        return sources;
+    }
+
+    public static String test(String[] args){
+        return args[0];
     }
 }

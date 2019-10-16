@@ -1,12 +1,4 @@
-import os
-
-project_path = "../../"  # path to Neuralogic project root
-jar_path = "NeuraLogic/out/artifacts/NeuraLogic_jar/"
-jar_file = "NeuraLogic.jar"
-
-os.environ["JAVA_HOME"] = "/opt/miniconda3/envs/bet"
-# os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-8-oracle" # not working with Conda
-os.environ['CLASSPATH'] = project_path + jar_path + jar_file
+import neuralogic as nl
 
 from jnius import autoclass  # this must be last import (after os.environ changes)
 
@@ -36,9 +28,9 @@ def neuralogic_run_test():
 
     Main = autoclass("Main")
 
-    e = project_path + "/NeuraLogic/resources/datasets/family/examples"
-    t = project_path + "/NeuraLogic/resources/datasets/family/template"
-    q = project_path + "/NeuraLogic/resources/datasets/family/queries"
+    e = nl.project_path + "/NeuraLogic/resources/datasets/family/examples"
+    t = nl.project_path + "/NeuraLogic/resources/datasets/family/template"
+    q = nl.project_path + "/NeuraLogic/resources/datasets/family/queries"
 
     Main.main(["-e", e, "-t", t, "-q", q])
 

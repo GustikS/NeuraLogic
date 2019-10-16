@@ -142,10 +142,10 @@ public class Topologic {
 
         @Override
         public boolean hasNext() {
-            if (i == 0){
+            if (i == 0) {
                 return true;
             }
-            return Topologic.this.network.allNeuronsTopologic.get(i-1) != outputNeuron; //we need the output neuron to be processed too!
+            return Topologic.this.network.allNeuronsTopologic.get(i - 1) != outputNeuron; //we need the output neuron to be processed, too!
         }
 
         @Override

@@ -32,6 +32,7 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
         this.neuralizer = neuralizer;
     }
 
+
     public Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> buildPipeline() {
         Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> pipeline = new Pipeline<Stream<GroundingSample>, Stream<NeuralSample>>("NeuralNetsCreationPipeline", this);
 
@@ -69,7 +70,6 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
             }
         });
         finalizationPipe.connectAfter(cutoffPipe);
-
         return pipeline;
     }
 

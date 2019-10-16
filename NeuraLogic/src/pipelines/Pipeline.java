@@ -86,6 +86,7 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
      */
     //ConcurrentLinkedQueue<Executable> executionQueue;
     public Pair<String, T> execute(S source) {
+        System.out.println("Executing pipeline : " + this.ID);
         //start the whole pipelines
         start.accept(source);
         /*while (!executionQueue.isEmpty()) {

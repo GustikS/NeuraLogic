@@ -76,6 +76,15 @@ public class Settings {
     public Pipeline root;
 
     /**
+     * Sets up the main purpose of the root pipeline
+     */
+    public MainMode mainMode = MainMode.COMPLETE;
+
+    public enum MainMode {
+        GROUNDING, COMPLETE
+    }
+
+    /**
      * Some major settings that influence pipelines creation have been changed on the run,
      * implying the need for rebuilding of every pipeline when entered (accept) during run
      */
@@ -366,7 +375,7 @@ public class Settings {
     public boolean sourceFiles = true;
 
     public String sourcePath = ".";
-    public String  templateFile = "template.txt";
+    public String templateFile = "template.txt";
     public String trainExamplesFile = "trainExamples.txt";
     public String testExamplesFile = "testExamples.txt";
     public String trainQueriesFile = "trainQueries.txt";
@@ -481,8 +490,8 @@ public class Settings {
         maxCumEpochCount = Integer.parseInt(_trainingSteps);
 
         String _evaluationMode = cmd.getOptionValue("evaluationMode", "classification");
-        switch (_evaluationMode){
-            case "classification" :
+        switch (_evaluationMode) {
+            case "classification":
                 regression = false;
                 break;
             case "regression":
@@ -491,8 +500,8 @@ public class Settings {
         }
 
         String _errorFunction = cmd.getOptionValue("errorFunction", "MSE");
-        switch (_errorFunction){
-            case "MSE" :
+        switch (_errorFunction) {
+            case "MSE":
                 errorFunction = ErrorFcn.SQUARED_DIFF;
                 errorAggregationFcn = AggregationFcn.AVG;
                 break;
@@ -543,7 +552,7 @@ public class Settings {
             neuralState = NeuralState.PAR_DROPOUT;
         }
 
-        if (groundingMode == GroundingMode.SEQUENTIAL){
+        if (groundingMode == GroundingMode.SEQUENTIAL) {
             forceFullNetworks = true;   //if we sequentially add new facts/rules, and then after grounding we take just the diff, the rules might not be connected, i.e. we need to turn them all blindly to neurons.
         }
 
