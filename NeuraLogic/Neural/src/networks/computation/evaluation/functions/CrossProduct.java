@@ -17,6 +17,11 @@ import java.util.logging.Logger;
 public class CrossProduct extends Activation {
     private static final Logger LOG = Logger.getLogger(CrossProduct.class.getName());
 
+    @Override
+    public String getName() {
+        return "CrossProduct";
+    }
+
     Activation activation;
 
     @Override

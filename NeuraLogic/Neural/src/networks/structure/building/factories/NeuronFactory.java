@@ -25,7 +25,7 @@ public class NeuronFactory {
 
     Settings settings;
 
-    private int counter;
+    private int counter = 0;
 
     /**
      * A mapping from ground literals and ground rules to respective neurons, which will be incrementally modified during the building process

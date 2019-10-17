@@ -19,6 +19,11 @@ public abstract class Aggregation {
     private static final Logger LOG = Logger.getLogger(Aggregation.class.getName());
 
     /**
+     * Simply name of the activation function (used for external mapping into DL frameworks)
+     */
+    public abstract String getName();
+
+    /**
      * We do not want to create a new object for the same activation function that gets repeated over milions of neurons, even if it's very lightweight
      * @return
      */

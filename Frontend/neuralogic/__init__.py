@@ -16,7 +16,7 @@ import sys
 from datetime import datetime
 
 gtw = JavaGateway.launch_gateway(classpath=project_path + jar_path + jar_file, redirect_stdout=sys.stdout,
-                                 redirect_stderr=sys.stdout)  # auto_field=True changed within the library itself!
+                                 redirect_stderr=sys.stderr, die_on_exit=True)  # auto_field=True changed within the library itself!
 # gateway = JavaGateway(gateway_parameters=GatewayParameters(auto_field=True))
 
 settings = gtw.jvm.settings.Settings()

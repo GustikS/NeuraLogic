@@ -1,4 +1,4 @@
-import dynetcon as dy
+import dynet as dy
 
 # create a parameter collection and add the parameters.
 m = dy.ParameterCollection()

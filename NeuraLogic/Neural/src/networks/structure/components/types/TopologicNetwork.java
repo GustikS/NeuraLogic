@@ -23,8 +23,9 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
     public TopologicNetwork(String id, List<BaseNeuron<Neuron, State.Neural>> allNeurons) {
         super(id, allNeurons.size());
         allNeuronsTopologic = topologicSort(allNeurons);
+        reindexNeurons(allNeuronsTopologic);
 
-        if (allNeuronsTopologic.size() != allNeurons.size()){
+        if (allNeuronsTopologic.size() != allNeurons.size()) {
             LOG.warning("Some neurons connected in the network are not in neuronmaps!");
         }
 
@@ -40,6 +41,22 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
     public TopologicNetwork(String id, List<BaseNeuron<Neuron, State.Neural>> allNeurons, boolean sorted) {
         super(id, allNeurons.size());
         allNeuronsTopologic = allNeurons;
+    }
+
+    /**
+     * Reorder indices of the neurons assigned (incrementaly/randomly) during creation by NeuronFactory to respect the topologic order
+     *
+     * @param allNeuronsTopologic
+     */
+    private void reindexNeurons(List<BaseNeuron<Neuron, State.Neural>> allNeuronsTopologic) {
+        int[] indices = new int[allNeuronsTopologic.size()];
+        for (int i = 0; i < indices.length; i++) {
+            indices[i] = allNeuronsTopologic.get(i).index;
+        }
+        Arrays.sort(indices);
+        for (int i = 0; i < allNeuronsTopologic.size(); i++) {
+            allNeuronsTopologic.get(i).index = indices[i];
+        }
     }
 
     @Deprecated
@@ -84,7 +101,7 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
         //Collections.reverse(stack);
         List<BaseNeuron<Neuron, State.Neural>> reverse = new ArrayList<>(stack.size());
         Iterator<BaseNeuron<Neuron, State.Neural>> descendingIterator = stack.descendingIterator();
-        while (descendingIterator.hasNext()){
+        while (descendingIterator.hasNext()) {
             reverse.add(descendingIterator.next());
         }
         return reverse;

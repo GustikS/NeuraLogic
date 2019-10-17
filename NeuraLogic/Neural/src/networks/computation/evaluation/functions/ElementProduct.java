@@ -14,6 +14,11 @@ import java.util.logging.Logger;
 public class ElementProduct extends Activation {
     private static final Logger LOG = Logger.getLogger(ElementProduct.class.getName());
 
+    @Override
+    public String getName() {
+        return "DotProduct";
+    }
+
     Activation activation;
 
     public ElementProduct(Activation activation) {

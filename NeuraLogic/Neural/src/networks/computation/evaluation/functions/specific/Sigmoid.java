@@ -12,6 +12,11 @@ import java.util.logging.Logger;
 public class Sigmoid extends Activation {
     private static final Logger LOG = Logger.getLogger(Sigmoid.class.getName());
 
+    @Override
+    public String getName() {
+        return "Sigmoid";
+    }
+
     private static final Function<Double, Double> logist = in -> in > 100 ? 1 : (in < -100 ? 0 : 1 / (1 + Math.exp(-in)));
 
     private static final Function<Double, Double> diffLogist = in -> {

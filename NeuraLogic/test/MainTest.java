@@ -17,7 +17,7 @@ public class MainTest {
         Settings settings = new Settings();
         settings.shuffleBeforeTraining = false;
         settings.initLearningRate = 1;
-        settings.maxCumEpochCount = 20;
+        settings.maxCumEpochCount = 1000;
         Settings.loggingLevel = Level.FINEST;
         Main.main(args,settings);
     }

@@ -1,3 +1,4 @@
+/*
 import py4j.GatewayServer;
 
 public class py4jTest {
@@ -8,3 +9,4 @@ public class py4jTest {
         System.out.println("Gateway Server Started");
     }
 }
+*/

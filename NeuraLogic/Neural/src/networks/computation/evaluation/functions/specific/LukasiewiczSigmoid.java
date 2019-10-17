@@ -12,6 +12,11 @@ import java.util.logging.Logger;
 public class LukasiewiczSigmoid extends Activation {
     private static final Logger LOG = Logger.getLogger(LukasiewiczSigmoid.class.getName());
 
+    @Override
+    public String getName() {
+        return "Lukasiewicz";
+    }
+
     static Function<Double, Double> logist = in -> in > 100 ? 1 : (in < -100 ? 0 : 1 / (1 + Math.exp(-6 * in - 0.5)));
 
     public LukasiewiczSigmoid() {
