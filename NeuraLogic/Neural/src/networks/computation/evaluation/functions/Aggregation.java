@@ -25,6 +25,7 @@ public abstract class Aggregation {
 
     /**
      * We do not want to create a new object for the same activation function that gets repeated over milions of neurons, even if it's very lightweight
+     *
      * @return
      */
     public abstract Aggregation replaceWithSingleton();

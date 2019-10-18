@@ -340,7 +340,7 @@ public class Settings {
     public ActivationFcn negation = ActivationFcn.REVERSE;
 
     public enum ActivationFcn {
-        SIGMOID, LUKASIEWICZ, RELU, TANH, IDENTITY, REVERSE
+        SIGMOID, SIGNUM, LUKASIEWICZ, RELU, TANH, IDENTITY, REVERSE;
     }
 
     public enum ErrorFcn {

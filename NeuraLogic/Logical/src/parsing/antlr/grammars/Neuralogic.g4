@@ -54,7 +54,7 @@ weight: (DOLLAR ATOMIC_NAME ASSIGN)? (fixedValue | value);
 fixedValue: LANGLE value RANGLE;
 offset: weight;
 
-value: number | vector | matrix | dimensions;
+value: number | vector | matrix | dimensions;   // todo next test vector vs dim?
 
 number: INT | FLOAT;
 vector: LBRACKET number (COMMA number)* RBRACKET;

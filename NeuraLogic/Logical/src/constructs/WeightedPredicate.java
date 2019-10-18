@@ -3,6 +3,7 @@ package constructs;
 import com.sun.istack.internal.Nullable;
 import constructs.template.metadata.PredicateMetadata;
 import ida.ilp.logic.Predicate;
+import networks.computation.evaluation.functions.Activation;
 import networks.structure.components.weights.Weight;
 
 import java.util.logging.Logger;
@@ -16,6 +17,12 @@ public class WeightedPredicate {
      */
     @Nullable
     public Weight weight;
+
+    /**
+     * If it has the weight, it shouldbe carrying the activation too.
+     */
+    @Nullable
+    public Activation activation;
 
     /**
      * Regular logic predicate

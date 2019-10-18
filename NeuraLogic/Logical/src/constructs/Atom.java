@@ -39,6 +39,7 @@ public class Atom {
         }
         this.offsettedPredicate = weightedPredicate;
         this.literal = new Literal(weightedPredicate.predicate, negated, terms);
+        this.activation = offsettedPredicate.activation;    //by default we inhering the activation from the predicate
     }
 
     public Atom(Atom another) {
@@ -82,5 +83,14 @@ public class Atom {
     @Override
     public String toString() {
         return literal.toString();
+    }
+
+    public Activation getActivation() {
+        if (this.activation != null)
+            return this.activation;
+        else if (this.offsettedPredicate.activation != null)
+            return this.offsettedPredicate.activation;
+        else
+            return null;
     }
 }

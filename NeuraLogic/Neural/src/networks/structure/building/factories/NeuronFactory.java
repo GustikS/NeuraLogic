@@ -37,7 +37,7 @@ public class NeuronFactory {
     }
 
     public AtomNeuron createAtomNeuron(HeadAtom head, Literal groundHead) {
-        Activation activation = head.activation != null ? head.activation : Activation.getActivationFunction(settings.atomNeuronActivation);
+        Activation activation = head.getActivation() != null ? head.getActivation() : Activation.getActivationFunction(settings.atomNeuronActivation);
         State.Neural.Computation state = State.createBaseState(settings, activation);
         AtomNeuron<State.Neural.Computation> atomNeuron = new AtomNeuron<>(groundHead, head.getOffset(), counter++, state);
         neuronMaps.atomNeurons.put(groundHead, atomNeuron);

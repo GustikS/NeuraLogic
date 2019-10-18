@@ -2,6 +2,7 @@ package constructs.template.metadata;
 
 import constructs.template.components.WeightedRule;
 import networks.computation.evaluation.functions.Activation;
+import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.functions.CrossProduct;
 import settings.Settings;
 
@@ -26,21 +27,15 @@ public class RuleMetadata extends Metadata<WeightedRule> {
         boolean valid = false;
         if (parameter.type == Parameter.Type.OFFSET && parameterValue.type == ParameterValue.Type.VALUE) {
             valid = true;
-        } else if ( parameter.type == Parameter.Type.LEARNABLE && parameterValue.type == ParameterValue.Type.BOOLEAN){
+        } else if (parameter.type == Parameter.Type.LEARNABLE && parameterValue.type == ParameterValue.Type.BOOLEAN) {
             valid = true;
-        }
-        else if (parameter.type == Parameter.Type.ACTIVATION && parameterValue.type == ParameterValue.Type.STRING) {
-            switch (parameterValue.stringValue) {
-                case "sigmoid":
-                    parameterValue.value = Activation.Singletons.sigmoid;
-                    valid = true;
-                    break;
-                case "crossproduct":
-                    parameterValue.value = new CrossProduct(Activation.getActivationFunction(settings.ruleNeuronActivation));
-                    valid = true;
-                    break;
+        } else if (parameter.type == Parameter.Type.ACTIVATION && parameterValue.type == ParameterValue.Type.STRING) {
+            Aggregation aggregation = Activation.parseActivation(parameterValue.stringValue);
+            if (aggregation != null) {
+                valid = true;
+                parameterValue.value = aggregation;
             }
-            //todo
+            //todo rest
         }
 
         if (valid)
@@ -55,7 +50,7 @@ public class RuleMetadata extends Metadata<WeightedRule> {
 
     private void apply(WeightedRule object, Parameter param, ParameterValue value) {
         if (param.type == Parameter.Type.ACTIVATION) {
-            if (value.value instanceof CrossProduct){
+            if (value.value instanceof CrossProduct) {
                 object.setActivationFcn(object.getActivationFcn() != null ? new CrossProduct(object.getActivationFcn()) : new CrossProduct(Activation.getActivationFunction(settings.ruleNeuronActivation)));
             }
             object.setActivationFcn((Activation) value.value);

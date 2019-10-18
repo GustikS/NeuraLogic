@@ -1,0 +1,7 @@
+0.2 hidden1 :- 1 a, 1 b 0.5.
+hidden2 :- -1 a, -1 b -1.1.
+
+1 xor :- 0.1 hidden1 0.3.
+1 xor :- hidden2.
+
+xor/0 1.5.

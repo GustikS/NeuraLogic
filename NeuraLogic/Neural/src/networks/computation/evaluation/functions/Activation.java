@@ -1,7 +1,6 @@
 package networks.computation.evaluation.functions;
 
-import networks.computation.evaluation.functions.specific.LukasiewiczSigmoid;
-import networks.computation.evaluation.functions.specific.Sigmoid;
+import networks.computation.evaluation.functions.specific.*;
 import networks.computation.evaluation.values.Value;
 import settings.Settings;
 
@@ -62,6 +61,12 @@ public abstract class Activation extends Aggregation {
         switch (activationFcn) {
             case SIGMOID:
                 return Singletons.sigmoid;
+            case SIGNUM:
+                return Singletons.signum;
+            case IDENTITY:
+                return Singletons.identity;
+            case RELU:
+                return Singletons.relu;
             case LUKASIEWICZ:
                 return Singletons.lukasiewiczSigmoid;
             default:
@@ -70,8 +75,30 @@ public abstract class Activation extends Aggregation {
         }
     }
 
+    public static Aggregation parseActivation(String agg) {
+        switch (agg) {
+            case "sigmoid":
+                return Activation.Singletons.sigmoid;
+            case "signum":
+                return Activation.Singletons.signum;
+            case "relu":
+                return Activation.Singletons.relu;
+            case "identity":
+                return Activation.Singletons.identity;
+            case "lukasiewicz":
+                return Activation.Singletons.lukasiewiczSigmoid;
+            case "crossproduct":
+                return new CrossProduct(null);
+            default:
+                return null;
+        }
+    }
+
     public static class Singletons {
         public static LukasiewiczSigmoid lukasiewiczSigmoid = new LukasiewiczSigmoid();
         public static Sigmoid sigmoid = new Sigmoid();
+        public static Signum signum = new Signum();
+        public static ReLu relu = new ReLu();
+        public static Identity identity = new Identity();
     }
 }

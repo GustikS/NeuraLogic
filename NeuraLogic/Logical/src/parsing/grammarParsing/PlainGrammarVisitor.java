@@ -372,7 +372,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
                 if (paramVal.DOLLAR() != null) {
                     value = builder.weightFactory.construct(valueText);
                 } else if (paramVal.value() != null) {
-                    value = new WeightVisitor().parseValue(paramVal.value());
+                    value = new WeightVisitor().parseValue(paramVal.value()).s;
                 } else {
                     value = new StringValue(valueText);
                 }
