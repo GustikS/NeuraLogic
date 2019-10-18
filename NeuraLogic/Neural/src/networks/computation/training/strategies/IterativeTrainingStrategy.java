@@ -136,6 +136,10 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     protected void endRestart() {
         recalculateResults();
         restartingStrategy.nextRestart();
+        LOG.finer("Training outputs");
+        progress.getLastTrueResults().training.printOutputs();
+        LOG.finer("Validation outputs:");
+        progress.getLastTrueResults().validation.printOutputs();
     }
 
     protected Pair<NeuralModel, Progress> finish() {

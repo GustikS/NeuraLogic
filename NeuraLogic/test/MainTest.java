@@ -10,6 +10,18 @@ public class MainTest {
         String[] args = new String("-t ./resources/parsing/test_template -q ./resources/parsing/queries").split(" ");
         Main.main(args);
     }
+    @Test
+    public void xor_basic(){
+            String[] args = new String("-path ./resources/datasets/neural/xor/solution").split(" ");
+        Settings settings = new Settings();
+        settings.shuffleBeforeTraining = false;
+        settings.initLearningRate = 0.1;
+        settings.maxCumEpochCount = 0;
+        settings.neuralNetsPostProcessing = true;
+        settings.pruneNetworks = true;
+        Settings.loggingLevel = Level.FINER;
+        Main.main(args, settings);
+    }
 
     @Test
     public void family() {

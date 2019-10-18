@@ -121,7 +121,7 @@ public abstract class Grounder {
      *
      * @param a
      * @param b
-     * @return
+     * @returnst
      */
     private List<WeightedRule> merge2rules(List<WeightedRule> a, List<WeightedRule> b) {
         a.addAll(b);

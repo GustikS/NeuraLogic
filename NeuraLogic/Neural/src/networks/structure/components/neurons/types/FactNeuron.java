@@ -5,7 +5,6 @@ import networks.computation.iteration.NeuronVisiting;
 import networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.WeightedNeuron;
-import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.States;
 
 import java.util.ArrayList;
@@ -19,11 +18,6 @@ public class FactNeuron extends WeightedNeuron<BaseNeuron, States.SimpleValue> i
         super(fact.toString(), index, state, fact.getOffset());
         inputs = new ArrayList<>(0);
         weights = new ArrayList<>(0);
-    }
-
-    @Override
-    public Weight getOffset() {
-        return offset;
     }
 
     public void visit(NeuronVisitor.Weighted visitor){

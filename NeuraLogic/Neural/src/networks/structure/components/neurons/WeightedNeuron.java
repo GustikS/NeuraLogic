@@ -31,7 +31,7 @@ public class WeightedNeuron<T extends Neuron, S extends State.Neural> extends Ba
 
     public WeightedNeuron(String id, int index, S state, Weight offset) {
         super(index, id, state);
-        if (offset == null){
+        if (offset == null) {
             this.offset = Weight.zeroWeight;
         } else {
             this.offset = offset;
@@ -57,6 +57,10 @@ public class WeightedNeuron<T extends Neuron, S extends State.Neural> extends Ba
      */
     public final ArrayList<Weight> getWeights() {
         return weights;
+    }
+
+    public final Weight getOffset() {
+        return offset;
     }
 
     /**
@@ -115,11 +119,11 @@ public class WeightedNeuron<T extends Neuron, S extends State.Neural> extends Ba
         return pairedInputs;
     }
 
-    public void visit(NeuronVisitor.Weighted visitor){
+    public void visit(NeuronVisitor.Weighted visitor) {
         visitor.visit(this);
     }
 
-    public void visit(NeuronVisiting.Weighted visitor){
+    public void visit(NeuronVisiting.Weighted visitor) {
         visitor.visit(this);
     }
 }

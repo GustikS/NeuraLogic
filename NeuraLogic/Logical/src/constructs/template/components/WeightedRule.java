@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 /**
  * Created by Gusta on 04.10.2016.
  * <p>
- *
  */
 public class WeightedRule {
 
@@ -46,6 +45,7 @@ public class WeightedRule {
 
     /**
      * This does not really clone the rule, only references
+     *
      * @param other
      */
     public WeightedRule(WeightedRule other) {
@@ -68,6 +68,7 @@ public class WeightedRule {
 
     /**
      * Grounding of individual atoms will create new copies of them.
+     *
      * @param terms
      * @return
      */
@@ -101,13 +102,21 @@ public class WeightedRule {
         return sb.toString();
     }
 
-    public boolean hasWeightedBody() {
+    public boolean detectWeights() {
+        boolean hasWeights = hasOffset();
         for (BodyAtom bodyAtom : getBody()) {
             if (bodyAtom.weight != null) {
-                return true;
+                hasWeights = true;
             }
         }
-        return false;
+        if (hasWeights) {
+            for (BodyAtom bodyAtom : getBody()) {
+                if (bodyAtom.weight == null) {
+                    bodyAtom.weight = Weight.unitWeight;
+                }
+            }
+        }
+        return hasWeights;
     }
 
     @Override
@@ -120,17 +129,17 @@ public class WeightedRule {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == this){   //this should catch absolute majority of all calls (due to factory creation and unique hash)
+        if (obj == this) {   //this should catch absolute majority of all calls (due to factory creation and unique hash)
             return true;
         }
         if (!(obj instanceof WeightedRule)) {
             return false;
         }
         WeightedRule other = (WeightedRule) obj;
-        if (getWeight() == null && other.getWeight() != null || getWeight() != null && other.getWeight() == null){
+        if (getWeight() == null && other.getWeight() != null || getWeight() != null && other.getWeight() == null) {
             return false;
         }
-        if (getOffset() == null && other.getOffset() != null || getOffset() != null && other.getOffset() == null){
+        if (getOffset() == null && other.getOffset() != null || getOffset() != null && other.getOffset() == null) {
             return false;
         }
         if (getWeight() != null && !getWeight().equals(other.getWeight()) || getOffset() != null && !getOffset().equals(other.getOffset())) {
@@ -139,7 +148,7 @@ public class WeightedRule {
         if (getAggregationFcn() != null && !getAggregationFcn().equals(other.getAggregationFcn()) || getActivationFcn() != null && !getActivationFcn().equals(other.getActivationFcn())) {
             return false;
         }
-        if (!getHead().equals(other.getHead()) || ! getBody().equals(other.getBody())){
+        if (!getHead().equals(other.getHead()) || !getBody().equals(other.getBody())) {
             return false;
         }
         return true;
@@ -151,7 +160,7 @@ public class WeightedRule {
         for (BodyAtom bodyAtom : getBody()) {
             sb.append(bodyAtom.toString()).append(",");
         }
-        sb.setCharAt(sb.length()-1,'.');
+        sb.setCharAt(sb.length() - 1, '.');
         return sb.toString();
     }
 
@@ -161,6 +170,10 @@ public class WeightedRule {
 
     public void setWeight(Weight weight) {
         this.weight = weight;
+    }
+
+    public boolean hasOffset() {
+        return offset != null;
     }
 
     public Weight getOffset() {

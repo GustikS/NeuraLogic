@@ -47,6 +47,12 @@ public abstract class Results {
 
     public abstract boolean betterThan(Results other);
 
+    public void printOutputs() {
+        for (Result evaluation : evaluations) {
+            LOG.finer(evaluation.sampleId + " : target: " + evaluation.target + " output: " + evaluation.output);
+        }
+    }
+
     public static abstract class Factory {
 
         Aggregation aggregation;

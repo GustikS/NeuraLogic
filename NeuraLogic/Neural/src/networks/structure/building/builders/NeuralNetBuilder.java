@@ -104,7 +104,7 @@ public class NeuralNetBuilder {
                 RuleNeurons ruleNeuron;
 
                 if ((ruleNeuron = neuronMaps.ruleNeurons.get(grounding)) == null) {
-                    if (grounding.weightedRule.hasWeightedBody()) {
+                    if (grounding.weightedRule.detectWeights()) {
                         ruleNeuron = neuralBuilder.neuronFactory.createWeightedRuleNeuron(grounding);
                     } else {
                         ruleNeuron = neuralBuilder.neuronFactory.createRuleNeuron(grounding);
@@ -212,7 +212,7 @@ public class NeuralNetBuilder {
         }
 
         //if there is the need, check parentCounts and store them by the network if needed
-        if (settings.parentCounting || settings.pruneNetworks)  {
+        if (settings.parentCounting || settings.pruneNetworks) {
             neuralNetwork.outputMapping = calculateOutputs(neuralNetwork);
             statesBuilder.setupParentStateNumbers(neuralNetwork);
         }

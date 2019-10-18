@@ -14,8 +14,4 @@ public class AtomNeuron<S extends State.Neural> extends WeightedNeuron<Aggregati
         super(groundHead.toString(), index, state, offset);
     }
 
-    @Override
-    public final Weight getOffset() {
-        return offset;
-    }
 }

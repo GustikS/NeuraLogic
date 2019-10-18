@@ -39,7 +39,7 @@ conjunction: atom (COMMA atom)*;
 metadataVal: ATOMIC_NAME ASSIGN (value | (DOLLAR? ATOMIC_NAME));
 metadataList: LBRACKET (metadataVal (COMMA metadataVal)*)? RBRACKET;
 
-lrnnRule: atom IMPLIED_BY conjunction offset? '.' metadataList?;
+lrnnRule: atom IMPLIED_BY conjunction offset? '.' metadataList?;    // todo next offset should be separated by comma
 
 predicateOffset: predicate weight;
 predicateMetadata: predicate metadataList;
@@ -49,7 +49,7 @@ templateMetadata: metadataList;
 //weight: fixed_weight | SEPARATOR (INT | FLOAT) SEPARATOR;
 //SEPARATOR: (' ' | BOL | EOF);
 
-// weight may have identifiers for sharing
+// weights may have identifiers for sharing
 weight: (DOLLAR ATOMIC_NAME ASSIGN)? (fixedValue | value);
 fixedValue: LANGLE value RANGLE;
 offset: weight;

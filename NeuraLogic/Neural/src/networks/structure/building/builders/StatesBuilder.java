@@ -83,13 +83,17 @@ public class StatesBuilder {
         Value value = null;
         Value weight = null;
         if (neuronIterator.hasNext()) {
-            State.Neural.Computation computationView = neuronIterator.next().getComputationView(0);
+            BaseNeuron next = neuronIterator.next();
+            State.Neural.Computation computationView = next.getComputationView(0);
             value = computationView.getValue();
             Weight nextWeight = weightIterator.next();
-            if (nextWeight == null){
-                LOG.warning("");
+            if (nextWeight == null) {
+                LOG.finer("Weight for input missing, deducing unit weight for: " + next.id);
+                weight = Value.ONE;
+            } else {
+                weight = nextWeight.value;
             }
-            weight = nextWeight.value;
+
         }
 
         if (value == null || weight == null) {

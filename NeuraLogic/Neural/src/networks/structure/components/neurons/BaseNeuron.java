@@ -125,11 +125,11 @@ public class BaseNeuron<T extends Neuron, S extends State.Neural> implements Neu
         return this.layer;
     }
 
-    public void visit(NeuronVisitor.Weighted visitor){
+    public void visit(NeuronVisitor.Weighted visitor) {
         visitor.visit(this);
     }
 
-    public void visit(NeuronVisiting.Weighted visitor){
+    public void visit(NeuronVisiting.Weighted visitor) {
         visitor.visit(this);
     }
 
@@ -189,6 +189,6 @@ public class BaseNeuron<T extends Neuron, S extends State.Neural> implements Neu
 
     @Override
     public String toString() {
-        return id;
+        return getClass().getSimpleName() + " = " + id;
     }
 }

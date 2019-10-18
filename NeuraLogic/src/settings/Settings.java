@@ -53,6 +53,7 @@ public class Settings {
 
     public Optimize optimize = Optimize.SPEED;
 
+
     public enum Optimize {
         MEMORY, SPEED, TRADEOFF
     }
@@ -150,7 +151,7 @@ public class Settings {
     /**
      * A whole pipeline of all postprocessing steps
      */
-    public boolean neuralNetsPostProcessing = false;
+    public boolean neuralNetsPostProcessing = false;    //todo at least one must be ON
     /**
      * Remove everything outside QueryNeuron's support (can appear if network have shared parts)
      */
@@ -374,6 +375,7 @@ public class Settings {
      */
     public boolean sourceFiles = true;
 
+    public boolean sourcePathProvided = false;
     public String sourcePath = ".";
     public String templateFile = "template.txt";
     public String trainExamplesFile = "trainExamples.txt";
@@ -508,6 +510,10 @@ public class Settings {
             case "XEnt":
                 LOG.severe("XEnt not yet implemented");
                 break;
+        }
+
+        if (cmd.hasOption("sourcePath")) {
+            sourcePathProvided = true;
         }
 
         //todo fill all the settings

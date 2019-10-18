@@ -56,20 +56,21 @@ public class SourceFiles extends Sources {
 
     public SourceFiles(Settings settings, CommandLine cmd) {
         super(settings);
+        String sourcePath = cmd.getOptionValue("sourcePath", settings.sourcePath);
 
         if (cmd.hasOption("folds")) {
-            String sourcePath = cmd.getOptionValue("sourcePath", settings.sourcePath);
+
             String foldPrefix = cmd.getOptionValue("foldPrefix", settings.foldsPrefix);
 
             if (foldPrefix.contains(File.separator)) {
                 LOG.severe("Invalid folds prefix name, it must not contain file separators: " + foldPrefix);
                 throw new IllegalArgumentException(foldPrefix);
             }
-            setupFromDir(settings, cmd, Paths.get(settings.sourcePath).toAbsolutePath().toFile());
+            setupFromDir(settings, cmd, Paths.get(sourcePath).toAbsolutePath().toFile());
 
             crawlFolds(settings, cmd, settings.sourcePath, foldPrefix);
         } else {
-            setupFromDir(settings, cmd, Paths.get(settings.sourcePath).toAbsolutePath().toFile());
+            setupFromDir(settings, cmd, Paths.get(sourcePath).toAbsolutePath().toFile());
         }
     }
 
@@ -96,10 +97,10 @@ public class SourceFiles extends Sources {
      * @return
      */
     private SourceFiles setupFromDir(Settings settings, CommandLine cmd, File foldDir) {
-        LOG.info("Setting up sources from directory: " + foldDir + " with settings : " + settings.plaintextInput);
+        LOG.info("Setting up sources from directory: " + foldDir + " with settings : " + settings);
         try {
             String templatePath = cmd.getOptionValue("template", settings.templateFile);
-            if (templatePath.startsWith("\\.")) {
+            if (templatePath.startsWith("\\.") || settings.sourcePathProvided) {
                 this.template = Paths.get(foldDir.toString(), templatePath).toFile();
             } else {
                 this.template = Paths.get(templatePath).toFile();
@@ -138,7 +139,7 @@ public class SourceFiles extends Sources {
 
         try {
             String trainExamplesPath = cmd.getOptionValue("trainExamples", settings.trainExamplesFile);
-            if (trainExamplesPath.startsWith("\\.")) {
+            if (trainExamplesPath.startsWith("\\.") || settings.sourcePathProvided) {
                 this.trainExamples = Paths.get(foldDir.toString(), trainExamplesPath).toFile();
             } else {
                 this.trainExamples = Paths.get(trainExamplesPath).toFile();
@@ -159,7 +160,7 @@ public class SourceFiles extends Sources {
 
         try {
             String testExamplesPath = cmd.getOptionValue("testExamples", settings.testExamplesFile);
-            if (testExamplesPath.startsWith("\\.")) {
+            if (testExamplesPath.startsWith("\\.") || settings.sourcePathProvided) {
                 this.testExamples = Paths.get(foldDir.toString(), testExamplesPath).toFile();
             } else {
                 this.testExamples = Paths.get(testExamplesPath).toFile();
@@ -179,7 +180,7 @@ public class SourceFiles extends Sources {
 
         try {
             String trainQueriesPath = cmd.getOptionValue("trainQueries", settings.trainQueriesFile);
-            if (trainQueriesPath.startsWith("\\.")) {
+            if (trainQueriesPath.startsWith("\\.") || settings.sourcePathProvided) {
                 this.trainQueries = Paths.get(foldDir.toString(), trainQueriesPath).toFile();
             } else {
                 this.trainQueries = Paths.get(trainQueriesPath).toFile();
@@ -200,7 +201,7 @@ public class SourceFiles extends Sources {
 
         try {
             String testQueriesPath = cmd.getOptionValue("testQueries", settings.testQueriesFile);
-            if (testQueriesPath.startsWith("\\.")) {
+            if (testQueriesPath.startsWith("\\.") || settings.sourcePathProvided) {
                 this.testQueries = Paths.get(foldDir.toString(), testQueriesPath).toFile();
             } else {
                 this.testQueries = Paths.get(testQueriesPath).toFile();
