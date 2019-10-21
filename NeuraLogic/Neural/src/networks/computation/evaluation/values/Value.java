@@ -81,6 +81,19 @@ public abstract class Value implements Iterable<Double> {
     protected abstract Value times(MatrixValue value);
 
     /**
+     * ELEMENT-wise product
+     * @param value
+     * @return
+     */
+    public abstract Value elementTimes(Value value);
+
+    protected abstract Value elementTimes(ScalarValue value);
+
+    protected abstract Value elementTimes(VectorValue value);
+
+    protected abstract Value elementTimes(MatrixValue value);
+
+    /**
      * CONSTRUCTIVE adding - will create a new Value.
      *
      * @param value
@@ -204,6 +217,26 @@ public abstract class Value implements Iterable<Double> {
 
         @Override
         public Value times(MatrixValue value) {
+            return value;
+        }
+
+        @Override
+        public Value elementTimes(Value value) {
+            return value;
+        }
+
+        @Override
+        protected Value elementTimes(ScalarValue value) {
+            return value;
+        }
+
+        @Override
+        protected Value elementTimes(VectorValue value) {
+            return value;
+        }
+
+        @Override
+        protected Value elementTimes(MatrixValue value) {
             return value;
         }
 
@@ -352,6 +385,26 @@ public abstract class Value implements Iterable<Double> {
 
         @Override
         public Value times(MatrixValue value) {
+            return zero;
+        }
+
+        @Override
+        public Value elementTimes(Value value) {
+            return zero;
+        }
+
+        @Override
+        protected Value elementTimes(ScalarValue value) {
+            return zero;
+        }
+
+        @Override
+        protected Value elementTimes(VectorValue value) {
+            return zero;
+        }
+
+        @Override
+        protected Value elementTimes(MatrixValue value) {
             return zero;
         }
 

@@ -5,11 +5,11 @@ import dynet as dy
 
 class Learner:
 
-    def __init__(self, lrnn_model, epochae=1000):
+    def __init__(self, lrnn_model, epochae=10):
         self.model = ModelWeights(lrnn_model)
 
         self.epochae = epochae
-        self.trainer = dy.SimpleSGDTrainer(self.model.dynet_model, learning_rate = 1)
+        self.trainer = dy.SimpleSGDTrainer(self.model.dynet_model, learning_rate = 0.1)
 
         self.network_builder = NetworkBuilder(self.model)
 
@@ -42,6 +42,6 @@ class Learner:
             label = dy.scalarInput(trans.getLabel(lrnn_sample))
             graph_output = self.network_builder.build_network(lrnn_sample)
 
-            # dy.print_text_graphviz()
+            dy.print_text_graphviz()
 
             print(f'label: {label.value()}, output: {graph_output.value()}')

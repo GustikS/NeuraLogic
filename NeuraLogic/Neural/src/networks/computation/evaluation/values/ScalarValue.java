@@ -124,6 +124,36 @@ public class ScalarValue extends Value {
         return clone;
     }
 
+    @Override
+    public Value elementTimes(Value value) {
+        return value.elementTimes(this);
+    }
+
+    @Override
+    protected Value elementTimes(ScalarValue value) {
+        return new ScalarValue(this.value * value.value);
+    }
+
+    @Override
+    protected Value elementTimes(VectorValue vector) {
+        VectorValue clone = vector.clone();
+        for (int i = 0; i < vector.values.length; i++) {
+            clone.values[i] *= this.value;
+        }
+        return clone;
+    }
+
+    @Override
+    protected Value elementTimes(MatrixValue value) {
+        MatrixValue clone = value.clone();
+        for (int i = 0; i < clone.rows; i++) {
+            for (int j = 0; j < clone.cols; j++) {
+                clone.values[i][j] *= this.value;
+            }
+        }
+        return clone;
+    }
+
     /**
      * Default Double Dispatch
      *

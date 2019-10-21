@@ -79,6 +79,26 @@ public class StringValue extends Value {
     }
 
     @Override
+    public Value elementTimes(Value value) {
+        return null;
+    }
+
+    @Override
+    protected Value elementTimes(ScalarValue value) {
+        return null;
+    }
+
+    @Override
+    protected Value elementTimes(VectorValue value) {
+        return null;
+    }
+
+    @Override
+    protected Value elementTimes(MatrixValue value) {
+        return null;
+    }
+
+    @Override
     public Value plus(Value value) {
         return null;
     }

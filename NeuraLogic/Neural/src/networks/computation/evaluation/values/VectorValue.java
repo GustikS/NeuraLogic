@@ -4,6 +4,7 @@ import com.sun.istack.internal.NotNull;
 import networks.computation.evaluation.values.distributions.ValueInitializer;
 import settings.Settings;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
@@ -20,6 +21,11 @@ public class VectorValue extends Value {
      * The actual vector of values
      */
     public double[] values;
+
+    /**
+     * Information about orientation/transposition
+     */
+    public boolean rowOrientation = false;
 
     public VectorValue(int size) {
         values = new double[size];
@@ -71,6 +77,7 @@ public class VectorValue extends Value {
     @Override
     public VectorValue clone() {
         VectorValue clone = new VectorValue(values.length);
+        clone.rowOrientation = rowOrientation;
         for (int i = 0; i < clone.values.length; i++) {
             clone.values[i] = this.values[i];
         }
@@ -79,7 +86,9 @@ public class VectorValue extends Value {
 
     @Override
     public VectorValue getForm() {
-        return new VectorValue(values.length);
+        VectorValue form = new VectorValue(values.length);
+        form.rowOrientation = rowOrientation;
+        return form;
     }
 
     @Override
@@ -128,26 +137,39 @@ public class VectorValue extends Value {
         return result;
     }
 
-    //todo take care of an element-wise multiplication vs matrix
+    //todo next take care of an element-wise multiplication vs matrix
 
     /**
-     * ELEMENT-WISE multiplication
+     * DOT PRODUCT MULTIPLICATION
      *
      * @param value
      * @return
      */
     @Override
     protected Value times(VectorValue value) {
-        if (value.values.length != values.length) {
-            LOG.severe("Vector element-wise multiplication dimension mismatch");
+        if (value.rowOrientation && !this.rowOrientation && value.values.length == values.length) {
+            ScalarValue result = new ScalarValue(0);
+            double resultValue = 0;
+            double[] otherValues = value.values;
+            for (int i = 0; i < values.length; i++) {
+                resultValue += values[i] * otherValues[i];
+            }
+            result.value = resultValue;
+            return result;
+        } else if (!value.rowOrientation && this.rowOrientation) {
+            LOG.finest("Performing vector x vector matrix multiplication.");
+            MatrixValue result = new MatrixValue(value.values.length, values.length);
+            double[][] resultValues = result.values;
+            for (int i = 0; i < value.values.length; i++) {
+                for (int j = 0; j < values.length; j++) {
+                    resultValues[i][j] = value.values[i] * values[j];
+                }
+            }
+            return result;
+        } else {
+            LOG.severe("Incompatible dimensions for vector multiplication: " + Arrays.toString(value.size()) + " x " + Arrays.toString(size()));
+            return null;
         }
-        VectorValue result = value.getForm();
-        double[] resultValues = result.values;
-        double[] otherValues = value.values;
-        for (int i = 0; i < values.length; i++) {
-            resultValues[i] = values[i] * otherValues[i];
-        }
-        return result;
     }
 
     /**
@@ -169,6 +191,53 @@ public class VectorValue extends Value {
         for (int i = 0; i < value.rows; i++) {
             for (int j = 0; j < value.cols; j++) {
                 resultValues[i] += matrixValues[i][j] * this.values[j];
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public Value elementTimes(Value value) {
+        return value.elementTimes(this);
+    }
+
+    @Override
+    protected Value elementTimes(ScalarValue value) {
+        VectorValue result = this.getForm();
+        double[] resultValues = result.values;
+        double otherValue = value.value;
+        for (int i = 0; i < values.length; i++) {
+            resultValues[i] = values[i] * otherValue;
+        }
+        return result;
+    }
+
+    @Override
+    protected Value elementTimes(VectorValue value) {
+        if (value.values.length != values.length) {
+            LOG.severe("Vector element-wise multiplication dimension mismatch");
+        }
+        VectorValue result = value.getForm();
+        double[] resultValues = result.values;
+        double[] otherValues = value.values;
+        for (int i = 0; i < values.length; i++) {
+            resultValues[i] = values[i] * otherValues[i];
+        }
+        return result;
+    }
+
+    @Override
+    protected Value elementTimes(MatrixValue value) {
+        LOG.warning("Calculation matrix element-wise product with vector...");
+        if (value.cols != values.length) {
+            LOG.severe("Matrix row length mismatch with vector length for multiplication");
+        }
+        MatrixValue result = new MatrixValue(value.rows, value.cols);
+        double[][] resultValues = result.values;
+        double[][] matrixValues = value.values;
+        for (int i = 0; i < value.rows; i++) {
+            for (int j = 0; j < value.cols; j++) {
+                resultValues[i][j] = matrixValues[i][j] * this.values[j];
             }
         }
         return result;

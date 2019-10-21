@@ -11,7 +11,7 @@ dy.renew_cg()  # new computation graph. not strictly needed here, but good pract
 # %%
 
 x = dy.vecInput(2)  # an input vector of size 2. Also an expression.
-output = dy.logistic(V * (dy.tanh((W * x) + b)))
+output = dy.logistic(V * (dy.logistic((W * x))))
 
 x.set([0, 0])
 print(output.value())
@@ -83,6 +83,3 @@ print("0,0", output.value())
 
 x.set([1, 1])
 print("1,1", output.value())
-
-# %%
-V.value()

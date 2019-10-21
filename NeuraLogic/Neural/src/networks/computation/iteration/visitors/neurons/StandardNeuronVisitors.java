@@ -69,7 +69,7 @@ public class StandardNeuronVisitors {
             while (inputNeurons.hasNext()) { //todo test version with fori
                 input = inputNeurons.next();
                 weight = inputWeights.next();
-                state.storeValue(input.getComputationView(stateVisitor.stateIndex).getValue().times(weight.value));
+                state.storeValue(weight.value.times(input.getComputationView(stateVisitor.stateIndex).getValue()));
             }
             Value value = stateVisitor.visit(state);
         }
@@ -89,14 +89,14 @@ public class StandardNeuronVisitors {
         @Override
         public void visit(BaseNeuron neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
-            Value value = stateVisitor.visit(state);
+            Value gradient = stateVisitor.visit(state);
 
             Iterator<BaseNeuron> inputs = network.getInputs(neuron);
 
             BaseNeuron input;
             while (inputs.hasNext()) {
                 input = inputs.next();
-                input.getComputationView(stateVisitor.stateIndex).storeGradient(value);
+                input.getComputationView(stateVisitor.stateIndex).storeGradient(gradient);  //todo next the gradient must be passed throug hthe activation here!
             }
         }
 
@@ -116,10 +116,10 @@ public class StandardNeuronVisitors {
             while (inputNeurons.hasNext()) {    //neurons and weights should always be aligned correctly, so skipping the check here for some speedup
                 input = inputNeurons.next();
                 weight = inputWeights.next();
-                State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
+                State.Neural.Computation inputComputationView = input.getComputationView(stateVisitor.stateIndex);
 
-                weightUpdater.visit(weight, gradient.times(computationView.getValue()));
-                computationView.storeGradient(gradient.times(weight.value));
+                weightUpdater.visit(weight, gradient.times(inputComputationView.getValue()));
+                inputComputationView.storeGradient(gradient.times(weight.value));
             }
         }
     }

@@ -8,6 +8,7 @@ import dynet_config
 dynet_config.set(mem=4, random_seed=9)
 # Initialize dynet import using above configuration in the current scope
 import dynet as dy
+
 dyparams = dy.DynetParams()
 
 dy.init()
@@ -17,14 +18,14 @@ from neuralogic import nn_creation
 import neuralogic as nl
 
 
-if __name__ == '__main__':
+def main(argv):
     print(sys.argv, len(sys.argv))
 
-    t = nl.project_path + "/NeuraLogic/resources/datasets/family/template"
-    e = nl.project_path + "/NeuraLogic/resources/datasets/family/examples"
-    q = nl.project_path + "/NeuraLogic/resources/datasets/family/queries"
+    args = []
+    for k,v in argv.items():
+        args.append(k)
+        args.append(v)
 
-    args = ["-e", e, "-t", t, "-q", q]
     neural_samples, neural_model, logic_model = nn_creation.create_NNs(args)
 
     print(logic_model)

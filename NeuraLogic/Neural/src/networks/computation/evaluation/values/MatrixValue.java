@@ -146,6 +146,7 @@ public class MatrixValue extends Value {
     protected VectorValue times(VectorValue value) {
         if (rows != value.values.length) {
             LOG.severe("Matrix row length mismatch with vector length for multiplication");
+            throw new ArithmeticException("Matrix row length mismatch with vector length for multiplication");
         }
         VectorValue result = new VectorValue(cols);
         double[] resultValues = result.values;
@@ -184,6 +185,55 @@ public class MatrixValue extends Value {
                 for (int k = 0; k < value.cols; k++) { // columns from lhs
                     resultValues[i][j] += lhs[i][k] * values[k][j];
                 }
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public Value elementTimes(Value value) {
+        return value.elementTimes(this);
+    }
+
+    @Override
+    protected Value elementTimes(ScalarValue value) {
+        MatrixValue clone = this.clone();
+        double value1 = value.value;
+        for (int i = 0; i < clone.rows; i++) {
+            for (int j = 0; j < clone.cols; j++) {
+                clone.values[i][j] *= value1;
+            }
+        }
+        return clone;
+    }
+
+    @Override
+    protected Value elementTimes(VectorValue value) {
+        LOG.warning("Calculation vector element-wise product with matrix...");
+        if (rows != value.values.length) {
+            LOG.severe("Matrix row length mismatch with vector length for multiplication");
+            throw new ArithmeticException("Matrix row length mismatch with vector length for multiplication");
+        }
+        MatrixValue result = new MatrixValue(rows, cols);
+        double[][] resultValues = result.values;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                resultValues[i][j] = values[i][j] * value.values[j];
+            }
+        }
+        return result;
+    }
+
+    @Override
+    protected Value elementTimes(MatrixValue value) {
+        if (value.cols != rows || value.rows != rows) {
+            LOG.severe("Matrix to matrix dimension mismatch for element-wise multiplication");
+        }
+        MatrixValue result = value.clone();
+        double[][] lhs = result.values;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                lhs[i][j] *= values[i][j];
             }
         }
         return result;

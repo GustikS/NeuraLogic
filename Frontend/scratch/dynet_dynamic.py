@@ -1,4 +1,4 @@
-import dynetcon as dy
+import dynet as dy
 
 
 # create training instances, as before
@@ -23,7 +23,7 @@ def create_xor_network(W, V, b, inputs, expected_answer):
     x = dy.vecInput(len(inputs))
     x.set(inputs)
     y = dy.scalarInput(expected_answer)
-    output = dy.logistic(V * (dy.tanh((W * x) + b)))
+    output = dy.logistic(V * (dy.logistic((W * x) + b)))
     loss = dy.binary_log_loss(output, y)
     return loss
 
@@ -44,3 +44,6 @@ for question, answer in zip(questions, answers):
     trainer.update()
     if (seen_instances > 1 and seen_instances % 100 == 0):
         print("average loss is:", total_loss / seen_instances)
+
+
+#%%

@@ -264,24 +264,28 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             } else if (ctx.vector() != null) {
                 List<Double> vector = ctx.vector().number().stream().map(num -> Double.parseDouble(num.getText())).collect(Collectors.toList());
                 value = new VectorValue(vector);
+                ((VectorValue) value).rowOrientation = true;    //we treat vector in the template as row vectors (i.e. as 1xN matrices) so that they can be multiplied with normal (column) vectors
             } else if (ctx.matrix() != null) {
                 LOG.severe("Matrix parsing not yet implemented");
                 //todo
-            }
-            else if (ctx.dimensions() != null) {
+            } else if (ctx.dimensions() != null) {
                 isInitialized = false;
                 List<Integer> dims = ctx.dimensions().number().stream().map(num -> Integer.parseInt(num.getText())).collect(Collectors.toList());
                 if (dims.size() == 1) {
                     if (dims.get(0) == 1)
                         value = new ScalarValue();
-                    else
+                    else {
                         value = new VectorValue(dims.get(0));
+                        ((VectorValue) value).rowOrientation = true;    //we treat vector in the template as row vectors (i.e. as 1xN matrices) so that they can be multiplied with normal (column) vectors
+                    }
                 } else if (dims.size() == 2) {
-                    if (dims.get(0) == 1)
+                    if (dims.get(0) == 1) {
                         value = new VectorValue(dims.get(1));
-                    else if (dims.get(1) == 1)
-                        value = new VectorValue(dims.get(0));   //todo transposition?
-                    else
+                        ((VectorValue) value).rowOrientation = true;    //we treat vector in the template as row vectors (i.e. as 1xN matrices) so that they can be multiplied with normal (column) vectors
+                    } else if (dims.get(1) == 1) {
+                        value = new VectorValue(dims.get(0));
+                        ((VectorValue) value).rowOrientation = false;
+                    } else
                         value = new MatrixValue(dims.get(0), dims.get(1));
                 }
             } else {

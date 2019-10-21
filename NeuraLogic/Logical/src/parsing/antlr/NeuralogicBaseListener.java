@@ -1,4 +1,4 @@
-// Generated from /home/gusta/googledrive/Github/NeuraLogic/Parsing/src/main/antlr/Neuralogic.g4 by ANTLR 4.7.2
+// Generated from /home/gusta/googledrive/Github/NeuraLogic/NeuraLogic/Logical/src/parsing/antlr/grammars/Neuralogic.g4 by ANTLR 4.7.2
 package parsing.antlr;
 
 import org.antlr.v4.runtime.ParserRuleContext;

@@ -5,7 +5,7 @@ from neuralogic import gtw, neuralogic, settings, main
 
 def prepare_args(input: [str]):
     str_class = neuralogic.String
-    args = gtw.new_array(str_class, 6)
+    args = gtw.new_array(str_class, len(input))
 
     for i, arg in enumerate(input):
         args[i] = arg

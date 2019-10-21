@@ -10,14 +10,31 @@ public class MainTest {
         String[] args = new String("-t ./resources/parsing/test_template -q ./resources/parsing/queries").split(" ");
         Main.main(args);
     }
+
     @Test
-    public void xor_basic(){
-            String[] args = new String("-path ./resources/datasets/neural/xor/solution").split(" ");
+    public void xor_vectorized(){
+        String[] args = new String("-path ./resources/datasets/neural/xor/vectorized").split(" ");
         Settings settings = new Settings();
         settings.shuffleBeforeTraining = false;
+        settings.seed = 0;
         settings.initLearningRate = 0.1;
-        settings.maxCumEpochCount = 0;
-        settings.neuralNetsPostProcessing = true;
+        settings.maxCumEpochCount = 100000;
+        settings.neuralNetsPostProcessing = true;  //crucial to be True!
+        settings.pruneNetworks = true;
+        Settings.loggingLevel = Level.FINER;
+        Main.main(args, settings);
+    }
+
+
+    @Test
+    public void xor_basic(){
+            String[] args = new String("-path ./resources/datasets/neural/xor/naive").split(" ");
+        Settings settings = new Settings();
+        settings.shuffleBeforeTraining = false;
+        settings.seed = 0;
+        settings.initLearningRate = 0.1;
+        settings.maxCumEpochCount = 100000;
+        settings.neuralNetsPostProcessing = true;  //crucial to be True!
         settings.pruneNetworks = true;
         Settings.loggingLevel = Level.FINER;
         Main.main(args, settings);
@@ -52,17 +69,20 @@ public class MainTest {
 
     @Test
     public void mutamini() {
-        String[] args = new String("-e ./resources/datasets/muta_mini/examples -t ./resources/datasets/muta_mini/template_old").split(" ");
+        String[] args = new String("-e ./resources/datasets/muta_mini/examples -t ./resources/datasets/muta_mini/template_new").split(" ");
 
         Settings settings = new Settings();
         Settings.loggingLevel = Level.FINER;
-        settings.initLearningRate = 0.1;
-        settings.maxCumEpochCount = 20;
+        settings.initLearningRate = 0.2;
+        settings.maxCumEpochCount = 10000;
         settings.shuffleBeforeTraining = false;
         //settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = true;
         settings.pruneNetworks = true;
+        settings.seed = 0;
 
+//        settings.ruleNeuronActivation = Settings.ActivationFcn.IDENTITY;
+//        settings.atomNeuronActivation = Settings.ActivationFcn.IDENTITY;
         Main.main(args, settings);
     }
 

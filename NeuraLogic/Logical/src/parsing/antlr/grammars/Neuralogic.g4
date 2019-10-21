@@ -59,7 +59,7 @@ value: number | vector | matrix | dimensions;   // todo next test vector vs dim?
 number: INT | FLOAT;
 vector: LBRACKET number (COMMA number)* RBRACKET;
 matrix: LBRACKET vector+ RBRACKET;
-dimensions: LBRACKET number (COMMA number)* RBRACKET;
+dimensions: LCURL number (COMMA number)* RCURL;
 
 negation: NEGATION;
 
@@ -75,6 +75,8 @@ ATOMIC_NAME: TRUE | LCASE_LETTER ALPHANUMERIC*;
 // generic chars
 IMPLIED_BY: ':-';
 ASSIGN: '=';
+LCURL: '{';
+RCURL: '}';
 LANGLE: '<';
 RANGLE: '>';
 LBRACKET: '[';

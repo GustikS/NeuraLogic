@@ -13,7 +13,7 @@ public abstract class RestartingStrategy {
     }
 
     public static RestartingStrategy getFrom(Settings settings) {
-        return new StaticRestartingStrategy(10000);
+        return new StaticRestartingStrategy(settings.maxCumEpochCount);
     }
 
     public abstract boolean continueRestart(Progress progress);
