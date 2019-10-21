@@ -96,7 +96,7 @@ public class StandardNeuronVisitors {
             BaseNeuron input;
             while (inputs.hasNext()) {
                 input = inputs.next();
-                input.getComputationView(stateVisitor.stateIndex).storeGradient(gradient);  //todo next the gradient must be passed throug hthe activation here!
+                input.getComputationView(stateVisitor.stateIndex).storeGradient(gradient);
             }
         }
 

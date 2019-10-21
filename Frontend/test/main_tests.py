@@ -17,4 +17,11 @@ def xor():
 
     main(args)
 
-xor()
+def xor_vector():
+    args = {}
+    args["-t"] = nl.project_path + "/NeuraLogic/resources/datasets/neural/xor/vectorized/template.txt"
+    args["-e"] = nl.project_path + "/NeuraLogic/resources/datasets/neural/xor/vectorized/trainExamples.txt"
+
+    main(args)
+
+xor_vector()

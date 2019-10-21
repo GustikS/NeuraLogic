@@ -5,11 +5,11 @@ import dynet as dy
 
 class Learner:
 
-    def __init__(self, lrnn_model, epochae=10):
+    def __init__(self, lrnn_model, epochae=10000):
         self.model = ModelWeights(lrnn_model)
 
         self.epochae = epochae
-        self.trainer = dy.SimpleSGDTrainer(self.model.dynet_model, learning_rate = 0.1)
+        self.trainer = dy.SimpleSGDTrainer(self.model.dynet_model, learning_rate=0.5)
 
         self.network_builder = NetworkBuilder(self.model)
 
@@ -19,7 +19,7 @@ class Learner:
         total_loss = 0
         for iter in range(self.epochae):
             for lrnn_sample in lrnn_samples:
-                dy.renew_cg(immediate_compute=False, check_validity = False)
+                dy.renew_cg(immediate_compute=False, check_validity=False)
 
                 label = dy.scalarInput(trans.getLabel(lrnn_sample))
                 graph_output = self.network_builder.build_network(lrnn_sample)
@@ -32,7 +32,7 @@ class Learner:
                 self.trainer.update()
 
                 if (seen_instances > 1 and seen_instances % 10 == 0):
-                    print("average loss is:", total_loss / seen_instances)
+                    print(iter, " average loss is:", total_loss / seen_instances)
 
         self.print_outputs(lrnn_samples)
 
@@ -42,6 +42,6 @@ class Learner:
             label = dy.scalarInput(trans.getLabel(lrnn_sample))
             graph_output = self.network_builder.build_network(lrnn_sample)
 
-            dy.print_text_graphviz()
+            # dy.print_text_graphviz()
 
             print(f'label: {label.value()}, output: {graph_output.value()}')

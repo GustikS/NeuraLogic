@@ -39,7 +39,7 @@ conjunction: atom (COMMA atom)*;
 metadataVal: ATOMIC_NAME ASSIGN (value | (DOLLAR? ATOMIC_NAME));
 metadataList: LBRACKET (metadataVal (COMMA metadataVal)*)? RBRACKET;
 
-lrnnRule: atom IMPLIED_BY conjunction offset? '.' metadataList?;    // todo next offset should be separated by comma
+lrnnRule: atom IMPLIED_BY conjunction (',' offset)? '.' metadataList?;
 
 predicateOffset: predicate weight;
 predicateMetadata: predicate metadataList;
@@ -54,7 +54,7 @@ weight: (DOLLAR ATOMIC_NAME ASSIGN)? (fixedValue | value);
 fixedValue: LANGLE value RANGLE;
 offset: weight;
 
-value: number | vector | matrix | dimensions;   // todo next test vector vs dim?
+value: number | vector | matrix | dimensions;
 
 number: INT | FLOAT;
 vector: LBRACKET number (COMMA number)* RBRACKET;

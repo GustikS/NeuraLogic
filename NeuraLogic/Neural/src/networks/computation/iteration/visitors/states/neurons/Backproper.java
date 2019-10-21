@@ -51,7 +51,7 @@ public class Backproper extends StateVisiting.Computation {
         Value acumGradient = state.getGradient(); //top-down accumulation //todo test add check if non-zero and cut otherwise?
         Value inputDerivative = state.getAggregationState().gradient(); //bottom-up accumulation
 
-        Value currentLevelDerivative = acumGradient.elementTimes(inputDerivative); //todo next continue here, check AVG derivative, dot product dimensions
+        Value currentLevelDerivative = acumGradient.elementTimes(inputDerivative);
         //there is no setting (remembering) of the calculated gradient (as opposed to output, which is reused), it is just returned
         return currentLevelDerivative;
     }

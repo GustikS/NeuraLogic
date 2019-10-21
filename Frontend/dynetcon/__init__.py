@@ -15,7 +15,7 @@ class ModelWeights():
     def extract_weights(self, lrnn_model):
         weights = {}
         for weight in lrnn_model.weights:
-            weights[weight.name] = self.dynet_model.add_parameters(self._size(weight.value.size()))
+            weights[weight.name] = self.dynet_model.add_parameters(tuple(weight.value.size()))
 
         return weights
 
@@ -23,7 +23,7 @@ class ModelWeights():
         if not dims:
             return 1
         else:
-            return dims
+            return list(dims)
 
     def size(self, value):
         if type(value) == float:
@@ -42,8 +42,8 @@ class NetworkBuilder():
 
     def build_network(self, lrnn_sample):
 
-        self.model_weights.weights["zeroWeight"] = dy.constant((1,),0)
-        self.model_weights.weights["unitWeight"] = dy.constant((1,),1)
+        self.model_weights.weights["zeroWeight"] = dy.constant((1,), 0)
+        self.model_weights.weights["unitWeight"] = dy.constant((1,), 1)
 
         lrnn_network = transformations.getRawNetwork(lrnn_sample)
         output_neuron_index = lrnn_sample.query.neuron.index
@@ -65,7 +65,7 @@ class NetworkBuilder():
         input_count = inputs.size()
 
         if input_count == 0:  # factNeuron
-            fact_value = self.get_input_tensor(neuron.getRawState().getValue().value)
+            fact_value = self.get_input_tensor(neuron.getRawState().getValue())
             offset = neuron.offset
             if offset is not None:
                 m_offset = self.model_weights.weights[offset.name]
@@ -95,7 +95,10 @@ class NetworkBuilder():
             for weight in weights:
                 m_weights.append(self.model_weights.weights[weight.name])
             m_weights = dy.concatenate(m_weights)
-            expr = activation[1](dy.dot_product(m_weights, dy.concatenate(input_exprs)) + m_offset)
+            m_inputs = dy.concatenate(input_exprs)
+            if m_weights.dim() == m_inputs.dim():
+                m_weights = dy.transpose(m_weights)
+            expr = activation[1]((m_weights * m_inputs) + m_offset)
 
         except Py4JError as ex:  # unweighted neuron
             if activation and activation[0]:
@@ -107,11 +110,17 @@ class NetworkBuilder():
         return expr
 
     def get_input_tensor(self, value):
+        if value.getClass().getSimpleName() == "FactValue":
+            value = value.value
+        else:
+            value = list(value.values)
         dim = self.model_weights.size(value)
         if dim == 1:
             return dy.scalarInput(value)
+        elif dim > 1:
+            return dy.vecInput(dim)
         else:
-            return dy.inputMatrix(**dim)
+            return dy.inputMatrix(dim)
 
     def getActivation(self, name):
         # TODO make this a more robust mapping

@@ -42,16 +42,19 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
         Pipeline<Sources, Results> pipeline = new Pipeline<>("LearningSchemePipeline", this);
 
         if (sources.crossvalidation) { //returns only test results in this case
+            LOG.info("Learning scheme inferred as : crossvalidation.");
             CrossvalidationBuilder crossvalidationSchemeBuilder = new CrossvalidationBuilder(settings, sources);
             Pipeline<Sources, TrainTestResults> crossvalPipeline = pipeline.registerStart(crossvalidationSchemeBuilder.buildPipeline());
             crossvalPipeline.connectAfter(pipeline.registerEnd(getTestResultsPipe()));
 
         } else if (sources.trainTest) { //returns only test results in this case
+            LOG.info("Learning scheme inferred as : train-test.");
             TrainTestBuilder trainTestBuilder = new TrainTestBuilder(settings, sources);
             Pipeline<Sources, TrainTestResults> trainTestPipeline = pipeline.registerStart(trainTestBuilder.buildPipeline());
             trainTestPipeline.connectAfter(pipeline.registerEnd(getTestResultsPipe()));
 
         } else if (sources.trainOnly) {
+            LOG.info("Learning scheme inferred as : pure training.");
             Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> trainingPipeline = pipeline.registerStart(new TrainingBuilder(settings, sources).buildPipeline());
             SecondFromPairPipe<Pair<Template, NeuralModel>, Progress> secondFromPairPipe = pipeline.register(new SecondFromPairPipe<>());
             trainingPipeline.connectAfter(secondFromPairPipe);
@@ -59,6 +62,7 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
             secondFromPairPipe.connectAfter(resultsFromProgressPipe);
 
         } else if (sources.testOnly) {
+            LOG.info("Learning scheme inferred as : pure testing.");
             Pipeline<Sources, Results> testingPipeline = pipeline.registerEnd(pipeline.registerStart(new TestingBuilder(settings, sources).buildPipeline()));
 
         } else {

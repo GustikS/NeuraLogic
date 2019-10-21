@@ -266,8 +266,12 @@ public class PlainGrammarVisitor extends GrammarVisitor {
                 value = new VectorValue(vector);
                 ((VectorValue) value).rowOrientation = true;    //we treat vector in the template as row vectors (i.e. as 1xN matrices) so that they can be multiplied with normal (column) vectors
             } else if (ctx.matrix() != null) {
-                LOG.severe("Matrix parsing not yet implemented");
-                //todo
+                List<List<Double>> vectors = new ArrayList<>();
+                for (NeuralogicParser.VectorContext vectorContext : ctx.matrix().vector()) {
+                    List<Double> vector = ctx.vector().number().stream().map(num -> Double.parseDouble(num.getText())).collect(Collectors.toList());
+                    vectors.add(vector);
+                }
+                value = new MatrixValue(vectors);
             } else if (ctx.dimensions() != null) {
                 isInitialized = false;
                 List<Integer> dims = ctx.dimensions().number().stream().map(num -> Integer.parseInt(num.getText())).collect(Collectors.toList());

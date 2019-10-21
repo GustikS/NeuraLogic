@@ -38,6 +38,8 @@ public class NeuralEvaluationPipe extends Pipe<Pair<NeuralModel, Stream<NeuralSa
         Stream<Result> resultStream = neuralModelStreamPair.s.map(s -> evaluator.evaluate(s));
         List<Result> outputList = resultStream.collect(Collectors.toList());
         Results.Factory factory = Results.Factory.getFrom(settings);
-        return factory.createFrom(outputList);
+        Results results = factory.createFrom(outputList);
+        results.printOutputs();
+        return results;
     }
 }

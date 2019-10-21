@@ -137,10 +137,8 @@ public class VectorValue extends Value {
         return result;
     }
 
-    //todo next take care of an element-wise multiplication vs matrix
-
     /**
-     * DOT PRODUCT MULTIPLICATION
+     * Dot product vs matrix multiplication depending on orientation of the vectors
      *
      * @param value
      * @return

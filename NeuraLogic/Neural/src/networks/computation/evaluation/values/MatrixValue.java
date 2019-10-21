@@ -5,6 +5,7 @@ import networks.computation.evaluation.values.distributions.ValueInitializer;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -30,6 +31,17 @@ public class MatrixValue extends Value {
         this.rows = rows;
         this.cols = cols;
         values = new double[rows][cols];
+    }
+
+    public MatrixValue(List<List<Double>> vectors) {
+        this.rows = vectors.size();
+        this.cols = vectors.get(0).size();
+        this.values = new double[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                values[i][j] = vectors.get(i).get(j);
+            }
+        }
     }
 
 

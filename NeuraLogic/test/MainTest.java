@@ -19,7 +19,7 @@ public class MainTest {
         settings.seed = 0;
         settings.initLearningRate = 0.1;
         settings.maxCumEpochCount = 100000;
-        settings.neuralNetsPostProcessing = true;  //crucial to be True!
+        settings.neuralNetsPostProcessing = false;  //crucial to be True!
         settings.pruneNetworks = true;
         Settings.loggingLevel = Level.FINER;
         Main.main(args, settings);
@@ -37,6 +37,15 @@ public class MainTest {
         settings.neuralNetsPostProcessing = true;  //crucial to be True!
         settings.pruneNetworks = true;
         Settings.loggingLevel = Level.FINER;
+        Main.main(args, settings);
+    }
+
+    @Test
+    public void xor_solution(){
+        String[] args = new String("-path ./resources/datasets/neural/xor/solution").split(" ");
+        Settings settings = new Settings();
+        settings.seed = 0;
+        Settings.loggingLevel = Level.FINEST;
         Main.main(args, settings);
     }
 

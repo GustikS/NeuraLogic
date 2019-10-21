@@ -1085,27 +1085,29 @@ public class NeuralogicParser extends Parser {
 	public final ConjunctionContext conjunction() throws RecognitionException {
 		ConjunctionContext _localctx = new ConjunctionContext(_ctx, getState());
 		enterRule(_localctx, 26, RULE_conjunction);
-		int _la;
 		try {
+			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(161);
 			atom();
 			setState(166);
 			_errHandler.sync(this);
-			_la = _input.LA(1);
-			while (_la==COMMA) {
-				{
-				{
-				setState(162);
-				match(COMMA);
-				setState(163);
-				atom();
-				}
+			_alt = getInterpreter().adaptivePredict(_input,18,_ctx);
+			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
+				if ( _alt==1 ) {
+					{
+					{
+					setState(162);
+					match(COMMA);
+					setState(163);
+					atom();
+					}
+					}
 				}
 				setState(168);
 				_errHandler.sync(this);
-				_la = _input.LA(1);
+				_alt = getInterpreter().adaptivePredict(_input,18,_ctx);
 			}
 			}
 		}
@@ -1297,6 +1299,7 @@ public class NeuralogicParser extends Parser {
 		public ConjunctionContext conjunction() {
 			return getRuleContext(ConjunctionContext.class,0);
 		}
+		public TerminalNode COMMA() { return getToken(NeuralogicParser.COMMA, 0); }
 		public OffsetContext offset() {
 			return getRuleContext(OffsetContext.class,0);
 		}
@@ -1335,24 +1338,26 @@ public class NeuralogicParser extends Parser {
 			match(IMPLIED_BY);
 			setState(193);
 			conjunction();
-			setState(195);
+			setState(196);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << INT) | (1L << FLOAT) | (1L << LCURL) | (1L << LANGLE) | (1L << LBRACKET) | (1L << DOLLAR))) != 0)) {
+			if (_la==COMMA) {
 				{
 				setState(194);
+				match(COMMA);
+				setState(195);
 				offset();
 				}
 			}
 
-			setState(197);
+			setState(198);
 			match(T__0);
-			setState(199);
+			setState(200);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,24,_ctx) ) {
 			case 1:
 				{
-				setState(198);
+				setState(199);
 				metadataList();
 				}
 				break;
@@ -1402,9 +1407,9 @@ public class NeuralogicParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(201);
-			predicate();
 			setState(202);
+			predicate();
+			setState(203);
 			weight();
 			}
 		}
@@ -1451,9 +1456,9 @@ public class NeuralogicParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(204);
-			predicate();
 			setState(205);
+			predicate();
+			setState(206);
 			metadataList();
 			}
 		}
@@ -1499,11 +1504,11 @@ public class NeuralogicParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(207);
-			match(DOLLAR);
 			setState(208);
-			match(ATOMIC_NAME);
+			match(DOLLAR);
 			setState(209);
+			match(ATOMIC_NAME);
+			setState(210);
 			metadataList();
 			}
 		}
@@ -1547,7 +1552,7 @@ public class NeuralogicParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(211);
+			setState(212);
 			metadataList();
 			}
 		}
@@ -1598,26 +1603,26 @@ public class NeuralogicParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(216);
+			setState(217);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==DOLLAR) {
 				{
-				setState(213);
-				match(DOLLAR);
 				setState(214);
-				match(ATOMIC_NAME);
+				match(DOLLAR);
 				setState(215);
+				match(ATOMIC_NAME);
+				setState(216);
 				match(ASSIGN);
 				}
 			}
 
-			setState(220);
+			setState(221);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case LANGLE:
 				{
-				setState(218);
+				setState(219);
 				fixedValue();
 				}
 				break;
@@ -1626,7 +1631,7 @@ public class NeuralogicParser extends Parser {
 			case LCURL:
 			case LBRACKET:
 				{
-				setState(219);
+				setState(220);
 				value();
 				}
 				break;
@@ -1677,11 +1682,11 @@ public class NeuralogicParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(222);
-			match(LANGLE);
 			setState(223);
-			value();
+			match(LANGLE);
 			setState(224);
+			value();
+			setState(225);
 			match(RANGLE);
 			}
 		}
@@ -1725,7 +1730,7 @@ public class NeuralogicParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(226);
+			setState(227);
 			weight();
 			}
 		}
@@ -1776,34 +1781,34 @@ public class NeuralogicParser extends Parser {
 		ValueContext _localctx = new ValueContext(_ctx, getState());
 		enterRule(_localctx, 48, RULE_value);
 		try {
-			setState(232);
+			setState(233);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,27,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(228);
+				setState(229);
 				number();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(229);
+				setState(230);
 				vector();
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(230);
+				setState(231);
 				matrix();
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(231);
+				setState(232);
 				dimensions();
 				}
 				break;
@@ -1849,7 +1854,7 @@ public class NeuralogicParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(234);
+			setState(235);
 			_la = _input.LA(1);
 			if ( !(_la==INT || _la==FLOAT) ) {
 			_errHandler.recoverInline(this);
@@ -1911,27 +1916,27 @@ public class NeuralogicParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(236);
-			match(LBRACKET);
 			setState(237);
+			match(LBRACKET);
+			setState(238);
 			number();
-			setState(242);
+			setState(243);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(238);
-				match(COMMA);
 				setState(239);
+				match(COMMA);
+				setState(240);
 				number();
 				}
 				}
-				setState(244);
+				setState(245);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(245);
+			setState(246);
 			match(RBRACKET);
 			}
 		}
@@ -1981,23 +1986,23 @@ public class NeuralogicParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(247);
+			setState(248);
 			match(LBRACKET);
-			setState(249);
+			setState(250);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
 				{
 				{
-				setState(248);
+				setState(249);
 				vector();
 				}
 				}
-				setState(251);
+				setState(252);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( _la==LBRACKET );
-			setState(253);
+			setState(254);
 			match(RBRACKET);
 			}
 		}
@@ -2051,27 +2056,27 @@ public class NeuralogicParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(255);
-			match(LCURL);
 			setState(256);
+			match(LCURL);
+			setState(257);
 			number();
-			setState(261);
+			setState(262);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==COMMA) {
 				{
 				{
-				setState(257);
-				match(COMMA);
 				setState(258);
+				match(COMMA);
+				setState(259);
 				number();
 				}
 				}
-				setState(263);
+				setState(264);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(264);
+			setState(265);
 			match(RCURL);
 			}
 		}
@@ -2113,7 +2118,7 @@ public class NeuralogicParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(266);
+			setState(267);
 			match(NEGATION);
 			}
 		}
@@ -2129,7 +2134,7 @@ public class NeuralogicParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\33\u010f\4\2\t\2"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\33\u0110\4\2\t\2"+
 		"\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13"+
 		"\t\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
@@ -2144,32 +2149,32 @@ public class NeuralogicParser extends Parser {
 		"\17\3\17\7\17\u00a7\n\17\f\17\16\17\u00aa\13\17\3\20\3\20\3\20\3\20\5"+
 		"\20\u00b0\n\20\3\20\5\20\u00b3\n\20\3\21\3\21\3\21\3\21\7\21\u00b9\n\21"+
 		"\f\21\16\21\u00bc\13\21\5\21\u00be\n\21\3\21\3\21\3\22\3\22\3\22\3\22"+
-		"\5\22\u00c6\n\22\3\22\3\22\5\22\u00ca\n\22\3\23\3\23\3\23\3\24\3\24\3"+
-		"\24\3\25\3\25\3\25\3\25\3\26\3\26\3\27\3\27\3\27\5\27\u00db\n\27\3\27"+
-		"\3\27\5\27\u00df\n\27\3\30\3\30\3\30\3\30\3\31\3\31\3\32\3\32\3\32\3\32"+
-		"\5\32\u00eb\n\32\3\33\3\33\3\34\3\34\3\34\3\34\7\34\u00f3\n\34\f\34\16"+
-		"\34\u00f6\13\34\3\34\3\34\3\35\3\35\6\35\u00fc\n\35\r\35\16\35\u00fd\3"+
-		"\35\3\35\3\36\3\36\3\36\3\36\7\36\u0106\n\36\f\36\16\36\u0109\13\36\3"+
-		"\36\3\36\3\37\3\37\3\37\2\2 \2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \""+
-		"$&(*,.\60\62\64\668:<\2\4\3\2\5\7\3\2\5\6\2\u0116\2A\3\2\2\2\4M\3\2\2"+
-		"\2\6\\\3\2\2\2\b`\3\2\2\2\nf\3\2\2\2\fw\3\2\2\2\16y\3\2\2\2\20}\3\2\2"+
-		"\2\22\u0086\3\2\2\2\24\u0095\3\2\2\2\26\u0097\3\2\2\2\30\u0099\3\2\2\2"+
-		"\32\u009c\3\2\2\2\34\u00a3\3\2\2\2\36\u00ab\3\2\2\2 \u00b4\3\2\2\2\"\u00c1"+
-		"\3\2\2\2$\u00cb\3\2\2\2&\u00ce\3\2\2\2(\u00d1\3\2\2\2*\u00d5\3\2\2\2,"+
-		"\u00da\3\2\2\2.\u00e0\3\2\2\2\60\u00e4\3\2\2\2\62\u00ea\3\2\2\2\64\u00ec"+
-		"\3\2\2\2\66\u00ee\3\2\2\28\u00f9\3\2\2\2:\u0101\3\2\2\2<\u010c\3\2\2\2"+
-		">@\5\4\3\2?>\3\2\2\2@C\3\2\2\2A?\3\2\2\2AB\3\2\2\2B\3\3\2\2\2CA\3\2\2"+
-		"\2DN\5\"\22\2EN\5\16\b\2FG\5\34\17\2GH\7\3\2\2HN\3\2\2\2IN\5&\24\2JN\5"+
-		"$\23\2KN\5(\25\2LN\5*\26\2MD\3\2\2\2ME\3\2\2\2MF\3\2\2\2MI\3\2\2\2MJ\3"+
-		"\2\2\2MK\3\2\2\2ML\3\2\2\2N\5\3\2\2\2OP\5\n\6\2PQ\7\b\2\2QR\5\b\5\2RT"+
-		"\3\2\2\2SO\3\2\2\2TU\3\2\2\2US\3\2\2\2UV\3\2\2\2V]\3\2\2\2WY\5\b\5\2X"+
-		"W\3\2\2\2YZ\3\2\2\2ZX\3\2\2\2Z[\3\2\2\2[]\3\2\2\2\\S\3\2\2\2\\X\3\2\2"+
-		"\2]\7\3\2\2\2^a\5\"\22\2_a\5\34\17\2`^\3\2\2\2`_\3\2\2\2ab\3\2\2\2b`\3"+
-		"\2\2\2bc\3\2\2\2cd\3\2\2\2de\7\3\2\2e\t\3\2\2\2fg\5\34\17\2g\13\3\2\2"+
-		"\2hi\5\20\t\2ij\7\b\2\2jk\5\34\17\2km\3\2\2\2lh\3\2\2\2mn\3\2\2\2nl\3"+
-		"\2\2\2no\3\2\2\2ox\3\2\2\2pq\5\34\17\2qr\7\3\2\2rt\3\2\2\2sp\3\2\2\2t"+
-		"u\3\2\2\2us\3\2\2\2uv\3\2\2\2vx\3\2\2\2wl\3\2\2\2ws\3\2\2\2x\r\3\2\2\2"+
-		"yz\5\20\t\2z{\7\3\2\2{\17\3\2\2\2|~\5,\27\2}|\3\2\2\2}~\3\2\2\2~\u0080"+
+		"\3\22\5\22\u00c7\n\22\3\22\3\22\5\22\u00cb\n\22\3\23\3\23\3\23\3\24\3"+
+		"\24\3\24\3\25\3\25\3\25\3\25\3\26\3\26\3\27\3\27\3\27\5\27\u00dc\n\27"+
+		"\3\27\3\27\5\27\u00e0\n\27\3\30\3\30\3\30\3\30\3\31\3\31\3\32\3\32\3\32"+
+		"\3\32\5\32\u00ec\n\32\3\33\3\33\3\34\3\34\3\34\3\34\7\34\u00f4\n\34\f"+
+		"\34\16\34\u00f7\13\34\3\34\3\34\3\35\3\35\6\35\u00fd\n\35\r\35\16\35\u00fe"+
+		"\3\35\3\35\3\36\3\36\3\36\3\36\7\36\u0107\n\36\f\36\16\36\u010a\13\36"+
+		"\3\36\3\36\3\37\3\37\3\37\2\2 \2\4\6\b\n\f\16\20\22\24\26\30\32\34\36"+
+		" \"$&(*,.\60\62\64\668:<\2\4\3\2\5\7\3\2\5\6\2\u0117\2A\3\2\2\2\4M\3\2"+
+		"\2\2\6\\\3\2\2\2\b`\3\2\2\2\nf\3\2\2\2\fw\3\2\2\2\16y\3\2\2\2\20}\3\2"+
+		"\2\2\22\u0086\3\2\2\2\24\u0095\3\2\2\2\26\u0097\3\2\2\2\30\u0099\3\2\2"+
+		"\2\32\u009c\3\2\2\2\34\u00a3\3\2\2\2\36\u00ab\3\2\2\2 \u00b4\3\2\2\2\""+
+		"\u00c1\3\2\2\2$\u00cc\3\2\2\2&\u00cf\3\2\2\2(\u00d2\3\2\2\2*\u00d6\3\2"+
+		"\2\2,\u00db\3\2\2\2.\u00e1\3\2\2\2\60\u00e5\3\2\2\2\62\u00eb\3\2\2\2\64"+
+		"\u00ed\3\2\2\2\66\u00ef\3\2\2\28\u00fa\3\2\2\2:\u0102\3\2\2\2<\u010d\3"+
+		"\2\2\2>@\5\4\3\2?>\3\2\2\2@C\3\2\2\2A?\3\2\2\2AB\3\2\2\2B\3\3\2\2\2CA"+
+		"\3\2\2\2DN\5\"\22\2EN\5\16\b\2FG\5\34\17\2GH\7\3\2\2HN\3\2\2\2IN\5&\24"+
+		"\2JN\5$\23\2KN\5(\25\2LN\5*\26\2MD\3\2\2\2ME\3\2\2\2MF\3\2\2\2MI\3\2\2"+
+		"\2MJ\3\2\2\2MK\3\2\2\2ML\3\2\2\2N\5\3\2\2\2OP\5\n\6\2PQ\7\b\2\2QR\5\b"+
+		"\5\2RT\3\2\2\2SO\3\2\2\2TU\3\2\2\2US\3\2\2\2UV\3\2\2\2V]\3\2\2\2WY\5\b"+
+		"\5\2XW\3\2\2\2YZ\3\2\2\2ZX\3\2\2\2Z[\3\2\2\2[]\3\2\2\2\\S\3\2\2\2\\X\3"+
+		"\2\2\2]\7\3\2\2\2^a\5\"\22\2_a\5\34\17\2`^\3\2\2\2`_\3\2\2\2ab\3\2\2\2"+
+		"b`\3\2\2\2bc\3\2\2\2cd\3\2\2\2de\7\3\2\2e\t\3\2\2\2fg\5\34\17\2g\13\3"+
+		"\2\2\2hi\5\20\t\2ij\7\b\2\2jk\5\34\17\2km\3\2\2\2lh\3\2\2\2mn\3\2\2\2"+
+		"nl\3\2\2\2no\3\2\2\2ox\3\2\2\2pq\5\34\17\2qr\7\3\2\2rt\3\2\2\2sp\3\2\2"+
+		"\2tu\3\2\2\2us\3\2\2\2uv\3\2\2\2vx\3\2\2\2wl\3\2\2\2ws\3\2\2\2x\r\3\2"+
+		"\2\2yz\5\20\t\2z{\7\3\2\2{\17\3\2\2\2|~\5,\27\2}|\3\2\2\2}~\3\2\2\2~\u0080"+
 		"\3\2\2\2\177\u0081\5<\37\2\u0080\177\3\2\2\2\u0080\u0081\3\2\2\2\u0081"+
 		"\u0082\3\2\2\2\u0082\u0084\5\32\16\2\u0083\u0085\5\22\n\2\u0084\u0083"+
 		"\3\2\2\2\u0084\u0085\3\2\2\2\u0085\21\3\2\2\2\u0086\u008f\7\20\2\2\u0087"+
@@ -2192,33 +2197,33 @@ public class NeuralogicParser extends Parser {
 		"\u00b6\3\2\2\2\u00b9\u00bc\3\2\2\2\u00ba\u00b8\3\2\2\2\u00ba\u00bb\3\2"+
 		"\2\2\u00bb\u00be\3\2\2\2\u00bc\u00ba\3\2\2\2\u00bd\u00b5\3\2\2\2\u00bd"+
 		"\u00be\3\2\2\2\u00be\u00bf\3\2\2\2\u00bf\u00c0\7\17\2\2\u00c0!\3\2\2\2"+
-		"\u00c1\u00c2\5\20\t\2\u00c2\u00c3\7\b\2\2\u00c3\u00c5\5\34\17\2\u00c4"+
-		"\u00c6\5\60\31\2\u00c5\u00c4\3\2\2\2\u00c5\u00c6\3\2\2\2\u00c6\u00c7\3"+
-		"\2\2\2\u00c7\u00c9\7\3\2\2\u00c8\u00ca\5 \21\2\u00c9\u00c8\3\2\2\2\u00c9"+
-		"\u00ca\3\2\2\2\u00ca#\3\2\2\2\u00cb\u00cc\5\32\16\2\u00cc\u00cd\5,\27"+
-		"\2\u00cd%\3\2\2\2\u00ce\u00cf\5\32\16\2\u00cf\u00d0\5 \21\2\u00d0\'\3"+
-		"\2\2\2\u00d1\u00d2\7\26\2\2\u00d2\u00d3\7\7\2\2\u00d3\u00d4\5 \21\2\u00d4"+
-		")\3\2\2\2\u00d5\u00d6\5 \21\2\u00d6+\3\2\2\2\u00d7\u00d8\7\26\2\2\u00d8"+
-		"\u00d9\7\7\2\2\u00d9\u00db\7\t\2\2\u00da\u00d7\3\2\2\2\u00da\u00db\3\2"+
-		"\2\2\u00db\u00de\3\2\2\2\u00dc\u00df\5.\30\2\u00dd\u00df\5\62\32\2\u00de"+
-		"\u00dc\3\2\2\2\u00de\u00dd\3\2\2\2\u00df-\3\2\2\2\u00e0\u00e1\7\f\2\2"+
-		"\u00e1\u00e2\5\62\32\2\u00e2\u00e3\7\r\2\2\u00e3/\3\2\2\2\u00e4\u00e5"+
-		"\5,\27\2\u00e5\61\3\2\2\2\u00e6\u00eb\5\64\33\2\u00e7\u00eb\5\66\34\2"+
-		"\u00e8\u00eb\58\35\2\u00e9\u00eb\5:\36\2\u00ea\u00e6\3\2\2\2\u00ea\u00e7"+
-		"\3\2\2\2\u00ea\u00e8\3\2\2\2\u00ea\u00e9\3\2\2\2\u00eb\63\3\2\2\2\u00ec"+
-		"\u00ed\t\3\2\2\u00ed\65\3\2\2\2\u00ee\u00ef\7\16\2\2\u00ef\u00f4\5\64"+
-		"\33\2\u00f0\u00f1\7\22\2\2\u00f1\u00f3\5\64\33\2\u00f2\u00f0\3\2\2\2\u00f3"+
-		"\u00f6\3\2\2\2\u00f4\u00f2\3\2\2\2\u00f4\u00f5\3\2\2\2\u00f5\u00f7\3\2"+
-		"\2\2\u00f6\u00f4\3\2\2\2\u00f7\u00f8\7\17\2\2\u00f8\67\3\2\2\2\u00f9\u00fb"+
-		"\7\16\2\2\u00fa\u00fc\5\66\34\2\u00fb\u00fa\3\2\2\2\u00fc\u00fd\3\2\2"+
-		"\2\u00fd\u00fb\3\2\2\2\u00fd\u00fe\3\2\2\2\u00fe\u00ff\3\2\2\2\u00ff\u0100"+
-		"\7\17\2\2\u01009\3\2\2\2\u0101\u0102\7\n\2\2\u0102\u0107\5\64\33\2\u0103"+
-		"\u0104\7\22\2\2\u0104\u0106\5\64\33\2\u0105\u0103\3\2\2\2\u0106\u0109"+
-		"\3\2\2\2\u0107\u0105\3\2\2\2\u0107\u0108\3\2\2\2\u0108\u010a\3\2\2\2\u0109"+
-		"\u0107\3\2\2\2\u010a\u010b\7\13\2\2\u010b;\3\2\2\2\u010c\u010d\7\27\2"+
-		"\2\u010d=\3\2\2\2!AMUZ\\`bnuw}\u0080\u0084\u008c\u008f\u0095\u009c\u00a1"+
-		"\u00a8\u00af\u00b2\u00ba\u00bd\u00c5\u00c9\u00da\u00de\u00ea\u00f4\u00fd"+
-		"\u0107";
+		"\u00c1\u00c2\5\20\t\2\u00c2\u00c3\7\b\2\2\u00c3\u00c6\5\34\17\2\u00c4"+
+		"\u00c5\7\22\2\2\u00c5\u00c7\5\60\31\2\u00c6\u00c4\3\2\2\2\u00c6\u00c7"+
+		"\3\2\2\2\u00c7\u00c8\3\2\2\2\u00c8\u00ca\7\3\2\2\u00c9\u00cb\5 \21\2\u00ca"+
+		"\u00c9\3\2\2\2\u00ca\u00cb\3\2\2\2\u00cb#\3\2\2\2\u00cc\u00cd\5\32\16"+
+		"\2\u00cd\u00ce\5,\27\2\u00ce%\3\2\2\2\u00cf\u00d0\5\32\16\2\u00d0\u00d1"+
+		"\5 \21\2\u00d1\'\3\2\2\2\u00d2\u00d3\7\26\2\2\u00d3\u00d4\7\7\2\2\u00d4"+
+		"\u00d5\5 \21\2\u00d5)\3\2\2\2\u00d6\u00d7\5 \21\2\u00d7+\3\2\2\2\u00d8"+
+		"\u00d9\7\26\2\2\u00d9\u00da\7\7\2\2\u00da\u00dc\7\t\2\2\u00db\u00d8\3"+
+		"\2\2\2\u00db\u00dc\3\2\2\2\u00dc\u00df\3\2\2\2\u00dd\u00e0\5.\30\2\u00de"+
+		"\u00e0\5\62\32\2\u00df\u00dd\3\2\2\2\u00df\u00de\3\2\2\2\u00e0-\3\2\2"+
+		"\2\u00e1\u00e2\7\f\2\2\u00e2\u00e3\5\62\32\2\u00e3\u00e4\7\r\2\2\u00e4"+
+		"/\3\2\2\2\u00e5\u00e6\5,\27\2\u00e6\61\3\2\2\2\u00e7\u00ec\5\64\33\2\u00e8"+
+		"\u00ec\5\66\34\2\u00e9\u00ec\58\35\2\u00ea\u00ec\5:\36\2\u00eb\u00e7\3"+
+		"\2\2\2\u00eb\u00e8\3\2\2\2\u00eb\u00e9\3\2\2\2\u00eb\u00ea\3\2\2\2\u00ec"+
+		"\63\3\2\2\2\u00ed\u00ee\t\3\2\2\u00ee\65\3\2\2\2\u00ef\u00f0\7\16\2\2"+
+		"\u00f0\u00f5\5\64\33\2\u00f1\u00f2\7\22\2\2\u00f2\u00f4\5\64\33\2\u00f3"+
+		"\u00f1\3\2\2\2\u00f4\u00f7\3\2\2\2\u00f5\u00f3\3\2\2\2\u00f5\u00f6\3\2"+
+		"\2\2\u00f6\u00f8\3\2\2\2\u00f7\u00f5\3\2\2\2\u00f8\u00f9\7\17\2\2\u00f9"+
+		"\67\3\2\2\2\u00fa\u00fc\7\16\2\2\u00fb\u00fd\5\66\34\2\u00fc\u00fb\3\2"+
+		"\2\2\u00fd\u00fe\3\2\2\2\u00fe\u00fc\3\2\2\2\u00fe\u00ff\3\2\2\2\u00ff"+
+		"\u0100\3\2\2\2\u0100\u0101\7\17\2\2\u01019\3\2\2\2\u0102\u0103\7\n\2\2"+
+		"\u0103\u0108\5\64\33\2\u0104\u0105\7\22\2\2\u0105\u0107\5\64\33\2\u0106"+
+		"\u0104\3\2\2\2\u0107\u010a\3\2\2\2\u0108\u0106\3\2\2\2\u0108\u0109\3\2"+
+		"\2\2\u0109\u010b\3\2\2\2\u010a\u0108\3\2\2\2\u010b\u010c\7\13\2\2\u010c"+
+		";\3\2\2\2\u010d\u010e\7\27\2\2\u010e=\3\2\2\2!AMUZ\\`bnuw}\u0080\u0084"+
+		"\u008c\u008f\u0095\u009c\u00a1\u00a8\u00af\u00b2\u00ba\u00bd\u00c6\u00ca"+
+		"\u00db\u00df\u00eb\u00f5\u00fe\u0108";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {
