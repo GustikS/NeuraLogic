@@ -7,13 +7,15 @@ import networks.structure.metadata.states.State;
 
 import java.util.ArrayList;
 
-public interface Neuron<T extends Neuron, S extends State.Neural> {
+public interface Neurons<T extends Neurons, S extends State.Neural> {
 
     void visit(NeuronVisitor.Weighted visitor);
 
     void visit(NeuronVisiting.Weighted visitor);
 
     ArrayList<T> getInputs();
+
+    void addInput(T neuron);
 
     S getRawState();
 

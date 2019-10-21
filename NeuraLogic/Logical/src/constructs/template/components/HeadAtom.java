@@ -15,6 +15,7 @@ public class HeadAtom extends Atom {
 
     private static final Logger LOG = Logger.getLogger(HeadAtom.class.getName());
 
+    public boolean hasSomeWeightedRule = false;
 
     public HeadAtom(WeightedPredicate weightedPredicate, List<Term> terms) {
         super(weightedPredicate, terms, false);

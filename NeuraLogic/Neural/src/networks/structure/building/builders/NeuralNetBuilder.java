@@ -54,21 +54,48 @@ public class NeuralNetBuilder {
         NeuronMaps neuronMaps = neuralBuilder.neuronFactory.neuronMaps;
 
         boolean newAtomNeuron = false;
-        AtomNeuron headAtomNeuron;
+        boolean weightedAtomNeuron = false;
+
+        AtomNeurons headAtomNeuron;
 
         //1) head AtomNeuron creation
         if ((headAtomNeuron = neuronMaps.atomNeurons.get(head)) == null) {
             newAtomNeuron = true;
-            GroundRule next = rules.entrySet().iterator().next().getValue().iterator().next();
-            headAtomNeuron = neuralBuilder.neuronFactory.createAtomNeuron(next.weightedRule.getHead(), next.groundHead); //it doesn't matter which rule's head (they are all the same)
+
+            Iterator<Map.Entry<GroundHeadRule, LinkedHashSet<GroundRule>>> iterator = rules.entrySet().iterator();
+            Map.Entry<GroundHeadRule, LinkedHashSet<GroundRule>> liftedRule = null;
+
+            while (iterator.hasNext()) {
+                liftedRule = iterator.next();
+                if (head != liftedRule.getValue().iterator().next().groundHead) {
+                    LOG.severe("Ground heads corresponding to the same atom neuron are different!");
+                }
+                if (liftedRule.getKey().weightedRule.getWeight() != Weight.unitWeight) {
+                    weightedAtomNeuron = true;
+                }
+            }
+            if (weightedAtomNeuron)
+                headAtomNeuron = neuralBuilder.neuronFactory.createAtomNeuron(liftedRule.getKey().weightedRule.getHead(), head); //it doesn't matter which liftedRule's head (they are all the same)
+            else
+                headAtomNeuron = neuralBuilder.neuronFactory.createUnweightedAtomNeuron(liftedRule.getKey().weightedRule.getHead(), head);
         } else {
-            headAtomNeuron.isShared = true;
+            headAtomNeuron.setShared(true);
             if (rules.entrySet().size() > 0) {  //if there are NEW rules for this headAtomNeuron to be processed, it means that we need to change its inputs in context of this new network!
-                WeightedNeuronMapping<AggregationNeuron> inputMapping;
-                if ((inputMapping = (WeightedNeuronMapping<AggregationNeuron>) neuronMaps.extraInputMapping.get(headAtomNeuron)) != null) {    //if previously existing atom neuron already had input overmapping, create a new (incremental) one
-                    neuronMaps.extraInputMapping.put(headAtomNeuron, new WeightedNeuronMapping<>(inputMapping));
+                if (headAtomNeuron instanceof WeightedNeuron) {
+                    weightedAtomNeuron = true;
+                    WeightedNeuronMapping<AggregationNeuron> inputMapping;
+                    if ((inputMapping = (WeightedNeuronMapping<AggregationNeuron>) neuronMaps.extraInputMapping.get(headAtomNeuron)) != null) {    //if previously existing atom neuron already had input overmapping, create a new (incremental) one
+                        neuronMaps.extraInputMapping.put(headAtomNeuron, new WeightedNeuronMapping<>(inputMapping));
+                    } else {
+                        neuronMaps.extraInputMapping.put(headAtomNeuron, new WeightedNeuronMapping<>(headAtomNeuron.getInputs(), ((WeightedNeuron) headAtomNeuron).getWeights()));
+                    }
                 } else {
-                    neuronMaps.extraInputMapping.put(headAtomNeuron, new WeightedNeuronMapping<>(headAtomNeuron.getInputs(), headAtomNeuron.getWeights()));
+                    NeuronMapping<AggregationNeuron> inputMapping;
+                    if ((inputMapping = (NeuronMapping<AggregationNeuron>) neuronMaps.extraInputMapping.get(headAtomNeuron)) != null) {    //if previously existing atom neuron already had input overmapping, create a new (incremental) one
+                        neuronMaps.extraInputMapping.put(headAtomNeuron, new NeuronMapping<>(inputMapping));
+                    } else {
+                        neuronMaps.extraInputMapping.put(headAtomNeuron, new NeuronMapping<>(headAtomNeuron.getInputs()));
+                    }
                 }
             }
         }
@@ -92,7 +119,11 @@ public class NeuralNetBuilder {
                 }
             }
             if (newAtomNeuron) {
-                headAtomNeuron.addInput(aggNeuron, rules2groundings.getKey().weightedRule.getWeight());
+                if (weightedAtomNeuron) {
+                    ((WeightedNeuron) headAtomNeuron).addInput(aggNeuron, rules2groundings.getKey().weightedRule.getWeight());
+                } else {
+                    headAtomNeuron.addInput(aggNeuron);
+                }
             } else {
                 LOG.info("Warning-  modifying previous state - Creating input overmapping for this Atom neuron: " + headAtomNeuron);
                 WeightedNeuronMapping<AggregationNeuron> inputMapping = (WeightedNeuronMapping<AggregationNeuron>) neuronMaps.extraInputMapping.get(headAtomNeuron);

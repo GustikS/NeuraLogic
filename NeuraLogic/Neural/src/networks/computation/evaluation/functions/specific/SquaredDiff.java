@@ -18,6 +18,7 @@ public class SquaredDiff implements ErrorFcn {
         Value diff = output.minus(target);
         Value times = diff.times(diff);
         return times.times(oneHalf);
+//        return times;
     }
 
     @Override

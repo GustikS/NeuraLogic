@@ -13,8 +13,8 @@ import networks.computation.iteration.visitors.weights.WeightUpdater;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import networks.structure.components.NeuralNetwork;
-import networks.structure.components.neurons.BaseNeuron;
-import networks.structure.components.neurons.types.AtomNeuron;
+import networks.structure.components.neurons.Neurons;
+import networks.structure.components.neurons.types.AtomNeurons;
 import networks.structure.components.types.TopologicNetwork;
 import networks.structure.metadata.states.State;
 import settings.Settings;
@@ -56,7 +56,7 @@ public class Backpropagation {
      * @param outputNeuron
      * @return
      */
-    public TopDown getTopDownPropagator(NeuralNetwork<State.Neural.Structure> network, BaseNeuron outputNeuron) {
+    public TopDown getTopDownPropagator(NeuralNetwork<State.Neural.Structure> network, Neurons outputNeuron) {
         if (network instanceof TopologicNetwork && !network.containsPooling) {
             StandardNeuronVisitors.Down down = new StandardNeuronVisitors.Down(network, backproper, weightUpdater);
             return new Topologic((TopologicNetwork<State.Neural.Structure>) network).new TDownVisitor(outputNeuron, down);
@@ -71,7 +71,7 @@ public class Backpropagation {
 
     public WeightUpdater backpropagate(NeuralSample neuralSample, Result evaluatedResult) {
         NeuralNetwork<State.Neural.Structure> neuralNetwork = neuralSample.query.evidence;
-        AtomNeuron<State.Neural> outputNeuron = neuralSample.query.neuron;
+        AtomNeurons<State.Neural> outputNeuron = neuralSample.query.neuron;
         Value errorGradient = evaluatedResult.errorGradient();
 
         weightUpdater.clearUpdates();

@@ -8,7 +8,7 @@ import networks.computation.iteration.visitors.states.neurons.Backproper;
 import networks.computation.iteration.visitors.states.neurons.Dropouter;
 import networks.computation.iteration.visitors.states.neurons.Evaluator;
 import networks.computation.iteration.visitors.states.neurons.Invalidator;
-import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.Neurons;
 import networks.structure.metadata.inputMappings.NeuronMapping;
 import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 import settings.Settings;
@@ -411,13 +411,13 @@ public abstract class States implements State {
      * This information should be stored in a Network (not Neuron).
      */
     public static class Inputs implements Structure.InputNeuronMap {
-        NeuronMapping<Neuron> inputs;
+        NeuronMapping<Neurons> inputs;
 
-        public Inputs(NeuronMapping<Neuron> inputs) {
+        public Inputs(NeuronMapping<Neurons> inputs) {
             this.inputs = inputs;
         }
 
-        public NeuronMapping<Neuron> getInputMapping() {
+        public NeuronMapping<Neurons> getInputMapping() {
             return inputs;
         }
 
@@ -429,13 +429,13 @@ public abstract class States implements State {
     }
 
     public static class WeightedInputs implements Structure.WeightedInputsMap {
-        WeightedNeuronMapping<Neuron> inputs;
+        WeightedNeuronMapping<Neurons> inputs;
 
-        public WeightedInputs(WeightedNeuronMapping<Neuron> inputs) {
+        public WeightedInputs(WeightedNeuronMapping<Neurons> inputs) {
             this.inputs = inputs;
         }
 
-        public WeightedNeuronMapping<Neuron> getWeightedMapping() {
+        public WeightedNeuronMapping<Neurons> getWeightedMapping() {
             return inputs;
         }
 
@@ -446,9 +446,9 @@ public abstract class States implements State {
     }
 
     public static class Outputs implements Structure.OutputNeuronMap {
-        NeuronMapping<Neuron> outputs;
+        NeuronMapping<Neurons> outputs;
 
-        public NeuronMapping<Neuron> getOutputMapping() {
+        public NeuronMapping<Neurons> getOutputMapping() {
             return outputs;
         }
 
@@ -498,11 +498,11 @@ public abstract class States implements State {
 
         public class InputsParents extends Inputs implements Structure.Parents {
 
-            public InputsParents(NeuronMapping<Neuron> inputs) {
+            public InputsParents(NeuronMapping<Neurons> inputs) {
                 super(inputs);
             }
 
-            public NeuronMapping<Neuron> getInputMapping() {
+            public NeuronMapping<Neurons> getInputMapping() {
                 return inputs;
             }
 
@@ -529,11 +529,11 @@ public abstract class States implements State {
 
         public class WeightedInputsParents extends WeightedInputs implements Structure.Parents {
 
-            public WeightedInputsParents(WeightedNeuronMapping<Neuron> inputs) {
+            public WeightedInputsParents(WeightedNeuronMapping<Neurons> inputs) {
                 super(inputs);
             }
 
-            public WeightedNeuronMapping<Neuron> getWeightedMapping() {
+            public WeightedNeuronMapping<Neurons> getWeightedMapping() {
                 return inputs;
             }
 

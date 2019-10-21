@@ -45,6 +45,15 @@ public class NeuronFactory {
         return atomNeuron;
     }
 
+    public UnweightedAtomNeuron createUnweightedAtomNeuron(HeadAtom head, Literal groundHead) {
+        Activation activation = head.getActivation() != null ? head.getActivation() : Activation.getActivationFunction(settings.atomNeuronActivation);
+        State.Neural.Computation state = State.createBaseState(settings, activation);
+        UnweightedAtomNeuron<State.Neural.Computation> atomNeuron = new UnweightedAtomNeuron<>(groundHead, counter++, state);
+        neuronMaps.atomNeurons.put(groundHead, atomNeuron);
+        LOG.finest("Created atom neuron: " + atomNeuron);
+        return atomNeuron;
+    }
+
     public AggregationNeuron createAggNeuron(GroundHeadRule groundHeadRule) {
         WeightedRule weightedRule = groundHeadRule.weightedRule;
         Aggregation aggregation = weightedRule.getAggregationFcn() != null ? weightedRule.getActivationFcn() : Aggregation.getAggregation(settings.aggNeuronActivation);

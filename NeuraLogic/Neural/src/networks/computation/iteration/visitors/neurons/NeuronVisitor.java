@@ -6,7 +6,7 @@ import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.computation.iteration.visitors.weights.WeightUpdater;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
-import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.neurons.types.AggregationNeuron;
 import networks.structure.components.neurons.types.AtomNeuron;
@@ -22,7 +22,7 @@ import networks.structure.metadata.states.State;
  * for extra composition of possible iteration logic.
  *
  * @see StateVisiting
- * @see Neuron
+ * @see Neurons
  * @see BaseNeuron
  */
 public abstract class NeuronVisitor {
@@ -46,7 +46,7 @@ public abstract class NeuronVisitor {
      *
      * @param neuron
      */
-    public abstract <T extends Neuron, S extends State.Neural> void visit(BaseNeuron<T, S> neuron);
+    public abstract <T extends Neurons, S extends State.Neural> void visit(BaseNeuron<T, S> neuron);
 
     /**
      * Class to inherit for Visitors that want to recognize between weighted and unweighted neurons
@@ -70,7 +70,7 @@ public abstract class NeuronVisitor {
          *
          * @param neuron
          */
-        public abstract <T extends Neuron, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron);
+        public abstract <T extends Neurons, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron);
 
         /**
          * To be used if operation specific to individual neuron classes (other than just recognizing un/weighted neurons) is necessary

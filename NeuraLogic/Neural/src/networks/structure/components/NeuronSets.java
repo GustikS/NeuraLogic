@@ -9,7 +9,7 @@ import java.util.List;
 
 public class NeuronSets {
 
-    public List<AtomNeuron> atomNeurons;
+    public List<AtomNeurons> atomNeurons;
     public List<AggregationNeuron> aggNeurons;
     public List<RuleNeuron> ruleNeurons;
     public List<WeightedRuleNeuron> weightedRuleNeurons;
@@ -19,7 +19,7 @@ public class NeuronSets {
     List<BaseNeuron> roots;
     List<BaseNeuron> leaves;
 
-    public NeuronSets(Collection<AtomNeuron> atomNeurons, Collection<AggregationNeuron> aggregationNeurons, Collection<RuleNeurons> ruleNeurons, Collection<FactNeuron> factNeurons, Collection<NegationNeuron> negationNeurons) {
+    public NeuronSets(Collection<AtomNeurons> atomNeurons, Collection<AggregationNeuron> aggregationNeurons, Collection<RuleNeurons> ruleNeurons, Collection<FactNeuron> factNeurons, Collection<NegationNeuron> negationNeurons) {
 
         this.atomNeurons = new ArrayList<>(atomNeurons);
         this.aggNeurons = new ArrayList<>(aggregationNeurons);

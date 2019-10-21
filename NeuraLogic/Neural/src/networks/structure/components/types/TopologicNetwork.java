@@ -2,7 +2,7 @@ package networks.structure.components.types;
 
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
-import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.Neurons;
 import networks.structure.metadata.states.State;
 
 import java.util.*;
@@ -18,9 +18,9 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
     /**
      * All neurons combined in TOPOLOGICAL ORDERING.
      */
-    public List<BaseNeuron<Neuron, State.Neural>> allNeuronsTopologic;
+    public List<BaseNeuron<Neurons, State.Neural>> allNeuronsTopologic;
 
-    public TopologicNetwork(String id, List<BaseNeuron<Neuron, State.Neural>> allNeurons) {
+    public TopologicNetwork(String id, List<BaseNeuron<Neurons, State.Neural>> allNeurons) {
         super(id, allNeurons.size());
         allNeuronsTopologic = topologicSort(allNeurons);
         reindexNeurons(allNeuronsTopologic);
@@ -38,7 +38,7 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
         allNeuronsTopologic = new ArrayList<>(size);
     }
 
-    public TopologicNetwork(String id, List<BaseNeuron<Neuron, State.Neural>> allNeurons, boolean sorted) {
+    public TopologicNetwork(String id, List<BaseNeuron<Neurons, State.Neural>> allNeurons, boolean sorted) {
         super(id, allNeurons.size());
         allNeuronsTopologic = allNeurons;
     }
@@ -48,7 +48,7 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
      *
      * @param allNeuronsTopologic
      */
-    private void reindexNeurons(List<BaseNeuron<Neuron, State.Neural>> allNeuronsTopologic) {
+    private void reindexNeurons(List<BaseNeuron<Neurons, State.Neural>> allNeuronsTopologic) {
         int[] indices = new int[allNeuronsTopologic.size()];
         for (int i = 0; i < indices.length; i++) {
             indices[i] = allNeuronsTopologic.get(i).index;
@@ -71,9 +71,9 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
      * @return
      */
     @Override
-    public N getState(BaseNeuron neuron) {
+    public N getState(Neurons neuron) {
         if (neuronStates != null) {
-            return neuronStates.getState(neuron.index);
+            return neuronStates.getState(neuron.getIndex());
         }
         return null;
     }
@@ -90,31 +90,31 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
      * @param allNeurons
      * @return
      */
-    public List<BaseNeuron<Neuron, State.Neural>> topologicSort(List<BaseNeuron<Neuron, State.Neural>> allNeurons) {
-        Set<Neuron> visited = new HashSet<>();
-        LinkedList<BaseNeuron<Neuron, State.Neural>> stack = new LinkedList<>();
+    public List<BaseNeuron<Neurons, State.Neural>> topologicSort(List<BaseNeuron<Neurons, State.Neural>> allNeurons) {
+        Set<Neurons> visited = new HashSet<>();
+        LinkedList<BaseNeuron<Neurons, State.Neural>> stack = new LinkedList<>();
 
-        for (BaseNeuron<Neuron, State.Neural> neuron : allNeurons) {
+        for (BaseNeuron<Neurons, State.Neural> neuron : allNeurons) {
             if (!visited.contains(neuron))
                 topoSortRecursive(neuron, visited, stack);
         }
         //Collections.reverse(stack);
-        List<BaseNeuron<Neuron, State.Neural>> reverse = new ArrayList<>(stack.size());
-        Iterator<BaseNeuron<Neuron, State.Neural>> descendingIterator = stack.descendingIterator();
+        List<BaseNeuron<Neurons, State.Neural>> reverse = new ArrayList<>(stack.size());
+        Iterator<BaseNeuron<Neurons, State.Neural>> descendingIterator = stack.descendingIterator();
         while (descendingIterator.hasNext()) {
             reverse.add(descendingIterator.next());
         }
         return reverse;
     }
 
-    public void topoSortRecursive(BaseNeuron<Neuron, State.Neural> neuron, Set<Neuron> visited, LinkedList<BaseNeuron<Neuron, State.Neural>> stack) {
+    public void topoSortRecursive(BaseNeuron<Neurons, State.Neural> neuron, Set<Neurons> visited, LinkedList<BaseNeuron<Neurons, State.Neural>> stack) {
         visited.add(neuron);
 
-        Iterator<Neuron> inputs = getInputs(neuron);
+        Iterator<Neurons> inputs = getInputs(neuron);
         while (inputs.hasNext()) {
-            Neuron next = inputs.next();
+            Neurons next = inputs.next();
             if (!visited.contains(next)) {
-                topoSortRecursive((BaseNeuron<Neuron, State.Neural>) next, visited, stack);
+                topoSortRecursive((BaseNeuron<Neurons, State.Neural>) next, visited, stack);
             }
         }
         stack.addFirst(neuron);

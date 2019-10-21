@@ -1,7 +1,7 @@
 package networks.structure.metadata.states;
 
 import networks.computation.iteration.visitors.states.StateVisiting;
-import networks.structure.components.neurons.BaseNeuron;
+import networks.structure.components.neurons.Neurons;
 import settings.Settings;
 
 import java.util.HashMap;
@@ -40,8 +40,8 @@ public abstract class StatesCache<T extends State.Neural.Structure> {
         return neuronStates[index];
     }
 
-    public T getState(BaseNeuron neuron) {
-        int idx = findNeuron(neuron.index);
+    public T getState(Neurons neuron) {
+        int idx = findNeuron(neuron.getIndex());
         if (idx < 0 || idx > neuronStates.length) {
             LOG.severe("ERROR - out of bounds access to getState of a neuron: " + neuron);
             return null;

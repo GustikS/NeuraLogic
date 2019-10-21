@@ -3,7 +3,7 @@ package networks.structure.building.factories;
 import networks.structure.building.NeuronMaps;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.NeuronSets;
-import networks.structure.components.neurons.BaseNeuron;
+import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.types.*;
 import networks.structure.components.types.DetailedNetwork;
 import networks.structure.components.types.TopologicNetwork;
@@ -62,11 +62,11 @@ public class NeuralNetFactory {
         return detailedNetwork;
     }
 
-    private DetailedNetwork createDetailedNetwork(String id, Collection<AtomNeuron> atomNeurons, Collection<AggregationNeuron> aggregationNeurons, Collection<RuleNeurons> ruleNeurons, Collection<FactNeuron> factNeurons, Collection<NegationNeuron> negationNeurons) {
+    private DetailedNetwork createDetailedNetwork(String id, Collection<AtomNeurons> atomNeurons, Collection<AggregationNeuron> aggregationNeurons, Collection<RuleNeurons> ruleNeurons, Collection<FactNeuron> factNeurons, Collection<NegationNeuron> negationNeurons) {
 
         NeuronSets neurons = new NeuronSets(atomNeurons, aggregationNeurons, ruleNeurons, factNeurons, negationNeurons);
 
-        List<BaseNeuron> allNeurons = new ArrayList<>(atomNeurons.size() + aggregationNeurons.size() + ruleNeurons.size() + factNeurons.size() + negationNeurons.size());
+        List<Neurons> allNeurons = new ArrayList<>(atomNeurons.size() + aggregationNeurons.size() + ruleNeurons.size() + factNeurons.size() + negationNeurons.size());
         allNeurons.addAll(neurons.atomNeurons);
         allNeurons.addAll(neurons.aggNeurons);
         allNeurons.addAll(neurons.ruleNeurons);

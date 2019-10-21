@@ -6,7 +6,7 @@ import constructs.example.ValuedFact;
 import constructs.template.components.GroundHeadRule;
 import constructs.template.components.GroundRule;
 import ida.ilp.logic.Literal;
-import networks.structure.components.neurons.BaseNeuron;
+import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.types.*;
 import networks.structure.metadata.inputMappings.LinkedMapping;
 
@@ -26,7 +26,7 @@ public class NeuronMaps {
     @NotNull
     public Map<Literal, ValuedFact> groundFacts;
 
-    public Map<Literal, AtomNeuron> atomNeurons = new HashMap<>();
+    public Map<Literal, AtomNeurons> atomNeurons = new HashMap<>();
     public Map<GroundHeadRule, AggregationNeuron> aggNeurons = new HashMap<>();
     public Map<GroundRule, RuleNeurons> ruleNeurons = new LinkedHashMap<>();
     public Map<Literal, FactNeuron> factNeurons = new HashMap<>();
@@ -36,7 +36,7 @@ public class NeuronMaps {
      * Locally valid input overloading for some neurons to facilitate dynamic structure changes
      */
     @Nullable
-    public Map<BaseNeuron, LinkedMapping> extraInputMapping = new HashMap<>();
+    public Map<Neurons, LinkedMapping> extraInputMapping = new HashMap<>();
 
     public NeuronMaps(LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> groundRules, Map<Literal, ValuedFact> groundFacts) {
         this.groundRules = new LinkedHashMap<>(groundRules);

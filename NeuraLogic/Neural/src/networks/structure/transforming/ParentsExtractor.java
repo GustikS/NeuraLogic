@@ -1,7 +1,7 @@
 package networks.structure.transforming;
 
 import networks.structure.components.neurons.BaseNeuron;
-import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.Neurons;
 import networks.structure.components.types.DetailedNetwork;
 import networks.structure.metadata.states.State;
 import networks.structure.metadata.states.States;
@@ -17,7 +17,7 @@ public class ParentsExtractor {
     //need to extract ParentCounting from neurons to networks in case of DFS and shared neurons - need to terminate the stream (since a neuron may become shared later on)
     public void extractSharedNeuronsParents(DetailedNetwork<State.Structure> neuralNetwork) {
         for (int i = 0; i < neuralNetwork.allNeuronsTopologic.size(); i++) {
-            BaseNeuron<Neuron, State.Neural> neuron = neuralNetwork.allNeuronsTopologic.get(i);
+            BaseNeuron<Neurons, State.Neural> neuron = neuralNetwork.allNeuronsTopologic.get(i);
             if (neuron.sharedAfterCreation) {
                 State.Neural.Computation state = neuron.getComputationView(0); //all computation views should be exactly the same at this stage
                 if (state instanceof State.Neural.Computation.HasParents) {

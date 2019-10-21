@@ -9,7 +9,7 @@ import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.computation.iteration.visitors.weights.WeightUpdater;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
-import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
@@ -31,14 +31,14 @@ public class DFSrecursion {
         StateVisiting.Computation stateVisitor;
         WeightUpdater weightUpdater;
 
-        public TDownVisitor(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<Neuron, State.Neural> neuron, StateVisiting.Computation topDown, WeightUpdater weightUpdater) {
+        public TDownVisitor(NeuralNetwork<State.Neural.Structure> network, Neurons neuron, StateVisiting.Computation topDown, WeightUpdater weightUpdater) {
             super(network, neuron);
             this.weightUpdater = weightUpdater;
             this.stateVisitor = topDown;
         }
 
         @Override
-        public <T extends Neuron, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
+        public <T extends Neurons, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             Value gradient = stateVisitor.visit(state);
             Iterator<T> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());
@@ -52,7 +52,7 @@ public class DFSrecursion {
         }
 
         @Override
-        public <T extends Neuron, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron) {
+        public <T extends Neurons, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             Value gradient = stateVisitor.visit(state);
             Pair<Iterator<T>, Iterator<Weight>> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());
@@ -86,7 +86,7 @@ public class DFSrecursion {
         NeuronVisitor.Weighted neuronVisitor;
         StateVisiting.Computation stateVisitor;
 
-        public BUpVisitor(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<Neuron, State.Neural> outputNeuron, NeuronVisitor.Weighted pureNeuronVisitor) {
+        public BUpVisitor(NeuralNetwork<State.Neural.Structure> network, Neurons outputNeuron, NeuronVisitor.Weighted pureNeuronVisitor) {
             super(network, outputNeuron);
             this.neuronVisitor = pureNeuronVisitor;
             this.stateVisitor = pureNeuronVisitor.stateVisitor;
@@ -99,7 +99,7 @@ public class DFSrecursion {
         }
 
         @Override
-        public <T extends Neuron, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
+        public <T extends Neurons, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
             //1st evaluate all the inputs
             Iterator<T> inputs = network.getInputs(neuron);
             for (T input; (input = inputs.next()) != null; ) {
@@ -112,7 +112,7 @@ public class DFSrecursion {
         }
 
         @Override
-        public <T extends Neuron, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron) {
+        public <T extends Neurons, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron) {
             Pair<Iterator<T>, Iterator<Weight>> inputs = network.getInputs(neuron);
             Iterator<T> inputNeurons = inputs.r;
             //1st evaluate all the inputs

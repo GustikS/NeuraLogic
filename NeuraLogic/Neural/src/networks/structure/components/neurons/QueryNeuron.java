@@ -1,11 +1,11 @@
 package networks.structure.components.neurons;
 
 import learning.Query;
-import networks.computation.iteration.actions.Evaluation;
 import networks.computation.evaluation.values.Value;
+import networks.computation.iteration.actions.Evaluation;
 import networks.computation.training.NeuralModel;
 import networks.structure.components.NeuralNetwork;
-import networks.structure.components.neurons.types.AtomNeuron;
+import networks.structure.components.neurons.types.AtomNeurons;
 import networks.structure.metadata.states.State;
 import settings.Settings;
 
@@ -14,14 +14,14 @@ import settings.Settings;
  */
 public class QueryNeuron extends Query<NeuralNetwork<State.Neural.Structure>, NeuralModel> {
 
-    public AtomNeuron<State.Neural> neuron;
+    public AtomNeurons<State.Neural> neuron;
 
     @Deprecated
     public QueryNeuron(String id, int queryCounter, double importance) {
         super(id, queryCounter, importance, null);
     }
 
-    public QueryNeuron(String id, int position, double importance, AtomNeuron<State.Neural> targetNeuron, NeuralNetwork<State.Neural.Structure> neuralNetwork) {
+    public QueryNeuron(String id, int position, double importance, AtomNeurons<State.Neural> targetNeuron, NeuralNetwork<State.Neural.Structure> neuralNetwork) {
         super(id, position, importance, neuralNetwork);
         this.neuron = targetNeuron;
     }

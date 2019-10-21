@@ -7,9 +7,9 @@ import networks.computation.iteration.actions.IndependentNeuronProcessing;
 import networks.computation.iteration.visitors.states.neurons.Invalidator;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
-import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.QueryNeuron;
-import networks.structure.components.neurons.types.AtomNeuron;
+import networks.structure.components.neurons.types.AtomNeurons;
 import networks.structure.components.types.DetailedNetwork;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
@@ -47,31 +47,31 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
     }
 
     @Override
-    public NeuralNetwork reduce(DetailedNetwork<State.Structure> inet, AtomNeuron<State.Neural> outputStart) {
-        Map<Neuron, List<Value>> isoValues = new HashMap<>();
+    public NeuralNetwork reduce(DetailedNetwork<State.Structure> inet, AtomNeurons<State.Neural> outputStart) {
+        Map<Neurons, List<Value>> isoValues = new HashMap<>();
         List<Weight> allWeights = inet.getAllWeights();
         QueryNeuron queryNeuron = new QueryNeuron("", -1, 1.0, outputStart, inet);
 
         isoIteration(inet, allWeights, queryNeuron, isoValues);
-        Map<List<Value>, List<Neuron>> isoNeurons = mergeNeurons(inet, isoValues);
+        Map<List<Value>, List<Neurons>> isoNeurons = mergeNeurons(inet, isoValues);
         LOG.info("IsoValue neuron compression from " + inet.allNeuronsTopologic.size() + " down to " + isoNeurons.size());
         settings.exporter.tmpLine(inet.allNeuronsTopologic.size() + "," + isoNeurons.size());
         return inet;
     }
 
-    private Map<List<Value>, List<Neuron>> mergeNeurons(DetailedNetwork<State.Structure> inet, Map<Neuron, List<Value>> isoValues) {
-        Map<List<Value>, List<Neuron>> isoNeurons = new HashMap<>();
-        for (Map.Entry<Neuron, List<Value>> neuronListEntry : isoValues.entrySet()) {
-            Neuron neuron = neuronListEntry.getKey();
+    private Map<List<Value>, List<Neurons>> mergeNeurons(DetailedNetwork<State.Structure> inet, Map<Neurons, List<Value>> isoValues) {
+        Map<List<Value>, List<Neurons>> isoNeurons = new HashMap<>();
+        for (Map.Entry<Neurons, List<Value>> neuronListEntry : isoValues.entrySet()) {
+            Neurons neuron = neuronListEntry.getKey();
             List<Value> values = neuronListEntry.getValue();
-            List<Neuron> neurons = isoNeurons.computeIfAbsent(values, k -> new ArrayList<>());
+            List<Neurons> neurons = isoNeurons.computeIfAbsent(values, k -> new ArrayList<>());
             neurons.add(neuron);
         }
         //todo next merge them actually
         return isoNeurons;
     }
 
-    private void isoIteration(DetailedNetwork<State.Structure> inet, List<Weight> allWeights, QueryNeuron queryNeuron, Map<Neuron, List<Value>> isoValues) {
+    private void isoIteration(DetailedNetwork<State.Structure> inet, List<Weight> allWeights, QueryNeuron queryNeuron, Map<Neurons, List<Value>> isoValues) {
         for (int i = 0; i < precision; i++) {
             for (Weight weight : allWeights) {
                 valueInitializer.initWeight(weight);
@@ -80,7 +80,7 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
             invalidation.process(inet, queryNeuron.neuron);
             evaluation.evaluate(queryNeuron);
 
-            for (BaseNeuron<Neuron, State.Neural> neuron : inet.allNeuronsTopologic) {
+            for (BaseNeuron<Neurons, State.Neural> neuron : inet.allNeuronsTopologic) {
                 Value value = neuron.getComputationView(-1).getValue();
                 List<Value> values = isoValues.computeIfAbsent(neuron, k -> new ArrayList<>());
                 values.add(value);

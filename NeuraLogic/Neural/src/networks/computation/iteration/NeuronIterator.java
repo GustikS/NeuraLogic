@@ -1,7 +1,7 @@
 package networks.computation.iteration;
 
 import networks.structure.components.neurons.BaseNeuron;
-import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.Neurons;
 import networks.structure.metadata.states.State;
 
 import java.util.Iterator;
@@ -15,7 +15,7 @@ import java.util.Iterator;
  * @see NeuronIterating for the active iteration version
  * @see IterationStrategy
  */
-public interface NeuronIterator<T extends Neuron, S extends State.Neural> extends Iterator<BaseNeuron<T, S>> {
+public interface NeuronIterator<T extends Neurons, S extends State.Neural> extends Iterator<BaseNeuron<T, S>> {
 
     @Override
     BaseNeuron<T, S> next();

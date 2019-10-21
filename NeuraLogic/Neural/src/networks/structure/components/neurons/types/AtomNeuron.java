@@ -8,7 +8,7 @@ import networks.structure.metadata.states.State;
 /**
  * Created by gusta on 8.3.17.
  */
-public class AtomNeuron<S extends State.Neural> extends WeightedNeuron<AggregationNeuron, S> implements AtomFact<AggregationNeuron, S> {    //todo next unweighted atomneuron...
+public class AtomNeuron<S extends State.Neural> extends WeightedNeuron<AggregationNeuron, S> implements AtomNeurons<S> {
 
     public AtomNeuron(Literal groundHead, Weight offset, int index, S state) {
         super(groundHead.toString(), index, state, offset);

@@ -2,7 +2,7 @@ package networks.computation.iteration;
 
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
-import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.metadata.states.State;
 
@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 public abstract class NeuronVisiting extends IterationStrategy {
     private static final Logger LOG = Logger.getLogger(NeuronVisiting.class.getName());
 
-    public NeuronVisiting(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<Neuron, State.Neural> outputNeuron) {
+    public NeuronVisiting(NeuralNetwork<State.Neural.Structure> network, Neurons outputNeuron) {
         super(network, outputNeuron);
     }
 
@@ -29,11 +29,11 @@ public abstract class NeuronVisiting extends IterationStrategy {
      *
      * @param neuron
      */
-    public abstract <T extends Neuron, S extends State.Neural> void visit(BaseNeuron<T,S> neuron);
+    public abstract <T extends Neurons, S extends State.Neural> void visit(BaseNeuron<T,S> neuron);
 
     public static abstract class Weighted extends NeuronVisiting {
 
-        public Weighted(NeuralNetwork<State.Neural.Structure> network, BaseNeuron<Neuron, State.Neural> outputNeuron) {
+        public Weighted(NeuralNetwork<State.Neural.Structure> network, Neurons outputNeuron) {
             super(network, outputNeuron);
         }
 
@@ -42,6 +42,6 @@ public abstract class NeuronVisiting extends IterationStrategy {
          *
          * @param neuron
          */
-        public abstract <T extends Neuron, S extends State.Neural> void visit(WeightedNeuron<T,S> neuron);
+        public abstract <T extends Neurons, S extends State.Neural> void visit(WeightedNeuron<T,S> neuron);
     }
 }

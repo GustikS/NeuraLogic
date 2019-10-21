@@ -8,7 +8,7 @@ import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.computation.iteration.visitors.weights.WeightUpdater;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
-import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
@@ -44,7 +44,7 @@ public class StandardNeuronVisitors {
         }
 
         @Override
-        public <T extends Neuron, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
+        public <T extends Neurons, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             Iterator<T> inputs = network.getInputs(neuron);
             T input;
@@ -56,7 +56,7 @@ public class StandardNeuronVisitors {
         }
 
         @Override
-        public <T extends Neuron, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron) {
+        public <T extends Neurons, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             Pair<Iterator<T>, Iterator<Weight>> inputs = network.getInputs(neuron);
             Iterator<T> inputNeurons = inputs.r;

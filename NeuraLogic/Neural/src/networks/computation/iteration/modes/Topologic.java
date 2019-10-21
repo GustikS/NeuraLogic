@@ -4,7 +4,7 @@ import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.*;
 import networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import networks.structure.components.neurons.BaseNeuron;
-import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.types.TopologicNetwork;
 import networks.structure.metadata.states.State;
@@ -30,7 +30,7 @@ public class Topologic {
     public class TDownVisitor extends NeuronVisiting.Weighted implements TopDown {
         NeuronVisitor.Weighted neuronVisitor;
 
-        public TDownVisitor(BaseNeuron<Neuron, State.Neural> outputNeuron, NeuronVisitor.Weighted pureNeuronVisitor) {
+        public TDownVisitor(Neurons outputNeuron, NeuronVisitor.Weighted pureNeuronVisitor) {
             super(Topologic.this.network, outputNeuron);
             this.neuronVisitor = pureNeuronVisitor;
         }
@@ -42,7 +42,7 @@ public class Topologic {
                 idx--;
             }
             while (idx > 0) {
-                BaseNeuron<Neuron, State.Neural> actualNeuron = Topologic.this.network.allNeuronsTopologic.get(idx);
+                BaseNeuron<Neurons, State.Neural> actualNeuron = Topologic.this.network.allNeuronsTopologic.get(idx);
                 int index = actualNeuron.index; //todo test performance of removing this indexation here
                 actualNeuron.index = idx;
                 actualNeuron.visit(neuronVisitor);      //skips 1 function call as opposed to actualNeuron.visit(this);
@@ -52,12 +52,12 @@ public class Topologic {
         }
 
         @Override
-        public <T extends Neuron, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
+        public <T extends Neurons, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
             neuronVisitor.visit(neuron);
         }
 
         @Override
-        public <T extends Neuron, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron) {
+        public <T extends Neurons, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron) {
             neuronVisitor.visit(neuron);
         }
     }
@@ -65,7 +65,7 @@ public class Topologic {
     public class BUpVisitor extends NeuronVisiting.Weighted implements BottomUp<Value> {
         NeuronVisitor.Weighted neuronVisitor;
 
-        public BUpVisitor(BaseNeuron<Neuron, State.Neural> outputNeuron, NeuronVisitor.Weighted pureNeuronVisitor) {
+        public BUpVisitor(Neurons outputNeuron, NeuronVisitor.Weighted pureNeuronVisitor) {
             super(Topologic.this.network, outputNeuron);
             this.neuronVisitor = pureNeuronVisitor;
         }
@@ -77,7 +77,7 @@ public class Topologic {
          */
         public Value bottomUp() {
             for (int i = 0, len = Topologic.this.network.allNeuronsTopologic.size(); i < len; i++) {
-                BaseNeuron<Neuron, State.Neural> actualNeuron = Topologic.this.network.allNeuronsTopologic.get(i);
+                BaseNeuron<Neurons, State.Neural> actualNeuron = Topologic.this.network.allNeuronsTopologic.get(i);
                 int index = actualNeuron.index;
                 actualNeuron.index = i;
                 actualNeuron.visit(neuronVisitor);    //skips 1 function call as opposed to actualNeuron.visit(this);
@@ -90,12 +90,12 @@ public class Topologic {
         }
 
         @Override
-        public <T extends Neuron, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
+        public <T extends Neurons, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
             neuronVisitor.visit(neuron);
         }
 
         @Override
-        public <T extends Neuron, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron) {
+        public <T extends Neurons, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron) {
             neuronVisitor.visit(neuron);
         }
     }
@@ -112,7 +112,7 @@ public class Topologic {
         }
 
         @Override
-        public BaseNeuron<Neuron, State.Neural> next() {
+        public BaseNeuron<Neurons, State.Neural> next() {
             return Topologic.this.network.allNeuronsTopologic.get(i--);
         }
 
@@ -131,12 +131,12 @@ public class Topologic {
 
         int i = 0;
 
-        public BUpIterator(BaseNeuron<Neuron, State.Neural> outputNeuron, NeuronVisitor.Weighted pureNeuronVisitor) {
+        public BUpIterator(Neurons outputNeuron, NeuronVisitor.Weighted pureNeuronVisitor) {
             super(Topologic.this.network, outputNeuron, pureNeuronVisitor);
         }
 
         @Override
-        public BaseNeuron<Neuron, State.Neural> next() {
+        public BaseNeuron<Neurons, State.Neural> next() {
             return Topologic.this.network.allNeuronsTopologic.get(i++);
         }
 

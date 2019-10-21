@@ -2,14 +2,14 @@ package networks.structure.metadata.inputMappings;
 
 import com.sun.istack.internal.NotNull;
 import networks.structure.components.neurons.BaseNeuron;
-import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.Neurons;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class NeuronMapping<T extends Neuron> implements LinkedMapping<T> {
+public class NeuronMapping<T extends Neurons> implements LinkedMapping<T> {
     private static final Logger LOG = Logger.getLogger(NeuronMapping.class.getName());
 
     List<T> inputs;
@@ -74,7 +74,7 @@ public class NeuronMapping<T extends Neuron> implements LinkedMapping<T> {
         inputs.set(i, replaceWith);
     }
 
-    private class InputIterator<T extends Neuron> implements Iterator<T> {
+    private class InputIterator<T extends Neurons> implements Iterator<T> {
 
         NeuronMapping<T> actual;
         int current;

@@ -13,7 +13,7 @@ import ida.ilp.logic.subsumption.Matching;
 import networks.structure.building.builders.NeuralNetBuilder;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.QueryNeuron;
-import networks.structure.components.neurons.types.AtomNeuron;
+import networks.structure.components.neurons.types.AtomNeurons;
 import networks.structure.components.types.DetailedNetwork;
 import settings.Settings;
 
@@ -177,7 +177,7 @@ public class Neuralizer {
     protected List<QueryNeuron> getQueryNeurons(QueryAtom queryAtom, NeuronMaps neuronMaps, NeuralNetwork neuralNetwork, List<Literal> queryMatchingLiterals) {
         List<QueryNeuron> queryNeurons = new ArrayList<>();
         for (Literal queryLiteral : queryMatchingLiterals) {
-            AtomNeuron atomNeuron = neuronMaps.atomNeurons.get(queryLiteral);
+            AtomNeurons atomNeuron = neuronMaps.atomNeurons.get(queryLiteral);
             QueryNeuron queryNeuron = new QueryNeuron(queryAtom.ID, queryAtom.position, queryAtom.importance, atomNeuron, neuralNetwork);
             queryNeurons.add(queryNeuron);
         }

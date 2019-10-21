@@ -4,7 +4,7 @@ import networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
-import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.metadata.states.State;
 
@@ -64,7 +64,7 @@ public class InheritanceTest {
         }
 
         @Override
-        public BaseNeuron<Neuron, State.Neural> next() {
+        public BaseNeuron<Neurons, State.Neural> next() {
             return null;
         }
 

@@ -19,7 +19,7 @@ import java.util.logging.Logger;
  * - inputs representation is better since it follows the process of calculation more naturally
  * - staying with this representation for everything then
  */
-public class WeightedNeuron<T extends Neuron, S extends State.Neural> extends BaseNeuron<T, S> {
+public class WeightedNeuron<T extends Neurons, S extends State.Neural> extends BaseNeuron<T, S> {
     private static final Logger LOG = Logger.getLogger(WeightedNeuron.class.getName());
 
     public Weight offset;

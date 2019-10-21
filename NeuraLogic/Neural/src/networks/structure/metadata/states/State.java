@@ -5,7 +5,7 @@ import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.computation.iteration.visitors.states.networks.ParentsTransfer;
-import networks.structure.components.neurons.Neuron;
+import networks.structure.components.neurons.Neurons;
 import networks.structure.metadata.inputMappings.NeuronMapping;
 import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 import settings.Settings;
@@ -188,16 +188,16 @@ public interface State<V> {
             Neural<Value> getParentCounter();
         }
 
-        interface InputNeuronMap extends Structure<NeuronMapping<Neuron>> {
-            NeuronMapping<Neuron> getInputMapping();
+        interface InputNeuronMap extends Structure<NeuronMapping<Neurons>> {
+            NeuronMapping<Neurons> getInputMapping();
         }
 
-        interface WeightedInputsMap extends Structure<WeightedNeuronMapping<Neuron>> {
-            WeightedNeuronMapping<Neuron> getWeightedMapping();
+        interface WeightedInputsMap extends Structure<WeightedNeuronMapping<Neurons>> {
+            WeightedNeuronMapping<Neurons> getWeightedMapping();
         }
 
-        interface OutputNeuronMap extends Structure<NeuronMapping<Neuron>> {
-            NeuronMapping<Neuron> getOutputMapping();
+        interface OutputNeuronMap extends Structure<NeuronMapping<Neurons>> {
+            NeuronMapping<Neurons> getOutputMapping();
         }
 
     }

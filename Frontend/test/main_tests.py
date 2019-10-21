@@ -10,7 +10,7 @@ def family():
 
     main(args)
 
-def xor():
+def xor_naive():
     args = {}
     args["-t"] = nl.project_path + "/NeuraLogic/resources/datasets/neural/xor/naive/template.txt"
     args["-e"] = nl.project_path + "/NeuraLogic/resources/datasets/neural/xor/naive/trainExamples.txt"

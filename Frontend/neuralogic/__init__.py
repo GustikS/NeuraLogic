@@ -10,7 +10,7 @@ os.environ['CLASSPATH'] = project_path + jar_path + jar_file
 
 # %%
 
-from py4j.java_gateway import JavaGateway, GatewayParameters
+from py4j.java_gateway import JavaGateway, GatewayParameters, set_field
 
 import sys
 from datetime import datetime
@@ -20,6 +20,9 @@ gtw = JavaGateway.launch_gateway(classpath=project_path + jar_path + jar_file, r
 # gateway = JavaGateway(gateway_parameters=GatewayParameters(auto_field=True))
 
 settings = gtw.jvm.settings.Settings()
+
+set_field(settings, "neuralNetsPostProcessing", True)
+set_field(settings, "pruneNetworks", True)
 
 neuralogic = gtw.jvm
 
