@@ -14,4 +14,4 @@ hidden8 :- {1} a, {1} b.
 {1} xor :- hidden5.
 {1} xor :- hidden6.
 {1} xor :- hidden7.
-{1} xor :- hidden8.
+{1} xor :- hidden8. 

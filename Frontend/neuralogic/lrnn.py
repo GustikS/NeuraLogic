@@ -1,3 +1,6 @@
+from py4j.java_gateway import get_field
+
+from dynetcon.deserialization import Deserializer
 from neuralogic import gtw, neuralogic, settings, main
 
 
@@ -13,18 +16,16 @@ def prepare_args(input: [str]):
     return args
 
 
-def create_NNs(args):
+def ground_NNs(args):
     sources = main.getSources(prepare_args(args), settings)
 
     nnbuilder = neuralogic.pipelines.building.End2endNNBuilder(settings, sources)
     pipeline = nnbuilder.buildPipeline()
     result = pipeline.execute(sources)
 
-    logic = result.s.r.r
-    neural = result.s.r.s
+    samples = get_field(get_field(result, 's'), 's')
+    samples = list(samples)
+    logic = get_field(get_field(get_field(result, 's'), 'r'), 'r')
+    neuralParams = get_field(get_field(get_field(result, 's'), 'r'), 's')
 
-    samples = []
-    for sample in result.s.s:
-        samples.append(sample)
-
-    return samples, neural, logic
+    return samples, list(neuralParams), logic

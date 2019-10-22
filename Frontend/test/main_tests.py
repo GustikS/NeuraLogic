@@ -24,4 +24,4 @@ def xor_vector():
 
     main(args)
 
-xor_vector()
+family()

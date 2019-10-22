@@ -93,7 +93,11 @@ public class VectorValue extends Value {
 
     @Override
     public int[] size() {
-        return new int[]{values.length};
+        if (rowOrientation) {
+            return new int[]{1, values.length};
+        } else {
+            return new int[]{values.length, 1};
+        }
     }
 
     @Override
@@ -110,8 +114,11 @@ public class VectorValue extends Value {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < values.length; i++) {
-            sb.append(Settings.nf.format(values[i]));
+            sb.append(",").append(Settings.nf.format(values[i]));
         }
+        sb.replace(0, 1, "[");
+        sb.replace(0, 1, "[");
+        sb.append("]");
         return sb.toString();
     }
 

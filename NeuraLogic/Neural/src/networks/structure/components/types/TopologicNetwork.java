@@ -23,7 +23,7 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
     public TopologicNetwork(String id, List<BaseNeuron<Neurons, State.Neural>> allNeurons) {
         super(id, allNeurons.size());
         allNeuronsTopologic = topologicSort(allNeurons);
-        reindexNeurons(allNeuronsTopologic);
+        sortIndices();
 
         if (allNeuronsTopologic.size() != allNeurons.size()) {
             LOG.warning("Some neurons connected in the network are not in neuronmaps!");
@@ -45,10 +45,8 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
 
     /**
      * Reorder indices of the neurons assigned (incrementaly/randomly) during creation by NeuronFactory to respect the topologic order
-     *
-     * @param allNeuronsTopologic
      */
-    private void reindexNeurons(List<BaseNeuron<Neurons, State.Neural>> allNeuronsTopologic) {
+    private void sortIndices() {
         int[] indices = new int[allNeuronsTopologic.size()];
         for (int i = 0; i < indices.length; i++) {
             indices[i] = allNeuronsTopologic.get(i).index;
@@ -56,6 +54,15 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
         Arrays.sort(indices);
         for (int i = 0; i < allNeuronsTopologic.size(); i++) {
             allNeuronsTopologic.get(i).index = indices[i];
+        }
+    }
+
+    /**
+     * Restart indices from 0 - we change the neuron indices here, so that they are not unique anymore! (only within each network)
+     */
+    public void restartIndices() {
+        for (int i = 0; i < allNeuronsTopologic.size(); i++) {
+            allNeuronsTopologic.get(i).index = i;
         }
     }
 

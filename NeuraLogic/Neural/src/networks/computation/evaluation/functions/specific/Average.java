@@ -12,11 +12,6 @@ public class Average extends Aggregation {
 
     private static final Logger LOG = Logger.getLogger(Average.class.getName());
 
-    @Override
-    public String getName() {
-        return "AVG";
-    }
-
     public Average replaceWithSingleton() {
         return Singletons.average;
     }

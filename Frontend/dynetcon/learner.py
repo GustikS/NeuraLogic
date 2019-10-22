@@ -1,30 +1,29 @@
-from dynetcon import NetworkBuilder, ModelWeights
-import neuralogic.transformations as trans
 import dynet as dy
+
+from dynetcon.deserialization import Deserializer
 
 
 class Learner:
 
-    def __init__(self, lrnn_model, epochae=2000):
-        self.model = ModelWeights(lrnn_model)
+    def __init__(self, deserializer:Deserializer, epochae=10000, printouts=10):
+        self.printouts = printouts
+        self.deserializer = deserializer
 
         self.epochae = epochae
-        self.trainer = dy.SimpleSGDTrainer(self.model.dynet_model, learning_rate = 0.1)
+        self.trainer = dy.SimpleSGDTrainer(self.deserializer.dynet_model, learning_rate = 0.1)
 
-        self.network_builder = NetworkBuilder(self.model)
-
-    def learn(self, lrnn_samples):
+    def learn(self, samples):
 
         for iter in range(self.epochae):
-            if (iter > 0 and iter % 10 == 0):
+            if (iter > 0 and iter % self.printouts == 0):
                 print(iter, " average loss is:", total_loss / seen_instances)
             seen_instances = 0
             total_loss = 0
-            for lrnn_sample in lrnn_samples:
+            for sample in samples:
                 dy.renew_cg(immediate_compute=False, check_validity=False)
 
-                label = dy.scalarInput(trans.getLabel(lrnn_sample))
-                graph_output = self.network_builder.build_network(lrnn_sample)
+                label = dy.scalarInput(sample.target)
+                graph_output = self.deserializer.buildSample(sample.neurons)
 
                 loss = dy.squared_distance(graph_output, label)
 
@@ -33,14 +32,14 @@ class Learner:
                 loss.backward()
                 self.trainer.update()
 
-        self.print_outputs(lrnn_samples)
+        self.print_outputs(samples)
 
-    def print_outputs(self, lrnn_samples):
-        for lrnn_sample in lrnn_samples:
+    def print_outputs(self, samples):
+        for sample in samples:
             dy.renew_cg(immediate_compute=False, check_validity=False)
 
-            graph_output = self.network_builder.build_network(lrnn_sample)
-            label = dy.scalarInput(trans.getLabel(lrnn_sample))
+            graph_output = self.deserializer.buildSample(sample.neurons)
+            label = dy.scalarInput(sample.target)
             loss = dy.squared_distance(graph_output, label)
 
             # dy.print_text_graphviz()

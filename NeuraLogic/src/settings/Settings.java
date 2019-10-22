@@ -27,7 +27,7 @@ public class Settings {
     /**
      * No logfile (./logging.txt) output
      */
-    public static boolean supressLogFileOutput = false;
+    public static boolean supressLogFileOutput = true;
     /**
      * How detailed the log should be in general
      */

@@ -2,7 +2,7 @@ import dynet as dy
 
 
 # create training instances, as before
-def create_xor_instances(num_rounds=3000):
+def create_xor_instances(num_rounds=20000):
     questions = []
     answers = []
     for round in range(num_rounds):
