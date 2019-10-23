@@ -69,4 +69,8 @@ public class Trainer {
     synchronized void updateWeights(NeuralModel model, WeightUpdater weightUpdater) {
         optimizer.performGradientStep(model, weightUpdater);
     }
+
+    public void restart() {
+        optimizer.restart(settings);
+    }
 }

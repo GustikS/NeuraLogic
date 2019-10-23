@@ -3,6 +3,7 @@ package networks.computation.training.strategies.trainers;
 import networks.computation.evaluation.results.Result;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
+import settings.Settings;
 
 import java.util.List;
 
@@ -19,4 +20,6 @@ public interface ListTrainer {
     List<Result> learnEpoch(NeuralModel neuralModel, List<NeuralSample> sampleList);
 
     List<Result> evaluate(List<NeuralSample> trainingSet);
+
+    void restart(Settings settings);
 }

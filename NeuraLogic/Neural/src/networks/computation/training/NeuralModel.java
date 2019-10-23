@@ -5,6 +5,7 @@ import networks.computation.evaluation.values.Value;
 import networks.computation.evaluation.values.distributions.ValueInitializer;
 import networks.structure.components.neurons.QueryNeuron;
 import networks.structure.components.weights.Weight;
+import settings.Settings;
 
 import java.io.Reader;
 import java.util.ArrayList;
@@ -16,14 +17,26 @@ import java.util.Map;
  */
 public class NeuralModel implements Model<QueryNeuron> {
     public List<Weight> weights;
+    private Settings settings;
 
-    public NeuralModel(List<Weight> weights) {
+    public NeuralModel(List<Weight> weights, Settings settings) {
         this.weights = weights;
+        this.settings = settings;
+        if (settings.optimizer == Settings.OptimizerSet.ADAM){
+            init4Adam(weights);
+        }
+    }
+
+    protected void init4Adam(List<Weight> weights) {
+        for (Weight weight : weights){
+            weight.velocity = weight.value.getForm();
+            weight.momentum = weight.value.getForm();
+        }
     }
 
     public NeuralModel cloneWeights() {
         List<Weight> clone = new ArrayList<>(weights);
-        return new NeuralModel(clone);
+        return new NeuralModel(clone, this.settings);
     }
 
     public void resetWeights(ValueInitializer valueInitializer) {

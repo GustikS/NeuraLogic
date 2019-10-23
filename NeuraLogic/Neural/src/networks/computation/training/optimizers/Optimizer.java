@@ -14,7 +14,7 @@ public interface Optimizer {
         if (settings.optimizer == Settings.OptimizerSet.SGD) {
             return new SGD(settings.initLearningRate);
         } else if (settings.optimizer == Settings.OptimizerSet.ADAM) {
-            return new Adam();
+            return new Adam(settings.initLearningRate);
         }
         return new SGD(settings.initLearningRate);  //default
     }
@@ -22,4 +22,6 @@ public interface Optimizer {
     void performGradientStep(NeuralModel neuralModel, WeightUpdater weightUpdater);
 
     void performGradientStep(List<Weight> weights, Value[] weightUpdates);
+
+    void restart(Settings settings);
 }

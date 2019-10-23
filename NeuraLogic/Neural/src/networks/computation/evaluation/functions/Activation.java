@@ -61,6 +61,8 @@ public abstract class Activation extends Aggregation {
         switch (activationFcn) {
             case SIGMOID:
                 return Singletons.sigmoid;
+            case TANH:
+                return Singletons.tanh;
             case SIGNUM:
                 return Singletons.signum;
             case IDENTITY:
@@ -79,6 +81,8 @@ public abstract class Activation extends Aggregation {
         switch (agg) {
             case "sigmoid":
                 return Activation.Singletons.sigmoid;
+            case "tanh":
+                return Activation.Singletons.tanh;
             case "signum":
                 return Activation.Singletons.signum;
             case "relu":
@@ -100,5 +104,6 @@ public abstract class Activation extends Aggregation {
         public static Signum signum = new Signum();
         public static ReLu relu = new ReLu();
         public static Identity identity = new Identity();
+        public static Tanh tanh = new Tanh();
     }
 }

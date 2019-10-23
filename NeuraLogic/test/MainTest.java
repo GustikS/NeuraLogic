@@ -17,10 +17,11 @@ public class MainTest {
         Settings settings = new Settings();
         settings.shuffleBeforeTraining = false;
         settings.seed = 0;
-        settings.initLearningRate = 0.1;
+        settings.initLearningRate = 0.001;
         settings.maxCumEpochCount = 20000;
         settings.neuralNetsPostProcessing = false;  //crucial to be True!
         settings.pruneNetworks = true;
+        settings.optimizer = Settings.OptimizerSet.ADAM;
         Settings.loggingLevel = Level.FINER;
         Main.main(args, settings);
     }

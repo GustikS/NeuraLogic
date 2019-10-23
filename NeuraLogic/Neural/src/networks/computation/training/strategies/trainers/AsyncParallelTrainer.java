@@ -50,6 +50,11 @@ public class AsyncParallelTrainer extends SequentialTrainer {
                     map(neuralSample -> evaluateSample(evaluation, neuralSample)).collect(Collectors.toList());
             return resultList;
         }
+
+        @Override
+        public void restart(Settings settings) {
+            AsyncParallelTrainer.this.optimizer.restart(settings);
+        }
     }
 
     public class AsyncStreamTrainer implements StreamTrainer {

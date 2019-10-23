@@ -256,7 +256,7 @@ public class VectorValue extends Value {
      */
     @Override
     public Value plus(Value value) {
-        return value.times(this);
+        return value.plus(this);
     }
 
     @Override

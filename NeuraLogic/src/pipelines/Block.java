@@ -12,7 +12,7 @@ public abstract class Block {
 
     Pipeline parent;
     Exporter exporter;
-    Settings settings;
+    protected Settings settings;
 
     @Override
     public String toString() {

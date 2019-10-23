@@ -101,6 +101,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     protected void initRestart() {
         LOG.info("Initializing new restart (resetting weights).");
+        trainer.restart(settings);
         currentModel.resetWeights(valueInitializer);
         progress.nextRestart();
         recalculateResults();

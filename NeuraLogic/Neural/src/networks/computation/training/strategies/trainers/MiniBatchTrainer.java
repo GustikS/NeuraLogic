@@ -70,6 +70,11 @@ public class MiniBatchTrainer extends Trainer {
             }
             return resultList;
         }
+
+        @Override
+        public void restart(Settings settings) {
+            MiniBatchTrainer.this.optimizer.restart(settings);
+        }
     }
 
     /**

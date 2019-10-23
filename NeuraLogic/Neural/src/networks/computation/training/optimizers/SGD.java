@@ -5,6 +5,7 @@ import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.visitors.weights.WeightUpdater;
 import networks.computation.training.NeuralModel;
 import networks.structure.components.weights.Weight;
+import settings.Settings;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -36,5 +37,10 @@ public class SGD implements Optimizer {
                 LOG.finest("Incrementing " + weight + " with " + update);
             }
         }
+    }
+
+    @Override
+    public void restart(Settings settings) {
+        //pass
     }
 }

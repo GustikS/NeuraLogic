@@ -51,7 +51,7 @@ public class TestingBuilder extends AbstractPipelineBuilder<Sources, Results> {
         Pipeline<Sources, Template> templatePipeline = pipeline.register(new TemplateProcessingBuilder(settings, sources).buildPipeline());
 
         DuplicateBranch<Template> duplicateTemplate = pipeline.register(new DuplicateBranch<>());
-        TemplateToNeuralPipe templateToNeuralPipe = pipeline.register(new TemplateToNeuralPipe());
+        TemplateToNeuralPipe templateToNeuralPipe = pipeline.register(new TemplateToNeuralPipe(settings));
         PairMerge<Pair<Template, NeuralModel>, Stream<LogicSample>> pairMerge = pipeline.register(new PairMerge<>());
         TestingBuilder.LogicTestingBuilder testingBuilder = (new TestingBuilder(settings, sources)).new LogicTestingBuilder(settings);
         Pipeline<Pair<Pair<Template, NeuralModel>, Stream<LogicSample>>, Results> logicTestingPipeline = pipeline.registerEnd(testingBuilder.buildPipeline());

@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  * <p>
  * Created by gusta on 8.3.17.
  */
-public abstract class Value implements Iterable<Double> {
+public abstract class Value implements Iterable<Double> {   //todo next add division
     private static final Logger LOG = Logger.getLogger(Value.class.getName());
 
     /**

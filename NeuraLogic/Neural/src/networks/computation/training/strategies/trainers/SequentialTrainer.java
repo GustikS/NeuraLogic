@@ -68,6 +68,11 @@ public class SequentialTrainer extends Trainer {
             }
             return resultList;
         }
+
+        @Override
+        public void restart(Settings settings) {
+            SequentialTrainer.this.optimizer.restart(settings);
+        }
     }
 
     public class SequentialStreamTrainer implements StreamTrainer {

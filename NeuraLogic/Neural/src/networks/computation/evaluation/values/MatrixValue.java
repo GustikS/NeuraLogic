@@ -187,6 +187,7 @@ public class MatrixValue extends Value {
     protected MatrixValue times(MatrixValue value) {
         if (value.cols != rows) {
             LOG.severe("Matrix to matrix dimension mismatch for multiplication");
+            throw new ArithmeticException();
         }
         MatrixValue result = new MatrixValue(value.rows, this.cols);
         double[][] lhs = value.values;
@@ -238,7 +239,7 @@ public class MatrixValue extends Value {
 
     @Override
     protected Value elementTimes(MatrixValue value) {
-        if (value.cols != rows || value.rows != rows) {
+        if (value.cols != cols || value.rows != rows) {
             LOG.severe("Matrix to matrix dimension mismatch for element-wise multiplication");
         }
         MatrixValue result = value.clone();

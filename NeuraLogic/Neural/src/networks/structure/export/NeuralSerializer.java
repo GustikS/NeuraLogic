@@ -34,8 +34,8 @@ public class NeuralSerializer {
         return network.allNeuronsTopologic.stream().map(neuron -> SerializedNeuron.create(neuron, network)).collect(Collectors.toList());
     }
 
-    public String toGraphviz(TopologicNetwork network) {
-        //todo next drawing
+    public String toGraphviz(TopologicNetwork<State.Structure> network) {
+        List<SerializedNeuron> serializedNeurons = serialize(network);
         return null;
     }
 

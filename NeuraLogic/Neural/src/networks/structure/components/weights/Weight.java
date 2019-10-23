@@ -30,6 +30,10 @@ public class Weight {
     double learningRate;
     //public String originalString;
 
+    public boolean isOffset;
+    public Value momentum;
+    public Value velocity;
+
     public WeightMetadata metadata;
 
     public static Weight unitWeight = new Weight(-1, "unitWeight", Value.ONE, true, true);
@@ -41,7 +45,7 @@ public class Weight {
         this.value = value;
         this.isFixed = fixed;
         this.manualInitialization = isInitialized;
-        if (isInitialized){
+        if (isInitialized) {
             this.metadata = new WeightMetadata(value);
         }
     }
@@ -61,9 +65,13 @@ public class Weight {
     }
 
     public void init(ValueInitializer valueInitializer) {
-        if (this.isFixed){
+        if (this.isFixed) {
             return;
         }
+        if (this.velocity != null)
+            this.velocity.zero();
+        if (this.momentum != null)
+            this.momentum.zero();
         if (this.manualInitialization) {
             this.value = (Value) metadata.getByName("initValue");
             return;
