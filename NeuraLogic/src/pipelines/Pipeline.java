@@ -1,7 +1,9 @@
 package pipelines;
 
+import networks.computation.evaluation.results.Results;
 import pipelines.building.AbstractPipelineBuilder;
 import settings.Settings;
+import settings.Sources;
 import utils.Exporter;
 import utils.generic.Pair;
 
@@ -23,7 +25,7 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
 
     private static final Logger LOG = Logger.getLogger(Pipeline.class.getName());
 
-    public AbstractPipelineBuilder<S,T> originalBuilder;
+    public AbstractPipelineBuilder<S, T> originalBuilder;
 
     /**
      * first node INSIDE this pipeline
@@ -59,12 +61,19 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
      */
     private boolean invalidated = false;
 
+    public static Pipeline<Sources, Results> getPipeline(Settings settings, Sources sources) {
+        LOG.finest("Building pipeline from sources and settings...");
+        AbstractPipelineBuilder<Sources, Results> pipelineBuilder = AbstractPipelineBuilder.getBuilder(sources, settings);
+        Pipeline<Sources, Results> pipeline = pipelineBuilder.buildPipeline();
+        LOG.finest("Themainte pipeline has been built");
+        return pipeline;
+    }
 
     private Pipeline(String id) {
         this.ID = id;
     }
 
-    public Pipeline(String id, AbstractPipelineBuilder<S,T> originalBuilder){
+    public Pipeline(String id, AbstractPipelineBuilder<S, T> originalBuilder) {
         this.ID = id;
         this.originalBuilder = originalBuilder;
         this.settings = originalBuilder.settings;
@@ -206,7 +215,7 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
     @Override
     public void accept(S sources) {
         LOG.finer("Entering pipeline: " + ID);
-        if (this.invalidated){
+        if (this.invalidated) {
             this.rebuild(settings);
         }
         start.accept(sources);
@@ -218,11 +227,11 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
 
     public void rebuild(Settings settings) {
         LOG.info("Rebuilding pipeline " + this.ID);
-        Pipeline<S,T> pipeline = originalBuilder.buildPipeline();
-        if (!this.start.toString().equals(pipeline.start.toString())){
+        Pipeline<S, T> pipeline = originalBuilder.buildPipeline();
+        if (!this.start.toString().equals(pipeline.start.toString())) {
             LOG.warning("Pipeline start changed after rebuild from " + this.start.toString() + " to " + pipeline.start.toString());
         }
-        if (!this.terminal.toString().equals(pipeline.terminal.toString())){
+        if (!this.terminal.toString().equals(pipeline.terminal.toString())) {
             LOG.warning("Pipeline terminal changed after rebuild from " + this.terminal.toString() + " to " + pipeline.terminal.toString());
         }
         pipeline.start.setInput(this.start.getInput());
@@ -270,12 +279,12 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
         return execute(s).s;
     }
 
-    public Pipeline findPipeline(String id){
-        if (this.ID.equals(id)){
+    public Pipeline findPipeline(String id) {
+        if (this.ID.equals(id)) {
             return this;
         } else {
             Pipeline pipeline = pipelines.get(id);
-            if (pipeline != null){
+            if (pipeline != null) {
                 return pipeline;
             } else {
                 for (Pipeline value : pipelines.values()) {

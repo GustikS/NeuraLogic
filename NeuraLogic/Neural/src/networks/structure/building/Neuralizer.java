@@ -1,11 +1,11 @@
 package networks.structure.building;
 
 import com.sun.istack.internal.NotNull;
+import constructs.building.factories.WeightFactory;
 import constructs.example.QueryAtom;
 import constructs.template.components.GroundHeadRule;
 import constructs.template.components.GroundRule;
 import grounding.GroundTemplate;
-import grounding.Grounder;
 import grounding.GroundingSample;
 import ida.ilp.logic.Clause;
 import ida.ilp.logic.Literal;
@@ -39,10 +39,10 @@ public class Neuralizer {
         this.neuralNetBuilder = new NeuralNetBuilder(settings);
     }
 
-    public Neuralizer(Grounder grounder) {
-        this.settings = grounder.settings;
+    public Neuralizer(Settings settings, WeightFactory weightFactory) {
+        this.settings = settings;
         this.neuralNetBuilder = new NeuralNetBuilder(settings);
-        this.neuralNetBuilder.neuralBuilder.weightFactory = grounder.weightFactory;
+        this.neuralNetBuilder.neuralBuilder.weightFactory = weightFactory;
     }
 
     /**

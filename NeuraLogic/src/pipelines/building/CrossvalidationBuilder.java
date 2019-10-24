@@ -158,7 +158,7 @@ public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Tra
                         GroundingBuilder groundingBuilder = new GroundingBuilder(settings);
                         List<Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>>> groundingPipelines = groundingBuilder.buildPipelines(sources.folds.size());
 
-                        NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, new Neuralizer(groundingBuilder.grounder));
+                        NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, new Neuralizer(settings, groundingBuilder.grounder.weightFactory));
                         List<Pipeline<Stream<GroundingSample>, Stream<NeuralSample>>> neuralizationPipelines = neuralNetsBuilder.buildPipelines(sources.folds.size());
 
                         groundingPipelines.forEach(pipeline::register);
@@ -276,7 +276,7 @@ public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Tra
                     List<Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>>> groundingPipelines = groundingBuilder.buildPipelines(settings.foldsCount);
                     groundingPipelines.forEach(pipeline::register);
 
-                    NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, new Neuralizer(groundingBuilder.grounder));
+                    NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, new Neuralizer(settings, groundingBuilder.grounder.weightFactory));
                     List<Pipeline<Stream<GroundingSample>, Stream<NeuralSample>>> neuralizationPipelines = neuralNetsBuilder.buildPipelines(settings.foldsCount);
                     neuralizationPipelines.forEach(pipeline::register);
 

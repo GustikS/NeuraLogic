@@ -17,7 +17,7 @@ public class MainTest {
         Settings settings = new Settings();
         settings.shuffleBeforeTraining = false;
         settings.seed = 0;
-        settings.initLearningRate = 0.001;
+        settings.initLearningRate = 0.1;
         settings.maxCumEpochCount = 20000;
         settings.neuralNetsPostProcessing = false;  //crucial to be True!
         settings.pruneNetworks = true;

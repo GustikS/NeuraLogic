@@ -1,5 +1,6 @@
 package pipelines.building;
 
+import constructs.building.factories.WeightFactory;
 import constructs.example.LogicSample;
 import constructs.template.Template;
 import grounding.Grounder;
@@ -26,6 +27,12 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
     public GroundingBuilder(Settings settings) {
         super(settings);
         grounder = Grounder.getGrounder(settings);
+    }
+
+    public GroundingBuilder(Settings settings, WeightFactory weightFactory) {
+        super(settings);
+        grounder = Grounder.getGrounder(settings);
+        grounder.weightFactory = weightFactory;
     }
 
     /**

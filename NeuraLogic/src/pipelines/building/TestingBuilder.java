@@ -92,7 +92,7 @@ public class TestingBuilder extends AbstractPipelineBuilder<Sources, Results> {
                 GroundingBuilder groundingBuilder = new GroundingBuilder(settings);
                 groundingPipeline = pipeline.register(groundingBuilder.buildPipeline());
 
-                NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, new Neuralizer(groundingBuilder.grounder));
+                NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, new Neuralizer(settings, groundingBuilder.grounder.weightFactory));
                 neuralizationPipeline = pipeline.register(neuralNetsBuilder.buildPipeline());
             }
 

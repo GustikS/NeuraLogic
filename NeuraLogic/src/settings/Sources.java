@@ -2,6 +2,7 @@ package settings;
 
 import org.apache.commons.cli.CommandLine;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import utils.CommandLineHandler;
 import utils.generic.Pair;
 
 import java.io.Reader;
@@ -38,6 +39,34 @@ public class Sources {
     public boolean trainTest = false;
     public boolean trainOnly = false;
     public boolean testOnly = false;
+
+    public static Sources getSources(String[] args, Settings settings) {
+        CommandLineHandler cmdh = new CommandLineHandler();
+        Sources sources = null;
+        try {
+            CommandLine cmd = cmdh.parseParams(args, settings);
+            settings.setupFromCommandline(cmd);
+            LOG.info("Settings loaded and set up.");
+            sources = Sources.setupFromCommandline(settings, cmd);
+            LOG.info("Sources loaded and set up.");
+        } catch (Exception ex) {
+            LOG.severe("Unable to parse Commandline arguments into settings/source files.\n" + ex);
+            System.exit(1);
+        }
+
+        settings.infer();
+        Pair<Boolean, String> validation = settings.validate();
+        if (!validation.r) {
+            LOG.severe("Invalid pipelines setting.\n" + validation.s);
+            System.exit(2);
+        }
+        validation = sources.validate(settings);
+        if (!validation.r) {
+            LOG.severe("Invalid source files configuration.\n" + validation.s);
+            System.exit(2);
+        }
+        return sources;
+    }
 
     public Sources(Settings settings) {
         train = new Source();
@@ -105,11 +134,11 @@ public class Sources {
             LOG.severe(msg += "Invalid learning setup - no template nor queries provided\n");
             valid = false;
         }
-        if (crossvalidation && (testOnly || trainTest || trainOnly)){
+        if (crossvalidation && (testOnly || trainTest || trainOnly)) {
             LOG.severe(msg += "Invalid learning setup - cannot decide between crossvalidation and other modes.\n");
             valid = false;
         }
-        if (foldFiles){
+        if (foldFiles) {
             Pair<Boolean, String> val = checkJointConsistency(folds);
         }
         //TODO add some general validation
@@ -125,6 +154,7 @@ public class Sources {
     /**
      * All folds must have the same contents (wr.t. train test Source)
      * i.e. if one of them includes train, all must do, otherwise it is inconsistent
+     *
      * @param folds
      * @return
      */

@@ -10,8 +10,8 @@ public abstract class Block {
 
     public String ID;
 
-    Pipeline parent;
-    Exporter exporter;
+    protected Pipeline parent;
+    protected Exporter exporter;
     protected Settings settings;
 
     @Override

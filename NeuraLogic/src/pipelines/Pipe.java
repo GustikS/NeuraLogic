@@ -1,5 +1,7 @@
 package pipelines;
 
+import settings.Settings;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +17,11 @@ import java.util.logging.Logger;
  */
 public abstract class Pipe<I, O> extends Block implements Function<I, O>, ConnectBefore<I>, ConnectAfter<O> {
     private static final Logger LOG = Logger.getLogger(Pipe.class.getName());
+
+    protected Pipe(String id, Settings settings) {
+        this.settings = settings;
+        ID = id;
+    }
 
     protected Pipe(String id) {
         ID = id;

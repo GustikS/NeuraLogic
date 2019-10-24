@@ -85,7 +85,7 @@ public class ScalarValue extends Value {
 
     @Override
     public String toString() {
-        return Settings.nf.format(value);
+        return Settings.numberFormat.format(value);
     }
 
     /**

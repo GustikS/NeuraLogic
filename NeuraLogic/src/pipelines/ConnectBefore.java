@@ -12,4 +12,10 @@ public interface ConnectBefore<T>  extends Consumer<T> {
         previous.setOutput(this);
         return previous;
     }
+
+    default <X> Pipe<X, T> connectBefore(Pipe<X,T> previous) {
+        setInput(previous);
+        previous.setOutput(this);
+        return previous;
+    }
 }

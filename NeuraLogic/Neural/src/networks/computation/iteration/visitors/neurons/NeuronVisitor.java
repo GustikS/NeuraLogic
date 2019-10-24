@@ -8,10 +8,7 @@ import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.WeightedNeuron;
-import networks.structure.components.neurons.types.AggregationNeuron;
-import networks.structure.components.neurons.types.AtomNeuron;
-import networks.structure.components.neurons.types.FactNeuron;
-import networks.structure.components.neurons.types.RuleNeuron;
+import networks.structure.components.neurons.types.*;
 import networks.structure.metadata.states.State;
 
 /**
@@ -81,10 +78,17 @@ public abstract class NeuronVisitor {
                 super(network, computationVisitor, weightUpdater);
             }
 
-            abstract void visit(AggregationNeuron neuron);
-            abstract void visit(RuleNeuron neuron);
-            abstract void visit(AtomNeuron neuron);
-            abstract void visit(FactNeuron neuron);
+            protected abstract void visit(AggregationNeuron neuron);
+
+            protected abstract void visit(RuleNeuron neuron);
+
+            protected abstract void visit(WeightedRuleNeuron neuron);
+
+            protected abstract void visit(AtomNeuron neuron);
+
+            protected abstract void visit(UnweightedAtomNeuron neuron);
+
+            protected abstract void visit(FactNeuron neuron);
         }
 
         public abstract static class Indexed extends Weighted {

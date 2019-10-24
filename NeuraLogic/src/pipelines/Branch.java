@@ -14,7 +14,7 @@ public abstract class Branch<I, O1, O2> extends Block implements ConnectBefore<I
     public IdentityGenPipe<O1> output1;
     public IdentityGenPipe<O2> output2;
 
-    Pair<O1,O2> outputReady;
+    Pair<O1, O2> outputReady;
 
     public Branch(String id) {
         ID = id;
@@ -24,12 +24,12 @@ public abstract class Branch<I, O1, O2> extends Block implements ConnectBefore<I
 
     public void accept(I outputFromInputPipe) {
         LOG.finer("Entering: " + ID);
-        outputReady =  branch(outputFromInputPipe);
+        outputReady = branch(outputFromInputPipe);
         output1.accept(outputReady.r);
         output2.accept(outputReady.s);
     }
 
-    protected abstract Pair<O1,O2> branch(I outputFromInputPipe);
+    protected abstract Pair<O1, O2> branch(I outputFromInputPipe);
 
     @Override
     public ConnectAfter<I> getInput() {
@@ -41,18 +41,26 @@ public abstract class Branch<I, O1, O2> extends Block implements ConnectBefore<I
         input = prev;
     }
 
-    public ConnectBefore<O1> connectAfterL(ConnectBefore<O1> next){
+    public ConnectBefore<O1> connectAfterL(ConnectBefore<O1> next) {
         return output1.connectAfter(next);
     }
 
-    public ConnectBefore<O2> connectAfterR(ConnectBefore<O2> next){
+    public <X> Pipeline<O1, X> connectAfterL(Pipeline<O1, X> next) {
+        return output1.connectAfter(next);
+    }
+
+    public ConnectBefore<O2> connectAfterR(ConnectBefore<O2> next) {
         return output2.connectAfter(next);
     }
 
-    public List<Branch<I, O1, O2>> parallel(int count){
+    public <X> Pipeline<O2, X> connectAfterR(Pipeline<O2, X> next) {
+        return output2.connectAfter(next);
+    }
+
+    public List<Branch<I, O1, O2>> parallel(int count) {
         List<Branch<I, O1, O2>> copies = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
-            copies.add(new Branch<I, O1, O2>(this.ID+i) {
+            copies.add(new Branch<I, O1, O2>(this.ID + i) {
                 @Override
                 protected Pair<O1, O2> branch(I i1) {
                     return Branch.this.branch(i1);
@@ -60,10 +68,12 @@ public abstract class Branch<I, O1, O2> extends Block implements ConnectBefore<I
             });
         }
         return copies;
-    };
+    }
 
-    public static <T, A extends Branch<?,T,?>, B extends ConnectBefore<T>> void connectAfterL(List<A> branches, List<B> next){
-        if (branches.size() != next.size()){
+    ;
+
+    public static <T, A extends Branch<?, T, ?>, B extends ConnectBefore<T>> void connectAfterL(List<A> branches, List<B> next) {
+        if (branches.size() != next.size()) {
             LOG.severe("The 2 Lists of branches and pipes provided cannot be connected with different sizes!");
         }
         for (int i = 0; i < branches.size(); i++) {
@@ -71,8 +81,8 @@ public abstract class Branch<I, O1, O2> extends Block implements ConnectBefore<I
         }
     }
 
-    public static <T, A extends Branch<?,?,T>, B extends ConnectBefore<T>> void connectAfterR(List<A> branches, List<B> next){
-        if (branches.size() != next.size()){
+    public static <T, A extends Branch<?, ?, T>, B extends ConnectBefore<T>> void connectAfterR(List<A> branches, List<B> next) {
+        if (branches.size() != next.size()) {
             LOG.severe("The 2 Lists of branches and pipes provided cannot be connected with different sizes!");
         }
         for (int i = 0; i < branches.size(); i++) {
@@ -80,8 +90,8 @@ public abstract class Branch<I, O1, O2> extends Block implements ConnectBefore<I
         }
     }
 
-    public static <T> void connectBefore(List<Branch<T,?,?>> branches, List<ConnectAfter<T>> next){
-        if (branches.size() != next.size()){
+    public static <T> void connectBefore(List<Branch<T, ?, ?>> branches, List<ConnectAfter<T>> next) {
+        if (branches.size() != next.size()) {
             LOG.severe("The 2 Lists of branches and pipes provided cannot be connected with different sizes!");
         }
         for (int i = 0; i < branches.size(); i++) {

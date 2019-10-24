@@ -17,12 +17,27 @@ import java.util.TimeZone;
 import java.util.logging.*;
 
 public class Logging {
+    private static final Logger LOG = Logger.getLogger(Logging.class.getName());
+
     private FileHandler loggingFile;
 
     Formatter fileFormatter;
     Formatter consoleFormatter;
 
     long startupTime = System.currentTimeMillis();
+
+
+    public static Logging initLogging() {
+        Logging logging = new Logging();
+        try {
+            logging.initialize();
+            LOG.info("Launched NeuraLogic from location " + System.getProperty("user.dir"));
+        } catch (IOException ex) {
+            LOG.severe("Could not initialize Logging.\n" + ex.getMessage());
+            System.exit(1);
+        }
+        return logging;
+    }
 
     public void initialize() throws IOException {
         System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tF %1$tT [%4$s] (%2$s) : %5$s%6$s%n");

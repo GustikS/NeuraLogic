@@ -3,6 +3,7 @@ package settings;
 import org.apache.commons.cli.CommandLine;
 import pipelines.Pipeline;
 import utils.Exporter;
+import utils.Utilities;
 import utils.generic.Pair;
 
 import java.text.DecimalFormat;
@@ -16,6 +17,13 @@ import java.util.logging.Logger;
  */
 public class Settings {
     private static final Logger LOG = Logger.getLogger(Settings.class.getName());
+
+    public static final OS os = Utilities.getOs();
+
+    public enum OS {
+        LINUX, MACOSX, WINDOWS
+    }
+
     /**
      * Format for logging output file ./logging
      */
@@ -39,15 +47,32 @@ public class Settings {
 
     public static String logFile = "./out/Logging";
 
+    //------------------Dependencies
+
+    public String graphvizPathLinux = "./"; //ont path if installed, if not -> error
+    public String graphvizPathWindows = "../resources/graphviz"; //get it if you  don't have it
+
     //------------------Exporting
+
+    public String outDir = "./out";
 
     public Exporter exporter;
 
-    public String resultFile = "./out/results";
+    public String resultFile = outDir + "/results";
 
-    public String tmpFile = "./out/tmpFile";
+    public String tmpFile = outDir + "/tmpFile";
 
-    public String console = "./out/consoleOutput";
+    public String console = outDir + "/consoleOutput";
+
+    //------------------Drawing
+
+    public Detail drawingDetail = Detail.HIGH;
+
+    public enum Detail {
+        LOW, MEDIUM, HIGH
+    }
+
+    public String drawingFile = outDir + "/graph";
 
     //------------------High level
 
@@ -67,7 +92,7 @@ public class Settings {
     /**
      * Global number format for all printing
      */
-    public static NumberFormat nf = new DecimalFormat("#.#####");
+    public static NumberFormat numberFormat = new DecimalFormat("#.#####");
 
     //------------------Abstract Pipelines
 

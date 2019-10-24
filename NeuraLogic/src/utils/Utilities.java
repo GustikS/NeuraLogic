@@ -1,5 +1,6 @@
 package utils;
 
+import settings.Settings;
 import utils.generic.Pair;
 
 import java.io.File;
@@ -29,6 +30,23 @@ public class Utilities {
 
     private static long tic = System.currentTimeMillis();
     private static long lastGarbageCollectionTime = 0;
+
+    public static Settings.OS getOs() {
+        String osName = System.getProperty("os.name").replaceAll("\\s", "");
+        if (osName.contains("Windows")) {
+            return Settings.OS.WINDOWS;
+        } else if (osName.contains("MacOSX")) {
+            return Settings.OS.MACOSX;
+        } else if (osName.contains("Linux")) {
+            return Settings.OS.LINUX;
+        }
+        return Settings.OS.LINUX;
+    }
+
+    public static String sanitize(String name) {
+        String sane = name.replaceAll("[:.;'/\\\\]", "_");
+        return sane;
+    }
 
     public static void logMemory() {
         long appRemainingMemory = Utilities.getAppRemainingMemory();

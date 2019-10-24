@@ -120,6 +120,8 @@ public abstract class Merge<I1, I2, O> extends Block implements ConnectAfter<O> 
         return input2.connectBefore(prev);
     }
 
+
+
     public List<Merge<I1, I2, O>> parallel(int count) {
         List<Merge<I1, I2, O>> copies = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {

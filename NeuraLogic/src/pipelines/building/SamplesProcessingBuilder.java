@@ -56,7 +56,7 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
         Pipe<Source, Stream<LogicSample>> sampleExtractionPipe = null;
 
         if (source.QueriesSeparate && source.ExamplesSeparate) {
-            sampleExtractionPipe = new Pipe<Source, Stream<LogicSample>>("QueriesWithExamplesPipe") {
+            sampleExtractionPipe = new Pipe<Source, Stream<LogicSample>>("QueriesWithExamplesPipe", settings) {
                 @Override
                 public Stream<LogicSample> apply(Source source) {
                     ExamplesBuilder examplesBuilder = new ExamplesBuilder(settings);
@@ -70,7 +70,7 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
                 }
             };
         } else if (!source.QueriesSeparate && source.QueriesProvided && source.ExamplesSeparate) {
-            sampleExtractionPipe = new Pipe<Source, Stream<LogicSample>>("QueriesWithinExamplesPipe") {
+            sampleExtractionPipe = new Pipe<Source, Stream<LogicSample>>("QueriesWithinExamplesPipe", settings) {
                 @Override
                 public Stream<LogicSample> apply(Source source) {
                     ExamplesBuilder examplesBuilder = new ExamplesBuilder(settings);
@@ -79,7 +79,7 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
                 }
             };
         } else if (!source.QueriesProvided && source.ExamplesSeparate) {
-            sampleExtractionPipe = new Pipe<Source, Stream<LogicSample>>("UnsupervisedExamplesPipe") {
+            sampleExtractionPipe = new Pipe<Source, Stream<LogicSample>>("UnsupervisedExamplesPipe", settings) {
                 @Override
                 public Stream<LogicSample> apply(Source source) {
                     ExamplesBuilder examplesBuilder = new ExamplesBuilder(settings);
@@ -88,7 +88,7 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
                 }
             };
         } else if (source.QueriesSeparate && !source.ExamplesProvided) {
-            sampleExtractionPipe = new Pipe<Source, Stream<LogicSample>>("QueriesOnlyPipe") {
+            sampleExtractionPipe = new Pipe<Source, Stream<LogicSample>>("QueriesOnlyPipe", settings) {
                 @Override
                 public Stream<LogicSample> apply(Source source) {
                     QueriesBuilder queriesBuilder = new QueriesBuilder(settings);
@@ -105,7 +105,7 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
 
     public Pipe<Stream<LogicSample>, Stream<LogicSample>> postprocessSamplesPipe() {
         //todo for instance order by example id
-        Pipe<Stream<LogicSample>, Stream<LogicSample>> postProcessPipe = new Pipe<Stream<LogicSample>, Stream<LogicSample>>("PostprocessSamplesPipe") {
+        Pipe<Stream<LogicSample>, Stream<LogicSample>> postProcessPipe = new Pipe<Stream<LogicSample>, Stream<LogicSample>>("PostprocessSamplesPipe", settings) {
             @Override
             public Stream<LogicSample> apply(Stream<LogicSample> logicSampleStream) {
                 if (settings.limitSamples > 0) {

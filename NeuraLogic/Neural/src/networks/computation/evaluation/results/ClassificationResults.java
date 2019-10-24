@@ -62,7 +62,7 @@ public class ClassificationResults extends RegressionResults {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         if (accuracy != null)
-            sb.append("accuracy: " + Settings.nf.format(accuracy.doubleValue() * 100) + "% (majority " + majorityErr * 100 + "%)");
+            sb.append("accuracy: " + Settings.numberFormat.format(accuracy.doubleValue() * 100) + "% (majority " + majorityErr * 100 + "%)");
         if (error != null)
             sb.append(", error function value: " + error.toString());
         return sb.toString();
