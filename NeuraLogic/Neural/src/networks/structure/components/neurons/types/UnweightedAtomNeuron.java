@@ -1,6 +1,7 @@
 package networks.structure.components.neurons.types;
 
 import ida.ilp.logic.Literal;
+import networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
@@ -17,5 +18,9 @@ public class UnweightedAtomNeuron<S extends State.Neural> extends BaseNeuron<Agg
     @Override
     public Weight getOffset() {
         return null;
+    }
+
+    public void visit(NeuronVisitor.Weighted.Detailed visitor) {
+        visitor.visit(this);
     }
 }

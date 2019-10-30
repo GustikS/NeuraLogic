@@ -13,7 +13,8 @@ public class GroundingDrawer extends Drawer<GroundingSample> {
     }
 
     @Override
-    public void draw(GroundingSample obj) {
+    public void loadGraph(GroundingSample obj) {
 
     }
+
 }

@@ -49,14 +49,15 @@ public class Settings {
 
     //------------------Dependencies
 
-    public String graphvizPathLinux = "./"; //ont path if installed, if not -> error
-    public String graphvizPathWindows = "../resources/graphviz"; //get it if you  don't have it
+    public String graphvizPathLinux = "/usr/bin"; //on path if installed, if not -> error
+    public String graphvizPathMac = "/usr/local/bin";
+    public String graphvizPathWindows = "../resources/graphviz"; //get it if you  don't have it and want to use it!
 
     //------------------Exporting
 
-    public String outDir = "./out";
-
     public Exporter exporter;
+
+    public String outDir = "./out";
 
     public String resultFile = outDir + "/results";
 
@@ -64,7 +65,13 @@ public class Settings {
 
     public String console = outDir + "/consoleOutput";
 
-    //------------------Drawing
+    //------------------Drawing/Debugging
+
+    /**
+     * If on, multiple intermediate spots within the current debugging pipeline might trigger the debugger,
+     * otherwise only the last consumer will trigger the debugger
+     */
+    public boolean intermediateDebug;
 
     public Detail drawingDetail = Detail.HIGH;
 
@@ -73,6 +80,10 @@ public class Settings {
     }
 
     public String drawingFile = outDir + "/graph";
+    public String graphVizAlgorithm = "dot";
+    public String imgtype = "png";
+    public boolean fix2ScreenSize = false;
+    public boolean storeNotShow = false;
 
     //------------------High level
 

@@ -373,7 +373,7 @@ public abstract class States implements State {
 
         @Override
         public Value getGradient() {
-            LOG.severe("FactNeurons stored no gradient.");
+            LOG.warning("FactNeurons stored no gradient.");
             return null;
         }
 
@@ -399,7 +399,7 @@ public abstract class States implements State {
 
         @Override
         public Aggregation getAggregation() {
-            LOG.severe("FactNeurons have no aggregation.");
+            LOG.warning("FactNeurons have no aggregation.");
             return null;
         }
     }

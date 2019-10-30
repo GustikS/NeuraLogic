@@ -16,13 +16,14 @@ import java.util.stream.Stream;
 
 public class GroundingDebugger extends PipelineDebugger<GroundingSample> {
     private static final Logger LOG = Logger.getLogger(GroundingDebugger.class.getName());
+    WeightFactory weightFactory;
 
     public GroundingDebugger(String[] args, Settings settings) {
         super(args, settings);
-        Pipeline<Sources, Pair<Template, Stream<LogicSample>>> sourcesPairPipeline = this.pipeline.registerStart(this.end2endTrainigBuilder.buildFromSources(sources, settings));
+        weightFactory = new WeightFactory();
+
         //to transfer parameters from groundings to neural nets
-        WeightFactory weightFactory = new WeightFactory();
-        Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> groundingPipeline = this.pipeline.registerEnd(this.end2endTrainigBuilder.buildGrounding(settings, weightFactory));
+
 
         drawer = new GroundingDrawer(settings);
     }
@@ -32,4 +33,15 @@ public class GroundingDebugger extends PipelineDebugger<GroundingSample> {
         drawer.draw(sample);
     }
 
+    public WeightFactory getWeightFactory() {
+        return weightFactory;
+    }
+
+    @Override
+    public Pipeline<Sources, Stream<GroundingSample>> buildPipeline() {
+        Pipeline<Sources, Pair<Template, Stream<LogicSample>>> sourcesPairPipeline = this.pipeline.registerStart(this.end2endTrainigBuilder.buildFromSources(sources, settings));
+        Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> groundingPipeline = this.pipeline.registerEnd(this.end2endTrainigBuilder.buildGrounding(settings, weightFactory));
+        sourcesPairPipeline.connectAfter(groundingPipeline);
+        return pipeline;
+    }
 }

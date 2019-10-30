@@ -1,6 +1,7 @@
 package networks.structure.components.neurons.types;
 
 import ida.ilp.logic.Literal;
+import networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
@@ -12,6 +13,10 @@ public class AtomNeuron<S extends State.Neural> extends WeightedNeuron<Aggregati
 
     public AtomNeuron(Literal groundHead, Weight offset, int index, S state) {
         super(groundHead.toString(), index, state, offset);
+    }
+
+    public void visit(NeuronVisitor.Weighted.Detailed visitor) {
+        visitor.visit(this);
     }
 
 }

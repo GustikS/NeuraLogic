@@ -95,7 +95,7 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
      */
     //ConcurrentLinkedQueue<Executable> executionQueue;
     public Pair<String, T> execute(S source) {
-        System.out.println("Executing pipeline : " + this.ID);
+        LOG.info("Executing pipeline : " + this.ID);
         //start the whole pipelines
         start.accept(source);
         /*while (!executionQueue.isEmpty()) {
@@ -230,9 +230,15 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
         Pipeline<S, T> pipeline = originalBuilder.buildPipeline();
         if (!this.start.toString().equals(pipeline.start.toString())) {
             LOG.warning("Pipeline start changed after rebuild from " + this.start.toString() + " to " + pipeline.start.toString());
+            if (this.parent.start == this.start){
+                this.parent.start = pipeline.start;
+            }
         }
         if (!this.terminal.toString().equals(pipeline.terminal.toString())) {
             LOG.warning("Pipeline terminal changed after rebuild from " + this.terminal.toString() + " to " + pipeline.terminal.toString());
+            if (this.parent.terminal == this.terminal){
+                this.parent.terminal = pipeline.terminal;
+            }
         }
         pipeline.start.setInput(this.start.getInput());
         pipeline.terminal.setOutput(this.terminal.getOutput());
@@ -247,6 +253,7 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
         this.pipes = pipeline.pipes;
         this.multiBranches = pipeline.multiBranches;
         this.multiMerges = pipeline.multiMerges;
+        this.pipelines = pipeline.pipelines;
     }
 
     @Override

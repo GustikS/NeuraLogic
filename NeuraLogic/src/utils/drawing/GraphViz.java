@@ -1,6 +1,11 @@
 package utils.drawing;
 
+import settings.Settings;
+
+import java.awt.*;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.logging.Logger;
 
 // GraphViz.java - a simple API to call dot from Java programs
 /*$Id$*/
@@ -56,11 +61,14 @@ import java.io.*;
  * @author Laszlo Szathmary (<a href="jabba.laci@gmail.com">jabba.laci@gmail.com</a>)
  * @version v0.1, 2003/12/04 (December) -- first release
  */
+// todo turn this into a separate library with my modifications (running Graphviz without temporary files, instant drawing etc.)
 public class GraphViz {
-    /**
-     * Detects the client's operating system.
-     */
-    private final static String osName = System.getProperty("os.name").replaceAll("\\s", "");
+
+    private static final Logger LOG = Logger.getLogger(GraphViz.class.getName());
+
+    private static final GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+    private static final int width = gd.getDisplayMode().getWidth();
+    private static final int height = gd.getDisplayMode().getHeight();
 
     /**
      * The image size in dpi. 96 dpi is normal size. Higher values are 10% higher each.
@@ -68,12 +76,69 @@ public class GraphViz {
      * <p>
      * dpi patch by Peter Mueller
      */
-    private final int[] dpiSizes = {46, 51, 57, 63, 70, 78, 86, 96, 106, 116, 128, 141, 155, 170, 187, 206, 226, 249};
+    private static final int[] dpiSizes = {46, 51, 57, 63, 70, 78, 86, 96, 106, 116, 128, 141, 155, 170, 187, 206, 226, 249};
+
+
+    /**
+     * Detects the client's operating system.
+     */
+    private static final String osName = System.getProperty("os.name").replaceAll("\\s", "");
+
 
     /**
      * Define the index in the image size array.
      */
     private int currentDpiPos = 7;
+
+    private String fileName;
+    private String algorithm;
+    private String imgtype;
+    private boolean fixScreenSize;
+    private boolean storeNotShow;
+
+    /**
+     * The source of the graph written in dot language.
+     */
+    private StringBuilder graph = new StringBuilder();
+
+    public String tempDir;
+
+    private String executable;
+
+    /**
+     * For storing multiple files within a single run.
+     */
+    private static int counter;
+
+    /**
+     * Configurable Constructor with path to executable dot and a temp dir
+     *
+     * @param executable absolute path to dot executable
+     * @param tempDir    absolute path to temp directory
+     */
+    private GraphViz(String executable, String tempDir) {
+        this.executable = executable;
+        this.tempDir = tempDir;
+    }
+
+    public GraphViz(Settings settings) {
+        this(getGraphvizExecutable(settings), settings.outDir);
+        this.fileName = settings.drawingFile;
+        this.algorithm = settings.graphVizAlgorithm;
+        this.imgtype = settings.imgtype;
+        this.fixScreenSize = settings.fix2ScreenSize;
+        this.storeNotShow = settings.storeNotShow;
+    }
+
+    private static String getGraphvizExecutable(Settings settings) {
+        if (Settings.os == Settings.OS.WINDOWS) {
+            return settings.graphvizPathWindows + "/" + settings.graphVizAlgorithm + ".exe";
+        } else if (GraphViz.osName.contains("MacOSX")) {
+            return settings.graphvizPathMac + "/" + settings.graphVizAlgorithm;
+        } else {
+            return settings.graphvizPathLinux + "/" + settings.graphVizAlgorithm;
+        }
+    }
 
     /**
      * Increase the image size (dpi).
@@ -97,51 +162,6 @@ public class GraphViz {
         return this.dpiSizes[this.currentDpiPos];
     }
 
-    /**
-     * The source of the graph written in dot language.
-     */
-    private StringBuilder graph = new StringBuilder();
-
-    public String tempDir;
-
-    private String executable;
-
-    /**
-     * Convenience Constructor with default OS specific pathes
-     * creates a new GraphViz object that will contain a graph.
-     * Windows:
-     * executable = c:/Program Files (x86)/Graphviz 2.28/bin/dot.exe
-     * tempDir = c:/temp
-     * MacOs:
-     * executable = /usr/local/bin/dot
-     * tempDir = /tmp
-     * Linux:
-     * executable = /usr/bin/dot
-     * tempDir = /tmp
-     */
-    public GraphViz() {
-        if (GraphViz.osName.contains("Windows")) {
-            this.tempDir = "c:/temp";
-            this.executable = "c:/Program Files (x86)/Graphviz 2.28/bin/dot.exe";
-        } else if (GraphViz.osName.equals("MacOSX")) {
-            this.tempDir = "/tmp";
-            this.executable = "/usr/local/bin/dot";
-        } else if (GraphViz.osName.equals("Linux")) {
-            this.tempDir = "/tmp";
-            this.executable = "/usr/bin/dot";
-        }
-    }
-
-    /**
-     * Configurable Constructor with path to executable dot and a temp dir
-     *
-     * @param executable absolute path to dot executable
-     * @param tempDir    absolute path to temp directory
-     */
-    public GraphViz(String executable, String tempDir) {
-        this.executable = executable;
-        this.tempDir = tempDir;
-    }
 
     /**
      * Returns the graph's source description in dot language.
@@ -176,6 +196,84 @@ public class GraphViz {
     public void clearGraph() {
         this.graph = new StringBuilder();
     }
+
+    public String getImageName(String name) {
+        return fileName + counter++ + "_" + name + "." + imgtype;
+    }
+
+    public String getGraphName(String name) {
+        return fileName + counter++ + "_" + name + "." + algorithm;
+    }
+
+    public void storeGraphSource(String name) throws IOException {
+        try {
+            File file = new File(getGraphName(name));
+            FileWriter fout = new FileWriter(file);
+            fout.write(getDotSource());
+            fout.close();
+        } catch (Exception e) {
+            LOG.severe(e.getMessage());
+        }
+    }
+
+    /**
+     * Call Graphviz using IO streams, i.e. without creating any temporary files
+     *
+     * @return
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public byte[] getGraphImage(String name) throws IOException, InterruptedException {
+        String[] args = getArgs(name);
+
+        ProcessBuilder builder = new ProcessBuilder(args);
+        builder.redirectErrorStream(true); // This is important part
+        Process process = builder.start();
+
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+        bw.write(graph.toString()); //or better yet : toString().getBytes(Charset.forName("UTF-8"))
+        bw.flush();
+        bw.close();
+
+        //wait here?    - probably not, the outputstream does the waiting
+
+        byte[] bytes = readInputImageStream(process.getInputStream());
+        return bytes;
+    }
+
+    public String[] getArgs(String name) {
+        ArrayList<String> args = new ArrayList<>();
+        args.add(executable);
+        args.add("-T" + imgtype);
+        args.add("-Gdpi=" + dpiSizes[this.currentDpiPos]);
+        if (fixScreenSize)
+            args.add("-Gsize=" + width / dpiSizes[this.currentDpiPos] + "," + height / dpiSizes[this.currentDpiPos] + "\\!");
+        if (storeNotShow)
+            args.add("-o " + getImageName(name));
+        return args.toArray(new String[args.size()]);
+    }
+
+    public byte[] readInputImageStream(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        int nRead;
+        byte[] data = new byte[16384];
+        while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, nRead);
+        }
+        buffer.flush();
+        buffer.close();
+        return buffer.toByteArray();
+    }
+
+    public static boolean isAlive(Process p) {
+        try {
+            p.exitValue();
+            return false;
+        } catch (IllegalThreadStateException e) {
+            return true;
+        }
+    }
+
 
     /**
      * Returns the graph as an image in binary format.
@@ -272,8 +370,12 @@ public class GraphViz {
             // patch by Mike Chenault
             // representation type with -K argument by Olivier Duplouy
             String[] args = {executable, "-T" + type, "-K" + representationType, "-Gdpi=" + dpiSizes[this.currentDpiPos], dot.getAbsolutePath(), "-o", img.getAbsolutePath()};
-            Process p = rt.exec(args);
-            p.waitFor();
+
+            Process p = rt.exec(args);  //this is plain dangerous in multithread programs and repeated runs...
+            int i = p.waitFor();
+            if (i > 0) {
+                System.err.println(i);
+            }
 
             FileInputStream in = new FileInputStream(img.getAbsolutePath());
             img_stream = new byte[in.available()];
@@ -325,7 +427,7 @@ public class GraphViz {
      * @return A string to open a graph.
      */
     public void start_graph() {
-        graph.append("digraph G {");
+        graph.append("digraph G {").append("\n");
     }
 
     /**
@@ -334,7 +436,7 @@ public class GraphViz {
      * @return A string to close a graph.
      */
     public void end_graph() {
-        graph.append("}");
+        graph.append("}").append("\n");
     }
 
     /**

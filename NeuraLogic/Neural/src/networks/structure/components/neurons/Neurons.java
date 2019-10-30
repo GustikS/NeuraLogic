@@ -13,6 +13,8 @@ public interface Neurons<T extends Neurons, S extends State.Neural> {
 
     void visit(NeuronVisiting.Weighted visitor);
 
+    void visit(NeuronVisitor.Weighted.Detailed visitor);
+
     ArrayList<T> getInputs();
 
     void addInput(T neuron);

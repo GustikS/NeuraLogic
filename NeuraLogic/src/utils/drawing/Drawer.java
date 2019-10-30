@@ -2,14 +2,9 @@ package utils.drawing;
 
 import settings.Settings;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -19,51 +14,47 @@ public abstract class Drawer<S> {
 
     private static final Logger LOG = Logger.getLogger(Drawer.class.getName());
 
-    public String algorithm = "dot";
-    public String imgtype = "png";
-    public String defaultName;
+    protected final NumberFormat numberFormat;
+    protected Settings.Detail drawingDetail;
+    protected boolean storeNotShow;
 
     protected final GraphViz graphviz;
-    Settings.Detail drawingDetail;
-
-    protected static List<String> dot = new ArrayList<>();
-
-    protected final Settings settings;
-    protected final NumberFormat numberFormat;
+    public final Settings settings;
 
     public Drawer(Settings settings) {
         this.settings = settings;
+        this.graphviz = new GraphViz(settings);
+
         this.numberFormat = Settings.numberFormat;
-        this.defaultName = settings.drawingFile + "." + imgtype;
-        this.graphviz = new GraphViz(settings.graphvizPathLinux, settings.outDir);
         this.drawingDetail = settings.drawingDetail;
+        this.storeNotShow = settings.storeNotShow;
     }
 
-    private String getGraphvizExecutable() {
-        if (Settings.os == Settings.OS.WINDOWS) {
-            return settings.graphvizPathWindows;
-        } else {
-            return settings.graphvizPathLinux;
-        }
+    public void display(byte[] imageBytes, String name) {
+        //now turn off annoying java awt logging messages here
+        Logger.getLogger("java.awt").setLevel(Level.WARNING);
+        Logger.getLogger("sun.awt").setLevel(Level.WARNING);
+        Logger.getLogger("javax.swing").setLevel(Level.WARNING);
+
+        Object lock = new Object();
+        DebugWindow debugWindow = new DebugWindow(imageBytes, name, lock);
+        debugWindow.pauseUntilWindowCloses(lock);
     }
 
-    public void display(byte[] imageBytes) {
-        JFrame frame = new JFrame();
-        BufferedImage img = null;
+    public void draw(S obj) {
+        this.graphviz.clearGraph();
+        loadGraph(obj);
         try {
-            img = ImageIO.read(new ByteArrayInputStream(imageBytes));
-        } catch (IOException e) {
+            if (storeNotShow) {
+                graphviz.storeGraphSource(obj.toString());
+            } else {
+                display(graphviz.getGraphImage(obj.toString()), obj.toString());
+            }
+        } catch (IOException | InterruptedException e) {
             LOG.severe(e.getMessage());
-            return;
         }
-        ImageIcon icon = new ImageIcon(img);
-        JLabel label = new JLabel(icon);
-        frame.add(label);
-        frame.setDefaultCloseOperation
-                (JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
     }
 
-    public abstract void draw(S obj);
+    public abstract void loadGraph(S obj);
+
 }

@@ -13,9 +13,10 @@ public class PipelineDrawer extends Drawer<Pipeline> {
     }
 
     @Override
-    public void draw(Pipeline obj) {
+    public void loadGraph(Pipeline obj) {
 
     }
+
 
     //todo use DOT file format and graphviz called externally through stream of bytes
     //alternatively you might use JUNG for more interaction later

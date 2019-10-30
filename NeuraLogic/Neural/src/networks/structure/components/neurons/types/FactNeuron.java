@@ -21,10 +21,14 @@ public class FactNeuron extends WeightedNeuron<BaseNeuron, States.SimpleValue> i
     }
 
     public void visit(NeuronVisitor.Weighted visitor){
-        //there is nothing to do with fact neurons
+        //there is nothing to compute with fact neurons
     }
 
     public void visit(NeuronVisiting.Weighted visitor){
-        //there is nothing to do with fact neurons
+        //there is nothing to compute with fact neurons
+    }
+
+    public void visit(NeuronVisitor.Weighted.Detailed visitor) {
+        visitor.visit(this);
     }
 }

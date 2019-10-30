@@ -78,17 +78,17 @@ public abstract class NeuronVisitor {
                 super(network, computationVisitor, weightUpdater);
             }
 
-            protected abstract void visit(AggregationNeuron neuron);
+            public abstract <S extends State.Neural> void visit(AggregationNeuron<S> neuron);
 
-            protected abstract void visit(RuleNeuron neuron);
+            public abstract <S extends State.Neural> void visit(RuleNeuron<S> neuron);
 
-            protected abstract void visit(WeightedRuleNeuron neuron);
+            public abstract <S extends State.Neural> void visit(WeightedRuleNeuron<S> neuron);
 
-            protected abstract void visit(AtomNeuron neuron);
+            public abstract <S extends State.Neural> void visit(AtomNeuron<S> neuron);
 
-            protected abstract void visit(UnweightedAtomNeuron neuron);
+            public abstract <S extends State.Neural> void visit(UnweightedAtomNeuron<S> neuron);
 
-            protected abstract void visit(FactNeuron neuron);
+            public abstract void visit(FactNeuron neuron);
         }
 
         public abstract static class Indexed extends Weighted {

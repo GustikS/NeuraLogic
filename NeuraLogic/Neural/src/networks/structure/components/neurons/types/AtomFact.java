@@ -9,4 +9,5 @@ import networks.structure.metadata.states.State;
  */
 public interface AtomFact<T extends Neurons,S extends State.Neural> extends Neurons<T,S> {
     Weight getOffset();
+
 }

@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  * @param <T>
  * @param <S>
  */
-public class BaseNeuron<T extends Neurons, S extends State.Neural> implements Neurons<T, S> {
+public abstract class BaseNeuron<T extends Neurons, S extends State.Neural> implements Neurons<T, S> {
     private static final Logger LOG = Logger.getLogger(BaseNeuron.class.getName());
     /**
      * Globally unique index of creation of this neuron (=fast hash)

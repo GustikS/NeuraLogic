@@ -12,7 +12,8 @@ public class TemplateDrawer extends Drawer<Template> {
     }
 
     @Override
-    public void draw(Template obj) {
+    public void loadGraph(Template obj) {
 
     }
+
 }
