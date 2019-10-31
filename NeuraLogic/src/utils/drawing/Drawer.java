@@ -2,6 +2,7 @@ package utils.drawing;
 
 import settings.Settings;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.logging.Level;
@@ -28,6 +29,15 @@ public abstract class Drawer<S> {
         this.numberFormat = Settings.numberFormat;
         this.drawingDetail = settings.drawingDetail;
         this.storeNotShow = settings.storeNotShow;
+
+
+        Logger.getLogger("java.awt").setLevel(Level.WARNING);
+        Logger.getLogger("sun.awt").setLevel(Level.WARNING);
+        Logger.getLogger("javax.swing").setLevel(Level.WARNING);
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
+        }
     }
 
     public void display(byte[] imageBytes, String name) {

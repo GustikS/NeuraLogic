@@ -7,61 +7,12 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-// GraphViz.java - a simple API to call dot from Java programs
-/*$Id$*/
-/*
- ******************************************************************************
- *                                                                            *
- *                    (c) Copyright Laszlo Szathmary                          *
- *                                                                            *
- * This program is free software; you can redistribute it and/or modify it    *
- * under the terms of the GNU Lesser General Public License as published by   *
- * the Free Software Foundation; either version 2.1 of the License, or        *
- * (at your option) any later version.                                        *
- *                                                                            *
- * This program is distributed in the hope that it will be useful, but        *
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY *
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public    *
- * License for more details.                                                  *
- *                                                                            *
- * You should have received a copy of the GNU Lesser General Public License   *
- * along with this program; if not, write to the Free Software Foundation,    *
- * Inc., 675 Mass Ave, Cambridge, MA 02139, USA.                              *
- *                                                                            *
- ******************************************************************************
- */
-
 /**
- * <dl>
- * <dt>Purpose: GraphViz Java API
- * <dd>
+ * This class is a (significant) modification of a simple java-graphviz wrapper
+ * from https://github.com/jabbalaci/graphviz-java-api.
  *
- * <dt>Description:
- * <dd> With this Java class you can simply call dot
- * from your Java programs.
- * <dt>Example usage:
- * <dd>
- * <pre>
- *    GraphViz gv = new GraphViz();
- *    gv.addln(gv.start_graph());
- *    gv.addln("A -> B;");
- *    gv.addln("A -> C;");
- *    gv.addln(gv.end_graph());
- *    System.out.println(gv.getDotSource());
- *
- *    String type = "gif";
- *    String representationType="dot";
- *    File out = new File("out." + type);   // out.gif in this example
- *    gv.writeGraphToFile( gv.getGraph(gv.getDotSource(), type, representationType), out );
- * </pre>
- * </dd>
- *
- * </dl>
- *
- * @author Laszlo Szathmary (<a href="jabba.laci@gmail.com">jabba.laci@gmail.com</a>)
- * @version v0.1, 2003/12/04 (December) -- first release
+ * It can call graphviz without creating any temporary files with the use of process IO streams and ProcessBuilder.
  */
-// todo turn this into a separate library with my modifications (running Graphviz without temporary files, instant drawing etc.)
 public class GraphViz {
 
     private static final Logger LOG = Logger.getLogger(GraphViz.class.getName());
@@ -93,13 +44,8 @@ public class GraphViz {
     private String fileName;
     private String algorithm;
     private String imgtype;
-    private boolean fixScreenSize;
-    private boolean storeNotShow;
-
-    /**
-     * The source of the graph written in dot language.
-     */
-    private StringBuilder graph = new StringBuilder();
+    private boolean fix2ScreenSize;
+    private boolean storeImage;
 
     public String tempDir;
 
@@ -109,6 +55,11 @@ public class GraphViz {
      * For storing multiple files within a single run.
      */
     private static int counter;
+
+    /**
+     * The source of the graph written in dot language.
+     */
+    private StringBuilder graph = new StringBuilder();
 
     /**
      * Configurable Constructor with path to executable dot and a temp dir
@@ -123,11 +74,11 @@ public class GraphViz {
 
     public GraphViz(Settings settings) {
         this(getGraphvizExecutable(settings), settings.outDir);
-        this.fileName = settings.drawingFile;
+        this.fileName = settings.imageFile;
         this.algorithm = settings.graphVizAlgorithm;
-        this.imgtype = settings.imgtype;
-        this.fixScreenSize = settings.fix2ScreenSize;
-        this.storeNotShow = settings.storeNotShow;
+        this.imgtype = settings.imgType;
+        this.fix2ScreenSize = settings.fix2ScreenSize;
+        this.storeImage = settings.storeNotShow;
     }
 
     private static String getGraphvizExecutable(Settings settings) {
@@ -197,11 +148,11 @@ public class GraphViz {
         this.graph = new StringBuilder();
     }
 
-    public String getImageName(String name) {
+    private String getImageName(String name) {
         return fileName + counter++ + "_" + name + "." + imgtype;
     }
 
-    public String getGraphName(String name) {
+    private String getGraphName(String name) {
         return fileName + counter++ + "_" + name + "." + algorithm;
     }
 
@@ -223,8 +174,8 @@ public class GraphViz {
      * @throws IOException
      * @throws InterruptedException
      */
-    public byte[] getGraphImage(String name) throws IOException, InterruptedException {
-        String[] args = getArgs(name);
+    public byte[] getGraphImage(String nameOrEmpty) throws IOException, InterruptedException {
+        String[] args = getArgs(nameOrEmpty);
 
         ProcessBuilder builder = new ProcessBuilder(args);
         builder.redirectErrorStream(true); // This is important part
@@ -241,19 +192,19 @@ public class GraphViz {
         return bytes;
     }
 
-    public String[] getArgs(String name) {
+    private String[] getArgs(String name) {
         ArrayList<String> args = new ArrayList<>();
         args.add(executable);
         args.add("-T" + imgtype);
         args.add("-Gdpi=" + dpiSizes[this.currentDpiPos]);
-        if (fixScreenSize)
+        if (fix2ScreenSize)
             args.add("-Gsize=" + width / dpiSizes[this.currentDpiPos] + "," + height / dpiSizes[this.currentDpiPos] + "\\!");
-        if (storeNotShow)
+        if (storeImage)
             args.add("-o " + getImageName(name));
         return args.toArray(new String[args.size()]);
     }
 
-    public byte[] readInputImageStream(InputStream inputStream) throws IOException {
+    private byte[] readInputImageStream(InputStream inputStream) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         int nRead;
         byte[] data = new byte[16384];
@@ -264,16 +215,6 @@ public class GraphViz {
         buffer.close();
         return buffer.toByteArray();
     }
-
-    public static boolean isAlive(Process p) {
-        try {
-            p.exitValue();
-            return false;
-        } catch (IllegalThreadStateException e) {
-            return true;
-        }
-    }
-
 
     /**
      * Returns the graph as an image in binary format.
@@ -292,14 +233,14 @@ public class GraphViz {
      *                           see http://www.graphviz.org under the Roadmap title
      * @return A byte array containing the image of the graph.
      */
-    public byte[] getGraph(String dot_source, String type, String representationType) {
+    public byte[] getGraphUsingTemporaryFile(String dot_source, String type, String representationType) {
         File dot;
         byte[] img_stream = null;
 
         try {
             dot = writeDotSourceToFile(dot_source);
             if (dot != null) {
-                img_stream = get_img_stream(dot, type, representationType);
+                img_stream = getImgStream(dot, type, representationType);
                 if (dot.delete() == false) {
                     System.err.println("Warning: " + dot.getAbsolutePath() + " could not be deleted!");
                 }
@@ -318,9 +259,9 @@ public class GraphViz {
      * @param file Name of the file to where we want to write.
      * @return Success: 1, Failure: -1
      */
-    public int writeGraphToFile(byte[] img, String file) {
+    public int writeImageToFile(byte[] img, String file) {
         File to = new File(file);
-        return writeGraphToFile(img, to);
+        return writeImageToFile(img, to);
     }
 
     /**
@@ -330,7 +271,7 @@ public class GraphViz {
      * @param to  A File object to where we want to write.
      * @return Success: 1, Failure: -1
      */
-    public int writeGraphToFile(byte[] img, File to) {
+    public int writeImageToFile(byte[] img, File to) {
         try {
             FileOutputStream fos = new FileOutputStream(to);
             fos.write(img);
@@ -359,7 +300,7 @@ public class GraphViz {
      *                           see http://www.graphviz.org under the Roadmap title
      * @return The image of the graph in .gif format.
      */
-    private byte[] get_img_stream(File dot, String type, String representationType) {
+    private byte[] getImgStream(File dot, String type, String representationType) {
         File img;
         byte[] img_stream = null;
 

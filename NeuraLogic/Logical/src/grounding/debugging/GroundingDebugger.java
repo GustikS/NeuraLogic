@@ -20,11 +20,8 @@ public class GroundingDebugger extends PipelineDebugger<GroundingSample> {
 
     public GroundingDebugger(String[] args, Settings settings) {
         super(args, settings);
-        weightFactory = new WeightFactory();
-
         //to transfer parameters from groundings to neural nets
-
-
+        weightFactory = new WeightFactory();
         drawer = new GroundingDrawer(settings);
     }
 

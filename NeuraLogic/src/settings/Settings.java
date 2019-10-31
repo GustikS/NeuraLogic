@@ -18,6 +18,9 @@ import java.util.logging.Logger;
 public class Settings {
     private static final Logger LOG = Logger.getLogger(Settings.class.getName());
 
+    /**
+     * Stores current OS type
+     */
     public static final OS os = Utilities.getOs();
 
     public enum OS {
@@ -47,13 +50,13 @@ public class Settings {
 
     public static String logFile = "./out/Logging";
 
-    //------------------Dependencies
+    //------------------Dependencies (graphviz for debugging)
 
-    public String graphvizPathLinux = "/usr/bin"; //on path if installed, if not -> error
-    public String graphvizPathMac = "/usr/local/bin";
+    public String graphvizPathLinux = "/usr/bin"; // this is where the dot typically is, if not, install graphviz
+    public String graphvizPathMac = "/usr/local/bin";   //never tried OSX...
     public String graphvizPathWindows = "../resources/graphviz"; //get it if you  don't have it and want to use it!
 
-    //------------------Exporting
+    //------------------Exporting (i.e. output files for logging etc.)
 
     public Exporter exporter;
 
@@ -79,16 +82,22 @@ public class Settings {
         LOW, MEDIUM, HIGH
     }
 
-    public String drawingFile = outDir + "/graph";
+    public String imageFile = outDir + "/graph";
     public String graphVizAlgorithm = "dot";
-    public String imgtype = "png";
+    public String imgType = "png";
+    /**
+     * Whether the rendered image should be exactly in the resolution of the (main) monitor
+     */
     public boolean fix2ScreenSize = false;
+    /**
+     * Do not display images and rather store them on disk
+     * if set to false (=display), no temporary files are created as we can call graphviz directly without them!
+     */
     public boolean storeNotShow = false;
 
-    //------------------High level
+    //------------------High level program setting
 
     public Optimize optimize = Optimize.SPEED;
-
 
     public enum Optimize {
         MEMORY, SPEED, TRADEOFF
@@ -108,7 +117,7 @@ public class Settings {
     //------------------Abstract Pipelines
 
     /**
-     * A root pipeline of the actual program flow.
+     * A root pipeline of the actual program flow (referenced to this settings object)
      */
     public Pipeline root;
 
@@ -118,7 +127,7 @@ public class Settings {
     public MainMode mainMode = MainMode.COMPLETE;
 
     public enum MainMode {
-        GROUNDING, COMPLETE
+        GROUNDING, COMPLETE, DEBUGGING  //todo next use this
     }
 
     /**
