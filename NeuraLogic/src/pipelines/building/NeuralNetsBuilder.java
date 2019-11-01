@@ -4,6 +4,7 @@ import grounding.GroundingSample;
 import networks.computation.training.NeuralSample;
 import networks.structure.building.NeuralProcessingSample;
 import networks.structure.building.Neuralizer;
+import networks.structure.building.debugging.NeuralDebugger;
 import pipelines.ConnectAfter;
 import pipelines.Pipe;
 import pipelines.Pipeline;
@@ -70,6 +71,10 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
             }
         });
         finalizationPipe.connectAfter(cutoffPipe);
+
+        if (settings.debugNeuralization){
+            new NeuralDebugger(settings).addDebugStream(pipeline);
+        }
         return pipeline;
     }
 

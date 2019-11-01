@@ -1,4 +1,3 @@
-import networks.computation.evaluation.results.Results;
 import pipelines.Pipeline;
 import settings.Settings;
 import settings.Sources;
@@ -26,11 +25,11 @@ public class Main {
         }
 
         Sources sources = Sources.getSources(args, settings);
-        Pipeline<Sources, Results> pipeline = Pipeline.getPipeline(settings, sources);
+        Pipeline<Sources, ?> pipeline = Pipeline.getPipeline(settings, sources);
         settings.root = pipeline;
 
         LOG.finest("Running the main pipeline on the provided sources...");
-        Pair<String, Results> target = pipeline.execute(sources);
+        Pair<String, ?> target = pipeline.execute(sources);
         LOG.info("Pipeline: " + target.r + " finished with result: " + target.s.toString());
 
         logging.finish();

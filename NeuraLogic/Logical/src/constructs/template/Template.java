@@ -102,8 +102,12 @@ public class Template implements Model<QueryAtom> {
         return weightList;
     }
 
-    public void updateWeightsFrom(NeuralModel neural) {
-        //TODO
+    public void updateWeightsFrom(NeuralModel neuralModel) {
+        Map<Integer, Weight> neuralWeights = neuralModel.mapWeightsToIds();
+        List<Weight> templateWeights = getAllWeights();
+        for (Weight weight : templateWeights) {
+            weight.value = neuralWeights.get(weight.index).value;
+        }
     }
 
     public LinkedHashSet<ValuedFact> getValuedFacts() {

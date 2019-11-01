@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 /**
  * This class is a (significant) modification of a simple java-graphviz wrapper
  * from https://github.com/jabbalaci/graphviz-java-api.
- *
+ * <p>
  * It can call graphviz without creating any temporary files with the use of process IO streams and ProcessBuilder.
  */
 public class GraphViz {
@@ -60,6 +60,10 @@ public class GraphViz {
      * The source of the graph written in dot language.
      */
     private StringBuilder graph = new StringBuilder();
+
+    public static String sanitize(String name) {
+        return "\"" + name + "\"";
+    }
 
     /**
      * Configurable Constructor with path to executable dot and a temp dir

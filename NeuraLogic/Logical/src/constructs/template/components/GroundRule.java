@@ -19,7 +19,12 @@ public class GroundRule extends GroundHeadRule {
 
     @Override
     public String toFullString() {
-        return "(" + groundHead.toString() + ":-" + groundBody.toString() + ") -> " + weightedRule.getOriginalString();
+        return "(" + groundHead.toString() + ":-" + Arrays.toString(groundBody) + ") -> " + weightedRule.getOriginalString();
+    }
+
+    @Override
+    public String toString() {
+        return groundHead.toString() + ":-" + Arrays.toString(groundBody);
     }
 
     @Override

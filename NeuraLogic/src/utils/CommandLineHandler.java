@@ -33,15 +33,19 @@ public class CommandLineHandler {
     public Options getOptions(Settings settings) {
         Options options = new Options();
 
+        options.addOption(new Option("mode", "pipelineMode", true, "main mode of the program [complete, neuralization, debug] (" + settings.mainMode + ")"));
+
+        options.addOption("debug", "debugMode", true, "debug some objects within the pipeline during the run [template, grounding, neuralization, samples, model]");
+
         options.addOption(new Option("seed", "randomSeed", true, "int seed for random generator (" + settings.seed + ")"));
 
         //-----------source files
+        options.addOption("path", "sourcePath", true, "path to source files (" + settings.sourcePath + ")");
+
         options.addOption("t", "template", true, "template file (" + settings.templateFile + ")");
 
         options.addOption("q", "trainQueries", true, "trainQueries file (" + settings.trainQueriesFile + ")");
         options.addOption("e", "trainExamples", true, "trainExamples file containing facts (" + settings.trainExamplesFile + ")");
-
-        options.addOption("path", "sourcePath", true, "path to source files (" + settings.sourcePath + ")");
 
         //-----------selection of one of evaluation modes
         OptionGroup evalGroup = new OptionGroup();
@@ -54,15 +58,15 @@ public class CommandLineHandler {
         options.addOptionGroup(evalGroup);
 
         //grounding
-        options.addOption(new Option("gm", "groundingMode", true, "groundings mode - normal, sequential, or global (" + "normal" + ")"));
-        options.addOption(new Option("ga", "groundingAlgorithm", true, "groundings algorithm - BUp, TDown, or Gringo (" + "BUp" + ")"));
+        options.addOption(new Option("gm", "groundingMode", true, "groundings mode [normal, sequential, global] (" + "normal" + ")"));
+        options.addOption(new Option("ga", "groundingAlgorithm", true, "groundings algorithm [BUp, TDown, Gringo] (" + "BUp" + ")"));
 
         //training
         options.addOption(new Option("ts", "trainingSteps", true, "cumulative number of epochae in neural training (" + settings.maxCumEpochCount + ")"));
 
         //evaluation
-        options.addOption(new Option("em", "evaluationMode", true, "evaluation is either regression or classification (" + "classification" + ")"));
-        options.addOption(new Option("ef", "errorFunction", true, "type of error function - MSE, or XEnt (" + "MSE" + ")"));
+        options.addOption(new Option("em", "evaluationMode", true, "evaluation is either [regression, classification] (" + "classification" + ")"));
+        options.addOption(new Option("ef", "errorFunction", true, "type of error function [MSE, XEnt] (" + "MSE" + ")"));
 
         //todo rest of the commandline options that might be useful
 

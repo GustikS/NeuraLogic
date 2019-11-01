@@ -51,6 +51,17 @@ public class Weight {
     }
 
     @Override
+    public Weight clone() {
+        Weight clone = new Weight(this.index, this.name, this.value.clone(), this.isFixed, this.manualInitialization);
+        clone.metadata = this.metadata;
+        clone.dropout = this.dropout;
+        clone.isShared = this.isShared;
+        clone.momentum = this.momentum.clone();
+        clone.velocity = this.velocity.clone();
+        return clone;
+    }
+
+    @Override
     public int hashCode() {
         return index;
     }

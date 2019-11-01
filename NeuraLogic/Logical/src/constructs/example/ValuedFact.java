@@ -38,4 +38,11 @@ public class ValuedFact extends Atom {
     public void setValue(Value value) {
         this.weight.value = value;
     }
+
+    @Override
+    public String toString() {
+        String weightString = weight == null ? "" : weight.toString();
+        String offsetString = getOffset() == null ? "" : getOffset().toString();
+        return weightString + " : " + super.toString() + " + " + offsetString;
+    }
 }

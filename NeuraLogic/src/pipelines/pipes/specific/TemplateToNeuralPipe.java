@@ -25,8 +25,6 @@ public class TemplateToNeuralPipe extends Pipe<Template, NeuralModel> {
 
     @Override
     public NeuralModel apply(Template template) {
-        //TODO
-        NeuralModel neuralModel = new NeuralModel(template.getAllWeights(), this.settings);
-        return neuralModel;
+        return new NeuralModel(template, this.settings);
     }
 }

@@ -14,7 +14,7 @@
     <orderEntry type="module" module-name="Neural" />
     <orderEntry type="module" module-name="Logical" />
     <orderEntry type="library" name="antlr-4.7-complete" level="project" />
-    <orderEntry type="module" module-name="Logic" scope="TEST" />
+    <orderEntry type="module" module-name="Logic" />
     <orderEntry type="module" module-name="Utils" scope="TEST" />
   </component>
 </module>

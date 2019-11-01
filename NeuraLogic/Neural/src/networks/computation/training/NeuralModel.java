@@ -1,5 +1,6 @@
 package networks.computation.training;
 
+import constructs.template.Template;
 import learning.Model;
 import networks.computation.evaluation.values.Value;
 import networks.computation.evaluation.values.distributions.ValueInitializer;
@@ -8,35 +9,54 @@ import networks.structure.components.weights.Weight;
 import settings.Settings;
 
 import java.io.Reader;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Created by gusta on 8.3.17.
  */
 public class NeuralModel implements Model<QueryNeuron> {
+    private static final Logger LOG = Logger.getLogger(NeuralModel.class.getName());
+
     public List<Weight> weights;
     private Settings settings;
 
+    /**
+     * Only used in debug mode for drawing of original template during training.
+     */
+    private Template template;
+
     public NeuralModel(List<Weight> weights, Settings settings) {
-        this.weights = weights;
         this.settings = settings;
-        if (settings.optimizer == Settings.OptimizerSet.ADAM){
+        this.weights = weights;
+    }
+
+    public NeuralModel(Template template, Settings settings) {
+        this.settings = settings;
+        this.weights = template.getAllWeights();
+        if (settings.optimizer == Settings.OptimizerSet.ADAM) {
             init4Adam(weights);
+        }
+        if (settings.debugSampleTraining) {
+            this.template = template;
         }
     }
 
     protected void init4Adam(List<Weight> weights) {
-        for (Weight weight : weights){
+        for (Weight weight : weights) {
             weight.velocity = weight.value.getForm();
             weight.momentum = weight.value.getForm();
         }
     }
 
-    public NeuralModel cloneWeights() {
-        List<Weight> clone = new ArrayList<>(weights);
-        return new NeuralModel(clone, this.settings);
+    @Override
+    public NeuralModel clone() {
+        List<Weight> clonedWeights = weights.stream().map(Weight::clone).collect(Collectors.toList());
+        NeuralModel clone = new NeuralModel(clonedWeights, this.settings);
+        clone.template = this.template;
+        return clone;
     }
 
     public void resetWeights(ValueInitializer valueInitializer) {
@@ -46,7 +66,7 @@ public class NeuralModel implements Model<QueryNeuron> {
     }
 
     public void loadWeights(NeuralModel neuralModel) {
-
+        this.weights = neuralModel.clone().weights;
     }
 
     public void dropoutWeights() {
@@ -54,14 +74,21 @@ public class NeuralModel implements Model<QueryNeuron> {
     }
 
     /**
-     * For external training, map all weights to UNIQUE strings
+     * For external training, map all weights to UNIQUE integers
      *
-     * @param weights
      * @return
      */
-    public Map<String, Weight> mapWeightsToStrings(List<Weight> weights) {
-        //TODO
-        return null;
+    public Map<Integer, Weight> mapWeightsToIds() {
+        return weights.stream().collect(Collectors.toMap(w -> w.index, w -> w));
+    }
+
+    /**
+     * For external training, map all weights to, mostly unique, strings
+     *
+     * @return
+     */
+    public Map<String, Weight> mapWeightsToNames() {
+        return weights.stream().collect(Collectors.toMap(w -> w.name, w -> w));
     }
 
     /**
@@ -87,5 +114,12 @@ public class NeuralModel implements Model<QueryNeuron> {
     @Override
     public List<Weight> getAllWeights() {
         return weights;
+    }
+
+    public Template getTemplate() {
+        if (template == null){
+            LOG.severe("No template was stored in this NeuralModel");
+        }
+        return template;
     }
 }

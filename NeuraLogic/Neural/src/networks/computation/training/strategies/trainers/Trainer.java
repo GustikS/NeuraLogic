@@ -8,6 +8,7 @@ import networks.computation.iteration.visitors.weights.WeightUpdater;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import networks.computation.training.optimizers.Optimizer;
+import networks.structure.building.debugging.NeuralDebugger;
 import settings.Settings;
 
 import java.util.logging.Logger;
@@ -24,9 +25,12 @@ public class Trainer {
 
     Optimizer optimizer;
 
+    NeuralDebugger neuralDebugger;
+
     public Trainer(Settings settings, Optimizer optimizer) {
         this.settings = settings;
         this.optimizer = optimizer;
+        this.neuralDebugger = new NeuralDebugger(settings);
     }
 
     public Trainer() {
@@ -40,6 +44,9 @@ public class Trainer {
         Result result = evaluateSample(evaluation, neuralSample);
         WeightUpdater weightUpdater = backpropSample(backpropagation, result, neuralSample);
         updateWeights(neuralModel, weightUpdater);
+        if (settings.debugSampleTraining) {
+            neuralDebugger.debug(neuralSample);
+        }
         return result;
     }
 

@@ -70,6 +70,14 @@ public class Settings {
 
     //------------------Drawing/Debugging
 
+    public boolean debugPipeline = false;
+
+    public boolean debugTemplate = false;
+    public boolean debugGrounding = false;
+    public boolean debugNeuralization = false;
+    public boolean debugSampleTraining = false;
+    public boolean debugTemplateTraining = false;
+
     /**
      * If on, multiple intermediate spots within the current debugging pipeline might trigger the debugger,
      * otherwise only the last consumer will trigger the debugger
@@ -94,6 +102,11 @@ public class Settings {
      * if set to false (=display), no temporary files are created as we can call graphviz directly without them!
      */
     public boolean storeNotShow = false;
+
+    /**
+     * Collapse aggregation nodes into mere edge labels
+     */
+    public boolean compactGroundingDrawing;
 
     //------------------High level program setting
 
@@ -122,12 +135,14 @@ public class Settings {
     public Pipeline root;
 
     /**
-     * Sets up the main purpose of the root pipeline
+     * Sets up the main purpose/result of the root pipeline
      */
     public MainMode mainMode = MainMode.COMPLETE;
 
     public enum MainMode {
-        GROUNDING, COMPLETE, DEBUGGING  //todo next use this
+        COMPLETE,   // standard running of the whole learning process
+        NEURALIZATION,  // use the program for creation of NNs only
+        DEBUGGING   // run only debug of some part of the program (w.r.t. the debugXXX flags)
     }
 
     /**
@@ -559,6 +574,30 @@ public class Settings {
 
         if (cmd.hasOption("sourcePath")) {
             sourcePathProvided = true;
+        }
+
+        String _mode = cmd.getOptionValue("mode", String.valueOf(mainMode));
+        switch (_mode) {
+            case "complete":
+                mainMode = MainMode.COMPLETE;
+            case "neuralization":
+                mainMode = MainMode.NEURALIZATION;
+            case "debug":
+                mainMode = MainMode.DEBUGGING;
+        }
+
+        String _debug = cmd.getOptionValue("debug", String.valueOf(""));
+        switch (_debug) {
+            case "template":
+                debugTemplate = true;
+            case "grounding":
+                debugGrounding = true;
+            case "neuralization":
+                debugNeuralization = true;
+            case "samples":
+                debugSampleTraining = true;
+            case "model":
+                debugTemplateTraining = true;
         }
 
         //todo fill all the settings

@@ -1,6 +1,9 @@
 package pipelines.building;
 
-import networks.computation.evaluation.results.Results;
+import constructs.building.debugging.TemplateDebugger;
+import grounding.debugging.GroundingDebugger;
+import networks.computation.training.debugging.TrainingDebugger;
+import networks.structure.building.debugging.NeuralDebugger;
 import pipelines.Pipeline;
 import settings.Settings;
 import settings.Sources;
@@ -29,14 +32,30 @@ public abstract class AbstractPipelineBuilder<S, T> {
         return pipelines;
     }
 
-    public static AbstractPipelineBuilder<Sources, Results> getBuilder(Sources sources, Settings settings) {
+    /**
+     * Any builder starting from Sources
+     *
+     * @param sources
+     * @param settings
+     * @return
+     */
+    public static AbstractPipelineBuilder<Sources, ?> getBuilder(Sources sources, Settings settings) {
         if (settings.mainMode == Settings.MainMode.COMPLETE) {
             return new LearningSchemeBuilder(settings, sources);
-        } else {
-            LOG.severe("Unknown pipeline mainMode!");
-            throw new UnsupportedOperationException();
-            //System.exit(3);
+        } else if (settings.mainMode == Settings.MainMode.DEBUGGING) {
+            if (settings.debugTemplateTraining || settings.debugSampleTraining) {
+                return new TrainingDebugger(sources, settings);
+            } else if (settings.debugNeuralization) {
+                return new NeuralDebugger(sources, settings);
+            } else if (settings.debugGrounding) {
+                return new GroundingDebugger(sources, settings);
+            } else if (settings.debugTemplate) {
+                return new TemplateDebugger(sources, settings);
+            }
+        } else if (settings.mainMode == Settings.MainMode.NEURALIZATION) {
+            return new End2endTrainigBuilder(settings, sources).new End2endNNBuilder();
         }
+        LOG.severe("Unknown pipeline mainMode!");
+        throw new UnsupportedOperationException();
     }
-
 }

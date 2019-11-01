@@ -23,7 +23,7 @@ public class GraphTemplate extends Template {
     /**
      * Maps any literal from the template to a list of rules with a compatible (subsumable) head
      */
-    Map<Literal, List<WeightedRule>> atom2rules;
+    public Map<Literal, List<WeightedRule>> atom2rules;
     /**
      * Set of literals that are simple facts inferred directly from the template
      */

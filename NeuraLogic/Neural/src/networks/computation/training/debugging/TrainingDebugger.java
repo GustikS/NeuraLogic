@@ -1,31 +1,46 @@
 package networks.computation.training.debugging;
 
-import networks.computation.training.NeuralSample;
+import constructs.building.debugging.TemplateDebugger;
+import constructs.template.Template;
+import networks.computation.evaluation.results.Progress;
+import networks.computation.training.NeuralModel;
+import pipelines.Pipe;
 import pipelines.Pipeline;
+import pipelines.pipes.generic.FirstFromPairPipe;
+import pipelines.pipes.generic.StreamifyPipe;
 import settings.Settings;
 import settings.Sources;
-import utils.PipelineDebugger;
-import utils.drawing.NeuralNetDrawer;
+import utils.generic.Pair;
 
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class TrainingDebugger extends PipelineDebugger<NeuralSample> {
+public class TrainingDebugger extends TemplateDebugger {
     private static final Logger LOG = Logger.getLogger(TrainingDebugger.class.getName());
 
     public TrainingDebugger(String[] args, Settings settings) {
-        super(args);
-        drawer = new NeuralNetDrawer(settings);
+        super(settings);
     }
 
-
-    @Override
-    public void debug(NeuralSample neuralSample) {
-        drawer.draw(neuralSample);
+    public TrainingDebugger(Sources sources, Settings settings) {
+        super(sources, settings);
     }
 
+    public TrainingDebugger(Settings settings) {
+        super(settings);
+    }
+
+    /**
+     * Build whole training and return learned template
+     *
+     * @return
+     */
     @Override
-    public Pipeline<Sources, Stream<NeuralSample>> buildPipeline() {
-        return null;
+    public Pipeline<Sources, Stream<Template>> buildPipeline() {
+        Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> sourcesPairPipeline = pipeline.registerStart(end2endTrainigBuilder.buildPipeline());
+        //just extract the learned template
+        Pipe<Pair<Template, NeuralModel>, Template> pairTemplatePipe = pipeline.register(pipeline.register(sourcesPairPipeline.connectAfter(new FirstFromPairPipe<>())).connectAfter(new FirstFromPairPipe<>()));
+        pipeline.registerEnd(pairTemplatePipe.connectAfter(new StreamifyPipe<>()));
+        return pipeline;
     }
 }

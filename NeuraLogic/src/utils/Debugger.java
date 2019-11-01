@@ -13,16 +13,16 @@ import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public abstract class PipelineDebugger<S> extends AbstractPipelineBuilder<Sources, Stream<S>> {
-    private static final Logger LOG = Logger.getLogger(PipelineDebugger.class.getName());
+public abstract class Debugger<S> extends AbstractPipelineBuilder<Sources, Stream<S>> {
+    private static final Logger LOG = Logger.getLogger(Debugger.class.getName());
 
     /**
-     * i.e. what are we debugging?
+     * i.e. what object are we debugging? (Template, GroundSample, NeuralSample,.. ?)
      */
     S debuggingInput;
 
     /**
-     * what we debug is at the end of the pipeline...
+     * what we debug is at the end of the pipeline (...the pipeline can be built or obtained)
      */
     protected Pipeline<Sources, Stream<S>> pipeline = null;
 
@@ -32,7 +32,7 @@ public abstract class PipelineDebugger<S> extends AbstractPipelineBuilder<Source
     public Drawer<S> drawer;
 
     /**
-     * debugging always starts from the very beginning, i.e. Sources
+     * debugging pipeline always starts from the very beginning, i.e. Sources
      */
     protected Sources sources;
 
@@ -43,15 +43,19 @@ public abstract class PipelineDebugger<S> extends AbstractPipelineBuilder<Source
 
     public boolean intermediateDebug;
 
-    public PipelineDebugger(String[] args) {
+    public Debugger(Settings settings) {
+        super(settings);
+    }
+
+    public Debugger(String[] args) {
         this(args, new Settings());
     }
 
-    public PipelineDebugger(String[] args, Settings settings) {
+    public Debugger(String[] args, Settings settings) {
         this(Sources.getSources(args, settings), settings);
     }
 
-    public PipelineDebugger(Sources sources, Settings settings) {
+    public Debugger(Sources sources, Settings settings) {
         super(settings);
         this.sources = sources;
         this.end2endTrainigBuilder = new End2endTrainigBuilder(settings, sources);
@@ -60,17 +64,33 @@ public abstract class PipelineDebugger<S> extends AbstractPipelineBuilder<Source
         this.intermediateDebug = settings.intermediateDebug;
     }
 
-    public void addDebug(Pipeline<?, Stream<S>> pipeline) {
-        pipeline.registerEnd(pipeline.terminal.connectAfter(new Pipe<Stream<S>, Stream<S>>("PeekPipe") {
+    public void executeDebug() {
+        pipeline = buildPipeline();
+        addDebugTerminal(pipeline);
+        pipeline.execute(sources);
+    }
+
+    public void addDebugElement(Pipeline<?, S> pipeline) {
+        pipeline.registerEnd(pipeline.terminal.connectAfter(new Pipe<S, S>("PeekPipe") {
             @Override
-            public Stream<S> apply(Stream<S> stream) {
-                return stream.peek(PipelineDebugger.this::debug);
+            public S apply(S s) {
+                debug(s);
+                return s;
             }
         }));
     }
 
-    public void executeDebug() {
-        pipeline = buildPipeline();
+    public void addDebugStream(Pipeline<?, Stream<S>> pipeline) {
+        pipeline.registerEnd(pipeline.terminal.connectAfter(new Pipe<Stream<S>, Stream<S>>("PeekPipe") {
+            @Override
+            public Stream<S> apply(Stream<S> stream) {
+                return stream.peek(Debugger.this::debug);
+            }
+        }));
+    }
+
+
+    public void addDebugTerminal(Pipeline<?, Stream<S>> pipeline) {
         pipeline.registerEnd(pipeline.terminal.connectAfter(new Pipe<Stream<S>, Stream<S>>("StreamTerminationPipe") {
             @Override
             public Stream<S> apply(Stream<S> stream) {
@@ -83,10 +103,7 @@ public abstract class PipelineDebugger<S> extends AbstractPipelineBuilder<Source
                 return stream;  //obviously the returned stream is void now, should not be used (but we need to keep the pipe I-O interface)
             }
         }));
-        pipeline.execute(sources);
     }
-
-    public abstract void debug(S obj);
 
     public void drawPipeline() {
         PipelineDrawer pipelineDrawer = new PipelineDrawer(settings);
@@ -96,5 +113,7 @@ public abstract class PipelineDebugger<S> extends AbstractPipelineBuilder<Source
     public Pipeline<Sources, Stream<S>> getPipeline() {
         return pipeline;
     }
+
+    public abstract void debug(S obj);
 
 }

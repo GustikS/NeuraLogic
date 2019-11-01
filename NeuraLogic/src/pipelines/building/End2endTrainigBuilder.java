@@ -9,6 +9,7 @@ import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import networks.structure.building.Neuralizer;
 import networks.structure.export.NeuralSerializer;
+import pipelines.ConnectAfter;
 import pipelines.Merge;
 import pipelines.Pipe;
 import pipelines.Pipeline;
@@ -39,35 +40,20 @@ public class End2endTrainigBuilder extends AbstractPipelineBuilder<Sources, Pair
     public Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> buildPipeline() {
         Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> pipeline = new Pipeline<>("End2endNNBuilder", this);
 
-        //to transfer parameters from groundings to neural nets
-        WeightFactory weightFactory = new WeightFactory();
+        //build neural nets first
+        End2endNNBuilder end2endNNBuilder = new End2endNNBuilder();
+        Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> buildNNsPipeline = pipeline.registerStart(end2endNNBuilder.buildPipeline());
+        ConnectAfter<Template> template = end2endNNBuilder.getTemplate();
 
-        //pipelines
-        Pipeline<Sources, Pair<Template, Stream<LogicSample>>> sourcesPairPipeline = pipeline.registerStart(buildFromSources(sources, settings));
-        Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> groundingPipeline = pipeline.register(buildGrounding(settings, weightFactory));
-        Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> neuralizationPipeline = pipeline.register(buildNeuralNets(settings, weightFactory));
+        //training
         Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Progress>> trainingPipeline = pipeline.register(buildTraining(settings));
 
-        //simple pipes
-        Pipe<Template, NeuralModel> templateNeuralModelPipe = pipeline.register(convertModel());
+        buildNNsPipeline.connectAfter(trainingPipeline);
 
         //helper blocks
-        FirstFromPairExtractionBranch<Template, Stream<LogicSample>> templateSamplesBranch = pipeline.register(new FirstFromPairExtractionBranch<>());
-        DuplicateBranch<Template> templateDuplicateBranch = pipeline.register(new DuplicateBranch<>());
-        PairMerge<NeuralModel, Stream<NeuralSample>> neuralMerge = pipeline.register(new PairMerge<>());
         Merge<Template, Pair<NeuralModel, Progress>, Pair<Pair<Template, NeuralModel>, Progress>> trainingResultTemplateMerge = pipeline.registerEnd(trainingResultsTemplateMerge());
 
-        //connecting the execution graph
-        sourcesPairPipeline.connectAfter(templateSamplesBranch);
-        templateSamplesBranch.connectAfterL(groundingPipeline).connectAfter(neuralizationPipeline);
-        templateSamplesBranch.connectAfterR(templateDuplicateBranch);
-        templateDuplicateBranch.connectAfterL(templateNeuralModelPipe);
-
-        neuralMerge.connectBeforeL(templateNeuralModelPipe);
-        neuralMerge.connectBeforeR(neuralizationPipeline);
-        neuralMerge.connectAfter(trainingPipeline);
-
-        trainingResultTemplateMerge.connectBeforeL(templateDuplicateBranch.output2);
+        trainingResultTemplateMerge.connectBeforeL(template);
         trainingResultTemplateMerge.connectBeforeR(trainingPipeline);
 
         settings.root = pipeline;
@@ -75,7 +61,7 @@ public class End2endTrainigBuilder extends AbstractPipelineBuilder<Sources, Pair
     }
 
     public Pipeline<Sources, Pair<Template, Stream<LogicSample>>> buildFromSources(Sources sources, Settings settings) {
-        TemplateSamplesBuilder templateSamplesBuilder = new TemplateSamplesBuilder(sources,settings);
+        TemplateSamplesBuilder templateSamplesBuilder = new TemplateSamplesBuilder(sources, settings);
         return templateSamplesBuilder.buildPipeline();
     }
 
@@ -102,7 +88,63 @@ public class End2endTrainigBuilder extends AbstractPipelineBuilder<Sources, Pair
         return new TrainingResultTemplateMerge();
     }
 
-    Pipe<Pair<NeuralModel, Stream<NeuralSample>>, Pair<List<NeuralSerializer.SerializedWeight>, Stream<NeuralSerializer.SerializedSample>>> getSerializationPipe(){
-        return new NeuralSerializerPipe();
+
+    /**
+     * Helper class to delegate NN building
+     */
+    public class End2endNNBuilder extends AbstractPipelineBuilder<Sources, Pair<NeuralModel, Stream<NeuralSample>>> {
+
+        private DuplicateBranch<Template> templateDuplicateBranch;
+
+        public End2endNNBuilder() {
+            super(End2endTrainigBuilder.this.settings);
+        }
+
+
+        @Override
+        public Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> buildPipeline() {
+            Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> pipeline = new Pipeline<>("end2endNNbuilding", this);
+
+            //simple pipes
+            FirstFromPairExtractionBranch<Template, Stream<LogicSample>> templateSamplesBranch = pipeline.register(new FirstFromPairExtractionBranch<>());
+            templateDuplicateBranch = pipeline.register(new DuplicateBranch<>());
+
+            //to transfer parameters from groundings to neural nets
+            WeightFactory weightFactory = new WeightFactory();
+
+            //pipelines
+            Pipeline<Sources, Pair<Template, Stream<LogicSample>>> sourcesPairPipeline = pipeline.registerStart(buildFromSources(sources, settings));
+            Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> groundingPipeline = pipeline.register(buildGrounding(settings, weightFactory));
+            Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> neuralizationPipeline = pipeline.register(buildNeuralNets(settings, weightFactory));
+
+            //connecting the execution graph
+            sourcesPairPipeline.connectAfter(templateSamplesBranch);
+            templateSamplesBranch.connectAfterL(groundingPipeline).connectAfter(neuralizationPipeline);
+            templateSamplesBranch.connectAfterR(templateDuplicateBranch);
+
+            PairMerge<NeuralModel, Stream<NeuralSample>> neuralMerge = pipeline.registerEnd(new PairMerge<>());
+
+            //prepare for training
+            Pipe<Template, NeuralModel> template2NeuralModelPipe = pipeline.register(convertModel());
+            templateDuplicateBranch.connectAfterL(template2NeuralModelPipe);
+
+            neuralMerge.connectBeforeL(template2NeuralModelPipe);
+            neuralMerge.connectBeforeR(neuralizationPipeline);
+
+            return pipeline;
+        }
+
+        public Pair<List<NeuralSerializer.SerializedWeight>, Stream<NeuralSerializer.SerializedSample>> getSerializedNNs() {
+            Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> buildNNsPipeline = buildPipeline();
+            NeuralSerializerPipe neuralSerializerPipe = new NeuralSerializerPipe();
+            Pipe<Pair<NeuralModel, Stream<NeuralSample>>, Pair<List<NeuralSerializer.SerializedWeight>, Stream<NeuralSerializer.SerializedSample>>> serializationPipe = buildNNsPipeline.connectAfter(neuralSerializerPipe);
+            return serializationPipe.get();
+        }
+
+
+        public ConnectAfter<Template> getTemplate() {
+            return templateDuplicateBranch.output2;
+        }
+
     }
 }

@@ -42,6 +42,7 @@ public class NeuralNetDrawer extends Drawer<NeuralSample> {
 
         this.graphviz.start_graph();
         iterateNetwork();
+        this.graphviz.addln(sample.query.neuron.getIndex() + " [shape = tripleoctagon]");
         this.graphviz.end_graph();
     }
 
@@ -141,38 +142,38 @@ public class NeuralNetDrawer extends Drawer<NeuralSample> {
 
         @Override
         public void visit(UnweightedAtomNeuron neuron) {
-            gv.addln(neuron.index + " [shape=ellipse, color=gray30, label=" + getNeuronLabel(neuron) + "]");
+            gv.addln(neuron.index + " [shape=ellipse, color=blue, label=" + getNeuronLabel(neuron) + "]");
             gv.addln(getEdges(neuron));
         }
 
         @Override
         public void visit(AtomNeuron neuron) {
-            gv.addln(neuron.index + " [shape=ellipse, color=gray30, label=" + getNeuronLabel(neuron) + "]");
+            gv.addln(neuron.index + " [shape=ellipse, color=blue, label=" + getNeuronLabel(neuron) + "]");
             gv.addln(getEdges(neuron));
         }
 
         @Override
         public void visit(AggregationNeuron neuron) {
-            gv.addln(neuron.index + " [shape=box, color=gray20, label=" + getNeuronLabel(neuron) + "]");
+            gv.addln(neuron.index + " [shape=box, color=green, label=" + getNeuronLabel(neuron) + "]");
             gv.addln(getEdges(neuron));
         }
 
         @Override
         public void visit(RuleNeuron neuron) {
-            gv.addln(neuron.index + " [shape=ellipse, color=gray10, label=" + getNeuronLabel(neuron) + "]");
+            gv.addln(neuron.index + " [shape=ellipse, color=red, label=" + getNeuronLabel(neuron) + "]");
             gv.addln(getEdges(neuron));
         }
 
         @Override
         public void visit(WeightedRuleNeuron neuron) {
-            gv.addln(neuron.index + " [shape=ellipse, color=gray10, label=" + getNeuronLabel(neuron) + "]");
+            gv.addln(neuron.index + " [shape=ellipse, color=red, label=" + getNeuronLabel(neuron) + "]");
             gv.addln(getEdges(neuron));
         }
 
 
         @Override
         public void visit(FactNeuron neuron) {
-            gv.addln(neuron.index + " [shape=house, color=gray0, label=" + getNeuronLabel(neuron) + "]");
+            gv.addln(neuron.index + " [shape=house, color=black, label=" + getNeuronLabel(neuron) + "]");
             gv.addln();
         }
     }

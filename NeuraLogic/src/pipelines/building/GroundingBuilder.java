@@ -5,6 +5,7 @@ import constructs.example.LogicSample;
 import constructs.template.Template;
 import grounding.Grounder;
 import grounding.GroundingSample;
+import grounding.debugging.GroundingDebugger;
 import pipelines.ConnectAfter;
 import pipelines.Pipe;
 import pipelines.Pipeline;
@@ -97,6 +98,10 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
 
             nextPipe.connectAfter(groundReducingPipe);
             nextPipe = groundReducingPipe;
+        }
+
+        if (settings.debugGrounding){
+            new GroundingDebugger(settings).addDebugStream(pipeline);
         }
 
         return pipeline;

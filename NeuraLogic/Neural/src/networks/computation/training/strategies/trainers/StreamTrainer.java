@@ -14,5 +14,5 @@ public interface StreamTrainer {
      * @param sampleStream
      * @return
      */
-    abstract Stream<Result> learnEpoch(NeuralModel neuralModel, Stream<NeuralSample> sampleStream);
+    Stream<Result> learnEpoch(NeuralModel neuralModel, Stream<NeuralSample> sampleStream);
 }

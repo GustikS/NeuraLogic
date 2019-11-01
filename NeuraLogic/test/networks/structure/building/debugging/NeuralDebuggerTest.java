@@ -13,7 +13,7 @@ public class NeuralDebuggerTest {
         Logging logging = Logging.initLogging();
         String[] args = new String("-path ./resources/datasets/family").split(" ");
         Settings settings = new Settings();
-        settings.intermediateDebug = false;
+        settings.intermediateDebug = true;
         Settings.loggingLevel = Level.WARNING;
         NeuralDebugger neuralDebugger = new NeuralDebugger(args, settings);
         neuralDebugger.executeDebug();

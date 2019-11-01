@@ -1,6 +1,7 @@
 package pipelines.building;
 
 import constructs.building.TemplateBuilder;
+import constructs.building.debugging.TemplateDebugger;
 import constructs.template.Template;
 import constructs.template.transforming.MetadataProcessor;
 import constructs.template.transforming.TemplateReducing;
@@ -58,6 +59,9 @@ public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, 
                 Pipe<Template, Template> inferencePipe = pipeline.registerEnd(inferFacts());
                 nextPipe1.connectAfter(inferencePipe);
                 nextPipe1 = inferencePipe;
+            }
+            if (settings.debugTemplate){
+                new TemplateDebugger(settings).addDebugElement(pipeline);
             }
             return pipeline;
         } else {

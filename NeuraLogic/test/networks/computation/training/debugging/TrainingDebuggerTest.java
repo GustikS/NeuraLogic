@@ -10,6 +10,7 @@ public class TrainingDebuggerTest {
         String[] args = new String("-path ./resources/datasets/neural/xor/vectorized/").split(" ");
         Settings settings = new Settings();
         TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        //todo next
     }
 
 }

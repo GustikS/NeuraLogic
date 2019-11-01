@@ -7,6 +7,7 @@ import networks.computation.evaluation.results.Results;
 import networks.computation.evaluation.values.distributions.ValueInitializer;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
+import networks.computation.training.debugging.TrainingDebugger;
 import networks.computation.training.optimizers.Optimizer;
 import networks.computation.training.strategies.Hyperparameters.LearnRateDecayStrategy;
 import networks.computation.training.strategies.Hyperparameters.RestartingStrategy;
@@ -44,10 +45,12 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     ValueInitializer valueInitializer;
 
+    private TrainingDebugger trainingDebugger;
+
     public IterativeTrainingStrategy(Settings settings, NeuralModel model, List<NeuralSample> sampleList) {
         super(settings, model);
         this.trainer = getTrainerFrom(settings);
-        this.currentModel = model.cloneWeights();
+        this.currentModel = model.clone();
         this.bestModel = this.currentModel;
         this.valueInitializer = ValueInitializer.getInitializer(settings);
 
@@ -57,6 +60,8 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
         this.learnRateDecayStrategy = LearnRateDecayStrategy.getFrom(settings, learningRate);
         this.restartingStrategy = RestartingStrategy.getFrom(settings);
+
+        this.trainingDebugger = new TrainingDebugger(settings);
     }
 
     private Pair<List<NeuralSample>, List<NeuralSample>> trainingValidationSplit(List<NeuralSample> sampleList) {
@@ -131,6 +136,10 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         Utilities.logMemory();
         if (count % settings.resultsRecalculationEpochae == 0) {
             recalculateResults();
+            if (settings.debugTemplateTraining) {
+                currentModel.getTemplate().updateWeightsFrom(currentModel);
+                trainingDebugger.debug(currentModel.getTemplate());
+            }
         }
     }
 
@@ -172,7 +181,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     private void saveIfBest(Progress.TrainVal trainVal) {
         if (progress.bestResults == null || trainVal.betterThan(progress.bestResults)) {
-            bestModel = currentModel.cloneWeights();
+            bestModel = currentModel.clone();
             progress.bestResults = trainVal;
         }
     }

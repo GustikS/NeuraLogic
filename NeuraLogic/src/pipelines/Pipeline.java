@@ -1,7 +1,7 @@
 package pipelines;
 
-import networks.computation.evaluation.results.Results;
 import pipelines.building.AbstractPipelineBuilder;
+import pipelines.debug.PipelineDebugger;
 import settings.Settings;
 import settings.Sources;
 import utils.Exporter;
@@ -36,16 +36,16 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
      */
     public ConnectAfter<T> terminal;
 
-    ConcurrentHashMap<String, Branch> branches = new ConcurrentHashMap<>();
-    ConcurrentHashMap<String, Merge> merges = new ConcurrentHashMap<>();
-    ConcurrentHashMap<String, Pipe> pipes = new ConcurrentHashMap<>();
+    public ConcurrentHashMap<String, Branch> branches = new ConcurrentHashMap<>();
+    public ConcurrentHashMap<String, Merge> merges = new ConcurrentHashMap<>();
+    public ConcurrentHashMap<String, Pipe> pipes = new ConcurrentHashMap<>();
 
     @Deprecated
     ConcurrentHashMap<String, ParallelPipe> multiPipes = new ConcurrentHashMap<>();
     ConcurrentHashMap<String, MultiBranch> multiBranches = new ConcurrentHashMap<>();
     ConcurrentHashMap<String, MultiMerge> multiMerges = new ConcurrentHashMap<>();
 
-    ConcurrentHashMap<String, Pipeline> pipelines = new ConcurrentHashMap<>();
+    public ConcurrentHashMap<String, Pipeline> pipelines = new ConcurrentHashMap<>();
 
     /**
      * input BEFORE this pipeline
@@ -61,12 +61,26 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
      */
     private boolean invalidated = false;
 
-    public static Pipeline<Sources, Results> getPipeline(Settings settings, Sources sources) {
+    /**
+     * Get any pipeline starting from sources
+     *
+     * @param settings
+     * @param sources
+     * @return
+     */
+    public static Pipeline<Sources, ?> getPipeline(Settings settings, Sources sources) {
         LOG.finest("Building pipeline from sources and settings...");
-        AbstractPipelineBuilder<Sources, Results> pipelineBuilder = AbstractPipelineBuilder.getBuilder(sources, settings);
-        Pipeline<Sources, Results> pipeline = pipelineBuilder.buildPipeline();
-        LOG.finest("Themainte pipeline has been built");
+        AbstractPipelineBuilder<Sources, ?> pipelineBuilder = AbstractPipelineBuilder.getBuilder(sources, settings);
+        Pipeline<Sources, ?> pipeline = pipelineBuilder.buildPipeline();
+        if (settings.debugPipeline) {
+            pipeline.debug();
+        }
+        LOG.finest("The main pipeline has been built");
         return pipeline;
+    }
+
+    private void debug() {
+        new PipelineDebugger(settings).debug(this);
     }
 
     private Pipeline(String id) {
@@ -230,13 +244,13 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
         Pipeline<S, T> pipeline = originalBuilder.buildPipeline();
         if (!this.start.toString().equals(pipeline.start.toString())) {
             LOG.warning("Pipeline start changed after rebuild from " + this.start.toString() + " to " + pipeline.start.toString());
-            if (this.parent.start == this.start){
+            if (this.parent.start == this.start) {
                 this.parent.start = pipeline.start;
             }
         }
         if (!this.terminal.toString().equals(pipeline.terminal.toString())) {
             LOG.warning("Pipeline terminal changed after rebuild from " + this.terminal.toString() + " to " + pipeline.terminal.toString());
-            if (this.parent.terminal == this.terminal){
+            if (this.parent.terminal == this.terminal) {
                 this.parent.terminal = pipeline.terminal;
             }
         }

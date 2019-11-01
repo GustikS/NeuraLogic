@@ -6,21 +6,29 @@ import networks.computation.training.NeuralSample;
 import pipelines.Pipeline;
 import settings.Settings;
 import settings.Sources;
-import utils.PipelineDebugger;
+import utils.Debugger;
 import utils.drawing.NeuralNetDrawer;
 
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class NeuralDebugger extends PipelineDebugger<NeuralSample> {
+public class NeuralDebugger extends Debugger<NeuralSample> {
     private static final Logger LOG = Logger.getLogger(NeuralDebugger.class.getName());
 
-    GroundingDebugger groundingDebugger;
+    public GroundingDebugger groundingDebugger;
+
+    public NeuralDebugger(Settings settings) {
+        super(settings);
+    }
 
     public NeuralDebugger(String[] args, Settings settings) {
         super(args, settings);
         drawer = new NeuralNetDrawer(settings);
         groundingDebugger = new GroundingDebugger(args, settings);
+    }
+
+    public NeuralDebugger(Sources sources, Settings settings) {
+        super(sources, settings);
     }
 
     @Override
@@ -31,8 +39,8 @@ public class NeuralDebugger extends PipelineDebugger<NeuralSample> {
     @Override
     public Pipeline<Sources, Stream<NeuralSample>> buildPipeline() {
         Pipeline<Sources, Stream<GroundingSample>> groundingPipeline = pipeline.registerStart(groundingDebugger.buildPipeline());
-        if (intermediateDebug){
-            groundingDebugger.addDebug(groundingPipeline);
+        if (intermediateDebug) {
+            groundingDebugger.addDebugStream(groundingPipeline);
         }
         Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> buildNeuralNets =
                 pipeline.registerEnd(end2endTrainigBuilder.buildNeuralNets(settings, groundingDebugger.getWeightFactory()));

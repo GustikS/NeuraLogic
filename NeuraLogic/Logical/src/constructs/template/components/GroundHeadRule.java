@@ -42,6 +42,6 @@ public class GroundHeadRule {
     }
 
     public String toFullString() {
-        return groundHead.toString() + " -> " + weightedRule.getOriginalString();
+        return groundHead.toString() + " := " + weightedRule.getOriginalString();
     }
 }
