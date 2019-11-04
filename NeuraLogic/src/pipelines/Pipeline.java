@@ -41,9 +41,10 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
     public ConcurrentHashMap<String, Pipe> pipes = new ConcurrentHashMap<>();
 
     @Deprecated
+    public
     ConcurrentHashMap<String, ParallelPipe> multiPipes = new ConcurrentHashMap<>();
-    ConcurrentHashMap<String, MultiBranch> multiBranches = new ConcurrentHashMap<>();
-    ConcurrentHashMap<String, MultiMerge> multiMerges = new ConcurrentHashMap<>();
+    public ConcurrentHashMap<String, MultiBranch> multiBranches = new ConcurrentHashMap<>();
+    public ConcurrentHashMap<String, MultiMerge> multiMerges = new ConcurrentHashMap<>();
 
     public ConcurrentHashMap<String, Pipeline> pipelines = new ConcurrentHashMap<>();
 
@@ -136,12 +137,16 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
 
     public <I, O1, O2, A extends Branch<I, O1, O2>> A register(A b) {
         branches.put(b.ID, b);
+        register(b.output1);
+        register(b.output2);
         b.parent = this;
         return b;
     }
 
     public <I1, I2, O, A extends Merge<I1, I2, O>> A register(A m) {
         merges.put(m.ID, m);
+        register(m.input1);
+        register(m.input2);
         m.parent = this;
         return m;
     }

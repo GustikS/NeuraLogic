@@ -23,7 +23,7 @@ public class GraphTemplate extends Template {
     /**
      * Maps any literal from the template to a list of rules with a compatible (subsumable) head
      */
-    public Map<Literal, List<WeightedRule>> atom2rules;
+    public Map<Literal, Set<WeightedRule>> atom2rules;
     /**
      * Set of literals that are simple facts inferred directly from the template
      */
@@ -51,7 +51,7 @@ public class GraphTemplate extends Template {
         for (WeightedRule rule : template.rules) {
             List<WeightedRule> list = predicate2heads.computeIfAbsent(rule.getHead().literal.predicate(), k -> new ArrayList<>());
             list.add(rule);
-            List<WeightedRule> list2 = atom2rules.computeIfAbsent(rule.getHead().literal, k -> new ArrayList<>());
+            Set<WeightedRule> list2 = atom2rules.computeIfAbsent(rule.getHead().literal, k -> new HashSet<>());
             list2.add(rule);
         }
 
@@ -65,7 +65,7 @@ public class GraphTemplate extends Template {
                             // if the head of this possibleRule can be unified with the bodyatom, add such a possible path
                             if (matching.subsumption(new Clause(possibleRule.getHead().literal), new Clause(bodyAtom.literal))) { //todo check and optimize this
                                 hasChildren = true;
-                                List<WeightedRule> rules4atom = atom2rules.computeIfAbsent(bodyAtom.literal, k -> new ArrayList<>());
+                                Set<WeightedRule> rules4atom = atom2rules.computeIfAbsent(bodyAtom.literal, k -> new HashSet<>());
                                 rules4atom.add(possibleRule);
                             }
                         }
@@ -103,7 +103,7 @@ public class GraphTemplate extends Template {
     }
 
     private void recursePrune(Literal head, LinkedHashSet<WeightedRule> rules) {
-        List<WeightedRule> childrenRules = atom2rules.get(head);
+        Set<WeightedRule> childrenRules = atom2rules.get(head);
         if (childrenRules == null) return;
 
         for (WeightedRule rule : childrenRules) {

@@ -18,7 +18,8 @@ public class MainTest {
         settings.shuffleBeforeTraining = false;
         settings.seed = 0;
         settings.initLearningRate = 0.1;
-        settings.maxCumEpochCount = 20000;
+        settings.maxCumEpochCount = 1000;
+        settings.resultsRecalculationEpochae = 20;
         settings.neuralNetsPostProcessing = false;  //crucial to be True!
         settings.pruneNetworks = true;
         settings.optimizer = Settings.OptimizerSet.ADAM;

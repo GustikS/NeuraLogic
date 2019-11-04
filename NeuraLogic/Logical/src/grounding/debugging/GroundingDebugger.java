@@ -20,6 +20,7 @@ public class GroundingDebugger extends Debugger<GroundingSample> {
 
     public GroundingDebugger(Settings settings){
         super(settings);
+        drawer = new GroundingDrawer(settings);
     }
 
     public GroundingDebugger(String[] args, Settings settings) {
@@ -31,6 +32,7 @@ public class GroundingDebugger extends Debugger<GroundingSample> {
 
     public GroundingDebugger(Sources sources, Settings settings) {
         super(sources, settings);
+        drawer = new GroundingDrawer(settings);
     }
 
     @Override

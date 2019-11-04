@@ -50,7 +50,6 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     public IterativeTrainingStrategy(Settings settings, NeuralModel model, List<NeuralSample> sampleList) {
         super(settings, model);
         this.trainer = getTrainerFrom(settings);
-        this.currentModel = model.clone();
         this.bestModel = this.currentModel;
         this.valueInitializer = ValueInitializer.getInitializer(settings);
 
@@ -154,11 +153,12 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     protected Pair<NeuralModel, Progress> finish() {
         evaluateModel(bestModel);
+        super.endTrainingStrategy();    //e.g. restore the world state
         return new Pair<>(bestModel, progress);
     }
 
     private TrainVal evaluateModel(NeuralModel neuralModel) {
-        currentModel.loadWeights(neuralModel);
+        currentModel.loadWeightValues(neuralModel);
         return evaluateModel();
     }
 
@@ -181,12 +181,8 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     private void saveIfBest(Progress.TrainVal trainVal) {
         if (progress.bestResults == null || trainVal.betterThan(progress.bestResults)) {
-            bestModel = currentModel.clone();
+            bestModel = currentModel.cloneValues();
             progress.bestResults = trainVal;
         }
-    }
-
-    public NeuralModel getBestModel() {
-        return bestModel;
     }
 }

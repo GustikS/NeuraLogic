@@ -19,15 +19,30 @@ public class TrainingDebugger extends TemplateDebugger {
     private static final Logger LOG = Logger.getLogger(TrainingDebugger.class.getName());
 
     public TrainingDebugger(String[] args, Settings settings) {
-        super(settings);
+        super(args, settings);
+        if (intermediateDebug){
+            settings.debugTemplate = true;
+            settings.debugSampleTraining = true;
+            settings.debugGrounding = true;
+        }
     }
 
     public TrainingDebugger(Sources sources, Settings settings) {
         super(sources, settings);
+        if (intermediateDebug){
+            settings.debugTemplate = true;
+            settings.debugSampleTraining = true;
+            settings.debugGrounding = true;
+        }
     }
 
     public TrainingDebugger(Settings settings) {
         super(settings);
+        if (intermediateDebug){
+            settings.debugTemplate = true;
+            settings.debugSampleTraining = true;
+            settings.debugGrounding = true;
+        }
     }
 
     /**

@@ -5,7 +5,9 @@ import settings.Settings;
 import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * This class is a (significant) modification of a simple java-graphviz wrapper
@@ -146,6 +148,16 @@ public class GraphViz {
      */
     public void addln() {
         this.graph.append('\n');
+    }
+
+    public void uniqueLines(){
+        String[] split = graph.toString().split("\n");
+        HashSet<String> strings = new HashSet<>();
+        for (String s : split) {
+            strings.add(s);
+        }
+        String collect = strings.stream().collect(Collectors.joining("\n"));
+        graph = new StringBuilder(collect);
     }
 
     public void clearGraph() {

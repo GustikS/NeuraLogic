@@ -7,9 +7,7 @@ import java.util.List;
 /**
  * Created by gusta on 8.3.17.
  */
-public class RegressionResults extends Results{
-    private Double dispersion;
-    private Double mse;
+public class RegressionResults extends Results {
 
     public RegressionResults(List<Result> outputs, Aggregation aggregationFcn) {
         super(outputs, aggregationFcn);
@@ -27,6 +25,6 @@ public class RegressionResults extends Results{
 
     @Override
     public boolean betterThan(Results other) {
-        return false;
+        return other.error.greaterThan(error);
     }
 }

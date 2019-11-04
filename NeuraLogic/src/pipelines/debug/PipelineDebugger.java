@@ -21,5 +21,4 @@ public class PipelineDebugger {
         //todo more debugging/checking
         pipelineDrawer.draw(pipeline);
     }
-
 }

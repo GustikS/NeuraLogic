@@ -19,6 +19,7 @@ public class NeuralDebugger extends Debugger<NeuralSample> {
 
     public NeuralDebugger(Settings settings) {
         super(settings);
+        drawer = new NeuralNetDrawer(settings);
     }
 
     public NeuralDebugger(String[] args, Settings settings) {
@@ -29,6 +30,7 @@ public class NeuralDebugger extends Debugger<NeuralSample> {
 
     public NeuralDebugger(Sources sources, Settings settings) {
         super(sources, settings);
+        drawer = new NeuralNetDrawer(settings);
     }
 
     @Override

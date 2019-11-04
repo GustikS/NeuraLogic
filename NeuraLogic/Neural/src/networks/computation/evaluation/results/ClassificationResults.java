@@ -15,9 +15,9 @@ public class ClassificationResults extends RegressionResults {
     private Double accuracy;
     private Double precision;
     private Double recall;
-    private Value error;
     private Double f_Measure;
     private Double majorityErr;
+    private Double dispersion;
 
     public ClassificationResults(List<Result> outputs, Aggregation aggregationFcn) {
         super(outputs, aggregationFcn);

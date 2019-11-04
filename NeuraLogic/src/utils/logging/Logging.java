@@ -26,11 +26,14 @@ public class Logging {
 
     long startupTime = System.currentTimeMillis();
 
-
     public static Logging initLogging() {
+        return initLogging(Settings.loggingLevel);
+    }
+
+    public static Logging initLogging(Level loggingLevel) {
         Logging logging = new Logging();
         try {
-            logging.initialize();
+            logging.initialize(loggingLevel);
             LOG.info("Launched NeuraLogic from location " + System.getProperty("user.dir"));
         } catch (IOException ex) {
             LOG.severe("Could not initialize Logging.\n" + ex.getMessage());
@@ -39,7 +42,7 @@ public class Logging {
         return logging;
     }
 
-    public void initialize() throws IOException {
+    public void initialize(Level loggingLevel) throws IOException {
         System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tF %1$tT [%4$s] (%2$s) : %5$s%6$s%n");
         System.setProperty("java.util.logging.ConsoleHandler.level", "FINEST");
 
@@ -62,12 +65,12 @@ public class Logging {
                     consoleFormatter = new SimpleFormatter();
                 }
                 StreamHandler sh = new FlushStreamHandler(System.out, consoleFormatter);
-                sh.setLevel(Settings.loggingLevel);
+                sh.setLevel(loggingLevel);
                 rootLogger.addHandler(sh);
             }
         }
 
-        rootLogger.setLevel(Settings.loggingLevel);
+        rootLogger.setLevel(loggingLevel);
 
         if (!Settings.supressLogFileOutput) {
             File parentFile = new File(Settings.logFile).getParentFile();

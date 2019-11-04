@@ -172,6 +172,10 @@ public class Sources {
             LOG.severe("Input streams other than from source files not implemented yet");
             throw new NotImplementedException();
         }
+
+        if (cmd.hasOption("xval")) {
+            sources.crossvalidation = true;
+        }
         return sources;
     }
 }

@@ -28,7 +28,13 @@ public class TemplateDebugger extends Debugger<Template> {
 
     public TemplateDebugger(Sources sources, Settings settings) {
         super(sources, settings);
+        drawer = new TemplateDrawer(settings);
 
+    }
+
+    public TemplateDebugger(String[] args, Settings settings) {
+        super(args, settings);
+        drawer = new TemplateDrawer(settings);
     }
 
     @Override

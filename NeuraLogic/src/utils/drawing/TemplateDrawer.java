@@ -9,8 +9,8 @@ import ida.ilp.logic.Literal;
 import settings.Settings;
 
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static utils.drawing.GraphViz.sanitize;
 
@@ -24,24 +24,26 @@ public class TemplateDrawer extends Drawer<Template> {
 
     @Override
     public void loadGraph(Template obj) {
+        graphviz.start_graph();
         if (obj instanceof GraphTemplate) {
             loadGraph((GraphTemplate) obj);
         } else {
             loadGraph(new GraphTemplate(obj));
         }
+        graphviz.end_graph();
     }
 
     public void loadGraph(GraphTemplate obj) {
-        Map<Literal, List<WeightedRule>> atom2rules = obj.atom2rules;
+        Map<Literal, Set<WeightedRule>> atom2rules = obj.atom2rules;
         LinkedHashSet<ValuedFact> facts = obj.facts;
 
         for (ValuedFact fact : facts) {
             graphviz.addln(draw(fact));
         }
 
-        for (Map.Entry<Literal, List<WeightedRule>> entry : atom2rules.entrySet()) {
+        for (Map.Entry<Literal, Set<WeightedRule>> entry : atom2rules.entrySet()) {
             Literal literal = entry.getKey();
-            List<WeightedRule> rules = entry.getValue();
+            Set<WeightedRule> rules = entry.getValue();
             graphviz.addln(draw(literal));
             for (WeightedRule rule : rules) {
                 graphviz.addln(draw(rule)); //rule with subsumable head by this literal
@@ -55,8 +57,9 @@ public class TemplateDrawer extends Drawer<Template> {
     }
 
     private String draw(WeightedRule rule, BodyAtom bodyAtom) {
-        String edgeColor = bodyAtom.isNegated() ? "red" : "blue";
-        return rule.hashCode() + " -> " + bodyAtom.hashCode() + "[label=" + sanitize(bodyAtom.getConjunctWeight().toString()) + ", color=" + edgeColor + "]";
+        String edgeColor = bodyAtom.isNegated() ? "red" : "black";
+        String weight = bodyAtom.getConjunctWeight() == null ? "" : bodyAtom.getConjunctWeight().toString();
+        return rule.hashCode() + " -> " + bodyAtom.hashCode() + "[label=" + sanitize(weight) + ", color=" + edgeColor + "]";
     }
 
     private String draw(BodyAtom bodyAtom) {
@@ -72,7 +75,7 @@ public class TemplateDrawer extends Drawer<Template> {
     }
 
     private String draw(WeightedRule rule) {
-        return rule.hashCode() + "[label=" + sanitize(rule.getOriginalString()) + "]";
+        return rule.hashCode() + "[label=" + sanitize(rule.getOriginalString()) + ", shape=rarrow, color=green]";
     }
 
     private String draw(ValuedFact fact) {

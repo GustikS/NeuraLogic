@@ -31,7 +31,7 @@ public class Weight {
     //public String originalString;
 
     public boolean isOffset;
-    public Value momentum;
+    public Value momentum;  //todo move these to some map within Adam?
     public Value velocity;
 
     public WeightMetadata metadata;
@@ -56,8 +56,10 @@ public class Weight {
         clone.metadata = this.metadata;
         clone.dropout = this.dropout;
         clone.isShared = this.isShared;
-        clone.momentum = this.momentum.clone();
-        clone.velocity = this.velocity.clone();
+        if (momentum != null) { //adam
+            clone.momentum = this.momentum.clone();
+            clone.velocity = this.velocity.clone();
+        }
         return clone;
     }
 

@@ -422,6 +422,12 @@ public class Settings {
      */
     public double trainValidationPercentage = 0;
 
+    /**
+     * After neural training, i.e. finding the best set of parameters and error values,
+     * should we return the state of all the parameters (Weights) back to the state before training?
+     */
+    public boolean undoWeightTrainingChanges;
+
     //-----------------Structure Learning
     public boolean structureLearning;
 
@@ -518,6 +524,11 @@ public class Settings {
     }
 
     public void setupFromCommandline(CommandLine cmd) {
+
+        if (cmd.hasOption("xval")) {
+            String _xval = cmd.getOptionValue("xval", String.valueOf(foldsCount));
+            foldsCount = Integer.parseInt(_xval);
+        }
 
         String _seed = cmd.getOptionValue("seed", String.valueOf(seed));
         random = new Random(Integer.parseInt(_seed));

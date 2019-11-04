@@ -138,7 +138,7 @@ public class SourceFiles extends Sources {
         }
 
         try {
-            String trainExamplesPath = cmd.getOptionValue("trainExamples", settings.trainExamplesFile);
+            String trainExamplesPath = cmd.getOptionValue("trainExamples", settings.trainExamplesFile); //todo next let us have "examples.txt" option too
             if (trainExamplesPath.startsWith("\\.") || settings.sourcePathProvided) {
                 this.trainExamples = Paths.get(foldDir.toString(), trainExamplesPath).toFile();
             } else {

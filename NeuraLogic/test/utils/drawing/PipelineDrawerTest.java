@@ -1,20 +1,22 @@
-package pipelines.debug;
+package utils.drawing;
 
 import org.junit.Test;
 import pipelines.Pipeline;
 import pipelines.building.AbstractPipelineBuilder;
+import pipelines.debug.PipelineDebugger;
 import settings.Settings;
 import settings.Sources;
 import utils.logging.Logging;
 
 import java.util.logging.Level;
 
-public class PipelineDebuggerTest {
+import static org.junit.Assert.*;
 
+public class PipelineDrawerTest {
     @Test
-    public void family() {
+    public void mutagen() {
         Logging logging = Logging.initLogging(Level.FINEST);
-        String[] args = new String("-path ./resources/datasets/family").split(" ");
+        String[] args = "-path ./resources/datasets/mutagenesis".split(" ");
 
         Settings settings = new Settings();
 
@@ -25,5 +27,4 @@ public class PipelineDebuggerTest {
         Pipeline<Sources, ?> sourcesPipeline = builder.buildPipeline();
         pipelineDebugger.debug(sourcesPipeline);
     }
-
 }

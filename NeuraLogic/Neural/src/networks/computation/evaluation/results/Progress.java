@@ -77,7 +77,7 @@ public class Progress {
             if (other.validation.evaluations != null && !other.validation.evaluations.isEmpty()) {
                 return validation.betterThan(other.validation);
             } else {
-                return training.betterThan(training);
+                return training.betterThan(other.training);
             }
         }
     }

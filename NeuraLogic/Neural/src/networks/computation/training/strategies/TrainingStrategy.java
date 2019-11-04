@@ -18,6 +18,11 @@ public abstract class TrainingStrategy {
 
     Settings settings;
 
+    /**
+     * To be stored at the beginning and recovered after training, so that the training doesnt change
+     */
+    private NeuralModel initModel;
+
     NeuralModel currentModel;
 
     double learningRate;
@@ -28,7 +33,16 @@ public abstract class TrainingStrategy {
         this.settings = settings;
         this.learningRate = settings.initLearningRate;
         this.currentModel = model;
+        storeParametersState(model);
         this.resultsFactory = Results.Factory.getFrom(settings);
+    }
+
+    private void storeParametersState(NeuralModel inputModel) {
+        this.initModel = inputModel.cloneValues();
+    }
+
+    private void loadParametersState() {
+        currentModel.loadWeightValues(initModel);
     }
 
     public abstract Pair<NeuralModel, Progress> train();
@@ -38,6 +52,12 @@ public abstract class TrainingStrategy {
             return new StreamTrainingStrategy(settings, model, sampleStream);
         } else {
             return new IterativeTrainingStrategy(settings, model, sampleStream.collect(Collectors.toList()));
+        }
+    }
+
+    protected void endTrainingStrategy() {
+        if (settings.undoWeightTrainingChanges){
+            loadParametersState();
         }
     }
 

@@ -86,7 +86,11 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
                 settings.groundingMode = Settings.GroundingMode.GLOBAL;
                 LOG.warning("Settings were set to a different grounding mode than detected! Will perform online rebuild of the grounding pipeline!");
                 Pipeline groundingPipeline = settings.root.findPipeline("GroundingPipeline");
-                groundingPipeline.rebuild(settings);
+                if (groundingPipeline == null){
+                    LOG.severe("Not able to rebuild grounding pipeline to perform GLOBAL grounding!!");
+                } else {
+                    groundingPipeline.rebuild(settings);
+                }
             }
         } else {
             LOG.info("Detecting multiple individual examples in the examples source (file), assuming independent graph mode.");

@@ -2,6 +2,7 @@ package networks.computation.evaluation.results;
 
 import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.functions.specific.Average;
+import networks.computation.evaluation.values.Value;
 import settings.Settings;
 
 import java.util.ArrayList;
@@ -25,6 +26,11 @@ public abstract class Results {
      * How to aggregate individual errors of samples. E.g. mean for MSE, or sum for SSE.
      */
     Aggregation aggregationFcn;
+
+    /**
+     * The error fcn value as measured by the respective aggregationFcn over individual sample errorFcns
+     */
+    public Value error;
 
     public Results() {
         evaluations = new ArrayList<>();

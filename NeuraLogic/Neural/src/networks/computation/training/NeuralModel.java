@@ -51,8 +51,11 @@ public class NeuralModel implements Model<QueryNeuron> {
         }
     }
 
-    @Override
-    public NeuralModel clone() {
+    /**
+     * Be careful with this, as the returned weights are not bind in the neural structures, they can be used just to store values
+     * @return
+     */
+    public NeuralModel cloneValues() {
         List<Weight> clonedWeights = weights.stream().map(Weight::clone).collect(Collectors.toList());
         NeuralModel clone = new NeuralModel(clonedWeights, this.settings);
         clone.template = this.template;
@@ -65,8 +68,15 @@ public class NeuralModel implements Model<QueryNeuron> {
         }
     }
 
-    public void loadWeights(NeuralModel neuralModel) {
-        this.weights = neuralModel.clone().weights;
+    /**
+     * Restore weight Values from another model
+     * @param otherModel
+     */
+    public void loadWeightValues(NeuralModel otherModel) {
+        Map<Integer, Weight> otherWeights = otherModel.mapWeightsToIds();
+        for (Weight weight : weights) {
+            weight.value = otherWeights.get(weight.index).value;
+        }
     }
 
     public void dropoutWeights() {

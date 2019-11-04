@@ -11,8 +11,8 @@ public abstract class ParallelPipe<I,O> implements Function<I,O> {
 
     public String ID;
 
-    private List<ConnectAfter<I>> inputs;
-    private List<ConnectBefore<O>> outputs;
+    public List<ConnectAfter<I>> inputs;
+    public List<ConnectBefore<O>> outputs;
 
     public List<Pipe<I,O>> pipes;
 

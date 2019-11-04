@@ -38,7 +38,6 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
         return buildPipeline(sources);
     }
 
-
     public Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> buildPipeline(Sources sources) {
         Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> pipeline = new Pipeline<>("TrainingPipeline", this);
 
