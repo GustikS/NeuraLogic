@@ -106,7 +106,9 @@ public class Template implements Model<QueryAtom> {
         Map<Integer, Weight> neuralWeights = neuralModel.mapWeightsToIds();
         List<Weight> templateWeights = getAllWeights();
         for (Weight weight : templateWeights) {
-            weight.value = neuralWeights.get(weight.index).value;
+            if (weight.isLearnable()) {
+                weight.value = neuralWeights.get(weight.index).value;
+            }
         }
     }
 

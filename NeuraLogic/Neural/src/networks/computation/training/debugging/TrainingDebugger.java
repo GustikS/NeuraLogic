@@ -21,7 +21,8 @@ public class TrainingDebugger extends TemplateDebugger {
     public TrainingDebugger(String[] args, Settings settings) {
         super(args, settings);
         if (intermediateDebug){
-            settings.debugTemplate = true;
+            settings.debugPipeline = true;
+            settings.debugTemplate = true;//todo compress
             settings.debugSampleTraining = true;
             settings.debugGrounding = true;
         }
@@ -30,6 +31,7 @@ public class TrainingDebugger extends TemplateDebugger {
     public TrainingDebugger(Sources sources, Settings settings) {
         super(sources, settings);
         if (intermediateDebug){
+            settings.debugPipeline = true;
             settings.debugTemplate = true;
             settings.debugSampleTraining = true;
             settings.debugGrounding = true;
@@ -39,6 +41,7 @@ public class TrainingDebugger extends TemplateDebugger {
     public TrainingDebugger(Settings settings) {
         super(settings);
         if (intermediateDebug){
+            settings.debugPipeline = true;
             settings.debugTemplate = true;
             settings.debugSampleTraining = true;
             settings.debugGrounding = true;
@@ -54,7 +57,9 @@ public class TrainingDebugger extends TemplateDebugger {
     public Pipeline<Sources, Stream<Template>> buildPipeline() {
         Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> sourcesPairPipeline = pipeline.registerStart(end2endTrainigBuilder.buildPipeline());
         //just extract the learned template
-        Pipe<Pair<Template, NeuralModel>, Template> pairTemplatePipe = pipeline.register(pipeline.register(sourcesPairPipeline.connectAfter(new FirstFromPairPipe<>())).connectAfter(new FirstFromPairPipe<>()));
+        Pipe<Pair<Pair<Template, NeuralModel>, Progress>, Pair<Template, NeuralModel>> pairTemplatePipe1 = pipeline.register(new FirstFromPairPipe<>("FirstFromPairPipe1"));
+        sourcesPairPipeline.connectAfter(pairTemplatePipe1);
+        Pipe<Pair<Template, NeuralModel>, Template> pairTemplatePipe = pipeline.register(pairTemplatePipe1.connectAfter(new FirstFromPairPipe<>("FirstFromPairPipe2")));
         pipeline.registerEnd(pairTemplatePipe.connectAfter(new StreamifyPipe<>()));
         return pipeline;
     }

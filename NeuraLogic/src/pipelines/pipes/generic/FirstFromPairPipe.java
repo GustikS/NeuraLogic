@@ -12,7 +12,7 @@ public class FirstFromPairPipe<R,S> extends Pipe<Pair<R,S>,R> {
         super("FirstFromPairPipe");
     }
 
-    protected FirstFromPairPipe(String id) {
+    public FirstFromPairPipe(String id) {
         super(id);
     }
 

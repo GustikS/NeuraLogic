@@ -107,7 +107,7 @@ public class StandardNeuronVisitors {
             //state.invalidate(); //todo (b) test if faster with invalidation here (at the end of backprop) instead of using separate iteration with networks.computation.iteration.visitors.states.Invalidator ?
             Pair<Iterator<BaseNeuron>, Iterator<Weight>> inputs = network.getInputs(neuron);
 
-            weightUpdater.visit(neuron.offset, gradient);
+            weightUpdater.visit(neuron.offset, gradient);   //todo now add offsets to template
 
             Iterator<BaseNeuron> inputNeurons = inputs.r;
             Iterator<Weight> inputWeights = inputs.s;

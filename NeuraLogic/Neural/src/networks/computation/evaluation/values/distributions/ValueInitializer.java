@@ -15,7 +15,13 @@ public interface ValueInitializer {
 
     void initMatrix(MatrixValue matrix);
 
-    static ValueInitializer getInitializer(Settings settings){
-        return new SimpleInitializer(settings); //todo some other initializers, e.g. where the individual element values are not drawn as i.i.d.
+    static ValueInitializer getInitializer(Settings settings) {
+        if (settings.initializer == Settings.InitSet.GLOROT) {
+            return new GlorotInitializer(settings);
+        } else if (settings.initializer == Settings.InitSet.UNIFORM)
+            return new SimpleInitializer(settings);
+        else
+            return new SimpleInitializer(settings);
+        //todo some other initializers, e.g. where the individual element values are not drawn as i.i.d.
     }
 }

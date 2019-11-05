@@ -30,16 +30,16 @@ public class NeuralModel implements Model<QueryNeuron> {
 
     public NeuralModel(List<Weight> weights, Settings settings) {
         this.settings = settings;
-        this.weights = weights;
+        this.weights = filterLearnable(weights);
     }
 
     public NeuralModel(Template template, Settings settings) {
         this.settings = settings;
-        this.weights = template.getAllWeights();
+        this.weights = filterLearnable(template.getAllWeights());
         if (settings.optimizer == Settings.OptimizerSet.ADAM) {
             init4Adam(weights);
         }
-        if (settings.debugSampleTraining) {
+        if (settings.debugTemplateTraining) {
             this.template = template;
         }
     }
@@ -81,6 +81,10 @@ public class NeuralModel implements Model<QueryNeuron> {
 
     public void dropoutWeights() {
         //go through weights and set them randomly off
+    }
+
+    public List<Weight> filterLearnable(List<Weight> allWeights){
+        return allWeights.stream().filter(Weight::isLearnable).collect(Collectors.toList());
     }
 
     /**

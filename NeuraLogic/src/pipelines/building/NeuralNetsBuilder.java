@@ -50,7 +50,7 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
 
         ConnectAfter<Stream<NeuralProcessingSample>> nextPipe = neuralizationPipe;
         if (settings.neuralNetsPostProcessing) {
-            Pipeline<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> postprocessingPipeline = buildProcessingPipeline();
+            Pipeline<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> postprocessingPipeline = pipeline.register(buildProcessingPipeline());
             nextPipe.connectAfter(postprocessingPipeline);
             nextPipe = postprocessingPipeline;
         } else {
@@ -84,7 +84,7 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
     public Pipeline<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> buildProcessingPipeline() {
         Pipeline<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> pipeline = new Pipeline<>("NeuralNetsPostprocessing", settings);
 
-        ConnectAfter<Stream<NeuralProcessingSample>> nextPipe = pipeline.registerStart(new IdentityGenPipe<>());
+        ConnectAfter<Stream<NeuralProcessingSample>> nextPipe = pipeline.registerStart(new IdentityGenPipe<>("NNBuildingInit"));
 
         if (settings.neuralNetsSupervisedPruning) {
             //todo

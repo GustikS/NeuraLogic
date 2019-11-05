@@ -50,6 +50,13 @@ public class Weight {
         }
     }
 
+    public boolean isLearnable() {
+        if (isFixed) return false;
+        if (index < 0) return false;
+        if (value == Value.ONE || value == Value.ZERO) return false;
+        return true;
+    }
+
     @Override
     public Weight clone() {
         Weight clone = new Weight(this.index, this.name, this.value.clone(), this.isFixed, this.manualInitialization);

@@ -108,7 +108,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         trainer.restart(settings);
         currentModel.resetWeights(valueInitializer);
         progress.nextRestart();
-        recalculateResults();
+        recalculateResults();   //todo now investigate initial jump up in error
     }
 
     /**
@@ -173,7 +173,12 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         Results trainingResults = resultsFactory.createFrom(trueEvaluations.training);
         Results validationResults = resultsFactory.createFrom(trueEvaluations.validation);
         progress.addTrueResults(trainingResults, validationResults);
-        LOG.info("true results :- train: " + trainingResults + ", validation: " + validationResults);
+        LOG.fine("true results :- train: " + trainingResults + ", validation: " + validationResults);
+
+        if (settings.continuousSampleOutputs) {
+            LOG.finer("Training outputs");
+            progress.getLastTrueResults().training.printOutputs();
+        }
 
         Progress.TrainVal trainVal = new Progress.TrainVal(trainingResults, validationResults);
         saveIfBest(trainVal);

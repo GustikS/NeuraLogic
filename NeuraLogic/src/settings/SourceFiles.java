@@ -124,6 +124,10 @@ public class SourceFiles extends Sources {
                     settings.plaintextInput = true;
                     LOG.finer("Input template file type identified as plain text");
                     break;
+                case "text/x-microdvd":
+                    settings.plaintextInput = true;
+                    LOG.finer("Input template file type identified as plain text (text/x-microdvd)");
+                    break;
                 case "application/xml":
                     LOG.finer("Input template file type identified as xml");
                     break;

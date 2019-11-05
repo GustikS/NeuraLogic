@@ -79,6 +79,10 @@ public class Settings {
     public boolean debugTemplateTraining = false;
 
     /**
+     * Just print sample output values after each recalculation of true results
+     */
+    public boolean continuousSampleOutputs;
+    /**
      * If on, multiple intermediate spots within the current debugging pipeline might trigger the debugger,
      * otherwise only the last consumer will trigger the debugger
      */
@@ -98,7 +102,7 @@ public class Settings {
      */
     public boolean fix2ScreenSize = false;
     /**
-     * Do not display images and rather store them on disk
+     * Do not display images and rather store them on disk, this may be better for very large graphs which take long to render
      * if set to false (=display), no temporary files are created as we can call graphviz directly without them!
      */
     public boolean storeNotShow = false;
@@ -154,7 +158,7 @@ public class Settings {
     /**
      * Limiting the input Sample stream to the first N samples. N <= 0 for no limit
      */
-    public int limitSamples = 0;
+    public int limitSamples = -1;
 
     //------------------Grounding
     /**
@@ -367,6 +371,12 @@ public class Settings {
 
     public boolean islearnRateDecay = false;
 
+    public InitSet initializer = InitSet.UNIFORM;
+
+    public enum InitSet {
+        UNIFORM, GLOROT
+    }
+
     public double initLearningRate = 0.1;
 
     public double dropoutRate = 0.0;
@@ -418,9 +428,9 @@ public class Settings {
     }
 
     /**
-     * Percentage of samples from train-set used for validation, 0 = empty validation set
+     * Percentage of samples from train-set used for training, 1 = empty validation set
      */
-    public double trainValidationPercentage = 0;
+    public double trainValidationPercentage = 1;
 
     /**
      * After neural training, i.e. finding the best set of parameters and error values,
@@ -633,6 +643,11 @@ public class Settings {
             if (explicitSupervisedGroundTemplatePruning)
                 valid = false;
         }
+
+        if (stratification && regression) {
+            message.append("stratification not possible with regression");
+            valid = false;
+        }
         //TODO more validation and inference of settings
 
         return new Pair(valid, message);
@@ -656,7 +671,7 @@ public class Settings {
         if (groundingMode == GroundingMode.SEQUENTIAL) {
             forceFullNetworks = true;   //if we sequentially add new facts/rules, and then after grounding we take just the diff, the rules might not be connected, i.e. we need to turn them all blindly to neurons.
         }
-
+//        resultsRecalculationEpochae = maxCumEpochCount / 100;
         //TODO
     }
 

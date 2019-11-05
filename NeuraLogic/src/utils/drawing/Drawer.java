@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 /**
  * Created by gusta on 8.3.17.
  */
-public abstract class Drawer<S> {
+public abstract class Drawer<S> {   //todo next replace hashcodes (which collide sometimes) with truly unique IDs
 
     private static final Logger LOG = Logger.getLogger(Drawer.class.getName());
 
@@ -55,8 +55,12 @@ public abstract class Drawer<S> {
         this.graphviz.clearGraph();
         loadGraph(obj);
         try {
+            LOG.info("Paused for drawing with Graphviz...(this may take a while for bigger graphs)");
             if (storeNotShow) {
                 graphviz.storeGraphSource(obj.toString());
+                byte[] image = graphviz.getGraphUsingTemporaryFile(graphviz.getDotSource(), graphviz.imgtype, graphviz.algorithm);
+                graphviz.writeImageToFile(image, obj.toString());
+                LOG.info("Graph stored into file named: " + obj.toString() );
             } else {
                 display(graphviz.getGraphImage(obj.toString()), obj.toString());
             }
@@ -65,6 +69,6 @@ public abstract class Drawer<S> {
         }
     }
 
-    public abstract void loadGraph(S obj);
+    public abstract void loadGraph(S obj);  //todo add indentation into the dot file
 
 }

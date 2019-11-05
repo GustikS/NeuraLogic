@@ -44,8 +44,8 @@ public class GraphViz {
     private int currentDpiPos = 7;
 
     private String fileName;
-    private String algorithm;
-    private String imgtype;
+    public String algorithm;
+    String imgtype;
     private boolean fix2ScreenSize;
     private boolean storeImage;
 
@@ -150,7 +150,7 @@ public class GraphViz {
         this.graph.append('\n');
     }
 
-    public void uniqueLines(){
+    public void uniqueLines() {
         String[] split = graph.toString().split("\n");
         HashSet<String> strings = new HashSet<>();
         for (String s : split) {
@@ -276,7 +276,7 @@ public class GraphViz {
      * @return Success: 1, Failure: -1
      */
     public int writeImageToFile(byte[] img, String file) {
-        File to = new File(file);
+        File to = new File(tempDir + "/" + sanitize(file) + "." + imgtype);
         return writeImageToFile(img, to);
     }
 

@@ -191,7 +191,7 @@ public class PipelineDrawer<S, T> extends Drawer<Pipeline<S, T>> {
                 return getNodeId(pipeline.terminal);
             else {
                 LOG.severe("Pipeline without terminal");
-                throw new NullPointerException();
+                return getNodeId(pipeline.start);   // todo next
             }
         } else {
             return getNodeId(obj);

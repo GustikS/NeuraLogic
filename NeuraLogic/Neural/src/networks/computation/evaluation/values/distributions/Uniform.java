@@ -10,7 +10,13 @@ public class Uniform extends Distribution {
         super(rg);
     }
 
-    final double getDoubleValue(){
+    final double getDoubleValue() {
         return rg.nextDouble() - 0.5;
+    }
+
+    final double getDoubleValue(double min, double max) {
+        double scale = max - min;
+        double v = rg.nextDouble() * scale + min;
+        return v;
     }
 }

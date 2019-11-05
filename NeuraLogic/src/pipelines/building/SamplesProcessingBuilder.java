@@ -5,12 +5,16 @@ import constructs.building.QueriesBuilder;
 import constructs.example.LiftedExample;
 import constructs.example.LogicSample;
 import learning.Query;
+import learning.crossvalidation.splitting.StratifiedSplitter;
 import pipelines.Pipe;
 import pipelines.Pipeline;
 import settings.Settings;
 import settings.Source;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, Stream<LogicSample>> {
@@ -110,7 +114,16 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
             public Stream<LogicSample> apply(Stream<LogicSample> logicSampleStream) {
                 if (settings.limitSamples > 0) {
                     LOG.warning("Limiting the learning samples to the first: " + settings.limitSamples);
-                    logicSampleStream = logicSampleStream.limit(settings.limitSamples);
+                    if (settings.stratification) {
+                        LOG.warning("Stratified subset requested, will need to consume the stream of LogicSamples first...");
+                        List<LogicSample> collect = logicSampleStream.collect(Collectors.toList());
+                        Collections.shuffle(collect, settings.random);
+                        StratifiedSplitter<LogicSample> stratifiedSplitter = new StratifiedSplitter<>();
+                        List<LogicSample> stratifiedSubset = stratifiedSplitter.getStratifiedSubset(collect, settings.limitSamples);
+                        logicSampleStream = stratifiedSubset.stream();
+                    } else {
+                        logicSampleStream = logicSampleStream.limit(settings.limitSamples);
+                    }
                 }
                 return logicSampleStream;
             }

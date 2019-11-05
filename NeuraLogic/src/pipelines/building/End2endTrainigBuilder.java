@@ -37,8 +37,8 @@ public class End2endTrainigBuilder extends AbstractPipelineBuilder<Sources, Pair
         this.sources = sources;
     }
 
-    public Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> buildPipeline() {
-        Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> pipeline = new Pipeline<>("End2endNNBuilder", this);
+    public Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> buildPipeline() {  //todo use this to make other pipelines simpler
+        Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> pipeline = new Pipeline<>("End2endTrainingBuilder", this);
 
         //build neural nets first
         End2endNNBuilder end2endNNBuilder = new End2endNNBuilder();

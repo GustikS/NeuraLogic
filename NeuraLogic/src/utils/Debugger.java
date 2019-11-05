@@ -66,6 +66,9 @@ public abstract class Debugger<S> extends AbstractPipelineBuilder<Sources, Strea
 
     public void executeDebug() {
         pipeline = buildPipeline();
+        if (settings.debugPipeline){
+            drawPipeline();
+        }
         addDebugTerminal(pipeline);
         pipeline.execute(sources);
     }
@@ -106,7 +109,7 @@ public abstract class Debugger<S> extends AbstractPipelineBuilder<Sources, Strea
     }
 
     public void drawPipeline() {
-        PipelineDrawer pipelineDrawer = new PipelineDrawer(settings);
+        PipelineDrawer<Sources, Stream<S>> pipelineDrawer = new PipelineDrawer<>(settings);
         pipelineDrawer.draw(pipeline);
     }
 
