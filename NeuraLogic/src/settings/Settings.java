@@ -81,7 +81,8 @@ public class Settings {
     /**
      * Just print sample output values after each recalculation of true results
      */
-    public boolean continuousSampleOutputs;
+    public boolean debugSampleOutputs;
+
     /**
      * If on, multiple intermediate spots within the current debugging pipeline might trigger the debugger,
      * otherwise only the last consumer will trigger the debugger
@@ -127,9 +128,11 @@ public class Settings {
     public Random random;
     public int seed = 1;
     /**
-     * Global number format for all printing
+     * Global number formats for all printing
      */
-    public static NumberFormat numberFormat = new DecimalFormat("#.#####");
+    public static NumberFormat detailedNumberFormat = new DecimalFormat("#.##########");
+
+    public static NumberFormat shortNumberFormat = new DecimalFormat("#.##");
 
     //------------------Abstract Pipelines
 
@@ -157,8 +160,9 @@ public class Settings {
 
     /**
      * Limiting the input Sample stream to the first N samples. N <= 0 for no limit
+     * the resulting number of samples may not be exact if stratification is required
      */
-    public int limitSamples = -1;
+    public int appLimitSamples = -1;
 
     //------------------Grounding
     /**
@@ -399,6 +403,12 @@ public class Settings {
         DROPCONNECT, // = drop edges
         LIFTED_DROPCONNECT // = drop weights (= drop many different edges)
     }
+
+    /**
+     * Whether to search for best threshold splitting between positive and negative samples in binary classification
+     * that maximizes accuracy (to be reported then), instead of simple 0.5 threshold
+     */
+    public boolean calculateBestThreshold;
 
     public ErrorFcn errorFunction = ErrorFcn.SQUARED_DIFF;
 

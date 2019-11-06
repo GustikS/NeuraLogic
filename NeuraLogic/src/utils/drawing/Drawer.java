@@ -26,7 +26,7 @@ public abstract class Drawer<S> {   //todo next replace hashcodes (which collide
         this.settings = settings;
         this.graphviz = new GraphViz(settings);
 
-        this.numberFormat = Settings.numberFormat;
+        this.numberFormat = Settings.shortNumberFormat;
         this.drawingDetail = settings.drawingDetail;
         this.storeNotShow = settings.storeNotShow;
 

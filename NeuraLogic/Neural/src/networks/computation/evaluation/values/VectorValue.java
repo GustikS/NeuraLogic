@@ -114,7 +114,7 @@ public class VectorValue extends Value {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < values.length; i++) {
-            sb.append(",").append(Settings.numberFormat.format(values[i]));
+            sb.append(",").append(Settings.shortNumberFormat.format(values[i]));
         }
         sb.replace(0, 1, "[");
         sb.replace(0, 1, "[");

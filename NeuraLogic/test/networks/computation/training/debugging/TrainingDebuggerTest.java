@@ -4,7 +4,6 @@ import org.junit.Test;
 import settings.Settings;
 import utils.logging.Logging;
 
-import java.text.DecimalFormat;
 import java.util.logging.Level;
 
 public class TrainingDebuggerTest {
@@ -54,7 +53,7 @@ public class TrainingDebuggerTest {
         settings.initLearningRate = 0.1;
         settings.maxCumEpochCount = 100;
         settings.resultsRecalculationEpochae = 20;
-        settings.limitSamples = 10;
+        settings.appLimitSamples = 10;
         settings.stratification = true;
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = true;
@@ -80,15 +79,15 @@ public class TrainingDebuggerTest {
                 "-q ./resources/datasets/relational/molecules/mutagenesis/trainQueries.txt " +
                 "-t ./resources/datasets/relational/molecules/mutagenesis/template_new.txt").split(" ");
 
-        Settings.numberFormat =new DecimalFormat("#.###########");
         Settings settings = new Settings();
 
         settings.seed = 0;
-        settings.initLearningRate = 0.01;
-        settings.maxCumEpochCount = 10000;
-        settings.resultsRecalculationEpochae = 20;
-        settings.continuousSampleOutputs = true;
-        settings.limitSamples = 3;
+        settings.initLearningRate = 0.002;
+        settings.maxCumEpochCount = 100000;
+        settings.resultsRecalculationEpochae = 10;
+        settings.debugSampleOutputs = true;
+        settings.appLimitSamples = 13;
+        settings.calculateBestThreshold = true;
         settings.stratification = true;
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = true;

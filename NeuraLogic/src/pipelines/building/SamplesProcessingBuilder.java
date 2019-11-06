@@ -112,17 +112,17 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
         Pipe<Stream<LogicSample>, Stream<LogicSample>> postProcessPipe = new Pipe<Stream<LogicSample>, Stream<LogicSample>>("PostprocessSamplesPipe", settings) {
             @Override
             public Stream<LogicSample> apply(Stream<LogicSample> logicSampleStream) {
-                if (settings.limitSamples > 0) {
-                    LOG.warning("Limiting the learning samples to the first: " + settings.limitSamples);
+                if (settings.appLimitSamples > 0) {
+                    LOG.warning("Limiting the learning samples to the first: " + settings.appLimitSamples);
                     if (settings.stratification) {
                         LOG.warning("Stratified subset requested, will need to consume the stream of LogicSamples first...");
                         List<LogicSample> collect = logicSampleStream.collect(Collectors.toList());
                         Collections.shuffle(collect, settings.random);
                         StratifiedSplitter<LogicSample> stratifiedSplitter = new StratifiedSplitter<>();
-                        List<LogicSample> stratifiedSubset = stratifiedSplitter.getStratifiedSubset(collect, settings.limitSamples);
+                        List<LogicSample> stratifiedSubset = stratifiedSplitter.getStratifiedSubset(collect, settings.appLimitSamples); //todo now check correct matching of samples and labels
                         logicSampleStream = stratifiedSubset.stream();
                     } else {
-                        logicSampleStream = logicSampleStream.limit(settings.limitSamples);
+                        logicSampleStream = logicSampleStream.limit(settings.appLimitSamples);
                     }
                 }
                 return logicSampleStream;

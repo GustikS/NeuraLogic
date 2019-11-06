@@ -52,7 +52,7 @@ public class Template implements Model<QueryAtom> {
         this.constraints = new LinkedHashSet<>();
     }
 
-    public Template(Template other) {
+    public Template(Template other) {   //todo now next - add new versions of mutagenesis templates - smaller only for drawing, and vectorized versions
         this.rules = other.rules;
         this.facts = other.facts;
         this.constraints = other.constraints;

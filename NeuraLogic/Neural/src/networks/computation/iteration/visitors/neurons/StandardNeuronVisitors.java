@@ -108,6 +108,7 @@ public class StandardNeuronVisitors {
             Pair<Iterator<BaseNeuron>, Iterator<Weight>> inputs = network.getInputs(neuron);
 
             weightUpdater.visit(neuron.offset, gradient);   //todo now add offsets to template
+            //todo now add default offset and conjunct weights options to settings
 
             Iterator<BaseNeuron> inputNeurons = inputs.r;
             Iterator<Weight> inputWeights = inputs.s;

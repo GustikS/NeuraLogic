@@ -11,7 +11,7 @@ import java.util.logging.Logger;
  * The particular result on a single sample.
  * This pair of Values deserves own class with properly named fields to prevent confusion.
  */
-public class Result {
+public class Result implements Comparable<Result> {
     private static final Logger LOG = Logger.getLogger(Result.class.getName());
 
     /**
@@ -67,5 +67,14 @@ public class Result {
     @Override
     public String toString() {
         return sampleId + " -> " + output + " : " + target;
+    }
+
+    @Override
+    public int compareTo(Result other) {
+        if (output.greaterThan(other.output)) {
+            return 1;
+        } else {
+            return -1;
+        }
     }
 }

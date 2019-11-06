@@ -3,9 +3,9 @@ package networks.computation.evaluation.results;
 import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.functions.specific.Average;
 import networks.computation.evaluation.values.Value;
+import org.jetbrains.annotations.NotNull;
 import settings.Settings;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -16,6 +16,8 @@ import java.util.logging.Logger;
  */
 public abstract class Results {
     private static final Logger LOG = Logger.getLogger(Results.class.getName());
+
+    Settings settings;
 
     @Deprecated
     public boolean evaluatedOnline = true;
@@ -32,13 +34,10 @@ public abstract class Results {
      */
     public Value error;
 
-    public Results() {
-        evaluations = new ArrayList<>();
-    }
-
-    public Results(List<Result> evaluations, Aggregation aggregationFcn) {
+    public Results(@NotNull List<Result> evaluations, Settings settings) {
+        this.settings = settings;
         this.evaluations = evaluations;
-        this.aggregationFcn = aggregationFcn;
+        this.aggregationFcn = getAggregation(settings);
         if (!evaluations.isEmpty())
             this.recalculate();
     }
@@ -59,33 +58,38 @@ public abstract class Results {
         }
     }
 
+    private static Aggregation getAggregation(Settings settings) {
+        if (settings.errorAggregationFcn == Settings.AggregationFcn.AVG) {
+            return new Average();
+        } else {
+            LOG.severe("Unsupported errorAggregationFcn.");
+        }
+        return null;
+    }
+
+    public abstract String toString(Settings settings);
+
+    public boolean isEmpty() {
+        return evaluations.isEmpty();
+    }
+
     public static abstract class Factory {
 
-        Aggregation aggregation;
+        Settings settings;
 
-        public Factory(Aggregation aggregation) {
-            this.aggregation = aggregation;
+        public Factory(Settings settings) {
+            this.settings = settings;
         }
 
         public static Factory getFrom(Settings settings) {
-            Aggregation aggregationFunction = getAggregation(settings);
             if (settings.regression) {
-                return new RegressionFactory(aggregationFunction);
+                return new RegressionFactory(settings);
             } else {
                 if (settings.detailedResults)
-                    return new DetailedClassificationFactory(aggregationFunction);
+                    return new DetailedClassificationFactory(settings);
                 else
-                    return new ClassificationFactory(aggregationFunction);
+                    return new ClassificationFactory(settings);
             }
-        }
-
-        private static Aggregation getAggregation(Settings settings) {
-            if (settings.errorAggregationFcn == Settings.AggregationFcn.AVG) {
-                return new Average();
-            } else {
-                LOG.severe("Unsupported errorAggregationFcn.");
-            }
-            return null;
         }
 
         public abstract Results createFrom(List<Result> outputs);
@@ -93,39 +97,39 @@ public abstract class Results {
 
     private static class RegressionFactory extends Factory {
 
-        public RegressionFactory(Aggregation aggregation) {
+        public RegressionFactory(Settings aggregation) {
             super(aggregation);
         }
 
         @Override
         public Results createFrom(List<Result> outputs) {
-            RegressionResults regressionResults = new RegressionResults(outputs, aggregation);
+            RegressionResults regressionResults = new RegressionResults(outputs, settings);
             return regressionResults;
         }
     }
 
     private static class DetailedClassificationFactory extends Factory {
 
-        public DetailedClassificationFactory(Aggregation aggregation) {
+        public DetailedClassificationFactory(Settings aggregation) {
             super(aggregation);
         }
 
         @Override
         public Results createFrom(List<Result> outputs) {
-            DetailedClassificationResults detailedClassificationResults = new DetailedClassificationResults(outputs, aggregation);
+            DetailedClassificationResults detailedClassificationResults = new DetailedClassificationResults(outputs, settings);
             return detailedClassificationResults;
         }
     }
 
     private static class ClassificationFactory extends Factory {
 
-        public ClassificationFactory(Aggregation aggregation) {
+        public ClassificationFactory(Settings aggregation) {
             super(aggregation);
         }
 
         @Override
         public Results createFrom(List<Result> outputs) {
-            ClassificationResults classificationResults = new ClassificationResults(outputs, aggregation);
+            ClassificationResults classificationResults = new ClassificationResults(outputs, settings);
             return classificationResults;
         }
     }

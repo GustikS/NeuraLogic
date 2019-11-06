@@ -33,7 +33,7 @@ public class NeuralModel implements Model<QueryNeuron> {
         this.weights = filterLearnable(weights);
     }
 
-    public NeuralModel(Template template, Settings settings) {
+    public NeuralModel(Template template, Settings settings) {  //todo next add debug option for neuralModel only - ie.e. printing out weights (nicely) only
         this.settings = settings;
         this.weights = filterLearnable(template.getAllWeights());
         if (settings.optimizer == Settings.OptimizerSet.ADAM) {

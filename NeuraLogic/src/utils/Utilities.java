@@ -77,7 +77,7 @@ public class Utilities {
         if (gcPercent > gcPercentLimit) {
             LOG.warning("Garbage collection takes more than " + gcPercentLimit * 100 + "% of calculation time!");
         }
-        LOG.info(totalGarbageCollections + " garbage colletions with total time: " + garbageCollectionTime / 1000 + "s, made " + gcPercent * 100 + "% of time spent in GC since the last time.");
+        LOG.finer(totalGarbageCollections + " garbage colletions with total time: " + garbageCollectionTime / 1000 + "s, made " + gcPercent * 100 + "% of time spent in GC since the last time.");
         tic = now;
         lastGarbageCollectionTime = garbageCollectionTime;
     }

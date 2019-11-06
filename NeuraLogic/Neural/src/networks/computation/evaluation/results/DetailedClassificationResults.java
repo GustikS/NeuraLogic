@@ -1,6 +1,6 @@
 package networks.computation.evaluation.results;
 
-import networks.computation.evaluation.functions.Aggregation;
+import settings.Settings;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ public class DetailedClassificationResults extends ClassificationResults {
     private Double AUCpr;
     private Double AUCroc;
 
-    public DetailedClassificationResults(List<Result> outputs, Aggregation aggregationFcn) {
+    public DetailedClassificationResults(List<Result> outputs, Settings aggregationFcn) {
         super(outputs, aggregationFcn);
     }
 

@@ -21,6 +21,7 @@ import utils.generic.Pair;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -108,7 +109,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         trainer.restart(settings);
         currentModel.resetWeights(valueInitializer);
         progress.nextRestart();
-        recalculateResults();   //todo now investigate initial jump up in error
+        recalculateResults();   //todo investigate initial jump up in error - is there any still? may difference between online vs. true calculation
     }
 
     /**
@@ -130,8 +131,8 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     protected void endEpoch(int count, List<Result> onlineEvaluations) {
         Results onlineResults = resultsFactory.createFrom(onlineEvaluations);
-        progress.addOnlineResults(onlineResults);
-        LOG.info("epoch " + count + " online results : " + onlineResults);
+        progress.addOnlineResults(onlineResults);   //todo now add error value reporting in LRNN1.0
+        LOG.info("epoch: " + count + " : online results : " + onlineResults.toString(settings));
         Utilities.logMemory();
         if (count % settings.resultsRecalculationEpochae == 0) {
             recalculateResults();
@@ -145,10 +146,10 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     protected void endRestart() {
         recalculateResults();
         restartingStrategy.nextRestart();
-        LOG.finer("Training outputs");
-        progress.getLastTrueResults().training.printOutputs();
-        LOG.finer("Validation outputs:");
-        progress.getLastTrueResults().validation.printOutputs();
+
+        if (LOG.isLoggable(Level.FINER)) {
+            logSampleOutputs();
+        }
     }
 
     protected Pair<NeuralModel, Progress> finish() {
@@ -173,11 +174,17 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         Results trainingResults = resultsFactory.createFrom(trueEvaluations.training);
         Results validationResults = resultsFactory.createFrom(trueEvaluations.validation);
         progress.addTrueResults(trainingResults, validationResults);
-        LOG.fine("true results :- train: " + trainingResults + ", validation: " + validationResults);
 
-        if (settings.continuousSampleOutputs) {
-            LOG.finer("Training outputs");
-            progress.getLastTrueResults().training.printOutputs();
+        if (LOG.isLoggable(Level.FINE)) {
+            String msg = "true results :- train: " + trainingResults.toString(settings);
+            if (!validationResults.isEmpty()) {
+                msg += ", val: " + validationResults.toString(settings);
+            }
+            LOG.fine(msg);
+        }
+
+        if (LOG.isLoggable(Level.FINER)) {
+            logSampleOutputs();
         }
 
         Progress.TrainVal trainVal = new Progress.TrainVal(trainingResults, validationResults);
@@ -189,5 +196,12 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
             bestModel = currentModel.cloneValues();
             progress.bestResults = trainVal;
         }
+    }
+
+    private void logSampleOutputs() {
+        LOG.finer("Training outputs");
+        progress.getLastTrueResults().training.printOutputs();
+        LOG.finer("Validation outputs:");
+        progress.getLastTrueResults().validation.printOutputs();
     }
 }

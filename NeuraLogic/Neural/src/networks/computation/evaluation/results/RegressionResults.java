@@ -1,6 +1,6 @@
 package networks.computation.evaluation.results;
 
-import networks.computation.evaluation.functions.Aggregation;
+import settings.Settings;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class RegressionResults extends Results {
 
-    public RegressionResults(List<Result> outputs, Aggregation aggregationFcn) {
+    public RegressionResults(List<Result> outputs, Settings aggregationFcn) {
         super(outputs, aggregationFcn);
     }
 
@@ -26,5 +26,10 @@ public class RegressionResults extends Results {
     @Override
     public boolean betterThan(Results other) {
         return other.error.greaterThan(error);
+    }
+
+    @Override
+    public String toString(Settings settings) {
+        return null;
     }
 }
