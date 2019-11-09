@@ -10,13 +10,13 @@ import java.util.List;
 
 public interface Optimizer {
 
-    static Optimizer getFrom(Settings settings) {
+    static Optimizer getFrom(Settings settings, Value learningRate) {
         if (settings.optimizer == Settings.OptimizerSet.SGD) {
-            return new SGD(settings.initLearningRate);
+            return new SGD(learningRate);
         } else if (settings.optimizer == Settings.OptimizerSet.ADAM) {
-            return new Adam(settings.initLearningRate);
+            return new Adam(learningRate);
         }
-        return new SGD(settings.initLearningRate);  //default
+        return new SGD(learningRate);  //default
     }
 
     void performGradientStep(NeuralModel neuralModel, WeightUpdater weightUpdater);

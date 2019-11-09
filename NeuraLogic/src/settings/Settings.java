@@ -1,5 +1,7 @@
 package settings;
 
+import networks.computation.evaluation.values.ScalarValue;
+import networks.computation.evaluation.values.Value;
 import org.apache.commons.cli.CommandLine;
 import pipelines.Pipeline;
 import utils.Exporter;
@@ -207,6 +209,12 @@ public class Settings {
      */
     public boolean forceFullNetworks = false;
 
+    /**
+     * Default value for output of fact neurons (= values of ValuedFacts) if not specified by user
+     */
+    public Value defaultFactValue = new ScalarValue(0.1);
+//    public Value defaultFactValue = Value.ONE;
+
     public double defaultConjunctWeight = 1.0;  //todo actually use these in some factory method
     public double defaultDisjunctWeight = 1.0;
     public double defaultConjunctionOffset = 1.0;
@@ -299,6 +307,11 @@ public class Settings {
     public int isoValuePrecision = 2;
 
     //-----------------Evaluation & Training
+
+    /**
+     * Range of uniformly distributed numbers for weights initialization (2 = [-1,1])
+     */
+    public double randomInitScale = 2;
 
     /**
      * Evaluation mode: Regression vs. Classification

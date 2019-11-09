@@ -54,7 +54,7 @@ public class Template implements Model<QueryAtom> {
 
     public Template(Template other) {   //todo now next - add new versions of mutagenesis templates - smaller only for drawing, and vectorized versions
         this.rules = other.rules;
-        this.facts = other.facts;
+        this.facts = other.facts;   //todo now add neurons' saturation check/debugging
         this.constraints = other.constraints;
     }
 

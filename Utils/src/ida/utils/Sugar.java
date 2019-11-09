@@ -166,7 +166,7 @@ public class Sugar {
      * @return the shuffled list which was given as the argument to this function
      */
     public static <T> List<T> shuffle(List<T> list){
-        Collections.shuffle(list);
+        Collections.shuffle(list, random);
         return list;
     }
     

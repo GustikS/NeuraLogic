@@ -33,6 +33,10 @@ public class StratifiedSplitter<T extends LearningSample> implements Splitter<T>
     }
 
     public List<T> getStratifiedSubset(List<T> samples, int appCount) {
+        if (appCount > samples.size()){
+            LOG.warning("Limiting samples to a greater number than there actually is!");
+            appCount = samples.size();
+        }
         List<T> subset = representativeSubset(getClasses(samples).values(), (double) appCount / samples.size());
         if (subset.size() > appCount)
             subset = subset.subList(0, appCount);

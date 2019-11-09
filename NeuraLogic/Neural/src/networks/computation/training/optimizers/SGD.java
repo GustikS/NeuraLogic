@@ -1,6 +1,5 @@
 package networks.computation.training.optimizers;
 
-import networks.computation.evaluation.values.ScalarValue;
 import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.visitors.weights.WeightUpdater;
 import networks.computation.training.NeuralModel;
@@ -13,10 +12,10 @@ import java.util.logging.Logger;
 public class SGD implements Optimizer {
     private static final Logger LOG = Logger.getLogger(SGD.class.getName());
 
-    ScalarValue learningRate;
+    Value learningRate; //todo next check any direct declaration of Value subclasses for DD
 
-    public SGD(double learningRate) {
-        this.learningRate = new ScalarValue(learningRate);
+    public SGD(Value learningRate) {
+        this.learningRate = learningRate;
     }
 
     @Override
@@ -30,10 +29,12 @@ public class SGD implements Optimizer {
                 //fixed weights and constants
             } else {  //todo speedup - update only those weights that have been changed? (i.e. no zero increment calls - i.e. hold list of updates somewhere?)
                 if (weightUpdates[weight.index] == null){
-                    System.out.println();
+                    LOG.severe("Void weight update here?");
                 }
-                Value update = weightUpdates[weight.index].times(learningRate);
-                weight.value.incrementBy(update); //todo check if we cannot just multiply once at beginning of backprop!
+                //todo next check if we cannot just multiply once at beginning of backprop! probably yes...at least with SGD it's just a chained multiplication, but it doesnt seem to improve speed performance much
+                Value update = weightUpdates[weight.index].times(learningRate); //and it's clearer to do it here for each parameter separately
+
+                weight.value.incrementBy(update);
                 LOG.finest("Incrementing " + weight + " with " + update);
             }
         }

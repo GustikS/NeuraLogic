@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * Created by gusta on 8.3.17.
  */
-public class NeuralModel implements Model<QueryNeuron> {
+public class NeuralModel implements Model<QueryNeuron> {    //todo next add accuracy progress plotting
     private static final Logger LOG = Logger.getLogger(NeuralModel.class.getName());
 
     public List<Weight> weights;

@@ -23,8 +23,9 @@ public class WeightUpdater implements WeightVisitor {
 
         for (Weight weight : weights) {
             int index = weight.index;
-            if (index < 0) {
+            if (!weight.isLearnable()) {
                 //void, these are constant weights not to be updated
+                //or these are weights with fixed values by user
             } else if (index > weightUpdates.length) {
                 LOG.severe("Weight index exceeding number of all extracted weights");
             } else {
@@ -35,9 +36,10 @@ public class WeightUpdater implements WeightVisitor {
 
     @Override
     public void visit(Weight weight, Value value) {
-        int index = weight.index;
-        if (index >= 0)
+        if (weight.isLearnable) {   //faster access version
+            int index = weight.index;
             weightUpdates[index].incrementBy(value);
+        }
     }
 
     @Deprecated

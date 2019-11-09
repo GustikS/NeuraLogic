@@ -32,9 +32,9 @@ public class StreamTrainingStrategy extends TrainingStrategy {
 
     private StreamTrainer getTrainerFrom(Settings settings) {
         if (settings.minibatchSize > 1) {
-            return new MiniBatchTrainer(settings, Optimizer.getFrom(settings), currentModel, settings.minibatchSize).new MinibatchStreamTrainer();
+            return new MiniBatchTrainer(settings, Optimizer.getFrom(settings, learningRate), currentModel, settings.minibatchSize).new MinibatchStreamTrainer();
         } else {
-            return new SequentialTrainer(settings, Optimizer.getFrom(settings),currentModel).new SequentialStreamTrainer();
+            return new SequentialTrainer(settings, Optimizer.getFrom(settings, learningRate),currentModel).new SequentialStreamTrainer();
         }
     }
 

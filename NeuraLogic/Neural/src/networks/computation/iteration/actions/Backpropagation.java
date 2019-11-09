@@ -45,11 +45,11 @@ public class Backpropagation {
 
     /**
      * The most efficient network iteration depends on its structure, so it's to be decided on the run.
-     *
+     * <p>
      * For Max and MaxK functions, i.e. those with input mask, choose visitor instead of iterator, so that the inputs are expanded through the mask.
-     *    - todo or add the mask filtering of inputs to iterators, too?
-     *
-     *    - todo check with inputMapping for topologic network
+     * - todo or add the mask filtering of inputs to iterators, too?
+     * <p>
+     * - todo check with inputMapping for topologic network
      * Also input masking cannot work with topologic ordering.
      *
      * @param network
@@ -61,18 +61,21 @@ public class Backpropagation {
             StandardNeuronVisitors.Down down = new StandardNeuronVisitors.Down(network, backproper, weightUpdater);
             return new Topologic((TopologicNetwork<State.Neural.Structure>) network).new TDownVisitor(outputNeuron, down);
         } else if (settings.iterationMode == Settings.IterationMode.DFS_RECURSIVE) {
-            return new DFSrecursion().new TDownVisitor(network, outputNeuron, backproper,  weightUpdater);
+            return new DFSrecursion().new TDownVisitor(network, outputNeuron, backproper, weightUpdater);
         } else if (settings.iterationMode == Settings.IterationMode.DFS_STACK) {
-            return new DFSstack().new TDownVisitor(network, outputNeuron, backproper,  weightUpdater);
+            return new DFSstack().new TDownVisitor(network, outputNeuron, backproper, weightUpdater);
         } else {
-            return new BFS().new TDownVisitor(network, outputNeuron, backproper,  weightUpdater);
+            return new BFS().new TDownVisitor(network, outputNeuron, backproper, weightUpdater);
         }
     }
 
     public WeightUpdater backpropagate(NeuralSample neuralSample, Result evaluatedResult) {
         NeuralNetwork<State.Neural.Structure> neuralNetwork = neuralSample.query.evidence;
         AtomNeurons<State.Neural> outputNeuron = neuralSample.query.neuron;
+
         Value errorGradient = evaluatedResult.errorGradient();
+
+//        errorGradient = errorGradient.times(new ScalarValue(settings.initLearningRate));//todo next measure properly the performance of this single multiplication by learningRate and remove if no help
 
         weightUpdater.clearUpdates();
         outputNeuron.getComputationView(backproper.stateIndex).storeGradient(errorGradient); //store the error gradient into the output neuron, from where it will be further propagated

@@ -1,5 +1,6 @@
 package networks.computation.training.strategies.Hyperparameters;
 
+import networks.computation.evaluation.values.ScalarValue;
 import settings.Settings;
 
 import java.util.logging.Logger;
@@ -7,16 +8,16 @@ import java.util.logging.Logger;
 public class LinearDecay extends LearnRateDecayStrategy {
     private static final Logger LOG = Logger.getLogger(LinearDecay.class.getName());
 
-    double diff = 0;
+    ScalarValue diff = new ScalarValue(0);
 
-    public LinearDecay(Settings settings, double initialLearningRate) {
+    public LinearDecay(Settings settings, ScalarValue initialLearningRate) {
         super(settings, initialLearningRate);
-        diff = initialLearningRate / settings.maxCumEpochCount;
+        diff = (ScalarValue) initialLearningRate.times(new ScalarValue(-1.0 / settings.maxCumEpochCount));
     }
 
     @Override
-    public double decay() {
+    public void decay() {
         decays++;
-        return actualLearningRate - diff;
+        actualLearningRate.incrementBy(diff);
     }
 }

@@ -200,7 +200,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
                 weight = ctx.weight().accept(new WeightVisitor());
             }
             if (weight == null) {
-                weight = builder.weightFactory.construct("foo", new ScalarValue(1), true, true);
+                weight = builder.weightFactory.construct("foo", builder.settings.defaultFactValue, true, true);
             }
 
             ValuedFact fact = new ValuedFact(predicate, terms, ctx.negation() != null, weight);

@@ -3,6 +3,7 @@ package networks.computation.training.strategies;
 import networks.computation.evaluation.results.Progress;
 import networks.computation.evaluation.results.Result;
 import networks.computation.evaluation.results.Results;
+import networks.computation.evaluation.values.ScalarValue;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import settings.Settings;
@@ -25,13 +26,13 @@ public abstract class TrainingStrategy {
 
     NeuralModel currentModel;
 
-    double learningRate;
+    ScalarValue learningRate;
 
     Results.Factory resultsFactory;
 
     public TrainingStrategy(Settings settings, NeuralModel model) {
         this.settings = settings;
-        this.learningRate = settings.initLearningRate;
+        this.learningRate = new ScalarValue(settings.initLearningRate);
         this.currentModel = model;
         storeParametersState(model);
         this.resultsFactory = Results.Factory.getFrom(settings);

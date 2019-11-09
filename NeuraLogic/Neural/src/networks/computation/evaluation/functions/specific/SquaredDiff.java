@@ -17,12 +17,12 @@ public class SquaredDiff implements ErrorFcn {
     public Value evaluate(Value output, Value target) {
         Value diff = output.minus(target);
         Value times = diff.times(diff);
-        return times.times(oneHalf);
-//        return times;
+//        return times.times(oneHalf);  //this is technically correct, but less interpretable
+        return times;
     }
 
     @Override
-    public Value differentiate(Value output, Value target) {
+    public Value differentiate(Value output, Value target)   {
         return target.minus(output);
     }
 

@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 public class Adam implements Optimizer {
     private static final Logger LOG = Logger.getLogger(Adam.class.getName());
 
-    public ScalarValue learningRate;
+    public Value learningRate;
     public ScalarValue beta1;
     public ScalarValue beta2;
     public ScalarValue epsilon;
@@ -22,12 +22,12 @@ public class Adam implements Optimizer {
 
     private ScalarValue minusOne = new ScalarValue(-1);
 
-    public Adam(double i_alpha) {
-        this(i_alpha, 0.9, 0.999, 1e-8);
+    public Adam(Value learningRate) {
+        this(learningRate, 0.9, 0.999, 1e-8);
     }
 
-    public Adam(double i_alpha, double i_beta1, double i_beta2, double i_epsilon) {
-        this.learningRate = new ScalarValue(i_alpha);
+    public Adam(Value learningRate, double i_beta1, double i_beta2, double i_epsilon) {
+        this.learningRate = learningRate;
         this.beta1 = new ScalarValue(i_beta1);
         this.beta2 = new ScalarValue(i_beta2);
         this.epsilon = new ScalarValue(i_epsilon);

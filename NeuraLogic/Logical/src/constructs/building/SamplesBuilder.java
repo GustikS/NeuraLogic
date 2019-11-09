@@ -26,7 +26,6 @@ import java.util.stream.Stream;
  */
 public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRuleContext>, O> extends LogicSourceBuilder<I, Stream<O>> {
     private static final Logger LOG = Logger.getLogger(SamplesBuilder.class.getName());
-    protected final Settings settings;
 
     final String prefix;
     int queryCounter = 0;

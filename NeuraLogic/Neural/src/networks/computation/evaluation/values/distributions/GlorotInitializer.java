@@ -14,7 +14,7 @@ public class GlorotInitializer implements ValueInitializer {
     Uniform distribution;
 
     public GlorotInitializer(Settings settings) {
-        this.distribution = new Uniform(settings.random);
+        this.distribution = new Uniform(settings.random, settings);
     }
 
     @Override

@@ -17,6 +17,7 @@ public class Weight {
     public String name;
     public Value value;
     public boolean isFixed = false;
+    public Boolean isLearnable;
     public boolean manualInitialization = false;   //todo add the init weight value to weight metadata
 
     public boolean isShared;
@@ -48,13 +49,9 @@ public class Weight {
         if (isInitialized) {
             this.metadata = new WeightMetadata(value);
         }
-    }
-
-    public boolean isLearnable() {
-        if (isFixed) return false;
-        if (index < 0) return false;
-        if (value == Value.ONE || value == Value.ZERO) return false;
-        return true;
+        if (isFixed || index < 0) {
+            isLearnable = false;
+        }
     }
 
     @Override
@@ -102,5 +99,22 @@ public class Weight {
     @Override
     public String toString() {
         return name + " " + value.toString();
+    }
+
+    public boolean isLearnable() {
+        if (isLearnable != null) {
+            return isLearnable;
+        }
+        if (isFixed) {
+            isLearnable = false;
+        }
+        if (index < 0) {
+            isLearnable = false;
+        }
+        if (value == Value.ONE || value == Value.ZERO) {
+            isLearnable = false;
+        }
+        isLearnable = true;
+        return isLearnable;
     }
 }

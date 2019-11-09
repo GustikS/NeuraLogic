@@ -119,7 +119,7 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
                         List<LogicSample> collect = logicSampleStream.collect(Collectors.toList());
                         Collections.shuffle(collect, settings.random);
                         StratifiedSplitter<LogicSample> stratifiedSplitter = new StratifiedSplitter<>();
-                        List<LogicSample> stratifiedSubset = stratifiedSplitter.getStratifiedSubset(collect, settings.appLimitSamples); //todo now check correct matching of samples and labels
+                        List<LogicSample> stratifiedSubset = stratifiedSplitter.getStratifiedSubset(collect, settings.appLimitSamples);
                         logicSampleStream = stratifiedSubset.stream();
                     } else {
                         logicSampleStream = logicSampleStream.limit(settings.appLimitSamples);

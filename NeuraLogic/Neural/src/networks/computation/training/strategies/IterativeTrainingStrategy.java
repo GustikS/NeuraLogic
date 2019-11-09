@@ -58,7 +58,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         this.trainingSet = trainVal.r;
         this.validationSet = trainVal.s;
 
-        this.learnRateDecayStrategy = LearnRateDecayStrategy.getFrom(settings, learningRate);
+        this.learnRateDecayStrategy = LearnRateDecayStrategy.getFrom(settings, learningRate);   //passes the single reference to learningRate shared by others
         this.restartingStrategy = RestartingStrategy.getFrom(settings);
 
         this.trainingDebugger = new TrainingDebugger(settings);
@@ -72,11 +72,11 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     private ListTrainer getTrainerFrom(Settings settings) {
         if (settings.asyncParallelTraining) {
-            return new AsyncParallelTrainer(settings, Optimizer.getFrom(settings), currentModel).new AsyncListTrainer();
+            return new AsyncParallelTrainer(settings, Optimizer.getFrom(settings, learningRate), currentModel).new AsyncListTrainer();
         } else if (settings.minibatchSize > 1) {
-            return new MiniBatchTrainer(settings, Optimizer.getFrom(settings), currentModel, settings.minibatchSize).new MinibatchListTrainer();
+            return new MiniBatchTrainer(settings, Optimizer.getFrom(settings, learningRate), currentModel, settings.minibatchSize).new MinibatchListTrainer();
         } else {
-            return new SequentialTrainer(settings, Optimizer.getFrom(settings), currentModel).new SequentialListTrainer();
+            return new SequentialTrainer(settings, Optimizer.getFrom(settings, learningRate), currentModel).new SequentialListTrainer();
         }
     }
 
@@ -119,10 +119,10 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
      */
     protected void initEpoch(int epochNumber) {
         if (settings.shuffleEachEpoch) {
-            Collections.shuffle(trainingSet);
+            Collections.shuffle(trainingSet, settings.random);
         }
         if (settings.islearnRateDecay) {
-            learningRate = learnRateDecayStrategy.decay();
+            learnRateDecayStrategy.decay();
         }
         if (settings.dropoutMode == Settings.DropoutMode.LIFTED_DROPCONNECT && settings.dropoutRate > 0) {
             currentModel.dropoutWeights();
@@ -131,7 +131,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     protected void endEpoch(int count, List<Result> onlineEvaluations) {
         Results onlineResults = resultsFactory.createFrom(onlineEvaluations);
-        progress.addOnlineResults(onlineResults);   //todo now add error value reporting in LRNN1.0
+        progress.addOnlineResults(onlineResults);
         LOG.info("epoch: " + count + " : online results : " + onlineResults.toString(settings));
         Utilities.logMemory();
         if (count % settings.resultsRecalculationEpochae == 0) {
@@ -183,7 +183,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
             LOG.fine(msg);
         }
 
-        if (LOG.isLoggable(Level.FINER)) {
+        if (settings.debugSampleOutputs) {
             logSampleOutputs();
         }
 
@@ -201,7 +201,9 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     private void logSampleOutputs() {
         LOG.finer("Training outputs");
         progress.getLastTrueResults().training.printOutputs();
-        LOG.finer("Validation outputs:");
-        progress.getLastTrueResults().validation.printOutputs();
+        if (!progress.getLastTrueResults().validation.isEmpty()) {
+            LOG.finer("Validation outputs:");
+            progress.getLastTrueResults().validation.printOutputs();
+        }
     }
 }
