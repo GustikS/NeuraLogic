@@ -10,7 +10,10 @@ import java.util.logging.Logger;
 public class GroundRule extends GroundHeadRule {
     private static final Logger LOG = Logger.getLogger(GroundRule.class.getName());
 
-    public Literal[] groundBody;
+    /**
+     * It's an array, so there can be duplicates!
+     */
+    public Literal[] groundBody;    //todo next add check for uniqueness in both lifted and ground rules (unique by set of body literals)
 
     public GroundRule(WeightedRule weightedRule, Literal groundHead, Literal[] groundBody) {
         super(weightedRule, groundHead);

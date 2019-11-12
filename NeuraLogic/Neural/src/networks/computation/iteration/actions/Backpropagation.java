@@ -1,6 +1,7 @@
 package networks.computation.iteration.actions;
 
 import networks.computation.evaluation.results.Result;
+import networks.computation.evaluation.values.ScalarValue;
 import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.TopDown;
 import networks.computation.iteration.modes.BFS;
@@ -57,6 +58,8 @@ public class Backpropagation {
      * @return
      */
     public TopDown getTopDownPropagator(NeuralNetwork<State.Neural.Structure> network, Neurons outputNeuron) {
+//        return new DFSrecursion().new TDownVisitor(network, outputNeuron, backproper, weightUpdater);
+
         if (network instanceof TopologicNetwork && !network.containsPooling) {
             StandardNeuronVisitors.Down down = new StandardNeuronVisitors.Down(network, backproper, weightUpdater);
             return new Topologic((TopologicNetwork<State.Neural.Structure>) network).new TDownVisitor(outputNeuron, down);
@@ -75,7 +78,7 @@ public class Backpropagation {
 
         Value errorGradient = evaluatedResult.errorGradient();
 
-//        errorGradient = errorGradient.times(new ScalarValue(settings.initLearningRate));//todo next measure properly the performance of this single multiplication by learningRate and remove if no help
+        errorGradient = errorGradient.times(new ScalarValue(settings.initLearningRate));//todo next measure properly the performance of this single multiplication by learningRate and remove if no help
 
         weightUpdater.clearUpdates();
         outputNeuron.getComputationView(backproper.stateIndex).storeGradient(errorGradient); //store the error gradient into the output neuron, from where it will be further propagated

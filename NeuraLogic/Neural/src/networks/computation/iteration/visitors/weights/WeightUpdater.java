@@ -18,19 +18,28 @@ public class WeightUpdater implements WeightVisitor {
      */
     public Value[] weightUpdates;
 
+    private boolean[] active;
+
     public WeightUpdater(List<Weight> weights) {
         weightUpdates = new Value[weights.size()];
+        active = new boolean[weights.size()];
 
         for (Weight weight : weights) {
             int index = weight.index;
-            if (!weight.isLearnable()) {
+            if (index > weightUpdates.length) {
+                LOG.severe("Weight index exceeding number of all extracted weights");
+            }
+            if (weight.isLearnable()) {
+                weightUpdates[index] = weight.value.getForm();
+            } else {
+                continue;
                 //void, these are constant weights not to be updated
                 //or these are weights with fixed values by user
-            } else if (index > weightUpdates.length) {
-                LOG.severe("Weight index exceeding number of all extracted weights");
-            } else {
-                weightUpdates[index] = weight.value.getForm();
             }
+            if (active[index]) {
+                LOG.severe("Weight index seen twice! Input weight list is not unique! Some weight will try to be updated twice!");
+            }
+            active[index] = true;
         }
     }
 

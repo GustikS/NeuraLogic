@@ -30,18 +30,22 @@ public class NeuralModel implements Model<QueryNeuron> {    //todo next add accu
 
     public NeuralModel(List<Weight> weights, Settings settings) {
         this.settings = settings;
-        this.weights = filterLearnable(weights);
-    }
-
-    public NeuralModel(Template template, Settings settings) {  //todo next add debug option for neuralModel only - ie.e. printing out weights (nicely) only
-        this.settings = settings;
-        this.weights = filterLearnable(template.getAllWeights());
+        this.weights = weights;
+//        this.weights = filterLearnable(weights);  //todo next SPEEDUP - reindex weights here so that the first N are only learnable, and so no further checks are necessary, as we have a continuous array in weightupdates
         if (settings.optimizer == Settings.OptimizerSet.ADAM) {
             init4Adam(weights);
         }
+    }
+
+    public NeuralModel(Template template, Settings settings) {  //todo next add debug option for neuralModel only - ie.e. printing out weights (nicely) only
+        this(template.getAllWeights(), settings);
         if (settings.debugTemplateTraining) {
             this.template = template;
         }
+    }
+
+    private NeuralModel(Settings settings){
+        this.settings = settings;
     }
 
     protected void init4Adam(List<Weight> weights) {
@@ -57,7 +61,8 @@ public class NeuralModel implements Model<QueryNeuron> {    //todo next add accu
      */
     public NeuralModel cloneValues() {
         List<Weight> clonedWeights = weights.stream().map(Weight::clone).collect(Collectors.toList());
-        NeuralModel clone = new NeuralModel(clonedWeights, this.settings);
+        NeuralModel clone = new NeuralModel(this.settings);
+        clone.weights = clonedWeights;
         clone.template = this.template;
         return clone;
     }

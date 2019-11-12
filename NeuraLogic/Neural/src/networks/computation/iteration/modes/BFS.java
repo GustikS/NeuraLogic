@@ -24,10 +24,9 @@ import java.util.logging.Logger;
  * BottomUp post-order is a problem here, we would have to misuse parentcounters so that a node is added for expansion
  * only by the LAST parent - otherwise it would be added to queue too early and the reverse iteration would not be post-order,
  * i.e. it would not hold that all children are processed before all parents.
- *
+ * <p>
  * - Actually, that's Kahn’s algorithm (using BFS for topologic sort), for which we need to track and iteratively decrease
- *  the in-degrees of nodes, which makes it less efficient than DFS (although asymptotically it's the same)
- *
+ * the in-degrees of nodes, which makes it less efficient than DFS (although asymptotically it's the same)
  */
 
 public class BFS {
@@ -49,7 +48,8 @@ public class BFS {
                 BaseNeuron<Neurons, State.Neural> poll = (BaseNeuron<Neurons, State.Neural>) queue.poll();
                 if (poll.getComputationView(neuronVisitor.stateVisitor.stateIndex).ready4expansion(neuronVisitor.stateVisitor)) {
                     Iterator<Neurons> inputs = network.getInputs(poll);
-                    for (Neurons next; (next = inputs.next()) != null; ) {
+                    while (inputs.hasNext()) {
+                        Neurons next = inputs.next();
                         queue.add(next);
                     }
                     return poll;

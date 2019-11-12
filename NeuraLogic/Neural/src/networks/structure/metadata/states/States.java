@@ -188,7 +188,13 @@ public abstract class States implements State {
 
         @Override
         public boolean ready4expansion(StateVisiting visitor) {
-            LOG.warning("Default double dispatch call.");
+            if (visitor instanceof Backproper){ //todo next make nicer
+                return ready4expansion((Backproper) visitor);
+            } else if (visitor instanceof Evaluator){
+                return ready4expansion((Evaluator) visitor);
+            } else if (visitor instanceof Invalidator){
+                return ready4expansion((Invalidator) visitor);
+            }
             return true;
         }
 
@@ -201,7 +207,7 @@ public abstract class States implements State {
         }
 
         public boolean ready4expansion(Invalidator visitor) {
-            return calculated;
+            return true;
         }
 
         @Override
@@ -224,9 +230,10 @@ public abstract class States implements State {
             this.parentCount = parentCount;
         }
 
-        public Value getValue() {
+        @Override
+        public void setValue(Value value) {
+            super.setValue(value);
             calculated = true;
-            return super.getValue();
         }
     }
 

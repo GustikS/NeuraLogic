@@ -18,7 +18,7 @@ public interface ValueInitializer {
     static ValueInitializer getInitializer(Settings settings) {
         if (settings.initializer == Settings.InitSet.GLOROT) {
             return new GlorotInitializer(settings);
-        } else if (settings.initializer == Settings.InitSet.UNIFORM)
+        } else if (settings.initializer == Settings.InitSet.SIMPLE)
             return new SimpleInitializer(settings);
         else
             return new SimpleInitializer(settings);

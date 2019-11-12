@@ -311,7 +311,7 @@ public class StatesBuilder {
         }
         State.Structure[] structureStates;
 
-        if (settings.iterationMode == Settings.IterationMode.Topologic) {
+        if (settings.iterationMode == Settings.IterationMode.TOPOLOGIC) {
             structureStates = new State.Structure[neuralNetwork.allNeuronsTopologic.size()];
             for (int i = 0; i < neuralNetwork.allNeuronsTopologic.size(); i++) {
                 BaseNeuron<Neurons, State.Neural> neuron = neuralNetwork.allNeuronsTopologic.get(i);

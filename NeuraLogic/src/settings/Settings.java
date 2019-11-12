@@ -212,7 +212,7 @@ public class Settings {
     /**
      * Default value for output of fact neurons (= values of ValuedFacts) if not specified by user
      */
-    public Value defaultFactValue = new ScalarValue(0.1);
+    public Value defaultFactValue = new ScalarValue(1);
 //    public Value defaultFactValue = Value.ONE;
 
     public double defaultConjunctWeight = 1.0;  //todo actually use these in some factory method
@@ -309,11 +309,6 @@ public class Settings {
     //-----------------Evaluation & Training
 
     /**
-     * Range of uniformly distributed numbers for weights initialization (2 = [-1,1])
-     */
-    public double randomInitScale = 2;
-
-    /**
      * Evaluation mode: Regression vs. Classification
      */
     public boolean regression = false;
@@ -388,11 +383,27 @@ public class Settings {
 
     public boolean islearnRateDecay = false;
 
-    public InitSet initializer = InitSet.UNIFORM;
+    public InitSet initializer = InitSet.SIMPLE;
 
     public enum InitSet {
-        UNIFORM, GLOROT
+        SIMPLE, GLOROT
     }
+
+    public InitDistribution initDistribution = InitDistribution.UNIFORM;
+
+    public enum InitDistribution {
+        UNIFORM, CONSTANT
+    }
+
+    /**
+     * Range of uniformly distributed numbers for weights initialization (2 = [-1,1])
+     */
+    public double randomInitScale = 2;
+
+    /**
+     * Contant value to initialize all weights with, used for debugging purposes (with Constant Distribution) only!
+     */
+    public double constantInitValue = 0.1;
 
     public double initLearningRate = 0.1;
 
@@ -444,10 +455,10 @@ public class Settings {
         AVG, MAX, MIN, SUM
     }
 
-    public IterationMode iterationMode = IterationMode.Topologic;
+    public IterationMode iterationMode = IterationMode.TOPOLOGIC;
 
     public enum IterationMode {
-        Topologic, DFS_RECURSIVE, DFS_STACK, BFS
+        TOPOLOGIC, DFS_RECURSIVE, DFS_STACK, BFS
     }
 
     /**
@@ -681,7 +692,7 @@ public class Settings {
      */
     public void infer() {
         if (reduceTemplate) graphTemplate = true;
-        parentCounting = (iterationMode != IterationMode.Topologic);
+        parentCounting = (iterationMode != IterationMode.TOPOLOGIC);
 
         if (dropoutRate == 0 && !parentCounting) {
             neuralState = NeuralState.STANDARD;

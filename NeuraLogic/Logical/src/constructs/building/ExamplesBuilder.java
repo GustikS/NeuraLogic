@@ -93,7 +93,7 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
                 }
             }
         } else {
-            LOG.info("Detecting multiple individual examples in the examples source (file), assuming independent graph mode.");
+            LOG.info("Detecting multiple individual examples in the examples source (file), assuming independent graph mode (assuming queriesAlignedWithExamples!)");
             settings.queriesAlignedWithExamples = true;
             if (settings.groundingMode != Settings.GroundingMode.STANDARD) {
                 settings.groundingMode = Settings.GroundingMode.STANDARD;

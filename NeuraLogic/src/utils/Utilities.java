@@ -113,7 +113,7 @@ public class Utilities {
         return result;
     }
 
-    public static <A, B, C> Stream<C> zipStreams(Stream<? extends A> a,
+    public static <A, B, C> Stream<C> zipStreams(Stream<? extends A> a,     //todo next raise severe warning if zipping two streams of different size!
                                                  Stream<? extends B> b,
                                                  BiFunction<? super A, ? super B, ? extends C> zipper) {
         Objects.requireNonNull(zipper);

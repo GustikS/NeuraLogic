@@ -25,14 +25,14 @@ public class SGD implements Optimizer {
 
     public void performGradientStep(List<Weight> weights, Value[] weightUpdates) {
         for (Weight weight : weights) {
-            if (weight.isFixed || weight.index < 0) {
+            if (!weight.isLearnable) {
                 //fixed weights and constants
             } else {  //todo speedup - update only those weights that have been changed? (i.e. no zero increment calls - i.e. hold list of updates somewhere?)
-                if (weightUpdates[weight.index] == null){
-                    LOG.severe("Void weight update here?");
-                }
+//                if (weightUpdates[weight.index] == null){
+//                    LOG.severe("Weight had no update slot prepared, probably mismatch in weight indexing!");
+//                }
                 //todo next check if we cannot just multiply once at beginning of backprop! probably yes...at least with SGD it's just a chained multiplication, but it doesnt seem to improve speed performance much
-                Value update = weightUpdates[weight.index].times(learningRate); //and it's clearer to do it here for each parameter separately
+                Value update = weightUpdates[weight.index];//.times(learningRate); //and it's clearer to do it here for each parameter separately
 
                 weight.value.incrementBy(update);
                 LOG.finest("Incrementing " + weight + " with " + update);

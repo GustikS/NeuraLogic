@@ -99,7 +99,12 @@ public class Template implements Model<QueryAtom> {
                     weightList.add(bodyAtom.getConjunctWeight());
             }
         }
-        return weightList;
+        List<Weight> uniqueWeights = filterUnique(weightList);
+        return uniqueWeights;
+    }
+
+    private List<Weight> filterUnique(List<Weight> weightList) {
+        return weightList.stream().distinct().collect(Collectors.toList());
     }
 
     public void updateWeightsFrom(NeuralModel neuralModel) {

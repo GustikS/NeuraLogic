@@ -41,8 +41,10 @@ public class DFSrecursion {
         public <T extends Neurons, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             Value gradient = stateVisitor.visit(state);
-            Iterator<T> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());
-            for (T input; (input = inputs.next()) != null; ) {
+//            Iterator<T> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());
+            Iterator<T> inputs = network.getInputs(neuron);
+            while (inputs.hasNext()) {
+                T input = inputs.next();
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
                 computationView.storeGradient(gradient);
                 if (computationView.ready4expansion(stateVisitor)) {    //we can check the children in advance here since we expanded them already ourselves
@@ -55,15 +57,17 @@ public class DFSrecursion {
         public <T extends Neurons, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             Value gradient = stateVisitor.visit(state);
-            Pair<Iterator<T>, Iterator<Weight>> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());
-
+//            Pair<Iterator<T>, Iterator<Weight>> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());   //todo changed during debugging
+            Pair<Iterator<T>, Iterator<Weight>> inputs = network.getInputs(neuron);
             weightUpdater.visit(neuron.offset, gradient);
 
             Iterator<T> inputNeurons = inputs.r;
             Iterator<Weight> inputWeights = inputs.s;
             T input;
             Weight weight;
-            while ((input = inputNeurons.next()) != null && (weight = inputWeights.next()) != null) {
+            while (inputNeurons.hasNext() && inputWeights.hasNext()) {
+                input = inputNeurons.next();
+                weight = inputWeights.next();
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
 
                 weightUpdater.visit(weight, gradient.times(computationView.getValue()));
@@ -102,7 +106,8 @@ public class DFSrecursion {
         public <T extends Neurons, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
             //1st evaluate all the inputs
             Iterator<T> inputs = network.getInputs(neuron);
-            for (T input; (input = inputs.next()) != null; ) {
+            while (inputs.hasNext()) {
+                T input = inputs.next();
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
                 if (!computationView.ready4expansion(stateVisitor))     // is not yet evaluated?
                     input.visit(this);
@@ -116,7 +121,8 @@ public class DFSrecursion {
             Pair<Iterator<T>, Iterator<Weight>> inputs = network.getInputs(neuron);
             Iterator<T> inputNeurons = inputs.r;
             //1st evaluate all the inputs
-            for (T input; (input = inputNeurons.next()) != null; ) {
+            while (inputNeurons.hasNext()) {
+                T input = inputNeurons.next();
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
                 if (!computationView.ready4expansion(stateVisitor))     // is not yet evaluated?
                     input.visit(this);

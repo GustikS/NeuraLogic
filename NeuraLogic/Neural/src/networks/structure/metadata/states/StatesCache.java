@@ -142,7 +142,7 @@ public abstract class StatesCache<T extends State.Neural.Structure> {
      */
     public static <T extends State.Neural.Structure> StatesCache<T> getCache(Settings settings, T[] states) {
         StateVisiting.Computation initializer = State.Structure.getStatesInitializer(settings);
-        if (settings.iterationMode == Settings.IterationMode.Topologic)
+        if (settings.iterationMode == Settings.IterationMode.TOPOLOGIC)
             return new StatesCache.DirectCache(states, initializer);
         else if (states.length < settings.lin2bst)
             return new StatesCache.LinearCache(states, initializer);

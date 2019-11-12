@@ -98,7 +98,7 @@ public class TrainingDebuggerTest {
         settings.storeNotShow = true;
         settings.debugTemplateTraining = false; //too big
         settings.debugTemplate = false;
-        settings.initializer = Settings.InitSet.UNIFORM;
+        settings.initializer = Settings.InitSet.SIMPLE;
         settings.optimizer = Settings.OptimizerSet.SGD;
         TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
         trainingDebugger.executeDebug();
@@ -114,14 +114,14 @@ public class TrainingDebuggerTest {
         Settings settings = new Settings();
 
         settings.seed = 0;
-        settings.initLearningRate = 0.05;
-        settings.maxCumEpochCount = 10000;
+        settings.initLearningRate = 0.3;
+        settings.maxCumEpochCount = 3000;
         settings.resultsRecalculationEpochae = 10;
         settings.shuffleEachEpoch = false;
         settings.debugSampleOutputs = false;
 //        settings.appLimitSamples = 100;
         settings.calculateBestThreshold = false;
-        settings.initializer = Settings.InitSet.UNIFORM;
+        settings.initializer = Settings.InitSet.SIMPLE;
         settings.optimizer = Settings.OptimizerSet.SGD;
 
 
@@ -135,6 +135,70 @@ public class TrainingDebuggerTest {
         settings.storeNotShow = true;
         settings.debugTemplateTraining = false; //too big
         settings.debugTemplate = false;
+        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        trainingDebugger.executeDebug();
+    }
+
+    @Test
+    public void mutagen_diffcheck() {
+        Logging logging = Logging.initLogging(Level.FINER);
+        String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples3 " +
+//                "-q ./resources/datasets/relational/molecules/mutagenesis/trainQueries.txt " +
+                "-t ./resources/datasets/relational/molecules/mutagenesis/template_new.txt").split(" ");
+
+        Settings settings = new Settings();
+
+        settings.initDistribution = Settings.InitDistribution.CONSTANT;
+
+        settings.seed = 0;
+        settings.initLearningRate = 0.3;
+        settings.maxCumEpochCount = 3000;
+        settings.resultsRecalculationEpochae = 1;
+        settings.shuffleEachEpoch = false;
+        settings.debugSampleOutputs = true;
+        settings.calculateBestThreshold = true;
+//        settings.appLimitSamples = 100;
+        settings.initializer = Settings.InitSet.SIMPLE;
+        settings.optimizer = Settings.OptimizerSet.SGD;
+        settings.iterationMode = Settings.IterationMode.DFS_RECURSIVE;
+
+        settings.oneQueryPerExample = true;
+        settings.neuralNetsPostProcessing = true;
+        settings.pruneNetworks = true;
+        settings.storeNotShow = true;
+
+        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        trainingDebugger.executeDebug();
+    }
+
+    @Test
+    public void mutagen_standard() {
+        Logging logging = Logging.initLogging(Level.FINER);
+        String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/trainExamples.txt " +
+                "-q ./resources/datasets/relational/molecules/mutagenesis/trainQueries.txt " +
+                "-t ./resources/datasets/relational/molecules/mutagenesis/template_new.txt").split(" ");
+
+        Settings settings = new Settings();
+
+        settings.initDistribution = Settings.InitDistribution.UNIFORM;
+
+        settings.seed = 0;
+        settings.initLearningRate = 0.3;
+        settings.maxCumEpochCount = 3000;
+        settings.resultsRecalculationEpochae = 10;
+        settings.shuffleEachEpoch = false;
+        settings.debugSampleOutputs = true;
+        settings.calculateBestThreshold = true;
+//        settings.appLimitSamples = 100;
+        settings.initializer = Settings.InitSet.SIMPLE;
+        settings.optimizer = Settings.OptimizerSet.SGD;
+        settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
+
+        settings.oneQueryPerExample = true;
+        settings.neuralNetsPostProcessing = true;
+        settings.pruneNetworks = true;
+        settings.storeNotShow = true;
+
         TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
         trainingDebugger.executeDebug();
     }
