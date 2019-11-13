@@ -44,6 +44,12 @@ public class MatrixValue extends Value {
         }
     }
 
+    public MatrixValue(double[][] values) {
+        this.values = values;
+        this.rows = values.length;
+        this.cols = values[0].length;
+    }
+
 
     @NotNull
     @Override
@@ -108,6 +114,32 @@ public class MatrixValue extends Value {
     @Override
     public MatrixValue getForm() {
         return new MatrixValue(rows, cols);
+    }
+
+    @Override
+    public void transpose() {
+
+        double[][] trValues = new double[cols][rows];
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                trValues[j][i] = values[i][j];
+            }
+        }
+
+        values = trValues;
+
+        int tmp = rows;
+        rows = cols;
+        cols = tmp;
+    }
+
+    @Override
+    public Value transposedView() {
+        LOG.severe("Transposed view of a matrix (without actual transposition) not implemented, returning a transposed copy instead!");
+        MatrixValue value = new MatrixValue(values);
+        value.transpose();
+        return value;
     }
 
     @Override

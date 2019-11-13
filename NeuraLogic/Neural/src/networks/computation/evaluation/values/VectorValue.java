@@ -11,8 +11,7 @@ import java.util.function.Function;
 import java.util.logging.Logger;
 
 /**
- * We consider vectors as both column and row vectors so that the multiplication with a matrix can return a vector.
- * <p>
+ * We consider vectors as both column and row vectors, default is column orientation.
  * Created by gusta on 8.3.17.
  */
 public class VectorValue extends Value {
@@ -38,6 +37,11 @@ public class VectorValue extends Value {
     public VectorValue(int size, ValueInitializer valueInitializer) {
         values = new double[size];
         initialize(valueInitializer);
+    }
+
+    private VectorValue(double[] values, boolean rowOrientation){
+        this.values = values;
+        this.rowOrientation = rowOrientation;
     }
 
 
@@ -89,6 +93,16 @@ public class VectorValue extends Value {
         VectorValue form = new VectorValue(values.length);
         form.rowOrientation = rowOrientation;
         return form;
+    }
+
+    @Override
+    public void transpose() {
+        rowOrientation = !rowOrientation;
+    }
+
+    @Override
+    public Value transposedView() {
+        return new VectorValue(values, !rowOrientation);
     }
 
     @Override
@@ -172,7 +186,7 @@ public class VectorValue extends Value {
             }
             return result;
         } else {
-            LOG.severe("Incompatible dimensions for vector multiplication: " + Arrays.toString(value.size()) + " x " + Arrays.toString(size()));
+            LOG.severe("Incompatible dimensions for vector multiplication: " + Arrays.toString(value.size()) + " x " + Arrays.toString(size()) + " (try transposition)");
             return null;
         }
     }
@@ -189,6 +203,9 @@ public class VectorValue extends Value {
     protected VectorValue times(MatrixValue value) {
         if (value.cols != values.length) {
             LOG.severe("Matrix row length mismatch with vector length for multiplication");
+        }
+        if (value.cols > 1 && rowOrientation) {
+            LOG.severe("Multiplying matrix with a row-oriented vector!");
         }
         VectorValue result = new VectorValue(value.rows);
         double[] resultValues = result.values;

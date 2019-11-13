@@ -114,13 +114,18 @@ public class StandardNeuronVisitors {
             Iterator<Weight> inputWeights = inputs.s;
             BaseNeuron input;
             Weight weight;
+
+            Value transpGradient = gradient.transposedView();    //todo next speedup everything around here, minimize Value copying
+
             while (inputNeurons.hasNext()) {    //neurons and weights should always be aligned correctly, so skipping the check here for some speedup
                 input = inputNeurons.next();
                 weight = inputWeights.next();
                 State.Neural.Computation inputComputationView = input.getComputationView(stateVisitor.stateIndex);
 
-                weightUpdater.visit(weight, gradient.times(inputComputationView.getValue()));
-                inputComputationView.storeGradient(gradient.times(weight.value));
+                Value inputValue = inputComputationView.getValue().transposedView();
+                weightUpdater.visit(weight, gradient.times(inputValue));
+
+                inputComputationView.storeGradient(transpGradient.times(weight.value));
             }
         }
     }

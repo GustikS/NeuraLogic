@@ -47,6 +47,18 @@ public abstract class Value implements Iterable<Double> {   //todo add division
     public abstract Value getForm();
 
     /**
+     * Transpose this Value
+     * @return
+     */
+    public abstract void transpose();
+
+    /**
+     * Returns a transposed view on the same data (except for matrix values, which throws an error instead)
+     * @return
+     */
+    public abstract Value transposedView();
+
+    /**
      * Dimension representation up to a 2D matrix
      *
      * @return
@@ -157,6 +169,7 @@ public abstract class Value implements Iterable<Double> {   //todo add division
     public static final Value ZERO = new Zero();
     public static final Value ONE = new One();
 
+
     @Deprecated
     private static class One extends Value {
 
@@ -183,6 +196,16 @@ public abstract class Value implements Iterable<Double> {   //todo add division
         public Value getForm() {
             LOG.warning("Constant One cannot be zeroed/getForm from!");
             return null;
+        }
+
+        @Override
+        public void transpose() {
+
+        }
+
+        @Override
+        public Value transposedView() {
+            return this;
         }
 
         @Override
@@ -350,6 +373,15 @@ public abstract class Value implements Iterable<Double> {   //todo add division
 
         @Override
         public Value getForm() {
+            return this;
+        }
+
+        @Override
+        public void transpose() {
+        }
+
+        @Override
+        public Value transposedView() {
             return this;
         }
 

@@ -106,6 +106,7 @@ public abstract class States implements State {
             }
             aggregationState.setupValueDimensions(value);
             outputValue = value.getForm();
+
             acumGradient = value.getForm();
         }
 

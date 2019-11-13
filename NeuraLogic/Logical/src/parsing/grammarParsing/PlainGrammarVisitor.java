@@ -200,7 +200,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
                 weight = ctx.weight().accept(new WeightVisitor());
             }
             if (weight == null) {
-                weight = builder.weightFactory.construct("foo", builder.settings.defaultFactValue, true, true);
+                weight = builder.weightFactory.construct("fact", builder.settings.defaultFactValue, true, true);
             }
 
             ValuedFact fact = new ValuedFact(predicate, terms, ctx.negation() != null, weight);
@@ -264,7 +264,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             } else if (ctx.vector() != null) {
                 List<Double> vector = ctx.vector().number().stream().map(num -> Double.parseDouble(num.getText())).collect(Collectors.toList());
                 value = new VectorValue(vector);
-                ((VectorValue) value).rowOrientation = true;    //we treat vector in the template as row vectors (i.e. as 1xN matrices) so that they can be multiplied with normal (column) vectors
+//                ((VectorValue) value).rowOrientation = true;    //we treat vector in the template as row vectors (i.e. as 1xN matrices) so that they can be multiplied with normal (column) vectors   -WRONG! this is confusing, just keep the default column orientation everywhere....
             } else if (ctx.matrix() != null) {
                 List<List<Double>> vectors = new ArrayList<>();
                 for (NeuralogicParser.VectorContext vectorContext : ctx.matrix().vector()) {
@@ -280,12 +280,12 @@ public class PlainGrammarVisitor extends GrammarVisitor {
                         value = new ScalarValue();
                     else {
                         value = new VectorValue(dims.get(0));
-                        ((VectorValue) value).rowOrientation = true;    //we treat vector in the template as row vectors (i.e. as 1xN matrices) so that they can be multiplied with normal (column) vectors
+//                        ((VectorValue) value).rowOrientation = true;    //we treat vector in the template as row vectors (i.e. as 1xN matrices) so that they can be multiplied with normal (column) vectors   -WRONG
                     }
                 } else if (dims.size() == 2) {
                     if (dims.get(0) == 1) {
                         value = new VectorValue(dims.get(1));
-                        ((VectorValue) value).rowOrientation = true;    //we treat vector in the template as row vectors (i.e. as 1xN matrices) so that they can be multiplied with normal (column) vectors
+                        ((VectorValue) value).rowOrientation = true;
                     } else if (dims.get(1) == 1) {
                         value = new VectorValue(dims.get(0));
                         ((VectorValue) value).rowOrientation = false;

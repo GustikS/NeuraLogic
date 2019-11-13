@@ -44,6 +44,16 @@ public class StringValue extends Value {
     }
 
     @Override
+    public void transpose() {
+
+    }
+
+    @Override
+    public Value transposedView() {
+        return null;
+    }
+
+    @Override
     public int[] size() {
         return new int[0];
     }

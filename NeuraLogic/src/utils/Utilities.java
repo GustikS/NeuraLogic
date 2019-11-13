@@ -133,7 +133,18 @@ public class Utilities {
         Iterator<C> cIterator = new Iterator<C>() {
             @Override
             public boolean hasNext() {
-                return aIterator.hasNext() && bIterator.hasNext();
+                boolean hasNextA = aIterator.hasNext();
+                boolean hasNextB = bIterator.hasNext();
+                if (hasNextA && hasNextB) {
+                    return true;
+                } else {
+                    if (hasNextA || hasNextB) {
+                        LOG.severe("Streams to be zipped has different sizes! Possibly mismatch of examples and labels?");
+                        throw new IllegalStateException("Stream size mismatch");
+                    } else {
+                        return false;
+                    }
+                }
             }
 
             @Override

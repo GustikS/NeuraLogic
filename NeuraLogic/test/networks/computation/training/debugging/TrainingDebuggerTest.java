@@ -183,15 +183,47 @@ public class TrainingDebuggerTest {
         settings.initDistribution = Settings.InitDistribution.UNIFORM;
 
         settings.seed = 0;
-        settings.initLearningRate = 0.3;
+        settings.initLearningRate = 0.01;
         settings.maxCumEpochCount = 3000;
         settings.resultsRecalculationEpochae = 10;
-        settings.shuffleEachEpoch = false;
-        settings.debugSampleOutputs = true;
+        settings.shuffleEachEpoch = true;
+        settings.debugSampleOutputs = false;
         settings.calculateBestThreshold = true;
 //        settings.appLimitSamples = 100;
         settings.initializer = Settings.InitSet.SIMPLE;
-        settings.optimizer = Settings.OptimizerSet.SGD;
+        settings.optimizer = Settings.OptimizerSet.ADAM;
+        settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
+
+        settings.oneQueryPerExample = true;
+        settings.neuralNetsPostProcessing = true;
+        settings.pruneNetworks = true;
+        settings.storeNotShow = true;
+
+        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        trainingDebugger.executeDebug();
+    }
+
+    @Test
+    public void mutagen_vector() {
+        Logging logging = Logging.initLogging(Level.FINER);
+        String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/trainExamples.txt " +
+                "-q ./resources/datasets/relational/molecules/mutagenesis/trainQueries.txt " +
+                "-t ./resources/datasets/relational/molecules/mutagenesis/template_vectorized.txt").split(" ");
+
+        Settings settings = new Settings();
+
+        settings.initDistribution = Settings.InitDistribution.UNIFORM;
+
+        settings.seed = 0;
+        settings.initLearningRate = 0.01;
+        settings.maxCumEpochCount = 500;
+        settings.resultsRecalculationEpochae = 10;
+        settings.shuffleEachEpoch = true;
+        settings.debugSampleOutputs = false;
+        settings.calculateBestThreshold = true;
+//        settings.appLimitSamples = 100;
+        settings.initializer = Settings.InitSet.SIMPLE;
+        settings.optimizer = Settings.OptimizerSet.ADAM;
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
 
         settings.oneQueryPerExample = true;

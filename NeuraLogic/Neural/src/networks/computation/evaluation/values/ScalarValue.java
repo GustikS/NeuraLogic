@@ -74,6 +74,16 @@ public class ScalarValue extends Value {
     }
 
     @Override
+    public void transpose() {
+        //void
+    }
+
+    @Override
+    public Value transposedView() {
+        return this;
+    }
+
+    @Override
     public int[] size() {
         return new int[0];
     }
