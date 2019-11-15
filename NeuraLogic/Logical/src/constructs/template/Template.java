@@ -52,7 +52,7 @@ public class Template implements Model<QueryAtom> {
         this.constraints = new LinkedHashSet<>();
     }
 
-    public Template(Template other) {   //todo now next - add new versions of mutagenesis templates - smaller only for drawing, and vectorized versions
+    public Template(Template other) {
         this.rules = other.rules;
         this.facts = other.facts;   //todo now add neurons' saturation check/debugging
         this.constraints = other.constraints;
@@ -99,7 +99,7 @@ public class Template implements Model<QueryAtom> {
                     weightList.add(bodyAtom.getConjunctWeight());
             }
         }
-        List<Weight> uniqueWeights = filterUnique(weightList);
+        List<Weight> uniqueWeights = filterUnique(weightList);  //todo next reindex here so that there are no holes in numbering (which will cause weightupdater out of bounds error)
         return uniqueWeights;
     }
 

@@ -56,7 +56,12 @@ public class NeuralNetwork<N extends State.Neural.Structure> implements Example 
     /**
      * Whether there are neurons which do not propagate values into all the inputs (e.g. max-pooling).
      */
-    public boolean containsPooling;
+    public boolean containsInputMasking; //todo test template with Max aggregation
+
+    /**
+     * Whether there are neurons which propagate values to inputs in non-standard manner (requires special visitors)
+     */
+    public boolean containsCrossProducts;
 
     /**
      * A structure to store States and Search for neurons within this network (if available)

@@ -64,6 +64,21 @@ public class StringValue extends Value {
     }
 
     @Override
+    public double get(int i) {
+        return 0;
+    }
+
+    @Override
+    public void set(int i, double value) {
+
+    }
+
+    @Override
+    public void increment(int i, double value) {
+
+    }
+
+    @Override
     public String toString() {
         return value;
     }

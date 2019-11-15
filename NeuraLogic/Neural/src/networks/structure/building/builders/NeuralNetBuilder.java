@@ -16,6 +16,7 @@ import networks.structure.components.weights.Weight;
 import networks.structure.metadata.inputMappings.LinkedMapping;
 import networks.structure.metadata.inputMappings.NeuronMapping;
 import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
+import networks.structure.metadata.states.AggregationState;
 import networks.structure.metadata.states.State;
 import settings.Settings;
 
@@ -78,6 +79,10 @@ public class NeuralNetBuilder {
                 headAtomNeuron = neuralBuilder.neuronFactory.createAtomNeuron(liftedRule.getKey().weightedRule.getHead(), head); //it doesn't matter which liftedRule's head (they are all the same)
             else
                 headAtomNeuron = neuralBuilder.neuronFactory.createUnweightedAtomNeuron(liftedRule.getKey().weightedRule.getHead(), head);
+
+            if (headAtomNeuron.getComputationView(0).getAggregationState() instanceof AggregationState.CrossProducState) {   //the neuron will require complex input propagation
+                neuronMaps.containsCrossproduct = true;
+            }
         } else {
             headAtomNeuron.setShared(true);
             if (rules.entrySet().size() > 0) {  //if there are NEW rules for this headAtomNeuron to be processed, it means that we need to change its inputs in context of this new network!
@@ -107,6 +112,9 @@ public class NeuralNetBuilder {
             if ((aggNeuron = neuronMaps.aggNeurons.get(rules2groundings.getKey())) == null) {
                 newAggNeuron = true;
                 aggNeuron = neuralBuilder.neuronFactory.createAggNeuron(rules2groundings.getKey());
+                if (aggNeuron.getComputationView(0).getAggregationState().getInputMask() != null) { // the neuron will requires input masking!
+                    neuronMaps.containsMasking = true;
+                }
             } else {
                 aggNeuron.isShared = true;
                 if (rules2groundings.getValue().size() > 0) {   //todo check
@@ -139,6 +147,9 @@ public class NeuralNetBuilder {
                         ruleNeuron = neuralBuilder.neuronFactory.createWeightedRuleNeuron(grounding);
                     } else {
                         ruleNeuron = neuralBuilder.neuronFactory.createRuleNeuron(grounding);
+                    }
+                    if (ruleNeuron.getComputationView(0).getAggregationState() instanceof AggregationState.CrossProducState) {   //the neuron will require complex input propagation
+                        neuronMaps.containsCrossproduct = true;
                     }
                 } else {
                     //ruleNeuron.isShared = true;
@@ -235,6 +246,13 @@ public class NeuralNetBuilder {
 
         if (settings.dropoutRate > 0) {
             statesBuilder.setupDropoutStates(neuralNetwork);  //setup individual dropout rates for each neuron
+        }
+
+        if (getNeuronMaps().containsCrossproduct) {
+            neuralNetwork.containsCrossProducts = true;
+        }
+        if (getNeuronMaps().containsMasking) {
+            neuralNetwork.containsInputMasking = true;
         }
 
         //if there are input overmappings, create appropriate states for them to be later stored in neural cache

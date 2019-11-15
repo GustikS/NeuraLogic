@@ -381,7 +381,7 @@ public abstract class States implements State {
 
         @Override
         public Value getGradient() {
-            LOG.warning("FactNeurons stored no gradient.");
+//            LOG.warning("FactNeurons stored no gradient.");
             return null;
         }
 

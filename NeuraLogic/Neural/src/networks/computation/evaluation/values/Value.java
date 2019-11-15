@@ -73,6 +73,27 @@ public abstract class Value implements Iterable<Double> {   //todo add division
      */
     public abstract Value apply(Function<Double, Double> function);
 
+    /**
+     * Since Value is Iterable<Double>, we can access i-th element
+     * @param i
+     * @return
+     */
+    public abstract double get(int i);
+
+    /**
+     * Set i-th element
+     * @param i
+     * @param value
+     */
+    public abstract void set(int i, double value);
+
+    /**
+     * A faster shortcut to get+set for incrementation of particular element
+     * @param i
+     * @param value
+     */
+    public abstract void increment(int i, double value);
+
     @Override
     public abstract String toString();
 
@@ -216,6 +237,27 @@ public abstract class Value implements Iterable<Double> {   //todo add division
         @Override
         public Value apply(Function<Double, Double> function) {
             return one.apply(function);
+        }
+
+        @Override
+        public double get(int i) {
+            if (i != 0){
+                LOG.severe("Scalar value: asking for i-th element!");
+            }
+            return one.value;
+        }
+
+        @Override
+        public void set(int i, double value) {
+            if (i != 0){
+                LOG.severe("Scalar value: asking for i-th element!");
+            }
+            LOG.warning("Trying to set value i constant ONE");
+        }
+
+        @Override
+        public void increment(int i, double value) {
+            LOG.warning("Trying to increment value i constant ONE");
         }
 
         @Override
@@ -393,6 +435,30 @@ public abstract class Value implements Iterable<Double> {   //todo add division
         @Override
         public Value apply(Function<Double, Double> function) {
             return zero.apply(function);
+        }
+
+        @Override
+        public double get(int i) {
+            if (i != 0){
+                LOG.severe("Scalar value: asking for i-th element!");
+            }
+            return zero.value;
+        }
+
+        @Override
+        public void set(int i, double value) {
+            if (i != 0){
+                LOG.severe("Scalar value: asking for i-th element!");
+            }
+            LOG.warning("Trying to set value i constant ONE");
+        }
+
+        @Override
+        public void increment(int i, double value) {
+            if (i != 0){
+                LOG.severe("Scalar value: asking for i-th element!");
+            }
+            LOG.warning("Trying to increment value i constant ONE");
         }
 
         @Override

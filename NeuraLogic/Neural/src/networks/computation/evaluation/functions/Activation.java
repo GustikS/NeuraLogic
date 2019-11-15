@@ -92,8 +92,13 @@ public abstract class Activation extends Aggregation {
             case "lukasiewicz":
                 return Activation.Singletons.lukasiewiczSigmoid;
             case "crossproduct":
-                return new CrossProduct(null);
+                return new CrossProduct(Singletons.lukasiewiczSigmoid);
             default:
+                if (agg.startsWith("crossproduct-")) {
+                    String inner = agg.substring(agg.indexOf("-")+1, agg.length());
+                    Aggregation innerActivation = parseActivation(inner);
+                    return new CrossProduct((Activation) innerActivation);
+                }
                 return null;
         }
     }

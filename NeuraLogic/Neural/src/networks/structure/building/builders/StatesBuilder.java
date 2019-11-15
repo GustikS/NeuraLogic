@@ -11,6 +11,7 @@ import networks.structure.components.types.DetailedNetwork;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.inputMappings.NeuronMapping;
 import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
+import networks.structure.metadata.states.AggregationState;
 import networks.structure.metadata.states.State;
 import networks.structure.metadata.states.States;
 import networks.structure.metadata.states.StatesCache;
@@ -93,7 +94,6 @@ public class StatesBuilder {
             } else {
                 weight = nextWeight.value;
             }
-
         }
 
         if (value == null || weight == null) {
@@ -104,6 +104,7 @@ public class StatesBuilder {
         if (sum == null) {
             LOG.severe("Weight-Value dimension mismatch at neuron:" + neuron);
         }
+        inputValues.add(value);
         while (neuronIterator.hasNext()) {
             value = neuronIterator.next().getComputationView(0).getValue();
             weight = weightIterator.next().value;
@@ -129,6 +130,8 @@ public class StatesBuilder {
         }
         if (neuron.getAggregation() instanceof CrossProduct) {
             sum = neuron.getAggregation().evaluate(inputValues);
+            AggregationState.CrossProducState crossProducState = (AggregationState.CrossProducState) neuron.getComputationView(0).getAggregationState();
+            crossProducState.initMapping(inputValues);
         }
         neuron.getComputationView(0).setupValueDimensions(sum);
     }
@@ -141,6 +144,7 @@ public class StatesBuilder {
         if (sum == null) {
             LOG.severe("Value dimension cannot be inferred!" + neuron);
         } else {
+            inputValues.add(sum);
             sum = sum.clone();  //we do not want to change any existing value here
         }
         while (inputs.hasNext()) {
@@ -163,6 +167,8 @@ public class StatesBuilder {
         }
         if (neuron.getAggregation() instanceof CrossProduct) {
             sum = neuron.getAggregation().evaluate(inputValues);
+            AggregationState.CrossProducState crossProducState = (AggregationState.CrossProducState) neuron.getComputationView(0).getAggregationState();
+            crossProducState.initMapping(inputValues);
         }
         neuron.getComputationView(0).setupValueDimensions(sum);
     }

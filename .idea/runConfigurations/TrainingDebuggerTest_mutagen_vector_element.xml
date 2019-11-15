@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="TrainingDebuggerTest.mutagen_vector" type="JUnit" factoryName="JUnit" nameIsGenerated="true">
+  <configuration default="false" name="TrainingDebuggerTest.mutagen_vector_element" type="JUnit" factoryName="JUnit" nameIsGenerated="true">
     <module name="NeuraLogic" />
     <extension name="coverage">
       <pattern>
@@ -9,7 +9,7 @@
     </extension>
     <option name="PACKAGE_NAME" value="networks.computation.training.debugging" />
     <option name="MAIN_CLASS_NAME" value="networks.computation.training.debugging.TrainingDebuggerTest" />
-    <option name="METHOD_NAME" value="mutagen_vector" />
+    <option name="METHOD_NAME" value="mutagen_vector_element" />
     <option name="TEST_OBJECT" value="method" />
     <option name="PARAMETERS" value="" />
     <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />

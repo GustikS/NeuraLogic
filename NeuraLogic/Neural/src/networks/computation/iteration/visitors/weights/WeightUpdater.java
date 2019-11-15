@@ -26,7 +26,7 @@ public class WeightUpdater implements WeightVisitor {
 
         for (Weight weight : weights) {
             int index = weight.index;
-            if (index > weightUpdates.length) {
+            if (index >= weightUpdates.length) {
                 LOG.severe("Weight index exceeding number of all extracted weights");
             }
             if (weight.isLearnable()) {

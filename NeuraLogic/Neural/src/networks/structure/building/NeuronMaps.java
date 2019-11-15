@@ -38,6 +38,16 @@ public class NeuronMaps {
     @Nullable
     public Map<Neurons, LinkedMapping> extraInputMapping = new HashMap<>();
 
+    /**
+     * Does the network contain any neuron that requires pooling (i.e. does not simply propagate into all the inputs)?
+     */
+    public boolean containsMasking;
+
+    /**
+     * Does the network contain any neuron that combines its inputs via crossproduct scheme (i.e. requires complex gradient propagation)?
+     */
+    public boolean containsCrossproduct;
+
     public NeuronMaps(LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> groundRules, Map<Literal, ValuedFact> groundFacts) {
         this.groundRules = new LinkedHashMap<>(groundRules);
         this.groundFacts = new HashMap<>(groundFacts);

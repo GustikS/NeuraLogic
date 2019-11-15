@@ -4,7 +4,7 @@ import networks.computation.iteration.IterationStrategy;
 import networks.computation.iteration.modes.BFS;
 import networks.computation.iteration.modes.DFSstack;
 import networks.computation.iteration.modes.Topologic;
-import networks.computation.iteration.visitors.neurons.StandardNeuronVisitors;
+import networks.computation.iteration.visitors.neurons.Independent;
 import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neurons;
@@ -26,7 +26,7 @@ public class IndependentNeuronProcessing {
     }
 
     private IterationStrategy getIterationStrategy(NeuralNetwork network, Neurons outputNeuron) {
-        StandardNeuronVisitors.Independent inval = new StandardNeuronVisitors.Independent(network, visitor);
+        Independent inval = new Independent(network, visitor);
         if (network instanceof TopologicNetwork) {
             return new Topologic((TopologicNetwork<State.Neural.Structure>) network).new BUpIterator(outputNeuron, inval);
         } else if (settings.iterationMode == Settings.IterationMode.DFS_STACK) {

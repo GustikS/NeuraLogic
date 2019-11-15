@@ -3,7 +3,6 @@ package networks.computation.iteration.visitors.neurons;
 import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.actions.Backpropagation;
 import networks.computation.iteration.actions.Evaluation;
-import networks.computation.iteration.actions.IndependentNeuronProcessing;
 import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.computation.iteration.visitors.weights.WeightUpdater;
 import networks.structure.components.NeuralNetwork;
@@ -87,13 +86,13 @@ public class StandardNeuronVisitors {
         }
 
         @Override
-        public void visit(BaseNeuron neuron) {
+        public <T extends Neurons, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             Value gradient = stateVisitor.visit(state);
 
-            Iterator<BaseNeuron> inputs = network.getInputs(neuron);
+            Iterator<T> inputs = network.getInputs(neuron);
 
-            BaseNeuron input;
+            T input;
             while (inputs.hasNext()) {
                 input = inputs.next();
                 input.getComputationView(stateVisitor.stateIndex).storeGradient(gradient);
@@ -101,18 +100,18 @@ public class StandardNeuronVisitors {
         }
 
         @Override
-        public void visit(WeightedNeuron neuron) {
+        public <T extends Neurons, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             Value gradient = stateVisitor.visit(state);
             //state.invalidate(); //todo (b) test if faster with invalidation here (at the end of backprop) instead of using separate iteration with networks.computation.iteration.visitors.states.Invalidator ?
-            Pair<Iterator<BaseNeuron>, Iterator<Weight>> inputs = network.getInputs(neuron);
+            Pair<Iterator<T>, Iterator<Weight>> inputs = network.getInputs(neuron);
 
-            weightUpdater.visit(neuron.offset, gradient);   //todo now add offsets to template
+            weightUpdater.visit(neuron.offset, gradient);
             //todo now add default offset and conjunct weights options to settings
 
-            Iterator<BaseNeuron> inputNeurons = inputs.r;
+            Iterator<T> inputNeurons = inputs.r;
             Iterator<Weight> inputWeights = inputs.s;
-            BaseNeuron input;
+            T input;
             Weight weight;
 
             Value transpGradient = gradient.transposedView();    //todo next speedup everything around here, minimize Value copying
@@ -130,25 +129,4 @@ public class StandardNeuronVisitors {
         }
     }
 
-    /**
-     * Separate visiting of each neuron, with no messages being passed between the neighboring neurons, e.g. for {@link IndependentNeuronProcessing}
-     */
-    public static class Independent extends NeuronVisitor.Weighted {
-
-        public Independent(NeuralNetwork<State.Neural.Structure> network, StateVisiting.Computation computationVisitor) {
-            super(network, computationVisitor, null);
-        }
-
-        @Override
-        public void visit(BaseNeuron neuron) {
-            State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
-            stateVisitor.visit(state);
-        }
-
-        @Override
-        public void visit(WeightedNeuron neuron) {
-            State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
-            stateVisitor.visit(state);
-        }
-    }
 }

@@ -159,6 +159,21 @@ public class MatrixValue extends Value {
     }
 
     @Override
+    public double get(int i) {
+        return values[i / rows][i % cols];
+    }
+
+    @Override
+    public void set(int i, double value) {
+        values[i / rows][i % cols] = value;
+    }
+
+    @Override
+    public void increment(int i, double value) {
+        values[i / rows][i % cols] += value;
+    }
+
+    @Override
     public String toString() {
         return Arrays.deepToString(values);
     }

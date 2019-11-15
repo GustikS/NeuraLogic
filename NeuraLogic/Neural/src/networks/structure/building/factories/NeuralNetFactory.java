@@ -46,7 +46,8 @@ public class NeuralNetFactory {
     public <S extends State.Structure> TopologicNetwork<S> extractTopologicNetwork(DetailedNetwork<S> network) {
         TopologicNetwork<S> topologicNetwork = new TopologicNetwork<>(network.getId(), network.allNeuronsTopologic, true);
         topologicNetwork.hasSharedNeurons = network.hasSharedNeurons;
-        topologicNetwork.containsPooling = network.containsPooling;
+        topologicNetwork.containsInputMasking = network.containsInputMasking;
+        topologicNetwork.containsCrossProducts = network.containsCrossProducts;
         topologicNetwork.neuronStates = network.neuronStates;
         return topologicNetwork;
     }

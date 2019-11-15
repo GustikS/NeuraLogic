@@ -8,6 +8,8 @@ import networks.computation.iteration.modes.BFS;
 import networks.computation.iteration.modes.DFSrecursion;
 import networks.computation.iteration.modes.DFSstack;
 import networks.computation.iteration.modes.Topologic;
+import networks.computation.iteration.visitors.neurons.CrossDown;
+import networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import networks.computation.iteration.visitors.neurons.StandardNeuronVisitors;
 import networks.computation.iteration.visitors.states.neurons.Backproper;
 import networks.computation.iteration.visitors.weights.WeightUpdater;
@@ -60,8 +62,11 @@ public class Backpropagation {
     public TopDown getTopDownPropagator(NeuralNetwork<State.Neural.Structure> network, Neurons outputNeuron) {
 //        return new DFSrecursion().new TDownVisitor(network, outputNeuron, backproper, weightUpdater);
 
-        if (network instanceof TopologicNetwork && !network.containsPooling) {
-            StandardNeuronVisitors.Down down = new StandardNeuronVisitors.Down(network, backproper, weightUpdater);
+        if (network instanceof TopologicNetwork && !network.containsInputMasking) {
+            NeuronVisitor.Weighted down = new StandardNeuronVisitors.Down(network, backproper, weightUpdater);
+            if (network.containsCrossProducts) {
+                down = new CrossDown(down);
+            }
             return new Topologic((TopologicNetwork<State.Neural.Structure>) network).new TDownVisitor(outputNeuron, down);
         } else if (settings.iterationMode == Settings.IterationMode.DFS_RECURSIVE) {
             return new DFSrecursion().new TDownVisitor(network, outputNeuron, backproper, weightUpdater);

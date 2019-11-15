@@ -37,10 +37,10 @@ public class CrossProduct extends Activation {
 
     @Override
     public Value evaluate(List<Value> inputs) {
-        List<Value> clone = new ArrayList<>(inputs.size());
-        clone.addAll(inputs);
+        List<Value> values = new ArrayList<>(inputs.size());
+        values.addAll(inputs);
         List<Double> outputVector = new ArrayList<>();
-        combinationsRecursive(outputVector, 0.0, clone);
+        combinationsRecursive(outputVector, 0.0, values);
         return activation.evaluate(new VectorValue(outputVector));
     }
 
@@ -55,7 +55,7 @@ public class CrossProduct extends Activation {
 
     @Override
     public AggregationState getAggregationState() {
-        return new AggregationState.CumulationState(this);
+        return new AggregationState.CrossProducState(this);
     }
 
     /**

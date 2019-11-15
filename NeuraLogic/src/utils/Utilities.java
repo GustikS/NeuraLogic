@@ -113,7 +113,7 @@ public class Utilities {
         return result;
     }
 
-    public static <A, B, C> Stream<C> zipStreams(Stream<? extends A> a,     //todo next raise severe warning if zipping two streams of different size!
+    public static <A, B, C> Stream<C> zipStreams(Stream<? extends A> a,
                                                  Stream<? extends B> b,
                                                  BiFunction<? super A, ? super B, ? extends C> zipper) {
         Objects.requireNonNull(zipper);
@@ -139,7 +139,7 @@ public class Utilities {
                     return true;
                 } else {
                     if (hasNextA || hasNextB) {
-                        LOG.severe("Streams to be zipped has different sizes! Possibly mismatch of examples and labels?");
+                        LOG.severe("Streams to be zipped have different sizes! Possibly mismatch of examples and labels?");
                         throw new IllegalStateException("Stream size mismatch");
                     } else {
                         return false;

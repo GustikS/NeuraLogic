@@ -42,7 +42,7 @@ public class TrainingDebuggerTest {
     }
 
     @Test
-    public void mutagen_zero_init() {
+    public void mutagen_zero_init() {   //todo next remove these weird templates and do some cleaning in the templates
         Logging logging = Logging.initLogging(Level.FINER);
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/trainExamples.txt " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/trainQueries.txt " +
@@ -152,7 +152,7 @@ public class TrainingDebuggerTest {
 
         settings.seed = 0;
         settings.initLearningRate = 0.3;
-        settings.maxCumEpochCount = 3000;
+        settings.maxCumEpochCount = 1000;
         settings.resultsRecalculationEpochae = 1;
         settings.shuffleEachEpoch = false;
         settings.debugSampleOutputs = true;
@@ -204,7 +204,7 @@ public class TrainingDebuggerTest {
     }
 
     @Test
-    public void mutagen_vector() {
+    public void mutagen_vector_element() {
         Logging logging = Logging.initLogging(Level.FINER);
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/trainExamples.txt " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/trainQueries.txt " +
@@ -216,7 +216,39 @@ public class TrainingDebuggerTest {
 
         settings.seed = 0;
         settings.initLearningRate = 0.01;
-        settings.maxCumEpochCount = 500;
+        settings.maxCumEpochCount = 1000;
+        settings.resultsRecalculationEpochae = 10;
+        settings.shuffleEachEpoch = true;
+        settings.debugSampleOutputs = false;
+        settings.calculateBestThreshold = true;
+//        settings.appLimitSamples = 100;
+        settings.initializer = Settings.InitSet.SIMPLE;
+        settings.optimizer = Settings.OptimizerSet.ADAM;
+        settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
+
+        settings.oneQueryPerExample = true;
+        settings.neuralNetsPostProcessing = true;
+        settings.pruneNetworks = true;
+        settings.storeNotShow = true;
+
+        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        trainingDebugger.executeDebug();
+    }
+
+    @Test
+    public void mutagen_vector_cross() {
+        Logging logging = Logging.initLogging(Level.FINER);
+        String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples " +
+                "-q ./resources/datasets/relational/molecules/mutagenesis/trainQueries.txt " +
+                "-t ./resources/datasets/relational/molecules/mutagenesis/template_vector_cross.txt").split(" ");
+
+        Settings settings = new Settings();
+
+        settings.initDistribution = Settings.InitDistribution.UNIFORM;
+
+        settings.seed = 0;
+        settings.initLearningRate = 0.01;   //todo next make default initLearningRate change based on optimizer
+        settings.maxCumEpochCount = 1000;
         settings.resultsRecalculationEpochae = 10;
         settings.shuffleEachEpoch = true;
         settings.debugSampleOutputs = false;

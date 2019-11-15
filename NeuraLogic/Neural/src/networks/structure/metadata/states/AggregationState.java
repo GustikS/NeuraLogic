@@ -23,6 +23,7 @@ public abstract class AggregationState implements Aggregation.State {
     public abstract Aggregation getAggregation();
 
     public abstract void setupValueDimensions(Value value);
+
     /**
      * State for standard Activation function, e.g. Sigmoid, which sums all the inputs and then applies some non-linearity to the result.
      */
@@ -275,6 +276,45 @@ public abstract class AggregationState implements Aggregation.State {
         @Override
         public Value evaluate() {
             return aggregation.evaluate(accumulatedInputs);
+        }
+    }
+
+    public static class CrossProducState extends CumulationState {
+
+        public int[][] mapping;
+        int cross = 0;
+
+        public CrossProducState(Aggregation aggregation) {
+            super(aggregation);
+        }
+
+        public void initMapping(List<Value> inputValues) {
+            int cross = 1;
+            int[] sizes = new int[inputValues.size()];
+            for (int i = 0; i < inputValues.size(); i++) {
+                Value value = inputValues.get(i);
+                int oneSize = 1;
+                int[] size = value.size();
+                for (int j = 0; j < size.length; j++) {
+                    oneSize *= size[j];
+                }
+                sizes[i] = oneSize;
+                cross *= oneSize;
+            }
+            mapping = new int[cross][inputValues.size()];
+            combinations(0, new int[sizes.length], sizes);
+        }
+
+        private void combinations(int input, int[] current, int[] sizes) {
+            if (input == sizes.length) {    //combi done
+                System.arraycopy(current, 0, mapping[cross], 0, sizes.length);
+                cross++;
+                return;
+            }
+            for (int i = 0; i < sizes[input]; i++) {
+                current[input] = i;
+                combinations(input + 1, current, sizes);
+            }
         }
     }
 }

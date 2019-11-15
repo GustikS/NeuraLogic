@@ -94,6 +94,30 @@ public class ScalarValue extends Value {
     }
 
     @Override
+    public double get(int i) {
+        if (i != 0){
+            LOG.severe("Scalar value: asking for i-th element!");
+        }
+        return value;
+    }
+
+    @Override
+    public void set(int i, double value) {
+        if (i != 0){
+            LOG.severe("Scalar value: asking for i-th element!");
+        }
+        this.value = value;
+    }
+
+    @Override
+    public void increment(int i, double value) {
+        if (i != 0){
+            LOG.severe("Scalar value: asking for i-th element!");
+        }
+        this.value += value;
+    }
+
+    @Override
     public String toString() {
         return Settings.detailedNumberFormat.format(value);
     }

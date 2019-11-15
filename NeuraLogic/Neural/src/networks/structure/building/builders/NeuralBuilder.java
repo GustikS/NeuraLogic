@@ -19,7 +19,6 @@ public class NeuralBuilder {
         weightFactory = new WeightFactory();
     }
 
-
     public StatesBuilder statesBuilder;
     public NeuronFactory neuronFactory;
     public NeuralNetFactory networkFactory;

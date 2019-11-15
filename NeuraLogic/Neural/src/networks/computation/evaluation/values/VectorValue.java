@@ -125,6 +125,21 @@ public class VectorValue extends Value {
     }
 
     @Override
+    public double get(int i) {
+        return values[i];
+    }
+
+    @Override
+    public void set(int i, double value) {
+        values[i] = value;
+    }
+
+    @Override
+    public void increment(int i, double value) {
+        values[i] += value;
+    }
+
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < values.length; i++) {

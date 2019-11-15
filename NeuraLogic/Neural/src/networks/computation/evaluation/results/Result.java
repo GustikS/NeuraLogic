@@ -73,6 +73,8 @@ public class Result implements Comparable<Result> {
     public int compareTo(Result other) {
         if (output.greaterThan(other.output)) {
             return 1;
+        } else if (output.equals(other.output)) {
+            return 0;
         } else {
             return -1;
         }
