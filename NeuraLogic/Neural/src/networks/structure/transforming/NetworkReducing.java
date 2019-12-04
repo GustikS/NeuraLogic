@@ -27,6 +27,11 @@ public interface NetworkReducing {
         return new IsoValueNetworkCompressor(settings);
     }
 
+    /**
+     * Rebuild the allNeuronsTopologic array
+     * @param inet
+     * @param outputStart
+     */
     static void supervisedNetPruning(DetailedNetwork<State.Neural.Structure> inet, BaseNeuron<Neurons, State.Neural> outputStart){
         Set<Neurons> visited = new HashSet<>();
         LinkedList<BaseNeuron<Neurons, State.Neural>> stack = new LinkedList<>();

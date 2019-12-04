@@ -39,7 +39,7 @@ public class VectorValue extends Value {
         initialize(valueInitializer);
     }
 
-    private VectorValue(double[] values, boolean rowOrientation){
+    private VectorValue(double[] values, boolean rowOrientation) {
         this.values = values;
         this.rowOrientation = rowOrientation;
     }
@@ -458,4 +458,28 @@ public class VectorValue extends Value {
         return false;
     }
 
+
+    @Override
+    public int hashCode() {
+        long hashCode = 1;
+        for (int i = 0; i < values.length; i++)
+            hashCode = 31 * hashCode + Double.valueOf(values[i]).hashCode();
+        return Long.hashCode(hashCode);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof VectorValue)) {
+            return false;
+        }
+        VectorValue vectorValue = (VectorValue) obj;
+        if (vectorValue.values.length != values.length)
+            return false;
+
+        for (int i = 0; i < values.length; i++) {
+            if (values[i] != vectorValue.values[i])
+                return false;
+        }
+        return true;
+    }
 }

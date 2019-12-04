@@ -149,7 +149,7 @@ public abstract class BaseNeuron<T extends Neurons, S extends State.Neural> impl
             return false;
         }
         BaseNeuron obj1 = (BaseNeuron) obj;
-        return this.id.equals(obj1.getId());
+        return this.index == obj1.index;
     }
 
     /**
@@ -170,7 +170,7 @@ public abstract class BaseNeuron<T extends Neurons, S extends State.Neural> impl
      * @param index
      * @return
      */
-    public final State.Neural.Computation getComputationView(int index) {
+    public final State.Neural.Computation getComputationView(int index) {   //todo next this is an unnecessary performance hotspot
         return state.getComputationView(index);
     }
 

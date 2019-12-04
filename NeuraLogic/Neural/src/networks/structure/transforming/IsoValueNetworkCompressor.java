@@ -15,10 +15,8 @@ import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
 import settings.Settings;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -29,7 +27,7 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
 
     private final IndependentNeuronProcessing invalidation;
     private final Evaluation evaluation;
-    private final Settings settings;
+    final Settings settings;
     private ValueInitializer valueInitializer;
     public int precision;
 
@@ -48,30 +46,59 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
 
     @Override
     public NeuralNetwork reduce(DetailedNetwork<State.Structure> inet, AtomNeurons<State.Neural> outputStart) {
-        Map<Neurons, List<Value>> isoValues = new HashMap<>();
+        Map<Neurons, ValueList> isoValues = new LinkedHashMap<>();
         List<Weight> allWeights = inet.getAllWeights();
         QueryNeuron queryNeuron = new QueryNeuron("", -1, 1.0, outputStart, inet);
 
+        int sizeBefore = inet.allNeuronsTopologic.size();
+
         isoIteration(inet, allWeights, queryNeuron, isoValues);
-        Map<List<Value>, List<Neurons>> isoNeurons = mergeNeurons(inet, isoValues);
-        LOG.info("IsoValue neuron compression from " + inet.allNeuronsTopologic.size() + " down to " + isoNeurons.size());
-        settings.exporter.tmpLine(inet.allNeuronsTopologic.size() + "," + isoNeurons.size());
+        Map<Neurons, Neurons> isoNeurons = mergeNeurons(inet, isoValues);
+        LinkedHashSet<Neurons> etalons = new LinkedHashSet<>(isoNeurons.values());
+
+        //lastly remove all the dead (pruned) neurons by building a new topologic sort starting from output neuron
+        NetworkReducing.supervisedNetPruning(inet, (BaseNeuron) outputStart);
+
+        LOG.info("IsoValue neuron compression from " + sizeBefore + " down to " + etalons.size() + " (topologic-check: " + inet.allNeuronsTopologic.size() + ")");
+        if (etalons.size() != inet.allNeuronsTopologic.size()){
+            LOG.warning("Some inconsistencies appeared during iso-value compression of neurons! (size of unique values != size of topologic reconstruction)");
+        }
         return inet;
     }
 
-    private Map<List<Value>, List<Neurons>> mergeNeurons(DetailedNetwork<State.Structure> inet, Map<Neurons, List<Value>> isoValues) {
-        Map<List<Value>, List<Neurons>> isoNeurons = new HashMap<>();
-        for (Map.Entry<Neurons, List<Value>> neuronListEntry : isoValues.entrySet()) {
+    private Map<Neurons, Neurons> mergeNeurons(DetailedNetwork<State.Structure> inet, Map<Neurons, ValueList> isoValues) {
+        Map<ValueList, List<Neurons>> isoNeurons = new HashMap<>();
+        for (Map.Entry<Neurons, ValueList> neuronListEntry : isoValues.entrySet()) {
             Neurons neuron = neuronListEntry.getKey();
-            List<Value> values = neuronListEntry.getValue();
+            ValueList values = neuronListEntry.getValue();
             List<Neurons> neurons = isoNeurons.computeIfAbsent(values, k -> new ArrayList<>());
             neurons.add(neuron);
         }
-        //todo next merge them actually
-        return isoNeurons;
+        //make a single etalon for each iso-class of neurons
+        Map<Neurons, Neurons> etalonMap = new HashMap<>();
+        for (Map.Entry<ValueList, List<Neurons>> entry : isoNeurons.entrySet()) {
+            Neurons etalon = entry.getValue().get(0);
+            for (Neurons neuron : entry.getValue()) {
+                etalonMap.put(neuron, etalon);
+            }
+        }
+
+        for (BaseNeuron<Neurons, State.Neural> neuron : inet.allNeuronsTopologic) { // over all neurons
+            Neurons etalonReplacement = etalonMap.get(neuron);
+            Iterator<Neurons> outputs = inet.getOutputs(neuron);
+            if (outputs == null) {
+                continue;
+            }
+            while (outputs.hasNext()) {   // over all its outputs
+                Neurons output = outputs.next();
+                inet.replaceInput((BaseNeuron<Neurons, State.Neural>) output, neuron, etalonReplacement);
+                inet.outputMapping.remove(neuron);  //just to make sure
+            }
+        }
+        return etalonMap;
     }
 
-    private void isoIteration(DetailedNetwork<State.Structure> inet, List<Weight> allWeights, QueryNeuron queryNeuron, Map<Neurons, List<Value>> isoValues) {
+    private void isoIteration(DetailedNetwork<State.Structure> inet, List<Weight> allWeights, QueryNeuron queryNeuron, Map<Neurons, ValueList> isoValues) {
         for (int i = 0; i < precision; i++) {
             for (Weight weight : allWeights) {
                 valueInitializer.initWeight(weight);
@@ -82,9 +109,68 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
 
             for (BaseNeuron<Neurons, State.Neural> neuron : inet.allNeuronsTopologic) {
                 Value value = neuron.getComputationView(-1).getValue();
-                List<Value> values = isoValues.computeIfAbsent(neuron, k -> new ArrayList<>());
+                ValueList values = isoValues.computeIfAbsent(neuron, k -> new ValueList());
                 values.add(value);
             }
+        }
+    }
+
+    private class ValueList {
+
+        int length;
+        Value[] values;
+        int index = 0;
+
+        int hashCode = -1;
+
+
+        public ValueList() {
+            length = IsoValueNetworkCompressor.this.precision;
+            values = new Value[length];
+        }
+
+        public void add(Value value) {
+            values[index++] = roundUp(value);
+        }
+
+        public Value roundUp(Value value) {
+            Value clone = value.getForm();
+            Iterator<Double> iterator = value.iterator();
+            int i = 0;
+            while (iterator.hasNext()) {
+                Double next = iterator.next();
+                BigDecimal bigDecimal = new BigDecimal(next).setScale(10, BigDecimal.ROUND_HALF_UP);    // 10 decimal digits are about max precision, 15 are already not deterministic mess!
+                clone.set(i, bigDecimal.doubleValue());
+                i++;
+            }
+            return clone;
+        }
+
+        @Override
+        public int hashCode() {
+            if (hashCode != -1) {
+                return hashCode;
+            } else {
+                int hashCode = 1;
+                for (int i = 0; i < values.length; i++)
+                    hashCode = 31 * hashCode + values[i].hashCode();
+                return hashCode;
+            }
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof ValueList) {
+                ValueList valueList = (ValueList) obj;
+                for (int i = 0; i < length; i++) {
+                    if (!values[i].equals(valueList.values[i])) {
+                        return false;
+                    }
+                }
+            } else {
+                return false;
+            }
+            return true;
         }
     }
 }

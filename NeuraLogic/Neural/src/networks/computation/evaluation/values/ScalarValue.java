@@ -372,7 +372,7 @@ public class ScalarValue extends Value {
 
     @Override
     public int hashCode() {
-        return (int) value * 1000000;
+        return Double.valueOf(value).hashCode();
     }
 
     @Override

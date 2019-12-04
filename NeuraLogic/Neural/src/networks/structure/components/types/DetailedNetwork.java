@@ -146,7 +146,7 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
             for (int i = 0; i < parentNeuron.getInputs().size(); i++) {
                 if (parentNeuron.getInputs().get(i).equals(toReplace)) {
                     parentNeuron.getInputs().set(i, replaceWith);
-                    break;
+//                    break;
                 }
             }
         }

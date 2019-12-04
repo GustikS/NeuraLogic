@@ -40,7 +40,8 @@ public class LinearChainReducer implements NetworkReducing {
         }
         NetworkReducing.supervisedNetPruning(inet, (BaseNeuron) outputNeuron);    //lastly remove all the dead (pruned) neurons by building a new topologic sort starting from output neuron
         int sizeAfter = inet.allNeuronsTopologic.size();
-        LOG.info(inet.toString() + " Pruned neurons from " + sizeBefore + " down to " + sizeAfter);
+//        LOG.info(inet.toString());
+        LOG.info("LinearChainPruning reduced neurons from " + sizeBefore + " down to " + sizeAfter);
         return inet;
     }
 

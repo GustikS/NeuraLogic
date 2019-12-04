@@ -58,7 +58,7 @@ public class TrainingDebuggerTest {
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = true;
         settings.pruneNetworks = true;
-        settings.isoValueCompression = false;
+        settings.isoValueCompression = true;
         settings.intermediateDebug = false;
         settings.debugPipeline = false;
         settings.storeNotShow = true;
@@ -184,12 +184,12 @@ public class TrainingDebuggerTest {
 
         settings.seed = 0;
         settings.initLearningRate = 0.01;
-        settings.maxCumEpochCount = 3000;
+        settings.maxCumEpochCount = 1000;
         settings.resultsRecalculationEpochae = 10;
         settings.shuffleEachEpoch = true;
         settings.debugSampleOutputs = false;
         settings.calculateBestThreshold = true;
-//        settings.appLimitSamples = 100;
+//        settings.appLimitSamples = 10;
         settings.initializer = Settings.InitSet.SIMPLE;
         settings.optimizer = Settings.OptimizerSet.ADAM;
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
@@ -197,6 +197,7 @@ public class TrainingDebuggerTest {
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = true;
         settings.pruneNetworks = true;
+        settings.isoValueCompression = true;
         settings.storeNotShow = true;
 
         TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
@@ -229,6 +230,7 @@ public class TrainingDebuggerTest {
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = true;
         settings.pruneNetworks = true;
+        settings.isoValueCompression = true;
         settings.storeNotShow = true;
 
         TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
@@ -261,6 +263,7 @@ public class TrainingDebuggerTest {
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = true;
         settings.pruneNetworks = true;
+        settings.isoValueCompression = true;
         settings.storeNotShow = true;
 
         TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);

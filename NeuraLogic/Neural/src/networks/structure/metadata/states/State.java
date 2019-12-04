@@ -106,7 +106,7 @@ public interface State<V> {
             void storeGradient(Value gradient);
 
             /**
-             * tunnel for the composite state
+             * tunnel for the composite state   - todo this is an (unneccessary) performance hotspot
              *
              * @param index
              * @return
