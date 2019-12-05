@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class NegationNeuron<S extends State.Neural> extends BaseNeuron<AtomFact, S> implements AtomFact<AtomFact, S> {
 
     public NegationNeuron(AtomFact atom, int index, S state) {
-        super(index, "neg_" + atom.getId(), state);
+        super(index, "neg_" + atom.getName(), state);
         inputs = new ArrayList<>(1);
         inputs.add(atom);
     }

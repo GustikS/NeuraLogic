@@ -215,8 +215,7 @@ public abstract class Value implements Iterable<Double> {   //todo add division
 
         @Override
         public Value getForm() {
-            LOG.warning("Constant One cannot be zeroed/getForm from!");
-            return null;
+            return new ScalarValue(0);
         }
 
         @Override

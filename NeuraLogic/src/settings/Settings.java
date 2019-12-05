@@ -1,6 +1,5 @@
 package settings;
 
-import networks.computation.evaluation.values.ScalarValue;
 import networks.computation.evaluation.values.Value;
 import org.apache.commons.cli.CommandLine;
 import pipelines.Pipeline;
@@ -212,18 +211,35 @@ public class Settings {
     /**
      * Default value for output of fact neurons (= values of ValuedFacts) if not specified by user
      */
-    public Value defaultFactValue = new ScalarValue(1);
-//    public Value defaultFactValue = Value.ONE;
-
-    public double defaultConjunctWeight = 1.0;  //todo actually use these in some factory method
-    public double defaultDisjunctWeight = 1.0;
-    public double defaultConjunctionOffset = 1.0;
-    public double defaultDisjunctionOffset = 1.0;
+//    public Value defaultFactValue = new ScalarValue(1);
+    public Value defaultFactValue = Value.ONE;
 
     /**
-     * There is no actual weighting, just pooling, so identity weight
+     * Whether to setup a rule (conjunction) offset based on number of inputs (offset = - #inputs)
+     * Naturally this only applies if the offset is not specified by the user in the template explicitly.
+     * This offset setting has higher priority (comes first) than setting defaultRuleNeuronOffset (applied later)
      */
-    public double aggNeuronInputWeight = 1.0;
+    public boolean ruleAdaptiveOffset = true;
+
+    /**
+     * Setup this default offset value if not explicitly specified in the template
+     * 0.0 = keep no offset if not learnable, or initialize randomly if defaultRuleOffsetsLearnable
+     */
+    public double defaultRuleNeuronOffset = 0.0;
+    /**
+     * Setup this default offset value if not explicitly specified in the template
+     * 0.0 = keep no offset if not learnable, or initialize randomly if defaultAtomOffsetsLearnable
+     */
+    public double defaultAtomNeuronOffset = 0.0;
+    /**
+     * Rule offsets, if not explicitly specified in the template, should be fixed or learnable?
+     */
+    public boolean defaultRuleOffsetsLearnable = true;
+    /**
+     * Atom offsets, if not explicitly specified in the template, should be fixed or learnable?
+     */
+    public boolean defaultAtomOffsetsLearnable = true;
+
     /**
      * A whole pipeline of all postprocessing steps
      */
@@ -401,7 +417,17 @@ public class Settings {
     public double randomInitScale = 2;
 
     /**
-     * Contant value to initialize all weights with, used for debugging purposes (with Constant Distribution) only!
+     * Check whether neurons are not mostly saturated in the range of their activation functions
+     */
+    public boolean checkNeuronSaturation = true;
+
+    /**
+     * What percentage of neurons in a network must be saturated to consider it a problem
+     */
+    public double saturationPercentage = 0.01;
+
+    /**
+     * Constant value to initialize all weights with, used for debugging purposes (with Constant Distribution) only!
      */
     public double constantInitValue = 0.1;
 

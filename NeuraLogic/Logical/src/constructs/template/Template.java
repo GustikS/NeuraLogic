@@ -54,7 +54,7 @@ public class Template implements Model<QueryAtom> {
 
     public Template(Template other) {
         this.rules = other.rules;
-        this.facts = other.facts;   //todo now add neurons' saturation check/debugging
+        this.facts = other.facts;
         this.constraints = other.constraints;
     }
 

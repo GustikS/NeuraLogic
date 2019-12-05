@@ -281,7 +281,7 @@ public abstract class AggregationState implements Aggregation.State {
 
     public static class CrossProducState extends CumulationState {
 
-        public int[][] mapping;
+        public int[][] mapping; //todo now try to speedup and save memory (store the mapping only once?)
         int cross = 0;
 
         public CrossProducState(Aggregation aggregation) {

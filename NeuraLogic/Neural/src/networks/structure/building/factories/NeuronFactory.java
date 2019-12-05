@@ -1,5 +1,6 @@
 package networks.structure.building.factories;
 
+import constructs.building.factories.WeightFactory;
 import constructs.example.ValuedFact;
 import constructs.template.components.GroundHeadRule;
 import constructs.template.components.GroundRule;
@@ -9,8 +10,10 @@ import ida.ilp.logic.Literal;
 import networks.computation.evaluation.functions.Activation;
 import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.functions.CrossProduct;
+import networks.computation.evaluation.values.ScalarValue;
 import networks.structure.building.NeuronMaps;
 import networks.structure.components.neurons.types.*;
+import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
 import networks.structure.metadata.states.States;
 import settings.Settings;
@@ -23,23 +26,44 @@ import java.util.logging.Logger;
 public class NeuronFactory {
     private static final Logger LOG = Logger.getLogger(NeuronFactory.class.getName());
 
+    private WeightFactory weightFactory;
     Settings settings;
 
     private int counter = 0;
+
+    private Weight atomOffset;
+    private Weight ruleOffset;
 
     /**
      * A mapping from ground literals and ground rules to respective neurons, which will be incrementally modified during the building process
      */
     public NeuronMaps neuronMaps;
 
-    public NeuronFactory(Settings settings) {
+    public NeuronFactory(WeightFactory weightFactory, Settings settings) {
+        this.weightFactory = weightFactory;
         this.settings = settings;
+        atomOffset = weightFactory.construct("fixedAtomOffset", new ScalarValue(settings.defaultAtomNeuronOffset), true, true);
+        ruleOffset = weightFactory.construct("fixedRuleOffset", new ScalarValue(settings.defaultRuleNeuronOffset), true, true);
     }
 
     public AtomNeuron createAtomNeuron(HeadAtom head, Literal groundHead) {
         Activation activation = head.getActivation() != null ? head.getActivation() : Activation.getActivationFunction(settings.atomNeuronActivation);
         State.Neural.Computation state = State.createBaseState(settings, activation);
-        AtomNeuron<State.Neural.Computation> atomNeuron = new AtomNeuron<>(groundHead, head.getOffset(), counter++, state);
+        Weight offset = head.getOffset();
+        if (offset == null) {
+            if (settings.defaultAtomOffsetsLearnable) {
+                if (settings.defaultAtomNeuronOffset != 0){
+                    offset = weightFactory.construct(new ScalarValue(settings.defaultAtomNeuronOffset), false, true);
+                } else {
+                    offset = weightFactory.construct(new ScalarValue(settings.defaultAtomNeuronOffset), false, false);
+                }
+            } else {
+                if (settings.defaultAtomNeuronOffset != 0){
+                    offset = atomOffset;
+                }
+            }
+        }
+        AtomNeuron<State.Neural.Computation> atomNeuron = new AtomNeuron<>(groundHead, offset, counter++, state);
         neuronMaps.atomNeurons.put(groundHead, atomNeuron);
         LOG.finest("Created atom neuron: " + atomNeuron);
         return atomNeuron;
@@ -83,8 +107,22 @@ public class NeuronFactory {
         if (weightedRule.isCrossProduct()) {
             activation = new CrossProduct(activation);
         }
+        Weight offset = weightedRule.getOffset();
+        if (offset == null) {
+            if (settings.defaultRuleOffsetsLearnable) {
+                if (settings.defaultRuleNeuronOffset != 0){
+                    offset = weightFactory.construct(new ScalarValue(settings.defaultRuleNeuronOffset), false, true);
+                } else {
+                    offset = weightFactory.construct(new ScalarValue(settings.defaultRuleNeuronOffset), false, false);
+                }
+            } else {
+                if (settings.defaultRuleNeuronOffset != 0){
+                    offset = atomOffset;
+                }
+            }
+        }
         State.Neural.Computation state = State.createBaseState(settings, activation);
-        WeightedRuleNeuron<State.Neural.Computation> weightedRuleNeuron = new WeightedRuleNeuron<>(settings.fullRuleNeuronStrings ? groundRule.toFullString() : weightedRule.getOriginalString(), weightedRule.getOffset(), counter++, state);
+        WeightedRuleNeuron<State.Neural.Computation> weightedRuleNeuron = new WeightedRuleNeuron<>(settings.fullRuleNeuronStrings ? groundRule.toFullString() : weightedRule.getOriginalString(), offset, counter++, state);
         neuronMaps.ruleNeurons.put(groundRule, weightedRuleNeuron);
         LOG.finest("Created weightedRule neuron: " + weightedRuleNeuron);
         return weightedRuleNeuron;

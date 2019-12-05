@@ -2,6 +2,7 @@ package networks.computation.evaluation.functions.specific;
 
 import networks.computation.evaluation.functions.Activation;
 import networks.structure.metadata.states.AggregationState;
+import utils.generic.Pair;
 
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -33,5 +34,10 @@ public class Tanh extends Activation {
     @Override
     public AggregationState getAggregationState() {
         return new AggregationState.ActivationState(this);
+    }
+
+    @Override
+    public Pair<Double, Double> getSaturationRange() {
+        return new Pair<>(-0.99, 0.99);
     }
 }

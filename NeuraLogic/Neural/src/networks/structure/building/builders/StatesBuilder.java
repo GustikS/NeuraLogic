@@ -89,7 +89,7 @@ public class StatesBuilder {
             value = computationView.getValue();
             Weight nextWeight = weightIterator.next();
             if (nextWeight == null) {
-                LOG.finer("Weight for input missing, deducing unit weight for: " + next.id);
+                LOG.finer("Weight for input missing, deducing unit weight for: " + next.name);
                 weight = Value.ONE;
             } else {
                 weight = nextWeight.value;

@@ -107,7 +107,6 @@ public class StandardNeuronVisitors {
             Pair<Iterator<T>, Iterator<Weight>> inputs = network.getInputs(neuron);
 
             weightUpdater.visit(neuron.offset, gradient);
-            //todo now add default offset and conjunct weights options to settings
 
             Iterator<T> inputNeurons = inputs.r;
             Iterator<Weight> inputWeights = inputs.s;

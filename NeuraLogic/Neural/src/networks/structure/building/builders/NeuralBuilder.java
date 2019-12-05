@@ -14,9 +14,9 @@ public class NeuralBuilder {
     public NeuralBuilder(Settings settings) {
         this.settings = settings;
         statesBuilder = new StatesBuilder(settings);
-        neuronFactory = new NeuronFactory(settings);
-        networkFactory = new NeuralNetFactory(settings);
         weightFactory = new WeightFactory();
+        neuronFactory = new NeuronFactory(weightFactory, settings);
+        networkFactory = new NeuralNetFactory(settings);
     }
 
     public StatesBuilder statesBuilder;

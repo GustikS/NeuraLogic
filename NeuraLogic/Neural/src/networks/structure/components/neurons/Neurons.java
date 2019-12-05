@@ -23,7 +23,7 @@ public interface Neurons<T extends Neurons, S extends State.Neural> {
 
     Aggregation getAggregation();
 
-    String getId();
+    String getName();
 
     int inputCount();
 

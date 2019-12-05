@@ -5,6 +5,7 @@ import networks.computation.evaluation.functions.specific.Maximum;
 import networks.computation.evaluation.values.Value;
 import networks.structure.metadata.states.AggregationState;
 import settings.Settings;
+import utils.generic.Pair;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -53,6 +54,14 @@ public abstract class Aggregation {
                 LOG.severe("Unimplemented aggregation function");
                 return null;
         }
+    }
+
+    /**
+     * Return 2 values, lower bound and upper bound, beyond which the function is almost saturated
+     * @return
+     */
+    public Pair<Double, Double> getSaturationRange(){
+        return null;    // by default there is no saturation (for Max, Avg, Identity, etc.)
     }
 
     public static class Singletons {

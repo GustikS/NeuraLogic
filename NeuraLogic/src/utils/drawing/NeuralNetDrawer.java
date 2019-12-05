@@ -65,7 +65,7 @@ public class NeuralNetDrawer extends Drawer<NeuralSample> {
 
         private String getNeuronLabel(BaseNeuron neuron) {
 
-            String name = neuron.getClass().getSimpleName() + ":" + neuron.index + ":" + neuron.id;
+            String name = neuron.getClass().getSimpleName() + ":" + neuron.index + ":" + neuron.name;
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             String value = state.getValue().toString();
             Value stateGradient = state.getGradient();

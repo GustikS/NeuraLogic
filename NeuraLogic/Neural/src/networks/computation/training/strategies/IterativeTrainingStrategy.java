@@ -4,7 +4,11 @@ import learning.crossvalidation.splitting.Splitter;
 import networks.computation.evaluation.results.Progress;
 import networks.computation.evaluation.results.Result;
 import networks.computation.evaluation.results.Results;
+import networks.computation.evaluation.values.ScalarValue;
+import networks.computation.evaluation.values.Value;
 import networks.computation.evaluation.values.distributions.ValueInitializer;
+import networks.computation.iteration.actions.Accumulating;
+import networks.computation.iteration.visitors.states.neurons.SaturationChecker;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import networks.computation.training.debugging.TrainingDebugger;
@@ -187,6 +191,11 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
             logSampleOutputs();
         }
 
+        if (settings.checkNeuronSaturation) {
+            saturationCheck(trainingSet);
+            saturationCheck(validationSet);
+        }
+
         Progress.TrainVal trainVal = new Progress.TrainVal(trainingResults, validationResults);
         saveIfBest(trainVal);
     }
@@ -204,6 +213,23 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         if (!progress.getLastTrueResults().validation.isEmpty()) {
             LOG.finer("Validation outputs:");
             progress.getLastTrueResults().validation.printOutputs();
+        }
+    }
+
+    private void saturationCheck(List<NeuralSample> samples) {
+        ScalarValue percentage = new ScalarValue(settings.saturationPercentage);
+        Accumulating accumulating = new Accumulating(settings, new SaturationChecker());
+        List<Pair<Value, Value>> pairs = accumulating.accumulateStats(samples);
+        int saturatedNetworks = 0;
+        for (Pair<Value, Value> pair : pairs) {
+            Value saturated = pair.r;
+            Value all = pair.s;
+            if (saturated.greaterThan(all.times(percentage))) {
+                saturatedNetworks++;
+            }
+        }
+        if (saturatedNetworks > 0) {
+            LOG.warning("There are saturated networks! #" + saturatedNetworks);
         }
     }
 }

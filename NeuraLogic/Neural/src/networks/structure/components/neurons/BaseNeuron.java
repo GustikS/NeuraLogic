@@ -29,7 +29,7 @@ public abstract class BaseNeuron<T extends Neurons, S extends State.Neural> impl
      * Represents original logic of creation, typically unique across all the networks (in case of neuron sharing)
      */
     @Nullable
-    public String id;
+    public String name;
     /**
      * Stores (intermediate) values, or gradient, or both for this neuron for computation reuse. It has to be a separate class
      * since there is a wide variety of information that may be stored in a Neuron - e.g. it may also store (number of) parents
@@ -68,7 +68,7 @@ public abstract class BaseNeuron<T extends Neurons, S extends State.Neural> impl
 
     public BaseNeuron(int index, String id, S state) {
         this.index = index;
-        this.id = id;
+        this.name = id;
         this.state = state;
         inputs = new ArrayList<>();
     }
@@ -159,8 +159,8 @@ public abstract class BaseNeuron<T extends Neurons, S extends State.Neural> impl
      */
     @NotNull
     @Override
-    public String getId() {
-        return id;
+    public String getName() {
+        return name;
     }
 
     /**
@@ -170,7 +170,7 @@ public abstract class BaseNeuron<T extends Neurons, S extends State.Neural> impl
      * @param index
      * @return
      */
-    public final State.Neural.Computation getComputationView(int index) {   //todo next this is an unnecessary performance hotspot
+    public final State.Neural.Computation getComputationView(int index) {   //todo next this is an unnecessary performance hotspot?
         return state.getComputationView(index);
     }
 
@@ -189,6 +189,6 @@ public abstract class BaseNeuron<T extends Neurons, S extends State.Neural> impl
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " = " + id;
+        return getClass().getSimpleName() + " = " + name;
     }
 }
