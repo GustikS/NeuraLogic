@@ -261,7 +261,7 @@ public class NeuralNetBuilder {
         }
 
         //if there is the need, check parentCounts and store them by the network if needed
-        if (settings.parentCounting || settings.pruneNetworks) {
+        if (settings.parentCounting || settings.chainPruning) {
             neuralNetwork.outputMapping = calculateOutputs(neuralNetwork);
             statesBuilder.setupParentStateNumbers(neuralNetwork);
         }

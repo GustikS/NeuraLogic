@@ -29,7 +29,7 @@ public class TrainingDebuggerTest {
         settings.maxCumEpochCount = 1000;
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = false;
-        settings.pruneNetworks = true;
+        settings.chainPruning = true;
         settings.isoValueCompression = true;
         settings.intermediateDebug = false;
         settings.debugPipeline = true;
@@ -57,7 +57,7 @@ public class TrainingDebuggerTest {
         settings.stratification = true;
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = true;
-        settings.pruneNetworks = true;
+        settings.chainPruning = true;
         settings.isoValueCompression = true;
         settings.intermediateDebug = false;
         settings.debugPipeline = false;
@@ -91,7 +91,7 @@ public class TrainingDebuggerTest {
         settings.stratification = true;
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = true;
-        settings.pruneNetworks = true;
+        settings.chainPruning = true;
         settings.isoValueCompression = false;
         settings.intermediateDebug = false;
         settings.debugPipeline = false;
@@ -128,7 +128,7 @@ public class TrainingDebuggerTest {
         settings.stratification = false;
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = true;
-        settings.pruneNetworks = true;
+        settings.chainPruning = true;
         settings.isoValueCompression = false;
         settings.intermediateDebug = false;
         settings.debugPipeline = false;
@@ -164,7 +164,7 @@ public class TrainingDebuggerTest {
 
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = true;
-        settings.pruneNetworks = true;
+        settings.chainPruning = true;
         settings.storeNotShow = true;
 
         TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
@@ -196,7 +196,7 @@ public class TrainingDebuggerTest {
 
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = true;
-        settings.pruneNetworks = true;
+        settings.chainPruning = true;
         settings.isoValueCompression = true;
         settings.storeNotShow = true;
 
@@ -229,7 +229,7 @@ public class TrainingDebuggerTest {
 
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = true;
-        settings.pruneNetworks = true;
+        settings.chainPruning = true;
         settings.isoValueCompression = true;
         settings.storeNotShow = true;
 
@@ -255,14 +255,14 @@ public class TrainingDebuggerTest {
         settings.shuffleEachEpoch = true;
         settings.debugSampleOutputs = false;
         settings.calculateBestThreshold = true;
-//        settings.appLimitSamples = 100;
+//        settings.appLimitSamples = 10;
         settings.initializer = Settings.InitSet.SIMPLE;
         settings.optimizer = Settings.OptimizerSet.ADAM;
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
 
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = true;
-        settings.pruneNetworks = true;
+        settings.chainPruning = true;
         settings.isoValueCompression = true;
         settings.storeNotShow = true;
 

@@ -31,6 +31,11 @@ public abstract class Activation extends Aggregation {
         this.gradient = gradient;
     }
 
+    @Override
+    public boolean isInputSymmetric() {
+        return true;
+    }
+
     public Value evaluate(Value summedInputs) {
         return summedInputs.apply(evaluation);
     }

@@ -234,12 +234,11 @@ public class Settings {
     /**
      * Rule offsets, if not explicitly specified in the template, should be fixed or learnable?
      */
-    public boolean defaultRuleOffsetsLearnable = true;
+    public boolean defaultRuleOffsetsLearnable = false;     // todo if they should be learnable, we should infer their dimensions first! (ScalarValues can be broadcasted for inference only, not updates)
     /**
      * Atom offsets, if not explicitly specified in the template, should be fixed or learnable?
      */
-    public boolean defaultAtomOffsetsLearnable = true;
-
+    public boolean defaultAtomOffsetsLearnable = false;
     /**
      * A whole pipeline of all postprocessing steps
      */
@@ -263,7 +262,7 @@ public class Settings {
     /**
      * Remove unnecessary parts from the networks (e.g. linear chains)
      */
-    public boolean pruneNetworks;
+    public boolean chainPruning;
     /**
      * Bottom-up value based sub-graph isomorphism collapsing (merging)
      */
@@ -272,6 +271,14 @@ public class Settings {
      * Top-down value (gradient) based sub-graph isomorphism collapsing (merging)
      */
     public boolean isoGradientCompression;
+    /**
+     * Detect identical input neurons and merge them into a single neuron with accumulated weight.
+     */
+    public boolean mergeIdenticalWeightedInputs = true;
+    /**
+     * If no weights are associated with the input neurons, i.e. no summing possible, prune out the identities (or keep them)
+     */
+    public boolean removeIdenticalUnweightedInputs = true;
     /**
      * If all neurons of the same class use the same activation, move to a single static reference (optimize memory)
      */
@@ -424,7 +431,7 @@ public class Settings {
     /**
      * What percentage of neurons in a network must be saturated to consider it a problem
      */
-    public double saturationPercentage = 0.01;
+    public double saturationPercentage = 0.1;
 
     /**
      * Constant value to initialize all weights with, used for debugging purposes (with Constant Distribution) only!

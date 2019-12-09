@@ -39,4 +39,9 @@ public class LukasiewiczSigmoid extends Activation {
     public Pair<Double, Double> getSaturationRange() {
         return new Pair<>(0.01, 0.99);
     }
+
+    @Override
+    public boolean isInputSymmetric() {
+        return true;
+    }
 }

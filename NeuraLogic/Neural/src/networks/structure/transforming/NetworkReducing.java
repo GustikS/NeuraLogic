@@ -27,6 +27,10 @@ public interface NetworkReducing {
         return new IsoValueNetworkCompressor(settings);
     }
 
+    public static NetworkReducing getEdgeMerger(Settings settings){
+        return new ParallelEdgeMerger(settings);
+    }
+
     /**
      * Rebuild the allNeuronsTopologic array
      * @param inet

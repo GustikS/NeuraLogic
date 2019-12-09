@@ -40,4 +40,5 @@ public class ReLu extends Activation {
     public Pair<Double, Double> getSaturationRange() {
         return new Pair<>(0.01, Double.MAX_VALUE);
     }
+
 }

@@ -71,7 +71,11 @@ public class NeuronMapping<T extends Neurons> implements LinkedMapping<T> {
     }
 
     private void replaceLocal(int i, T replaceWith) {
-        inputs.set(i, replaceWith);
+        if (replaceWith == null) {
+            inputs.remove(i);
+        } else {
+            inputs.set(i, replaceWith);
+        }
     }
 
     private class InputIterator<T extends Neurons> implements Iterator<T> {

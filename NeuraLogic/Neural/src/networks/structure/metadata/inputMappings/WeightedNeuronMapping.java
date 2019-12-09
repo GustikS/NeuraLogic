@@ -46,7 +46,8 @@ public class WeightedNeuronMapping<T extends Neurons> extends NeuronMapping<T> i
         weights.add(weight);
     }
 
-    private class WeightIterator implements Iterator<Weight> {
+
+    public class WeightIterator implements Iterator<Weight> {
 
         WeightedNeuronMapping<T> actual;
         int current;
@@ -72,6 +73,10 @@ public class WeightedNeuronMapping<T extends Neurons> extends NeuronMapping<T> i
             } else {
                 return null;
             }
+        }
+
+        public void replace(Weight weight) {
+            actual.weights.set(current + 1, weight);
         }
     }
 

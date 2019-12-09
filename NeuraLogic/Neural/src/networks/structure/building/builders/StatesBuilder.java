@@ -57,7 +57,7 @@ public class StatesBuilder {
      *
      * @param detailedNetwork
      */
-    void inferValues(DetailedNetwork<State.Structure> detailedNetwork) {
+    public void inferValues(DetailedNetwork<State.Structure> detailedNetwork) {
         for (int i = 0; i < detailedNetwork.allNeuronsTopologic.size(); i++) {
             BaseNeuron<Neurons, State.Neural> neuron = detailedNetwork.allNeuronsTopologic.get(i);
             if (neuron instanceof WeightedNeuron) {
@@ -128,6 +128,7 @@ public class StatesBuilder {
                 }
             }
         }
+
         if (neuron.getAggregation() instanceof CrossProduct) {
             sum = neuron.getAggregation().evaluate(inputValues);
             AggregationState.CrossProducState crossProducState = (AggregationState.CrossProducState) neuron.getComputationView(0).getAggregationState();

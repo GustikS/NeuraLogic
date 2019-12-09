@@ -31,6 +31,11 @@ public class Average extends Aggregation {
     }
 
     @Override
+    public boolean isInputSymmetric() {
+        return true;
+    }
+
+    @Override
     public AggregationState getAggregationState() {
         return new AggregationState.Pooling.Avg(this);
     }

@@ -45,4 +45,5 @@ public class Sigmoid extends Activation {
     public Pair<Double, Double> getSaturationRange() {
         return new Pair<>(0.01, 0.99);
     }
+
 }

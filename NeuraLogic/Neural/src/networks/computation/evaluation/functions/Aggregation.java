@@ -64,6 +64,13 @@ public abstract class Aggregation {
         return null;    // by default there is no saturation (for Max, Avg, Identity, etc.)
     }
 
+    /**
+     * The inputs can be permuted without affecting the result?
+     * This may cause some neurons to be equivalent and thus be effectively pruned as such.
+     * @return
+     */
+    public abstract boolean isInputSymmetric();
+
     public static class Singletons {
         public static Average average = new Average();
         public static Maximum maximum = new Maximum();

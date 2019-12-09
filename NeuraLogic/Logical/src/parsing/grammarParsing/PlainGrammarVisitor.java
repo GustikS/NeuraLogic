@@ -74,7 +74,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             } else {
                 if (builder.settings.ruleAdaptiveOffset) {
                     if (builder.settings.defaultRuleOffsetsLearnable)
-                        offset = builder.weightFactory.construct(new ScalarValue(-rule.getBody().size()), false, true);
+                        offset = builder.weightFactory.construct(new ScalarValue(-rule.getBody().size()), false, true); //todo next the offset dimensions should be inferred here (ScalarValue is not enough if learnable)
                     else
                         offset = builder.weightFactory.construct(new ScalarValue(-rule.getBody().size()), true, true);
                 }

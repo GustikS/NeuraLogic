@@ -9,10 +9,7 @@ import pipelines.ConnectAfter;
 import pipelines.Pipe;
 import pipelines.Pipeline;
 import pipelines.pipes.generic.IdentityGenPipe;
-import pipelines.pipes.specific.CompressionPipe;
-import pipelines.pipes.specific.CycleBreakingPipe;
-import pipelines.pipes.specific.NetworkFinalizationPipe;
-import pipelines.pipes.specific.PruningPipe;
+import pipelines.pipes.specific.*;
 import settings.Settings;
 import utils.Utilities;
 
@@ -72,7 +69,7 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
         });
         finalizationPipe.connectAfter(cutoffPipe);
 
-        if (settings.debugNeuralization){
+        if (settings.debugNeuralization) {
             new NeuralDebugger(settings).addDebugStream(pipeline);
         }
         return pipeline;
@@ -94,7 +91,7 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
             //todo - remove maps by recursive copying (here?)
         }
 
-        if (settings.pruneNetworks) {
+        if (settings.chainPruning) {
             Pipe<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> pruningPipe = pipeline.registerEnd(new PruningPipe(settings));
             nextPipe.connectAfter(pruningPipe);
             nextPipe = pruningPipe;
@@ -107,6 +104,13 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
         if (settings.isoGradientCompression) {
             //todo
         }
+
+        if (settings.mergeIdenticalWeightedInputs || settings.removeIdenticalUnweightedInputs) {
+            EdgeMergerPipe edgeMergerPipe = pipeline.registerEnd(new EdgeMergerPipe(settings));
+            nextPipe.connectAfter(edgeMergerPipe);
+            nextPipe = edgeMergerPipe;
+        }
+
         if (settings.cycleBreaking) {
             Pipe<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> pipe = pipeline.registerEnd(new CycleBreakingPipe(settings));
             nextPipe.connectAfter(pipe);

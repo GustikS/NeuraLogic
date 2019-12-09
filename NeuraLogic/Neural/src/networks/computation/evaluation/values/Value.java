@@ -190,8 +190,6 @@ public abstract class Value implements Iterable<Double> {   //todo add division
     public static final Value ZERO = new Zero();
     public static final Value ONE = new One();
 
-
-    @Deprecated
     private static class One extends Value {
 
         private ScalarValue one = new ScalarValue(1);
@@ -209,8 +207,7 @@ public abstract class Value implements Iterable<Double> {   //todo add division
 
         @Override
         public Value clone() {
-            LOG.warning("Cloning a constant ONE");
-            return this;
+            return new ScalarValue(1);
         }
 
         @Override

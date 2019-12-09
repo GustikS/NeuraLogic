@@ -21,7 +21,7 @@ public class MainTest {
         settings.maxCumEpochCount = 1000;
         settings.resultsRecalculationEpochae = 20;
         settings.neuralNetsPostProcessing = false;  //crucial to be True!
-        settings.pruneNetworks = true;
+        settings.chainPruning = true;
         settings.optimizer = Settings.OptimizerSet.ADAM;
         Settings.loggingLevel = Level.FINER;
         Main.main(args, settings);
@@ -37,7 +37,7 @@ public class MainTest {
         settings.initLearningRate = 0.1;
         settings.maxCumEpochCount = 100000;
         settings.neuralNetsPostProcessing = true;  //crucial to be True!
-        settings.pruneNetworks = true;
+        settings.chainPruning = true;
         Settings.loggingLevel = Level.FINER;
         Main.main(args, settings);
     }
@@ -72,7 +72,7 @@ public class MainTest {
         settings.maxCumEpochCount = 10000;
         //settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = true;
-        settings.pruneNetworks = false;
+        settings.chainPruning = false;
         settings.isoValueCompression = true;
 
         Main.main(args, settings);
@@ -89,7 +89,7 @@ public class MainTest {
         settings.shuffleBeforeTraining = false;
         //settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = true;
-        settings.pruneNetworks = true;
+        settings.chainPruning = true;
         settings.seed = 0;
 
 //        settings.ruleNeuronActivation = Settings.ActivationFcn.IDENTITY;

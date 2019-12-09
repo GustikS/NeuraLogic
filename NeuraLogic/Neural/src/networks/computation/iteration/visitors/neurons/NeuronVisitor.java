@@ -27,7 +27,7 @@ public abstract class NeuronVisitor {
     /**
      * We need the context of the network even at the level of visiting individual neurons to ask for the inputs properly.
      */
-    NeuralNetwork<State.Neural.Structure> network;
+    protected NeuralNetwork<State.Neural.Structure> network;
     /**
      * The logic of the calculation upon the {@link State} of each neuron is further outsourced to {@link #stateVisitor}
      */

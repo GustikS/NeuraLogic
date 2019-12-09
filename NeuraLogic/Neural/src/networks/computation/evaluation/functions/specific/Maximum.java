@@ -34,6 +34,11 @@ public class Maximum extends Aggregation {
     }
 
     @Override
+    public boolean isInputSymmetric() {
+        return true;
+    }
+
+    @Override
     public AggregationState getAggregationState() {
         return new AggregationState.Pooling.Max(this);
     }

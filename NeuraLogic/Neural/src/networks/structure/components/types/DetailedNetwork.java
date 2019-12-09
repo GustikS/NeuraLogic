@@ -76,7 +76,7 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
     public List<Weight> getAllWeights() {
         List<Weight> allWeights = new ArrayList<>();
         for (BaseNeuron<Neurons, State.Neural> neuron : allNeuronsTopologic) {
-            if (neuron instanceof WeightedNeuron){
+            if (neuron instanceof WeightedNeuron) {
                 WeightedNeuron weightedNeuron = (WeightedNeuron) neuron;
                 allWeights.addAll(weightedNeuron.getWeights());
             }
@@ -137,11 +137,9 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
      * @param replaceWith
      */
     public void replaceInput(BaseNeuron<Neurons, State.Neural> parentNeuron, Neurons toReplace, Neurons replaceWith) {
-        if (extraInputMapping != null) {
-            NeuronMapping<Neurons> parentInputs = extraInputMapping.get(parentNeuron);
-            if (parentInputs != null) {
-                parentInputs.replace(toReplace, replaceWith);
-            }
+        NeuronMapping<Neurons> inputMapping;
+        if ((inputMapping = extraInputMapping != null ? (NeuronMapping<Neurons>) extraInputMapping.get(parentNeuron) : null) != null) {
+            inputMapping.replace(toReplace, replaceWith);
         } else {
             for (int i = 0; i < parentNeuron.getInputs().size(); i++) {
                 if (parentNeuron.getInputs().get(i).equals(toReplace)) {
@@ -159,5 +157,26 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
             return;
         }
         outputs.replace(middle, parent);
+    }
+
+    public <S extends State.Neural, T extends Neurons> void replaceInputWeight(WeightedNeuron<T, S> parentNeuron, T toReplace, Weight finalWeight) {
+        WeightedNeuronMapping<T> inputMapping;
+        if ((inputMapping = extraInputMapping != null ? (WeightedNeuronMapping<T>) extraInputMapping.get(parentNeuron) : null) != null) {   //todo test this
+            Iterator<T> iterator = inputMapping.iterator();
+            WeightedNeuronMapping.WeightIterator weightIterator = (WeightedNeuronMapping.WeightIterator) inputMapping.weightIterator();
+            while (iterator.hasNext()) {
+                T next = iterator.next();
+                Weight nextW = weightIterator.next();
+                if (next.equals(toReplace)) {
+                    weightIterator.replace(finalWeight);
+                }
+            }
+        } else {
+            for (int i = 0; i < parentNeuron.getInputs().size(); i++) {
+                if (parentNeuron.getInputs().get(i).equals(toReplace)) {
+                    parentNeuron.getWeights().set(i, finalWeight);
+                }
+            }
+        }
     }
 }

@@ -36,6 +36,11 @@ public class CrossProduct extends Activation {
     }
 
     @Override
+    public boolean isInputSymmetric() {
+        return false;   // changing the number of inputs in crossproduct is problematic...
+    }
+
+    @Override
     public Value evaluate(List<Value> inputs) {
         List<Value> values = new ArrayList<>(inputs.size());
         values.addAll(inputs);

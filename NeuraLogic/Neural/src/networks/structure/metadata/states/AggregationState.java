@@ -5,8 +5,7 @@ import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.values.ScalarValue;
 import networks.computation.evaluation.values.Value;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -281,7 +280,9 @@ public abstract class AggregationState implements Aggregation.State {
 
     public static class CrossProducState extends CumulationState {
 
-        public int[][] mapping; //todo now try to speedup and save memory (store the mapping only once?)
+        private static Map<Mapping, Mapping> cache = new HashMap<>();
+
+        public int[][] mapping;
         int cross = 0;
 
         public CrossProducState(Aggregation aggregation) {
@@ -303,6 +304,15 @@ public abstract class AggregationState implements Aggregation.State {
             }
             mapping = new int[cross][inputValues.size()];
             combinations(0, new int[sizes.length], sizes);
+
+            // compress duplicates
+            Mapping wrap = new Mapping(this.mapping);
+            Mapping load = cache.get(wrap);
+            if (load != null) {
+//                this.mapping = load.mapping; // free up memory
+            } else {
+                cache.put(wrap, wrap);
+            }
         }
 
         private void combinations(int input, int[] current, int[] sizes) {
@@ -314,6 +324,30 @@ public abstract class AggregationState implements Aggregation.State {
             for (int i = 0; i < sizes[input]; i++) {
                 current[input] = i;
                 combinations(input + 1, current, sizes);
+            }
+        }
+
+        public static class Mapping {
+            int[][] mapping;
+
+            int hashcode = -1;
+
+            public Mapping(int[][] mapping) {
+                this.mapping = mapping;
+            }
+
+            @Override
+            public int hashCode() {
+                if (hashcode != -1) {
+                    return hashcode;
+                }
+                hashcode = java.util.Arrays.deepHashCode(mapping);
+                return hashcode;
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return Arrays.deepEquals(mapping, ((Mapping) obj).mapping);
             }
         }
     }
