@@ -11,6 +11,7 @@ import networks.computation.evaluation.functions.Activation;
 import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.functions.CrossProduct;
 import networks.computation.evaluation.values.ScalarValue;
+import networks.computation.evaluation.values.Value;
 import networks.structure.building.NeuronMaps;
 import networks.structure.components.neurons.types.*;
 import networks.structure.components.weights.Weight;
@@ -52,13 +53,13 @@ public class NeuronFactory {
         Weight offset = head.getOffset();
         if (offset == null) {
             if (settings.defaultAtomOffsetsLearnable) {
-                if (settings.defaultAtomNeuronOffset != 0){
+                if (settings.defaultAtomNeuronOffset != 0) {
                     offset = weightFactory.construct(new ScalarValue(settings.defaultAtomNeuronOffset), false, true);
                 } else {
                     offset = weightFactory.construct(new ScalarValue(settings.defaultAtomNeuronOffset), false, false);
                 }
             } else {
-                if (settings.defaultAtomNeuronOffset != 0){
+                if (settings.defaultAtomNeuronOffset != 0) {
                     offset = atomOffset;
                 }
             }
@@ -110,13 +111,13 @@ public class NeuronFactory {
         Weight offset = weightedRule.getOffset();
         if (offset == null) {
             if (settings.defaultRuleOffsetsLearnable) {
-                if (settings.defaultRuleNeuronOffset != 0){
+                if (settings.defaultRuleNeuronOffset != 0) {
                     offset = weightFactory.construct(new ScalarValue(settings.defaultRuleNeuronOffset), false, true);
                 } else {
                     offset = weightFactory.construct(new ScalarValue(settings.defaultRuleNeuronOffset), false, false);
                 }
             } else {
-                if (settings.defaultRuleNeuronOffset != 0){
+                if (settings.defaultRuleNeuronOffset != 0) {
                     offset = atomOffset;
                 }
             }
@@ -131,7 +132,7 @@ public class NeuronFactory {
     public FactNeuron createFactNeuron(ValuedFact fact) {
         FactNeuron result = neuronMaps.factNeurons.get(fact.literal);
         if (result == null) {    //fact neuron might have been created already and for them it is ok
-            States.SimpleValue simpleValue = new States.SimpleValue(fact.getValue());
+            States.SimpleValue simpleValue = new States.SimpleValue(fact.getValue() == null ? Value.ONE : fact.getValue());
             FactNeuron factNeuron = new FactNeuron(fact, counter++, simpleValue);
             neuronMaps.factNeurons.put(fact.literal, factNeuron);
             LOG.finest("Created fact neuron: " + factNeuron);

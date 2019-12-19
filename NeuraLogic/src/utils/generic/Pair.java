@@ -1,8 +1,11 @@
 package utils.generic;
 
+import utils.exporting.Exportable;
+import utils.exporting.Exporter;
+
 import java.util.logging.Logger;
 
-public class Pair<R,S> {
+public class Pair<R, S> implements Exportable<Pair<R, S>> {
     private static final Logger LOG = Logger.getLogger(Pair.class.getName());
 
     /**
@@ -15,34 +18,38 @@ public class Pair<R,S> {
      */
     public S s;
 
-    /** Creates a new instance of Pair */
+    /**
+     * Creates a new instance of Pair
+     */
     public Pair() {
     }
 
     /**
      * Creates a new instance of class Pair with the given content.
+     *
      * @param r the first object
      * @param s the second object
      */
-    public Pair(R r, S s){
+    public Pair(R r, S s) {
         this.r = r;
         this.s = s;
     }
 
     /**
      * Sets the objects iterable the Pair.
+     *
      * @param r the first object
      * @param s the second object
      */
-    public void set(R r, S s){
+    public void set(R r, S s) {
         this.r = r;
         this.s = s;
     }
 
     @Override
-    public boolean equals(Object o){
-        if (o instanceof Pair){
-            Pair p = (Pair)o;
+    public boolean equals(Object o) {
+        if (o instanceof Pair) {
+            Pair p = (Pair) o;
             return (p.r == this.r || (p.r != null && this.r != null && p.r.equals(this.r))) &&
                     (p.s == this.s || (p.s != null && this.s != null && p.s.equals(this.s)));
         }
@@ -52,17 +59,26 @@ public class Pair<R,S> {
     @Override
     public int hashCode() {
         int a = 0, b = 0;
-        if (this.r != null){
+        if (this.r != null) {
             a = this.r.hashCode();
         }
-        if (this.s != null){
+        if (this.s != null) {
             b = this.s.hashCode();
         }
-        return (1+a)*(13+b);
+        return (1 + a) * (13 + b);
     }
 
     @Override
-    public String toString(){
-        return "["+r+", "+s+"]";
+    public String toString() {
+        return "[" + r + ", " + s + "]";
+    }
+
+    @Override
+    public Pair<R, S> export(Exporter exporter) {
+        if (r instanceof Exportable)
+            ((Exportable) r).export(exporter);
+        if (s instanceof Exportable)
+            ((Exportable) s).export(exporter);
+        return this;
     }
 }

@@ -42,7 +42,7 @@ public class TrainingDebuggerTest {
     }
 
     @Test
-    public void mutagen_zero_init() {   //todo next remove these weird templates and do some cleaning in the templates
+    public void mutagen_zero_init() {   //todo now remove these weird templates and do some cleaning in the templates
         Logging logging = Logging.initLogging(Level.FINER);
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/trainExamples.txt " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/trainQueries.txt " +
@@ -217,7 +217,7 @@ public class TrainingDebuggerTest {
 
         settings.seed = 0;
         settings.initLearningRate = 0.01;
-        settings.maxCumEpochCount = 1000;
+        settings.maxCumEpochCount = 100;
         settings.resultsRecalculationEpochae = 10;
         settings.shuffleEachEpoch = true;
         settings.debugSampleOutputs = false;
@@ -249,13 +249,46 @@ public class TrainingDebuggerTest {
         settings.initDistribution = Settings.InitDistribution.UNIFORM;
 
         settings.seed = 0;
-        settings.initLearningRate = 0.01;   //todo next make default initLearningRate change based on optimizer
+        settings.initLearningRate = 0.01;   //todo now make default initLearningRate change based on optimizer
         settings.maxCumEpochCount = 1000;
         settings.resultsRecalculationEpochae = 10;
         settings.shuffleEachEpoch = true;
         settings.debugSampleOutputs = false;
         settings.calculateBestThreshold = true;
 //        settings.appLimitSamples = 10;
+        settings.initializer = Settings.InitSet.SIMPLE;
+        settings.optimizer = Settings.OptimizerSet.ADAM;
+        settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
+
+        settings.oneQueryPerExample = true;
+        settings.neuralNetsPostProcessing = true;
+        settings.chainPruning = true;
+        settings.isoValueCompression = true;
+        settings.storeNotShow = true;
+
+        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        trainingDebugger.executeDebug();
+    }
+
+    @Test
+    public void jair_revived() {
+        Logging logging = Logging.initLogging(Level.FINER);
+        String[] args = ("-e ./resources/datasets/relational/molecules/786_0/examples " +
+                "-q ./resources/datasets/relational/molecules/786_0/queries " +
+                "-t ./resources/datasets/relational/molecules/786_0/template_vector_element").split(" ");
+
+        Settings settings = new Settings();
+
+        settings.initDistribution = Settings.InitDistribution.UNIFORM;
+
+        settings.seed = 0;
+        settings.initLearningRate = 0.01;   //todo now make default initLearningRate change based on optimizer
+        settings.maxCumEpochCount = 1000;
+        settings.resultsRecalculationEpochae = 10;
+        settings.shuffleEachEpoch = true;
+        settings.debugSampleOutputs = false;
+        settings.calculateBestThreshold = true;
+        settings.appLimitSamples = 1000;
         settings.initializer = Settings.InitSet.SIMPLE;
         settings.optimizer = Settings.OptimizerSet.ADAM;
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;

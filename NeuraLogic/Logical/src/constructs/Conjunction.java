@@ -13,4 +13,13 @@ public class Conjunction {
     public Conjunction(List<ValuedFact> conjunction) {
         facts = conjunction;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < facts.size(); i++) {
+            sb.append(facts.get(i).toString()).append(",");
+        }
+        return sb.substring(0, sb.length()-1);
+    }
 }

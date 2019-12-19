@@ -3,10 +3,11 @@ package settings;
 import networks.computation.evaluation.values.Value;
 import org.apache.commons.cli.CommandLine;
 import pipelines.Pipeline;
-import utils.Exporter;
 import utils.Utilities;
+import utils.exporting.Exporter;
 import utils.generic.Pair;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Random;
@@ -17,6 +18,15 @@ import java.util.logging.Logger;
  * Created by gusta on 8.3.17.
  */
 public class Settings {
+
+    //todo - uncompressed lambda template for experiments
+    //todo - how to handle non-entailed examples
+    //todo - dynamic restarting + learning rate progression
+    //todo - various exporting
+    //todo - alldiff
+    //todo - learning factNeuron offsets
+    //todo - special predicates
+
     private static final Logger LOG = Logger.getLogger(Settings.class.getName());
 
     /**
@@ -59,7 +69,10 @@ public class Settings {
 
     //------------------Exporting (i.e. output files for logging etc.)
 
-    public Exporter exporter;
+    /**
+     * Cleaning all previously generated outputs before each run
+     */
+    public boolean cleanUpFirst = true;
 
     public String outDir = "./out";
 
@@ -68,6 +81,15 @@ public class Settings {
     public String tmpFile = outDir + "/tmpFile";
 
     public String console = outDir + "/consoleOutput";
+
+    public String exportDir = outDir + "/export";
+
+    public Exporter exporter;
+
+    /**
+     * Outputs of these blocks will be exported into respective files
+     */
+    public String[] exportBlocks = {"NeuralTrainTestPipeline", "NeuralTrainingPipe", "NeuralEvaluationPipe", "CrossvalidationPipeline"};
 
     //------------------Drawing/Debugging
 
@@ -532,7 +554,13 @@ public class Settings {
 
     //----------------Crossvaldiation
 
+    /**
+     * Number of folds for crossvaldiation
+     */
     public int foldsCount = 5;
+    /**
+     * Assemble folds w.r.t. class distribution
+     */
     public boolean stratification = false;
     public boolean exportFolds = true;
     /**
@@ -581,8 +609,8 @@ public class Settings {
     public boolean queriesAlignedWithExamples;
 
     public double defaultSampleImportance = 1.0;
-    public String sampleIdPrefix = "s";
-    public String queriesBatchPrefix = "_b";
+    public String sampleIdPrefix = "s_";
+    public String queriesBatchPrefix = "b_";
 
 
     /**
@@ -598,6 +626,10 @@ public class Settings {
      */
     public Settings() {
         exporter = new Exporter(this);
+
+        if (cleanUpFirst) {
+            exporter.deleteDir(new File(exportDir));
+        }
     }
 
     public void setupFromCommandline(CommandLine cmd) {

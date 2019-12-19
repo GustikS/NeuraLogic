@@ -5,6 +5,7 @@ import networks.computation.evaluation.functions.specific.Average;
 import networks.computation.evaluation.values.Value;
 import org.jetbrains.annotations.NotNull;
 import settings.Settings;
+import utils.exporting.Exportable;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -14,7 +15,7 @@ import java.util.logging.Logger;
  * <p>
  * Created by gusta on 8.3.17.
  */
-public abstract class Results {
+public abstract class Results implements Exportable<Results> {
     private static final Logger LOG = Logger.getLogger(Results.class.getName());
 
     Settings settings;
@@ -22,7 +23,7 @@ public abstract class Results {
     @Deprecated
     public boolean evaluatedOnline = true;
 
-    List<Result> evaluations;
+    public List<Result> evaluations;
 
     /**
      * How to aggregate individual errors of samples. E.g. mean for MSE, or sum for SSE.
@@ -46,7 +47,10 @@ public abstract class Results {
         evaluations.add(result);
     }
 
-    public abstract String toString();
+    @Override
+    public String toString() {
+        return aggregationFcn.toString() + "-error= " + error.toString();
+    }
 
     public abstract boolean recalculate();
 

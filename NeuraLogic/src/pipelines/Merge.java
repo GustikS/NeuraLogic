@@ -71,6 +71,9 @@ public abstract class Merge<I1, I2, O> extends Block implements ConnectAfter<O> 
 
     public void accept(I1 input1, I2 input2) {
         outputReady = merge(input1, input2);
+
+        super.export(outputReady);
+
         if (output != null)
             output.accept(outputReady);
     }

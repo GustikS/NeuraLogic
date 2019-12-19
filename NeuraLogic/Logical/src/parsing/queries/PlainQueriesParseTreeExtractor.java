@@ -42,11 +42,11 @@ public class PlainQueriesParseTreeExtractor extends QueriesParseTreeExtractor<Pl
                     line -> line.accept(factConjunctionVisitor)
             );
             if (ctx.atom() != null && ctx.atom().size() > 0) {
-                LOG.info("Detecting queries to have ids with them.");
+//                LOG.info("Detecting queries to have ids with them.");
                 Stream<ValuedFact> labelStream = ctx.atom().stream().map(atom -> atom.accept(factVisitor));
                 return zipStreams(labelStream, queriesStream, (lab, query) -> new Pair(lab, query));    //TODO do not zip, create a single line context object (same as in labeled Examples)
             } else {
-                LOG.info("Detecting that the provided queries have no ids with them.");
+//                LOG.info("Detecting that the provided queries have no ids with them.");
                 return queriesStream.map(q -> new Pair(null, q));
             }
         } else

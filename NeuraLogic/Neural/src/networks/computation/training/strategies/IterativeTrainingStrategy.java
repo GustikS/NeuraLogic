@@ -1,6 +1,7 @@
 package networks.computation.training.strategies;
 
 import learning.crossvalidation.splitting.Splitter;
+import networks.computation.evaluation.results.ClassificationResults;
 import networks.computation.evaluation.results.Progress;
 import networks.computation.evaluation.results.Result;
 import networks.computation.evaluation.results.Results;
@@ -69,6 +70,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     }
 
     private Pair<List<NeuralSample>, List<NeuralSample>> trainingValidationSplit(List<NeuralSample> sampleList) {
+        LOG.info("Preparing the train-validation dataset split with percentage: " + settings.trainValidationPercentage);
         Splitter<NeuralSample> sampleSplitter = Splitter.getSplitter(settings);
         Pair<List<NeuralSample>, List<NeuralSample>> partition = sampleSplitter.partition(sampleList, settings.trainValidationPercentage);
         return new Pair<>(partition.r, partition.s);
@@ -177,6 +179,9 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         TrainVal trueEvaluations = evaluateModel();
         Results trainingResults = resultsFactory.createFrom(trueEvaluations.training);
         Results validationResults = resultsFactory.createFrom(trueEvaluations.validation);
+        if (settings.calculateBestThreshold && validationResults instanceof ClassificationResults) {   // pass the best threshold from training to validation set
+            ((ClassificationResults) validationResults).getBestAccuracy(validationResults.evaluations, ((ClassificationResults) trainingResults).bestThreshold);
+        }
         progress.addTrueResults(trainingResults, validationResults);
 
         if (LOG.isLoggable(Level.FINE)) {
@@ -203,6 +208,9 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     private void saveIfBest(Progress.TrainVal trainVal) {
         if (progress.bestResults == null || trainVal.betterThan(progress.bestResults)) {
             bestModel = currentModel.cloneValues();
+            if (settings.calculateBestThreshold && trainVal.training instanceof ClassificationResults) {
+                bestModel.threshold = ((ClassificationResults) trainVal.training).bestThreshold;
+            }
             progress.bestResults = trainVal;
         }
     }
@@ -229,7 +237,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
             }
         }
         if (saturatedNetworks > 0) {
-            LOG.warning("There are saturated networks! #" + saturatedNetworks);
+            LOG.warning("There are saturated networks: #" + saturatedNetworks);
         }
     }
 }

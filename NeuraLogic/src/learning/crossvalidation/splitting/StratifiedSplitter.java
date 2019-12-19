@@ -29,18 +29,18 @@ public class StratifiedSplitter<T extends LearningSample> implements Splitter<T>
         }
         Map<Value, List<T>> classes = getClasses(samples);
         distributeUniformly(classes.values(), folds);
-        return null;
+        return folds;
     }
 
     public List<T> getStratifiedSubset(List<T> samples, int appCount) {
-        if (appCount > samples.size()){
+        if (appCount > samples.size()) {
             LOG.warning("Limiting samples to a greater number than there actually is!");
             appCount = samples.size();
         }
         List<T> subset = representativeSubset(getClasses(samples).values(), (double) appCount / samples.size());
         if (subset.size() > appCount)
             subset = subset.subList(0, appCount);
-        if (subset.size() == 0){
+        if (subset.size() == 0) {
             subset.add(samples.get(0));
         }
         return subset;
@@ -77,8 +77,8 @@ public class StratifiedSplitter<T extends LearningSample> implements Splitter<T>
     @Override
     public Pair<List<T>, List<T>> partition(List<T> samples, double percentage) {
         int split = (int) percentage * samples.size();
-        if (percentage!= 1.0 && split == 1 || split == samples.size()){
-            LOG.severe("Problem with samples partitioning, there are too few to be splitted: " + split + "out of " + samples.size());
+        if (percentage != 1.0 && split == 1 || split == samples.size()) {
+            LOG.warning("Problem with samples partitioning, there are too few to be splitted: " + split + " out of " + samples.size() + " (split percentage = " + percentage + ")");
         }
         List<T> train = representativeSubset(getClasses(samples).values(), percentage);
         List<T> test = new ArrayList<>(samples);
@@ -87,7 +87,7 @@ public class StratifiedSplitter<T extends LearningSample> implements Splitter<T>
     }
 
     public Map<Value, List<T>> getClasses(List<T> samples) {
-        Map<Value, List<T>> classes = new HashMap<>();
+        Map<Value, List<T>> classes = new LinkedHashMap<>();
         for (T sample : samples) {
             List<T> tList = classes.computeIfAbsent(sample.target, k -> new ArrayList<>());
             tList.add(sample);

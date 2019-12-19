@@ -53,7 +53,7 @@ public class ElementProduct extends Activation {
         int[] size = inputs.get(0).size();
         for (int i = 0; i < inputs.size(); i++) {
             if (!Arrays.equals(size,inputs.get(i).size())) {
-                LOG.severe("ScalarProduct dimensions mismatch!");   //todo next get maximal dimension here instead
+                LOG.severe("ScalarProduct dimensions mismatch!");   //todo now get maximal dimension here instead
                 return null;
             }
         }

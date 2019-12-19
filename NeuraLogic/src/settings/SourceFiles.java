@@ -142,7 +142,7 @@ public class SourceFiles extends Sources {
         }
 
         try {
-            String trainExamplesPath = cmd.getOptionValue("trainExamples", settings.trainExamplesFile); //todo next let us have "examples.txt" option too
+            String trainExamplesPath = cmd.getOptionValue("trainExamples", settings.trainExamplesFile); //todo now let us have "examples.txt" option too
             if (trainExamplesPath.startsWith("\\.") || settings.sourcePathProvided) {
                 this.trainExamples = Paths.get(foldDir.toString(), trainExamplesPath).toFile();
             } else {
@@ -179,7 +179,7 @@ public class SourceFiles extends Sources {
             }
 
         } catch (FileNotFoundException e) {
-            LOG.info("There are no test examples found.");
+            LOG.info("There are no separate test examples found.");
         }
 
         try {

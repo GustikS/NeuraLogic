@@ -1,5 +1,7 @@
 package pipelines;
 
+import settings.Settings;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -19,7 +21,8 @@ public abstract class MultiMerge<I, O> extends Block implements ConnectAfter<O>{
 
     public O outputReady;
 
-    protected MultiMerge(String id, int count) {
+    protected MultiMerge(String id, int count, Settings settings) {
+        this.settings = settings;
         this.ID = id;
 
         inputs = new ArrayList<>(count);
@@ -32,20 +35,21 @@ public abstract class MultiMerge<I, O> extends Block implements ConnectAfter<O>{
                 }
             });
         }
+        inputsReady = new ConcurrentLinkedQueue<>();
     }
 
     private void accept(I i) {
         inputsReady.add(i);
         if (inputsReady.size() == inputs.size()){
             LOG.finer("Entering: " + ID);
-            merge(new ArrayList<>(inputsReady));
+            accept(new ArrayList<>(inputsReady));
         }
     }
 
     @Override
     public O get() {
         if (outputReady == null) {
-            LOG.severe("The result of this Merge " + ID + " is requested but not yet calculated");
+            LOG.severe("The result of this MultiMerge " + ID + " is requested but not yet calculated");
             LOG.severe("Pipeline is broken");
             System.exit(3);
         }

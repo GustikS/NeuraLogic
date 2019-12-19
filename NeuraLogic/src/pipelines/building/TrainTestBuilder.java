@@ -212,6 +212,8 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
             resultsMerge.connectBeforeL(modelResultsBranch.output2);
             resultsMerge.connectBeforeR(neuralTesting);
 
+            pipeline.registerEnd(resultsMerge);
+
             return pipeline;
         }
     }

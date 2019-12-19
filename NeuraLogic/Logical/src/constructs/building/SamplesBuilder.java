@@ -12,11 +12,9 @@ import settings.Settings;
 import utils.Utilities;
 import utils.generic.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -55,14 +53,20 @@ public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRu
             return Utilities.zipStreams(queries, examples, SamplesBuilder::merge2samples);
         }
 
+        LOG.warning("Could not infer whether queries are directly aligned with examples, will need to consume (iterate) the stream first to align them!");
+
         Map<String, Pair<LiftedExample, List<LogicSample>>> map;
         if (queries.isParallel() || examples.isParallel()) {
-            if (settings.oneQueryPerExample && settings.groundingMode != Settings.GroundingMode.GLOBAL)
-                return Stream.concat(queries, examples).collect(Collectors.toConcurrentMap(LearningSample::getId, q -> q, SamplesBuilder::merge2samples)).values().stream();
+            if (settings.oneQueryPerExample && settings.groundingMode != Settings.GroundingMode.GLOBAL) {
+                ConcurrentMap<String, LogicSample> sampleMap = Stream.concat(queries, examples).collect(Collectors.toConcurrentMap(LearningSample::getId, q -> q, SamplesBuilder::merge2samples));
+                return getSortedLogicSampleStream(sampleMap);
+            }
             map = new ConcurrentHashMap<>();
         } else {
-            if (settings.oneQueryPerExample && settings.groundingMode != Settings.GroundingMode.GLOBAL)
-                return Stream.concat(queries, examples).collect(Collectors.toMap(LearningSample::getId, q -> q, SamplesBuilder::merge2samples)).values().stream();
+            if (settings.oneQueryPerExample && settings.groundingMode != Settings.GroundingMode.GLOBAL) {
+                Map<String, LogicSample> sampleMap = Stream.concat(queries, examples).collect(Collectors.toMap(LearningSample::getId, q -> q, SamplesBuilder::merge2samples));
+                return getSortedLogicSampleStream(sampleMap);
+            }
             map = new HashMap<>();
         }
         //the remaining 1 example to Many queries solution
@@ -93,6 +97,18 @@ public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRu
         }
 
         return map.values().stream().map(pair -> pair.s.stream()).flatMap(f -> f);
+    }
+
+    /**
+     * Sorting of the assembled samples to ensure determinism
+     * @param sampleMap
+     * @return
+     */
+    private Stream<LogicSample> getSortedLogicSampleStream(Map<String, LogicSample> sampleMap) {
+        LOG.info("Consumed 2 input streams of " + sampleMap.size() + " samples (queries+examples)");
+        ArrayList<LogicSample> logicSamples = new ArrayList<>(sampleMap.values());
+        logicSamples.sort(LogicSample::compare);
+        return logicSamples.stream();
     }
 
     /**

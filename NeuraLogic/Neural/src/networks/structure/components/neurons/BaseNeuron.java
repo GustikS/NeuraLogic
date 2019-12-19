@@ -170,7 +170,7 @@ public abstract class BaseNeuron<T extends Neurons, S extends State.Neural> impl
      * @param index
      * @return
      */
-    public final State.Neural.Computation getComputationView(int index) {   //todo next this is an unnecessary performance hotspot?
+    public final State.Neural.Computation getComputationView(int index) {   //todo next this is an unnecessary performance hotspot? (probably not, just showing because of debugger, otherwise inlined...)
         return state.getComputationView(index);
     }
 

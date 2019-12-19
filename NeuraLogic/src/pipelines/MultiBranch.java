@@ -1,6 +1,7 @@
 package pipelines;
 
 import pipelines.pipes.generic.IdentityGenPipe;
+import settings.Settings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,10 +19,12 @@ public abstract class MultiBranch<I, O> extends Block implements ConnectBefore<I
 
     List<O> outputReady;
 
-    boolean parallelBranching = true;
+    boolean parallelBranching = false;
 
-    protected MultiBranch(String id, int count) {
+    protected MultiBranch(String id, int count, Settings settings) {
         this.ID = id;
+        this.settings = settings;
+
         outputs = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             outputs.add(new IdentityGenPipe<>(id + "Output" + i));
@@ -40,7 +43,7 @@ public abstract class MultiBranch<I, O> extends Block implements ConnectBefore<I
             LOG.severe("MultiBranch output dimension mismatches with subsequent consumers!");
         }
         if (parallelBranching) {
-
+            //todo next
         } else {
             for (int i = 0; i < outputs.size(); i++) {
                 outputs.get(i).accept(outputReady.get(i));

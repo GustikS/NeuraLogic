@@ -17,10 +17,6 @@ import java.util.stream.Stream;
 public class TemplateDebugger extends Debugger<Template> {
     private static final Logger LOG = Logger.getLogger(TemplateDebugger.class.getName());
 
-    public TemplateDebugger(String[] args) {
-        super(args);
-    }
-
     public TemplateDebugger(Settings settings) {
         super(settings);
         drawer = new TemplateDrawer(settings);

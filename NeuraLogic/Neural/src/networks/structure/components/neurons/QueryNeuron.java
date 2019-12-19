@@ -38,7 +38,7 @@ public class QueryNeuron extends Query<NeuralNetwork<State.Neural.Structure>, Ne
         if (neuron != null)
             sb.append(neuron.toString());
         if (evidence != null)
-            sb.append(" <-" + evidence.toString());
+            sb.append(" <- " + evidence.toString());
         return sb.toString();
     }
 }

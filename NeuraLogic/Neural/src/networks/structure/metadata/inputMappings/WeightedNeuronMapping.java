@@ -76,7 +76,7 @@ public class WeightedNeuronMapping<T extends Neurons> extends NeuronMapping<T> i
         }
 
         public void replace(Weight weight) {
-            actual.weights.set(current + 1, weight);
+            actual.weights.set(current + 1, weight);    //todo test this
         }
     }
 

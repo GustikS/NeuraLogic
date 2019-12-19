@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 public class SGD implements Optimizer {
     private static final Logger LOG = Logger.getLogger(SGD.class.getName());
 
-    Value learningRate; //todo next check any direct declaration of Value subclasses for DD
+    Value learningRate; //todo now check any direct declaration of Value subclasses for DD
 
     public SGD(Value learningRate) {
         this.learningRate = learningRate;
@@ -31,7 +31,7 @@ public class SGD implements Optimizer {
 //                if (weightUpdates[weight.index] == null){
 //                    LOG.severe("Weight had no update slot prepared, probably mismatch in weight indexing!");
 //                }
-                //todo next check if we cannot just multiply once at beginning of backprop! probably yes...at least with SGD it's just a chained multiplication, but it doesnt seem to improve speed performance much
+                //todo now check if we cannot just multiply once at beginning of backprop! probably yes...at least with SGD it's just a chained multiplication, but it doesnt seem to improve speed performance much
                 Value update = weightUpdates[weight.index];//.times(learningRate); //and it's clearer to do it here for each parameter separately
 
                 weight.value.incrementBy(update);

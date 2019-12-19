@@ -129,7 +129,7 @@ public class PipelineDrawer<S, T> extends Drawer<Pipeline<S, T>> {
         }
     }
 
-    private void draw(MultiBranch branch) { //todo next test some multi-pipeline (xval)
+    private void draw(MultiBranch branch) { //todo now test some multi-pipeline (xval)
         graphviz.addln(getNodeId(branch) + "[label=" + sanitize(branch.toString()) + ", shape=trapezium]");
         if (branch.input != null)
             graphviz.addln(getNodeId(branch.input) + " -> " + branch.hashCode());

@@ -1,6 +1,7 @@
 package pipelines.pipes.generic;
 
 import pipelines.MultiBranch;
+import settings.Settings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,12 +10,8 @@ import java.util.logging.Logger;
 public class DuplicateListBranch<I> extends MultiBranch<I,I> {
     private static final Logger LOG = Logger.getLogger(DuplicateListBranch.class.getName());
 
-    public DuplicateListBranch(int count) {
-        super("DuplicateListBranch", count);
-    }
-
-    protected DuplicateListBranch(String id, int count) {
-        super(id, count);
+    public DuplicateListBranch(int count, Settings settings) {
+        super("DuplicateListBranch", count, settings);
     }
 
     @Override

@@ -98,7 +98,12 @@ public class Weight {
 
     @Override
     public String toString() {
-        return name + " " + value.toString();
+        StringBuilder sb = new StringBuilder();
+        if (manualInitialization || isFixed || isShared){
+            sb.append("<" + name + "> ");
+        }
+        sb.append(value.toString());
+        return sb.toString();
     }
 
     public boolean isLearnable() {

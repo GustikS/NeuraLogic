@@ -47,10 +47,6 @@ public abstract class Debugger<S> extends AbstractPipelineBuilder<Sources, Strea
         super(settings);
     }
 
-    public Debugger(String[] args) {
-        this(args, new Settings());
-    }
-
     public Debugger(String[] args, Settings settings) {
         this(Sources.getSources(args, settings), settings);
     }

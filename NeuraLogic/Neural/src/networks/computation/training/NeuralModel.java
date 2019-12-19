@@ -17,11 +17,13 @@ import java.util.stream.Collectors;
 /**
  * Created by gusta on 8.3.17.
  */
-public class NeuralModel implements Model<QueryNeuron> {    //todo next add accuracy progress plotting
+public class NeuralModel implements Model<QueryNeuron> {    //todo now add accuracy progress plotting
     private static final Logger LOG = Logger.getLogger(NeuralModel.class.getName());
 
     public List<Weight> weights;
     private Settings settings;
+
+    public Value threshold;
 
     /**
      * Only used in debug mode for drawing of original template during training.
@@ -31,7 +33,7 @@ public class NeuralModel implements Model<QueryNeuron> {    //todo next add accu
     public NeuralModel(List<Weight> weights, Settings settings) {
         this.settings = settings;
         this.weights = weights;
-//        this.weights = filterLearnable(weights);  //todo next SPEEDUP - reindex weights here so that the first N are only learnable, and so no further checks are necessary, as we have a continuous array in weightupdates
+//        this.weights = filterLearnable(weights);  //todo now SPEEDUP - reindex weights here so that the first N are only learnable, and so no further checks are necessary, as we have a continuous array in weightupdates
         if (settings.optimizer == Settings.OptimizerSet.ADAM) {
             init4Adam(weights);
         }

@@ -1,6 +1,7 @@
 package networks.computation.evaluation.results;
 
 import settings.Settings;
+import utils.exporting.Exporter;
 
 import java.util.List;
 
@@ -15,7 +16,8 @@ public class RegressionResults extends Results {
 
     @Override
     public String toString() {
-        return null;
+//        return Arrays.toString(evaluations.toArray());
+        return super.toString();
     }
 
     @Override
@@ -31,5 +33,11 @@ public class RegressionResults extends Results {
     @Override
     public String toString(Settings settings) {
         return null;
+    }
+
+    @Override
+    public RegressionResults export(Exporter exporter) {
+        exporter.export(this);
+        return this;
     }
 }

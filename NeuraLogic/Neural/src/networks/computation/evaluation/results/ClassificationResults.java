@@ -3,6 +3,7 @@ package networks.computation.evaluation.results;
 import networks.computation.evaluation.values.ScalarValue;
 import networks.computation.evaluation.values.Value;
 import settings.Settings;
+import utils.exporting.Exporter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,11 +26,11 @@ public class ClassificationResults extends RegressionResults {
     private int zeroCount;
     private int oneCount;
 
-    private Value bestThreshold;
-    private Double bestAccuracy;
+    public Value bestThreshold;
+    public Double bestAccuracy;
 
-    public ClassificationResults(List<Result> outputs, Settings aggregationFcn) {
-        super(outputs, aggregationFcn);
+    public ClassificationResults(List<Result> outputs, Settings settings) {
+        super(outputs, settings);
     }
 
     @Override
@@ -85,6 +86,21 @@ public class ClassificationResults extends RegressionResults {
         accuracy = (double) goodCount / evaluations.size();
     }
 
+    public Double getBestAccuracy(List<Result> evaluations, Value trainedThreshold) {
+        int TP = 0;
+        int TN = 0;
+        for (Result evaluation : evaluations) {
+            if (evaluation.output.greaterThan(trainedThreshold) && evaluation.target.greaterThan(trainedThreshold)) {
+                TP++;
+            } else if (trainedThreshold.greaterThan(evaluation.output) && trainedThreshold.greaterThan(evaluation.target)) {
+                TN++;
+            }
+        }
+        bestThreshold = trainedThreshold;
+        bestAccuracy = ((double) (TP + TN)) / evaluations.size();
+        return bestAccuracy;
+    }
+
     public void getBestAccuracyThreshold(List<Result> evaluations) {
         Collections.sort(evaluations);
 
@@ -125,6 +141,11 @@ public class ClassificationResults extends RegressionResults {
     }
 
     @Override
+    public String toString() {
+        return this.toString(null);
+    }
+
+    @Override
     public String toString(Settings settings) {
         StringBuilder sb = new StringBuilder();
         if (accuracy != null)
@@ -136,11 +157,21 @@ public class ClassificationResults extends RegressionResults {
             sb.append(", disp: " + dispersion.toString());
         }
         if (error != null) {
-            String errAggfcn = settings.errorAggregationFcn.toString();
-            String errFcn = settings.errorFunction.toString();
-            String errString = errAggfcn + "(" + errFcn + ")";
-            sb.append(", error: " + errString + " = " + error.toString());
+            if (settings == null) {
+                sb.append(", error: ").append(error.toString());
+            } else {
+                String errAggfcn = settings.errorAggregationFcn.toString();
+                String errFcn = settings.errorFunction.toString();
+                String errString = errAggfcn + "(" + errFcn + ")";
+                sb.append(", error: ").append(errString).append(" = ").append(error.toString());
+            }
         }
         return sb.toString();
+    }
+
+    @Override
+    public ClassificationResults export(Exporter exporter) {
+        exporter.export(this);
+        return this;
     }
 }

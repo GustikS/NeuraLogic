@@ -124,4 +124,39 @@ public class MainTest {
 
         Main.main(args, settings);
     }
+
+    @Test
+    public void jair_revived() {
+        String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples " +
+                "-q ./resources/datasets/relational/molecules/mutagenesis/queries " +
+                "-t ./resources/datasets/relational/molecules/mutagenesis/template_vector_element " +
+                "-xval 5").split(" ");
+
+        Settings settings = new Settings();
+        Settings.loggingLevel = Level.FINER;
+
+        settings.initDistribution = Settings.InitDistribution.UNIFORM;
+
+        settings.seed = 0;
+        settings.initLearningRate = 0.01;   //todo now make default initLearningRate change based on optimizer
+        settings.maxCumEpochCount = 100;
+        settings.resultsRecalculationEpochae = 10;
+        settings.shuffleEachEpoch = false;
+        settings.debugSampleOutputs = false;
+        settings.calculateBestThreshold = true;
+//        settings.appLimitSamples = 100;
+        settings.initializer = Settings.InitSet.SIMPLE;
+        settings.optimizer = Settings.OptimizerSet.ADAM;
+        settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
+
+        settings.oneQueryPerExample = true;
+        settings.neuralNetsPostProcessing = true;
+        settings.chainPruning = true;
+        settings.isoValueCompression = true;
+        settings.storeNotShow = true;
+
+        settings.stratification = true;
+
+        Main.main(args, settings);
+    }
 }

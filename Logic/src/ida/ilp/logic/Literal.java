@@ -293,12 +293,15 @@ public class Literal {
         if (this.negated) {
             sb.append("!");
         }
-        sb.append(predicate.name).append("(");
-        for (Term t : terms)
-            sb.append(t).append(", ");
-        if (sb.charAt(sb.length() - 2) == ',')
-            sb.delete(sb.length() - 2, sb.length());
-        sb.append(")");
+        sb.append(predicate.name);
+        if (terms.length > 0) {
+            sb.append("(");
+            for (Term t : terms)
+                sb.append(t).append(", ");
+            if (sb.charAt(sb.length() - 2) == ',')
+                sb.delete(sb.length() - 2, sb.length());
+            sb.append(")");
+        }
         return sb.toString();
     }
 
@@ -428,6 +431,7 @@ public class Literal {
 
     /**
      * This is SLOW, use direct indexing instead
+     *
      * @param substitution
      * @return
      */

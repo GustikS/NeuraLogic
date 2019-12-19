@@ -99,7 +99,7 @@ public class Template implements Model<QueryAtom> {
                     weightList.add(bodyAtom.getConjunctWeight());
             }
         }
-        List<Weight> uniqueWeights = filterUnique(weightList);  //todo next reindex here so that there are no holes in numbering (which will cause weightupdater out of bounds error)
+        List<Weight> uniqueWeights = filterUnique(weightList);  //todo now reindex here so that there are no holes in numbering (which will cause weightupdater out of bounds error)
         return uniqueWeights;
     }
 

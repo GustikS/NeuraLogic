@@ -83,7 +83,7 @@ public class Backpropagation {
 
         Value errorGradient = evaluatedResult.errorGradient();
 
-        errorGradient = errorGradient.times(new ScalarValue(settings.initLearningRate));//todo next measure properly the performance of this single multiplication by learningRate and remove if no help
+        errorGradient = errorGradient.times(new ScalarValue(settings.initLearningRate));//todo now measure properly the performance of this single multiplication by learningRate and remove if no help
 
         weightUpdater.clearUpdates();
         outputNeuron.getComputationView(backproper.stateIndex).storeGradient(errorGradient); //store the error gradient into the output neuron, from where it will be further propagated

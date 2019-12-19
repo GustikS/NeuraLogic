@@ -39,7 +39,7 @@ public class PlainExamplesParseTreeExtractor extends ExamplesParseTreeExtractor<
     }
 
     private Pair<Conjunction, LiftedExample> createSamplePair(Conjunction q, LiftedExample e) {
-        LOG.finer("Merging query " + q.facts.toString() + " with example " + e);
+        LOG.finer("Merging query/label " + q.toString() + " with example " + e);
         return new Pair<>(q,e);
     }
 

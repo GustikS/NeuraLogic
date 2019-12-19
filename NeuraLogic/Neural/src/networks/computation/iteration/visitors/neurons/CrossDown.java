@@ -98,7 +98,7 @@ public class CrossDown extends NeuronVisitor.Weighted {
 
                     Value inGrad = inputGradients.get(j);
                     if (inGrad != null) {
-//                        inGrad.increment(map[j], grad * weight.value.get(map[j]));    //todo next Weights in crossproduct do not get actually multiplied here
+//                        inGrad.increment(map[j], grad * weight.value.get(map[j]));    //todo next now Weights in crossproduct do not get actually multiplied here
                         inGrad.increment(map[j], grad * weight.value.get(0));   //assuming only Scalar weight here
                     }
                 }

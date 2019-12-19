@@ -4,7 +4,7 @@ import pipelines.building.AbstractPipelineBuilder;
 import pipelines.debug.PipelineDebugger;
 import settings.Settings;
 import settings.Sources;
-import utils.Exporter;
+import utils.exporting.Exporter;
 import utils.generic.Pair;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -89,14 +89,12 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
     }
 
     public Pipeline(String id, AbstractPipelineBuilder<S, T> originalBuilder) {
-        this.ID = id;
+        this(id, originalBuilder.settings);
         this.originalBuilder = originalBuilder;
-        this.settings = originalBuilder.settings;
     }
 
     public Pipeline(String id, Settings settings) {
-        this.ID = id;
-        this.settings = settings;
+        this(id, settings, Exporter.getFrom(id, settings));
     }
 
     public Pipeline(String id, Settings settings, Exporter exporter) {
@@ -239,6 +237,8 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
         }
         start.accept(sources);
         //all the processing happen recursively here
+        super.export(terminal.get());
+
         if (this.output != null) {
             this.output.accept(terminal.get());
         }

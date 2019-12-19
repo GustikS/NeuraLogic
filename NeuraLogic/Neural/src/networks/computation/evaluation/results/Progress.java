@@ -1,5 +1,8 @@
 package networks.computation.evaluation.results;
 
+import utils.exporting.Exportable;
+import utils.exporting.Exporter;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -8,11 +11,11 @@ import java.util.List;
  * <p>
  * Created by gusta on 8.3.17.
  */
-public class Progress {
+public class Progress implements Exportable<Progress> {
 
     Restart currentRestart;
 
-    List<Restart> restarts;
+    public List<Restart> restarts;
 
     public TrainVal bestResults;
 
@@ -21,17 +24,26 @@ public class Progress {
     }
 
     public void addOnlineResults(Results next) {
-        if (!currentRestart.onlineTrainingResults.isEmpty())
-            currentRestart.onlineTrainingResults.get(currentRestart.onlineTrainingResults.size() - 1).evaluations = null; //delete the particular outputs from the past Results to save space (store only statistics)
+        if (!currentRestart.onlineTrainingResults.isEmpty()) {
+            Results results = currentRestart.onlineTrainingResults.get(currentRestart.onlineTrainingResults.size() - 1);
+            if (results != bestResults.training)
+                results.evaluations = null; //delete the particular outputs from the past Results to save space (store only statistics)
+        }
         currentRestart.onlineTrainingResults.add(next);
     }
 
     public void addTrueResults(Results training, Results validation) {
-        if (!currentRestart.trueTrainingResults.isEmpty())
-            currentRestart.trueTrainingResults.get(currentRestart.trueTrainingResults.size() - 1).evaluations = null; //delete the particular outputs from the past Results to save space (store only statistics)
+        if (!currentRestart.trueTrainingResults.isEmpty()) {
+            Results results = currentRestart.trueTrainingResults.get(currentRestart.trueTrainingResults.size() - 1);
+            if (results != bestResults.training)
+                results.evaluations = null; //delete the particular outputs from the past Results to save space (store only statistics)
+        }
         currentRestart.trueTrainingResults.add(training);
-        if (!currentRestart.validationResults.isEmpty())
-            currentRestart.validationResults.get(currentRestart.validationResults.size() - 1).evaluations = null; //delete the particular outputs from the past Results to save space (store only statistics)
+        if (!currentRestart.validationResults.isEmpty()) {
+            Results results = currentRestart.validationResults.get(currentRestart.validationResults.size() - 1);
+            if (results != bestResults.validation)
+                results.evaluations = null; //delete the particular outputs from the past Results to save space (store only statistics)
+        }
         currentRestart.validationResults.add(validation);
     }
 
@@ -52,13 +64,13 @@ public class Progress {
         return new TrainVal(currentRestart.trueTrainingResults.get(currentRestart.trueTrainingResults.size() - 1), currentRestart.validationResults.get(currentRestart.validationResults.size() - 1));
     }
 
-    private class Restart {
-        List<Results> onlineTrainingResults = new LinkedList<>();
-        List<Results> trueTrainingResults = new LinkedList<>();
-        List<Results> validationResults = new LinkedList<>();
+    public class Restart {
+        public List<Results> onlineTrainingResults = new LinkedList<>();
+        public List<Results> trueTrainingResults = new LinkedList<>();
+        public List<Results> validationResults = new LinkedList<>();
     }
 
-    public static class TrainVal {
+    public static class TrainVal implements Exportable<TrainVal> {
         public Results training;
         public Results validation;
 
@@ -80,5 +92,17 @@ public class Progress {
                 return training.betterThan(other.training);
             }
         }
+
+        @Override
+        public TrainVal export(Exporter exporter) {
+            exporter.export(this);
+            return this;
+        }
+    }
+
+    @Override
+    public Progress export(Exporter exporter) {
+        exporter.export(this);
+        return this;
     }
 }

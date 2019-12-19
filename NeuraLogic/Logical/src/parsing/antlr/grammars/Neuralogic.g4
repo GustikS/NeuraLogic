@@ -17,7 +17,7 @@ label: conjunction;
 
 // format with <link> :- query literals (lrnn_rule)
 // or simple labeled trainQueries, one or more per line (line-to-line correspondence with example file)
-queriesFile: (atom IMPLIED_BY conjunction)+ | (conjunction '.')+;
+queriesFile: (atom IMPLIED_BY conjunction '.')+ | (conjunction '.')+;
 
 // atomic true statement
 fact: atom '.';

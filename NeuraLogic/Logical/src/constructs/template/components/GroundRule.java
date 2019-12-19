@@ -13,7 +13,7 @@ public class GroundRule extends GroundHeadRule {
     /**
      * It's an array, so there can be duplicates!
      */
-    public Literal[] groundBody;    //todo next add check for uniqueness in both lifted and ground rules (unique by set of body literals)
+    public Literal[] groundBody;    //todo now add check for uniqueness in both lifted and ground rules (unique by set of body literals)
 
     public GroundRule(WeightedRule weightedRule, Literal groundHead, Literal[] groundBody) {
         super(weightedRule, groundHead);

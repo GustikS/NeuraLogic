@@ -210,9 +210,9 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             if (ctx.weight() != null) {
                 weight = ctx.weight().accept(new WeightVisitor());
             }
-            if (weight == null) {
-                weight = builder.weightFactory.construct("fact", builder.settings.defaultFactValue, true, true);
-            }
+//            if (weight == null) {
+//                weight = builder.weightFactory.construct("factWeight", builder.settings.defaultFactValue, true, true);  //todo next custom weights should have some flag
+//            }
 
             ValuedFact fact = new ValuedFact(predicate, terms, ctx.negation() != null, weight);
             fact.originalString = ctx.getText();

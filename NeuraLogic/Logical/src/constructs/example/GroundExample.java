@@ -23,7 +23,7 @@ public class GroundExample implements Example {
     static int exampleCounter = 0;
 
     public GroundExample() {
-        id = "ex" + exampleCounter++;
+        id = "#" + exampleCounter++;
         conjunctions = new LinkedHashSet<>();
         flatFacts = new LinkedHashSet<>();
     }

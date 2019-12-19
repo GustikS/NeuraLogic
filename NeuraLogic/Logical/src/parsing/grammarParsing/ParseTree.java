@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 public abstract class ParseTree <T extends Parser> {
     private static final Logger LOG = Logger.getLogger(ParseTree.class.getName());
 
-    public T parseTree; //todo next drawer for parse tree with DOTTreeGenerator
+    public T parseTree; //todo now drawer for parse tree with DOTTreeGenerator
 
     public ParseTree(Reader reader) throws IOException {
         Lexer lexer = getLexer(reader);

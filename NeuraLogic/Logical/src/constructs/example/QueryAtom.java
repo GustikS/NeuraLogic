@@ -47,7 +47,7 @@ public class QueryAtom extends Query<LiftedExample, Template> {
         if (headAtom != null)
             sb.append(headAtom.toString());
         if (evidence != null)
-            sb.append(" <-" + evidence.toString());
+            sb.append(" <- " + evidence.toString());
         return sb.toString();
     }
 }

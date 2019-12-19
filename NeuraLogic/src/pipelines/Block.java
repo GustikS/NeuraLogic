@@ -1,7 +1,8 @@
 package pipelines;
 
 import settings.Settings;
-import utils.Exporter;
+import utils.exporting.Exportable;
+import utils.exporting.Exporter;
 
 import java.util.logging.Logger;
 
@@ -13,6 +14,17 @@ public abstract class Block {
     protected Pipeline parent;
     protected Exporter exporter;
     protected Settings settings;
+
+    protected <T> void export(T outputReady) {
+        if (outputReady instanceof Exportable) {
+            if (exporter == null && parent != null) {
+                exporter = Exporter.getFrom(this.ID, parent.settings);
+            }
+            if (exporter != null) {
+                ((Exportable) outputReady).export(this.exporter);
+            }
+        }
+    }
 
     @Override
     public String toString() {

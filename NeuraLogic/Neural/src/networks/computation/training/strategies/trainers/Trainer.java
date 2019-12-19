@@ -40,7 +40,7 @@ public class Trainer {
         if (settings.dropoutMode == Settings.DropoutMode.DROPOUT && settings.dropoutRate > 0) {
             dropoutSample(dropouter, neuralSample);
         }
-        invalidateSample(invalidation, neuralSample);   //todo next check why there is a huge number at init for outputValue
+        invalidateSample(invalidation, neuralSample);   //todo now check why there is a huge number at init for outputValue
         Result result = evaluateSample(evaluation, neuralSample);
         WeightUpdater weightUpdater = backpropSample(backpropagation, result, neuralSample);
         updateWeights(neuralModel, weightUpdater);

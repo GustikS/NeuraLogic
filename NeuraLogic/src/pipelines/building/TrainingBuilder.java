@@ -24,7 +24,7 @@ import utils.generic.Pair;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<Template, NeuralModel>,Progress>> {
+public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<Template, NeuralModel>, Progress>> {
     private static final Logger LOG = Logger.getLogger(TrainingBuilder.class.getName());
     Sources sources;
 
@@ -34,7 +34,7 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
     }
 
     @Override
-    public Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> buildPipeline(){
+    public Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> buildPipeline() {
         return buildPipeline(sources);
     }
 
@@ -151,7 +151,7 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
         }
     }
 
-    public class NeuralLearningBuilder extends AbstractPipelineBuilder<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Progress>>{
+    public class NeuralLearningBuilder extends AbstractPipelineBuilder<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Progress>> {
 
         public NeuralLearningBuilder(Settings settings) {
             super(settings);

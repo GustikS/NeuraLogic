@@ -4,6 +4,7 @@ import constructs.Conjunction;
 import constructs.example.LogicSample;
 import constructs.example.ValuedFact;
 import networks.computation.evaluation.values.ScalarValue;
+import networks.computation.evaluation.values.Value;
 import parsing.antlr.NeuralogicParser;
 import parsing.grammarParsing.PlainGrammarVisitor;
 import parsing.queries.PlainQueriesParseTree;
@@ -52,7 +53,7 @@ public class QueriesBuilder extends SamplesBuilder<PlainQueriesParseTree, Pair<V
     @Override
     public Stream<LogicSample> sampleFrom(Pair<ValuedFact, Conjunction> pair) {
 
-        if (pair.s.facts == null || pair.s.facts.size() == 0){
+        if (pair.s.facts == null || pair.s.facts.size() == 0) {
             LOG.severe("Cannot extract LogicSample(s) without a query provided!");
             return Stream.empty();
         }
@@ -65,7 +66,8 @@ public class QueriesBuilder extends SamplesBuilder<PlainQueriesParseTree, Pair<V
                     final double importance = ((ScalarValue) pair.r.getValue()).value;
                     return queries.map(f -> new LogicSample(f.getValue(), createQueryAtom(id, importance, f)));
                 } else {
-                    LOG.warning("Query with non-scalar target value not supported (yet)");
+                    if (pair.r.getValue() != Value.ONE)
+                        LOG.warning("Query with non-scalar target value not supported (yet)");
                     return queries.map(f -> new LogicSample(f.getValue(), createQueryAtom(id, f)));
                 }
             } else {
@@ -78,22 +80,22 @@ public class QueriesBuilder extends SamplesBuilder<PlainQueriesParseTree, Pair<V
     }
 
     private void inferInputFormatSettings(NeuralogicParser.QueriesFileContext queriesFileContext) {
-        if (queriesFileContext.atom() != null && !queriesFileContext.atom().isEmpty()){
+        if (queriesFileContext.atom() != null && !queriesFileContext.atom().isEmpty()) {
             LOG.info("Detecting queries to have Ids (to examples) with them!");
         }
         int size = queriesFileContext.conjunction().size();
-        if (size == 0){
+        if (size == 0) {
             LOG.warning("There are no queries in the queries source (file)!");
-        } else if (size == 1){
+        } else if (size == 1) {
             LOG.warning("There is only 1 query to learn from!");
         } else {
-            LOG.info("Detecting multiple independent queries.");
+            LOG.info("Detecting multiple independent queries (standard learning).");
         }
-        if (queriesFileContext.conjunction(0).atom().size() > 1){   //todo this is just a heuristic
+        if (queriesFileContext.conjunction(0).atom().size() > 1) {   //todo this is just a heuristic
             LOG.info("Detecting multiple individual queries per example.");
             settings.oneQueryPerExample = false;
         } else {
-            LOG.info("Heuristically detecting atomic queries (no batch queries)");
+            LOG.info("Heuristically detecting atomic queries (=no batch queries)");
             settings.oneQueryPerExample = true;
         }
     }

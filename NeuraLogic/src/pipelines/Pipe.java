@@ -1,6 +1,7 @@
 package pipelines;
 
 import settings.Settings;
+import utils.exporting.Exporter;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -18,13 +19,15 @@ import java.util.logging.Logger;
 public abstract class Pipe<I, O> extends Block implements Function<I, O>, ConnectBefore<I>, ConnectAfter<O> {
     private static final Logger LOG = Logger.getLogger(Pipe.class.getName());
 
-    protected Pipe(String id, Settings settings) {
-        this.settings = settings;
-        ID = id;
-    }
 
     protected Pipe(String id) {
-        ID = id;
+        this(id, null);
+    }
+
+    protected Pipe(String id, Settings settings) {
+        this.settings = settings;
+        this.ID = id;
+        this.exporter = Exporter.getFrom(id, settings);
     }
 
     /**
@@ -42,6 +45,9 @@ public abstract class Pipe<I, O> extends Block implements Function<I, O>, Connec
     public void accept(I input) {
         LOG.finer("Entering: " + ID);
         outputReady = apply(input);
+
+        super.export(outputReady);
+
         if (this.output != null) {
             this.output.accept(outputReady);
         }
@@ -49,7 +55,7 @@ public abstract class Pipe<I, O> extends Block implements Function<I, O>, Connec
 
     public O get() {
         if (outputReady == null) {
-            LOG.finer("The result of pipe " + ID + " is requested but not yet calculated (backtracking in the execution graph).");
+            LOG.finer("Backtracking pipe " + ID);
         }
         return outputReady;
     }
@@ -133,7 +139,7 @@ public abstract class Pipe<I, O> extends Block implements Function<I, O>, Connec
         }
     }
 
-    public List<Pipe<I, O>> parallel(int count){
+    public List<Pipe<I, O>> parallel(int count) {
         List<Pipe<I, O>> copies = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             Pipe<I, O> clone = new Pipe<I, O>(this.ID + i) {
@@ -146,8 +152,8 @@ public abstract class Pipe<I, O> extends Block implements Function<I, O>, Connec
         return copies;
     }
 
-    public static <T, A extends ConnectAfter<T>, B extends ConnectBefore<T>> void connect(List<A> prev, List<B> next){
-        if (prev.size() != next.size()){
+    public static <T, A extends ConnectAfter<T>, B extends ConnectBefore<T>> void connect(List<A> prev, List<B> next) {
+        if (prev.size() != next.size()) {
             LOG.severe("The 2 Lists of pipes provided cannot be connected with different sizes!");
         }
         for (int i = 0; i < prev.size(); i++) {

@@ -221,6 +221,6 @@ public class NeuralNetwork<N extends State.Neural.Structure> implements Example 
 
     @Override
     public String toString() {
-        return "net: " + id + ", neurons: " + neuronCount;
+        return "net:" + id + ", neurons: " + neuronCount;
     }
 }

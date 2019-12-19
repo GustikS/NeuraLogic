@@ -17,12 +17,6 @@ public abstract class Query<E extends Example, M extends Model> {
      */
     public int position;
 
-    @Deprecated
-    private Query(String id, double importance){
-        this.ID = id;
-        this.importance = importance;
-    }
-
     public Query(String id, int queryCounter, double importance, E evidence) {
         this.ID = id;
         this.position = queryCounter;

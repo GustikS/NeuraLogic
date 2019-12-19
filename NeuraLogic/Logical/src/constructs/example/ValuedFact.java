@@ -7,6 +7,7 @@ import networks.computation.evaluation.values.Value;
 import networks.structure.components.weights.Weight;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Created by gusta on 13.3.17.
@@ -15,34 +16,46 @@ import java.util.List;
  */
 public class ValuedFact extends Atom {
 
+    private static final Logger LOG = Logger.getLogger(Atom.class.getName());
     private Weight weight;
 
     public ValuedFact(WeightedPredicate weightedPredicate, List<Term> terms, boolean negated, Weight weight) {
         super(weightedPredicate, terms, negated);
-        this.weight = weight;
-        this.setValue(weight.value);
+        if (weight != null) {
+            this.weight = weight;
+            this.setValue(weight.value);
+        }
     }
 
     public Weight getOffset() {
         return offsettedPredicate.weight;
     }
 
-    public Value getFactValue() {
-        return getValue();
-    }
-
     public Value getValue() {
-        return weight.value;
+        if (weight != null)
+            return weight.value;
+        return null;
     }
 
     public void setValue(Value value) {
-        this.weight.value = value;
+        if (weight != null)
+            this.weight.value = value;
+        else {
+            LOG.warning("Setting a ValuedFact value without a weight");
+            this.weight = new Weight(-1, "foo", value, true, true);
+        }
     }
 
     @Override
     public String toString() {
-        String weightString = weight == null ? "" : weight.toString();
-        String offsetString = getOffset() == null ? "" : getOffset().toString();
-        return weightString + " : " + super.toString() + " + " + offsetString;
+        StringBuilder sb = new StringBuilder();
+        if (weight != null) {
+            sb.append("w:").append(weight.toString()).append(" : ");
+        }
+        sb.append(super.toString());
+        if (getOffset() != null) {
+            sb.append(getOffset().toString());
+        }
+        return sb.toString();
     }
 }
