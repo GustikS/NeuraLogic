@@ -240,7 +240,7 @@ public class TrainingDebuggerTest {
     @Test
     public void mutagen_vector_cross() {
         Logging logging = Logging.initLogging(Level.FINER);
-        String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples " +
+        String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples.txt " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/trainQueries.txt " +
                 "-t ./resources/datasets/relational/molecules/mutagenesis/template_vector_cross.txt").split(" ");
 
@@ -250,7 +250,7 @@ public class TrainingDebuggerTest {
 
         settings.seed = 0;
         settings.initLearningRate = 0.01;   //todo now make default initLearningRate change based on optimizer
-        settings.maxCumEpochCount = 1000;
+        settings.maxCumEpochCount = 100;
         settings.resultsRecalculationEpochae = 10;
         settings.shuffleEachEpoch = true;
         settings.debugSampleOutputs = false;

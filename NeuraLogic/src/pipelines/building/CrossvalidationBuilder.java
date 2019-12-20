@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 /**
  * Build CV pipeline w.r.t. given Sources and Settings
  */
-public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, TrainTestResults> {
+public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, TrainTestResults> {    //todo now in crossvalidation we need visitor access indexes on the level of pipelines!! So that two trainingPipelines can access the same neuron at the same time (i.e. minibatch dimension is also a fold dimension)
     private static final Logger LOG = Logger.getLogger(CrossvalidationBuilder.class.getName());
     private Sources sources;
 

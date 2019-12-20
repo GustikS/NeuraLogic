@@ -53,7 +53,7 @@ public class Settings {
     /**
      * How detailed the log should be in general
      */
-    public static Level loggingLevel = Level.FINEST;
+    public static Level loggingLevel = Level.FINER;
     /**
      * Colorful console output?
      */
@@ -93,6 +93,11 @@ public class Settings {
 
     //------------------Drawing/Debugging
 
+    /**
+     * This will prevent from searching for graphviz executable
+     */
+    public boolean drawing = false;
+
     public boolean debugPipeline = false;
 
     public boolean debugTemplate = false;
@@ -104,7 +109,7 @@ public class Settings {
     /**
      * Just print sample output values after each recalculation of true results
      */
-    public boolean debugSampleOutputs;
+    public boolean debugSampleOutputs = false;
 
     /**
      * If on, multiple intermediate spots within the current debugging pipeline might trigger the debugger,
@@ -149,7 +154,7 @@ public class Settings {
      * Global random generator
      */
     public Random random;
-    public int seed = 1;
+    public int seed = 0;
     /**
      * Global number formats for all printing
      */
@@ -264,7 +269,7 @@ public class Settings {
     /**
      * A whole pipeline of all postprocessing steps
      */
-    public boolean neuralNetsPostProcessing = false;    //todo at least one must be ON
+    public boolean neuralNetsPostProcessing = true;    //todo at least one must be ON
     /**
      * Remove everything outside QueryNeuron's support (can appear if network have shared parts)
      */
@@ -284,11 +289,11 @@ public class Settings {
     /**
      * Remove unnecessary parts from the networks (e.g. linear chains)
      */
-    public boolean chainPruning;
+    public boolean chainPruning = true;
     /**
      * Bottom-up value based sub-graph isomorphism collapsing (merging)
      */
-    public boolean isoValueCompression;
+    public boolean isoValueCompression = true;
     /**
      * Top-down value (gradient) based sub-graph isomorphism collapsing (merging)
      */
@@ -413,7 +418,7 @@ public class Settings {
     /**
      * Over all the restarts, how many epoch can be done at maximum.
      */
-    public int maxCumEpochCount = 20;
+    public int maxCumEpochCount = 2000;
 
     /**
      * Shuffle samples before neural training (only turn off for debugging purposes)
@@ -424,7 +429,7 @@ public class Settings {
      * with Minibatch = Shuffle samples with each epoch to create different minibatches.
      * with SGD = Shuffle samples with each epoch to pass the samples in different orders (=shuffle even for the SGD mode)
      */
-    public boolean shuffleEachEpoch;
+    public boolean shuffleEachEpoch = true;
 
     public boolean islearnRateDecay = false;
 
@@ -460,11 +465,11 @@ public class Settings {
      */
     public double constantInitValue = 0.1;
 
-    public double initLearningRate = 0.1;
+    public double initLearningRate = 0.01;
 
     public double dropoutRate = 0.0;
 
-    public OptimizerSet optimizer = OptimizerSet.SGD;
+    public OptimizerSet optimizer = OptimizerSet.ADAM;
 
     public enum OptimizerSet {
         SGD, ADAM
@@ -487,7 +492,7 @@ public class Settings {
      * Whether to search for best threshold splitting between positive and negative samples in binary classification
      * that maximizes accuracy (to be reported then), instead of simple 0.5 threshold
      */
-    public boolean calculateBestThreshold;
+    public boolean calculateBestThreshold = true;   //todo now only do with recalculation of true results!
 
     public ErrorFcn errorFunction = ErrorFcn.SQUARED_DIFF;
 
@@ -555,13 +560,17 @@ public class Settings {
     //----------------Crossvaldiation
 
     /**
+     * If false, the x-val folds will always be the same!
+     */
+    public boolean shuffleBeforeFoldSplit = true;
+    /**
      * Number of folds for crossvaldiation
      */
     public int foldsCount = 5;
     /**
      * Assemble folds w.r.t. class distribution
      */
-    public boolean stratification = false;
+    public boolean stratification = true;
     public boolean exportFolds = true;
     /**
      * Are the train folds to be completely isolated, even though they share common subsets? (test folds are always isolated).
@@ -602,7 +611,7 @@ public class Settings {
     /**
      * There is exactly 1 query per each example (allows for some speedup in merging)
      */
-    public boolean oneQueryPerExample;
+    public boolean oneQueryPerExample = true;
     /**
      * Queries and Examples are 1-1 and also ordered correspondingly (allows to just merge the 2 streams without terminating them)
      */
@@ -633,6 +642,10 @@ public class Settings {
     }
 
     public void setupFromCommandline(CommandLine cmd) {
+
+        if (cmd.hasOption("out")) {
+            outDir = cmd.getOptionValue("out");
+        }
 
         if (cmd.hasOption("xval")) {
             String _xval = cmd.getOptionValue("xval", String.valueOf(foldsCount));
@@ -770,8 +783,15 @@ public class Settings {
         if (groundingMode == GroundingMode.SEQUENTIAL) {
             forceFullNetworks = true;   //if we sequentially add new facts/rules, and then after grounding we take just the diff, the rules might not be connected, i.e. we need to turn them all blindly to neurons.
         }
+
+        //in case the outDir changed...
+        resultFile = outDir + "/results";
+        tmpFile = outDir + "/tmpFile";
+        console = outDir + "/consoleOutput";
+        exportDir = outDir + "/export";
+
 //        resultsRecalculationEpochae = maxCumEpochCount / 100;
-        //TODO
+        //todo
     }
 
     public void importFromCSV(String inPath) {

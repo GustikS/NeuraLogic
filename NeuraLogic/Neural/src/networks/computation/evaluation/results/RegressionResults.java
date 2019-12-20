@@ -27,7 +27,7 @@ public class RegressionResults extends Results {
 
     @Override
     public boolean betterThan(Results other) {
-        return other.error.greaterThan(error);
+        return other.error.greaterThan(error);      //todo now fail sooner then here if no entailed examples! :)
     }
 
     @Override

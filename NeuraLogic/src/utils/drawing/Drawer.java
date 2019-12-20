@@ -15,29 +15,30 @@ public abstract class Drawer<S> {   //todo next replace hashcodes (which collide
 
     private static final Logger LOG = Logger.getLogger(Drawer.class.getName());
 
-    protected final NumberFormat numberFormat;
+    protected NumberFormat numberFormat;
     protected Settings.Detail drawingDetail;
     protected boolean storeNotShow;
 
-    protected final GraphViz graphviz;
-    public final Settings settings;
+    protected GraphViz graphviz;
+    public Settings settings;
 
     public Drawer(Settings settings) {
         this.settings = settings;
-        this.graphviz = new GraphViz(settings);
+        if (settings.drawing) {
+            this.graphviz = new GraphViz(settings);
+
+            Logger.getLogger("java.awt").setLevel(Level.WARNING);
+            Logger.getLogger("sun.awt").setLevel(Level.WARNING);
+            Logger.getLogger("javax.swing").setLevel(Level.WARNING);
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
+            }
+        }
 
         this.numberFormat = Settings.shortNumberFormat;
         this.drawingDetail = settings.drawingDetail;
         this.storeNotShow = settings.storeNotShow;
-
-
-        Logger.getLogger("java.awt").setLevel(Level.WARNING);
-        Logger.getLogger("sun.awt").setLevel(Level.WARNING);
-        Logger.getLogger("javax.swing").setLevel(Level.WARNING);
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
-        }
     }
 
     public void display(byte[] imageBytes, String name) {
@@ -52,6 +53,10 @@ public abstract class Drawer<S> {   //todo next replace hashcodes (which collide
     }
 
     public void draw(S obj) {
+        if (graphviz == null) {
+            LOG.warning("Drawing is required but no graphviz, could not draw!");
+            return;
+        }
         this.graphviz.clearGraph();
         loadGraph(obj);
         try {
@@ -60,7 +65,7 @@ public abstract class Drawer<S> {   //todo next replace hashcodes (which collide
                 graphviz.storeGraphSource(obj.toString());
                 byte[] image = graphviz.getGraphUsingTemporaryFile(graphviz.getDotSource(), graphviz.imgtype, graphviz.algorithm);
                 graphviz.writeImageToFile(image, obj.toString());
-                LOG.info("Graph stored into file named: " + obj.toString() );
+                LOG.info("Graph stored into file named: " + obj.toString());
             } else {
                 display(graphviz.getGraphImage(obj.toString()), obj.toString());
             }

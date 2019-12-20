@@ -118,7 +118,7 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
                         LOG.warning("Stratified subset requested, will need to consume the stream of LogicSamples first...");
                         List<LogicSample> collect = logicSampleStream.collect(Collectors.toList());
                         Collections.shuffle(collect, settings.random);
-                        StratifiedSplitter<LogicSample> stratifiedSplitter = new StratifiedSplitter<>();
+                        StratifiedSplitter<LogicSample> stratifiedSplitter = new StratifiedSplitter<>(settings);
                         List<LogicSample> stratifiedSubset = stratifiedSplitter.getStratifiedSubset(collect, settings.appLimitSamples);
                         LOG.info("Limited to exactly " + stratifiedSubset.size() + " samples (may be slightly different from the requested " + settings.appLimitSamples + " due to class balancing)");
                         logicSampleStream = stratifiedSubset.stream();

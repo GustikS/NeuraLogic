@@ -19,9 +19,9 @@ public class GraphViz {
 
     private static final Logger LOG = Logger.getLogger(GraphViz.class.getName());
 
-    private static final GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-    private static final int width = gd.getDisplayMode().getWidth();
-    private static final int height = gd.getDisplayMode().getHeight();
+    GraphicsDevice gd;
+    int width;
+    int height;
 
     /**
      * The image size in dpi. 96 dpi is normal size. Higher values are 10% higher each.
@@ -85,6 +85,10 @@ public class GraphViz {
         this.imgtype = settings.imgType;
         this.fix2ScreenSize = settings.fix2ScreenSize;
         this.storeImage = settings.storeNotShow;
+
+        gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        width = gd.getDisplayMode().getWidth();
+        height = gd.getDisplayMode().getHeight();
     }
 
     private static String getGraphvizExecutable(Settings settings) {

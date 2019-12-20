@@ -2,6 +2,7 @@ package learning.crossvalidation.splitting;
 
 import learning.LearningSample;
 import networks.computation.evaluation.values.Value;
+import settings.Settings;
 import utils.generic.Pair;
 
 import java.util.*;
@@ -14,11 +15,20 @@ import java.util.stream.Stream;
  */
 public class StratifiedSplitter<T extends LearningSample> implements Splitter<T> {
     private static final Logger LOG = Logger.getLogger(StratifiedSplitter.class.getName());
+    private Settings settings;
+
+    public StratifiedSplitter(Settings settings) {
+        this.settings = settings;
+    }
 
     @Override
     public List<Stream<T>> partition(Stream<T> samples, int foldCount) {
-        List<List<T>> partition = partition(samples.collect(Collectors.toList()), foldCount);
-        return partition.stream().map(l -> l.stream()).collect(Collectors.toList());
+        List<T> collect = samples.collect(Collectors.toList());
+        if (settings.shuffleBeforeFoldSplit) {
+            Collections.shuffle(collect, settings.random);
+        }
+        List<List<T>> partition = partition(collect, foldCount);
+        return partition.stream().map(Collection::stream).collect(Collectors.toList());
     }
 
     @Override

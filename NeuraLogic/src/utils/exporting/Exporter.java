@@ -104,6 +104,7 @@ public class Exporter {
     public void export(TrainTestResults trainTestResults) {
         resultsLine("TrainTestResults:");
         trainTestResults.training.bestResults.export(this);
+        resultsLine("Testing:");
         trainTestResults.testing.export(this);
     }
 

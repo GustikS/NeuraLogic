@@ -33,6 +33,8 @@ public class CommandLineHandler {
     public Options getOptions(Settings settings) {
         Options options = new Options();
 
+        options.addOption(new Option("out", "outputFolder", true, "output folder for logging and exporting (" + settings.outDir + ")"));
+
         options.addOption(new Option("mode", "pipelineMode", true, "main mode of the program [complete, neuralization, debug] (" + settings.mainMode + ")"));
 
         options.addOption("debug", "debugMode", true, "debug some objects within the pipeline during the run [template, grounding, neuralization, samples, model]");

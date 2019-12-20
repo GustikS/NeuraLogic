@@ -1,6 +1,7 @@
 package learning.crossvalidation.splitting;
 
 import learning.LearningSample;
+import settings.Settings;
 import utils.generic.Pair;
 
 import java.util.List;
@@ -9,6 +10,11 @@ import java.util.stream.Stream;
 
 public class LinearSplitter<T extends LearningSample> implements Splitter<T> {
     private static final Logger LOG = Logger.getLogger(LinearSplitter.class.getName());
+    private Settings settings;
+
+    public LinearSplitter(Settings settings) {
+        this.settings = settings;
+    }
 
     @Override
     public List<Stream<T>> partition(Stream<T> samples, int foldCount) {
