@@ -130,8 +130,17 @@ public class MainTest {
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/queries " +
                 "-t ./resources/datasets/relational/molecules/mutagenesis/template_vector_cross " +
-                " -out ./out/jair -ts 1000 -xval 5").split(" ");
+                " -out ./out/jair -ts 500 -xval 5").split(" ");
 
-        Main.main(args);
+        Settings settings = new Settings();
+
+        settings.optimizer = Settings.OptimizerSet.ADAM;
+        settings.initLearningRate = 0.01;
+
+        settings.neuralNetsPostProcessing = true;
+        settings.isoValueCompression = false;
+        settings.chainPruning = true;
+
+        Main.main(args, settings);
     }
 }

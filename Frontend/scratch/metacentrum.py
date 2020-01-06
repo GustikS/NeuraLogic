@@ -30,8 +30,8 @@ scratch = "50mb"
 nodes = "1:ncpus=1"
 
 # template setup
-template_id = "orig_template"
-template_file = "template_vector_cross"
+template_file = "template_vector_element10"
+template_id = template_file
 
 params = " -xval 5"
 
@@ -59,7 +59,9 @@ for dataset in datasets:
     script = "cd " + jarpath_remote + "\n"
     script += "module add jdk-8\n"
 
-    script += "java -XX:+UseSerialGC -XX:NewSize=2000m -Xms" + memory_min + " -Xmx" + memory_max + \
+    script += "sleep 20\n"
+
+    script += "java -XX:+UseSerialGC -XX:-BackgroundCompilation -XX:NewSize=2000m -Xms" + memory_min + " -Xmx" + memory_max + \
               " -jar " + jarname + " -t " + template_path + " -e " + examples_path + " -q " + queries_path + \
               " -out " + export_path \
               + params

@@ -58,7 +58,7 @@ public abstract class Results implements Exportable<Results> {
 
     public void printOutputs() {
         for (Result evaluation : evaluations) {
-            LOG.finer(evaluation.sampleId + " : target: " + evaluation.target + " output: " + evaluation.output);
+            LOG.finer(evaluation.sampleId + " : target: " + evaluation.target + " output: " + evaluation.output.toDetailedString());
         }
     }
 

@@ -48,12 +48,14 @@ public abstract class Value implements Iterable<Double> {   //todo add division
 
     /**
      * Transpose this Value
+     *
      * @return
      */
     public abstract void transpose();
 
     /**
      * Returns a transposed view on the same data (except for matrix values, which throws an error instead)
+     *
      * @return
      */
     public abstract Value transposedView();
@@ -75,6 +77,7 @@ public abstract class Value implements Iterable<Double> {   //todo add division
 
     /**
      * Since Value is Iterable<Double>, we can access i-th element
+     *
      * @param i
      * @return
      */
@@ -82,6 +85,7 @@ public abstract class Value implements Iterable<Double> {   //todo add division
 
     /**
      * Set i-th element
+     *
      * @param i
      * @param value
      */
@@ -89,6 +93,7 @@ public abstract class Value implements Iterable<Double> {   //todo add division
 
     /**
      * A faster shortcut to get+set for incrementation of particular element
+     *
      * @param i
      * @param value
      */
@@ -96,6 +101,14 @@ public abstract class Value implements Iterable<Double> {   //todo add division
 
     @Override
     public abstract String toString();
+
+    /**
+     * Can be used for debugging
+     * @return
+     */
+    public String toDetailedString() {
+        return toString();
+    }
 
     /**
      * CONSTRUCTIVE multiplication, i.e. creation of a NEW Value under the hood to be returned.
@@ -115,6 +128,7 @@ public abstract class Value implements Iterable<Double> {   //todo add division
 
     /**
      * ELEMENT-wise product
+     *
      * @param value
      * @return
      */
@@ -237,7 +251,7 @@ public abstract class Value implements Iterable<Double> {   //todo add division
 
         @Override
         public double get(int i) {
-            if (i != 0){
+            if (i != 0) {
                 LOG.severe("Scalar value: asking for i-th element!");
             }
             return one.value;
@@ -245,7 +259,7 @@ public abstract class Value implements Iterable<Double> {   //todo add division
 
         @Override
         public void set(int i, double value) {
-            if (i != 0){
+            if (i != 0) {
                 LOG.severe("Scalar value: asking for i-th element!");
             }
             LOG.warning("Trying to set value i constant ONE");
@@ -435,7 +449,7 @@ public abstract class Value implements Iterable<Double> {   //todo add division
 
         @Override
         public double get(int i) {
-            if (i != 0){
+            if (i != 0) {
                 LOG.severe("Scalar value: asking for i-th element!");
             }
             return zero.value;
@@ -443,7 +457,7 @@ public abstract class Value implements Iterable<Double> {   //todo add division
 
         @Override
         public void set(int i, double value) {
-            if (i != 0){
+            if (i != 0) {
                 LOG.severe("Scalar value: asking for i-th element!");
             }
             LOG.warning("Trying to set value i constant ONE");
@@ -451,7 +465,7 @@ public abstract class Value implements Iterable<Double> {   //todo add division
 
         @Override
         public void increment(int i, double value) {
-            if (i != 0){
+            if (i != 0) {
                 LOG.severe("Scalar value: asking for i-th element!");
             }
             LOG.warning("Trying to increment value i constant ONE");

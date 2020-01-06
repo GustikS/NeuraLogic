@@ -150,13 +150,16 @@ public class TrainingDebuggerTest {
 
         settings.initDistribution = Settings.InitDistribution.CONSTANT;
 
-        settings.seed = 0;
-        settings.initLearningRate = 0.3;
-        settings.maxCumEpochCount = 1000;
-        settings.resultsRecalculationEpochae = 1;
+        settings.seed = 0;  //the seed shouldn't matter here!
+        settings.shuffleBeforeFoldSplit = false;
+        settings.shuffleBeforeTraining = false;
         settings.shuffleEachEpoch = false;
         settings.debugSampleOutputs = true;
-        settings.calculateBestThreshold = true;
+
+        settings.initLearningRate = 0.3;
+        settings.maxCumEpochCount = 100;
+        settings.resultsRecalculationEpochae = 1;
+        settings.calculateBestThreshold = false;
 //        settings.appLimitSamples = 100;
         settings.initializer = Settings.InitSet.SIMPLE;
         settings.optimizer = Settings.OptimizerSet.SGD;
@@ -164,8 +167,47 @@ public class TrainingDebuggerTest {
 
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = true;
+        settings.isoValueCompression = false;
         settings.chainPruning = true;
         settings.storeNotShow = true;
+
+        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        trainingDebugger.executeDebug();
+    }
+
+    @Test
+    public void mutagen_diffcheck_mods() {
+        Logging logging = Logging.initLogging(Level.FINER);
+        String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples3 " +
+//                "-q ./resources/datasets/relational/molecules/mutagenesis/trainQueries.txt " +
+//                "-t ./resources/datasets/relational/molecules/mutagenesis/template_new.txt").split(" ");
+                "-t ./resources/datasets/relational/molecules/mutagenesis/template_vector_cross.txt").split(" ");
+
+        Settings settings = new Settings();
+
+        settings.initDistribution = Settings.InitDistribution.CONSTANT;
+
+        settings.seed = 0;  //the seed shouldn't matter here!
+        settings.shuffleBeforeFoldSplit = false;
+        settings.shuffleBeforeTraining = false;
+        settings.shuffleEachEpoch = false;
+
+        settings.debugSampleOutputs = true;
+        settings.storeNotShow = true;
+
+        settings.initLearningRate = 0.3;
+        settings.maxCumEpochCount = 100;
+        settings.resultsRecalculationEpochae = 1;
+        settings.calculateBestThreshold = false;
+//        settings.appLimitSamples = 100;
+        settings.initializer = Settings.InitSet.SIMPLE;
+        settings.optimizer = Settings.OptimizerSet.SGD;
+        settings.iterationMode = Settings.IterationMode.TOPOLOGIC;  //tested as equivalent to DFS
+
+        settings.oneQueryPerExample = true;
+        settings.neuralNetsPostProcessing = true;
+        settings.isoValueCompression = false;
+        settings.chainPruning = true;
 
         TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
         trainingDebugger.executeDebug();

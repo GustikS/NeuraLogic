@@ -70,7 +70,7 @@ public class DFSrecursion {
                 weight = inputWeights.next();
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
 
-                weightUpdater.visit(weight, gradient.times(computationView.getValue()));
+                weightUpdater.visit(weight, gradient.times(computationView.getValue()));    //todo speedup multiply this after checking if learnable
                 computationView.storeGradient(gradient.times(weight.value));
 
                 if (computationView.ready4expansion(stateVisitor)) {

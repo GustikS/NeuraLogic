@@ -7,9 +7,11 @@ mypath = '/home/gusta/data/jair'
 experiment_id = "jair_revived"
 template_output_path = '/home/gusta/data/experiments/' + experiment_id + "/templates"
 
+template_name = "template_vector_element10"
+
 # %% TEMPLATE GENERATION
 
-dim = "{3,1}"
+dim = "{10,1}"
 
 for d in listdir(mypath):
 
@@ -37,17 +39,21 @@ for d in listdir(mypath):
 
     template.append("bond_embed/1 " + dim)
 
-    with open(os.path.join(mypath, d, "embeddings"), 'w') as f:
-        f.write("\n".join(template))
+    # with open(os.path.join(mypath, d, "embeddings"), 'w') as f:
+    #     f.write("\n".join(template))
 
+
+    # template.append(
+    #     "{1,1024} predict :- atom_embed(A), bond(A,B,X), bond_embed(X), atom_embed(B), bond(B,C,Y), bond_embed(Y), atom_embed(C), <-7>.  [activation=crossproduct-sigmoid]")
 
     template.append(
-        "{1,243} predict :- atom_embed(A), bond(A,B,X), bond_embed(X), atom_embed(B), bond(B,C,Y), bond_embed(Y), atom_embed(C), <-7>.  [activation=crossproduct-sigmoid]")
+        "{1,10} predict :- atom_embed(A), bond(A,B,X), bond_embed(X), atom_embed(B), bond(B,C,Y), bond_embed(Y), atom_embed(C).")
+
     template.append("predict/0 {1}")
 
     directory = os.path.join(template_output_path, d)
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    with open(os.path.join(directory, "template_vector_cross"), 'w') as f:
+    with open(os.path.join(directory, template_name), 'w') as f:
         f.write("\n".join(template))

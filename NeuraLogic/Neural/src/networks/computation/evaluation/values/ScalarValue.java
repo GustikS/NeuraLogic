@@ -122,6 +122,11 @@ public class ScalarValue extends Value {
         return Settings.detailedNumberFormat.format(value);
     }
 
+    @Override
+    public String toDetailedString() {
+        return Settings.superDetailedNumberFormat.format(value);
+    }
+
     /**
      * Default Double Dispatch
      *

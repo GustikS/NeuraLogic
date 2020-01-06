@@ -158,6 +158,8 @@ public class Settings {
     /**
      * Global number formats for all printing
      */
+    public static NumberFormat superDetailedNumberFormat = new DecimalFormat("#.################");
+
     public static NumberFormat detailedNumberFormat = new DecimalFormat("#.##########");
 
     public static NumberFormat shortNumberFormat = new DecimalFormat("#.##");
@@ -246,7 +248,7 @@ public class Settings {
      * Naturally this only applies if the offset is not specified by the user in the template explicitly.
      * This offset setting has higher priority (comes first) than setting defaultRuleNeuronOffset (applied later)
      */
-    public boolean ruleAdaptiveOffset = true;
+    public boolean ruleAdaptiveOffset = false;
 
     /**
      * Setup this default offset value if not explicitly specified in the template
@@ -293,7 +295,7 @@ public class Settings {
     /**
      * Bottom-up value based sub-graph isomorphism collapsing (merging)
      */
-    public boolean isoValueCompression = true;
+    public boolean isoValueCompression = false;
     /**
      * Top-down value (gradient) based sub-graph isomorphism collapsing (merging)
      */
@@ -301,7 +303,7 @@ public class Settings {
     /**
      * Detect identical input neurons and merge them into a single neuron with accumulated weight.
      */
-    public boolean mergeIdenticalWeightedInputs = true;
+    public boolean mergeIdenticalWeightedInputs = false;    //todo next warning this changes gradient/learning progress on diffcheck! test why!
     /**
      * If no weights are associated with the input neurons, i.e. no summing possible, prune out the identities (or keep them)
      */
