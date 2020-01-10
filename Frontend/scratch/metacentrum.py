@@ -22,15 +22,15 @@ jarpath_remote = remote_path + "experiments/" + experiment_id + "/artifacts/"
 
 # experiments parameters
 memory_min = "4g"
-memory_max = "8g"
-walltime = "24:00:00"
+memory_max = "32g"
+walltime = "48:00:00"
 
 memory = memory_max + "b"
 scratch = "50mb"
 nodes = "1:ncpus=1"
 
 # template setup
-template_file = "template_vector_element10"
+template_file = "template_vector_cross"
 template_id = template_file
 
 params = " -xval 5"

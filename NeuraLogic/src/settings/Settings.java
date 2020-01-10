@@ -297,6 +297,10 @@ public class Settings {
      */
     public boolean isoValueCompression = false;
     /**
+     * If the isoValueCompression is performed, check whether the merged neurons are truly equivalent
+     */
+    public boolean losslessIsoCompression = true;
+    /**
      * Top-down value (gradient) based sub-graph isomorphism collapsing (merging)
      */
     public boolean isoGradientCompression;
@@ -356,7 +360,11 @@ public class Settings {
     /**
      * Number of iterations for iso-value compression
      */
-    public int isoValuePrecision = 2;
+    public int isoValueInits = 2;
+    /**
+     * Number of decimal digits to check to consider two neurons to have the same output value
+     */
+    public int isoDecimals = 10;
 
     //-----------------Evaluation & Training
 
@@ -373,7 +381,7 @@ public class Settings {
     /**
      * Recalculate results after every N epochae
      */
-    public int resultsRecalculationEpochae = 10;
+    public int resultsRecalculationEpochae = 100;
 
     /**
      * Default algorithm for neural cache searching
@@ -420,7 +428,7 @@ public class Settings {
     /**
      * Over all the restarts, how many epoch can be done at maximum.
      */
-    public int maxCumEpochCount = 2000;
+    public int maxCumEpochCount = 3000;
 
     /**
      * Shuffle samples before neural training (only turn off for debugging purposes)
@@ -467,11 +475,11 @@ public class Settings {
      */
     public double constantInitValue = 0.1;
 
-    public double initLearningRate = 0.01;
+    public double initLearningRate = 0.3;
 
     public double dropoutRate = 0.0;
 
-    public OptimizerSet optimizer = OptimizerSet.ADAM;
+    public OptimizerSet optimizer = OptimizerSet.SGD;
 
     public enum OptimizerSet {
         SGD, ADAM
@@ -683,6 +691,33 @@ public class Settings {
                 break;
         }
 
+        String _weightInit = cmd.getOptionValue("weightInit", String.valueOf(initDistribution));
+        switch (_weightInit.toLowerCase()) {
+            case "uniform":
+                initDistribution = InitDistribution.UNIFORM;
+                break;
+            case "constant":
+                initDistribution = InitDistribution.CONSTANT;
+                break;
+            default:
+                LOG.severe("unrecognized init distribution: " + _weightInit);
+        }
+
+        String _optimizer = cmd.getOptionValue("weightInit", String.valueOf(optimizer));
+        switch (_optimizer.toLowerCase()) {
+            case "sgd":
+                optimizer = OptimizerSet.SGD;
+                break;
+            case "adam":
+                optimizer = OptimizerSet.ADAM;
+                break;
+            default:
+                LOG.severe("unrecognized optimizer: " + _optimizer);
+        }
+
+        String _learningRate = cmd.getOptionValue("learningRate", String.valueOf(initLearningRate));
+        initLearningRate = Double.parseDouble(_learningRate);
+
         String _trainingSteps = cmd.getOptionValue("trainingSteps", String.valueOf(maxCumEpochCount));
         maxCumEpochCount = Integer.parseInt(_trainingSteps);
 
@@ -712,28 +747,60 @@ public class Settings {
         }
 
         String _mode = cmd.getOptionValue("mode", String.valueOf(mainMode));
-        switch (_mode) {
+        switch (_mode.toLowerCase()) {
             case "complete":
                 mainMode = MainMode.COMPLETE;
+                break;
             case "neuralization":
                 mainMode = MainMode.NEURALIZATION;
+                break;
             case "debug":
                 mainMode = MainMode.DEBUGGING;
+                break;
         }
 
-        String _debug = cmd.getOptionValue("debug", String.valueOf(""));
-        switch (_debug) {
-            case "template":
-                debugTemplate = true;
-            case "grounding":
-                debugGrounding = true;
-            case "neuralization":
-                debugNeuralization = true;
-            case "samples":
-                debugSampleTraining = true;
-            case "model":
-                debugTemplateTraining = true;
+        if (cmd.hasOption("debug")) {
+            String _debug = cmd.getOptionValue("debug");
+            switch (_debug) {
+                case "template":
+                    debugTemplate = true;
+                    break;
+                case "grounding":
+                    debugGrounding = true;
+                    break;
+                case "neuralization":
+                    debugNeuralization = true;
+                    break;
+                case "samples":
+                    debugSampleTraining = true;
+                    break;
+                case "model":
+                    debugTemplateTraining = true;
+                    break;
+            }
         }
+
+        if (cmd.hasOption("isoCompression")) {
+            String _isoCompression = cmd.getOptionValue("isoCompression", String.valueOf(isoDecimals));
+            isoDecimals = Integer.parseInt(_isoCompression);
+            if (isoDecimals > 0) {
+                neuralNetsPostProcessing = true;
+                isoValueCompression = true;
+            } else {
+                isoValueCompression = false;
+            }
+        }
+        if (cmd.hasOption("chainPruning")) {
+            String _pruning = cmd.getOptionValue("chainPruning", String.valueOf(chainPruning));
+            int prune = Integer.parseInt(_pruning);
+            if (prune > 0) {
+                neuralNetsPostProcessing = true;
+                chainPruning = true;
+            } else {
+                chainPruning = false;
+            }
+        }
+
 
         //todo fill all the settings
     }

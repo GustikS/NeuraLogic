@@ -51,8 +51,9 @@ public class CommandLineHandler {
 
         //-----------selection of one of evaluation modes
         OptionGroup evalGroup = new OptionGroup();
-        // with test file given
-        evalGroup.addOption(new Option("test", "testQueries", true, "file with test trainQueries (" + settings.testQueriesFile + ")"));
+        // with test files given
+        evalGroup.addOption(new Option("tq", "testQueries", true, "file with test queries (" + settings.testQueriesFile + ")"));
+        evalGroup.addOption(new Option("te", "testExamples", true, "file with test examples (" + settings.testExamplesFile + ")"));
         // with crossvalidation folds given
         evalGroup.addOption(Option.builder("folds").optionalArg(true).longOpt("foldPrefix").numberOfArgs(1).desc("folds folder names prefix (" + settings.foldsPrefix + ")").build());
         // with single file to xval split given
@@ -64,11 +65,18 @@ public class CommandLineHandler {
         options.addOption(new Option("ga", "groundingAlgorithm", true, "groundings algorithm [BUp, TDown, Gringo] (" + "BUp" + ")"));
 
         //training
+        options.addOption(new Option("init", "weightInit", true, "distribbution for weight initialization [uniform, longtail, constant] (" + settings.initDistribution + ")"));
+        options.addOption(new Option("opt", "optimizer", true, "optimization algorithm (" + settings.optimizer + ")"));
+        options.addOption(new Option("lr", "learningRate", true, "initial learning rate (" + settings.initLearningRate + ")"));
         options.addOption(new Option("ts", "trainingSteps", true, "cumulative number of epochae in neural training (" + settings.maxCumEpochCount + ")"));
 
         //evaluation
         options.addOption(new Option("em", "evaluationMode", true, "evaluation is either [regression, classification] (" + "classification" + ")"));
         options.addOption(new Option("ef", "errorFunction", true, "type of error function [MSE, XEnt] (" + "MSE" + ")"));
+
+        //compression
+        options.addOption(new Option("iso", "isoCompression", true, "iso-value network compression (lifting), number of decimal digits (" + settings.isoDecimals + ")"));
+        options.addOption(new Option("prune", "chainPruning", true, "linear chain network pruning (" + (settings.chainPruning ? 1 : 0) + ")"));
 
         //todo rest of the commandline options that might be useful
 

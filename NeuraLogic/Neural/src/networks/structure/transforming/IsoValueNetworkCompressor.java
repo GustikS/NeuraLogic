@@ -9,11 +9,13 @@ import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.QueryNeuron;
+import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.neurons.types.AtomNeurons;
 import networks.structure.components.types.DetailedNetwork;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
 import settings.Settings;
+import utils.generic.Pair;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -29,14 +31,16 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
     private final Evaluation evaluation;
     final Settings settings;
     private ValueInitializer valueInitializer;
-    public int precision;
+    public int repetitions;
+    public int decimals;
 
     public IsoValueNetworkCompressor(Settings settings) {
         this.settings = settings;
         this.valueInitializer = ValueInitializer.getInitializer(settings);
         this.invalidation = new IndependentNeuronProcessing(settings, new Invalidator(-1));
         this.evaluation = new Evaluation(settings, -1);
-        this.precision = settings.isoValuePrecision;
+        this.repetitions = settings.isoValueInits;
+        this.decimals = settings.isoDecimals;
     }
 
     @Override
@@ -53,14 +57,15 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
         int sizeBefore = inet.allNeuronsTopologic.size();
 
         isoIteration(inet, allWeights, queryNeuron, isoValues);
-        Map<Neurons, Neurons> isoNeurons = mergeNeurons(inet, isoValues);
-        LinkedHashSet<Neurons> etalons = new LinkedHashSet<>(isoNeurons.values());
+        Map<Neurons, Neurons> etalonMap = mergeNeurons(inet, isoValues);
+
+        LinkedHashSet<Neurons> etalons = new LinkedHashSet<>(etalonMap.values());
 
         //lastly remove all the dead (pruned) neurons by building a new topologic sort starting from output neuron
         NetworkReducing.supervisedNetPruning(inet, (BaseNeuron) outputStart);
 
         LOG.info("IsoValue neuron compression from " + sizeBefore + " down to " + etalons.size() + " (topologic-check: " + inet.allNeuronsTopologic.size() + ")");
-        if (etalons.size() != inet.allNeuronsTopologic.size()){
+        if (etalons.size() != inet.allNeuronsTopologic.size()) {
             LOG.warning("Some inconsistencies appeared during iso-value compression of neurons! (size of unique values != size of topologic reconstruction)");
         }
         return inet;
@@ -83,6 +88,16 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
             }
         }
 
+        if (settings.losslessIsoCompression)
+            safeCompression(inet, isoValues, isoNeurons, etalonMap);
+        else
+            unsafeCompression(inet, etalonMap);
+
+
+        return etalonMap;
+    }
+
+    private void unsafeCompression(DetailedNetwork<State.Structure> inet, Map<Neurons, Neurons> etalonMap) {
         for (BaseNeuron<Neurons, State.Neural> neuron : inet.allNeuronsTopologic) { // over all neurons
             Neurons etalonReplacement = etalonMap.get(neuron);
             Iterator<Neurons> outputs = inet.getOutputs(neuron);
@@ -95,11 +110,103 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
                 inet.outputMapping.remove(neuron);  //just to make sure
             }
         }
-        return etalonMap;
+    }
+
+    private void safeCompression(DetailedNetwork<State.Structure> inet, Map<Neurons, ValueList> isoValues, Map<ValueList, List<Neurons>> isoNeurons, Map<Neurons, Neurons> etalonMap) {
+        for (BaseNeuron<Neurons, State.Neural> neuron : inet.allNeuronsTopologic) { // over all neurons
+            Neurons etalonReplacement = etalonMap.get(neuron);
+            ValueList valueList = isoValues.get(neuron);
+            List<Neurons> equivalentNeurons = isoNeurons.get(valueList);
+            if (equivalentNeurons != null && equivalentNeurons.size() > 1)
+                for (Neurons sameNeuron : equivalentNeurons) {
+                    Iterator<Neurons> outputs = inet.getOutputs((BaseNeuron<Neurons, State.Neural>) sameNeuron);
+                    if (outputs == null) {
+                        continue;
+                    }
+                    if (!equivalent(inet, sameNeuron, etalonReplacement)) {
+                        LOG.warning("Trying to replace a neuron with a non-equivalent etalon == lossy compression!");
+                        continue;
+                    }
+                    while (outputs.hasNext()) {   // over all its outputs
+                        Neurons output = outputs.next();
+                        inet.replaceInput((BaseNeuron<Neurons, State.Neural>) output, sameNeuron, etalonReplacement);
+                        inet.outputMapping.remove(sameNeuron);  //just to make sure
+                    }
+                }
+            isoNeurons.remove(valueList);
+        }
+    }
+
+    public boolean equivalent(DetailedNetwork<State.Structure> inet, Neurons<Neurons, State.Neural> a, Neurons<Neurons, State.Neural> b) {
+
+        if (a.equals(b)) {
+            return true;
+        }
+
+        if (!inet.getInputs(a).hasNext() && !inet.getInputs(b).hasNext()) {
+            Value valA = a.getComputationView(-1).getValue();
+            Value valB = b.getComputationView(-1).getValue();
+
+            if (valA.equals(valB)) {
+                return true;    //both neurons have same output value and no inputs -> they are necessarily equivalent
+            } else {
+                return false;
+            }
+        }
+
+        if (a instanceof WeightedNeuron && b instanceof WeightedNeuron) {
+            Pair<Iterator<Neurons>, Iterator<Weight>> inputsA = inet.getInputs((WeightedNeuron<Neurons, State.Neural>) a);
+            List<Pair<Weight, Neurons>> inputListA = new ArrayList<>();
+            while (inputsA.r.hasNext()) {
+                Neurons neuronA = inputsA.r.next();
+                Weight weightA = inputsA.s.next();
+                inputListA.add(new Pair<>(weightA, neuronA));
+            }
+            Pair<Iterator<Neurons>, Iterator<Weight>> inputsB = inet.getInputs((WeightedNeuron<Neurons, State.Neural>) b);
+            List<Pair<Weight, Neurons>> inputListB = new ArrayList<>();
+            while (inputsB.r.hasNext()) {
+                Neurons neuronB = inputsB.r.next();
+                Weight weightB = inputsB.s.next();
+                inputListB.add(new Pair<>(weightB, neuronB));
+            }
+
+            if (inputListA.size() != inputListB.size()) {
+                return false;
+            }
+            for (Pair<Weight, Neurons> inputPair : inputListA) {
+                boolean remove = inputListB.remove(inputPair);
+                if (!remove) {
+                    return false;
+                }
+            }
+            return true;
+
+        } else if (a instanceof WeightedNeuron || b instanceof WeightedNeuron) {
+            return false;
+        } else {
+            Iterator<Neurons> inputsA = inet.getInputs(a);
+            List<Neurons> inputListA = new ArrayList<>();
+            inputsA.forEachRemaining(inputListA::add);
+
+            Iterator<Neurons> inputsB = inet.getInputs(a);
+            List<Neurons> inputListB = new ArrayList<>();
+            inputsB.forEachRemaining(inputListB::add);
+
+            if (inputListA.size() != inputListB.size()) {
+                return false;
+            }
+            for (Neurons neuronA : inputListA) {
+                boolean remove = inputListB.remove(neuronA);
+                if (!remove) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 
     private void isoIteration(DetailedNetwork<State.Structure> inet, List<Weight> allWeights, QueryNeuron queryNeuron, Map<Neurons, ValueList> isoValues) {
-        for (int i = 0; i < precision; i++) {
+        for (int i = 0; i < repetitions; i++) {
             for (Weight weight : allWeights) {
                 valueInitializer.initWeight(weight);
             }
@@ -125,7 +232,7 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
 
 
         public ValueList() {
-            length = IsoValueNetworkCompressor.this.precision;
+            length = IsoValueNetworkCompressor.this.repetitions;
             values = new Value[length];
         }
 
@@ -139,7 +246,7 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
             int i = 0;
             while (iterator.hasNext()) {
                 Double next = iterator.next();
-                BigDecimal bigDecimal = new BigDecimal(next).setScale(10, BigDecimal.ROUND_HALF_UP);    // 10 decimal digits are about max precision, 15 are already not deterministic mess!
+                BigDecimal bigDecimal = new BigDecimal(next).setScale(decimals, BigDecimal.ROUND_HALF_UP);    // 10 decimal digits are about max precision, 15 are already not deterministic mess!
                 clone.set(i, bigDecimal.doubleValue());
                 i++;
             }

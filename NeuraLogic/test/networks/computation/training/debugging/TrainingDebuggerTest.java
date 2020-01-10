@@ -178,10 +178,10 @@ public class TrainingDebuggerTest {
     @Test
     public void mutagen_diffcheck_mods() {
         Logging logging = Logging.initLogging(Level.FINER);
-        String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples3 " +
-//                "-q ./resources/datasets/relational/molecules/mutagenesis/trainQueries.txt " +
+        String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples " +
+                "-q ./resources/datasets/relational/molecules/mutagenesis/queries " +
 //                "-t ./resources/datasets/relational/molecules/mutagenesis/template_new.txt").split(" ");
-                "-t ./resources/datasets/relational/molecules/mutagenesis/template_vector_cross.txt").split(" ");
+                "-t ./resources/datasets/relational/molecules/mutagenesis/template_vector_cross").split(" ");
 
         Settings settings = new Settings();
 
@@ -214,6 +214,44 @@ public class TrainingDebuggerTest {
     }
 
     @Test
+    public void mutagen_diffcheck_uniform() {
+        Logging logging = Logging.initLogging(Level.FINER);
+        String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples " +
+                "-q ./resources/datasets/relational/molecules/mutagenesis/queries " +
+//                "-t ./resources/datasets/relational/molecules/mutagenesis/template_new.txt").split(" ");
+                "-t ./resources/datasets/relational/molecules/mutagenesis/template_vector_cross").split(" ");
+
+        Settings settings = new Settings();
+
+        settings.initDistribution = Settings.InitDistribution.UNIFORM;
+
+        settings.seed = 0;  //the seed shouldn't matter here!
+        settings.shuffleBeforeFoldSplit = false;
+        settings.shuffleBeforeTraining = true;
+        settings.shuffleEachEpoch = true;
+
+        settings.debugSampleOutputs = false;
+        settings.storeNotShow = true;
+
+        settings.initLearningRate = 0.3;
+        settings.maxCumEpochCount = 100;
+        settings.resultsRecalculationEpochae = 1;
+        settings.calculateBestThreshold = false;
+//        settings.appLimitSamples = 100;
+        settings.initializer = Settings.InitSet.SIMPLE;
+        settings.optimizer = Settings.OptimizerSet.SGD;
+        settings.iterationMode = Settings.IterationMode.TOPOLOGIC;  //tested as equivalent to DFS
+
+        settings.oneQueryPerExample = true;
+        settings.neuralNetsPostProcessing = true;
+        settings.isoValueCompression = false;
+        settings.chainPruning = true;
+
+        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        trainingDebugger.executeDebug();
+    }
+
+    @Test
     public void mutagen_standard() {
         Logging logging = Logging.initLogging(Level.FINER);
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/trainExamples.txt " +
@@ -225,21 +263,27 @@ public class TrainingDebuggerTest {
         settings.initDistribution = Settings.InitDistribution.UNIFORM;
 
         settings.seed = 0;
-        settings.initLearningRate = 0.01;
-        settings.maxCumEpochCount = 1000;
+        settings.initLearningRate = 0.3;
+        settings.maxCumEpochCount = 100;
         settings.resultsRecalculationEpochae = 10;
         settings.shuffleEachEpoch = true;
         settings.debugSampleOutputs = false;
         settings.calculateBestThreshold = true;
 //        settings.appLimitSamples = 10;
         settings.initializer = Settings.InitSet.SIMPLE;
-        settings.optimizer = Settings.OptimizerSet.ADAM;
+        settings.optimizer = Settings.OptimizerSet.SGD;
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
 
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = true;
         settings.chainPruning = true;
-        settings.isoValueCompression = true;
+
+        settings.isoValueCompression = false;
+        settings.losslessIsoCompression = true;
+        settings.isoValueInits = 3;
+        settings.isoDecimals = 5;
+
+
         settings.storeNotShow = true;
 
         TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
@@ -291,7 +335,7 @@ public class TrainingDebuggerTest {
         settings.initDistribution = Settings.InitDistribution.UNIFORM;
 
         settings.seed = 0;
-        settings.initLearningRate = 0.01;   //todo now make default initLearningRate change based on optimizer
+        settings.initLearningRate = 0.3;   //todo now make default initLearningRate change based on optimizer
         settings.maxCumEpochCount = 100;
         settings.resultsRecalculationEpochae = 10;
         settings.shuffleEachEpoch = true;
@@ -299,13 +343,17 @@ public class TrainingDebuggerTest {
         settings.calculateBestThreshold = true;
 //        settings.appLimitSamples = 10;
         settings.initializer = Settings.InitSet.SIMPLE;
-        settings.optimizer = Settings.OptimizerSet.ADAM;
+        settings.optimizer = Settings.OptimizerSet.SGD;
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
 
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = true;
         settings.chainPruning = true;
+
         settings.isoValueCompression = true;
+        settings.isoValueInits = 1;
+        settings.isoDecimals = 2;
+
         settings.storeNotShow = true;
 
         TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
@@ -344,4 +392,5 @@ public class TrainingDebuggerTest {
         TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
         trainingDebugger.executeDebug();
     }
+
 }

@@ -12,7 +12,7 @@ public class MainTest {
     }
 
     @Test
-    public void xor_vectorized(){
+    public void xor_vectorized() {
         String[] args = new String("-path ./resources/datasets/neural/xor/vectorized").split(" ");
         Settings settings = new Settings();
         settings.shuffleBeforeTraining = false;
@@ -29,8 +29,8 @@ public class MainTest {
 
 
     @Test
-    public void xor_basic(){
-            String[] args = new String("-path ./resources/datasets/neural/xor/naive").split(" ");
+    public void xor_basic() {
+        String[] args = new String("-path ./resources/datasets/neural/xor/naive").split(" ");
         Settings settings = new Settings();
         settings.shuffleBeforeTraining = false;
         settings.seed = 0;
@@ -43,7 +43,7 @@ public class MainTest {
     }
 
     @Test
-    public void xor_solution(){
+    public void xor_solution() {
         String[] args = new String("-path ./resources/datasets/neural/xor/solution").split(" ");
         Settings settings = new Settings();
         settings.seed = 0;
@@ -59,7 +59,7 @@ public class MainTest {
         settings.initLearningRate = 1;
         settings.maxCumEpochCount = 1000;
         Settings.loggingLevel = Level.FINEST;
-        Main.main(args,settings);
+        Main.main(args, settings);
     }
 
     @Test
@@ -130,16 +130,105 @@ public class MainTest {
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/queries " +
                 "-t ./resources/datasets/relational/molecules/mutagenesis/template_vector_cross " +
-                " -out ./out/jair -ts 500 -xval 5").split(" ");
+                " -out ./out/jair-adam -ts 100 -xval 5").split(" ");
 
         Settings settings = new Settings();
 
-        settings.optimizer = Settings.OptimizerSet.ADAM;
-        settings.initLearningRate = 0.01;
+        settings.initDistribution = Settings.InitDistribution.UNIFORM;
 
+        settings.shuffleBeforeFoldSplit = true;
+        settings.shuffleBeforeTraining = true;
+        settings.shuffleEachEpoch = true;
+
+        settings.debugSampleOutputs = false;
+        settings.storeNotShow = true;
+
+        settings.initLearningRate = 0.01;
+        settings.maxCumEpochCount = 100;
+        settings.resultsRecalculationEpochae = 1;
+        settings.calculateBestThreshold = false;
+//        settings.appLimitSamples = 100;
+        settings.initializer = Settings.InitSet.SIMPLE;
+        settings.optimizer = Settings.OptimizerSet.ADAM;
+        settings.iterationMode = Settings.IterationMode.TOPOLOGIC;  //tested as equivalent to DFS
+
+        settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = true;
         settings.isoValueCompression = false;
         settings.chainPruning = true;
+
+        Main.main(args, settings);
+    }
+
+    @Test
+    public void muta_traintest() {
+        String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/split/train " +
+                "-te ./resources/datasets/relational/molecules/mutagenesis/split/test " +
+                "-t ./resources/datasets/relational/molecules/mutagenesis/template_vector_cross " +
+                " -out ./out/muta-tt -ts 100").split(" ");
+
+        Settings settings = new Settings();
+
+        settings.initDistribution = Settings.InitDistribution.UNIFORM;
+
+        settings.shuffleBeforeFoldSplit = false;
+        settings.shuffleBeforeTraining = false;
+        settings.shuffleEachEpoch = true;
+
+        settings.debugSampleOutputs = false;
+        settings.storeNotShow = true;
+
+        settings.initLearningRate = 0.3;
+        settings.maxCumEpochCount = 100;
+        settings.resultsRecalculationEpochae = 1;
+        settings.calculateBestThreshold = false;
+//        settings.appLimitSamples = 100;
+        settings.initializer = Settings.InitSet.SIMPLE;
+        settings.optimizer = Settings.OptimizerSet.SGD;
+        settings.iterationMode = Settings.IterationMode.TOPOLOGIC;  //tested as equivalent to DFS
+
+        settings.oneQueryPerExample = true;
+        settings.neuralNetsPostProcessing = true;
+        settings.isoValueCompression = false;
+        settings.chainPruning = true;
+
+        Main.main(args, settings);
+    }
+
+    @Test
+    public void muta_gnn() {
+        String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples " +
+                "-q ./resources/datasets/relational/molecules/mutagenesis/queries " +
+                "-t ./resources/datasets/relational/molecules/mutagenesis/template_gnn" +
+                " -out ./out/muta-gnn -xval 5").split(" ");
+
+        Settings settings = new Settings();
+
+        settings.initDistribution = Settings.InitDistribution.UNIFORM;
+        settings.aggNeuronActivation = Settings.AggregationFcn.AVG;
+
+        settings.seed = 0;
+        settings.initLearningRate = 0.01;
+        settings.maxCumEpochCount = 1000;
+        settings.resultsRecalculationEpochae = 10;
+        settings.shuffleEachEpoch = true;
+        settings.debugSampleOutputs = false;
+        settings.calculateBestThreshold = true;
+        settings.initializer = Settings.InitSet.SIMPLE;
+        settings.optimizer = Settings.OptimizerSet.ADAM;
+        settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
+
+        settings.oneQueryPerExample = true;
+        settings.neuralNetsPostProcessing = true;
+        settings.chainPruning = true;
+
+        settings.isoValueCompression = false;
+        settings.losslessIsoCompression = false;
+        settings.isoValueInits = 2;
+        settings.isoDecimals = 15;
+
+        settings.foldsCount = 5;
+        settings.storeNotShow = false;
 
         Main.main(args, settings);
     }

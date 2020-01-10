@@ -2,6 +2,7 @@ package networks.computation.evaluation.functions;
 
 import networks.computation.evaluation.functions.specific.Average;
 import networks.computation.evaluation.functions.specific.Maximum;
+import networks.computation.evaluation.functions.specific.Sum;
 import networks.computation.evaluation.values.Value;
 import networks.structure.metadata.states.AggregationState;
 import settings.Settings;
@@ -49,6 +50,8 @@ public abstract class Aggregation {
                 return Singletons.average;
             case MAX:
                 return Singletons.maximum;
+            case SUM:
+                return Singletons.sum;
             //todo rest
             default:
                 LOG.severe("Unimplemented aggregation function");
@@ -74,6 +77,7 @@ public abstract class Aggregation {
     public static class Singletons {
         public static Average average = new Average();
         public static Maximum maximum = new Maximum();
+        public static Sum sum = new Sum();
     }
 
     public abstract AggregationState getAggregationState();

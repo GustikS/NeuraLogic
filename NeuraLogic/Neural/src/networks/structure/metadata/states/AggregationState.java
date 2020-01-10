@@ -185,6 +185,50 @@ public abstract class AggregationState implements Aggregation.State {
             }
         }
 
+        public static class Sum extends Pooling {
+            Value sum;
+
+            public Sum(Aggregation aggregation) {
+                super(aggregation);
+            }
+
+            // these should obtain the function in construction to be more generic - builder should take care of that
+            public Sum(Aggregation aggregation, Value initSum) {
+                super(aggregation);
+                sum = initSum;
+            }
+
+            @Override
+            public void cumulate(Value value) {
+                sum.incrementBy(value);
+            }
+
+            @Override
+            public void invalidate() {
+                sum.zero();
+            }
+
+            @Override
+            public int[] getInputMask() {
+                return null;
+            }
+
+            @Override
+            public Value gradient() {
+                return new ScalarValue(1.0);
+            }
+
+            @Override
+            public Value evaluate() {
+                return sum;
+            }
+
+            @Override
+            public void setupValueDimensions(Value value) {
+                this.sum = value.getForm();
+            }
+        }
+
         /**
          * MaxK is to return the average of max-k and propagate gradient into max-k inputs.
          * todo whole class and corresponding aggregation function
