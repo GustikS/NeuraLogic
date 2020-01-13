@@ -33,14 +33,6 @@ public class CommandLineHandler {
     public Options getOptions(Settings settings) {
         Options options = new Options();
 
-        options.addOption(new Option("out", "outputFolder", true, "output folder for logging and exporting (" + settings.outDir + ")"));
-
-        options.addOption(new Option("mode", "pipelineMode", true, "main mode of the program [complete, neuralization, debug] (" + settings.mainMode + ")"));
-
-        options.addOption("debug", "debugMode", true, "debug some objects within the pipeline during the run [template, grounding, neuralization, samples, model]");
-
-        options.addOption(new Option("seed", "randomSeed", true, "int seed for random generator (" + settings.seed + ")"));
-
         //-----------source files
         options.addOption("path", "sourcePath", true, "path to source files (" + settings.sourcePath + ")");
 
@@ -48,6 +40,18 @@ public class CommandLineHandler {
 
         options.addOption("q", "trainQueries", true, "trainQueries file (" + settings.trainQueriesFile + ")");
         options.addOption("e", "trainExamples", true, "trainExamples file containing facts (" + settings.trainExamplesFile + ")");
+
+        //-----------settings
+
+        options.addOption(new Option("set", "settings", true, "json file with all the settings (" + settings.settingsFile + ")"));
+
+        options.addOption(new Option("out", "outputFolder", true, "output folder for logging and exporting (" + settings.outDir + ")"));
+
+        options.addOption(new Option("mode", "pipelineMode", true, "main mode of the program [complete, neuralization, debug] (" + settings.mainMode + ")"));
+
+        options.addOption("debug", "debugMode", true, "debug some objects within the pipeline during the run [template, grounding, neuralization, samples, model]");
+
+        options.addOption(new Option("seed", "randomSeed", true, "int seed for random generator (" + settings.seed + ")"));
 
         //-----------selection of one of evaluation modes
         OptionGroup evalGroup = new OptionGroup();

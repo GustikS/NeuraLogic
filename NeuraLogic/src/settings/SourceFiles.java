@@ -119,44 +119,25 @@ public class SourceFiles extends Sources {
                     throw new FileNotFoundException();
                 }
             }
-            switch (Utilities.identifyFileTypeUsingFilesProbeContentType(this.template.getAbsolutePath())) {
-                case "text/plain":
-                    settings.plaintextInput = true;
-                    LOG.finer("Input template file type identified as plain text");
-                    break;
-                case "text/x-microdvd":
-                    settings.plaintextInput = true;
-                    LOG.finer("Input template file type identified as plain text (text/x-microdvd)");
-                    break;
-                case "application/xml":
-                    LOG.finer("Input template file type identified as xml");
-                    break;
-                case "application/json":
-                    LOG.finer("Input template file type identified as json");
-                    break;
-                default:
-                    LOG.warning("File type of input template/rules not recognized!");
-            }
+            recognizeFileType(this.template.getAbsolutePath(), "template", settings);
         } catch (FileNotFoundException e) {
             LOG.info("There is no learning template");
         }
 
         try {
-            String trainExamplesPath = cmd.getOptionValue("trainExamples", settings.trainExamplesFile); //todo now let us have "examples.txt" option too
+            String trainExamplesPath = cmd.getOptionValue("trainExamples", settings.trainExamplesFile);
             if (trainExamplesPath.startsWith("\\.") || settings.sourcePathProvided) {
                 this.trainExamples = Paths.get(foldDir.toString(), trainExamplesPath).toFile();
             } else {
                 this.trainExamples = Paths.get(trainExamplesPath).toFile();
             }
+            if (!this.trainExamples.exists()) {
+                LOG.warning("Could not find trainExamples file in " + trainExamplesPath + ", will try to use 'examples' file for the same purpose");
+                this.trainExamples = Paths.get(foldDir.toString(), settings.trainExamplesFile2).toFile();
+            }
 
             this.train.ExamplesReader = new FileReader(this.trainExamples);
-            switch (Utilities.identifyFileTypeUsingFilesProbeContentType(this.trainExamples.toString())) {
-                case "text/plain":
-                    LOG.finer("Input train examples file type identified as plain text");
-                    break;
-                default:
-                    LOG.warning("File type of input examples not recognized!");
-            }
+            recognizeFileType(this.trainExamples.getAbsolutePath(), "trainExamples", settings);
 
         } catch (FileNotFoundException e) {
             LOG.info("There are no train examples");
@@ -170,13 +151,7 @@ public class SourceFiles extends Sources {
                 this.testExamples = Paths.get(testExamplesPath).toFile();
             }
             this.test.ExamplesReader = new FileReader(this.testExamples);
-            switch (Utilities.identifyFileTypeUsingFilesProbeContentType(this.testExamples.toString())) {
-                case "text/plain":
-                    LOG.finer("Input test examples file type identified as plain text");
-                    break;
-                default:
-                    LOG.warning("File type of input test examples not recognized!");
-            }
+            recognizeFileType(this.testExamples.getAbsolutePath(), "testExamples", settings);
 
         } catch (FileNotFoundException e) {
             LOG.info("There are no separate test examples found.");
@@ -189,15 +164,14 @@ public class SourceFiles extends Sources {
             } else {
                 this.trainQueries = Paths.get(trainQueriesPath).toFile();
             }
+            if (!this.trainQueries.exists()) {
+                LOG.warning("Could not find trainQueries file in " + trainQueriesPath + ", will try to use 'queries' file for the same purpose");
+                this.trainQueries = Paths.get(foldDir.toString(), settings.trainQueriesFile2).toFile();
+            }
+
             this.train.QueriesReader = new FileReader(this.trainQueries);
 
-            switch (Utilities.identifyFileTypeUsingFilesProbeContentType(this.trainQueries.toString())) {
-                case "text/plain":
-                    LOG.finer("Input train queries file type identified as plain text");
-                    break;
-                default:
-                    LOG.warning("File type of input train queries not recognized!");
-            }
+            recognizeFileType(this.trainQueries.getAbsolutePath(), "trainQueries", settings);
 
         } catch (FileNotFoundException e) {
             LOG.info("There are no separate train queries found.");
@@ -211,19 +185,34 @@ public class SourceFiles extends Sources {
                 this.testQueries = Paths.get(testQueriesPath).toFile();
             }
             this.test.QueriesReader = new FileReader(this.testQueries);
-            switch (Utilities.identifyFileTypeUsingFilesProbeContentType(this.testQueries.toString())) {
-                case "text/plain":
-                    LOG.finer("Input tst queries file type identified as plain text");
-                    break;
-                default:
-                    LOG.warning("File type of input test queries not recognized!");
-            }
+            recognizeFileType(this.testQueries.getAbsolutePath(), "testQueries", settings);
 
         } catch (FileNotFoundException e) {
             LOG.info("There are no separate test queries found.");
         }
 
         return this;
+    }
+
+    private void recognizeFileType(String path, String sourceType, Settings settings) {
+        switch (Utilities.identifyFileTypeUsingFilesProbeContentType(path)) {
+            case "text/plain":
+                settings.plaintextInput = true;
+                LOG.finer("Input " + sourceType + " file type identified as plain text");
+                break;
+            case "text/x-microdvd":
+                settings.plaintextInput = true;
+                LOG.finer("Input " + sourceType + " file type identified as plain text (text/x-microdvd)");
+                break;
+            case "application/xml":
+                LOG.finer("Input " + sourceType + " file type identified as xml");
+                break;
+            case "application/json":
+                LOG.finer("Input " + sourceType + " file type identified as json");
+                break;
+            default:
+                LOG.warning("File type of input " + sourceType + " not recognized!");
+        }
     }
 
     public boolean checkForSubstring(File file, String substring, int numberOfLines) {

@@ -278,10 +278,10 @@ public class TrainingDebuggerTest {
         settings.neuralNetsPostProcessing = true;
         settings.chainPruning = true;
 
-        settings.isoValueCompression = false;
+        settings.isoValueCompression = true;
         settings.losslessIsoCompression = true;
-        settings.isoValueInits = 3;
-        settings.isoDecimals = 5;
+        settings.isoValueInits = 1;
+        settings.isoDecimals = 8;
 
 
         settings.storeNotShow = true;

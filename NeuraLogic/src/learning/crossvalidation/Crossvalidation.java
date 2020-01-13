@@ -67,7 +67,7 @@ public class Crossvalidation<T extends LearningSample> {
         int correctClassCount = 0;
         int allCount = 0;
 
-        for (TrainTestResults trainTestResults : foldRunStatsList) {
+        for (TrainTestResults trainTestResults : foldRunStatsList) {    //todo now get also standard deviations
             Results training = trainTestResults.training.bestResults.training;
 
             allTrain.addAll(training.evaluations);

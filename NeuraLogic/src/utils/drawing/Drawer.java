@@ -54,7 +54,7 @@ public abstract class Drawer<S> {   //todo next replace hashcodes (which collide
 
     public void draw(S obj) {
         if (graphviz == null) {
-            LOG.warning("Drawing is required but no graphviz, could not draw!");
+            LOG.warning("Drawing is required but no graphviz exec found, could not draw!");
             return;
         }
         this.graphviz.clearGraph();

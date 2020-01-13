@@ -1,5 +1,8 @@
 package settings;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.InstanceCreator;
 import networks.computation.evaluation.values.Value;
 import org.apache.commons.cli.CommandLine;
 import pipelines.Pipeline;
@@ -8,6 +11,10 @@ import utils.exporting.Exporter;
 import utils.generic.Pair;
 
 import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Random;
@@ -27,7 +34,7 @@ public class Settings {
     //todo - learning factNeuron offsets
     //todo - special predicates
 
-    private static final Logger LOG = Logger.getLogger(Settings.class.getName());
+    private transient static final Logger LOG = Logger.getLogger(Settings.class.getName());
 
     /**
      * Stores current OS type
@@ -78,13 +85,13 @@ public class Settings {
 
     public String resultFile = outDir + "/results";
 
-    public String tmpFile = outDir + "/tmpFile";
+    public String settingsExportFile = outDir + "/settings.json";
 
     public String console = outDir + "/consoleOutput";
 
     public String exportDir = outDir + "/export";
 
-    public Exporter exporter;
+    public transient Exporter exporter;
 
     /**
      * Outputs of these blocks will be exported into respective files
@@ -151,25 +158,28 @@ public class Settings {
 
     //------------------Global structures
     /**
+     * Seed for absolutely everything
+     */
+    public int seed = 0;
+    /**
      * Global random generator
      */
     public Random random;
-    public int seed = 0;
     /**
      * Global number formats for all printing
      */
-    public static NumberFormat superDetailedNumberFormat = new DecimalFormat("#.################");
+    public transient static NumberFormat superDetailedNumberFormat = new DecimalFormat("#.################");
 
-    public static NumberFormat detailedNumberFormat = new DecimalFormat("#.##########");
+    public transient static NumberFormat detailedNumberFormat = new DecimalFormat("#.##########");
 
-    public static NumberFormat shortNumberFormat = new DecimalFormat("#.##");
+    public transient static NumberFormat shortNumberFormat = new DecimalFormat("#.##");
 
     //------------------Abstract Pipelines
 
     /**
      * A root pipeline of the actual program flow (referenced to this settings object)
      */
-    public Pipeline root;
+    public transient Pipeline root;
 
     /**
      * Sets up the main purpose/result of the root pipeline
@@ -428,7 +438,7 @@ public class Settings {
     /**
      * Over all the restarts, how many epoch can be done at maximum.
      */
-    public int maxCumEpochCount = 3000;
+    public int maxCumEpochCount = 1000;
 
     /**
      * Shuffle samples before neural training (only turn off for debugging purposes)
@@ -547,6 +557,11 @@ public class Settings {
 
     //-----------------Source files
     /**
+     * Default path to input file with all the settings
+     */
+    public String settingsFile = "settings.json";
+
+    /**
      * Format of the input (file) readers is for plain-text parsers (and not e.g. xml)
      */
     public boolean plaintextInput;
@@ -555,12 +570,23 @@ public class Settings {
      */
     public boolean sourceFiles = true;
 
+    /**
+     * All the sources have default names in this path? Allows for short/simple commandline setup
+     */
     public boolean sourcePathProvided = false;
     public String sourcePath = ".";
-    public String templateFile = "template.txt";
+    public String templateFile = "template.txt";    //todo remove/unify the txt
     public String trainExamplesFile = "trainExamples.txt";
+    /**
+     * Alternative file name
+     */
+    public String trainExamplesFile2 = "examples";
     public String testExamplesFile = "testExamples.txt";
     public String trainQueriesFile = "trainQueries.txt";
+    /**
+     * Alternative file name
+     */
+    public String trainQueriesFile2 = "queries";
     public String testQueriesFile = "testQueries.txt";
 
     public String foldsPrefix = "fold";
@@ -644,165 +670,193 @@ public class Settings {
      * TODO Setup globally default settings here
      */
     public Settings() {
-        exporter = new Exporter(this);
-
-        if (cleanUpFirst) {
-            exporter.deleteDir(new File(exportDir));
-        }
     }
 
-    public void setupFromCommandline(CommandLine cmd) {
+    /**
+     * This will possibly overwrite all the previously setup fields!
+     * I.e. commandline options have higher priority!
+     *
+     * @param cmd
+     * @return
+     */
+    public Settings setupFromCommandline(CommandLine cmd) {
+        Settings settings = this;
+
+        if (cmd.hasOption("settings")) {
+            String _settingsPath = cmd.getOptionValue("settings");
+            settings = loadFromJson(_settingsPath);
+        }
 
         if (cmd.hasOption("out")) {
-            outDir = cmd.getOptionValue("out");
+            settings.outDir = cmd.getOptionValue("out");
         }
 
         if (cmd.hasOption("xval")) {
             String _xval = cmd.getOptionValue("xval", String.valueOf(foldsCount));
-            foldsCount = Integer.parseInt(_xval);
+            settings.foldsCount = Integer.parseInt(_xval);
         }
 
-        String _seed = cmd.getOptionValue("seed", String.valueOf(seed));
-        random = new Random(Integer.parseInt(_seed));
-
-        String _groundingAlgorithm = cmd.getOptionValue("groundingAlgorithm", grounding.name());
-        switch (_groundingAlgorithm) {
-            case "BUp":
-                grounding = GroundingAlgo.BUP;
-                break;
-            case "TDown":
-                grounding = GroundingAlgo.TDOWN;
-                break;
-            case "Gringo":
-                grounding = GroundingAlgo.GRINGO;
-                break;
+        if (cmd.hasOption("seed")) {
+            String _seed = cmd.getOptionValue("seed", String.valueOf(seed));
+            settings.random = new Random(Integer.parseInt(_seed));
         }
 
-        String _groundingMode = cmd.getOptionValue("groundingMode", "normal");
-        switch (_groundingMode) {
-            case "normal":
-                groundingMode = GroundingMode.STANDARD;
-                break;
-            case "sequential":
-                groundingMode = GroundingMode.SEQUENTIAL;
-                break;
-            case "global":
-                groundingMode = GroundingMode.GLOBAL;
-                break;
+        if (cmd.hasOption("groundingAlgorithm")) {
+            String _groundingAlgorithm = cmd.getOptionValue("groundingAlgorithm", grounding.name());
+            switch (_groundingAlgorithm) {
+                case "BUp":
+                    settings.grounding = GroundingAlgo.BUP;
+                    break;
+                case "TDown":
+                    settings.grounding = GroundingAlgo.TDOWN;
+                    break;
+                case "Gringo":
+                    settings.grounding = GroundingAlgo.GRINGO;
+                    break;
+            }
         }
 
-        String _weightInit = cmd.getOptionValue("weightInit", String.valueOf(initDistribution));
-        switch (_weightInit.toLowerCase()) {
-            case "uniform":
-                initDistribution = InitDistribution.UNIFORM;
-                break;
-            case "constant":
-                initDistribution = InitDistribution.CONSTANT;
-                break;
-            default:
-                LOG.severe("unrecognized init distribution: " + _weightInit);
+        if (cmd.hasOption("groundingMode")) {
+            String _groundingMode = cmd.getOptionValue("groundingMode", "normal");
+            switch (_groundingMode) {
+                case "normal":
+                    settings.groundingMode = GroundingMode.STANDARD;
+                    break;
+                case "sequential":
+                    settings.groundingMode = GroundingMode.SEQUENTIAL;
+                    break;
+                case "global":
+                    settings.groundingMode = GroundingMode.GLOBAL;
+                    break;
+            }
         }
 
-        String _optimizer = cmd.getOptionValue("weightInit", String.valueOf(optimizer));
-        switch (_optimizer.toLowerCase()) {
-            case "sgd":
-                optimizer = OptimizerSet.SGD;
-                break;
-            case "adam":
-                optimizer = OptimizerSet.ADAM;
-                break;
-            default:
-                LOG.severe("unrecognized optimizer: " + _optimizer);
+        if (cmd.hasOption("weightInit")) {
+            String _weightInit = cmd.getOptionValue("weightInit", String.valueOf(initDistribution));
+            switch (_weightInit.toLowerCase()) {
+                case "uniform":
+                    settings.initDistribution = InitDistribution.UNIFORM;
+                    break;
+                case "constant":
+                    settings.initDistribution = InitDistribution.CONSTANT;
+                    break;
+                default:
+                    LOG.severe("unrecognized init distribution: " + _weightInit);
+            }
         }
 
-        String _learningRate = cmd.getOptionValue("learningRate", String.valueOf(initLearningRate));
-        initLearningRate = Double.parseDouble(_learningRate);
-
-        String _trainingSteps = cmd.getOptionValue("trainingSteps", String.valueOf(maxCumEpochCount));
-        maxCumEpochCount = Integer.parseInt(_trainingSteps);
-
-        String _evaluationMode = cmd.getOptionValue("evaluationMode", "classification");
-        switch (_evaluationMode) {
-            case "classification":
-                regression = false;
-                break;
-            case "regression":
-                regression = true;
-                break;
+        if (cmd.hasOption("optimizer")) {
+            String _optimizer = cmd.getOptionValue("optimizer", String.valueOf(optimizer));
+            switch (_optimizer.toLowerCase()) {
+                case "sgd":
+                    settings.optimizer = OptimizerSet.SGD;
+                    break;
+                case "adam":
+                    settings.optimizer = OptimizerSet.ADAM;
+                    break;
+                default:
+                    LOG.severe("unrecognized optimizer: " + _optimizer);
+            }
         }
 
-        String _errorFunction = cmd.getOptionValue("errorFunction", "MSE");
-        switch (_errorFunction) {
-            case "MSE":
-                errorFunction = ErrorFcn.SQUARED_DIFF;
-                errorAggregationFcn = AggregationFcn.AVG;
-                break;
-            case "XEnt":
-                LOG.severe("XEnt not yet implemented");
-                break;
+        if (cmd.hasOption("learningRate")) {
+            String _learningRate = cmd.getOptionValue("learningRate", String.valueOf(initLearningRate));
+            settings.initLearningRate = Double.parseDouble(_learningRate);
+        }
+
+        if (cmd.hasOption("trainingSteps")) {
+            String _trainingSteps = cmd.getOptionValue("trainingSteps", String.valueOf(maxCumEpochCount));
+            settings.maxCumEpochCount = Integer.parseInt(_trainingSteps);
+        }
+
+        if (cmd.hasOption("evaluationMode")) {
+            String _evaluationMode = cmd.getOptionValue("evaluationMode", "classification");
+            switch (_evaluationMode) {
+                case "classification":
+                    settings.regression = false;
+                    break;
+                case "regression":
+                    settings.regression = true;
+                    break;
+            }
+        }
+
+        if (cmd.hasOption("errorFunction")) {
+            String _errorFunction = cmd.getOptionValue("errorFunction", "MSE");
+            switch (_errorFunction) {
+                case "MSE":
+                    settings.errorFunction = ErrorFcn.SQUARED_DIFF;
+                    settings.errorAggregationFcn = AggregationFcn.AVG;
+                    break;
+                case "XEnt":
+                    LOG.severe("XEnt not yet implemented");
+                    break;
+            }
         }
 
         if (cmd.hasOption("sourcePath")) {
-            sourcePathProvided = true;
+            settings.sourcePathProvided = true;
         }
 
-        String _mode = cmd.getOptionValue("mode", String.valueOf(mainMode));
-        switch (_mode.toLowerCase()) {
-            case "complete":
-                mainMode = MainMode.COMPLETE;
-                break;
-            case "neuralization":
-                mainMode = MainMode.NEURALIZATION;
-                break;
-            case "debug":
-                mainMode = MainMode.DEBUGGING;
-                break;
+        if (cmd.hasOption("mode")) {
+            String _mode = cmd.getOptionValue("mode", String.valueOf(mainMode));
+            switch (_mode.toLowerCase()) {
+                case "complete":
+                    settings.mainMode = MainMode.COMPLETE;
+                    break;
+                case "neuralization":
+                    settings.mainMode = MainMode.NEURALIZATION;
+                    break;
+                case "debug":
+                    settings.mainMode = MainMode.DEBUGGING;
+                    break;
+            }
         }
 
         if (cmd.hasOption("debug")) {
             String _debug = cmd.getOptionValue("debug");
             switch (_debug) {
                 case "template":
-                    debugTemplate = true;
+                    settings.debugTemplate = true;
                     break;
                 case "grounding":
-                    debugGrounding = true;
+                    settings.debugGrounding = true;
                     break;
                 case "neuralization":
-                    debugNeuralization = true;
+                    settings.debugNeuralization = true;
                     break;
                 case "samples":
-                    debugSampleTraining = true;
+                    settings.debugSampleTraining = true;
                     break;
                 case "model":
-                    debugTemplateTraining = true;
+                    settings.debugTemplateTraining = true;
                     break;
             }
         }
 
         if (cmd.hasOption("isoCompression")) {
             String _isoCompression = cmd.getOptionValue("isoCompression", String.valueOf(isoDecimals));
-            isoDecimals = Integer.parseInt(_isoCompression);
-            if (isoDecimals > 0) {
-                neuralNetsPostProcessing = true;
-                isoValueCompression = true;
+            settings.isoDecimals = Integer.parseInt(_isoCompression);
+            if (settings.isoDecimals > 0) {
+                settings.neuralNetsPostProcessing = true;
+                settings.isoValueCompression = true;
             } else {
-                isoValueCompression = false;
+                settings.isoValueCompression = false;
             }
         }
         if (cmd.hasOption("chainPruning")) {
             String _pruning = cmd.getOptionValue("chainPruning", String.valueOf(chainPruning));
             int prune = Integer.parseInt(_pruning);
             if (prune > 0) {
-                neuralNetsPostProcessing = true;
-                chainPruning = true;
+                settings.neuralNetsPostProcessing = true;
+                settings.chainPruning = true;
             } else {
-                chainPruning = false;
+                settings.chainPruning = false;
             }
         }
 
-
-        //todo fill all the settings
+        //todo fill all the most useful settings
+        return settings;
     }
 
 
@@ -829,7 +883,7 @@ public class Settings {
             message.append("stratification not possible with regression");
             valid = false;
         }
-        //TODO more validation and inference of settings
+        //todo more validation and inference of settings
 
         return new Pair(valid, message);
     }
@@ -838,6 +892,8 @@ public class Settings {
      * Infer all remaining settings from the given
      */
     public void infer() {
+        random = new Random(seed);
+
         if (reduceTemplate) graphTemplate = true;
         parentCounting = (iterationMode != IterationMode.TOPOLOGIC);
 
@@ -855,28 +911,57 @@ public class Settings {
 
         //in case the outDir changed...
         resultFile = outDir + "/results";
-        tmpFile = outDir + "/tmpFile";
+        settingsExportFile = outDir + "/settings.json";
         console = outDir + "/consoleOutput";
         exportDir = outDir + "/export";
 
 //        resultsRecalculationEpochae = maxCumEpochCount / 100;
         //todo
+
+        finish();
+    }
+
+    /**
+     * Steps to be performed once the settings are totally complete, i.e. after all the inference and validation
+     */
+    private void finish() {
+        exporter = new Exporter(this);
+
+        if (cleanUpFirst) {
+            exporter.deleteDir(new File(exportDir));
+        }
+
+        exporter.exportSettings(this);
     }
 
     public void importFromCSV(String inPath) {
 
     }
 
-    public void importFromJson(String inPath) {
-
-
+    public Settings loadFromJson(String inPath) {
+        InstanceCreator<Settings> creator = new InstanceCreator<Settings>() {
+            public Settings createInstance(Type type) {
+                return Settings.this;
+            }
+        };
+        Gson gson = new GsonBuilder().registerTypeAdapter(Settings.class, creator).create();
+        try {
+            String json = new String(Files.readAllBytes(Paths.get(inPath)));
+            Settings settings = gson.fromJson(json, Settings.class);
+            return settings;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public void exportToCSV(String outPath) {
 
     }
 
-    public void exportToJson(String outPath) {
-
+    public String exportToJson() {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String json = gson.toJson(this);
+        return json;
     }
 }

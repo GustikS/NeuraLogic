@@ -200,7 +200,7 @@ public class MainTest {
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/queries " +
                 "-t ./resources/datasets/relational/molecules/mutagenesis/template_gnn" +
-                " -out ./out/muta-gnn -xval 5").split(" ");
+                " -out ./out/muta-gnn3 -xval 5").split(" ");
 
         Settings settings = new Settings();
 
@@ -209,7 +209,7 @@ public class MainTest {
 
         settings.seed = 0;
         settings.initLearningRate = 0.01;
-        settings.maxCumEpochCount = 1000;
+        settings.maxCumEpochCount = 100;
         settings.resultsRecalculationEpochae = 10;
         settings.shuffleEachEpoch = true;
         settings.debugSampleOutputs = false;
@@ -230,6 +230,20 @@ public class MainTest {
         settings.foldsCount = 5;
         settings.storeNotShow = false;
 
+//        settings.debugTemplate = true;
+//        settings.debugPipeline = true;
+//        settings.debugNeuralization = true;
+        settings.drawing = true;
+
         Main.main(args, settings);
+    }
+
+    @Test
+    public void loadFromConsole() {
+        String[] args = ("-path ./resources/datasets/relational/molecules/mutagenesis" +
+                " -settings ./resources/settings/settings.json" +
+                " -out ./out/loading").split(" ");
+
+        Main.main(args);
     }
 }

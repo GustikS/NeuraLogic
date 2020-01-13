@@ -45,7 +45,7 @@ public class Sources {
         Sources sources = null;
         try {
             CommandLine cmd = cmdh.parseParams(args, settings);
-            settings.setupFromCommandline(cmd);
+            settings = settings.setupFromCommandline(cmd);
             LOG.info("Settings loaded and set up.");
             sources = Sources.setupFromCommandline(settings, cmd);
             LOG.info("Sources loaded and set up.");

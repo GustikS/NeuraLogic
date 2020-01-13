@@ -64,9 +64,11 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
         //lastly remove all the dead (pruned) neurons by building a new topologic sort starting from output neuron
         NetworkReducing.supervisedNetPruning(inet, (BaseNeuron) outputStart);
 
-        LOG.info("IsoValue neuron compression from " + sizeBefore + " down to " + etalons.size() + " (topologic-check: " + inet.allNeuronsTopologic.size() + ")");
-        if (etalons.size() != inet.allNeuronsTopologic.size()) {
-            LOG.warning("Some inconsistencies appeared during iso-value compression of neurons! (size of unique values != size of topologic reconstruction)");
+        LOG.info("IsoValue neuron compression from " + sizeBefore + " down to " + etalons.size() + " etalons (topologic-reconstruction: " + inet.allNeuronsTopologic.size() + ")");
+        if (etalons.size() > inet.allNeuronsTopologic.size()) {
+            LOG.warning("There are more iso-values than neurons after compression (some unique parts have been pruned out!) = lossy compression");
+        } else if (etalons.size() < inet.allNeuronsTopologic.size()) {
+            LOG.warning("There are more neurons than iso-values (some neurons have not been pruned despite having the same value) = prevented by isomorphism check");
         }
         return inet;
     }
@@ -100,6 +102,9 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
     private void unsafeCompression(DetailedNetwork<State.Structure> inet, Map<Neurons, Neurons> etalonMap) {
         for (BaseNeuron<Neurons, State.Neural> neuron : inet.allNeuronsTopologic) { // over all neurons
             Neurons etalonReplacement = etalonMap.get(neuron);
+            if (etalonReplacement == neuron) {
+                continue;
+            }
             Iterator<Neurons> outputs = inet.getOutputs(neuron);
             if (outputs == null) {
                 continue;
@@ -124,7 +129,7 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
                         continue;
                     }
                     if (!equivalent(inet, sameNeuron, etalonReplacement)) {
-                        LOG.warning("Trying to replace a neuron with a non-equivalent etalon == lossy compression!");
+                        LOG.finer("Trying to replace a neuron with a non-equivalent etalon == lossy compression!");
                         continue;
                     }
                     while (outputs.hasNext()) {   // over all its outputs

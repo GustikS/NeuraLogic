@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
+import java.util.logging.Logger;
 
 /**
  * Created by gusta on 27.2.18.
@@ -18,17 +19,18 @@ import java.nio.file.Files;
  */
 public class Exporter {
 
+    private static final Logger LOG = Logger.getLogger(Exporter.class.getName());
+
     Settings settings;
 
-    PrintWriter tmpWriter;
+    PrintWriter settingsWriter;
     PrintWriter resultsWriter;
 
     String id;
 
     public Exporter(Settings settings) {
         this.settings = settings;
-        this.tmpWriter = getWriter(settings.tmpFile);
-        this.resultsWriter = getWriter(settings.resultFile);
+        this.settingsWriter = getWriter(settings.settingsExportFile, false);
     }
 
     /**
@@ -38,13 +40,13 @@ public class Exporter {
      * @param id
      */
     public Exporter(Settings settings, String id) {
-        if (settings == null){
+        if (settings == null) {
             return;
         }
         this.id = id;
         this.settings = settings;
-        this.tmpWriter = getWriter(settings.tmpFile);
-        this.resultsWriter = getWriter(settings.exportDir + "/" + id);
+        this.settingsWriter = getWriter(settings.settingsExportFile, false);
+        this.resultsWriter = getWriter(settings.exportDir + "/" + id, true);
     }
 
     public static Exporter getFrom(String id, Settings settings) {
@@ -62,7 +64,7 @@ public class Exporter {
         File[] contents = file.listFiles();
         if (contents != null) {
             for (File f : contents) {
-                if (! Files.isSymbolicLink(f.toPath())) {
+                if (!Files.isSymbolicLink(f.toPath())) {
                     deleteDir(f);
                 }
             }
@@ -70,9 +72,11 @@ public class Exporter {
         file.delete();
     }
 
-    public void tmpLine(String line) {
-        tmpWriter.println(line);
-        tmpWriter.flush();
+    public void exportSettings(Settings settings) {
+        LOG.info("Exporting settings to " + settings.settingsExportFile);
+        settingsWriter.println(settings.exportToJson());
+        settingsWriter.flush();
+        settingsWriter.close();
     }
 
     public void resultsLine(String line) {
@@ -81,14 +85,14 @@ public class Exporter {
     }
 
 
-    private PrintWriter getWriter(String filename) {
+    private PrintWriter getWriter(String filename, boolean append) {
         FileWriter fw = null;
         try {
             File file = new File(filename);
             if (file.getParentFile() != null)
                 file.getParentFile().mkdirs();
             file.createNewFile(); // if file already exists will do nothing
-            fw = new FileWriter(filename, true);
+            fw = new FileWriter(filename, append);
         } catch (IOException e) {
             e.printStackTrace();
         }

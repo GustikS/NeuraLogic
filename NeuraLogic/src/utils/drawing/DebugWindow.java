@@ -35,6 +35,7 @@ public class DebugWindow extends JFrame {
             img = ImageIO.read(new ByteArrayInputStream(imageBytes));
             if (img == null) {
                 LOG.severe("The graph's image could not have been drawn!");
+                return;
             }
         } catch (IOException e) {
             LOG.severe(e.getMessage());

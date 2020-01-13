@@ -13,5 +13,6 @@
     <orderEntry type="module" module-name="Neural" />
     <orderEntry type="module" module-name="Logic" />
     <orderEntry type="module" module-name="Utils" />
+    <orderEntry type="library" name="gson-2.6.2-javadoc" level="project" />
   </component>
 </module>
