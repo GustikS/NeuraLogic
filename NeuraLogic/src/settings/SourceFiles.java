@@ -100,9 +100,9 @@ public class SourceFiles extends Sources {
         LOG.info("Setting up sources from directory: " + foldDir + " with settings : " + settings);
         try {
             String templatePath = cmd.getOptionValue("template", settings.templateFile);
-            if (templatePath.startsWith("\\.") || settings.sourcePathProvided) {
+            if (templatePath.startsWith(".") || (settings.sourcePathProvided && !cmd.hasOption("template"))) {
                 this.template = Paths.get(foldDir.toString(), templatePath).toFile();
-            } else {
+            } else{
                 this.template = Paths.get(templatePath).toFile();
             }
             if (this.template.exists()) {

@@ -9,13 +9,8 @@
       <element id="module-output" name="Logic" />
       <element id="module-output" name="Utils" />
       <element id="extracted-dir" path="$PROJECT_DIR$/NeuraLogic/lib/antlr-4.7-complete.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/NeuraLogic/lib/commons-cli-1.4/commons-cli-1.4-sources.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/NeuraLogic/lib/commons-cli-1.4/commons-cli-1.4-javadoc.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/NeuraLogic/lib/commons-cli-1.4/commons-cli-1.4-tests.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/NeuraLogic/lib/commons-cli-1.4/commons-cli-1.4.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/NeuraLogic/lib/commons-cli-1.4/commons-cli-1.4-test-sources.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/NeuraLogic/lib/hamcrest-core-1.3.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/NeuraLogic/lib/junit-4.12.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/NeuraLogic/lib/gson-2.6.2.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

@@ -164,7 +164,7 @@ public class Settings {
     /**
      * Global random generator
      */
-    public Random random;
+    public transient Random random;
     /**
      * Global number formats for all printing
      */
@@ -309,7 +309,7 @@ public class Settings {
     /**
      * If the isoValueCompression is performed, check whether the merged neurons are truly equivalent
      */
-    public boolean losslessIsoCompression = true;
+    public boolean losslessIsoCompression = false;
     /**
      * Top-down value (gradient) based sub-graph isomorphism collapsing (merging)
      */
@@ -321,7 +321,7 @@ public class Settings {
     /**
      * If no weights are associated with the input neurons, i.e. no summing possible, prune out the identities (or keep them)
      */
-    public boolean removeIdenticalUnweightedInputs = true;
+    public boolean removeIdenticalUnweightedInputs = false;
     /**
      * If all neurons of the same class use the same activation, move to a single static reference (optimize memory)
      */
@@ -370,7 +370,7 @@ public class Settings {
     /**
      * Number of iterations for iso-value compression
      */
-    public int isoValueInits = 2;
+    public int isoValueInits = 1;
     /**
      * Number of decimal digits to check to consider two neurons to have the same output value
      */
@@ -391,7 +391,7 @@ public class Settings {
     /**
      * Recalculate results after every N epochae
      */
-    public int resultsRecalculationEpochae = 100;
+    public int resultsRecalculationEpochae = 10;
 
     /**
      * Default algorithm for neural cache searching
@@ -485,11 +485,11 @@ public class Settings {
      */
     public double constantInitValue = 0.1;
 
-    public double initLearningRate = 0.3;
+    public double initLearningRate = 0.01;
 
     public double dropoutRate = 0.0;
 
-    public OptimizerSet optimizer = OptimizerSet.SGD;
+    public OptimizerSet optimizer = OptimizerSet.ADAM;
 
     public enum OptimizerSet {
         SGD, ADAM
@@ -595,6 +595,10 @@ public class Settings {
 
     //----------------Crossvaldiation
 
+    /**
+     * Can enforce crossvalidation instead of pure training as default
+     */
+    public boolean crossvalidation;
     /**
      * If false, the x-val folds will always be the same!
      */
@@ -832,6 +836,11 @@ public class Settings {
                     settings.debugTemplateTraining = true;
                     break;
             }
+        }
+
+        if (cmd.hasOption("limitExamples")) {
+            String _limit = cmd.getOptionValue("limitExamples");
+            settings.appLimitSamples = Integer.parseInt(_limit);
         }
 
         if (cmd.hasOption("isoCompression")) {

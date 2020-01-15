@@ -246,4 +246,31 @@ public class MainTest {
 
         Main.main(args);
     }
+
+    @Test
+    public void compression() {
+        String[] args = ("-path ./resources/datasets/relational/molecules/mutagenesis " +
+                "-opt sgd -lr 0.3 -iso 10 -xval 5 -out ./out/compress").split(" ");
+
+//        Settings settings = new Settings();
+//        settings.crossvalidation = false;
+
+//
+//        settings.isoValueCompression = true;
+//        settings.losslessIsoCompression = true;
+//        settings.isoValueInits = 1;
+//        settings.isoDecimals = 10;
+
+        Main.main(args);
+    }
+
+    @Test
+    public void rciTest() {
+        String[] args = ("-t ./template.txt" +
+                " -path ./resources/datasets/relational/molecules/mutagenesis" +
+                " -opt adam -lr 0.01 -ts 10 -limit 10" +
+                " -out ./out/rci").split(" ");
+
+        Main.main(args);
+    }
 }

@@ -254,8 +254,8 @@ public class TrainingDebuggerTest {
     @Test
     public void mutagen_standard() {
         Logging logging = Logging.initLogging(Level.FINER);
-        String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/trainExamples.txt " +
-                "-q ./resources/datasets/relational/molecules/mutagenesis/trainQueries.txt " +
+        String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples.txt " +
+                "-q ./resources/datasets/relational/molecules/mutagenesis/queries.txt " +
                 "-t ./resources/datasets/relational/molecules/mutagenesis/template_new.txt").split(" ");
 
         Settings settings = new Settings();
@@ -264,12 +264,12 @@ public class TrainingDebuggerTest {
 
         settings.seed = 0;
         settings.initLearningRate = 0.3;
-        settings.maxCumEpochCount = 100;
+        settings.maxCumEpochCount = 1000;
         settings.resultsRecalculationEpochae = 10;
         settings.shuffleEachEpoch = true;
         settings.debugSampleOutputs = false;
         settings.calculateBestThreshold = true;
-//        settings.appLimitSamples = 10;
+//        settings.appLimitSamples = 2;
         settings.initializer = Settings.InitSet.SIMPLE;
         settings.optimizer = Settings.OptimizerSet.SGD;
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
@@ -279,9 +279,9 @@ public class TrainingDebuggerTest {
         settings.chainPruning = true;
 
         settings.isoValueCompression = true;
-        settings.losslessIsoCompression = true;
+        settings.losslessIsoCompression = false;
         settings.isoValueInits = 1;
-        settings.isoDecimals = 8;
+        settings.isoDecimals = 12;
 
 
         settings.storeNotShow = true;
@@ -327,16 +327,16 @@ public class TrainingDebuggerTest {
     public void mutagen_vector_cross() {
         Logging logging = Logging.initLogging(Level.FINER);
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples.txt " +
-                "-q ./resources/datasets/relational/molecules/mutagenesis/trainQueries.txt " +
+                "-q ./resources/datasets/relational/molecules/mutagenesis/queries.txt " +
                 "-t ./resources/datasets/relational/molecules/mutagenesis/template_vector_cross.txt").split(" ");
 
         Settings settings = new Settings();
 
         settings.initDistribution = Settings.InitDistribution.UNIFORM;
 
-        settings.seed = 0;
+        settings.seed = 2;
         settings.initLearningRate = 0.3;   //todo now make default initLearningRate change based on optimizer
-        settings.maxCumEpochCount = 100;
+        settings.maxCumEpochCount = 1000;
         settings.resultsRecalculationEpochae = 10;
         settings.shuffleEachEpoch = true;
         settings.debugSampleOutputs = false;
@@ -351,8 +351,9 @@ public class TrainingDebuggerTest {
         settings.chainPruning = true;
 
         settings.isoValueCompression = true;
+        settings.losslessIsoCompression = false;
         settings.isoValueInits = 1;
-        settings.isoDecimals = 2;
+        settings.isoDecimals = 12;
 
         settings.storeNotShow = true;
 

@@ -45,7 +45,6 @@ public class Exporter {
         }
         this.id = id;
         this.settings = settings;
-        this.settingsWriter = getWriter(settings.settingsExportFile, false);
         this.resultsWriter = getWriter(settings.exportDir + "/" + id, true);
     }
 

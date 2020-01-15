@@ -3,11 +3,9 @@ package networks.computation.evaluation.values.distributions;
 import networks.computation.evaluation.values.MatrixValue;
 import networks.computation.evaluation.values.ScalarValue;
 import networks.computation.evaluation.values.VectorValue;
-import networks.structure.components.weights.Weight;
 import settings.Settings;
 
 public interface ValueInitializer {
-    void initWeight(Weight weight);
 
     void initScalar(ScalarValue scalar);
 

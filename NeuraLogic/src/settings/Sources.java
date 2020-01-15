@@ -173,7 +173,7 @@ public class Sources {
             throw new NotImplementedException();
         }
 
-        if (cmd.hasOption("xval")) {
+        if (cmd.hasOption("xval") || settings.crossvalidation) {
             sources.crossvalidation = true;
         }
         return sources;

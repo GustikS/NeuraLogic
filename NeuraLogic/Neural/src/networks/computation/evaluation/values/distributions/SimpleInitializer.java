@@ -17,7 +17,6 @@ public class SimpleInitializer implements ValueInitializer {
         this.distribution = Distribution.getDistribution(settings);
     }
 
-    @Override
     public void initWeight(Weight weight){
         weight.value.initialize(this);
     }

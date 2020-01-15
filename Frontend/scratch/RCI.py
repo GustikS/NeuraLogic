@@ -16,7 +16,7 @@ output_path = "/home/gusta/data/metacentrum/" + experiment_id
 
 # remotely
 server = "praha1"
-remote_path = "/storage/" + server + "/home/souregus/neuralogic/"
+remote_path = "/home/souregus/neuralogic/"
 datasets_path_remote = remote_path + "datasets/jair"
 jarpath_remote = remote_path + "experiments/" + experiment_id + "/artifacts/"
 
@@ -27,13 +27,17 @@ walltime = "48:00:00"
 
 memory = memory_max + "b"
 scratch = "50mb"
-nodes = "1:ncpus=1"
+nodes = "1"
+tasks = "1"
+cpus = "1"
+partition = "longjobs"
 
 # template setup
 template_file = "template_vector_cross"
 template_id = template_file
 
-params = " -xval 5"
+# neuralogic params
+params = "-opt sgd -lr 0.3 -iso 12 -xval 5"
 
 # %% datasets
 
@@ -56,14 +60,22 @@ for dataset in datasets:
 
     export_path = os.path.join(remote_path, "experiments", experiment_id, "results", dataset, template_file, params_id)
 
-    script = "cd " + jarpath_remote + "\n"
-    script += "module add jdk-8\n"
+    script = "#!/bin/bash\n"
+    script += "#SBATCH --partition=" + partition + "\n"
+    script += "#SBATCH --time=" + walltime + "\n"
 
-    script += "sleep 30\n"
+    script += "#SBATCH --nodes=" + nodes + "\n"
+    script += "#SBATCH --ntasks-per-node=" + tasks + "\n"
+    script += "#SBATCH --cpus-per-task=" + cpus + "\n"
+
+    script += "#SBATCH --mem=" + memory_max + "\n"
+
+    script += "cd " + jarpath_remote + "\n"
+    script += "ml Java/1.8.0_202 \n"
 
     script += "java -XX:+UseSerialGC -XX:-BackgroundCompilation -XX:NewSize=2000m -Xms" + memory_min + " -Xmx" + memory_max + \
               " -jar " + jarname + " -t " + template_path + " -e " + examples_path + " -q " + queries_path + \
-              " -out " + export_path \
+              " -out " + export_path + " " \
               + params
 
     directory = os.path.join(output_path, "scripts", template_id, params_id)
@@ -83,7 +95,7 @@ qsub = []
 
 for script in scripts:
     qsub.append(
-        "qsub -l select=" + nodes + ":mem=" + memory + ":scratch_local=" + scratch + " -l walltime=" + walltime + " " + script
+        "sbatch " + script
     )
 
 with open(os.path.join(output_path, "scripts", template_id, params_id, "000__qsub.sh"), 'w') as f:

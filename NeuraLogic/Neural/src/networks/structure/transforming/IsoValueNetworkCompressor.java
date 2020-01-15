@@ -213,7 +213,7 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
     private void isoIteration(DetailedNetwork<State.Structure> inet, List<Weight> allWeights, QueryNeuron queryNeuron, Map<Neurons, ValueList> isoValues) {
         for (int i = 0; i < repetitions; i++) {
             for (Weight weight : allWeights) {
-                valueInitializer.initWeight(weight);
+                weight.init(valueInitializer);
             }
             inet.initializeStatesCache(-1);    //here we can transfer information from Structure to Computation
             invalidation.process(inet, queryNeuron.neuron);

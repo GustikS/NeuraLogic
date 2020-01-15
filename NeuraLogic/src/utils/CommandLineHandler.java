@@ -51,6 +51,8 @@ public class CommandLineHandler {
 
         options.addOption("debug", "debugMode", true, "debug some objects within the pipeline during the run [template, grounding, neuralization, samples, model]");
 
+        options.addOption("lim", "limitExamples", true, "limit examples to some smaller number (use e.g. for debugging) (" + settings.appLimitSamples + ")");
+
         options.addOption(new Option("seed", "randomSeed", true, "int seed for random generator (" + settings.seed + ")"));
 
         //-----------selection of one of evaluation modes

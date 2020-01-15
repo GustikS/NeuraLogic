@@ -17,7 +17,6 @@ public class GlorotInitializer implements ValueInitializer {
         this.distribution = new Uniform(settings.random, settings);
     }
 
-    @Override
     public void initWeight(Weight weight) {
         weight.value.initialize(this);
     }
