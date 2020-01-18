@@ -219,6 +219,11 @@ public class Settings {
     }
 
     /**
+     * Neuron sharing ACROSS the networks
+     */
+    public boolean possibleNeuronSharing = false;
+
+    /**
      * If there's no need for keeping the given sequence, ground in parallel in the given context
      */
     public boolean parallelGrounding = false;
@@ -916,6 +921,10 @@ public class Settings {
 
         if (groundingMode == GroundingMode.SEQUENTIAL) {
             forceFullNetworks = true;   //if we sequentially add new facts/rules, and then after grounding we take just the diff, the rules might not be connected, i.e. we need to turn them all blindly to neurons.
+            possibleNeuronSharing = true;
+        }
+        if (groundingMode == GroundingMode.GLOBAL){
+            possibleNeuronSharing = true;
         }
 
         //in case the outDir changed...
@@ -923,6 +932,11 @@ public class Settings {
         settingsExportFile = outDir + "/settings.json";
         console = outDir + "/consoleOutput";
         exportDir = outDir + "/export";
+
+        if (chainPruning || isoValueCompression || neuralNetsSupervisedPruning || copyOutInputOvermapping || isoGradientCompression || mergeIdenticalWeightedInputs || removeIdenticalUnweightedInputs || cycleBreaking || collapseWeights || expandEmbeddings)
+            neuralNetsPostProcessing = true;
+        else
+            neuralNetsPostProcessing = false;
 
 //        resultsRecalculationEpochae = maxCumEpochCount / 100;
         //todo

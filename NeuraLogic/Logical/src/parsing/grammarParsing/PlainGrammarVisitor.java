@@ -185,6 +185,10 @@ public class PlainGrammarVisitor extends GrammarVisitor {
     public class FactVisitor extends NeuralogicBaseVisitor<ValuedFact> {
         public VariableFactory variableFactory;
 
+        public FactVisitor(){
+            variableFactory = new VariableFactory();
+        }
+
         @Override
         public ValuedFact visitFact(@NotNull NeuralogicParser.FactContext ctx) {
             return visitAtom(ctx.atom());

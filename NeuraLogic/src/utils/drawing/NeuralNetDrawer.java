@@ -141,13 +141,13 @@ public class NeuralNetDrawer extends Drawer<NeuralSample> {
         }
 
         @Override
-        public void visit(UnweightedAtomNeuron neuron) {
+        public void visit(AtomNeuron neuron) {
             gv.addln(neuron.index + " [shape=ellipse, color=blue, label=" + getNeuronLabel(neuron) + "]");
             gv.addln(getEdges(neuron));
         }
 
         @Override
-        public void visit(AtomNeuron neuron) {
+        public void visit(WeightedAtomNeuron neuron) {
             gv.addln(neuron.index + " [shape=ellipse, color=blue, label=" + getNeuronLabel(neuron) + "]");
             gv.addln(getEdges(neuron));
         }

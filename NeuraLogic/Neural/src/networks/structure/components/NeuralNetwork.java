@@ -36,12 +36,13 @@ public class NeuralNetwork<N extends State.Neural.Structure> implements Example 
      * Should be as unique as possible
      */
     @NotNull
+    protected
     String id;
 
     /**
      * Number of neurons
      */
-    int neuronCount;
+    protected int neuronCount;
 
     /**
      * todo

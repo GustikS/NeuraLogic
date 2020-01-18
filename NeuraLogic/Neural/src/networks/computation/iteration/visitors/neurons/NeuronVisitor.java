@@ -84,9 +84,9 @@ public abstract class NeuronVisitor {
 
             public abstract <S extends State.Neural> void visit(WeightedRuleNeuron<S> neuron);
 
-            public abstract <S extends State.Neural> void visit(AtomNeuron<S> neuron);
+            public abstract <S extends State.Neural> void visit(WeightedAtomNeuron<S> neuron);
 
-            public abstract <S extends State.Neural> void visit(UnweightedAtomNeuron<S> neuron);
+            public abstract <S extends State.Neural> void visit(AtomNeuron<S> neuron);
 
             public abstract void visit(FactNeuron neuron);
         }

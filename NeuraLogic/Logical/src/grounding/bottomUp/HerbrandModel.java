@@ -89,7 +89,10 @@ public class HerbrandModel {
                 matching.getEngine().addSolutionConsumer(solutionConsumer);
                 // if the rule head is already ground
                 if (LogicUtils.isGround(head)) {
-                    Clause query = new Clause(LogicUtils.flipSigns(rule.body().literals()));
+
+//                    Clause query = new Clause(LogicUtils.flipSigns(rule.body().literals()));
+                    Clause query = new Clause(rule.body().literals());  //todo next both versions work in non-ground bodies, but only this one in ground bodies, investigate why
+
                     // add the head to herbrand if the rule body is true
                     if (matching.subsumption(query, 0)) {
                         herbrand.put(head.predicate(), head);

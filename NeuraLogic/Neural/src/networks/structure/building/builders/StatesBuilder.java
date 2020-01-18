@@ -60,6 +60,8 @@ public class StatesBuilder {
     public void inferValues(DetailedNetwork<State.Structure> detailedNetwork) {
         for (int i = 0; i < detailedNetwork.allNeuronsTopologic.size(); i++) {
             BaseNeuron<Neurons, State.Neural> neuron = detailedNetwork.allNeuronsTopologic.get(i);
+            if (neuron.getComputationView(0).getValue() != null)
+                continue;   // already initialized
             if (neuron instanceof WeightedNeuron) {
                 inferWeightedDimension(detailedNetwork, neuron);
             } else {

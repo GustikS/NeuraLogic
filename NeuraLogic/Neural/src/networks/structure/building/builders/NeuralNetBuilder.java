@@ -7,6 +7,7 @@ import constructs.template.components.GroundHeadRule;
 import constructs.template.components.GroundRule;
 import ida.ilp.logic.Literal;
 import networks.structure.building.NeuronMaps;
+import networks.structure.components.NeuronSets;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.neurons.types.*;
@@ -22,6 +23,7 @@ import settings.Settings;
 
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class NeuralNetBuilder {
     private static final Logger LOG = Logger.getLogger(NeuralNetBuilder.class.getName());
@@ -51,7 +53,7 @@ public class NeuralNetBuilder {
      * @param head  a head of all the subsequent rules
      * @param rules all the rules with all the groundings where it appears as a head
      */
-    public void loadNeuronsFromRules(Literal head, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>> rules) {
+    public void loadNeuronsFromRules(Literal head, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>> rules, NeuronSets createdNeurons) {
         NeuronMaps neuronMaps = neuralBuilder.neuronFactory.neuronMaps;
 
         boolean newAtomNeuron = false;
@@ -75,11 +77,13 @@ public class NeuralNetBuilder {
                     weightedAtomNeuron = true;
                 }
             }
-            if (weightedAtomNeuron)
-                headAtomNeuron = neuralBuilder.neuronFactory.createAtomNeuron(liftedRule.getKey().weightedRule.getHead(), head); //it doesn't matter which liftedRule's head (they are all the same)
-            else
+            if (weightedAtomNeuron) {
+                headAtomNeuron = neuralBuilder.neuronFactory.createWeightedAtomNeuron(liftedRule.getKey().weightedRule.getHead(), head); //it doesn't matter which liftedRule's head (they are all the same)
+                createdNeurons.weightedAtomNeurons.add((WeightedAtomNeuron) headAtomNeuron);
+            } else {
                 headAtomNeuron = neuralBuilder.neuronFactory.createUnweightedAtomNeuron(liftedRule.getKey().weightedRule.getHead(), head);
-
+                createdNeurons.atomNeurons.add((AtomNeuron) headAtomNeuron);
+            }
             if (headAtomNeuron.getComputationView(0).getAggregationState() instanceof AggregationState.CrossProducState) {   //the neuron will require complex input propagation
                 neuronMaps.containsCrossproduct = true;
             }
@@ -87,6 +91,7 @@ public class NeuralNetBuilder {
             headAtomNeuron.setShared(true);
             if (rules.entrySet().size() > 0) {  //if there are NEW rules for this headAtomNeuron to be processed, it means that we need to change its inputs in context of this new network!
                 if (headAtomNeuron instanceof WeightedNeuron) {
+//                    currentNeuronSets.weightedAtomNeurons.add((WeightedAtomNeuron) headAtomNeuron);
                     weightedAtomNeuron = true;
                     WeightedNeuronMapping<AggregationNeuron> inputMapping;
                     if ((inputMapping = (WeightedNeuronMapping<AggregationNeuron>) neuronMaps.extraInputMapping.get(headAtomNeuron)) != null) {    //if previously existing atom neuron already had input overmapping, create a new (incremental) one
@@ -95,6 +100,7 @@ public class NeuralNetBuilder {
                         neuronMaps.extraInputMapping.put(headAtomNeuron, new WeightedNeuronMapping<>(headAtomNeuron.getInputs(), ((WeightedNeuron) headAtomNeuron).getWeights()));
                     }
                 } else {
+//                    currentNeuronSets.atomNeurons.add((AtomNeuron) headAtomNeuron);
                     NeuronMapping<AggregationNeuron> inputMapping;
                     if ((inputMapping = (NeuronMapping<AggregationNeuron>) neuronMaps.extraInputMapping.get(headAtomNeuron)) != null) {    //if previously existing atom neuron already had input overmapping, create a new (incremental) one
                         neuronMaps.extraInputMapping.put(headAtomNeuron, new NeuronMapping<>(inputMapping));
@@ -104,6 +110,7 @@ public class NeuralNetBuilder {
                 }
             }
         }
+
         //2) AggregationNeurons creation
         for (Map.Entry<GroundHeadRule, LinkedHashSet<GroundRule>> rules2groundings : rules.entrySet()) {
             boolean newAggNeuron = false;
@@ -115,6 +122,7 @@ public class NeuralNetBuilder {
                 if (aggNeuron.getComputationView(0).getAggregationState().getInputMask() != null) { // the neuron will requires input masking!
                     neuronMaps.containsMasking = true;
                 }
+                createdNeurons.aggNeurons.add(aggNeuron);
             } else {
                 aggNeuron.isShared = true;
                 if (rules2groundings.getValue().size() > 0) {   //todo check
@@ -138,6 +146,7 @@ public class NeuralNetBuilder {
                 inputMapping.addLink(aggNeuron);
                 inputMapping.addWeight(rules2groundings.getKey().weightedRule.getWeight());
             }
+
             //3) RuleNeurons creation
             for (GroundRule grounding : rules2groundings.getValue()) {
                 RuleNeurons ruleNeuron;
@@ -145,8 +154,10 @@ public class NeuralNetBuilder {
                 if ((ruleNeuron = neuronMaps.ruleNeurons.get(grounding)) == null) {
                     if (grounding.weightedRule.detectWeights()) {
                         ruleNeuron = neuralBuilder.neuronFactory.createWeightedRuleNeuron(grounding);
+                        createdNeurons.weightedRuleNeurons.add((WeightedRuleNeuron) ruleNeuron);
                     } else {
                         ruleNeuron = neuralBuilder.neuronFactory.createRuleNeuron(grounding);
+                        createdNeurons.ruleNeurons.add((RuleNeuron) ruleNeuron);
                     }
                     if (ruleNeuron.getComputationView(0).getAggregationState() instanceof AggregationState.CrossProducState) {   //the neuron will require complex input propagation
                         neuronMaps.containsCrossproduct = true;
@@ -189,10 +200,10 @@ public class NeuralNetBuilder {
      * @return
      */
     @NotNull
-    public void connectAllNeurons() {
+    public void connectAllNeurons(NeuronSets createdNeurons) {
         NeuronMaps neuronMaps = neuralBuilder.neuronFactory.neuronMaps;
 
-        for (Map.Entry<GroundRule, RuleNeurons> entry : neuronMaps.ruleNeurons.entrySet()) {
+        for (Map.Entry<GroundRule, RuleNeurons> entry : neuronMaps.ruleNeurons.entrySet()) {    //todo iterate only newly created from currentNeuronSets here
             RuleNeurons ruleNeuron = entry.getValue();
             if (ruleNeuron.inputCount() == entry.getKey().weightedRule.getBody().size()) {
                 continue;   //this rule neuron is already connected (was created and taken from previous sample), connect only the newly created RuleNeurons
@@ -213,10 +224,12 @@ public class NeuralNetBuilder {
                         //factNeuron.isShared = true; //they might not be shared as all the fact neurons are created in advance
                     }
                     input = factNeuron;
+//                    currentNeuronSets.factNeurons.add(factNeuron);
                 }
                 if (liftedBodyAtom.isNegated()) {
                     NegationNeuron negationNeuron = neuralBuilder.neuronFactory.createNegationNeuron(input, liftedBodyAtom.getNegationActivation());
                     input = negationNeuron;
+//                    currentNeuronSets.negationNeurons.add(negationNeuron);
                 }
                 if (ruleNeuron instanceof WeightedNeuron) {
                     ((WeightedNeuron) ruleNeuron).addInput(input, weight);
@@ -231,11 +244,14 @@ public class NeuralNetBuilder {
      * This is only meant to go through the most necessary postprocessing steps to make for a valid neural network.
      * For the more advanced postprocessing optimization there is a whole configurable pipeline in {@link pipelines.building.NeuralNetsBuilder}
      *
-     * @param id
      * @return
      */
-    public DetailedNetwork finalizeStoredNetwork(String id) {
-        DetailedNetwork neuralNetwork = neuralBuilder.networkFactory.createDetailedNetwork(neuralBuilder.neuronFactory.neuronMaps, id);
+    public DetailedNetwork finalizeStoredNetwork(String id, NeuronSets createdNeurons, List<Literal> queryMatchingLiterals) {
+        List<AtomNeurons> queryNeurons = null;
+        if (queryMatchingLiterals != null) {
+            queryNeurons = queryMatchingLiterals.stream().map(neuralBuilder.neuronFactory.neuronMaps.atomNeurons::get).collect(Collectors.toList());
+        }
+        DetailedNetwork neuralNetwork = neuralBuilder.networkFactory.createDetailedNetwork(queryNeurons, createdNeurons, id, neuralBuilder.neuronFactory.neuronMaps.extraInputMapping);
         LOG.fine("DetailedNetwork created.");
 
         StatesBuilder statesBuilder = neuralBuilder.statesBuilder;
@@ -263,12 +279,15 @@ public class NeuralNetBuilder {
         //if there is the need, check parentCounts and store them by the network if needed
         if (settings.parentCounting || settings.chainPruning) {
             neuralNetwork.outputMapping = calculateOutputs(neuralNetwork);
-            statesBuilder.setupParentStateNumbers(neuralNetwork);
+            if (settings.parentCounting)
+                statesBuilder.setupParentStateNumbers(neuralNetwork);
         }
 
-        int sharedNeuronsCount = statesBuilder.makeSharedStatesRecursively(neuralNetwork);
-        LOG.fine("Shared neurons marked.");
-        neuralNetwork.setSharedNeuronsCount(sharedNeuronsCount);
+        if (settings.parallelTraining) {
+            int sharedNeuronsCount = statesBuilder.makeSharedStatesRecursively(neuralNetwork);
+            LOG.fine("Shared neurons marked.");
+            neuralNetwork.setSharedNeuronsCount(sharedNeuronsCount);
+        }
 
         return neuralNetwork;
     }

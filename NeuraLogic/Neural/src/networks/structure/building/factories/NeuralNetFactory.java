@@ -1,19 +1,16 @@
 package networks.structure.building.factories;
 
-import networks.structure.building.NeuronMaps;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.NeuronSets;
 import networks.structure.components.neurons.Neurons;
-import networks.structure.components.neurons.types.*;
+import networks.structure.components.neurons.types.AtomNeurons;
 import networks.structure.components.types.DetailedNetwork;
 import networks.structure.components.types.TopologicNetwork;
+import networks.structure.metadata.inputMappings.LinkedMapping;
 import networks.structure.metadata.states.State;
 import settings.Settings;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class NeuralNetFactory {
@@ -25,12 +22,10 @@ public class NeuralNetFactory {
     }
 
     /**
-     *
-     *
      * @return
      */
     public <S extends State.Structure> NeuralNetwork<S> extractOptimizedNetwork(DetailedNetwork<S> network) {
-        if (!settings.parentCounting){
+        if (!settings.parentCounting) {
             return extractTopologicNetwork(network);
         } else {
             return new NeuralNetwork<>(network.getId(), network.getNeuronCount());
@@ -52,31 +47,27 @@ public class NeuralNetFactory {
         return topologicNetwork;
     }
 
-    public DetailedNetwork createDetailedNetwork(NeuronMaps neuronMaps, String id) {
-        DetailedNetwork detailedNetwork = createDetailedNetwork(id, neuronMaps.atomNeurons.values(), neuronMaps.aggNeurons.values(), neuronMaps.ruleNeurons.values(), neuronMaps.factNeurons.values(), neuronMaps.negationNeurons);
+    public DetailedNetwork createDetailedNetwork(List<AtomNeurons> queryNeurons, NeuronSets createdNeurons, String id, Map<Neurons, LinkedMapping> extraInputMapping) {
+        DetailedNetwork detailedNetwork;
+        if (queryNeurons != null) {
+            detailedNetwork = new DetailedNetwork(id, createdNeurons, queryNeurons);
+        } else {
+            detailedNetwork = new DetailedNetwork(id, createdNeurons.getAllNeurons(), createdNeurons);
+        }
+
+        if (!settings.possibleNeuronSharing) {
+            detailedNetwork.sortIndices();  // only for independent networks
+        }
 
         //we take input overmaps from the neuronMaps, otherwise the inputs of the previously created neurons would be wrong
-        if (neuronMaps.extraInputMapping != null && !neuronMaps.extraInputMapping.isEmpty()) {
+        if (extraInputMapping != null && !extraInputMapping.isEmpty()) {
             detailedNetwork.extraInputMapping = new HashMap<>();
-            detailedNetwork.extraInputMapping.putAll(neuronMaps.extraInputMapping);
+            Set<Neurons> currentNeurons = new HashSet<>(detailedNetwork.allNeuronsTopologic);
+            for (Map.Entry<Neurons, LinkedMapping> entry : extraInputMapping.entrySet()) {
+                if (currentNeurons.contains(entry.getKey()))
+                    detailedNetwork.extraInputMapping.putIfAbsent(entry.getKey(), entry.getValue());
+            }
         }
         return detailedNetwork;
-    }
-
-    private DetailedNetwork createDetailedNetwork(String id, Collection<AtomNeurons> atomNeurons, Collection<AggregationNeuron> aggregationNeurons, Collection<RuleNeurons> ruleNeurons, Collection<FactNeuron> factNeurons, Collection<NegationNeuron> negationNeurons) {
-
-        NeuronSets neurons = new NeuronSets(atomNeurons, aggregationNeurons, ruleNeurons, factNeurons, negationNeurons);
-
-        List<Neurons> allNeurons = new ArrayList<>(atomNeurons.size() + aggregationNeurons.size() + ruleNeurons.size() + factNeurons.size() + negationNeurons.size());
-        allNeurons.addAll(neurons.atomNeurons);
-        allNeurons.addAll(neurons.aggNeurons);
-        allNeurons.addAll(neurons.ruleNeurons);
-        allNeurons.addAll(neurons.weightedRuleNeurons);
-        allNeurons.addAll(neurons.factNeurons);
-        allNeurons.addAll(neurons.negationNeurons);
-
-        DetailedNetwork network = new DetailedNetwork(id, allNeurons, neurons);
-
-        return network;
     }
 }

@@ -12,6 +12,7 @@ import ida.ilp.logic.Literal;
 import ida.ilp.logic.subsumption.Matching;
 import networks.structure.building.builders.NeuralNetBuilder;
 import networks.structure.components.NeuralNetwork;
+import networks.structure.components.NeuronSets;
 import networks.structure.components.neurons.QueryNeuron;
 import networks.structure.components.neurons.types.AtomNeurons;
 import networks.structure.components.types.DetailedNetwork;
@@ -55,10 +56,11 @@ public class Neuralizer {
      */
     public List<NeuralProcessingSample> neuralize(GroundingSample groundingSample) {
         neuralNetBuilder.setNeuronMaps(groundingSample.groundingWrap.getGroundTemplate().neuronMaps); //loading stored context from previous neural nets building
+        NeuronSets currentNeuronSets = new NeuronSets();    //a set of neurons used exclusively for this network being created only!
 
-        List<QueryNeuron> queryNeurons = supervisedNeuralization(groundingSample);
+        List<QueryNeuron> queryNeurons = supervisedNeuralization(groundingSample, currentNeuronSets);
         if (queryNeurons.isEmpty()) {
-            LOG.warning("No inference network created for " + groundingSample.query);
+            LOG.severe("No inference network created for " + groundingSample.query);
         }
 
         groundingSample.groundingWrap.getGroundTemplate().neuronMaps = neuralNetBuilder.getNeuronMaps(); //storing the context back again
@@ -74,23 +76,26 @@ public class Neuralizer {
      *
      * @return
      */
-    private List<QueryNeuron> supervisedNeuralization(GroundingSample groundingSample) { // - todo test if all correct in sequential sharing mode!!!
+    private List<QueryNeuron> supervisedNeuralization(GroundingSample groundingSample, NeuronSets createdNeurons) { // - todo test if all correct in sequential sharing mode!!!
         QueryAtom queryAtom = groundingSample.query;
         GroundTemplate groundTemplate = groundingSample.groundingWrap.getGroundTemplate();
 
         List<Literal> queryMatchingLiterals = getQueryMatchingLiterals(queryAtom, groundTemplate.groundRules);
-        LOG.finest("QueryMatchingLiterals: "+ queryMatchingLiterals);
+        LOG.finest("QueryMatchingLiterals: " + queryMatchingLiterals);
 
         DetailedNetwork neuralNetwork;
         if (settings.forceFullNetworks) {   //we can possibly still be forced to create the whole network, even if parts of it are not connected to the query, e.g. if the rules are not connected
-            neuralNetwork = blindNeuralization(groundTemplate);
+            neuralNetwork = blindNeuralization(groundTemplate, createdNeurons);
         } else {
-            neuralNetBuilder = loadAllNeuronsStartingFromQueryLiterals(groundTemplate, queryMatchingLiterals);
-            neuralNetBuilder.loadNeuronsFromFacts(groundTemplate.neuronMaps.groundFacts);
+            neuralNetBuilder = loadAllNeuronsStartingFromQueryLiterals(groundTemplate, queryMatchingLiterals, createdNeurons);
+
+            if (neuralNetBuilder.neuralBuilder.neuronFactory.neuronMaps.factNeurons.isEmpty() || settings.groundingMode == Settings.GroundingMode.SEQUENTIAL)
+                neuralNetBuilder.loadNeuronsFromFacts(groundTemplate.neuronMaps.groundFacts);   //global sharing mode transfers facts
+
             LOG.fine("Neurons created: " + neuralNetBuilder.getNeuronMaps());
-            neuralNetBuilder.connectAllNeurons();
+            neuralNetBuilder.connectAllNeurons(createdNeurons);
             LOG.fine("All neurons connected.");
-            neuralNetwork = neuralNetBuilder.finalizeStoredNetwork(groundTemplate.getId());
+            neuralNetwork = neuralNetBuilder.finalizeStoredNetwork(groundTemplate.getId(), createdNeurons, queryMatchingLiterals);
             LOG.fine("Final neural network created: " + neuralNetwork);
         }
 
@@ -103,19 +108,21 @@ public class Neuralizer {
      * @param groundTemplate
      * @return
      */
-    private DetailedNetwork blindNeuralization(GroundTemplate groundTemplate) {
+    private DetailedNetwork blindNeuralization(GroundTemplate groundTemplate, NeuronSets currentNeuronSets) {
         //simply create neurons for all the ground rules
         for (Map.Entry<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> entry : groundTemplate.neuronMaps.groundRules.entrySet()) {
-            neuralNetBuilder.loadNeuronsFromRules(entry.getKey(), entry.getValue());
+            neuralNetBuilder.loadNeuronsFromRules(entry.getKey(), entry.getValue(), currentNeuronSets);
         }
         groundTemplate.neuronMaps.groundRules.clear();   //remove rules that will have their neurons already created
 
         //and create facts
-        neuralNetBuilder.loadNeuronsFromFacts(groundTemplate.neuronMaps.groundFacts);
+        if (neuralNetBuilder.neuralBuilder.neuronFactory.neuronMaps.factNeurons.isEmpty() || settings.groundingMode == Settings.GroundingMode.SEQUENTIAL)
+            neuralNetBuilder.loadNeuronsFromFacts(groundTemplate.neuronMaps.groundFacts);
+
         LOG.fine("Neurons created: " + neuralNetBuilder.getNeuronMaps());
-        neuralNetBuilder.connectAllNeurons();
+        neuralNetBuilder.connectAllNeurons(currentNeuronSets);
         LOG.fine("All neurons connected.");
-        DetailedNetwork detailedNetwork = neuralNetBuilder.finalizeStoredNetwork(groundTemplate.getId());
+        DetailedNetwork detailedNetwork = neuralNetBuilder.finalizeStoredNetwork(groundTemplate.getId(), currentNeuronSets, null);
         LOG.fine("Final neural network created: " + detailedNetwork);
         return detailedNetwork;
     }
@@ -127,7 +134,7 @@ public class Neuralizer {
      * @param groundTemplate
      * @param closedSet
      */
-    private void recursiveNeuronsCreation(@NotNull Literal literal, GroundTemplate groundTemplate, Set<Literal> closedSet) {
+    private void recursiveNeuronsCreation(@NotNull Literal literal, GroundTemplate groundTemplate, Set<Literal> closedSet, NeuronSets currentNeuronSets) {
         if (closedSet.contains(literal)) {
             return;
         }
@@ -135,12 +142,12 @@ public class Neuralizer {
 
         LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>> ruleMap = groundTemplate.neuronMaps.groundRules.remove(literal);
         if (ruleMap != null) {
-            neuralNetBuilder.loadNeuronsFromRules(literal, ruleMap);
+            neuralNetBuilder.loadNeuronsFromRules(literal, ruleMap, currentNeuronSets);
 
             for (LinkedHashSet<GroundRule> groundings : ruleMap.values()) {
                 for (GroundRule grounding : groundings) {
                     for (Literal bodyAtom : grounding.groundBody) {
-                        recursiveNeuronsCreation(bodyAtom, groundTemplate, closedSet);
+                        recursiveNeuronsCreation(bodyAtom, groundTemplate, closedSet, currentNeuronSets);
                     }
                 }
             }
@@ -162,11 +169,11 @@ public class Neuralizer {
         return queryLiterals;
     }
 
-    protected NeuralNetBuilder loadAllNeuronsStartingFromQueryLiterals(GroundTemplate groundTemplate, List<Literal> queryLiterals) {
+    protected NeuralNetBuilder loadAllNeuronsStartingFromQueryLiterals(GroundTemplate groundTemplate, List<Literal> queryLiterals, NeuronSets currentNeuronSets) {
         Set<Literal> closedSet = new HashSet<>();
 
         for (Literal queryLiteral : queryLiterals) {
-            recursiveNeuronsCreation(queryLiteral, groundTemplate, closedSet);
+            recursiveNeuronsCreation(queryLiteral, groundTemplate, closedSet, currentNeuronSets);
             closedSet.add(queryLiteral);
         }
 

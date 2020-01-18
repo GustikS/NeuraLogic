@@ -3,6 +3,7 @@ package networks.structure.components.types;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neurons;
+import networks.structure.components.neurons.types.AtomNeurons;
 import networks.structure.metadata.states.State;
 
 import java.util.*;
@@ -23,7 +24,6 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
     public TopologicNetwork(String id, List<BaseNeuron<Neurons, State.Neural>> allNeurons) {
         super(id, allNeurons.size());
         allNeuronsTopologic = topologicSort(allNeurons);
-        sortIndices();
 
         if (allNeuronsTopologic.size() != allNeurons.size()) {
             LOG.warning("Some neurons connected in the network are not in neuronmaps!");
@@ -43,10 +43,25 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
         allNeuronsTopologic = allNeurons;
     }
 
+    public TopologicNetwork(List<AtomNeurons> queryNeurons, String id) {
+        super(id, -1);
+        Set<Neurons> visited = new HashSet<>();
+        LinkedList<BaseNeuron<Neurons, State.Neural>> stack = new LinkedList<>();
+        for (AtomNeurons queryNeuron : queryNeurons) {
+            BaseNeuron<Neurons, State.Neural> outputStart1 = (BaseNeuron<Neurons, State.Neural>) queryNeuron;
+            topoSortRecursive(outputStart1, visited, stack);
+        }
+        List<BaseNeuron<Neurons, State.Neural>> reverse = new ArrayList<>(stack.size());
+        Iterator<BaseNeuron<Neurons, State.Neural>> descendingIterator = stack.descendingIterator();
+        descendingIterator.forEachRemaining(reverse::add);
+        this.allNeuronsTopologic = reverse;
+        this.neuronCount = allNeuronsTopologic.size();
+    }
+
     /**
      * Reorder indices of the neurons assigned (incrementaly/randomly) during creation by NeuronFactory to respect the topologic order
      */
-    private void sortIndices() {
+    public void sortIndices() {
         int[] indices = new int[allNeuronsTopologic.size()];
         for (int i = 0; i < indices.length; i++) {
             indices[i] = allNeuronsTopologic.get(i).index;

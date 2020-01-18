@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 public class ValuedFact extends Atom {
 
     private static final Logger LOG = Logger.getLogger(Atom.class.getName());
-    private Weight weight;
+    public Weight weight;
 
     public ValuedFact(WeightedPredicate weightedPredicate, List<Term> terms, boolean negated, Weight weight) {
         super(weightedPredicate, terms, negated);

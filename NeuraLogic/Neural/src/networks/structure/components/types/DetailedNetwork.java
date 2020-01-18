@@ -5,6 +5,7 @@ import networks.structure.components.NeuronSets;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.WeightedNeuron;
+import networks.structure.components.neurons.types.AtomNeurons;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.NetworkMetadata;
 import networks.structure.metadata.inputMappings.LinkedMapping;
@@ -41,7 +42,7 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
     public Map<BaseNeuron, NeuronMapping<Neurons>> outputMapping;
 
     @Nullable
-    public NeuronSets allNeurons;
+    public NeuronSets neuronSets;
 
     /**
      * Cumulating all the states that will be necessary for each of the neurons before the final state objects are created to go into fast cache
@@ -53,6 +54,11 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
      */
     public int sharedNeuronsCount;
 
+    Boolean recursive;
+
+    @Nullable
+    NetworkMetadata metadata;
+
     public DetailedNetwork(String id, List<BaseNeuron<Neurons, State.Neural>> allNeurons) {
         super(id, allNeurons);
         cumulativeStates = new LinkedHashMap<>();
@@ -63,14 +69,15 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
         cumulativeStates = new LinkedHashMap<>();
     }
 
-    Boolean recursive;
-
-    @Nullable
-    NetworkMetadata metadata;
-
-    public DetailedNetwork(String id, List<BaseNeuron<Neurons, State.Neural>> allNeurons, NeuronSets neurons) {
+    public DetailedNetwork(String id, List<BaseNeuron<Neurons, State.Neural>> allNeurons, NeuronSets neuronSets) {
         this(id, allNeurons);
-        this.allNeurons = neurons;
+        this.neuronSets = neuronSets;
+    }
+
+    public DetailedNetwork(String id, NeuronSets neuronSets, List<AtomNeurons> queryNeurons) {
+        super(queryNeurons, id);
+        this.neuronSets = neuronSets;
+        cumulativeStates = new LinkedHashMap<>();
     }
 
     public List<Weight> getAllWeights() {

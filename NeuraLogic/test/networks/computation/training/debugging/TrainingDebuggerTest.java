@@ -394,4 +394,19 @@ public class TrainingDebuggerTest {
         trainingDebugger.executeDebug();
     }
 
+    @Test
+    public void nations() {
+        Logging logging = Logging.initLogging(Level.FINER);
+        String[] args = ("-q ./resources/datasets/relational/kbs/nations/trainQueries.txt " +
+                "-e ./resources/datasets/relational/kbs/nations/embeddings " +
+                "-t ./resources/datasets/relational/kbs/nations/template_basic").split(" ");
+
+        Settings settings = new Settings();
+
+        settings.neuralNetsPostProcessing = false;
+        settings.chainPruning = false;
+
+        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        trainingDebugger.executeDebug();
+    }
 }

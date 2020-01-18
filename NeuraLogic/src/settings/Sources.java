@@ -112,6 +112,10 @@ public class Sources {
                 LOG.warning("Incosistent learning mode inferred for this Source.");
             }
         }
+
+        if (templateProvided && train.QueriesProvided && !train.ExamplesProvided) {
+            settings.groundingMode = Settings.GroundingMode.GLOBAL;
+        }
     }
 
     /**
