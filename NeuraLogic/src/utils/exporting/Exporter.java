@@ -4,6 +4,7 @@ import learning.crossvalidation.TrainTestResults;
 import networks.computation.evaluation.results.Progress;
 import networks.computation.evaluation.results.Results;
 import settings.Settings;
+import settings.Sources;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -78,6 +79,15 @@ public class Exporter {
         settingsWriter.close();
     }
 
+
+    public void exportSources(Sources sources) {
+        LOG.info("Exporting sources to " + settings.sourcesExportFile);
+        PrintWriter writer = getWriter(settings.sourcesExportFile, false);
+        writer.println(sources.exportToJson());
+        writer.flush();
+        writer.close();
+    }
+
     public void resultsLine(String line) {
         resultsWriter.println(line);
         resultsWriter.flush();
@@ -144,5 +154,4 @@ public class Exporter {
             }
         }
     }
-
 }

@@ -34,6 +34,7 @@ public class CommandLineHandler {
         Options options = new Options();
 
         //-----------source files
+        options.addOption("sf", "sources", true, "path to json sources specification (" + settings.sourcesFile + ")");
         options.addOption("path", "sourcePath", true, "path to source files (" + settings.sourcePath + ")");
 
         options.addOption("t", "template", true, "template file (" + settings.templateFile + ")");

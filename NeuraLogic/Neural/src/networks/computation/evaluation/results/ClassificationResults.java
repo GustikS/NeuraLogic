@@ -151,7 +151,7 @@ public class ClassificationResults extends RegressionResults {
         if (accuracy != null)
             sb.append("accuracy: " + Settings.shortNumberFormat.format(accuracy.doubleValue() * 100) + "% (maj. " + Settings.shortNumberFormat.format(majorityErr * 100) + "%)");
         if (bestAccuracy != null) {
-            sb.append("(best thresh acc: " + Settings.shortNumberFormat.format(bestAccuracy) + ")");
+            sb.append("(best thresh acc: " + Settings.shortNumberFormat.format(bestAccuracy * 100) + "%)");
         }
         if (dispersion != null) {
             sb.append(", disp: " + dispersion.toString());

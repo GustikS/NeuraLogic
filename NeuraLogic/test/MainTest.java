@@ -247,6 +247,17 @@ public class MainTest {
         Main.main(args);
     }
 
+
+    @Test
+    public void loadFromFiles() {
+        String[] args = (
+                " -settings ./resources/settings/settings.json" +
+                " -sources ./resources/settings/sources.json" +
+                " -out ./out/jsons").split(" ");
+
+        Main.main(args);
+    }
+
     @Test
     public void compression() {
         String[] args = ("-path ./resources/datasets/relational/molecules/mutagenesis " +

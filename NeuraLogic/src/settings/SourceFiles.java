@@ -1,10 +1,15 @@
 package settings;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.InstanceCreator;
 import org.apache.commons.cli.CommandLine;
 import utils.Utilities;
 import utils.generic.Pair;
 
 import java.io.*;
+import java.lang.reflect.Type;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -45,6 +50,7 @@ public class SourceFiles extends Sources {
             this.test.QueriesProvided = true;
         }
 
+
         super.infer(settings);
     }
 
@@ -57,6 +63,11 @@ public class SourceFiles extends Sources {
     public SourceFiles(Settings settings, CommandLine cmd) {
         super(settings);
         String sourcePath = cmd.getOptionValue("sourcePath", settings.sourcePath);
+
+        if (cmd.hasOption("sources")){
+            String sources_ = cmd.getOptionValue("sources");
+            loadFromJson(sources_);
+        }
 
         if (cmd.hasOption("folds")) {
 
@@ -99,17 +110,22 @@ public class SourceFiles extends Sources {
     private SourceFiles setupFromDir(Settings settings, CommandLine cmd, File foldDir) {
         LOG.info("Setting up sources from directory: " + foldDir + " with settings : " + settings);
         try {
-            String templatePath = cmd.getOptionValue("template", settings.templateFile);
-            if (templatePath.startsWith(".") || (settings.sourcePathProvided && !cmd.hasOption("template"))) {
-                this.template = Paths.get(foldDir.toString(), templatePath).toFile();
-            } else{
-                this.template = Paths.get(templatePath).toFile();
+            if (this.template != null){
+                settings.templateFile = this.template.getPath();
             }
-            if (this.template.exists()) {
+            String templatePath = cmd.getOptionValue("template", settings.templateFile);
+            File template_;
+            if (templatePath.startsWith(".") || (settings.sourcePathProvided && !cmd.hasOption("template"))) {
+                template_ = Paths.get(foldDir.toString(), templatePath).toFile();
+            } else {
+                template_ = Paths.get(templatePath).toFile();
+            }
+            if (template_.exists()) {
                 if (parent != null && parent.templateReader != null) {
                     LOG.warning("Inconsistent setting - there are templates both in parent folder and fold folder (don't know which one to use)");
                 }
-                this.templateReader = new FileReader(this.template);
+                this.templateReader = new FileReader(template_);
+                this.template = template_;
             } else {
                 // if no template is provided in current folder, take the one from the parent folder
                 if (parent != null)
@@ -125,18 +141,23 @@ public class SourceFiles extends Sources {
         }
 
         try {
-            String trainExamplesPath = cmd.getOptionValue("trainExamples", settings.trainExamplesFile);
-            if (trainExamplesPath.startsWith("\\.") || settings.sourcePathProvided) {
-                this.trainExamples = Paths.get(foldDir.toString(), trainExamplesPath).toFile();
-            } else {
-                this.trainExamples = Paths.get(trainExamplesPath).toFile();
+            if (this.trainExamples != null){
+                settings.trainExamplesFile = trainExamples.getPath();
             }
-            if (!this.trainExamples.exists()) {
+            String trainExamplesPath = cmd.getOptionValue("trainExamples", settings.trainExamplesFile);
+            File trainExamples_ = null;
+            if (trainExamplesPath.startsWith("\\.") || settings.sourcePathProvided) {
+                trainExamples_ = Paths.get(foldDir.toString(), trainExamplesPath).toFile();
+            } else {
+                trainExamples_ = Paths.get(trainExamplesPath).toFile();
+            }
+            if (!trainExamples_.exists()) {
                 LOG.warning("Could not find trainExamples file in " + trainExamplesPath + ", will try to use 'examples' file for the same purpose");
-                this.trainExamples = Paths.get(foldDir.toString(), settings.trainExamplesFile2).toFile();
+                trainExamples_ = Paths.get(foldDir.toString(), settings.trainExamplesFile2).toFile();
             }
 
-            this.train.ExamplesReader = new FileReader(this.trainExamples);
+            this.train.ExamplesReader = new FileReader(trainExamples_);
+            this.trainExamples = trainExamples_;
             recognizeFileType(this.trainExamples.getAbsolutePath(), "trainExamples", settings);
 
         } catch (FileNotFoundException e) {
@@ -144,13 +165,18 @@ public class SourceFiles extends Sources {
         }
 
         try {
-            String testExamplesPath = cmd.getOptionValue("testExamples", settings.testExamplesFile);
-            if (testExamplesPath.startsWith("\\.") || settings.sourcePathProvided) {
-                this.testExamples = Paths.get(foldDir.toString(), testExamplesPath).toFile();
-            } else {
-                this.testExamples = Paths.get(testExamplesPath).toFile();
+            if (this.testExamples != null){
+                settings.testExamplesFile = testExamples.getPath();
             }
-            this.test.ExamplesReader = new FileReader(this.testExamples);
+            String testExamplesPath = cmd.getOptionValue("testExamples", settings.testExamplesFile);
+            File testExamples_ = null;
+            if (testExamplesPath.startsWith("\\.") || settings.sourcePathProvided) {
+                testExamples_ = Paths.get(foldDir.toString(), testExamplesPath).toFile();
+            } else {
+                testExamples_ = Paths.get(testExamplesPath).toFile();
+            }
+            this.test.ExamplesReader = new FileReader(testExamples_);
+            this.testExamples = testExamples_;
             recognizeFileType(this.testExamples.getAbsolutePath(), "testExamples", settings);
 
         } catch (FileNotFoundException e) {
@@ -158,18 +184,23 @@ public class SourceFiles extends Sources {
         }
 
         try {
-            String trainQueriesPath = cmd.getOptionValue("trainQueries", settings.trainQueriesFile);
-            if (trainQueriesPath.startsWith("\\.") || settings.sourcePathProvided) {
-                this.trainQueries = Paths.get(foldDir.toString(), trainQueriesPath).toFile();
-            } else {
-                this.trainQueries = Paths.get(trainQueriesPath).toFile();
+            if (this.trainQueries != null){
+                settings.trainQueriesFile = trainQueries.getPath();
             }
-            if (!this.trainQueries.exists()) {
+            String trainQueriesPath = cmd.getOptionValue("trainQueries", settings.trainQueriesFile);
+            File trainQueries_ = null;
+            if (trainQueriesPath.startsWith("\\.") || settings.sourcePathProvided) {
+                trainQueries_ = Paths.get(foldDir.toString(), trainQueriesPath).toFile();
+            } else {
+                trainQueries_ = Paths.get(trainQueriesPath).toFile();
+            }
+            if (!trainQueries_.exists()) {
                 LOG.warning("Could not find trainQueries file in " + trainQueriesPath + ", will try to use 'queries' file for the same purpose");
-                this.trainQueries = Paths.get(foldDir.toString(), settings.trainQueriesFile2).toFile();
+                trainQueries_ = Paths.get(foldDir.toString(), settings.trainQueriesFile2).toFile();
             }
 
-            this.train.QueriesReader = new FileReader(this.trainQueries);
+            this.train.QueriesReader = new FileReader(trainQueries_);
+            this.trainQueries = trainQueries_;
 
             recognizeFileType(this.trainQueries.getAbsolutePath(), "trainQueries", settings);
 
@@ -178,13 +209,18 @@ public class SourceFiles extends Sources {
         }
 
         try {
-            String testQueriesPath = cmd.getOptionValue("testQueries", settings.testQueriesFile);
-            if (testQueriesPath.startsWith("\\.") || settings.sourcePathProvided) {
-                this.testQueries = Paths.get(foldDir.toString(), testQueriesPath).toFile();
-            } else {
-                this.testQueries = Paths.get(testQueriesPath).toFile();
+            if (this.testQueries != null){
+                settings.testQueriesFile = testQueries.getPath();
             }
-            this.test.QueriesReader = new FileReader(this.testQueries);
+            String testQueriesPath = cmd.getOptionValue("testQueries", settings.testQueriesFile);
+            File testQueries_;
+            if (testQueriesPath.startsWith("\\.") || settings.sourcePathProvided) {
+                testQueries_ = Paths.get(foldDir.toString(), testQueriesPath).toFile();
+            } else {
+                testQueries_ = Paths.get(testQueriesPath).toFile();
+            }
+            this.test.QueriesReader = new FileReader(testQueries_);
+            this.testQueries = testQueries_;
             recognizeFileType(this.testQueries.getAbsolutePath(), "testQueries", settings);
 
         } catch (FileNotFoundException e) {
@@ -217,6 +253,9 @@ public class SourceFiles extends Sources {
 
     public boolean checkForSubstring(File file, String substring, int numberOfLines) {
 
+        if (file == null) {
+            return false;
+        }
         //are queries hidden in the example file? Quick check
         BufferedReader bufferedReader = null;
         try {
@@ -236,5 +275,36 @@ public class SourceFiles extends Sources {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public void importFromCSV(String inPath) {
+
+    }
+
+    public SourceFiles loadFromJson(String inPath) {
+        InstanceCreator<SourceFiles> creator = new InstanceCreator<SourceFiles>() {
+            public SourceFiles createInstance(Type type) {
+                return SourceFiles.this;
+            }
+        };
+        Gson gson = new GsonBuilder().registerTypeAdapter(SourceFiles.class, creator).create();
+        try {
+            String json = new String(Files.readAllBytes(Paths.get(inPath)));
+            SourceFiles sources = gson.fromJson(json, SourceFiles.class);
+            return sources;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public void exportToCSV(String outPath) {
+
+    }
+
+    public String exportToJson() {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String json = gson.toJson(this);
+        return json;
     }
 }

@@ -362,11 +362,11 @@ public class TrainingDebuggerTest {
     }
 
     @Test
-    public void jair_revived() {
+    public void jair_mda_dataset() {
         Logging logging = Logging.initLogging(Level.FINER);
-        String[] args = ("-e ./resources/datasets/relational/molecules/786_0/examples " +
-                "-q ./resources/datasets/relational/molecules/786_0/queries " +
-                "-t ./resources/datasets/relational/molecules/786_0/template_vector_element").split(" ");
+        String[] args = ("-e ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/examples " +
+                "-q ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/queries " +
+                "-t ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/template_vector_cross").split(" ");
 
         Settings settings = new Settings();
 
@@ -379,7 +379,7 @@ public class TrainingDebuggerTest {
         settings.shuffleEachEpoch = true;
         settings.debugSampleOutputs = false;
         settings.calculateBestThreshold = true;
-        settings.appLimitSamples = 1000;
+//        settings.appLimitSamples = 1000;
         settings.initializer = Settings.InitSet.SIMPLE;
         settings.optimizer = Settings.OptimizerSet.ADAM;
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
@@ -397,14 +397,17 @@ public class TrainingDebuggerTest {
     @Test
     public void nations() {
         Logging logging = Logging.initLogging(Level.FINER);
-        String[] args = ("-q ./resources/datasets/relational/kbs/nations/trainQueries.txt " +
+        String[] args = ("-q ./resources/datasets/relational/kbs/nations/queries_small.txt " +
                 "-e ./resources/datasets/relational/kbs/nations/embeddings " +
-                "-t ./resources/datasets/relational/kbs/nations/template_basic").split(" ");
+                "-t ./resources/datasets/relational/kbs/nations/template_2layers"+
+                " -out ./out/nations").split(" ");
 
         Settings settings = new Settings();
 
-        settings.neuralNetsPostProcessing = false;
+//        settings.neuralNetsPostProcessing = false;
         settings.chainPruning = false;
+        settings.isoValueCompression = true;
+        settings.losslessIsoCompression = false;
 
         TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
         trainingDebugger.executeDebug();

@@ -4,10 +4,10 @@ from os import listdir
 from os.path import isfile
 import pprint
 
-mypath = '/home/gusta/data/results'
+mypath = '/home/gusta/data/results/jair_diffcheck'
+templatename = "template_vector_cross"
 
 filename = "CrossvalidationPipeline"
-templatename = "template_vector_cross4"
 
 csv_file = os.path.join(mypath, templatename + "__" + filename)
 
@@ -29,18 +29,22 @@ results = {}
 
 train = {}
 test = {}
+majority = {}
 
 files = []
 get_files(mypath, filename, files)
 
 for file in files:
     if templatename in file:
-        name = file[file.find("results/") + 8: file.find("/template")]
+        name = file[file.find("results/") + 8: file.find("/export")]
         with open(file) as f:
             lines = f.readlines()
             for line in lines:
                 if "accuracy:" in line:
                     acc = line[line.find("accuracy: ") + 10: line.find("% (maj")]
+                    maj = line[line.find("maj. ") + 5: line.find("%)(best")]
+
+                    majority[name] = maj
                     if name in train:
                         results[name + "-test"] = line
                         test[name] = acc
@@ -55,10 +59,11 @@ pp.pprint(test)
 print("RESULTS----------")
 pp.pprint(results)
 
-with open(csv_file + '_train.csv', 'w') as f:
-    w = csv.writer(f)
-    w.writerows(train.items())
+all_res = []
 
-with open(csv_file + '_test.csv', 'w') as f:
-    w = csv.writer(f)
-    w.writerows(test.items())
+for data, train in train.items():
+    all_res.append(data + "," + majority[data] + "," + train + "," + test[data])
+
+with open(csv_file + '_results.csv', 'w') as f:
+    f.write("dataset, majority, train, test\n")
+    f.write("\n".join(all_res))

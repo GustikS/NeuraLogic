@@ -1,5 +1,7 @@
 package settings;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.commons.cli.CommandLine;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import utils.CommandLineHandler;
@@ -28,7 +30,7 @@ public class Sources {
     public Source train;
     public Source test;
 
-    public Reader templateReader;
+    public transient Reader templateReader;
 
     //----------------INFERRED SETTINGS
     public boolean templateProvided;
@@ -73,7 +75,7 @@ public class Sources {
         test = new Source();
     }
 
-    public void infer(Settings settings) {
+    public void infer(Settings settings) {  //todo now export after this
         if (folds != null) {
             foldFiles = true;
             crossvalidation = true;
@@ -116,6 +118,15 @@ public class Sources {
         if (templateProvided && train.QueriesProvided && !train.ExamplesProvided) {
             settings.groundingMode = Settings.GroundingMode.GLOBAL;
         }
+
+        finish(settings);
+    }
+
+    /**
+     * Steps to be performed once the settings are totally complete, i.e. after all the inference and validation
+     */
+    private void finish(Settings settings) {
+        settings.exporter.exportSources(this);
     }
 
     /**
@@ -129,6 +140,11 @@ public class Sources {
         String msg = "";
 
         infer(settings);
+
+        if (!settings.allowStructureLearning && !templateProvided){
+            LOG.severe(msg += "Structure learning is forbidden (not implemented) but no template provided\n");
+            valid = false;
+        }
 
         if (!train.QueriesProvided && !test.QueriesProvided && folds == null) {
             LOG.severe(msg += "Invalid learning setup - no training queries nor testing queries provided\n");
@@ -181,5 +197,11 @@ public class Sources {
             sources.crossvalidation = true;
         }
         return sources;
+    }
+
+    public String exportToJson() {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String json = gson.toJson(this);
+        return json;
     }
 }

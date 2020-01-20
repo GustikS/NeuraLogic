@@ -256,7 +256,7 @@ public class NeuralNetBuilder {
 
         StatesBuilder statesBuilder = neuralBuilder.statesBuilder;
         //fill all the states with correct dimension values
-        statesBuilder.inferValues(neuralNetwork);
+        statesBuilder.inferValues(neuralNetwork);   // todo somehow iterate only over the created neurons (but in topological order) - is that faster?
 
         LOG.fine("Neuron dimensions inferred.");
 
@@ -277,7 +277,7 @@ public class NeuralNetBuilder {
         }
 
         //if there is the need, check parentCounts and store them by the network if needed
-        if (settings.parentCounting || settings.chainPruning) {
+        if (settings.parentCounting || settings.neuralNetsPostProcessing) {
             neuralNetwork.outputMapping = calculateOutputs(neuralNetwork);
             if (settings.parentCounting)
                 statesBuilder.setupParentStateNumbers(neuralNetwork);

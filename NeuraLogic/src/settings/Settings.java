@@ -87,6 +87,8 @@ public class Settings {
 
     public String settingsExportFile = outDir + "/settings.json";
 
+    public String sourcesExportFile = outDir + "/sources.json";
+
     public String console = outDir + "/consoleOutput";
 
     public String exportDir = outDir + "/export";
@@ -96,7 +98,7 @@ public class Settings {
     /**
      * Outputs of these blocks will be exported into respective files
      */
-    public String[] exportBlocks = {"NeuralTrainTestPipeline", "NeuralTrainingPipe", "NeuralEvaluationPipe", "CrossvalidationPipeline"};
+    public String[] exportBlocks = {"NeuralTrainTestPipeline", "NeuralEvaluationPipe", "CrossvalidationPipeline"};
 
     //------------------Drawing/Debugging
 
@@ -558,9 +560,15 @@ public class Settings {
     public boolean undoWeightTrainingChanges;
 
     //-----------------Structure Learning
+    public boolean allowStructureLearning = false;
     public boolean structureLearning;
 
     //-----------------Source files
+
+    /**
+     * Default path to input  file with json specification of Sources (SourceFiles)
+     */
+    public String sourcesFile = "sources.json";
     /**
      * Default path to input file with all the settings
      */
@@ -930,6 +938,7 @@ public class Settings {
         //in case the outDir changed...
         resultFile = outDir + "/results";
         settingsExportFile = outDir + "/settings.json";
+        sourcesExportFile = outDir + "/sources.json";
         console = outDir + "/consoleOutput";
         exportDir = outDir + "/export";
 

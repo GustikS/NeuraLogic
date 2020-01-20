@@ -237,7 +237,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
             }
         }
         if (saturatedNetworks > 0) {
-            LOG.warning("There are saturated networks: #" + saturatedNetworks);
+            LOG.warning("There are saturated networks: #" + saturatedNetworks + " / " + samples.size());
         }
     }
 }

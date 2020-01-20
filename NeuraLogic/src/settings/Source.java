@@ -8,8 +8,8 @@ import java.util.logging.Logger;
 public class Source {
     private static final Logger LOG = Logger.getLogger(Source.class.getName());
 
-    public Reader ExamplesReader;
-    public Reader QueriesReader;  // the queries should always be present for learning
+    public transient Reader ExamplesReader;
+    public transient Reader QueriesReader;  // the queries should always be present for learning
 
     public boolean ExamplesSeparate;
     public boolean QueriesSeparate;
