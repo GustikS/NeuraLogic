@@ -170,8 +170,7 @@ public class ClassificationResults extends RegressionResults {
     }
 
     @Override
-    public ClassificationResults export(Exporter exporter) {
+    public void export(Exporter exporter) {
         exporter.export(this);
-        return this;
     }
 }

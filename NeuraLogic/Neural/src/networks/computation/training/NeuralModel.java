@@ -21,7 +21,7 @@ public class NeuralModel implements Model<QueryNeuron> {    //todo now add accur
     private static final Logger LOG = Logger.getLogger(NeuralModel.class.getName());
 
     public List<Weight> weights;
-    private Settings settings;
+    private transient Settings settings;
 
     public Value threshold;
 

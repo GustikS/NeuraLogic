@@ -199,7 +199,7 @@ public class MainTest {
     public void muta_gnn() {
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/queries " +
-                "-t ./resources/datasets/relational/molecules/mutagenesis/template_gnn" +
+                "-t ./resources/datasets/relational/molecules/template_unified_gnn_bad" +
                 " -out ./out/muta-gnn3 -xval 5").split(" ");
 
         Settings settings = new Settings();
@@ -222,9 +222,9 @@ public class MainTest {
         settings.neuralNetsPostProcessing = true;
         settings.chainPruning = true;
 
-        settings.isoValueCompression = false;
+        settings.isoValueCompression = true;
         settings.losslessIsoCompression = false;
-        settings.isoValueInits = 2;
+        settings.isoValueInits = 1;
         settings.isoDecimals = 15;
 
         settings.foldsCount = 5;

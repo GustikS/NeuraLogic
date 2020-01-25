@@ -8,8 +8,9 @@ import utils.generic.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static utils.Utilities.terminateSampleStream;
 
 /**
  * Created by gusta on 8.3.17.
@@ -36,7 +37,7 @@ public interface Splitter<T extends LearningSample> {
     default List<Fold<T>> splitIntoFolds(List<Stream<T>> streams) {
         List<List<T>> folds = new ArrayList<>(streams.size());
         for (Stream<T> fold : streams) {
-            folds.add(fold.collect(Collectors.toList()));
+            folds.add(terminateSampleStream(fold));
         }
 
         List<Fold<T>> cvf = new ArrayList<>(streams.size());

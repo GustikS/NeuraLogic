@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 public abstract class Distribution {
     private static final Logger LOG = Logger.getLogger(Distribution.class.getName());
 
-    Settings setting;
+    transient Settings setting;
     Random rg;
     double scale;
 

@@ -35,23 +35,23 @@ import java.util.logging.Logger;
 public class IterativeTrainingStrategy extends TrainingStrategy {
     private static final Logger LOG = Logger.getLogger(IterativeTrainingStrategy.class.getName());
 
-    NeuralModel bestModel;
+     transient NeuralModel bestModel;
 
-    List<NeuralSample> trainingSet;
+     transient List<NeuralSample> trainingSet;
 
-    List<NeuralSample> validationSet;
+     transient List<NeuralSample> validationSet;
 
-    Progress progress;
+     transient Progress progress;
 
-    RestartingStrategy restartingStrategy;
+     RestartingStrategy restartingStrategy;
 
-    LearnRateDecayStrategy learnRateDecayStrategy;
+     LearnRateDecayStrategy learnRateDecayStrategy;
 
-    ListTrainer trainer;
+     ListTrainer trainer;
 
-    ValueInitializer valueInitializer;
+     ValueInitializer valueInitializer;
 
-    private TrainingDebugger trainingDebugger;
+    transient TrainingDebugger trainingDebugger;
 
     public IterativeTrainingStrategy(Settings settings, NeuralModel model, List<NeuralSample> sampleList) {
         super(settings, model);
@@ -87,6 +87,8 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     }
 
     public Pair<NeuralModel, Progress> train() {
+        timing.tic();
+
         LOG.finer("Starting with iterative mode neural training.");
         initTraining();
         int epochae = 0;
@@ -99,6 +101,9 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
             }
             endRestart();
         }
+
+        timing.toc();
+        timing.finish();
         return finish();
     }
 

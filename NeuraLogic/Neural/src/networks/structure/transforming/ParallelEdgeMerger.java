@@ -26,7 +26,7 @@ import java.util.logging.Logger;
  * after investigation - pretty much all the weights in LRNNs are shared, possibly in complex patterns, so this is not possible/efficient
  * - the only good thing is to prune unweighted inputs, e.g. multiple identical neurons going into AVG or MAX aggregations...
  */
-public class ParallelEdgeMerger implements NetworkReducing {
+public class ParallelEdgeMerger implements NetworkReducing {    //todo repair - this corrupts gradient computation
     private static final Logger LOG = Logger.getLogger(ParallelEdgeMerger.class.getName());
     private Settings settings;
 
@@ -40,6 +40,11 @@ public class ParallelEdgeMerger implements NetworkReducing {
         Topologic.TDownVisitor bUpVisitor = new Topologic(inet).new TDownVisitor(outputStart, mergingVisitor);
         bUpVisitor.topdown();
         return inet;
+    }
+
+    @Override
+    public void finish() {
+
     }
 
     class MergingVisitor extends NeuronVisitor.Weighted {

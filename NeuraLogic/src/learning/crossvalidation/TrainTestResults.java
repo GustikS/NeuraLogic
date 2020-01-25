@@ -8,7 +8,7 @@ import utils.exporting.Exporter;
 /**
  * Created by gusta on 8.3.17.
  */
-public class TrainTestResults implements Exportable<TrainTestResults> {
+public class TrainTestResults implements Exportable {
     public Progress training;
     public Results testing;
 
@@ -18,8 +18,10 @@ public class TrainTestResults implements Exportable<TrainTestResults> {
     }
 
     @Override
-    public TrainTestResults export(Exporter exporter) {
-        exporter.export(this);
-        return this;
+    public void export(Exporter exporter) {
+        Progress progress = new Progress();
+        progress.bestResults = training.bestResults;
+        TrainTestResults trainTestResults = new TrainTestResults(progress, testing);
+        exporter.export(trainTestResults);
     }
 }

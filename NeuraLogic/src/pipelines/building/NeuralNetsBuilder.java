@@ -79,7 +79,7 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
      * @return
      */
     public Pipeline<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> buildProcessingPipeline() {
-        Pipeline<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> pipeline = new Pipeline<>("NeuralNetsPostprocessing", settings);
+        Pipeline<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> pipeline = new Pipeline<>("NeuralNetsPostprocessingPipeline", settings);
 
         ConnectAfter<Stream<NeuralProcessingSample>> nextPipe = pipeline.registerStart(new IdentityGenPipe<>("NNBuildingInit"));
 

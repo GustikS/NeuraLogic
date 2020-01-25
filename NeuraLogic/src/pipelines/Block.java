@@ -13,7 +13,7 @@ public abstract class Block {
 
     protected Pipeline parent;
     protected Exporter exporter;
-    protected Settings settings;
+    public Settings settings;
 
     protected <T> void export(T outputReady) {
         if (outputReady instanceof Exportable) {

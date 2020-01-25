@@ -46,7 +46,7 @@ public abstract class Pipe<I, O> extends Block implements Function<I, O>, Connec
         LOG.finer("Entering: " + ID);
         outputReady = apply(input);
 
-        super.export(outputReady);
+        this.export(outputReady);
 
         if (this.output != null) {
             this.output.accept(outputReady);

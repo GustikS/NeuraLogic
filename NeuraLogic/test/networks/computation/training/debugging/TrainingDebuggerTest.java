@@ -328,7 +328,8 @@ public class TrainingDebuggerTest {
         Logging logging = Logging.initLogging(Level.FINER);
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples.txt " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/queries.txt " +
-                "-t ./resources/datasets/relational/molecules/mutagenesis/template_vector_cross.txt").split(" ");
+                "-t ./resources/datasets/relational/molecules/mutagenesis/template_vector_cross.txt" +
+                " -out ./out/expo").split(" ");
 
         Settings settings = new Settings();
 
@@ -336,7 +337,7 @@ public class TrainingDebuggerTest {
 
         settings.seed = 2;
         settings.initLearningRate = 0.3;   //todo now make default initLearningRate change based on optimizer
-        settings.maxCumEpochCount = 1000;
+        settings.maxCumEpochCount = 10;
         settings.resultsRecalculationEpochae = 10;
         settings.shuffleEachEpoch = true;
         settings.debugSampleOutputs = false;
@@ -355,6 +356,8 @@ public class TrainingDebuggerTest {
         settings.isoValueInits = 1;
         settings.isoDecimals = 12;
 
+        settings.errorFunction = Settings.ErrorFcn.CROSSENTROPY;
+
         settings.storeNotShow = true;
 
         TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
@@ -362,11 +365,12 @@ public class TrainingDebuggerTest {
     }
 
     @Test
-    public void jair_mda_dataset() {
+    public void mutagen_gnns() {
         Logging logging = Logging.initLogging(Level.FINER);
-        String[] args = ("-e ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/examples " +
-                "-q ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/queries " +
-                "-t ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/template_vector_cross").split(" ");
+        String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples " +
+                "-q ./resources/datasets/relational/molecules/mutagenesis/queries " +
+                "-t ./resources/datasets/relational/molecules/mutagenesis/template_unified_gnn_bad" +
+                " -out ./out/expo").split(" ");
 
         Settings settings = new Settings();
 
@@ -379,7 +383,45 @@ public class TrainingDebuggerTest {
         settings.shuffleEachEpoch = true;
         settings.debugSampleOutputs = false;
         settings.calculateBestThreshold = true;
-//        settings.appLimitSamples = 1000;
+//        settings.appLimitSamples = 10;
+        settings.initializer = Settings.InitSet.SIMPLE;
+        settings.optimizer = Settings.OptimizerSet.ADAM;
+        settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
+
+        settings.oneQueryPerExample = true;
+        settings.neuralNetsPostProcessing = true;
+        settings.chainPruning = true;
+
+        settings.isoValueCompression = true;
+        settings.losslessIsoCompression = false;
+        settings.isoValueInits = 1;
+        settings.isoDecimals = 3;
+
+        settings.storeNotShow = true;
+
+        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        trainingDebugger.executeDebug();
+    }
+
+    @Test
+    public void jair_mda_dataset() {
+        Logging logging = Logging.initLogging(Level.FINER);
+        String[] args = ("-e ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/examples " +
+                "-q ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/queries " +
+                "-t ./resources/datasets/relational/molecules/template_unified_bad").split(" ");
+
+        Settings settings = new Settings();
+
+        settings.initDistribution = Settings.InitDistribution.UNIFORM;
+
+        settings.seed = 0;
+        settings.initLearningRate = 0.01;   //todo now make default initLearningRate change based on optimizer
+        settings.maxCumEpochCount = 1000;
+        settings.resultsRecalculationEpochae = 10;
+        settings.shuffleEachEpoch = true;
+        settings.debugSampleOutputs = false;
+        settings.calculateBestThreshold = true;
+//        settings.appLimitSamples = 100;
         settings.initializer = Settings.InitSet.SIMPLE;
         settings.optimizer = Settings.OptimizerSet.ADAM;
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
@@ -388,6 +430,7 @@ public class TrainingDebuggerTest {
         settings.neuralNetsPostProcessing = true;
         settings.chainPruning = true;
         settings.isoValueCompression = true;
+        settings.isoDecimals = 1;
         settings.storeNotShow = true;
 
         TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);

@@ -18,12 +18,12 @@ import java.util.logging.Logger;
 public abstract class Results implements Exportable<Results> {
     private static final Logger LOG = Logger.getLogger(Results.class.getName());
 
-    Settings settings;
+    transient Settings settings;
 
     @Deprecated
     public boolean evaluatedOnline = true;
 
-    public List<Result> evaluations;
+    public transient List<Result> evaluations;
 
     /**
      * How to aggregate individual errors of samples. E.g. mean for MSE, or sum for SSE.

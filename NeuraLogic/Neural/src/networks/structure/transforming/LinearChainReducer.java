@@ -9,6 +9,7 @@ import networks.structure.components.neurons.types.AtomNeurons;
 import networks.structure.components.types.DetailedNetwork;
 import networks.structure.metadata.states.State;
 import settings.Settings;
+import utils.Timing;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,14 +18,23 @@ import java.util.logging.Logger;
 
 public class LinearChainReducer implements NetworkReducing {
     private static final Logger LOG = Logger.getLogger(LinearChainReducer.class.getName());
-    private final Settings settings;
+    private transient final Settings settings;
+
+    int allNeurons = 0;
+    int prunedNeurons = 0;
+
+    Timing timing;
+
 
     public LinearChainReducer(Settings settings) {
         this.settings = settings;
+        this.timing = new Timing();
     }
 
     @Override
     public NeuralNetwork reduce(DetailedNetwork<State.Neural.Structure> inet, AtomNeurons<State.Neural> outputNeuron) {
+        timing.tic();
+
         List<Neurons> middleInputNeurons = new ArrayList<>();
         Iterator<AggregationNeuron> inputs = inet.getInputs(outputNeuron);
         inputs.forEachRemaining(middleInputNeurons::add);
@@ -41,8 +51,18 @@ public class LinearChainReducer implements NetworkReducing {
         NetworkReducing.supervisedNetPruning(inet, (BaseNeuron) outputNeuron);    //lastly remove all the dead (pruned) neurons by building a new topologic sort starting from output neuron
         int sizeAfter = inet.allNeuronsTopologic.size();
 //        LOG.info(inet.toString());
+
+        allNeurons += sizeBefore;
+        prunedNeurons += sizeAfter;
         LOG.info("LinearChainPruning reduced neurons from " + sizeBefore + " down to " + sizeAfter);
+
+        timing.toc();
         return inet;
+    }
+
+    @Override
+    public void finish() {
+        timing.finish();
     }
 
     private void prune(DetailedNetwork<State.Neural.Structure> inet, BaseNeuron<Neurons, State.Neural> middle) {

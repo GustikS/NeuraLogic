@@ -74,11 +74,10 @@ public class Pair<R, S> implements Exportable<Pair<R, S>> {
     }
 
     @Override
-    public Pair<R, S> export(Exporter exporter) {
+    public void export(Exporter exporter) {
         if (r instanceof Exportable)
             ((Exportable) r).export(exporter);
         if (s instanceof Exportable)
             ((Exportable) s).export(exporter);
-        return this;
     }
 }

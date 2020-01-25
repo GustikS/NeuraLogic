@@ -94,15 +94,13 @@ public class Progress implements Exportable<Progress> {
         }
 
         @Override
-        public TrainVal export(Exporter exporter) {
+        public void export(Exporter exporter) {
             exporter.export(this);
-            return this;
         }
     }
 
     @Override
-    public Progress export(Exporter exporter) {
+    public void export(Exporter exporter) {
         exporter.export(this);
-        return this;
     }
 }

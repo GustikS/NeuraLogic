@@ -7,6 +7,7 @@ import networks.computation.evaluation.values.Value;
 import org.apache.commons.cli.CommandLine;
 import pipelines.Pipeline;
 import utils.Utilities;
+import utils.exporting.Exportable;
 import utils.exporting.Exporter;
 import utils.generic.Pair;
 
@@ -24,7 +25,7 @@ import java.util.logging.Logger;
 /**
  * Created by gusta on 8.3.17.
  */
-public class Settings {
+public class Settings implements Exportable {
 
     //todo - uncompressed lambda template for experiments
     //todo - how to handle non-entailed examples
@@ -76,6 +77,12 @@ public class Settings {
 
     //------------------Exporting (i.e. output files for logging etc.)
 
+    public Object blockExporting = BlockExporting.JSON;
+
+    public enum BlockExporting {
+        JSON, TEXT
+    }
+
     /**
      * Cleaning all previously generated outputs before each run
      */
@@ -98,7 +105,8 @@ public class Settings {
     /**
      * Outputs of these blocks will be exported into respective files
      */
-    public String[] exportBlocks = {"NeuralTrainTestPipeline", "NeuralEvaluationPipe", "CrossvalidationPipeline"};
+    public String[] exportBlocks = {"NeuralTrainTestPipeline", "NeuralEvaluationPipe", "CrossvalidationPipeline",
+            "CompressionPipe", "NetworkPruningPipe", "NeuralTrainingPipe"};
 
     //------------------Drawing/Debugging
 
@@ -535,7 +543,7 @@ public class Settings {
     }
 
     public enum ErrorFcn {
-        SQUARED_DIFF, ABS_DIFF
+        SQUARED_DIFF, ABS_DIFF, CROSSENTROPY;
     }
 
     public enum AggregationFcn {
@@ -931,7 +939,7 @@ public class Settings {
             forceFullNetworks = true;   //if we sequentially add new facts/rules, and then after grounding we take just the diff, the rules might not be connected, i.e. we need to turn them all blindly to neurons.
             possibleNeuronSharing = true;
         }
-        if (groundingMode == GroundingMode.GLOBAL){
+        if (groundingMode == GroundingMode.GLOBAL) {
             possibleNeuronSharing = true;
         }
 
@@ -991,9 +999,4 @@ public class Settings {
 
     }
 
-    public String exportToJson() {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        String json = gson.toJson(this);
-        return json;
-    }
 }

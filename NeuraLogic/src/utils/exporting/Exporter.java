@@ -1,8 +1,5 @@
 package utils.exporting;
 
-import learning.crossvalidation.TrainTestResults;
-import networks.computation.evaluation.results.Progress;
-import networks.computation.evaluation.results.Results;
 import settings.Settings;
 import settings.Sources;
 
@@ -11,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -24,14 +22,17 @@ public class Exporter {
 
     Settings settings;
 
-    PrintWriter settingsWriter;
-    PrintWriter resultsWriter;
+    File exportFile;
+    PrintWriter exportWriter;
 
     String id;
 
+    String suffix = "";
+
+    boolean crossvalDetected;
+
     public Exporter(Settings settings) {
         this.settings = settings;
-        this.settingsWriter = getWriter(settings.settingsExportFile, false);
     }
 
     /**
@@ -46,7 +47,11 @@ public class Exporter {
         }
         this.id = id;
         this.settings = settings;
-        this.resultsWriter = getWriter(settings.exportDir + "/" + id, true);
+
+        if (settings.blockExporting == Settings.BlockExporting.JSON) {
+            this.suffix = ".json";
+        }
+        this.exportWriter = getWriter(settings.exportDir + "/" + id + suffix, true);
     }
 
     public static Exporter getFrom(String id, Settings settings) {
@@ -54,7 +59,10 @@ public class Exporter {
             return null;
         for (String exportPipeline : settings.exportBlocks) {
             if (id.equals(exportPipeline)) {
-                return new Exporter(settings, id);
+                if (settings.blockExporting == Settings.BlockExporting.TEXT)
+                    return new TextExporter(settings, id);
+                else
+                    return new Exporter(settings, id);
             }
         }
         return null;
@@ -74,11 +82,11 @@ public class Exporter {
 
     public void exportSettings(Settings settings) {
         LOG.info("Exporting settings to " + settings.settingsExportFile);
+        PrintWriter settingsWriter = getWriter(settings.settingsExportFile, false);
         settingsWriter.println(settings.exportToJson());
         settingsWriter.flush();
         settingsWriter.close();
     }
-
 
     public void exportSources(Sources sources) {
         LOG.info("Exporting sources to " + settings.sourcesExportFile);
@@ -89,18 +97,21 @@ public class Exporter {
     }
 
     public void resultsLine(String line) {
-        resultsWriter.println(line);
-        resultsWriter.flush();
+        exportWriter.println(line);
+        exportWriter.println();
+        exportWriter.flush();
     }
-
 
     private PrintWriter getWriter(String filename, boolean append) {
         FileWriter fw = null;
         try {
-            File file = new File(filename);
-            if (file.getParentFile() != null)
-                file.getParentFile().mkdirs();
-            file.createNewFile(); // if file already exists will do nothing
+            exportFile = new File(filename);
+            if (exportFile.getParentFile() != null)
+                exportFile.getParentFile().mkdirs();
+            if (exportFile.exists() && append) {
+                crossvalDetected = true;
+            }
+            exportFile.createNewFile(); // if file already exists will do nothing
             fw = new FileWriter(filename, append);
         } catch (IOException e) {
             e.printStackTrace();
@@ -110,48 +121,42 @@ public class Exporter {
         return out;
     }
 
-    public <T> void export(T t) {
-        resultsLine(t.toString());
-    }
-
-    public void export(TrainTestResults trainTestResults) {
-        resultsLine("TrainTestResults:");
-        trainTestResults.training.bestResults.export(this);
-        resultsLine("Testing:");
-        trainTestResults.testing.export(this);
-    }
-
-    public void export(Results results) {
-//        resultsLine("Results:");
-        resultsLine(results.toString(settings));
-    }
-
-    public void export(Progress.TrainVal trainVal) {
-        resultsLine("TrainVal:");
-        resultsLine("Training:");
-        trainVal.training.export(this);
-        resultsLine("Validation:");
-        trainVal.validation.export(this);
-    }
-
-    public void export(Progress progress) {
-        resultsLine("Progress:");
-        resultsLine("BestResults:");
-        progress.bestResults.export(this);
-        resultsLine("Training");
-        for (Progress.Restart restart : progress.restarts) {
-            resultsLine("onlineTrainingResults-----------------");
-            for (Results onlineTrainingResult : restart.onlineTrainingResults) {
-                export(onlineTrainingResult);
-            }
-            resultsLine("trueTrainingResults----------------");
-            for (Results trueTrainingResult : restart.trueTrainingResults) {
-                export(trueTrainingResult);
-            }
-            resultsLine("validationResults------------------");
-            for (Results validationResult : restart.validationResults) {
-                export(validationResult);
-            }
+    public void export(Exportable t) {
+        if (crossvalDetected){
+            repairJsonCrossvalStart(exportFile);
         }
+        resultsLine(t.exportToJson());
+        if (crossvalDetected) {
+            repairJsonCrossvalEnd(exportFile);
+        }
+    }
+
+    private void repairJsonCrossvalStart(File file) {
+        try {
+            List<String> strings = Files.readAllLines(file.toPath());
+            if (strings.isEmpty()) {
+                return;
+            }
+            if (strings.get(0).contains("[")) {
+                strings.set(strings.size() - 2, ",\n");
+            } else {
+                strings.add(0, "[\n");
+                strings.add(",\n");
+            }
+            FileWriter fileWriter = new FileWriter(file, false);
+            PrintWriter out = new PrintWriter(fileWriter);
+            for (String string : strings) {
+                out.println(string);
+            }
+            out.flush();
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void repairJsonCrossvalEnd(File file) {
+        exportWriter.println("]\n");
+        exportWriter.flush();
     }
 }

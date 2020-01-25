@@ -202,4 +202,16 @@ public class Utilities {
         }
 
     }
+
+    /**
+     * Collect a Stream<T> to List<T> with properly terminating it (calling all the closing callbacks)
+     * @param stream
+     * @param <T>
+     * @return
+     */
+    public static <T> List<T> terminateSampleStream(Stream<T> stream) {
+        List<T> list = stream.collect(Collectors.toList());
+        stream.close(); //THE IMPORTANT PART
+        return list;
+    }
 }

@@ -7,28 +7,33 @@ import networks.computation.evaluation.values.ScalarValue;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import settings.Settings;
+import utils.Timing;
+import utils.exporting.Exportable;
 import utils.generic.Pair;
 
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class TrainingStrategy {
+import static utils.Utilities.terminateSampleStream;
+
+public abstract class TrainingStrategy implements Exportable {
     private static final Logger LOG = Logger.getLogger(TrainingStrategy.class.getName());
 
-    Settings settings;
+    transient Settings settings;
 
     /**
      * To be stored at the beginning and recovered after training, so that the training doesnt change
      */
-    private NeuralModel initModel;
+    private transient NeuralModel initModel;
 
-    NeuralModel currentModel;
+    transient NeuralModel currentModel;
 
     ScalarValue learningRate;
 
-    Results.Factory resultsFactory;
+    transient Results.Factory resultsFactory;
+
+    Timing timing;
 
     public TrainingStrategy(Settings settings, NeuralModel model) {
         this.settings = settings;
@@ -36,6 +41,8 @@ public abstract class TrainingStrategy {
         this.currentModel = model;
         storeParametersState(model);
         this.resultsFactory = Results.Factory.getFrom(settings);
+
+        this.timing = new Timing();
     }
 
     private void storeParametersState(NeuralModel inputModel) {
@@ -52,12 +59,13 @@ public abstract class TrainingStrategy {
         if (settings.neuralStreaming) {
             return new StreamTrainingStrategy(settings, model, sampleStream);
         } else {
-            return new IterativeTrainingStrategy(settings, model, sampleStream.collect(Collectors.toList()));
+            List<NeuralSample> collect = terminateSampleStream(sampleStream);
+            return new IterativeTrainingStrategy(settings, model, collect);
         }
     }
 
     protected void endTrainingStrategy() {
-        if (settings.undoWeightTrainingChanges){
+        if (settings.undoWeightTrainingChanges) {
             loadParametersState();
         }
     }

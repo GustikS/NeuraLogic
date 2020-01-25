@@ -36,8 +36,7 @@ public class RegressionResults extends Results {
     }
 
     @Override
-    public RegressionResults export(Exporter exporter) {
+    public void export(Exporter exporter) {
         exporter.export(this);
-        return this;
     }
 }

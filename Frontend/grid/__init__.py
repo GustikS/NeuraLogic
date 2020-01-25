@@ -19,6 +19,7 @@ class ExperimentSetup():
 
         # template setup
         self.template = template
+        self.template_id = template.replace("/", "_").replace(" ", "")
         self.template_per_dataset = template_per_dataset
 
         # neuralogic params
@@ -63,7 +64,7 @@ class ExperimentSetup():
             self.template_path_remote = os.path.join(self.remote_path, "templates", self.template)
 
         self.export_path = os.path.join(self.remote_path, "experiments", self.experiment_id, "results", self.dataset,
-                                        self.template, self.params_id)
+                                        self.template_id, self.params_id)
 
     def finish_script(self):
         self.script_code += "java -XX:+UseSerialGC -XX:-BackgroundCompilation -XX:NewSize=2000m -Xms" + self.memory_min + " -Xmx" + self.memory_max + \
@@ -212,13 +213,13 @@ class GridSetup():
                 os.makedirs(directory)
 
             script_path = os.path.join(directory,
-                                       experiment.dataset_id + "_" + experiment.template + "_" + experiment.params_id + ".sh")
+                                       experiment.dataset_id + "_" + experiment.template_id + "_" + experiment.params_id + ".sh")
 
             with open(script_path, 'w') as f:
                 f.write(experiment.script_code)
 
             script_files.append(os.path.join(experiment.remote_path, "experiments", experiment.experiment_id, "scripts",
-                                             experiment.dataset_id + "_" + experiment.template + "_" + experiment.params_id + ".sh"))
+                                             experiment.dataset_id + "_" + experiment.template_id + "_" + experiment.params_id + ".sh"))
 
         if self.rci:
             cmd = "sbatch "
@@ -247,7 +248,7 @@ class GridSetup():
         experiment.export_path += "_dummy"
         experiment.script()
 
-        dummy_name = "100__" + experiment.dataset_id + "_" + experiment.template + "_" + experiment.params_id + ".sh"
+        dummy_name = "100__" + experiment.dataset_id + "_" + experiment.template_id + "_" + experiment.params_id + ".sh"
         dummy_path = os.path.join(directory, dummy_name)
         with open(dummy_path, 'w') as f:
             f.write(experiment.script_code)

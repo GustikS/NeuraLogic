@@ -7,13 +7,14 @@ import networks.structure.components.neurons.types.AtomNeurons;
 import networks.structure.components.types.DetailedNetwork;
 import networks.structure.metadata.states.State;
 import settings.Settings;
+import utils.exporting.Exportable;
 
 import java.util.*;
 
 /**
  * Created by gusta on 9.3.17.
  */
-public interface NetworkReducing {
+public interface NetworkReducing extends Exportable {
 
     public abstract NeuralNetwork reduce(DetailedNetwork<State.Neural.Structure> inet, AtomNeurons<State.Neural> outputStart);
 
@@ -47,4 +48,6 @@ public interface NetworkReducing {
         descendingIterator.forEachRemaining(reverse::add);
         inet.allNeuronsTopologic = reverse;
     }
+
+    void finish();
 }

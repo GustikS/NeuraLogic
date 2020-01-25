@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 public abstract class LearnRateDecayStrategy {
     private static final Logger LOG = Logger.getLogger(LearnRateDecayStrategy.class.getName());
 
-    Settings settings;
+    transient Settings settings;
 
     ScalarValue initialLearningRate;
     ScalarValue actualLearningRate;

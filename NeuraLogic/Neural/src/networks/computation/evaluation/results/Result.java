@@ -1,6 +1,7 @@
 package networks.computation.evaluation.results;
 
 import networks.computation.evaluation.functions.ErrorFcn;
+import networks.computation.evaluation.functions.specific.Crossentropy;
 import networks.computation.evaluation.functions.specific.SquaredDiff;
 import networks.computation.evaluation.values.Value;
 import settings.Settings;
@@ -60,6 +61,9 @@ public class Result implements Comparable<Result> {
         private ErrorFcn getErrFcn(Settings settings) {
             if (settings.errorFunction == Settings.ErrorFcn.SQUARED_DIFF)
                 return new SquaredDiff();
+            else if (settings.errorFunction == Settings.ErrorFcn.CROSSENTROPY){
+                return new Crossentropy();
+            }
             else return null; //todo move all getters for the enum types into Settings?
         }
     }
