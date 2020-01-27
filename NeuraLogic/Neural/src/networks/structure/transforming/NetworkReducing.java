@@ -3,7 +3,7 @@ package networks.structure.transforming;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neurons;
-import networks.structure.components.neurons.types.AtomNeurons;
+import networks.structure.components.neurons.QueryNeuron;
 import networks.structure.components.types.DetailedNetwork;
 import networks.structure.metadata.states.State;
 import settings.Settings;
@@ -16,7 +16,9 @@ import java.util.*;
  */
 public interface NetworkReducing extends Exportable {
 
-    public abstract NeuralNetwork reduce(DetailedNetwork<State.Neural.Structure> inet, AtomNeurons<State.Neural> outputStart);
+    NeuralNetwork reduce(DetailedNetwork<State.Neural.Structure> inet, List<QueryNeuron> outputStart);
+
+    NeuralNetwork reduce(DetailedNetwork<State.Neural.Structure> inet, QueryNeuron outputStart);
 
     public static NetworkReducing getReducer(Settings settings) {
         //todo add more
@@ -37,7 +39,7 @@ public interface NetworkReducing extends Exportable {
      * @param inet
      * @param outputStart
      */
-    static void supervisedNetPruning(DetailedNetwork<State.Neural.Structure> inet, BaseNeuron<Neurons, State.Neural> outputStart){
+    static void supervisedNetReconstruction(DetailedNetwork<State.Neural.Structure> inet, BaseNeuron<Neurons, State.Neural> outputStart){
         Set<Neurons> visited = new HashSet<>();
         LinkedList<BaseNeuron<Neurons, State.Neural>> stack = new LinkedList<>();
         BaseNeuron<Neurons, State.Neural> outputStart1 = outputStart;
@@ -47,6 +49,10 @@ public interface NetworkReducing extends Exportable {
         Iterator<BaseNeuron<Neurons, State.Neural>> descendingIterator = stack.descendingIterator();
         descendingIterator.forEachRemaining(reverse::add);
         inet.allNeuronsTopologic = reverse;
+    }
+
+    static void supervisedNetReconstruction(DetailedNetwork<State.Neural.Structure> inet, List<BaseNeuron<Neurons, State.Neural>> allQueryNeurons){
+        inet.allNeuronsTopologic = inet.topologicSort(allQueryNeurons);
     }
 
     void finish();

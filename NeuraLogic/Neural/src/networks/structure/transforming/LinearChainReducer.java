@@ -3,18 +3,19 @@ package networks.structure.transforming;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neurons;
+import networks.structure.components.neurons.QueryNeuron;
 import networks.structure.components.neurons.WeightedNeuron;
-import networks.structure.components.neurons.types.AggregationNeuron;
-import networks.structure.components.neurons.types.AtomNeurons;
 import networks.structure.components.types.DetailedNetwork;
 import networks.structure.metadata.states.State;
 import settings.Settings;
 import utils.Timing;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class LinearChainReducer implements NetworkReducing {
     private static final Logger LOG = Logger.getLogger(LinearChainReducer.class.getName());
@@ -32,15 +33,9 @@ public class LinearChainReducer implements NetworkReducing {
     }
 
     @Override
-    public NeuralNetwork reduce(DetailedNetwork<State.Neural.Structure> inet, AtomNeurons<State.Neural> outputNeuron) {
+    public NeuralNetwork reduce(DetailedNetwork<State.Structure> inet, List<QueryNeuron> outputs) {
         timing.tic();
 
-        List<Neurons> middleInputNeurons = new ArrayList<>();
-        Iterator<AggregationNeuron> inputs = inet.getInputs(outputNeuron);
-        inputs.forEachRemaining(middleInputNeurons::add);
-        if (middleInputNeurons.size() == 1) {
-            LOG.warning("Output neuron has only 1 input! (should be pruned? Skipping pruning for this neuron however)");
-        }
         int sizeBefore = inet.allNeuronsTopologic.size();
         for (int i = sizeBefore - 1; i >= 0; i--) {
             BaseNeuron<Neurons, State.Neural> neuron = inet.allNeuronsTopologic.get(i);
@@ -48,7 +43,8 @@ public class LinearChainReducer implements NetworkReducing {
                 continue;
             prune(inet, neuron);
         }
-        NetworkReducing.supervisedNetPruning(inet, (BaseNeuron) outputNeuron);    //lastly remove all the dead (pruned) neurons by building a new topologic sort starting from output neuron
+        List<BaseNeuron<Neurons, State.Neural>> collect = outputs.stream().map(s -> (BaseNeuron<Neurons, State.Neural>) s.neuron).collect(Collectors.toList());
+        NetworkReducing.supervisedNetReconstruction(inet, collect);    //lastly remove all the dead (pruned) neurons by building a new topologic sort starting from output neuron
         int sizeAfter = inet.allNeuronsTopologic.size();
 //        LOG.info(inet.toString());
 
@@ -58,6 +54,11 @@ public class LinearChainReducer implements NetworkReducing {
 
         timing.toc();
         return inet;
+    }
+
+    @Override
+    public NeuralNetwork reduce(DetailedNetwork<State.Neural.Structure> inet, QueryNeuron outputNeuron) {
+        return reduce(inet, Arrays.asList(outputNeuron));
     }
 
     @Override

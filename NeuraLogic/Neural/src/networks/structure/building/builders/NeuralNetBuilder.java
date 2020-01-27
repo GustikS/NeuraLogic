@@ -70,7 +70,7 @@ public class NeuralNetBuilder {
 
             while (iterator.hasNext()) {
                 liftedRule = iterator.next();
-                if (head != liftedRule.getValue().iterator().next().groundHead) {
+                if (!head.equals(liftedRule.getValue().iterator().next().groundHead)) {
                     LOG.severe("Ground heads corresponding to the same atom neuron are different!");
                 }
                 if (liftedRule.getKey().weightedRule.getWeight() != Weight.unitWeight) {

@@ -14,14 +14,14 @@ import settings.Settings;
  */
 public class QueryNeuron extends Query<NeuralNetwork<State.Neural.Structure>, NeuralModel> {
 
-    public AtomNeurons<State.Neural> neuron;
+    public AtomNeurons neuron;
 
     @Deprecated
     public QueryNeuron(String id, int queryCounter, double importance) {
         super(id, queryCounter, importance, null);
     }
 
-    public QueryNeuron(String id, int position, double importance, AtomNeurons<State.Neural> targetNeuron, NeuralNetwork<State.Neural.Structure> neuralNetwork) {
+    public QueryNeuron(String id, int position, double importance, AtomNeurons targetNeuron, NeuralNetwork<State.Neural.Structure> neuralNetwork) {
         super(id, position, importance, neuralNetwork);
         this.neuron = targetNeuron;
     }

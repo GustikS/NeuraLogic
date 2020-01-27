@@ -2,6 +2,7 @@ package networks.structure.building;
 
 import com.sun.istack.internal.NotNull;
 import constructs.building.factories.WeightFactory;
+import constructs.example.LogicSample;
 import constructs.example.QueryAtom;
 import constructs.template.components.GroundHeadRule;
 import constructs.template.components.GroundRule;
@@ -47,6 +48,59 @@ public class Neuralizer {
     }
 
     /**
+     * KB mode - neuralize everything at once with multiple different queries
+     * @param groundTemplate
+     * @param samples
+     * @return
+     */
+    public List<NeuralProcessingSample> neuralize(GroundTemplate groundTemplate, List<? extends LogicSample> samples) {
+        neuralNetBuilder.setNeuronMaps(groundTemplate.neuronMaps); //loading stored context from previous neural nets building
+        NeuronSets createdNeurons = new NeuronSets();    //a set of neurons used exclusively for this network being created only!
+
+//        List<QueryNeuron> queryNeurons = supervisedNeuralization(groundingSample, currentNeuronSets);
+
+        List<Literal> queryMatchingLiterals = new ArrayList<>();
+        List<LogicSample> origSamples = new ArrayList<>();  //these two lists are aligned
+
+        for (LogicSample sample : samples) {
+            List<Literal> foundQueries = getQueryMatchingLiterals(sample.query, groundTemplate.groundRules);
+            for (Literal foundQuery : foundQueries) {
+                queryMatchingLiterals.add(foundQuery);
+                origSamples.add(sample);    //these two lists are aligned
+            }
+        }
+
+        DetailedNetwork neuralNetwork;
+        if (settings.forceFullNetworks) {   //we can possibly still be forced to create the whole network, even if parts of it are not connected to the query, e.g. if the rules are not connected
+            neuralNetwork = blindNeuralization(groundTemplate, createdNeurons);
+        } else {
+            neuralNetBuilder = loadAllNeuronsStartingFromQueryLiterals(groundTemplate, queryMatchingLiterals, createdNeurons);
+
+            neuralNetwork = getDetailedNetwork(createdNeurons, groundTemplate, queryMatchingLiterals);
+        }
+
+        List<NeuralProcessingSample> neuralSamples = new ArrayList<>();
+        for (int i = 0; i < queryMatchingLiterals.size(); i++) {
+            LogicSample logicSample = origSamples.get(i);
+            QueryAtom queryAtom = logicSample.query;
+            AtomNeurons atomNeuron = neuralNetBuilder.getNeuronMaps().atomNeurons.get(queryMatchingLiterals.get(i));
+            if (atomNeuron == null){
+                LOG.severe("No inference network created for " + queryAtom);
+            }
+            QueryNeuron queryNeuron = new QueryNeuron(queryAtom.ID, queryAtom.position, queryAtom.importance, atomNeuron, neuralNetwork);
+
+            NeuralProcessingSample neuralProcessingSample = new NeuralProcessingSample(logicSample.target, queryNeuron);
+            neuralSamples.add(neuralProcessingSample);
+        }
+
+        groundTemplate.neuronMaps = neuralNetBuilder.getNeuronMaps(); //storing the context back again
+
+        return neuralSamples;
+    }
+
+
+
+    /**
      * Turn GroundingSample, i.e. a set of ground rules and facts, into a NeuralProcessingSample, i.e. neural network.
      * <p>
      * A single grounding sample may produce multiple neural samples because the (lifted) query may be matched multiple times in the ground rules
@@ -81,26 +135,19 @@ public class Neuralizer {
         GroundTemplate groundTemplate = groundingSample.groundingWrap.getGroundTemplate();
 
         List<Literal> queryMatchingLiterals = getQueryMatchingLiterals(queryAtom, groundTemplate.groundRules);
-        LOG.finest("QueryMatchingLiterals: " + queryMatchingLiterals);
+        LOG.finer("Obtained QueryMatchingLiterals: " + queryMatchingLiterals);
 
         DetailedNetwork neuralNetwork;
         if (settings.forceFullNetworks) {   //we can possibly still be forced to create the whole network, even if parts of it are not connected to the query, e.g. if the rules are not connected
             neuralNetwork = blindNeuralization(groundTemplate, createdNeurons);
         } else {
             neuralNetBuilder = loadAllNeuronsStartingFromQueryLiterals(groundTemplate, queryMatchingLiterals, createdNeurons);
-
-            if (neuralNetBuilder.neuralBuilder.neuronFactory.neuronMaps.factNeurons.isEmpty() || settings.groundingMode == Settings.GroundingMode.SEQUENTIAL)
-                neuralNetBuilder.loadNeuronsFromFacts(groundTemplate.neuronMaps.groundFacts);   //global sharing mode transfers facts
-
-            LOG.fine("Neurons created: " + neuralNetBuilder.getNeuronMaps());
-            neuralNetBuilder.connectAllNeurons(createdNeurons);
-            LOG.fine("All neurons connected.");
-            neuralNetwork = neuralNetBuilder.finalizeStoredNetwork(groundTemplate.getId(), createdNeurons, queryMatchingLiterals);
-            LOG.fine("Final neural network created: " + neuralNetwork);
+            neuralNetwork = getDetailedNetwork(createdNeurons, groundTemplate, queryMatchingLiterals);
         }
 
         return getQueryNeurons(queryAtom, neuralNetBuilder.getNeuronMaps(), neuralNetwork, queryMatchingLiterals);
     }
+
 
     /**
      * Unsupervised network building (flat network construction from all grounded rules)
@@ -115,16 +162,19 @@ public class Neuralizer {
         }
         groundTemplate.neuronMaps.groundRules.clear();   //remove rules that will have their neurons already created
 
-        //and create facts
+        return getDetailedNetwork(currentNeuronSets, groundTemplate, null);
+    }
+
+    private DetailedNetwork getDetailedNetwork(NeuronSets createdNeurons, GroundTemplate groundTemplate, List<Literal> queryMatchingLiterals) {
         if (neuralNetBuilder.neuralBuilder.neuronFactory.neuronMaps.factNeurons.isEmpty() || settings.groundingMode == Settings.GroundingMode.SEQUENTIAL)
-            neuralNetBuilder.loadNeuronsFromFacts(groundTemplate.neuronMaps.groundFacts);
+            neuralNetBuilder.loadNeuronsFromFacts(groundTemplate.neuronMaps.groundFacts);   //global sharing mode transfers facts   - todo check after changes
 
         LOG.fine("Neurons created: " + neuralNetBuilder.getNeuronMaps());
-        neuralNetBuilder.connectAllNeurons(currentNeuronSets);
+        neuralNetBuilder.connectAllNeurons(createdNeurons);
         LOG.fine("All neurons connected.");
-        DetailedNetwork detailedNetwork = neuralNetBuilder.finalizeStoredNetwork(groundTemplate.getId(), currentNeuronSets, null);
-        LOG.fine("Final neural network created: " + detailedNetwork);
-        return detailedNetwork;
+        DetailedNetwork neuralNetwork = neuralNetBuilder.finalizeStoredNetwork(groundTemplate.getId(), createdNeurons, queryMatchingLiterals);
+        LOG.fine("Final neural network created: " + neuralNetwork);
+        return neuralNetwork;
     }
 
     /**
@@ -157,8 +207,15 @@ public class Neuralizer {
     @NotNull
     protected List<Literal> getQueryMatchingLiterals(QueryAtom queryAtom, @NotNull LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> groundRules) {
 
-        Matching matching = new Matching();
+        // ground query (simple, standard)?
+        if (!queryAtom.headAtom.literal.containsVariable()){
+            ArrayList<Literal> queries = new ArrayList<>();
+            queries.add(queryAtom.headAtom.literal);
+            return queries;
+        }
 
+        //otherwise we need to check query via logical inference
+        Matching matching = new Matching();
         List<Literal> queryLiterals = new ArrayList<>();
 
         for (Map.Entry<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> entry : groundRules.entrySet()) {  //find rules the head of which matches the query

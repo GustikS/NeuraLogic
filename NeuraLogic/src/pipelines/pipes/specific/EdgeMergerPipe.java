@@ -25,7 +25,7 @@ public class EdgeMergerPipe extends Pipe<Stream<NeuralProcessingSample>, Stream<
     @Override
     public Stream<NeuralProcessingSample> apply(Stream<NeuralProcessingSample> neuralProcessingSampleStream) {
         return neuralProcessingSampleStream.map(net -> {
-            net.query.evidence = merger.reduce(net.detailedNetwork, net.query.neuron);
+            net.query.evidence = merger.reduce(net.detailedNetwork, net.query);
             return net;
         });
     }

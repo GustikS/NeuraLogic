@@ -440,15 +440,55 @@ public class TrainingDebuggerTest {
     @Test
     public void nations() {
         Logging logging = Logging.initLogging(Level.FINER);
-        String[] args = ("-q ./resources/datasets/relational/kbs/nations/queries_small.txt " +
-                "-e ./resources/datasets/relational/kbs/nations/embeddings " +
-                "-t ./resources/datasets/relational/kbs/nations/template_2layers"+
+        String[] args = ("-q ./resources/datasets/relational/kbs/nations/trainQueries.txt " +
+                "-e ./resources/datasets/relational/kbs/nations/facts " +
+                "-t ./resources/datasets/relational/kbs/nations/template_advanced"+
                 " -out ./out/nations").split(" ");
 
         Settings settings = new Settings();
 
 //        settings.neuralNetsPostProcessing = false;
-        settings.chainPruning = false;
+        settings.chainPruning = true;
+        settings.isoValueCompression = true;
+        settings.losslessIsoCompression = false;
+
+        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        trainingDebugger.executeDebug();
+    }
+
+    @Test
+    public void kinships() {
+        Logging logging = Logging.initLogging(Level.FINER);
+        String[] args = ("-q ./resources/datasets/relational/kbs/kinships/trainQueries.txt " +
+                "-e ./resources/datasets/relational/kbs/kinships/facts " +
+                "-t ./resources/datasets/relational/kbs/kinships/template_embeddings"+
+                " -out ./out/kinships").split(" ");
+
+        Settings settings = new Settings();
+
+//        settings.neuralNetsPostProcessing = false;
+        settings.chainPruning = true;
+        settings.isoValueCompression = true;
+        settings.losslessIsoCompression = false;
+
+//        settings.iterationMode = Settings.IterationMode.DFS_STACK;
+
+        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        trainingDebugger.executeDebug();
+    }
+
+    @Test
+    public void umls() {
+        Logging logging = Logging.initLogging(Level.FINER);
+        String[] args = ("-q ./resources/datasets/relational/kbs/umls/trainQueries_small.txt " +
+                "-e ./resources/datasets/relational/kbs/umls/facts " +
+                "-t ./resources/datasets/relational/kbs/umls/template_embeddings"+
+                " -out ./out/umls").split(" ");
+
+        Settings settings = new Settings();
+
+//        settings.neuralNetsPostProcessing = false;
+        settings.chainPruning = true;
         settings.isoValueCompression = true;
         settings.losslessIsoCompression = false;
 

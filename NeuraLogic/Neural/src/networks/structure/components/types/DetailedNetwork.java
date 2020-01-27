@@ -54,6 +54,16 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
      */
     public int sharedNeuronsCount;
 
+    /**
+     * Already compressed with iso-values?
+     */
+    public boolean compressed;
+
+    /**
+     * Already pruned for chains?
+     */
+    public boolean pruned;
+
     Boolean recursive;
 
     @Nullable
@@ -186,5 +196,18 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
                 }
             }
         }
+    }
+
+    public DetailedNetwork emptyCopy(String id) {
+        DetailedNetwork copy = new DetailedNetwork<>(id, 0);
+        copy.pruned = this.pruned;
+        copy.compressed = this.compressed;
+        copy.neuronSets = this.neuronSets;
+        copy.outputMapping = this.outputMapping;
+        copy.extraInputMapping = this.extraInputMapping;
+        copy.containsInputMasking = this.containsInputMasking;
+        copy.neuronStates = this.neuronStates;
+        copy.metadata = this.metadata;
+        return copy;
     }
 }

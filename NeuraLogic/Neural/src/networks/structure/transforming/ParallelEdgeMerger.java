@@ -7,8 +7,8 @@ import networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neurons;
+import networks.structure.components.neurons.QueryNeuron;
 import networks.structure.components.neurons.WeightedNeuron;
-import networks.structure.components.neurons.types.AtomNeurons;
 import networks.structure.components.types.DetailedNetwork;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
@@ -35,11 +35,16 @@ public class ParallelEdgeMerger implements NetworkReducing {    //todo repair - 
     }
 
     @Override
-    public NeuralNetwork reduce(DetailedNetwork<State.Structure> inet, AtomNeurons<State.Neural> outputStart) {
+    public NeuralNetwork reduce(DetailedNetwork<State.Structure> inet, QueryNeuron outputStart) {
         MergingVisitor mergingVisitor = new MergingVisitor(inet);
-        Topologic.TDownVisitor bUpVisitor = new Topologic(inet).new TDownVisitor(outputStart, mergingVisitor);
+        Topologic.TDownVisitor bUpVisitor = new Topologic(inet).new TDownVisitor(outputStart.neuron, mergingVisitor);
         bUpVisitor.topdown();
         return inet;
+    }
+
+    @Override
+    public NeuralNetwork reduce(DetailedNetwork<State.Structure> inet, List<QueryNeuron> outputStart) {
+        return null;
     }
 
     @Override

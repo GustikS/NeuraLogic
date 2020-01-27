@@ -89,7 +89,7 @@ public class QueriesBuilder extends SamplesBuilder<PlainQueriesParseTree, Pair<V
         } else if (size == 1) {
             LOG.warning("There is only 1 query to learn from!");
         } else {
-            LOG.info("Detecting multiple independent queries (standard learning).");
+            LOG.info("Detecting multiple independent queries (standard supervised learning).");
         }
         if (queriesFileContext.conjunction(0).atom().size() > 1) {   //todo this is just a heuristic
             LOG.info("Detecting multiple individual queries per example.");

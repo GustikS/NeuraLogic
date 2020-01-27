@@ -141,4 +141,8 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
         }
         stack.addFirst(neuron);
     }
+    @Override
+    public String toString() {
+        return "net:" + id + ", neurons: " + allNeuronsTopologic.size();
+    }
 }

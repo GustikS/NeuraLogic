@@ -1,5 +1,7 @@
 package networks.structure.transforming;
 
+import ida.ilp.logic.Literal;
+import networks.computation.evaluation.functions.Activation;
 import networks.computation.evaluation.values.Value;
 import networks.computation.evaluation.values.distributions.ValueInitializer;
 import networks.computation.iteration.actions.Evaluation;
@@ -10,10 +12,11 @@ import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.QueryNeuron;
 import networks.structure.components.neurons.WeightedNeuron;
-import networks.structure.components.neurons.types.AtomNeurons;
+import networks.structure.components.neurons.types.AtomNeuron;
 import networks.structure.components.types.DetailedNetwork;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.states.State;
+import networks.structure.metadata.states.States;
 import settings.Settings;
 import utils.Timing;
 import utils.generic.Pair;
@@ -21,6 +24,7 @@ import utils.generic.Pair;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Created by gusta on 14.3.17.
@@ -57,12 +61,21 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
     }
 
     @Override
-    public NeuralNetwork reduce(DetailedNetwork<State.Structure> inet, AtomNeurons<State.Neural> outputStart) {
+    public NeuralNetwork reduce(DetailedNetwork<State.Structure> inet, List<QueryNeuron> outputs) {
         timing.tic();
 
         Map<Neurons, ValueList> isoValues = new LinkedHashMap<>();
         List<Weight> allWeights = inet.getAllWeights();
-        QueryNeuron queryNeuron = new QueryNeuron("", -1, 1.0, outputStart, inet);
+
+        QueryNeuron queryNeuron;
+        if (outputs.size() > 1) {
+            States.ComputationStateStandard dummyState = new States.ComputationStateStandard(Activation.Singletons.identity);
+            dummyState.outputValue = Value.ZERO;
+            AtomNeuron dummy = new AtomNeuron(new Literal("dummy", 0), -1, dummyState);
+            queryNeuron = new QueryNeuron("", -1, 1.0, dummy, inet);
+        } else {
+            queryNeuron = new QueryNeuron("", -1, 1.0, outputs.get(0).neuron, inet);
+        }
 
         int sizeBefore = inet.allNeuronsTopologic.size();
 
@@ -72,7 +85,12 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
         LinkedHashSet<Neurons> etalons = new LinkedHashSet<>(etalonMap.values());
 
         //lastly remove all the dead (pruned) neurons by building a new topologic sort starting from output neuron
-        NetworkReducing.supervisedNetPruning(inet, (BaseNeuron) outputStart);
+        if (outputs.size() > 1) {
+            List<BaseNeuron<Neurons, State.Neural>> collect = outputs.stream().map(s -> (BaseNeuron<Neurons, State.Neural>) s.neuron).collect(Collectors.toList());
+            NetworkReducing.supervisedNetReconstruction(inet, collect);
+        } else {
+            NetworkReducing.supervisedNetReconstruction(inet, (BaseNeuron) outputs.get(0).neuron);
+        }
 
         this.allNeuronCount += sizeBefore;
         this.compressedNeuronCount += inet.allNeuronsTopologic.size();
@@ -85,6 +103,11 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
 
         timing.toc();
         return inet;
+    }
+
+    @Override
+    public NeuralNetwork reduce(DetailedNetwork<State.Structure> inet, QueryNeuron outputStart) {
+        return reduce(inet, Arrays.asList(outputStart));
     }
 
     @Override

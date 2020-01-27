@@ -145,7 +145,8 @@ public class Topologic {
             if (i == 0) {
                 return true;
             }
-            return Topologic.this.network.allNeuronsTopologic.get(i - 1) != outputNeuron; //we need the output neuron to be processed, too!
+            return i < Topologic.this.network.allNeuronsTopologic.size() &&
+                    Topologic.this.network.allNeuronsTopologic.get(i - 1) != outputNeuron; //we need the output neuron to be processed, too!
         }
 
         @Override

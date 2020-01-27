@@ -1,10 +1,12 @@
 package pipelines.building;
 
+import grounding.GroundTemplate;
 import grounding.GroundingSample;
 import networks.computation.training.NeuralSample;
 import networks.structure.building.NeuralProcessingSample;
 import networks.structure.building.Neuralizer;
 import networks.structure.building.debugging.NeuralDebugger;
+import networks.structure.components.types.DetailedNetwork;
 import pipelines.ConnectAfter;
 import pipelines.Pipe;
 import pipelines.Pipeline;
@@ -13,8 +15,11 @@ import pipelines.pipes.specific.*;
 import settings.Settings;
 import utils.Utilities;
 
+import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
+
+import static utils.Utilities.terminateSampleStream;
 
 public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingSample>, Stream<NeuralSample>> {
     private static final Logger LOG = Logger.getLogger(NeuralNetsBuilder.class.getName());
@@ -34,18 +39,30 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
     public Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> buildPipeline() {
         Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> pipeline = new Pipeline<Stream<GroundingSample>, Stream<NeuralSample>>("NeuralNetsCreationPipeline", this);
 
-        Pipe<Stream<GroundingSample>, Stream<NeuralProcessingSample>> neuralizationPipe = pipeline.registerStart(new Pipe<Stream<GroundingSample>, Stream<NeuralProcessingSample>>("SupervisedNeuralizationPipe") {
+        ConnectAfter<Stream<NeuralProcessingSample>> nextPipe = null;
+
+        nextPipe = pipeline.registerStart(new Pipe<Stream<GroundingSample>, Stream<NeuralProcessingSample>>("GlobalSupervisedNeuralizationPipe", settings) {
             @Override
             public Stream<NeuralProcessingSample> apply(Stream<GroundingSample> groundingSampleStream) {
-                return groundingSampleStream
-                        .peek(s -> LOG.info("Neuralizing sample " + s.toString()))
-                        .map(sample -> neuralizer.neuralize(sample).stream())
-                        .flatMap(f -> f)
-                        .peek(s -> LOG.info("NeuralNet created: " + s.toString()));
+                if (settings.groundingMode == Settings.GroundingMode.GLOBAL) {
+                    List<GroundingSample> groundingSamples = terminateSampleStream(groundingSampleStream);
+                    GroundTemplate groundTemplate = groundingSamples.get(0).groundingWrap.getGroundTemplate();
+                    LOG.info("Neuralizing GLOBAL sample " + groundTemplate.toString());
+                    List<NeuralProcessingSample> neuralizedSamples = neuralizer.neuralize(groundTemplate, groundingSamples);
+                    DetailedNetwork detailedNetwork = neuralizedSamples.get(0).detailedNetwork;
+                    LOG.info("GLOBAL NeuralNet created: " + detailedNetwork.toString());
+                    return neuralizedSamples.stream();
+                } else {
+                    return groundingSampleStream
+                            .peek(s -> LOG.info("Neuralizing sample " + s.toString()))
+                            .map(sample -> neuralizer.neuralize(sample).stream())
+                            .flatMap(f -> f)
+                            .peek(s -> LOG.info("NeuralNet created: " + s.toString()));
+                }
             }
         });
 
-        ConnectAfter<Stream<NeuralProcessingSample>> nextPipe = neuralizationPipe;
+
         if (settings.neuralNetsPostProcessing) {
             Pipeline<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> postprocessingPipeline = pipeline.register(buildProcessingPipeline());
             nextPipe.connectAfter(postprocessingPipeline);
@@ -57,12 +74,13 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
         Pipe<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> finalizationPipe = pipeline.register(new NetworkFinalizationPipe(settings, neuralizer.neuralNetBuilder));
         nextPipe.connectAfter(finalizationPipe);
 
-        Pipe<Stream<NeuralProcessingSample>, Stream<NeuralSample>> cutoffPipe = pipeline.registerEnd(new Pipe<Stream<NeuralProcessingSample>, Stream<NeuralSample>>("ReleaseMemoryPipe") {
+        Pipe<Stream<NeuralProcessingSample>, Stream<NeuralSample>> cutoffPipe = pipeline.registerEnd(new Pipe<Stream<NeuralProcessingSample>, Stream<NeuralSample>>("ReleaseMemoryPipe", settings) {
             @Override
             public Stream<NeuralSample> apply(Stream<NeuralProcessingSample> neuralProcessingSampleStream) {
                 return neuralProcessingSampleStream.map(s -> {
                     s.query.evidence = neuralizer.neuralNetBuilder.neuralBuilder.networkFactory.extractOptimizedNetwork(s.detailedNetwork);
-                    Utilities.logMemory();
+                    if (settings.groundingMode != Settings.GroundingMode.GLOBAL)
+                        Utilities.logMemory();
                     return new NeuralSample(s.target, s.query);
                 });
             }

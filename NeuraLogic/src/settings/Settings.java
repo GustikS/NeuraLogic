@@ -941,6 +941,7 @@ public class Settings implements Exportable {
         }
         if (groundingMode == GroundingMode.GLOBAL) {
             possibleNeuronSharing = true;
+            neuralNetsSupervisedPruning = false;
         }
 
         //in case the outDir changed...
@@ -956,7 +957,7 @@ public class Settings implements Exportable {
             neuralNetsPostProcessing = false;
 
 //        resultsRecalculationEpochae = maxCumEpochCount / 100;
-        //todo
+        //todo rest
 
         finish();
     }
