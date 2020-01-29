@@ -2,13 +2,13 @@ from grid import *
 
 # %%
 
-grid = GridSetup(experiment_id="iso_test_gnn",
+grid = GridSetup(experiment_id="iso_kinships",
                  param_ranges={"iso": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "opt": ["adam"], "lr": [0.01],
-                               "xval": [5], "ts": [2000]},
-                 datasets=["jair/MDA_MB_231_ATCC"],
-                 templates=["jair/template_unified_gnn_bad"],
+                               "xval": [5], "ts": [1000]},
+                 datasets=["KB/kinships"],
+                 templates=["KB/kinships/template_embeddings"],
                  walltime="20:00:00",
-                 memory_max="10g",
+                 memory_max="20g",
                  rci=True,
                  template_per_dataset=False)
 

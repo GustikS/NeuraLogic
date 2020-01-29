@@ -30,19 +30,21 @@ public class CompressionPipe extends Pipe<Stream<NeuralProcessingSample>, Stream
 
     @Override
     public Stream<NeuralProcessingSample> apply(Stream<NeuralProcessingSample> neuralProcessingSampleStream) {
-        if (this.exporter != null)
-            neuralProcessingSampleStream.onClose(() -> trueExport());   //We export after the stream finishes!
 
         if (settings.groundingMode == Settings.GroundingMode.GLOBAL) {
             List<NeuralProcessingSample> neuralProcessingSamples = terminateSampleStream(neuralProcessingSampleStream);
             DetailedNetwork detailedNetwork = neuralProcessingSamples.get(0).detailedNetwork;
             List<QueryNeuron> queryNeurons = neuralProcessingSamples.stream().map(s -> s.query).collect(Collectors.toList());
             NeuralNetwork reducedNetwork = compressor.reduce(detailedNetwork, queryNeurons);
+            trueExport();
             return neuralProcessingSamples.stream().map(s -> {
                 s.query.evidence = reducedNetwork;
                 return s;
             });
         }
+
+        if (this.exporter != null)
+            neuralProcessingSampleStream.onClose(() -> trueExport());   //We export after the stream finishes!
 
         return neuralProcessingSampleStream.map(sample -> {
             if (!sample.detailedNetwork.compressed) {  // skip if the same network has already been compressed!

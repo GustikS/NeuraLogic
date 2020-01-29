@@ -329,7 +329,7 @@ public class TrainingDebuggerTest {
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples.txt " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/queries.txt " +
                 "-t ./resources/datasets/relational/molecules/mutagenesis/template_vector_cross.txt" +
-                " -out ./out/expo").split(" ");
+                " -out ./out/cross").split(" ");
 
         Settings settings = new Settings();
 
@@ -337,7 +337,7 @@ public class TrainingDebuggerTest {
 
         settings.seed = 2;
         settings.initLearningRate = 0.3;   //todo now make default initLearningRate change based on optimizer
-        settings.maxCumEpochCount = 10;
+        settings.maxCumEpochCount = 1000;
         settings.resultsRecalculationEpochae = 10;
         settings.shuffleEachEpoch = true;
         settings.debugSampleOutputs = false;
@@ -356,7 +356,7 @@ public class TrainingDebuggerTest {
         settings.isoValueInits = 1;
         settings.isoDecimals = 12;
 
-        settings.errorFunction = Settings.ErrorFcn.CROSSENTROPY;
+        settings.errorFunction = Settings.ErrorFcn.SQUARED_DIFF;
 
         settings.storeNotShow = true;
 
@@ -459,7 +459,7 @@ public class TrainingDebuggerTest {
     @Test
     public void kinships() {
         Logging logging = Logging.initLogging(Level.FINER);
-        String[] args = ("-q ./resources/datasets/relational/kbs/kinships/trainQueries.txt " +
+        String[] args = ("-q ./resources/datasets/relational/kbs/kinships/allQueries " +
                 "-e ./resources/datasets/relational/kbs/kinships/facts " +
                 "-t ./resources/datasets/relational/kbs/kinships/template_embeddings"+
                 " -out ./out/kinships").split(" ");
@@ -471,7 +471,7 @@ public class TrainingDebuggerTest {
         settings.isoValueCompression = true;
         settings.losslessIsoCompression = false;
 
-//        settings.iterationMode = Settings.IterationMode.DFS_STACK;
+//        settings.iterationMode = Settings.IterationMode.DFS_STACK;    //todo now why doesnt learn?
 
         TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
         trainingDebugger.executeDebug();

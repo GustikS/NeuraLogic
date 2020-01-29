@@ -1,5 +1,6 @@
 import org.junit.Test;
 import settings.Settings;
+import utils.logging.Logging;
 
 import java.util.logging.Level;
 
@@ -283,5 +284,26 @@ public class MainTest {
                 " -out ./out/rci").split(" ");
 
         Main.main(args);
+    }
+
+    @Test
+    public void kinships() {
+        Logging logging = Logging.initLogging(Level.FINER);
+        String[] args = ("-q ./resources/datasets/relational/kbs/kinships/allQueries " +
+                "-e ./resources/datasets/relational/kbs/kinships/facts " +
+                "-t ./resources/datasets/relational/kbs/kinships/template_embeddings"+
+                " -out ./out/kinships").split(" ");
+
+        Settings settings = new Settings();
+
+//        settings.neuralNetsPostProcessing = false;
+        settings.crossvalidation = true;
+        settings.maxCumEpochCount = 10;
+
+        settings.chainPruning = true;
+        settings.isoValueCompression = true;
+        settings.losslessIsoCompression = false;
+
+        Main.main(args, settings);
     }
 }

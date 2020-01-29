@@ -24,7 +24,9 @@ class ExperimentSetup():
 
         # neuralogic params
         self.params = params
-        self.params_id = params.replace("/", "_").replace(" ", "")
+        self.params_id = params.replace("/", ".").replace(" ", "_")
+        if self.params_id.startswith("-"):
+            self.params_id = self.params_id[1:]
 
         # experiments parameters
         self.memory_min = "2g"
