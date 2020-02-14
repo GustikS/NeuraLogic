@@ -242,6 +242,9 @@ public class Neuralizer {
         List<QueryNeuron> queryNeurons = new ArrayList<>();
         for (Literal queryLiteral : queryMatchingLiterals) {
             AtomNeurons atomNeuron = neuronMaps.atomNeurons.get(queryLiteral);
+            if (atomNeuron == null){
+                LOG.severe("Query not matched!");
+            }
             QueryNeuron queryNeuron = new QueryNeuron(queryAtom.ID, queryAtom.position, queryAtom.importance, atomNeuron, neuralNetwork);
             queryNeurons.add(queryNeuron);
         }

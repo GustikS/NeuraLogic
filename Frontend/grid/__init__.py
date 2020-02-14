@@ -5,13 +5,17 @@ from os import listdir
 examples = "examples"
 queries = "queries"
 jarname = "NeuraLogic.jar"
+# jarname = "/home/XXXXX/neuralogic/NeuraLogic.jar"
+
 
 # %% experiment-specific setup = single file
 class ExperimentSetup():
 
     def __init__(self, experiment_id, params="", template="template_vector_cross",
-                 dataset="jair/mutagenesis", memory_max="32g", walltime="48:00:00", template_per_dataset=True):
+                 dataset="jair/mutagenesis", memory_max="32g", walltime="48:00:00", template_per_dataset=True,
+                 user="souregus"):
 
+        self.user = user
         self.experiment_id = experiment_id
 
         self.dataset = dataset
@@ -38,7 +42,7 @@ class ExperimentSetup():
         self.tasks = "1"
         self.cpus = "1"
 
-        self.server = ""    # only valid for Metacentrum
+        self.server = ""  # only valid for Metacentrum
         self.partition = "XXX"  # only valid for RCI
 
         self.script_code = ""
@@ -56,9 +60,10 @@ class ExperimentSetup():
 
     def finalize(self):
         # remote paths
-        self.remote_path = self.server + "/home/souregus/neuralogic/"
+        self.remote_path = self.server + "/home/" + self.user + "/neuralogic/"
         self.dataset_path_remote = self.remote_path + "datasets/" + self.dataset
-        self.jarpath_remote = self.remote_path + "experiments/" + self.experiment_id + "/artifacts/"
+        # self.jarpath_remote = self.remote_path + "experiments/" + self.experiment_id + "/artifacts/"
+        self.jarpath_remote = self.remote_path
 
         if self.template_per_dataset:
             self.template_path_remote = os.path.join(self.remote_path, "templates", self.dataset, self.template)
@@ -70,7 +75,7 @@ class ExperimentSetup():
 
     def finish_script(self):
         self.script_code += "java -XX:+UseSerialGC -XX:-BackgroundCompilation -XX:NewSize=2000m -Xms" + self.memory_min + " -Xmx" + self.memory_max + \
-                            " -jar " + jarname + " -t " + self.template_path_remote + " -path " + self.dataset_path_remote + \
+                            " -jar " + self.jarpath_remote + jarname + " -t " + self.template_path_remote + " -path " + self.dataset_path_remote + \
                             self.params + \
                             " -out " + self.export_path
 
@@ -126,8 +131,9 @@ class GridSetup():
     local_output_path = "/home/gusta/data/experiments/"
 
     def __init__(self, experiment_id, param_ranges={}, datasets="jair", templates=["template_vector_cross"],
-                 memory_max="32g", walltime="48:00:00", rci=False, template_per_dataset=True):
+                 memory_max="32g", walltime="48:00:00", rci=False, template_per_dataset=True, user="souregus"):
 
+        self.user = user
         self.experiment_id = experiment_id
         self.output_path = self.local_output_path + self.experiment_id
 
@@ -196,14 +202,16 @@ class GridSetup():
     def create_experiment(self, dataset, param_list, template):
         if self.rci:
             return RciExperimentSetup(self.experiment_id, param_list,
-                                                  template, dataset,
-                                                  self.memory_max, self.walltime,
-                                                  self.template_per_dataset)
+                                      template, dataset,
+                                      self.memory_max, self.walltime,
+                                      self.template_per_dataset,
+                                      self.user)
         else:
             return MetacentrumExperimentSetup(self.experiment_id, param_list,
-                                                          template, dataset,
-                                                          self.memory_max, self.walltime,
-                                                          self.template_per_dataset)
+                                              template, dataset,
+                                              self.memory_max, self.walltime,
+                                              self.template_per_dataset,
+                                              self.user)
 
     def export_experiments(self, experiments: [ExperimentSetup]):
         script_files = []
@@ -232,17 +240,19 @@ class GridSetup():
         for script in script_files:
             gridlist.append(cmd + script)
 
-        with open(os.path.join(self.output_path, "scripts", "200__grid.sh"), 'w') as f:
+        with open(os.path.join(self.output_path, "scripts", "200__grid.sh"), 'a') as f:
             f.write("\n".join(gridlist))
+            f.write("\n")
 
         dummy_name = self.dummy_experiment(directory, experiment)
 
-        with open(os.path.join(self.output_path, "scripts", "000__dummytest.sh"), 'w') as f:
+        with open(os.path.join(self.output_path, "scripts", "000__dummytest.sh"), 'a') as f:
             f.write(cmd + os.path.join(experiment.remote_path, "experiments", experiment.experiment_id, "scripts",
                                        dummy_name))
+            f.write("\n")
 
     def dummy_experiment(self, directory, experiment):
-        experiment.memory_max = "2g"
+        experiment.memory_max = "20g"
         experiment.partition = "cpu"
         experiment.walltime = "00:10:00"
         experiment.params += " -ts 10"

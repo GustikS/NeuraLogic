@@ -12,6 +12,8 @@ public class Timing {
 
     String totalTimeTaken;
 
+    long allocatedMemory;
+
     public Timing() {
         timeTaken = Duration.ofMillis(0);
     }
@@ -25,6 +27,8 @@ public class Timing {
         Duration elapsed = Duration.between(now, later);
         timeTaken = timeTaken.plus(elapsed);
         now = later;
+        Utilities.logMemory();
+        allocatedMemory = Utilities.allocatedMemory / Utilities.mb;
     }
 
     public void finish() {

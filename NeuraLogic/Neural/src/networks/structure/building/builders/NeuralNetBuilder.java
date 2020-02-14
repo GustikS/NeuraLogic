@@ -249,7 +249,13 @@ public class NeuralNetBuilder {
     public DetailedNetwork finalizeStoredNetwork(String id, NeuronSets createdNeurons, List<Literal> queryMatchingLiterals) {
         List<AtomNeurons> queryNeurons = null;
         if (queryMatchingLiterals != null) {
-            queryNeurons = queryMatchingLiterals.stream().map(neuralBuilder.neuronFactory.neuronMaps.atomNeurons::get).collect(Collectors.toList());
+            queryNeurons = queryMatchingLiterals.stream().map(key -> {
+                AtomNeurons qn = neuralBuilder.neuronFactory.neuronMaps.atomNeurons.get(key);
+                if (qn == null){
+                    LOG.severe("Query not matched!: " + key);
+                }
+                return qn;
+            }).collect(Collectors.toList());
         }
         DetailedNetwork neuralNetwork = neuralBuilder.networkFactory.createDetailedNetwork(queryNeurons, createdNeurons, id, neuralBuilder.neuronFactory.neuronMaps.extraInputMapping);
         LOG.fine("DetailedNetwork created.");

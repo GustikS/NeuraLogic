@@ -21,7 +21,6 @@ import networks.computation.training.strategies.trainers.ListTrainer;
 import networks.computation.training.strategies.trainers.MiniBatchTrainer;
 import networks.computation.training.strategies.trainers.SequentialTrainer;
 import settings.Settings;
-import utils.Utilities;
 import utils.generic.Pair;
 
 import java.util.Collections;
@@ -35,21 +34,21 @@ import java.util.logging.Logger;
 public class IterativeTrainingStrategy extends TrainingStrategy {
     private static final Logger LOG = Logger.getLogger(IterativeTrainingStrategy.class.getName());
 
-     transient NeuralModel bestModel;
+    transient NeuralModel bestModel;
 
-     transient List<NeuralSample> trainingSet;
+    transient List<NeuralSample> trainingSet;
 
-     transient List<NeuralSample> validationSet;
+    transient List<NeuralSample> validationSet;
 
-     transient Progress progress;
+    transient Progress progress;
 
-     RestartingStrategy restartingStrategy;
+    RestartingStrategy restartingStrategy;
 
-     LearnRateDecayStrategy learnRateDecayStrategy;
+    LearnRateDecayStrategy learnRateDecayStrategy;
 
-     ListTrainer trainer;
+    ListTrainer trainer;
 
-     ValueInitializer valueInitializer;
+    ValueInitializer valueInitializer;
 
     transient TrainingDebugger trainingDebugger;
 
@@ -117,6 +116,9 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     protected void initRestart() {
         LOG.info("Initializing new restart (resetting weights).");
+        restart += 1;
+        setupExporter();
+
         trainer.restart(settings);
         currentModel.resetWeights(valueInitializer);
         progress.nextRestart();
@@ -143,8 +145,9 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     protected void endEpoch(int count, List<Result> onlineEvaluations) {
         Results onlineResults = resultsFactory.createFrom(onlineEvaluations);
         progress.addOnlineResults(onlineResults);
+        onlineResults.export(exporter);
+        exporter.resultsLine(",");
         LOG.info("epoch: " + count + " : online results : " + onlineResults.toString(settings));
-        Utilities.logMemory();
         if (count % settings.resultsRecalculationEpochae == 0) {
             recalculateResults();
             if (settings.debugTemplateTraining) {
@@ -156,8 +159,8 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     protected void endRestart() {
         recalculateResults();
+        exporter.resultsLine("{}\n]");
         restartingStrategy.nextRestart();
-
         if (LOG.isLoggable(Level.FINER)) {
             logSampleOutputs();
         }
@@ -207,6 +210,8 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         }
 
         Progress.TrainVal trainVal = new Progress.TrainVal(trainingResults, validationResults);
+        trainVal.export(exporter);
+        exporter.resultsLine(",");
         saveIfBest(trainVal);
     }
 

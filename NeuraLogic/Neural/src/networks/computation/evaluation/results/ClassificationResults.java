@@ -20,7 +20,7 @@ public class ClassificationResults extends RegressionResults {
     private Double recall;
     private Double f_Measure;
     private Double majorityErr;
-    private Value dispersion;
+    private Double dispersion;
 
     private int goodCount;
     private int zeroCount;
@@ -82,7 +82,8 @@ public class ClassificationResults extends RegressionResults {
             }
         }
         majorityErr = Math.max(zeroCount, oneCount) / (double) evaluations.size();
-        dispersion = oneSum.elementTimes(new ScalarValue(1.0 / oneCount)).minus(zeroSum.elementTimes(new ScalarValue(1.0 / zeroCount)));    // = average positive output minus average negative output
+        Value disp = oneSum.elementTimes(new ScalarValue(1.0 / oneCount)).minus(zeroSum.elementTimes(new ScalarValue(1.0 / zeroCount)));    // = average positive output minus average negative output
+        dispersion = ((ScalarValue) disp).value;
         accuracy = (double) goodCount / evaluations.size();
     }
 

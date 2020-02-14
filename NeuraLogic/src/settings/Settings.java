@@ -316,7 +316,7 @@ public class Settings implements Exportable {
     /**
      * Remove unnecessary parts from the networks (e.g. linear chains)
      */
-    public boolean chainPruning = true;
+    public boolean chainPruning = false;
     /**
      * Bottom-up value based sub-graph isomorphism collapsing (merging)
      */
@@ -389,7 +389,7 @@ public class Settings implements Exportable {
     /**
      * Number of decimal digits to check to consider two neurons to have the same output value
      */
-    public int isoDecimals = 10;
+    public int isoDecimals = 12;
 
     //-----------------Evaluation & Training
 
@@ -874,6 +874,17 @@ public class Settings implements Exportable {
                 settings.isoValueCompression = false;
             }
         }
+
+        if (cmd.hasOption("isoInitializations")) {
+            String _isoInits = cmd.getOptionValue("isoInitializations");
+            settings.isoValueInits = Integer.parseInt(_isoInits);
+        }
+
+        if (cmd.hasOption("losslessCompression")) {
+            String _losslessCompression = cmd.getOptionValue("losslessCompression");
+            settings.losslessIsoCompression = Integer.parseInt(_losslessCompression) > 0;
+        }
+
         if (cmd.hasOption("chainPruning")) {
             String _pruning = cmd.getOptionValue("chainPruning", String.valueOf(chainPruning));
             int prune = Integer.parseInt(_pruning);

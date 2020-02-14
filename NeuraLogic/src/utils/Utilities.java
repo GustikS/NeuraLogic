@@ -31,6 +31,8 @@ public class Utilities {
     private static long tic = System.currentTimeMillis();
     private static long lastGarbageCollectionTime = 0;
 
+    public static long allocatedMemory = 0;
+
     public static Settings.OS getOs() {
         String osName = System.getProperty("os.name").replaceAll("\\s", "");
         if (osName.contains("Windows")) {
@@ -58,7 +60,7 @@ public class Utilities {
     }
 
     public static long getAppRemainingMemory() {
-        long allocatedMemory = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
+        allocatedMemory = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
         long presumableFreeMemory = Runtime.getRuntime().maxMemory() - allocatedMemory;
         return presumableFreeMemory / mb;
     }
@@ -205,6 +207,7 @@ public class Utilities {
 
     /**
      * Collect a Stream<T> to List<T> with properly terminating it (calling all the closing callbacks)
+     *
      * @param stream
      * @param <T>
      * @return

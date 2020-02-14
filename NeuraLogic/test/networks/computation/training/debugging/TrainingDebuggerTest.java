@@ -256,7 +256,8 @@ public class TrainingDebuggerTest {
         Logging logging = Logging.initLogging(Level.FINER);
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples.txt " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/queries.txt " +
-                "-t ./resources/datasets/relational/molecules/mutagenesis/template_new.txt").split(" ");
+                "-t ./resources/datasets/relational/molecules/mutagenesis/template_new.txt" +
+                " -out ./out/muta").split(" ");
 
         Settings settings = new Settings();
 
@@ -279,9 +280,9 @@ public class TrainingDebuggerTest {
         settings.chainPruning = true;
 
         settings.isoValueCompression = true;
-        settings.losslessIsoCompression = false;
+        settings.losslessIsoCompression = true;
         settings.isoValueInits = 1;
-        settings.isoDecimals = 12;
+        settings.isoDecimals = 11;
 
 
         settings.storeNotShow = true;
@@ -293,9 +294,10 @@ public class TrainingDebuggerTest {
     @Test
     public void mutagen_vector_element() {
         Logging logging = Logging.initLogging(Level.FINER);
-        String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/trainExamples.txt " +
-                "-q ./resources/datasets/relational/molecules/mutagenesis/trainQueries.txt " +
-                "-t ./resources/datasets/relational/molecules/mutagenesis/template_vectorized.txt").split(" ");
+        String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples.txt " +
+                "-q ./resources/datasets/relational/molecules/mutagenesis/queries.txt " +
+                "-t ./resources/datasets/relational/molecules/mutagenesis/template_vector_element" +
+                " -out ./out/elem").split(" ");
 
         Settings settings = new Settings();
 
@@ -329,7 +331,7 @@ public class TrainingDebuggerTest {
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples.txt " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/queries.txt " +
                 "-t ./resources/datasets/relational/molecules/mutagenesis/template_vector_cross.txt" +
-                " -out ./out/cross").split(" ");
+                " -out ./out/lrnns").split(" ");
 
         Settings settings = new Settings();
 
@@ -351,7 +353,7 @@ public class TrainingDebuggerTest {
         settings.neuralNetsPostProcessing = true;
         settings.chainPruning = true;
 
-        settings.isoValueCompression = true;
+        settings.isoValueCompression = false;
         settings.losslessIsoCompression = false;
         settings.isoValueInits = 1;
         settings.isoDecimals = 12;
@@ -369,8 +371,8 @@ public class TrainingDebuggerTest {
         Logging logging = Logging.initLogging(Level.FINER);
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/queries " +
-                "-t ./resources/datasets/relational/molecules/mutagenesis/template_unified_gnn_bad" +
-                " -out ./out/expo").split(" ");
+                "-t ./resources/datasets/relational/molecules/mutagenesis/template_unified_gnn2" +
+                " -out ./out/gnns").split(" ");
 
         Settings settings = new Settings();
 
@@ -378,7 +380,7 @@ public class TrainingDebuggerTest {
 
         settings.seed = 0;
         settings.initLearningRate = 0.01;   //todo now make default initLearningRate change based on optimizer
-        settings.maxCumEpochCount = 1000;
+        settings.maxCumEpochCount = 100000;
         settings.resultsRecalculationEpochae = 10;
         settings.shuffleEachEpoch = true;
         settings.debugSampleOutputs = false;
@@ -395,7 +397,7 @@ public class TrainingDebuggerTest {
         settings.isoValueCompression = true;
         settings.losslessIsoCompression = false;
         settings.isoValueInits = 1;
-        settings.isoDecimals = 3;
+        settings.isoDecimals = 13;
 
         settings.storeNotShow = true;
 
@@ -406,9 +408,10 @@ public class TrainingDebuggerTest {
     @Test
     public void jair_mda_dataset() {
         Logging logging = Logging.initLogging(Level.FINER);
-        String[] args = ("-e ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/examples " +
-                "-q ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/queries " +
-                "-t ./resources/datasets/relational/molecules/template_unified_bad").split(" ");
+        String[] args = ("-e ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/examples_rep " +
+                "-q ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/queries_rep " +
+                "-t ./resources/datasets/relational/molecules/template_unified_bad -isoinits 1" +
+                " -out out/seek243").split(" ");
 
         Settings settings = new Settings();
 
@@ -416,7 +419,7 @@ public class TrainingDebuggerTest {
 
         settings.seed = 0;
         settings.initLearningRate = 0.01;   //todo now make default initLearningRate change based on optimizer
-        settings.maxCumEpochCount = 1000;
+        settings.maxCumEpochCount = 10;
         settings.resultsRecalculationEpochae = 10;
         settings.shuffleEachEpoch = true;
         settings.debugSampleOutputs = false;
@@ -430,27 +433,53 @@ public class TrainingDebuggerTest {
         settings.neuralNetsPostProcessing = true;
         settings.chainPruning = true;
         settings.isoValueCompression = true;
-        settings.isoDecimals = 1;
+        settings.losslessIsoCompression = true;
+        settings.isoDecimals = 12;
         settings.storeNotShow = true;
 
         TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
         trainingDebugger.executeDebug();
     }
 
+    public void param_mda_dataset(Settings settings, String outputFolder) {
+        Logging logging = Logging.initLogging(Level.FINER);
+        String[] args = ("-e ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/examples " +
+                "-q ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/queries " +
+                "-t ./resources/datasets/relational/molecules/template_unified_bad" +
+                " -out " + outputFolder).split(" ");
+
+        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        trainingDebugger.executeDebug();
+    }
+
+    @Test
+    public void param_mda_dataset() {
+        Settings settings = new Settings();
+        settings.maxCumEpochCount = 10;
+        settings.isoValueCompression = true;
+        settings.losslessIsoCompression = true;
+        settings.appLimitSamples = 100;
+        for (int i = 0; i < 14; i++) {
+            settings.isoDecimals = i;
+            param_mda_dataset(settings, "out/isocheck/mda_" + i);
+        }
+    }
+
+
     @Test
     public void nations() {
         Logging logging = Logging.initLogging(Level.FINER);
-        String[] args = ("-q ./resources/datasets/relational/kbs/nations/trainQueries.txt " +
-                "-e ./resources/datasets/relational/kbs/nations/facts " +
-                "-t ./resources/datasets/relational/kbs/nations/template_advanced"+
+        String[] args = ("-q ./resources/datasets/relational/kbs/nations/queries " +
+                "-e ./resources/datasets/relational/kbs/nations/examples " +
+                "-t ./resources/datasets/relational/kbs/nations/template_embeddings2" +
                 " -out ./out/nations").split(" ");
 
         Settings settings = new Settings();
 
 //        settings.neuralNetsPostProcessing = false;
-        settings.chainPruning = true;
-        settings.isoValueCompression = true;
-        settings.losslessIsoCompression = false;
+//        settings.chainPruning = true;
+//        settings.isoValueCompression = true;
+//        settings.losslessIsoCompression = false;
 
         TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
         trainingDebugger.executeDebug();
@@ -459,9 +488,9 @@ public class TrainingDebuggerTest {
     @Test
     public void kinships() {
         Logging logging = Logging.initLogging(Level.FINER);
-        String[] args = ("-q ./resources/datasets/relational/kbs/kinships/allQueries " +
-                "-e ./resources/datasets/relational/kbs/kinships/facts " +
-                "-t ./resources/datasets/relational/kbs/kinships/template_embeddings"+
+        String[] args = ("-q ./resources/datasets/relational/kbs/kinships/queries " +
+                "-e ./resources/datasets/relational/kbs/kinships/examples " +
+                "-t ./resources/datasets/relational/kbs/kinships/template_embeddings2" +
                 " -out ./out/kinships").split(" ");
 
         Settings settings = new Settings();
@@ -469,7 +498,7 @@ public class TrainingDebuggerTest {
 //        settings.neuralNetsPostProcessing = false;
         settings.chainPruning = true;
         settings.isoValueCompression = true;
-        settings.losslessIsoCompression = false;
+//        settings.losslessIsoCompression = false;
 
 //        settings.iterationMode = Settings.IterationMode.DFS_STACK;    //todo now why doesnt learn?
 
@@ -480,9 +509,9 @@ public class TrainingDebuggerTest {
     @Test
     public void umls() {
         Logging logging = Logging.initLogging(Level.FINER);
-        String[] args = ("-q ./resources/datasets/relational/kbs/umls/trainQueries_small.txt " +
-                "-e ./resources/datasets/relational/kbs/umls/facts " +
-                "-t ./resources/datasets/relational/kbs/umls/template_embeddings"+
+        String[] args = ("-q ./resources/datasets/relational/kbs/umls/queries " +
+                "-e ./resources/datasets/relational/kbs/umls/examples " +
+                "-t ./resources/datasets/relational/kbs/umls/template_embeddings2" +
                 " -out ./out/umls").split(" ");
 
         Settings settings = new Settings();
@@ -490,7 +519,7 @@ public class TrainingDebuggerTest {
 //        settings.neuralNetsPostProcessing = false;
         settings.chainPruning = true;
         settings.isoValueCompression = true;
-        settings.losslessIsoCompression = false;
+//        settings.losslessIsoCompression = false;
 
         TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
         trainingDebugger.executeDebug();

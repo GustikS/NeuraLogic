@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class Progress implements Exportable<Progress> {
 
-    Restart currentRestart;
+    transient Restart currentRestart;
 
     public List<Restart> restarts;
 
@@ -91,11 +91,6 @@ public class Progress implements Exportable<Progress> {
             } else {
                 return training.betterThan(other.training);
             }
-        }
-
-        @Override
-        public void export(Exporter exporter) {
-            exporter.export(this);
         }
     }
 

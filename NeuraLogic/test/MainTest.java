@@ -240,6 +240,17 @@ public class MainTest {
     }
 
     @Test
+    public void mda() {
+        String[] args = ("-e ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/examples " +
+                "-q ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/queries " +
+                "-t ./resources/datasets/relational/molecules/template_unified_bad -isoinits 1" +
+                " -isocheck 1 -xval 5 -ts 10 -iso 12"+
+                " -out ./out/mda_rep").split(" ");
+
+        Main.main(args);
+    }
+
+    @Test
     public void loadFromConsole() {
         String[] args = ("-path ./resources/datasets/relational/molecules/mutagenesis" +
                 " -settings ./resources/settings/settings.json" +

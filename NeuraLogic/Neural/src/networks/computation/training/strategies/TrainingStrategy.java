@@ -9,6 +9,7 @@ import networks.computation.training.NeuralSample;
 import settings.Settings;
 import utils.Timing;
 import utils.exporting.Exportable;
+import utils.exporting.Exporter;
 import utils.generic.Pair;
 
 import java.util.List;
@@ -35,14 +36,21 @@ public abstract class TrainingStrategy implements Exportable {
 
     Timing timing;
 
+    transient Exporter exporter;
+    protected int restart;
+
     public TrainingStrategy(Settings settings, NeuralModel model) {
         this.settings = settings;
         this.learningRate = new ScalarValue(settings.initLearningRate);
         this.currentModel = model;
         storeParametersState(model);
         this.resultsFactory = Results.Factory.getFrom(settings);
-
         this.timing = new Timing();
+    }
+
+    protected void setupExporter() {
+        this.exporter = new Exporter(settings, "progress/restart" + restart);
+        exporter.resultsLine("[");
     }
 
     private void storeParametersState(NeuralModel inputModel) {

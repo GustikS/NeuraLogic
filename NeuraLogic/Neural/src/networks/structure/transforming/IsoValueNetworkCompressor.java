@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  */
 public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMerging {
     private static final Logger LOG = Logger.getLogger(IsoValueNetworkCompressor.class.getName());
-
+    // todo next it eats too much memory with low iso (1-2)
     private transient final IndependentNeuronProcessing invalidation;
     private transient final Evaluation evaluation;
     private transient Settings settings;
@@ -44,6 +44,7 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
 
     public int allNeuronCount = 0;
     public int compressedNeuronCount = 0;
+    public int preventedByIsoCheck = 0;
 
     public IsoValueNetworkCompressor(Settings settings) {
         this.settings = settings;
@@ -171,7 +172,8 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
                         continue;
                     }
                     if (!equivalent(inet, sameNeuron, etalonReplacement)) {
-                        LOG.finer("Trying to replace a neuron with a non-equivalent etalon == lossy compression!");
+                        LOG.warning("Trying to replace a neuron with a non-equivalent etalon == lossy compression!");
+                        preventedByIsoCheck += 1;
                         continue;
                     }
                     while (outputs.hasNext()) {   // over all its outputs
@@ -184,7 +186,7 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
         }
     }
 
-    public boolean equivalent(DetailedNetwork<State.Structure> inet, Neurons<Neurons, State.Neural> a, Neurons<Neurons, State.Neural> b) {
+    public boolean  equivalent(DetailedNetwork<State.Structure> inet, Neurons<Neurons, State.Neural> a, Neurons<Neurons, State.Neural> b) {
 
         if (a.equals(b)) {
             return true;
