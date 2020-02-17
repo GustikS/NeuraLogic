@@ -126,15 +126,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_templateFile; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterTemplateFile(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterTemplateFile(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitTemplateFile(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitTemplateFile(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitTemplateFile(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitTemplateFile(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -201,15 +201,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_templateLine; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterTemplateLine(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterTemplateLine(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitTemplateLine(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitTemplateLine(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitTemplateLine(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitTemplateLine(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -310,15 +310,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_examplesFile; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterExamplesFile(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterExamplesFile(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitExamplesFile(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitExamplesFile(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitExamplesFile(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitExamplesFile(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -334,7 +334,7 @@ public class NeuralogicParser extends Parser {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(81);
+				setState(81); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
@@ -348,7 +348,7 @@ public class NeuralogicParser extends Parser {
 					liftedExample();
 					}
 					}
-					setState(83);
+					setState(83); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << INT) | (1L << FLOAT) | (1L << ATOMIC_NAME) | (1L << LCURL) | (1L << LANGLE) | (1L << LBRACKET) | (1L << DOLLAR) | (1L << NEGATION) | (1L << SPECIAL))) != 0) );
@@ -357,7 +357,7 @@ public class NeuralogicParser extends Parser {
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(86);
+				setState(86); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
@@ -367,7 +367,7 @@ public class NeuralogicParser extends Parser {
 					liftedExample();
 					}
 					}
-					setState(88);
+					setState(88); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << INT) | (1L << FLOAT) | (1L << ATOMIC_NAME) | (1L << LCURL) | (1L << LANGLE) | (1L << LBRACKET) | (1L << DOLLAR) | (1L << NEGATION) | (1L << SPECIAL))) != 0) );
@@ -405,15 +405,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_liftedExample; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterLiftedExample(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterLiftedExample(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitLiftedExample(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitLiftedExample(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitLiftedExample(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitLiftedExample(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -426,7 +426,7 @@ public class NeuralogicParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			{
-			setState(94);
+			setState(94); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
@@ -448,7 +448,7 @@ public class NeuralogicParser extends Parser {
 					break;
 				}
 				}
-				setState(96);
+				setState(96); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << INT) | (1L << FLOAT) | (1L << ATOMIC_NAME) | (1L << LCURL) | (1L << LANGLE) | (1L << LBRACKET) | (1L << DOLLAR) | (1L << NEGATION) | (1L << SPECIAL))) != 0) );
@@ -478,15 +478,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_label; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterLabel(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterLabel(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitLabel(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitLabel(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitLabel(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitLabel(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -535,15 +535,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_queriesFile; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterQueriesFile(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterQueriesFile(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitQueriesFile(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitQueriesFile(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitQueriesFile(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitQueriesFile(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -559,7 +559,7 @@ public class NeuralogicParser extends Parser {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(107);
+				setState(107); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
@@ -575,7 +575,7 @@ public class NeuralogicParser extends Parser {
 					match(T__0);
 					}
 					}
-					setState(109);
+					setState(109); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << INT) | (1L << FLOAT) | (1L << ATOMIC_NAME) | (1L << LCURL) | (1L << LANGLE) | (1L << LBRACKET) | (1L << DOLLAR) | (1L << NEGATION) | (1L << SPECIAL))) != 0) );
@@ -584,7 +584,7 @@ public class NeuralogicParser extends Parser {
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(114);
+				setState(114); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
@@ -596,7 +596,7 @@ public class NeuralogicParser extends Parser {
 					match(T__0);
 					}
 					}
-					setState(116);
+					setState(116); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << INT) | (1L << FLOAT) | (1L << ATOMIC_NAME) | (1L << LCURL) | (1L << LANGLE) | (1L << LBRACKET) | (1L << DOLLAR) | (1L << NEGATION) | (1L << SPECIAL))) != 0) );
@@ -625,15 +625,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_fact; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterFact(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterFact(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitFact(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitFact(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitFact(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitFact(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -680,15 +680,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_atom; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterAtom(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterAtom(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitAtom(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitAtom(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitAtom(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitAtom(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -764,15 +764,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_termList; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterTermList(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterTermList(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitTermList(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitTermList(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitTermList(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitTermList(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -840,15 +840,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_term; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterTerm(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterTerm(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitTerm(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitTerm(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitTerm(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitTerm(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -899,15 +899,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_variable; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterVariable(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterVariable(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitVariable(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitVariable(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitVariable(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitVariable(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -943,15 +943,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_constant; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterConstant(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterConstant(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitConstant(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitConstant(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitConstant(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitConstant(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -997,15 +997,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_predicate; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterPredicate(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterPredicate(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitPredicate(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitPredicate(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitPredicate(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitPredicate(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1071,15 +1071,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_conjunction; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterConjunction(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterConjunction(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitConjunction(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitConjunction(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitConjunction(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitConjunction(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1096,7 +1096,7 @@ public class NeuralogicParser extends Parser {
 			setState(167);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,18,_ctx);
-			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
@@ -1105,7 +1105,7 @@ public class NeuralogicParser extends Parser {
 					setState(164);
 					atom();
 					}
-					}
+					} 
 				}
 				setState(169);
 				_errHandler.sync(this);
@@ -1140,15 +1140,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_metadataVal; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterMetadataVal(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterMetadataVal(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitMetadataVal(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitMetadataVal(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitMetadataVal(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitMetadataVal(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1230,15 +1230,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_metadataList; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterMetadataList(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterMetadataList(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitMetadataList(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitMetadataList(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitMetadataList(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitMetadataList(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1314,15 +1314,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_lrnnRule; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterLrnnRule(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterLrnnRule(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitLrnnRule(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitLrnnRule(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitLrnnRule(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitLrnnRule(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1390,15 +1390,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_predicateOffset; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterPredicateOffset(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterPredicateOffset(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitPredicateOffset(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitPredicateOffset(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitPredicateOffset(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitPredicateOffset(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1439,15 +1439,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_predicateMetadata; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterPredicateMetadata(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterPredicateMetadata(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitPredicateMetadata(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitPredicateMetadata(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitPredicateMetadata(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitPredicateMetadata(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1487,15 +1487,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_weightMetadata; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterWeightMetadata(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterWeightMetadata(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitWeightMetadata(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitWeightMetadata(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitWeightMetadata(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitWeightMetadata(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1535,15 +1535,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_templateMetadata; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterTemplateMetadata(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterTemplateMetadata(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitTemplateMetadata(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitTemplateMetadata(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitTemplateMetadata(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitTemplateMetadata(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1585,15 +1585,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_weight; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterWeight(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterWeight(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitWeight(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitWeight(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitWeight(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitWeight(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1665,15 +1665,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_fixedValue; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterFixedValue(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterFixedValue(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitFixedValue(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitFixedValue(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitFixedValue(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitFixedValue(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1713,15 +1713,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_offset; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterOffset(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterOffset(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitOffset(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitOffset(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitOffset(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitOffset(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1766,15 +1766,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_value; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterValue(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterValue(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitValue(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitValue(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitValue(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitValue(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1836,15 +1836,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_number; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterNumber(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterNumber(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitNumber(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitNumber(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitNumber(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitNumber(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1898,15 +1898,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_vector; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterVector(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterVector(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitVector(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitVector(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitVector(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitVector(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1968,15 +1968,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_matrix; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterMatrix(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterMatrix(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitMatrix(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitMatrix(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitMatrix(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitMatrix(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1990,7 +1990,7 @@ public class NeuralogicParser extends Parser {
 			{
 			setState(249);
 			match(LBRACKET);
-			setState(251);
+			setState(251); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
@@ -2000,7 +2000,7 @@ public class NeuralogicParser extends Parser {
 				vector();
 				}
 				}
-				setState(253);
+				setState(253); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( _la==LBRACKET );
@@ -2038,15 +2038,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_dimensions; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterDimensions(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterDimensions(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitDimensions(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitDimensions(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitDimensions(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitDimensions(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2101,15 +2101,15 @@ public class NeuralogicParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_negation; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).enterNegation(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).enterNegation(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof NeuralogicListener) ((NeuralogicListener)listener).exitNegation(this);
+			if ( listener instanceof NeuralogicListener ) ((NeuralogicListener)listener).exitNegation(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof NeuralogicVisitor) return ((NeuralogicVisitor<? extends T>)visitor).visitNegation(this);
+			if ( visitor instanceof NeuralogicVisitor ) return ((NeuralogicVisitor<? extends T>)visitor).visitNegation(this);
 			else return visitor.visitChildren(this);
 		}
 	}

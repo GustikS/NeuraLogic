@@ -75,9 +75,12 @@ public class Settings implements Exportable {
     public String graphvizPathMac = "/usr/local/bin";   //never tried OSX...
     public String graphvizPathWindows = "../resources/graphviz"; //get it if you  don't have it and want to use it!
 
+    public String pythonPath = "/opt/miniconda3/envs/lrnn/bin/python";
+    public String progressPlotterPath = "../Frontend/grid/loading_results.py";
+
     //------------------Exporting (i.e. output files for logging etc.)
 
-    public Object blockExporting = BlockExporting.JSON;
+    public BlockExporting blockExporting = BlockExporting.JSON;
 
     public enum BlockExporting {
         JSON, TEXT
@@ -392,7 +395,10 @@ public class Settings implements Exportable {
     public int isoDecimals = 12;
 
     //-----------------Evaluation & Training
-
+    /**
+     * Calling external tool to periodically each N seconds plot training progress in a window
+     */
+    public int plotProgress = 1;
     /**
      * Evaluation mode: Regression vs. Classification
      */

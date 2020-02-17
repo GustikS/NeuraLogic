@@ -385,7 +385,7 @@ public class TrainingDebuggerTest {
         settings.shuffleEachEpoch = true;
         settings.debugSampleOutputs = false;
         settings.calculateBestThreshold = true;
-//        settings.appLimitSamples = 10;
+//        settings.appLimitSamples = 2;
         settings.initializer = Settings.InitSet.SIMPLE;
         settings.optimizer = Settings.OptimizerSet.ADAM;
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;

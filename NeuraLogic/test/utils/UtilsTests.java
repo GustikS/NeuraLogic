@@ -1,8 +1,11 @@
 package utils;
 
 import org.junit.Test;
+import sun.misc.Launcher;
 
 import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 /**
  * Created by gusta on 27.2.18.
@@ -38,6 +41,22 @@ public class UtilsTests {
             System.out.println("Total space (bytes): " + root.getTotalSpace());
             System.out.println("Free space (bytes): " + root.getFreeSpace());
             System.out.println("Usable space (bytes): " + root.getUsableSpace());
+        }
+    }
+
+    @Test
+    public void jartest(){
+        String path = ".";
+        final URL url = Launcher.class.getResource("/" + path);
+        if (url != null) {
+            try {
+                final File apps = new File(url.toURI());
+                for (File app : apps.listFiles()) {
+                    System.out.println(app);
+                }
+            } catch (URISyntaxException ex) {
+                // never happens
+            }
         }
     }
 }

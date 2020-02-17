@@ -20,5 +20,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="gson-2.6.2-javadoc" level="project" />
+    <orderEntry type="module" module-name="Frontend" scope="RUNTIME" />
   </component>
 </module>

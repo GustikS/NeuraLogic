@@ -19,6 +19,7 @@ from matplotlib.font_manager import FontProperties
 
 from pandas.core.dtypes.common import is_numeric_dtype
 
+#todo make plot drawing more efficient by just updating the plots data instead of new plot
 # %%
 
 class ExperimentResults:
@@ -243,18 +244,34 @@ class ProgressObserver(FileObserver):
         pltr = Plotter()
         plt.gca().clear()
         for metric, series in progress.items():
-            series1 = np.array(series).astype(np.double)
-            s1mask = np.isfinite(series1)
-            if not s1mask.any():
-                continue
+            # series1 = np.array(series).astype(np.double)
+            # s1mask = np.isfinite(series1)
+            # if not s1mask.any():
+            #     continue
+            series = series[1:]
+
+            series1 = np.array(series).astype(float)
             xs = np.arange(len(series))
-            pltr.normal_plot(series1[s1mask], xs[s1mask], legend=metric)
+
+            mask = np.isnan(series1)
+            if mask.all():
+                continue
+
+            idx = np.where(~mask, np.arange(len(mask)),0)
+            np.maximum.accumulate(idx, axis=0, out=idx)
+            out = series1[idx]
+
+            pltr.normal_plot(out, xs, legend=metric[0])
+            plt.annotate('%0.5f' % out[-1], xy=(1, out[-1]), xytext=(8, 0),
+                         xycoords=('axes fraction', 'data'), textcoords='offset points')
 
         fontP = FontProperties()
         fontP.set_size('small')
         plt.title("training progress")
+        plt.xlim((0,len(xs)))
         plt.legend(loc="upper center", bbox_to_anchor=(0.5, -0.1),
                    fancybox=True, shadow=True, ncol=2, prop=fontP)
+
         plt.tight_layout()
         # plt.show(block=False)
         plt.draw()

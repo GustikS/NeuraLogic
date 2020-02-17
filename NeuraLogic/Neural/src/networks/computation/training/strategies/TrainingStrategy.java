@@ -12,6 +12,7 @@ import utils.exporting.Exportable;
 import utils.exporting.Exporter;
 import utils.generic.Pair;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -51,6 +52,15 @@ public abstract class TrainingStrategy implements Exportable {
     protected void setupExporter() {
         this.exporter = new Exporter(settings, "progress/restart" + restart);
         exporter.resultsLine("[");
+
+        if (settings.plotProgress > 0) {
+            ProcessBuilder processBuilder = new ProcessBuilder(settings.pythonPath, settings.progressPlotterPath, settings.exportDir, "" + settings.plotProgress);
+            try {
+                processBuilder.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void storeParametersState(NeuralModel inputModel) {

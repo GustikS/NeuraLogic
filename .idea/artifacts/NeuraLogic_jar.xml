@@ -1,16 +1,15 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="NeuraLogic:jar">
-    <output-path>$PROJECT_DIR$/NeuraLogic/out/artifacts/NeuraLogic_jar</output-path>
+  <artifact type="jar" build-on-make="true" name="NeuraLogic:jar">
+    <output-path>$PROJECT_DIR$/NeuraLogic/out/artifacts</output-path>
     <root id="archive" name="NeuraLogic.jar">
       <element id="module-output" name="NeuraLogic" />
-      <element id="module-test-output" name="NeuraLogic" />
       <element id="module-output" name="Neural" />
       <element id="module-output" name="Logical" />
       <element id="module-output" name="Logic" />
       <element id="module-output" name="Utils" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/NeuraLogic/lib/antlr-4.7-complete.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/NeuraLogic/lib/commons-cli-1.4/commons-cli-1.4.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/NeuraLogic/lib/gson-2.6.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/NeuraLogic/lib/antlr4.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

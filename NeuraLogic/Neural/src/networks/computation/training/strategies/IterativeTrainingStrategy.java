@@ -21,6 +21,7 @@ import networks.computation.training.strategies.trainers.ListTrainer;
 import networks.computation.training.strategies.trainers.MiniBatchTrainer;
 import networks.computation.training.strategies.trainers.SequentialTrainer;
 import settings.Settings;
+import utils.exporting.Exportable;
 import utils.generic.Pair;
 
 import java.util.Collections;
@@ -145,8 +146,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     protected void endEpoch(int count, List<Result> onlineEvaluations) {
         Results onlineResults = resultsFactory.createFrom(onlineEvaluations);
         progress.addOnlineResults(onlineResults);
-        onlineResults.export(exporter);
-        exporter.resultsLine(",");
+        exportProgress(onlineResults);
         LOG.info("epoch: " + count + " : online results : " + onlineResults.toString(settings));
         if (count % settings.resultsRecalculationEpochae == 0) {
             recalculateResults();
@@ -210,8 +210,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         }
 
         Progress.TrainVal trainVal = new Progress.TrainVal(trainingResults, validationResults);
-        trainVal.export(exporter);
-        exporter.resultsLine(",");
+        exportProgress(trainVal);
         saveIfBest(trainVal);
     }
 
@@ -249,5 +248,10 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         if (saturatedNetworks > 0) {
             LOG.warning("There are saturated networks: #" + saturatedNetworks + " / " + samples.size());
         }
+    }
+
+    private void exportProgress(Exportable results) {
+        results.export(exporter);
+        exporter.resultsLine(",");
     }
 }
