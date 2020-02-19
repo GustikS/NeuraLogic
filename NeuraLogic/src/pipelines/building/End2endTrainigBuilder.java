@@ -7,7 +7,6 @@ import grounding.GroundingSample;
 import networks.computation.evaluation.results.Progress;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
-import networks.structure.building.Neuralizer;
 import networks.structure.export.NeuralSerializer;
 import pipelines.ConnectAfter;
 import pipelines.Merge;
@@ -72,7 +71,7 @@ public class End2endTrainigBuilder extends AbstractPipelineBuilder<Sources, Pair
     }
 
     public Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> buildNeuralNets(Settings settings, WeightFactory weightFactory) {
-        NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, new Neuralizer(settings, weightFactory));
+        NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, weightFactory);
         return neuralNetsBuilder.buildPipeline();
     }
 

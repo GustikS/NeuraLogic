@@ -15,7 +15,7 @@ public class Progress implements Exportable<Progress> {
 
     transient Restart currentRestart;
 
-    public List<Restart> restarts;
+    transient public List<Restart> restarts;
 
     public TrainVal bestResults;
 

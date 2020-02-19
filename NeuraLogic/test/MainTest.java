@@ -300,8 +300,8 @@ public class MainTest {
     @Test
     public void kinships() {
         Logging logging = Logging.initLogging(Level.FINER);
-        String[] args = ("-q ./resources/datasets/relational/kbs/kinships/allQueries " +
-                "-e ./resources/datasets/relational/kbs/kinships/facts " +
+        String[] args = ("-q ./resources/datasets/relational/kbs/kinships/queries " +
+                "-e ./resources/datasets/relational/kbs/kinships/examples " +
                 "-t ./resources/datasets/relational/kbs/kinships/template_embeddings"+
                 " -out ./out/kinships").split(" ");
 

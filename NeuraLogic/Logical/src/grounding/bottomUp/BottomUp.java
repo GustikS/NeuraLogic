@@ -29,7 +29,11 @@ import java.util.stream.Collectors;
 public class BottomUp extends Grounder {
     private static final Logger LOG = Logger.getLogger(BottomUp.class.getName());
 
-    HerbrandModel herbrandModel;
+    transient HerbrandModel herbrandModel;
+
+    long herbrandCumSize = 0;
+    int totalRules = 0;
+    long totalGroundRules = 0;
 
     public BottomUp(Settings settings) {
         super(settings);
@@ -38,6 +42,8 @@ public class BottomUp extends Grounder {
 
     @NotNull
     public GroundTemplate groundRulesAndFacts(LiftedExample example, Template template) {
+        timing.tic();
+
         Map<HornClause, List<WeightedRule>> ruleMap = template.hornClauses;
         Map<Literal, ValuedFact> groundFacts = null;
         if (example.rules.isEmpty() && ruleMap != null) {  //no new rules here, only facts, reuse the rules mapping from template
@@ -63,8 +69,10 @@ public class BottomUp extends Grounder {
         herbrandModel.inferModel(ruleMap.keySet(), facts);
         Map<Literal, Literal> allLiterals = Sugar.flatten(herbrandModel.herbrand.values()).stream().collect(Collectors.toMap(l -> l, l -> l));
         LOG.fine("...HerbrandModel inferred with " + allLiterals.size() + " facts");
+        herbrandCumSize += allLiterals.size();
 
         LOG.fine("Grounding of " + ruleMap.size() + " rules...");
+        totalRules += ruleMap.size();
         for (Map.Entry<HornClause, List<WeightedRule>> ruleEntry : ruleMap.entrySet()) {
             Pair<Term[], List<Term[]>> groundingSubstitutions = herbrandModel.groundingSubstitutions(ruleEntry.getKey());
             for (WeightedRule weightedRule : ruleEntry.getValue()) {
@@ -83,9 +91,12 @@ public class BottomUp extends Grounder {
                 }
             }
         }
-        LOG.fine("...ground rules created.");
+        LOG.fine(groundRules.size() + " ground rules created.");
+        totalGroundRules += groundRules.size();
         GroundTemplate groundTemplate = new GroundTemplate(groundRules, groundFacts);
         herbrandModel.clear();
+
+        timing.toc();
         return groundTemplate;
     }
 

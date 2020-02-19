@@ -67,4 +67,28 @@ public class NeuronSets {
         allNeurons.addAll(negationNeurons);
         return allNeurons;
     }
+
+    public NeuronCounter getCounts() {
+        return new NeuronCounter(this);
+    }
+
+    public class NeuronCounter {
+
+        int atomNeuronsCreated;
+        int weightedAtomNeuronsCreated;
+        int aggNeuronsCreated;
+        int ruleNeuronsCreated;
+        int weightedRuleNeuronsCreated;
+        int factNeuronsCreated;
+
+        public NeuronCounter(NeuronSets neuronSets) {
+            atomNeuronsCreated = neuronSets.atomNeurons.size();
+            weightedAtomNeuronsCreated = neuronSets.weightedAtomNeurons.size();
+            aggNeuronsCreated = neuronSets.aggNeurons.size();
+            ruleNeuronsCreated = neuronSets.ruleNeurons.size();
+            weightedRuleNeuronsCreated = neuronSets.weightedRuleNeurons.size();
+            factNeuronsCreated = neuronSets.factNeurons.size();
+        }
+
+    }
 }

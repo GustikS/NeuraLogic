@@ -78,6 +78,7 @@ public class Pair<R, S> implements Exportable<Pair<R, S>> {
         if (r instanceof Exportable)
             ((Exportable) r).export(exporter);
         if (s instanceof Exportable)
+            exporter.resultsLine(",");
             ((Exportable) s).export(exporter);
     }
 }

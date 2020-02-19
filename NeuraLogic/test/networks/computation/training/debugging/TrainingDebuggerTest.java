@@ -408,8 +408,8 @@ public class TrainingDebuggerTest {
     @Test
     public void jair_mda_dataset() {
         Logging logging = Logging.initLogging(Level.FINER);
-        String[] args = ("-e ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/examples_rep " +
-                "-q ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/queries_rep " +
+        String[] args = ("-e ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/examples " +
+                "-q ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/queries " +
                 "-t ./resources/datasets/relational/molecules/template_unified_bad -isoinits 1" +
                 " -out out/seek243").split(" ");
 
@@ -424,7 +424,7 @@ public class TrainingDebuggerTest {
         settings.shuffleEachEpoch = true;
         settings.debugSampleOutputs = false;
         settings.calculateBestThreshold = true;
-//        settings.appLimitSamples = 100;
+        settings.appLimitSamples = 5;
         settings.initializer = Settings.InitSet.SIMPLE;
         settings.optimizer = Settings.OptimizerSet.ADAM;
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;

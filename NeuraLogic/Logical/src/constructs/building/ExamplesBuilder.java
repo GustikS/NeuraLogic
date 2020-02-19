@@ -80,6 +80,8 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
     private void inferInputFormatSettings(NeuralogicParser.ExamplesFileContext examplesFileContext) {
         if (examplesFileContext.liftedExample().size() == 0) {
             LOG.warning("There are no examples in the example source (file)!");
+            LOG.severe("Problem with parsing the examples");
+            System.exit(4);
         } else if (examplesFileContext.liftedExample().size() == 1) {
             LOG.info("Detecting exactly 1 (big) example in the examples source (file), switching to knowledge-base mode.");
             if (settings.groundingMode != Settings.GroundingMode.GLOBAL) {

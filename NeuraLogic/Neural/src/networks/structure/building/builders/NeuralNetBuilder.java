@@ -184,12 +184,14 @@ public class NeuralNetBuilder {
      * No, keep them, as they are a valid part of the network (we can possibly query them).
      *
      * @param groundFacts
+     * @param createdNeurons
      * @return
      */
-    public void loadNeuronsFromFacts(Map<Literal, ValuedFact> groundFacts) {
+    public void loadNeuronsFromFacts(Map<Literal, ValuedFact> groundFacts, NeuronSets createdNeurons) {
         for (Map.Entry<Literal, ValuedFact> factEntry : groundFacts.entrySet()) {
             neuralBuilder.neuronFactory.createFactNeuron(factEntry.getValue());
         }
+        createdNeurons.factNeurons.addAll(neuralBuilder.neuronFactory.neuronMaps.factNeurons.values());
         groundFacts.clear();  //remove facts that will already have corresponding neurons with them
     }
 
@@ -252,7 +254,9 @@ public class NeuralNetBuilder {
             queryNeurons = queryMatchingLiterals.stream().map(key -> {
                 AtomNeurons qn = neuralBuilder.neuronFactory.neuronMaps.atomNeurons.get(key);
                 if (qn == null){
-                    LOG.severe("Query not matched!: " + key);
+                    LOG.severe("Query not matched anywhere in the ground network: " + key);
+                    LOG.severe("Cannot calculate its output!");
+                    System.exit(5);
                 }
                 return qn;
             }).collect(Collectors.toList());

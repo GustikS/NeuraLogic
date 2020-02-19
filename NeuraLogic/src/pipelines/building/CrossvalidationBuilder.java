@@ -10,7 +10,6 @@ import learning.crossvalidation.TrainTestResults;
 import learning.crossvalidation.splitting.Splitter;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
-import networks.structure.building.Neuralizer;
 import pipelines.*;
 import pipelines.pipes.generic.*;
 import pipelines.pipes.specific.TemplateToNeuralPipe;
@@ -158,7 +157,7 @@ public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Tra
                         GroundingBuilder groundingBuilder = new GroundingBuilder(settings);
                         List<Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>>> groundingPipelines = groundingBuilder.buildPipelines(sources.folds.size());
 
-                        NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, new Neuralizer(settings, groundingBuilder.grounder.weightFactory));
+                        NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, groundingBuilder.weightFactory);
                         List<Pipeline<Stream<GroundingSample>, Stream<NeuralSample>>> neuralizationPipelines = neuralNetsBuilder.buildPipelines(sources.folds.size());
 
                         groundingPipelines.forEach(pipeline::register);
@@ -276,7 +275,7 @@ public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Tra
                     List<Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>>> groundingPipelines = groundingBuilder.buildPipelines(settings.foldsCount);
                     groundingPipelines.forEach(pipeline::register);
 
-                    NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, new Neuralizer(settings, groundingBuilder.grounder.weightFactory));
+                    NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, groundingBuilder.weightFactory);
                     List<Pipeline<Stream<GroundingSample>, Stream<NeuralSample>>> neuralizationPipelines = neuralNetsBuilder.buildPipelines(settings.foldsCount);
                     neuralizationPipelines.forEach(pipeline::register);
 

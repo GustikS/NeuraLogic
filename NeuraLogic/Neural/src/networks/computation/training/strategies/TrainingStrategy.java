@@ -39,6 +39,9 @@ public abstract class TrainingStrategy implements Exportable {
 
     transient Exporter exporter;
     protected int restart;
+    transient Process progressPlotter;
+
+    static int counter = 0;
 
     public TrainingStrategy(Settings settings, NeuralModel model) {
         this.settings = settings;
@@ -50,13 +53,13 @@ public abstract class TrainingStrategy implements Exportable {
     }
 
     protected void setupExporter() {
-        this.exporter = new Exporter(settings, "progress/restart" + restart);
+        this.exporter = new Exporter(settings, "progress/training" + counter++ + "restart" + restart);
         exporter.resultsLine("[");
 
         if (settings.plotProgress > 0) {
             ProcessBuilder processBuilder = new ProcessBuilder(settings.pythonPath, settings.progressPlotterPath, settings.exportDir, "" + settings.plotProgress);
             try {
-                processBuilder.start();
+                progressPlotter = processBuilder.start();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -86,6 +89,7 @@ public abstract class TrainingStrategy implements Exportable {
         if (settings.undoWeightTrainingChanges) {
             loadParametersState();
         }
+        progressPlotter.destroy();
     }
 
 

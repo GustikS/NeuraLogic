@@ -9,6 +9,7 @@ import grounding.debugging.GroundingDebugger;
 import pipelines.ConnectAfter;
 import pipelines.Pipe;
 import pipelines.Pipeline;
+import pipelines.pipes.generic.ExportingPipe;
 import pipelines.pipes.generic.StreamParallelizationPipe;
 import pipelines.pipes.specific.*;
 import settings.Settings;
@@ -23,17 +24,15 @@ import java.util.stream.Stream;
 public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> {
     private static final Logger LOG = Logger.getLogger(GroundingBuilder.class.getName());
 
-    Grounder grounder;
+    protected WeightFactory weightFactory;
 
     public GroundingBuilder(Settings settings) {
         super(settings);
-        grounder = Grounder.getGrounder(settings);
     }
 
     public GroundingBuilder(Settings settings, WeightFactory weightFactory) {
-        super(settings);
-        grounder = Grounder.getGrounder(settings);
-        grounder.weightFactory = weightFactory;
+        this(settings);
+        this.weightFactory = weightFactory;
     }
 
     /**
@@ -55,6 +54,12 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
      */
     @Override
     public Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> buildPipeline() {
+        Grounder grounder = Grounder.getGrounder(settings);
+        if (this.weightFactory != null) {
+            grounder.weightFactory = this.weightFactory;
+        }
+        this.weightFactory = grounder.weightFactory;
+
         Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> pipeline = new Pipeline<>("GroundingPipeline", this);
 
         Pipe<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> groundingSamples = pipeline.registerStart(new GroundingSampleWrappingPipe(settings));
@@ -93,6 +98,12 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
             nextPipe = groundingPipe;
         }
 
+        if (pipeline.exporter != null) {
+            ExportingPipe<GroundingSample> exportingPipe = pipeline.registerEnd(new ExportingPipe<>(grounder, pipeline.exporter, grounder.timing, settings));
+            nextPipe.connectAfter(exportingPipe);
+            nextPipe = exportingPipe;
+        }
+
         if (settings.explicitSupervisedGroundTemplatePruning) {
             Pipe<Stream<GroundingSample>, Stream<GroundingSample>> groundReducingPipe = pipeline.registerEnd(new SupervisedGroundTemplatePruning());
 
@@ -100,7 +111,7 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
             nextPipe = groundReducingPipe;
         }
 
-        if (settings.debugGrounding){
+        if (settings.debugGrounding) {
             new GroundingDebugger(settings).addDebugStream(pipeline);
         }
 

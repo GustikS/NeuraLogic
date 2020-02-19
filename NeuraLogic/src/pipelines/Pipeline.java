@@ -4,6 +4,7 @@ import pipelines.building.AbstractPipelineBuilder;
 import pipelines.debug.PipelineDebugger;
 import settings.Settings;
 import settings.Sources;
+import utils.Timing;
 import utils.exporting.Exporter;
 import utils.generic.Pair;
 
@@ -24,8 +25,9 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
     // pipelines - vstup a vystup by byl Pipe/Merge/Branch?
 
     private static final Logger LOG = Logger.getLogger(Pipeline.class.getName());
+    private Timing timing;
 
-    public AbstractPipelineBuilder<S, T> originalBuilder;
+    transient public AbstractPipelineBuilder<S, T> originalBuilder;
 
     /**
      * first node INSIDE this pipeline
@@ -51,11 +53,11 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
     /**
      * input BEFORE this pipeline
      */
-    public ConnectAfter<S> input;
+    transient public ConnectAfter<S> input;
     /**
      * output AFTER this pipeline
      */
-    public ConnectBefore<T> output;
+    transient public ConnectBefore<T> output;
 
     /**
      * This pipeline needs to be rebuilt before execution
@@ -101,21 +103,16 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
         this.ID = id;
         this.settings = settings;
         this.exporter = exporter;
+        this.timing = new Timing();
     }
 
     /**
-     * List of points in the pipelines that need to be called externally, i.e. where streams are terminated.
+     *
      */
     //ConcurrentLinkedQueue<Executable> executionQueue;
     public Pair<String, T> execute(S source) {
         LOG.info("Executing pipeline : " + this.ID);
-        //start the whole pipelines
-        start.accept(source);
-        /*while (!executionQueue.isEmpty()) {
-            Executable poll = executionQueue.poll();
-            poll.run();
-        }*/
-
+        this.accept(source);
         //collect and return all the terminal results
         return new Pair<String, T>(ID, terminal.get());
     }
@@ -235,9 +232,13 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
         if (this.invalidated) {
             this.rebuild(settings);
         }
+        timing.tic();
+        //start the whole pipelines
         start.accept(sources);
-        //all the processing happen recursively here
-        super.export(terminal.get());
+
+        timing.toc();
+        timing.finish();
+        super.export(terminal.get(), timing);
 
         if (this.output != null) {
             this.output.accept(terminal.get());

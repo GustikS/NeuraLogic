@@ -20,6 +20,9 @@ public class Sources {
 
     private static final Logger LOG = Logger.getLogger(Sources.class.getName());
 
+    protected String foldId = "";
+    protected Settings settings;
+
     /**
      * Source files may be further (even recursively) split into folds
      * TODO - test this behavior
@@ -70,7 +73,13 @@ public class Sources {
         return sources;
     }
 
+    public Sources(String foldId, Settings settings) {
+        this(settings);
+        this.foldId = foldId;
+    }
+
     public Sources(Settings settings) {
+        this.settings = settings;
         train = new Source();
         test = new Source();
     }

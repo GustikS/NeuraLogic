@@ -6,7 +6,6 @@ import grounding.GroundingSample;
 import networks.computation.evaluation.results.Progress;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
-import networks.structure.building.Neuralizer;
 import pipelines.Merge;
 import pipelines.Pipe;
 import pipelines.Pipeline;
@@ -88,7 +87,7 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
 
         @Override
         public Pipeline<Pair<Template, Stream<LogicSample>>, Pair<Pair<Template, NeuralModel>, Progress>> buildPipeline() {
-            Pipeline<Pair<Template, Stream<LogicSample>>, Pair<Pair<Template, NeuralModel>, Progress>> pipeline = new Pipeline<>("LogicLearningPipeline", this);
+            Pipeline<Pair<Template, Stream<LogicSample>>, Pair<Pair<Template, NeuralModel>, Progress>> pipeline = new Pipeline<>("LearningPipeline", this);
 
             FirstFromPairExtractionBranch<Template, Stream<LogicSample>> templateSamplesBranch = pipeline.registerStart(new FirstFromPairExtractionBranch<>());
             DuplicateBranch<Template> duplicateBranch = pipeline.register(new DuplicateBranch<>());
@@ -96,8 +95,7 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
             GroundingBuilder groundingBuilder = new GroundingBuilder(settings);
             Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> groundingPipeline = pipeline.register(groundingBuilder.buildPipeline());
 
-
-            NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, new Neuralizer(settings, groundingBuilder.grounder.weightFactory));
+            NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, groundingBuilder.weightFactory);
             Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> neuralizationPipeline = pipeline.register(neuralNetsBuilder.buildPipeline());
 
             TemplateToNeuralPipe templateToNeuralPipe = pipeline.register(new TemplateToNeuralPipe(settings));

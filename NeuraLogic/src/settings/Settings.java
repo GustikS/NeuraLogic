@@ -109,7 +109,7 @@ public class Settings implements Exportable {
      * Outputs of these blocks will be exported into respective files
      */
     public String[] exportBlocks = {"NeuralTrainTestPipeline", "NeuralEvaluationPipe", "CrossvalidationPipeline",
-            "CompressionPipe", "NetworkPruningPipe", "NeuralTrainingPipe"};
+            "CompressionPipe", "NetworkPruningPipe", "NeuralTrainingPipe", "GroundingPipeline", "NeuralizationPipeline", "LearningPipeline", "LearningSchemePipeline"};
 
     //------------------Drawing/Debugging
 
@@ -603,17 +603,18 @@ public class Settings implements Exportable {
     public boolean sourcePathProvided = false;
     public String sourcePath = ".";
     public String templateFile = "template.txt";    //todo remove/unify the txt
+    public String mergedTemplatesFile = "templates_merged.txt";
     public String trainExamplesFile = "trainExamples.txt";
     /**
      * Alternative file name
      */
-    public String trainExamplesFile2 = "examples";
+    public String trainExamplesFile2 = "examples.txt";
     public String testExamplesFile = "testExamples.txt";
     public String trainQueriesFile = "trainQueries.txt";
     /**
      * Alternative file name
      */
-    public String trainQueriesFile2 = "queries";
+    public String trainQueriesFile2 = "queries.txt";
     public String testQueriesFile = "testQueries.txt";
 
     public String foldsPrefix = "fold";

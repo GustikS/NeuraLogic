@@ -12,6 +12,8 @@ import ida.ilp.logic.Literal;
 import networks.computation.evaluation.functions.Aggregation;
 import networks.computation.evaluation.values.Value;
 import settings.Settings;
+import utils.Timing;
+import utils.exporting.Exportable;
 import utils.generic.Pair;
 
 import java.util.*;
@@ -23,19 +25,21 @@ import java.util.stream.Collectors;
  * <p>
  * Created by Gusta on 06.10.2016.
  */
-public abstract class Grounder {
+public abstract class Grounder implements Exportable {
     private static final Logger LOG = Logger.getLogger(Grounder.class.getName());
-    public Settings settings;
+    transient public Settings settings;
     public WeightFactory weightFactory;
 
+    public Timing timing;
+
     public Grounder(Settings settings) {
-        this.settings = settings;
-        this.weightFactory = new WeightFactory();
+        this(settings, new WeightFactory());
     }
 
     public Grounder(Settings settings, WeightFactory weightFactory) {
         this.settings = settings;
         this.weightFactory = weightFactory;
+        this.timing = new Timing();
     }
 
     //todo should also decide based on template sturcture?

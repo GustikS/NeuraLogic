@@ -6,7 +6,6 @@ import grounding.GroundingSample;
 import networks.computation.evaluation.results.Results;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
-import networks.structure.building.Neuralizer;
 import pipelines.Branch;
 import pipelines.Pipe;
 import pipelines.Pipeline;
@@ -92,7 +91,7 @@ public class TestingBuilder extends AbstractPipelineBuilder<Sources, Results> {
                 GroundingBuilder groundingBuilder = new GroundingBuilder(settings);
                 groundingPipeline = pipeline.register(groundingBuilder.buildPipeline());
 
-                NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, new Neuralizer(settings, groundingBuilder.grounder.weightFactory));
+                NeuralNetsBuilder neuralNetsBuilder = new NeuralNetsBuilder(settings, groundingBuilder.weightFactory);
                 neuralizationPipeline = pipeline.register(neuralNetsBuilder.buildPipeline());
             }
 

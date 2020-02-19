@@ -18,6 +18,8 @@ import networks.structure.components.neurons.QueryNeuron;
 import networks.structure.components.neurons.types.AtomNeurons;
 import networks.structure.components.types.DetailedNetwork;
 import settings.Settings;
+import utils.Timing;
+import utils.exporting.Exportable;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -30,30 +32,42 @@ import java.util.stream.Collectors;
  *
  * @see NeuralNetBuilder
  */
-public class Neuralizer {
+public class Neuralizer implements Exportable {
     private static final Logger LOG = Logger.getLogger(Neuralizer.class.getName());
-    private Settings settings;
+    transient private Settings settings;
 
-    public NeuralNetBuilder neuralNetBuilder;
+    transient public NeuralNetBuilder neuralNetBuilder;
+
+
+    public NeuronSets.NeuronCounter neuronCounts;
+    int queryNeuronsCreated;
+    int groundRulesProcessed;
+    int networksCreated;
+
+    public Timing timing;
 
     public Neuralizer(Settings settings) {
         this.settings = settings;
         this.neuralNetBuilder = new NeuralNetBuilder(settings);
+        this.timing = new Timing();
     }
 
     public Neuralizer(Settings settings, WeightFactory weightFactory) {
-        this.settings = settings;
-        this.neuralNetBuilder = new NeuralNetBuilder(settings);
+        this(settings);
         this.neuralNetBuilder.neuralBuilder.weightFactory = weightFactory;
     }
 
     /**
      * KB mode - neuralize everything at once with multiple different queries
+     *
      * @param groundTemplate
      * @param samples
      * @return
      */
     public List<NeuralProcessingSample> neuralize(GroundTemplate groundTemplate, List<? extends LogicSample> samples) {
+        timing.tic();
+        networksCreated++;
+
         neuralNetBuilder.setNeuronMaps(groundTemplate.neuronMaps); //loading stored context from previous neural nets building
         NeuronSets createdNeurons = new NeuronSets();    //a set of neurons used exclusively for this network being created only!
 
@@ -84,7 +98,7 @@ public class Neuralizer {
             LogicSample logicSample = origSamples.get(i);
             QueryAtom queryAtom = logicSample.query;
             AtomNeurons atomNeuron = neuralNetBuilder.getNeuronMaps().atomNeurons.get(queryMatchingLiterals.get(i));
-            if (atomNeuron == null){
+            if (atomNeuron == null) {
                 LOG.severe("No inference network created for " + queryAtom);
             }
             QueryNeuron queryNeuron = new QueryNeuron(queryAtom.ID, queryAtom.position, queryAtom.importance, atomNeuron, neuralNetwork);
@@ -95,9 +109,10 @@ public class Neuralizer {
 
         groundTemplate.neuronMaps = neuralNetBuilder.getNeuronMaps(); //storing the context back again
 
+        neuronCounts = createdNeurons.getCounts();
+        timing.toc();
         return neuralSamples;
     }
-
 
 
     /**
@@ -109,10 +124,14 @@ public class Neuralizer {
      * @return
      */
     public List<NeuralProcessingSample> neuralize(GroundingSample groundingSample) {
-        neuralNetBuilder.setNeuronMaps(groundingSample.groundingWrap.getGroundTemplate().neuronMaps); //loading stored context from previous neural nets building
-        NeuronSets currentNeuronSets = new NeuronSets();    //a set of neurons used exclusively for this network being created only!
+        timing.tic();
+        networksCreated++;
 
-        List<QueryNeuron> queryNeurons = supervisedNeuralization(groundingSample, currentNeuronSets);
+        neuralNetBuilder.setNeuronMaps(groundingSample.groundingWrap.getGroundTemplate().neuronMaps); //loading stored context from previous neural nets building
+        NeuronSets createdNeurons = new NeuronSets();    //a set of neurons used exclusively for this network being created only!
+
+        List<QueryNeuron> queryNeurons = supervisedNeuralization(groundingSample, createdNeurons);
+        queryNeuronsCreated += queryNeurons.size();
         if (queryNeurons.isEmpty()) {
             LOG.severe("No inference network created for " + groundingSample.query);
         }
@@ -122,6 +141,9 @@ public class Neuralizer {
         List<NeuralProcessingSample> samples = queryNeurons.stream()
                 .map(queryNeuron -> new NeuralProcessingSample(groundingSample.target, queryNeuron))
                 .collect(Collectors.toList());
+
+        neuronCounts = createdNeurons.getCounts();
+        timing.toc();
         return samples;
     }
 
@@ -135,6 +157,10 @@ public class Neuralizer {
         GroundTemplate groundTemplate = groundingSample.groundingWrap.getGroundTemplate();
 
         List<Literal> queryMatchingLiterals = getQueryMatchingLiterals(queryAtom, groundTemplate.groundRules);
+        if (queryMatchingLiterals.isEmpty()) {
+            LOG.severe("Query not matched anywhere in the template:" + queryAtom);
+            System.exit(5);
+        }
         LOG.finer("Obtained QueryMatchingLiterals: " + queryMatchingLiterals);
 
         DetailedNetwork neuralNetwork;
@@ -167,7 +193,7 @@ public class Neuralizer {
 
     private DetailedNetwork getDetailedNetwork(NeuronSets createdNeurons, GroundTemplate groundTemplate, List<Literal> queryMatchingLiterals) {
         if (neuralNetBuilder.neuralBuilder.neuronFactory.neuronMaps.factNeurons.isEmpty() || settings.groundingMode == Settings.GroundingMode.SEQUENTIAL)
-            neuralNetBuilder.loadNeuronsFromFacts(groundTemplate.neuronMaps.groundFacts);   //global sharing mode transfers facts   - todo check after changes
+            neuralNetBuilder.loadNeuronsFromFacts(groundTemplate.neuronMaps.groundFacts, createdNeurons);   //global sharing mode transfers facts   - todo check after changes
 
         LOG.fine("Neurons created: " + neuralNetBuilder.getNeuronMaps());
         neuralNetBuilder.connectAllNeurons(createdNeurons);
@@ -193,6 +219,7 @@ public class Neuralizer {
         LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>> ruleMap = groundTemplate.neuronMaps.groundRules.remove(literal);
         if (ruleMap != null) {
             neuralNetBuilder.loadNeuronsFromRules(literal, ruleMap, currentNeuronSets);
+            groundRulesProcessed++;
 
             for (LinkedHashSet<GroundRule> groundings : ruleMap.values()) {
                 for (GroundRule grounding : groundings) {
@@ -208,7 +235,7 @@ public class Neuralizer {
     protected List<Literal> getQueryMatchingLiterals(QueryAtom queryAtom, @NotNull LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> groundRules) {
 
         // ground query (simple, standard)?
-        if (!queryAtom.headAtom.literal.containsVariable()){
+        if (!queryAtom.headAtom.literal.containsVariable()) {
             ArrayList<Literal> queries = new ArrayList<>();
             queries.add(queryAtom.headAtom.literal);
             return queries;
@@ -242,7 +269,7 @@ public class Neuralizer {
         List<QueryNeuron> queryNeurons = new ArrayList<>();
         for (Literal queryLiteral : queryMatchingLiterals) {
             AtomNeurons atomNeuron = neuronMaps.atomNeurons.get(queryLiteral);
-            if (atomNeuron == null){
+            if (atomNeuron == null) {
                 LOG.severe("Query not matched!");
             }
             QueryNeuron queryNeuron = new QueryNeuron(queryAtom.ID, queryAtom.position, queryAtom.importance, atomNeuron, neuralNetwork);

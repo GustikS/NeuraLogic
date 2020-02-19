@@ -10,8 +10,12 @@ import utils.generic.Pair;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 public class SourceFiles extends Sources {
@@ -22,6 +26,14 @@ public class SourceFiles extends Sources {
     public File testExamples;
     public File trainQueries;
     public File testQueries;
+
+    transient private List<Path> subTemplates;
+    transient Path mergedTemplatePath;
+
+
+    public SourceFiles(String foldId, Settings settings) {
+        super(foldId, settings);
+    }
 
     public SourceFiles(Settings settings) {
         super(settings);
@@ -64,7 +76,7 @@ public class SourceFiles extends Sources {
         super(settings);
         String sourcePath = cmd.getOptionValue("sourcePath", settings.sourcePath);
 
-        if (cmd.hasOption("sources")){
+        if (cmd.hasOption("sources")) {
             String sources_ = cmd.getOptionValue("sources");
             loadFromJson(sources_);
         }
@@ -89,8 +101,9 @@ public class SourceFiles extends Sources {
         File dir = new File(path);
         File[] foldDirs = dir.listFiles((dir1, name) -> name.startsWith(prefix));
         this.folds = new ArrayList<>();
+        int i = 0;
         for (File foldDir : foldDirs) {
-            SourceFiles sFold = new SourceFiles(settings);
+            SourceFiles sFold = new SourceFiles("fold" + i++, settings);
             sFold.parent = this;
             sFold.setupFromDir(settings, cmd, foldDir);
             this.folds.add(sFold);
@@ -109,39 +122,35 @@ public class SourceFiles extends Sources {
      */
     private SourceFiles setupFromDir(Settings settings, CommandLine cmd, File foldDir) {
         LOG.info("Setting up sources from directory: " + foldDir + " with settings : " + settings);
+        mergedTemplatePath = Paths.get(foldDir.getAbsolutePath() + "/" + settings.mergedTemplatesFile + this.foldId);
         try {
-            if (this.template != null){
+            if (this.template != null) {
                 settings.templateFile = this.template.getPath();
             }
             String templatePath = cmd.getOptionValue("template", settings.templateFile);
             File template_;
-            if (templatePath.startsWith(".") || (settings.sourcePathProvided && !cmd.hasOption("template"))) {
-                template_ = Paths.get(foldDir.toString(), templatePath).toFile();
+
+            if (templatePath.contains(",")) {
+                LOG.warning("There are multiple templates, will try to merge them first");
+                subTemplates = new ArrayList<>();
+                if (templatePath.startsWith("["))
+                    templatePath = templatePath.substring(1, templatePath.length() - 2);
+                String[] split = templatePath.split(",");
+                mergedTemplatePath.toFile().delete();
+                template_ = mergeTemplates(settings, cmd, foldDir, split);
             } else {
-                template_ = Paths.get(templatePath).toFile();
+                template_ = getTemplate(settings, cmd, foldDir, templatePath);
             }
-            if (template_.exists()) {
-                if (parent != null && parent.templateReader != null) {
-                    LOG.warning("Inconsistent setting - there are templates both in parent folder and fold folder (don't know which one to use)");
-                }
-                this.templateReader = new FileReader(template_);
-                this.template = template_;
-            } else {
-                // if no template is provided in current folder, take the one from the parent folder
-                if (parent != null)
-                    this.templateReader = parent.templateReader;
-                else {
-                    LOG.severe("There is no template found at the specified path! : " + templatePath);
-                    throw new FileNotFoundException();
-                }
-            }
+            setupTemplate(template_, foldDir);
+
             recognizeFileType(this.template.getAbsolutePath(), "template", settings);
-        } catch (FileNotFoundException e) {
+
+        } catch (IOException e) {
             LOG.info("There is no learning template");
         }
 
         try {
-            if (this.trainExamples != null){
+            if (this.trainExamples != null) {
                 settings.trainExamplesFile = trainExamples.getPath();
             }
             String trainExamplesPath = cmd.getOptionValue("trainExamples", settings.trainExamplesFile);
@@ -165,7 +174,7 @@ public class SourceFiles extends Sources {
         }
 
         try {
-            if (this.testExamples != null){
+            if (this.testExamples != null) {
                 settings.testExamplesFile = testExamples.getPath();
             }
             String testExamplesPath = cmd.getOptionValue("testExamples", settings.testExamplesFile);
@@ -184,7 +193,7 @@ public class SourceFiles extends Sources {
         }
 
         try {
-            if (this.trainQueries != null){
+            if (this.trainQueries != null) {
                 settings.trainQueriesFile = trainQueries.getPath();
             }
             String trainQueriesPath = cmd.getOptionValue("trainQueries", settings.trainQueriesFile);
@@ -209,7 +218,7 @@ public class SourceFiles extends Sources {
         }
 
         try {
-            if (this.testQueries != null){
+            if (this.testQueries != null) {
                 settings.testQueriesFile = testQueries.getPath();
             }
             String testQueriesPath = cmd.getOptionValue("testQueries", settings.testQueriesFile);
@@ -228,6 +237,97 @@ public class SourceFiles extends Sources {
         }
 
         return this;
+    }
+
+    private void setupTemplate(File template_, File foldDir) throws IOException {
+        AtomicBoolean changed = new AtomicBoolean(false);
+        Path templPath = template_.toPath();
+        String content = checkTemplate4Imports(templPath, changed, foldDir);
+        if (changed.get()) {
+            Files.write(mergedTemplatePath, content.getBytes());
+        }
+        this.templateReader = new FileReader(template_);
+        this.template = template_;
+    }
+
+    private String checkTemplate4Imports(Path toImport, AtomicBoolean changed, File foldDir) throws FileNotFoundException {
+        try {
+            if (toImport.startsWith(".")) {
+                toImport = Paths.get(foldDir + "/" + toImport);
+            }
+            List<String> strings = Files.readAllLines(toImport);
+            for (int i = 0; i < strings.size(); i++) {
+                String line = strings.get(i);
+                if (line.startsWith("import ")) {
+                    changed.set(true);
+                    line = line.substring(7);
+                    line = line.replaceAll(" ", "");
+                    if (line.contains(",")) {
+                        String[] split = line.split(",");
+                        StringBuilder sb = new StringBuilder();
+                        for (String templ : split) {
+                            sb.append(checkTemplate4Imports(Paths.get(templ), changed, foldDir));
+                        }
+                        strings.set(i, sb.toString());
+                    } else {
+                        String imported = checkTemplate4Imports(Paths.get(line), changed, foldDir);
+                        strings.set(i, imported);
+                    }
+                }
+            }
+            return String.join("\n", strings);
+        } catch (IOException e) {
+            LOG.severe("There is no subtemplate found at the specified path! : " + toImport);
+            throw new FileNotFoundException();
+        }
+    }
+
+    private File mergeTemplates(Settings settings, CommandLine cmd, File foldDir, String[] split) throws FileNotFoundException {
+        File templ = mergedTemplatePath.toFile();
+        for (String path : split) {
+            File setupTemplate = getTemplate(settings, cmd, foldDir, path);
+            if (setupTemplate != null) {
+                subTemplates.add(Paths.get(setupTemplate.getPath()));
+            }
+        }
+        for (Path subTemplate : subTemplates) {
+            try {
+                List<String> strings = Files.readAllLines(subTemplate);
+                if (templ.exists())
+                    Files.write(templ.toPath(), strings, StandardOpenOption.APPEND);
+                else
+                    Files.write(templ.toPath(), strings, StandardOpenOption.CREATE);
+            } catch (IOException e) {
+                LOG.severe("There is no subtemplate found at the specified path! : " + subTemplate);
+                throw new FileNotFoundException();
+            }
+        }
+        return templ;
+    }
+
+    private File getTemplate(Settings settings, CommandLine cmd, File foldDir, String templatePath) throws FileNotFoundException {
+        File template_;
+        if (templatePath.startsWith(".") || (settings.sourcePathProvided && !cmd.hasOption("template"))) {
+            template_ = Paths.get(foldDir.toString(), templatePath).toFile();
+        } else {
+            template_ = Paths.get(templatePath).toFile();
+        }
+
+        if (template_.exists()) {
+            if (parent != null && parent.templateReader != null) {
+                LOG.warning("Inconsistent setting - there are templates both in parent folder and fold folder (don't know which one to use)");
+            }
+            return template_;
+        } else {
+            // if no template is provided in current folder, take the one from the parent folder
+            if (parent != null) {
+                this.templateReader = parent.templateReader;
+                return null;
+            } else {
+                LOG.severe("There is no template found at the specified path! : " + templatePath);
+                throw new FileNotFoundException();
+            }
+        }
     }
 
     private void recognizeFileType(String path, String sourceType, Settings settings) {
