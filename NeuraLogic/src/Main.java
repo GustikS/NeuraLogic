@@ -1,8 +1,4 @@
-import pipelines.Pipeline;
-import settings.Settings;
-import settings.Sources;
-import utils.generic.Pair;
-import utils.logging.Logging;
+import utils.CommandLineHandler;
 
 import java.util.logging.Logger;
 
@@ -13,26 +9,7 @@ public class Main {
     private static final Logger LOG = Logger.getLogger(Main.class.getName());
 
     public static void main(String[] args) {
-        main(args, new Settings());
-    }
-
-    public static void main(String[] args, Settings settings) {
-
-        Logging logging = Logging.initLogging();
-
-        if (settings == null) {
-            settings = new Settings();
-        }
-
-        Sources sources = Sources.getSources(args, settings);
-        Pipeline<Sources, ?> pipeline = Pipeline.getPipeline(settings, sources);
-        settings.root = pipeline;
-
-        LOG.finest("Running the main pipeline on the provided sources...");
-        Pair<String, ?> target = pipeline.execute(sources);
-        LOG.info("Pipeline: " + target.r + " finished with result: " + target.s.toString());
-
-        logging.finish();
+        CommandLineHandler.main(args);
     }
 
     public static String testConnection(String msg) {

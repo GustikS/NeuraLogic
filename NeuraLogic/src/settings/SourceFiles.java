@@ -74,10 +74,10 @@ public class SourceFiles extends Sources {
 
     public SourceFiles(Settings settings, CommandLine cmd) {
         super(settings);
-        String sourcePath = cmd.getOptionValue("sourcePath", settings.sourcePath);
+        String sourcePath = cmd.getOptionValue("sourcesDir", settings.sourcePath);
 
-        if (cmd.hasOption("sources")) {
-            String sources_ = cmd.getOptionValue("sources");
+        if (cmd.hasOption("sourcesFile")) {
+            String sources_ = cmd.getOptionValue("sourcesFile");
             loadFromJson(sources_);
         }
 

@@ -1,5 +1,6 @@
 import org.junit.Test;
 import settings.Settings;
+import utils.CommandLineHandler;
 import utils.logging.Logging;
 
 import java.util.logging.Level;
@@ -25,7 +26,7 @@ public class MainTest {
         settings.chainPruning = true;
         settings.optimizer = Settings.OptimizerSet.ADAM;
         Settings.loggingLevel = Level.FINER;
-        Main.main(args, settings);
+        CommandLineHandler.main(args, settings);
     }
 
 
@@ -40,7 +41,7 @@ public class MainTest {
         settings.neuralNetsPostProcessing = true;  //crucial to be True!
         settings.chainPruning = true;
         Settings.loggingLevel = Level.FINER;
-        Main.main(args, settings);
+        CommandLineHandler.main(args, settings);
     }
 
     @Test
@@ -49,7 +50,7 @@ public class MainTest {
         Settings settings = new Settings();
         settings.seed = 0;
         Settings.loggingLevel = Level.FINEST;
-        Main.main(args, settings);
+        CommandLineHandler.main(args, settings);
     }
 
     @Test
@@ -60,7 +61,7 @@ public class MainTest {
         settings.initLearningRate = 1;
         settings.maxCumEpochCount = 1000;
         Settings.loggingLevel = Level.FINEST;
-        Main.main(args, settings);
+        CommandLineHandler.main(args, settings);
     }
 
     @Test
@@ -76,7 +77,7 @@ public class MainTest {
         settings.chainPruning = false;
         settings.isoValueCompression = true;
 
-        Main.main(args, settings);
+        CommandLineHandler.main(args, settings);
     }
 
     @Test
@@ -95,7 +96,7 @@ public class MainTest {
 
 //        settings.ruleNeuronActivation = Settings.ActivationFcn.IDENTITY;
 //        settings.atomNeuronActivation = Settings.ActivationFcn.IDENTITY;
-        Main.main(args, settings);
+        CommandLineHandler.main(args, settings);
     }
 
     @Test
@@ -109,7 +110,7 @@ public class MainTest {
         settings.shuffleBeforeTraining = false;
         //settings.oneQueryPerExample = true;
 
-        Main.main(args, settings);
+        CommandLineHandler.main(args, settings);
     }
 
     @Test
@@ -123,7 +124,7 @@ public class MainTest {
         settings.shuffleBeforeTraining = false;
         //settings.oneQueryPerExample = true;
 
-        Main.main(args, settings);
+        CommandLineHandler.main(args, settings);
     }
 
     @Test
@@ -158,7 +159,7 @@ public class MainTest {
         settings.isoValueCompression = false;
         settings.chainPruning = true;
 
-        Main.main(args, settings);
+        CommandLineHandler.main(args, settings);
     }
 
     @Test
@@ -193,7 +194,7 @@ public class MainTest {
         settings.isoValueCompression = false;
         settings.chainPruning = true;
 
-        Main.main(args, settings);
+        CommandLineHandler.main(args, settings);
     }
 
     @Test
@@ -236,7 +237,7 @@ public class MainTest {
 //        settings.debugNeuralization = true;
         settings.drawing = true;
 
-        Main.main(args, settings);
+        CommandLineHandler.main(args, settings);
     }
 
     @Test
@@ -247,7 +248,7 @@ public class MainTest {
                 " -isocheck 1 -xval 5 -ts 10 -iso 12"+
                 " -out ./out/mda_rep").split(" ");
 
-        Main.main(args);
+        CommandLineHandler.main(args);
     }
 
     @Test
@@ -256,7 +257,7 @@ public class MainTest {
                 " -settings ./resources/settings/settings.json" +
                 " -out ./out/loading").split(" ");
 
-        Main.main(args);
+        CommandLineHandler.main(args);
     }
 
 
@@ -267,7 +268,7 @@ public class MainTest {
                 " -sources ./resources/settings/sources.json" +
                 " -out ./out/jsons").split(" ");
 
-        Main.main(args);
+        CommandLineHandler.main(args);
     }
 
     @Test
@@ -284,7 +285,7 @@ public class MainTest {
 //        settings.isoValueInits = 1;
 //        settings.isoDecimals = 10;
 
-        Main.main(args);
+        CommandLineHandler.main(args);
     }
 
     @Test
@@ -294,7 +295,7 @@ public class MainTest {
                 " -opt adam -lr 0.01 -ts 10 -limit 10" +
                 " -out ./out/rci").split(" ");
 
-        Main.main(args);
+        CommandLineHandler.main(args);
     }
 
     @Test
@@ -315,6 +316,6 @@ public class MainTest {
         settings.isoValueCompression = true;
         settings.losslessIsoCompression = false;
 
-        Main.main(args, settings);
+        CommandLineHandler.main(args, settings);
     }
 }

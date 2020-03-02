@@ -1,7 +1,7 @@
 package networks.structure.components.types;
 
 import com.sun.istack.internal.Nullable;
-import networks.structure.components.NeuronSets;
+import networks.structure.components.NeuralSets;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.WeightedNeuron;
@@ -42,7 +42,7 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
     public Map<BaseNeuron, NeuronMapping<Neurons>> outputMapping;
 
     @Nullable
-    public NeuronSets neuronSets;
+    public NeuralSets neuralSets;
 
     /**
      * Cumulating all the states that will be necessary for each of the neurons before the final state objects are created to go into fast cache
@@ -79,14 +79,14 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
         cumulativeStates = new LinkedHashMap<>();
     }
 
-    public DetailedNetwork(String id, List<BaseNeuron<Neurons, State.Neural>> allNeurons, NeuronSets neuronSets) {
+    public DetailedNetwork(String id, List<BaseNeuron<Neurons, State.Neural>> allNeurons, NeuralSets neuralSets) {
         this(id, allNeurons);
-        this.neuronSets = neuronSets;
+        this.neuralSets = neuralSets;
     }
 
-    public DetailedNetwork(String id, NeuronSets neuronSets, List<AtomNeurons> queryNeurons) {
+    public DetailedNetwork(String id, NeuralSets neuralSets, List<AtomNeurons> queryNeurons) {
         super(queryNeurons, id);
-        this.neuronSets = neuronSets;
+        this.neuralSets = neuralSets;
         cumulativeStates = new LinkedHashMap<>();
     }
 
@@ -202,7 +202,7 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
         DetailedNetwork copy = new DetailedNetwork<>(id, 0);
         copy.pruned = this.pruned;
         copy.compressed = this.compressed;
-        copy.neuronSets = this.neuronSets;
+        copy.neuralSets = this.neuralSets;
         copy.outputMapping = this.outputMapping;
         copy.extraInputMapping = this.extraInputMapping;
         copy.containsInputMasking = this.containsInputMasking;

@@ -179,11 +179,12 @@ class FileObserver(Loader):
 
 class ProgressObserver(FileObserver):
 
-    def __init__(self, id, path=None, login=None, metrics=["progress_train", "progress_val"], seconds=1):
+    def __init__(self, id, path=None, login=None, metrics=["progress_train", "progress_val"], seconds=1, plot_all=False):
         super().__init__(path, login, id)
+        self.plot_all = plot_all
         self.seconds = seconds
         self.metrics = metrics
-        self.filter_pos = "restart"
+        self.filter_pos = "training"
         self.filter = Filter(metrics)
 
     def observe_progress(self, dir=""):
@@ -204,21 +205,14 @@ class ProgressObserver(FileObserver):
             print("No progress files detected!")
             os._exit(1)
         key = srted[-1]
-        last_restart = self.json_map[key][-1]
-        self.file = self.open(last_restart, "r")
-        lines = self.file.read()
+        files = sorted(self.json_map[key])
+        if self.plot_all:
+            for f in files[0:-1]:
+                self.plot_file(f)
+                plt.figure()
 
-        try:
-            progress = json.loads(lines)
-        except:
-            lines = lines[:-3] + "]"
-            progress = json.loads(lines)
-
-        extracted = {}
-        for field in self.filter.fields:
-            extracted[tuple(field)] = self.filter.extract(field, progress)
-
-        self.plot(extracted)
+        last_restart = files[-1]
+        extracted = self.plot_file(last_restart)
         plt.show(block=False)
 
         buffer = "["
@@ -239,6 +233,22 @@ class ProgressObserver(FileObserver):
                 self.plot(extracted)
             else:
                 time.sleep(self.seconds)
+
+    def plot_file(self, file):
+        self.file = self.open(file, "r")
+        self.filename = file.split("/")[-1].split(".json")[0]
+        lines = self.file.read()
+        try:
+            progress = json.loads(lines)
+        except:
+            lines = lines[:-3] + "]"
+            progress = json.loads(lines)
+        extracted = {}
+        for field in self.filter.fields:
+            extracted[tuple(field)] = self.filter.extract(field, progress)
+        self.plot(extracted)
+        plt.show()
+        return extracted
 
     def plot(self, progress: {}):
         pltr = Plotter()
@@ -267,7 +277,7 @@ class ProgressObserver(FileObserver):
 
         fontP = FontProperties()
         fontP.set_size('small')
-        plt.title("training progress")
+        plt.title(self.filename)
         plt.xlim((0,len(xs)))
         plt.legend(loc="upper center", bbox_to_anchor=(0.5, -0.1),
                    fancybox=True, shadow=True, ncol=2, prop=fontP)

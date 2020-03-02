@@ -7,7 +7,7 @@ import constructs.template.components.GroundHeadRule;
 import constructs.template.components.GroundRule;
 import ida.ilp.logic.Literal;
 import networks.structure.building.NeuronMaps;
-import networks.structure.components.NeuronSets;
+import networks.structure.components.NeuralSets;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.neurons.types.*;
@@ -53,7 +53,7 @@ public class NeuralNetBuilder {
      * @param head  a head of all the subsequent rules
      * @param rules all the rules with all the groundings where it appears as a head
      */
-    public void loadNeuronsFromRules(Literal head, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>> rules, NeuronSets createdNeurons) {
+    public void loadNeuronsFromRules(Literal head, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>> rules, NeuralSets createdNeurons) {
         NeuronMaps neuronMaps = neuralBuilder.neuronFactory.neuronMaps;
 
         boolean newAtomNeuron = false;
@@ -187,7 +187,7 @@ public class NeuralNetBuilder {
      * @param createdNeurons
      * @return
      */
-    public void loadNeuronsFromFacts(Map<Literal, ValuedFact> groundFacts, NeuronSets createdNeurons) {
+    public void loadNeuronsFromFacts(Map<Literal, ValuedFact> groundFacts, NeuralSets createdNeurons) {
         for (Map.Entry<Literal, ValuedFact> factEntry : groundFacts.entrySet()) {
             neuralBuilder.neuronFactory.createFactNeuron(factEntry.getValue());
         }
@@ -202,7 +202,7 @@ public class NeuralNetBuilder {
      * @return
      */
     @NotNull
-    public void connectAllNeurons(NeuronSets createdNeurons) {
+    public void connectAllNeurons(NeuralSets createdNeurons) {
         NeuronMaps neuronMaps = neuralBuilder.neuronFactory.neuronMaps;
 
         for (Map.Entry<GroundRule, RuleNeurons> entry : neuronMaps.ruleNeurons.entrySet()) {    //todo iterate only newly created from currentNeuronSets here
@@ -248,7 +248,7 @@ public class NeuralNetBuilder {
      *
      * @return
      */
-    public DetailedNetwork finalizeStoredNetwork(String id, NeuronSets createdNeurons, List<Literal> queryMatchingLiterals) {
+    public DetailedNetwork finalizeStoredNetwork(String id, NeuralSets createdNeurons, List<Literal> queryMatchingLiterals) {
         List<AtomNeurons> queryNeurons = null;
         if (queryMatchingLiterals != null) {
             queryNeurons = queryMatchingLiterals.stream().map(key -> {

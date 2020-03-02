@@ -1,7 +1,7 @@
 package networks.structure.building.factories;
 
 import networks.structure.components.NeuralNetwork;
-import networks.structure.components.NeuronSets;
+import networks.structure.components.NeuralSets;
 import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.types.AtomNeurons;
 import networks.structure.components.types.DetailedNetwork;
@@ -47,7 +47,7 @@ public class NeuralNetFactory {
         return topologicNetwork;
     }
 
-    public DetailedNetwork createDetailedNetwork(List<AtomNeurons> queryNeurons, NeuronSets createdNeurons, String id, Map<Neurons, LinkedMapping> extraInputMapping) {
+    public DetailedNetwork createDetailedNetwork(List<AtomNeurons> queryNeurons, NeuralSets createdNeurons, String id, Map<Neurons, LinkedMapping> extraInputMapping) {
         DetailedNetwork detailedNetwork;
         if (queryNeurons != null) {
             detailedNetwork = new DetailedNetwork(id, createdNeurons, queryNeurons);

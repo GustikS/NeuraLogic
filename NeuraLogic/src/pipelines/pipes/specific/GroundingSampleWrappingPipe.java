@@ -30,6 +30,7 @@ public class GroundingSampleWrappingPipe extends Pipe<Pair<Template, Stream<Logi
         Stream<GroundingSample> groundingSampleStream = templateStreamPair.s.map(sample -> {
             if (sample.query.evidence == null) {
                 LOG.severe("Query-Example mismatch: No example evidence was matched for this query: #" + sample.query.position + ":" + sample.query);
+                System.exit(6);
             }
             GroundingSample groundingSample = new GroundingSample(sample, templateStreamPair.r);
             if (settings.groundingMode == Settings.GroundingMode.GLOBAL || settings.groundingMode == Settings.GroundingMode.SEQUENTIAL) {

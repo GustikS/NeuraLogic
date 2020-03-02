@@ -21,7 +21,7 @@ public class Sources {
     private static final Logger LOG = Logger.getLogger(Sources.class.getName());
 
     protected String foldId = "";
-    protected Settings settings;
+    transient protected Settings settings;
 
     /**
      * Source files may be further (even recursively) split into folds

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class NeuronSets {
+public class NeuralSets {
 
     public List<AtomNeuron> atomNeurons;
     public List<WeightedAtomNeuron> weightedAtomNeurons;
@@ -21,7 +21,7 @@ public class NeuronSets {
     List<BaseNeuron> roots;
     List<BaseNeuron> leaves;
 
-    public NeuronSets() {
+    public NeuralSets() {
         this.atomNeurons = new ArrayList<>();
         this.weightedAtomNeurons = new ArrayList<>();
         this.aggNeurons = new ArrayList<>();
@@ -31,7 +31,7 @@ public class NeuronSets {
         this.negationNeurons = new ArrayList<>();
     }
 
-    public NeuronSets(Collection<AtomNeurons> atomNeurons, Collection<AggregationNeuron> aggregationNeurons, Collection<RuleNeurons> ruleNeurons, Collection<FactNeuron> factNeurons, Collection<NegationNeuron> negationNeurons) {
+    public NeuralSets(Collection<AtomNeurons> atomNeurons, Collection<AggregationNeuron> aggregationNeurons, Collection<RuleNeurons> ruleNeurons, Collection<FactNeuron> factNeurons, Collection<NegationNeuron> negationNeurons) {
 
         this.atomNeurons = new ArrayList<>();
         this.weightedAtomNeurons = new ArrayList<>();
@@ -81,13 +81,13 @@ public class NeuronSets {
         int weightedRuleNeuronsCreated;
         int factNeuronsCreated;
 
-        public NeuronCounter(NeuronSets neuronSets) {
-            atomNeuronsCreated = neuronSets.atomNeurons.size();
-            weightedAtomNeuronsCreated = neuronSets.weightedAtomNeurons.size();
-            aggNeuronsCreated = neuronSets.aggNeurons.size();
-            ruleNeuronsCreated = neuronSets.ruleNeurons.size();
-            weightedRuleNeuronsCreated = neuronSets.weightedRuleNeurons.size();
-            factNeuronsCreated = neuronSets.factNeurons.size();
+        public NeuronCounter(NeuralSets neuralSets) {
+            atomNeuronsCreated = neuralSets.atomNeurons.size();
+            weightedAtomNeuronsCreated = neuralSets.weightedAtomNeurons.size();
+            aggNeuronsCreated = neuralSets.aggNeurons.size();
+            ruleNeuronsCreated = neuralSets.ruleNeurons.size();
+            weightedRuleNeuronsCreated = neuralSets.weightedRuleNeurons.size();
+            factNeuronsCreated = neuralSets.factNeurons.size();
         }
 
     }

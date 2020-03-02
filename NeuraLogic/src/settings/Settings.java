@@ -714,7 +714,7 @@ public class Settings implements Exportable {
     public Settings setupFromCommandline(CommandLine cmd) {
         Settings settings = this;
 
-        if (cmd.hasOption("settings")) {
+        if (cmd.hasOption("settingsFile")) {
             String _settingsPath = cmd.getOptionValue("settings");
             settings = loadFromJson(_settingsPath);
         }
