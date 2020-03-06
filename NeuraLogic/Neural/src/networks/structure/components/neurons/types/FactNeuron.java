@@ -5,7 +5,7 @@ import networks.computation.iteration.NeuronVisiting;
 import networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.WeightedNeuron;
-import networks.structure.metadata.states.States;
+import networks.structure.components.neurons.states.States;
 
 import java.util.ArrayList;
 

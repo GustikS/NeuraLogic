@@ -1,16 +1,16 @@
 package utils.drawing;
 
+import building.LearningSchemeBuilder;
 import org.junit.Test;
 import pipelines.Pipeline;
-import pipelines.building.AbstractPipelineBuilder;
-import pipelines.debug.PipelineDebugger;
+import pipelines.bulding.AbstractPipelineBuilder;
+import pipelines.debug.drawing.PipelineDebugger;
 import settings.Settings;
 import settings.Sources;
+import utils.Runner;
 import utils.logging.Logging;
 
 import java.util.logging.Level;
-
-import static org.junit.Assert.*;
 
 public class PipelineDrawerTest {
     @Test
@@ -20,10 +20,10 @@ public class PipelineDrawerTest {
 
         Settings settings = new Settings();
 
-        Sources sources = Sources.getSources(args, settings);
+        Sources sources = Runner.getSources(args, settings);
         PipelineDebugger pipelineDebugger = new PipelineDebugger(settings);
 
-        AbstractPipelineBuilder<Sources, ?> builder = AbstractPipelineBuilder.getBuilder(sources, settings);
+        AbstractPipelineBuilder<Sources, ?> builder = LearningSchemeBuilder.getBuilder(sources, settings);
         Pipeline<Sources, ?> sourcesPipeline = builder.buildPipeline();
         pipelineDebugger.debug(sourcesPipeline);
     }

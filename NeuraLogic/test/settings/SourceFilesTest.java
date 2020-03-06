@@ -1,7 +1,8 @@
 package settings;
 
-import networks.computation.training.debugging.TrainingDebugger;
+import networks.computation.debugging.TrainingDebugger;
 import org.junit.Test;
+import utils.Runner;
 import utils.logging.Logging;
 
 import java.util.logging.Level;
@@ -17,7 +18,7 @@ public class SourceFilesTest {
                 " -t ./embeddings,./template.txt" +
                 " -out ./out/multitempl").split(" ");
 
-        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
 

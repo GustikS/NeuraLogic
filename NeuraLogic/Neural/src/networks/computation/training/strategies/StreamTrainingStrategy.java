@@ -1,11 +1,12 @@
 package networks.computation.training.strategies;
 
-import networks.computation.evaluation.results.Progress;
-import networks.computation.evaluation.results.Result;
-import networks.computation.evaluation.results.Results;
+import learning.results.Progress;
+import learning.results.Result;
+import learning.results.Results;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import networks.computation.training.optimizers.Optimizer;
+import networks.computation.training.strategies.debugging.NeuralDebugging;
 import networks.computation.training.strategies.trainers.MiniBatchTrainer;
 import networks.computation.training.strategies.trainers.SequentialTrainer;
 import networks.computation.training.strategies.trainers.StreamTrainer;
@@ -45,6 +46,11 @@ public class StreamTrainingStrategy extends TrainingStrategy {
         Results results = resultsFactory.createFrom(resultList);
         progress.addOnlineResults(results);
         return new Pair<>(currentModel, progress);
+    }
+
+    @Override
+    public void setupDebugger(NeuralDebugging neuralDebugger) {
+        trainer.setupDebugger(neuralDebugger);
     }
 
     public NeuralModel getBestModel() {

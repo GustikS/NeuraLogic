@@ -2,7 +2,7 @@ package networks.structure.components.types;
 
 import networks.structure.components.NeuralLayer;
 import networks.structure.components.NeuralNetwork;
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.State;
 
 import java.util.List;
 

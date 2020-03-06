@@ -1,8 +1,8 @@
 package networks.computation.iteration.actions;
 
-import networks.computation.evaluation.results.Result;
-import networks.computation.evaluation.values.ScalarValue;
-import networks.computation.evaluation.values.Value;
+import evaluation.values.ScalarValue;
+import evaluation.values.Value;
+import learning.results.Result;
 import networks.computation.iteration.TopDown;
 import networks.computation.iteration.modes.BFS;
 import networks.computation.iteration.modes.DFSrecursion;
@@ -19,7 +19,7 @@ import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.types.AtomNeurons;
 import networks.structure.components.types.TopologicNetwork;
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.State;
 import settings.Settings;
 
 import java.util.logging.Logger;

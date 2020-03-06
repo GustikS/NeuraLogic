@@ -2,8 +2,8 @@ package constructs.example;
 
 import constructs.Atom;
 import constructs.WeightedPredicate;
+import evaluation.values.Value;
 import ida.ilp.logic.Term;
-import networks.computation.evaluation.values.Value;
 import networks.structure.components.weights.Weight;
 
 import java.util.List;

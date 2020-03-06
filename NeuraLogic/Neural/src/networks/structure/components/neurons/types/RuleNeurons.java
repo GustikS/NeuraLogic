@@ -1,7 +1,7 @@
 package networks.structure.components.neurons.types;
 
 import networks.structure.components.neurons.Neurons;
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.State;
 
 /**
  * Just a formal anotation interface for both weighted and unwighted RuleNeurons

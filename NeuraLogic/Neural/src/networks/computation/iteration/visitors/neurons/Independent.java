@@ -5,7 +5,7 @@ import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.WeightedNeuron;
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.State;
 
 /**
  * Separate visiting of each neuron, with no messages being passed between the neighboring neurons, e.g. for {@link IndependentNeuronProcessing}

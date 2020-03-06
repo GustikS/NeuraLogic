@@ -1,10 +1,13 @@
 package constructs.template.metadata;
 
 import constructs.template.components.WeightedRule;
-import networks.computation.evaluation.functions.Activation;
-import networks.computation.evaluation.functions.Aggregation;
-import networks.computation.evaluation.functions.CrossProduct;
+import evaluation.functions.Activation;
+import evaluation.functions.Aggregation;
+import evaluation.functions.CrossProduct;
 import settings.Settings;
+import utils.metadata.Metadata;
+import utils.metadata.Parameter;
+import utils.metadata.ParameterValue;
 
 import java.util.Map;
 import java.util.logging.Logger;

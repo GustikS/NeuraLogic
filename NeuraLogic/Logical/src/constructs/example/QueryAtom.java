@@ -2,10 +2,10 @@ package constructs.example;
 
 import constructs.template.Template;
 import constructs.template.components.HeadAtom;
+import evaluation.values.ScalarValue;
 import grounding.GroundTemplate;
 import grounding.Grounder;
 import learning.Query;
-import networks.computation.evaluation.values.ScalarValue;
 import settings.Settings;
 
 /**

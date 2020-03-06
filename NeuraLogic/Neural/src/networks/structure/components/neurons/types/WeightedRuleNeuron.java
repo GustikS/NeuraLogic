@@ -3,7 +3,7 @@ package networks.structure.components.neurons.types;
 import networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.weights.Weight;
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.State;
 
 import java.util.logging.Logger;
 

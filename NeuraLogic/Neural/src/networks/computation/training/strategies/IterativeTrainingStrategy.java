@@ -1,27 +1,27 @@
 package networks.computation.training.strategies;
 
+import evaluation.values.ScalarValue;
+import evaluation.values.Value;
+import evaluation.values.distributions.ValueInitializer;
+import exporting.Exportable;
 import learning.crossvalidation.splitting.Splitter;
-import networks.computation.evaluation.results.ClassificationResults;
-import networks.computation.evaluation.results.Progress;
-import networks.computation.evaluation.results.Result;
-import networks.computation.evaluation.results.Results;
-import networks.computation.evaluation.values.ScalarValue;
-import networks.computation.evaluation.values.Value;
-import networks.computation.evaluation.values.distributions.ValueInitializer;
+import learning.results.ClassificationResults;
+import learning.results.Progress;
+import learning.results.Result;
+import learning.results.Results;
 import networks.computation.iteration.actions.Accumulating;
 import networks.computation.iteration.visitors.states.neurons.SaturationChecker;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
-import networks.computation.training.debugging.TrainingDebugger;
 import networks.computation.training.optimizers.Optimizer;
 import networks.computation.training.strategies.Hyperparameters.LearnRateDecayStrategy;
 import networks.computation.training.strategies.Hyperparameters.RestartingStrategy;
+import networks.computation.training.strategies.debugging.NeuralDebugging;
 import networks.computation.training.strategies.trainers.AsyncParallelTrainer;
 import networks.computation.training.strategies.trainers.ListTrainer;
 import networks.computation.training.strategies.trainers.MiniBatchTrainer;
 import networks.computation.training.strategies.trainers.SequentialTrainer;
 import settings.Settings;
-import utils.exporting.Exportable;
 import utils.generic.Pair;
 
 import java.util.Collections;
@@ -51,8 +51,6 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     ValueInitializer valueInitializer;
 
-    transient TrainingDebugger trainingDebugger;
-
     public IterativeTrainingStrategy(Settings settings, NeuralModel model, List<NeuralSample> sampleList) {
         super(settings, model);
         this.trainer = getTrainerFrom(settings);
@@ -66,7 +64,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         this.learnRateDecayStrategy = LearnRateDecayStrategy.getFrom(settings, learningRate);   //passes the single reference to learningRate shared by others
         this.restartingStrategy = RestartingStrategy.getFrom(settings);
 
-        this.trainingDebugger = new TrainingDebugger(settings);
+//        this.trainingDebugger = new TrainingDebugger(settings);
     }
 
     private Pair<List<NeuralSample>, List<NeuralSample>> trainingValidationSplit(List<NeuralSample> sampleList) {
@@ -85,6 +83,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
             return new SequentialTrainer(settings, Optimizer.getFrom(settings, learningRate), currentModel).new SequentialListTrainer();
         }
     }
+
 
     public Pair<NeuralModel, Progress> train() {
         timing.tic();
@@ -105,6 +104,11 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         timing.toc();
         timing.finish();
         return finish();
+    }
+
+    @Override
+    public void setupDebugger(NeuralDebugging neuralDebugger) {
+        this.trainer.setupDebugger(neuralDebugger);
     }
 
     protected void initTraining() {
@@ -150,8 +154,8 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         LOG.info("epoch: " + count + " : online results : " + onlineResults.toString(settings));
         if (count % settings.resultsRecalculationEpochae == 0) {
             recalculateResults();
-            if (settings.debugTemplateTraining) {
-                currentModel.getTemplate().updateWeightsFrom(currentModel);
+            if (settings.debugTemplateTraining && trainingDebugger != null) {
+                currentModel.getTemplate().updateWeightsFrom(currentModel.mapWeightsToIds());
                 trainingDebugger.debug(currentModel.getTemplate());
             }
         }
@@ -159,7 +163,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     protected void endRestart() {
         recalculateResults();
-        exporter.resultsLine("{}\n]");
+        exporter.exportLine("{}\n]");
         restartingStrategy.nextRestart();
         if (LOG.isLoggable(Level.FINER)) {
             logSampleOutputs();
@@ -252,6 +256,6 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     private void exportProgress(Exportable results) {
         results.export(exporter);
-        exporter.resultsLine(",");
+        exporter.exportLine(",");
     }
 }

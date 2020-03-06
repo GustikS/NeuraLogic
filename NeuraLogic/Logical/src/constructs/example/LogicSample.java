@@ -1,7 +1,7 @@
 package constructs.example;
 
+import evaluation.values.Value;
 import learning.LearningSample;
-import networks.computation.evaluation.values.Value;
 
 import java.util.logging.Logger;
 

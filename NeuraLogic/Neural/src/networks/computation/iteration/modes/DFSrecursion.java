@@ -1,6 +1,6 @@
 package networks.computation.iteration.modes;
 
-import networks.computation.evaluation.values.Value;
+import evaluation.values.Value;
 import networks.computation.iteration.BottomUp;
 import networks.computation.iteration.NeuronVisiting;
 import networks.computation.iteration.TopDown;
@@ -12,7 +12,7 @@ import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.weights.Weight;
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.State;
 import utils.generic.Pair;
 
 import java.util.Iterator;

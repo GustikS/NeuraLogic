@@ -3,7 +3,7 @@ package networks.structure.components.neurons;
 import networks.computation.iteration.NeuronVisiting;
 import networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import networks.structure.components.weights.Weight;
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.State;
 import utils.generic.Pair;
 
 import java.util.ArrayList;

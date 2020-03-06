@@ -14,8 +14,8 @@ import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.inputMappings.NeuronMapping;
 import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
-import networks.structure.metadata.states.State;
-import networks.structure.metadata.states.StatesCache;
+import networks.structure.components.neurons.states.State;
+import networks.structure.components.neurons.states.StatesCache;
 import utils.generic.Pair;
 
 import java.util.ArrayList;

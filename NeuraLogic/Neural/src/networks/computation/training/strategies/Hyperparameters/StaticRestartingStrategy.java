@@ -1,6 +1,6 @@
 package networks.computation.training.strategies.Hyperparameters;
 
-import networks.computation.evaluation.results.Progress;
+import learning.results.Progress;
 
 import java.util.logging.Logger;
 

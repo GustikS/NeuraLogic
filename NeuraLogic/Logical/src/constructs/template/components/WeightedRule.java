@@ -1,11 +1,11 @@
 package constructs.template.components;
 
 import constructs.template.metadata.RuleMetadata;
+import evaluation.functions.Activation;
 import ida.ilp.logic.Clause;
 import ida.ilp.logic.HornClause;
 import ida.ilp.logic.Literal;
 import ida.ilp.logic.Term;
-import networks.computation.evaluation.functions.Activation;
 import networks.structure.components.weights.Weight;
 
 import java.util.ArrayList;

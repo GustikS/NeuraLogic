@@ -11,7 +11,8 @@ import networks.computation.iteration.visitors.states.neurons.Evaluator;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neurons;
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.AggregationState;
+import networks.structure.components.neurons.states.State;
 
 import java.util.logging.Logger;
 
@@ -41,9 +42,9 @@ import java.util.logging.Logger;
  * - {@link Evaluator} - updates values of corresponding states
  * - {@link Backproper} - updates gradients of corresponding states
  *
- * In the case of neural computation (e.g. eval or backprop), each neuron's {@link networks.structure.metadata.states.State.Neural.Computation computation-state}
- * further caries {@link networks.structure.metadata.states.AggregationState aggregation-state} specifically designed for
- * accumulation of information for each {@link networks.computation.evaluation.functions.Aggregation activation function}.
+ * In the case of neural computation (e.g. eval or backprop), each neuron's {@link State.Neural.Computation computation-state}
+ * further caries {@link AggregationState aggregation-state} specifically designed for
+ * accumulation of information for each {@link evaluation.functions.Aggregation activation function}.
  *
  * remarks: Iterators are cleaner design patterns, but performing actions via Visitors might be more efficient in TDown direction (when neurons have input links):
  * - it will save calling for the inputs of a neuron twice, since inputs() are needed to both update the state (propagate gradient) and expand to next neurons.

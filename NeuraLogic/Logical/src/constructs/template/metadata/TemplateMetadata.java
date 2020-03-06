@@ -2,6 +2,7 @@ package constructs.template.metadata;
 
 import constructs.template.Template;
 import settings.Settings;
+import utils.metadata.Metadata;
 
 import java.util.Map;
 import java.util.logging.Logger;

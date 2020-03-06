@@ -1,6 +1,6 @@
 package networks.computation.training.strategies.Hyperparameters;
 
-import networks.computation.evaluation.values.ScalarValue;
+import evaluation.values.ScalarValue;
 import settings.Settings;
 
 import java.util.logging.Logger;

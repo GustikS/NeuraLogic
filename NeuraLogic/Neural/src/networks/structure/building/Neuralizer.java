@@ -6,6 +6,7 @@ import constructs.example.LogicSample;
 import constructs.example.QueryAtom;
 import constructs.template.components.GroundHeadRule;
 import constructs.template.components.GroundRule;
+import exporting.Exportable;
 import grounding.GroundTemplate;
 import grounding.GroundingSample;
 import ida.ilp.logic.Clause;
@@ -19,7 +20,6 @@ import networks.structure.components.neurons.types.AtomNeurons;
 import networks.structure.components.types.DetailedNetwork;
 import settings.Settings;
 import utils.Timing;
-import utils.exporting.Exportable;
 
 import java.util.*;
 import java.util.logging.Logger;

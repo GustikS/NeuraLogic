@@ -3,8 +3,8 @@ package constructs.template.components;
 import com.sun.istack.internal.Nullable;
 import constructs.Atom;
 import constructs.WeightedPredicate;
+import evaluation.functions.Activation;
 import ida.ilp.logic.Term;
-import networks.computation.evaluation.functions.Activation;
 import networks.structure.components.weights.Weight;
 
 import java.util.List;

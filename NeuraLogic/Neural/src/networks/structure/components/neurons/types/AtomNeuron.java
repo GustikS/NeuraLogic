@@ -4,7 +4,7 @@ import ida.ilp.logic.Literal;
 import networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.weights.Weight;
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.State;
 
 /**
  * Created by gusta on 8.3.17.

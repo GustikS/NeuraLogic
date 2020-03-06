@@ -1,6 +1,6 @@
 package networks.computation.training.strategies.trainers;
 
-import networks.computation.evaluation.results.Result;
+import learning.results.Result;
 import networks.computation.iteration.actions.Backpropagation;
 import networks.computation.iteration.actions.Evaluation;
 import networks.computation.iteration.actions.IndependentNeuronProcessing;
@@ -9,6 +9,7 @@ import networks.computation.iteration.visitors.states.neurons.Invalidator;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import networks.computation.training.optimizers.Optimizer;
+import networks.computation.training.strategies.debugging.NeuralDebugging;
 import settings.Settings;
 
 import java.util.ArrayList;
@@ -73,6 +74,11 @@ public class SequentialTrainer extends Trainer {
         public void restart(Settings settings) {
             SequentialTrainer.this.optimizer.restart(settings);
         }
+
+        @Override
+        public void setupDebugger(NeuralDebugging trainingDebugger) {
+            neuralDebugger = trainingDebugger;
+        }
     }
 
     public class SequentialStreamTrainer implements StreamTrainer {
@@ -81,6 +87,11 @@ public class SequentialTrainer extends Trainer {
         public Stream<Result> learnEpoch(NeuralModel neuralModel, Stream<NeuralSample> sampleStream) {
             Stream<Result> resultStream = sampleStream.map(sample -> learnFromSample(neuralModel, sample, dropout, invalidation, evaluation, backpropagation));
             return resultStream;
+        }
+
+        @Override
+        public void setupDebugger(NeuralDebugging trainingDebugger) {
+            neuralDebugger = trainingDebugger;
         }
     }
 }

@@ -7,14 +7,13 @@ import constructs.example.ValuedFact;
 import constructs.template.components.BodyAtom;
 import constructs.template.components.WeightedRule;
 import constructs.template.types.GraphTemplate;
+import evaluation.values.Value;
 import grounding.bottomUp.HerbrandModel;
 import ida.ilp.logic.HornClause;
 import ida.ilp.logic.Literal;
 import ida.ilp.logic.Predicate;
 import ida.utils.collections.MultiMap;
 import learning.Model;
-import networks.computation.evaluation.values.Value;
-import networks.computation.training.NeuralModel;
 import networks.structure.components.weights.Weight;
 
 import java.util.*;
@@ -107,8 +106,8 @@ public class Template implements Model<QueryAtom> {
         return weightList.stream().distinct().collect(Collectors.toList());
     }
 
-    public void updateWeightsFrom(NeuralModel neuralModel) {
-        Map<Integer, Weight> neuralWeights = neuralModel.mapWeightsToIds();
+    public void updateWeightsFrom(Map<Integer, Weight> neuralWeights) {
+//        Map<Integer, Weight> neuralWeights = neuralModel.mapWeightsToIds();
         List<Weight> templateWeights = getAllWeights();
         for (Weight weight : templateWeights) {
             if (weight.isLearnable()) {

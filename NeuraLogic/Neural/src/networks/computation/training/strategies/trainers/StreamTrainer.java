@@ -1,12 +1,12 @@
 package networks.computation.training.strategies.trainers;
 
-import networks.computation.evaluation.results.Result;
+import learning.results.Result;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 
 import java.util.stream.Stream;
 
-public interface StreamTrainer {
+public interface StreamTrainer extends Training{
 
     /**
      * Learning of an epoch as a single pass, i.e. invalidation, evaluation and backprop over all the samples

@@ -10,6 +10,8 @@ import networks.structure.building.NeuronMaps;
 import networks.structure.components.NeuralSets;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.WeightedNeuron;
+import networks.structure.components.neurons.states.AggregationState;
+import networks.structure.components.neurons.states.State;
 import networks.structure.components.neurons.types.*;
 import networks.structure.components.types.DetailedNetwork;
 import networks.structure.components.types.TopologicNetwork;
@@ -17,14 +19,13 @@ import networks.structure.components.weights.Weight;
 import networks.structure.metadata.inputMappings.LinkedMapping;
 import networks.structure.metadata.inputMappings.NeuronMapping;
 import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
-import networks.structure.metadata.states.AggregationState;
-import networks.structure.metadata.states.State;
 import settings.Settings;
 
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+//todo now decompose the creation phase dependent of Logic module into a separate Neuralization module
 public class NeuralNetBuilder {
     private static final Logger LOG = Logger.getLogger(NeuralNetBuilder.class.getName());
 
@@ -244,7 +245,7 @@ public class NeuralNetBuilder {
 
     /**
      * This is only meant to go through the most necessary postprocessing steps to make for a valid neural network.
-     * For the more advanced postprocessing optimization there is a whole configurable pipeline in {@link pipelines.building.NeuralNetsBuilder}
+     * For the more advanced postprocessing optimization there is a whole configurable pipeline in {@link building.NeuralNetsBuilder}
      *
      * @return
      */

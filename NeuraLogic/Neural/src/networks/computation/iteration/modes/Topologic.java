@@ -1,13 +1,13 @@
 package networks.computation.iteration.modes;
 
-import networks.computation.evaluation.values.Value;
+import evaluation.values.Value;
 import networks.computation.iteration.*;
 import networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.types.TopologicNetwork;
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.State;
 
 import java.util.logging.Logger;
 

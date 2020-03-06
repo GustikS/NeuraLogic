@@ -1,7 +1,7 @@
 package networks.structure.transforming;
 
-import networks.computation.evaluation.values.ScalarValue;
-import networks.computation.evaluation.values.Value;
+import evaluation.values.ScalarValue;
+import evaluation.values.Value;
 import networks.computation.iteration.modes.Topologic;
 import networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import networks.structure.components.NeuralNetwork;
@@ -11,7 +11,7 @@ import networks.structure.components.neurons.QueryNeuron;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.types.DetailedNetwork;
 import networks.structure.components.weights.Weight;
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.State;
 import settings.Settings;
 import utils.generic.Pair;
 

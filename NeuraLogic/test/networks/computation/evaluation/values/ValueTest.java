@@ -1,5 +1,8 @@
 package networks.computation.evaluation.values;
 
+import evaluation.values.ScalarValue;
+import evaluation.values.Value;
+import evaluation.values.VectorValue;
 import org.junit.Test;
 
 import java.util.Arrays;

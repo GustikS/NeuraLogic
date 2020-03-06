@@ -1,6 +1,6 @@
 package networks.structure.components.neurons.types;
 
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.State;
 
 /**
  * Just a formal annotation interface for both weighted and unweighted AtomNeurons

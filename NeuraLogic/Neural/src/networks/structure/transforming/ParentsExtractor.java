@@ -3,8 +3,8 @@ package networks.structure.transforming;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neurons;
 import networks.structure.components.types.DetailedNetwork;
-import networks.structure.metadata.states.State;
-import networks.structure.metadata.states.States;
+import networks.structure.components.neurons.states.State;
+import networks.structure.components.neurons.states.States;
 
 import java.util.logging.Logger;
 

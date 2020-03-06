@@ -1,9 +1,9 @@
 package networks.structure.components.neurons;
 
-import networks.computation.evaluation.functions.Aggregation;
+import evaluation.functions.Aggregation;
 import networks.computation.iteration.NeuronVisiting;
 import networks.computation.iteration.visitors.neurons.NeuronVisitor;
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.State;
 
 import java.util.ArrayList;
 

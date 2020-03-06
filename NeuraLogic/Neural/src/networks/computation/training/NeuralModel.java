@@ -1,9 +1,9 @@
 package networks.computation.training;
 
 import constructs.template.Template;
+import evaluation.values.Value;
+import evaluation.values.distributions.ValueInitializer;
 import learning.Model;
-import networks.computation.evaluation.values.Value;
-import networks.computation.evaluation.values.distributions.ValueInitializer;
 import networks.structure.components.neurons.QueryNeuron;
 import networks.structure.components.weights.Weight;
 import settings.Settings;

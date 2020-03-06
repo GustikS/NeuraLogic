@@ -1,7 +1,7 @@
 package networks.computation.iteration.visitors.states;
 
-import networks.computation.evaluation.values.Value;
-import networks.structure.metadata.states.State;
+import evaluation.values.Value;
+import networks.structure.components.neurons.states.State;
 
 import java.util.logging.Logger;
 

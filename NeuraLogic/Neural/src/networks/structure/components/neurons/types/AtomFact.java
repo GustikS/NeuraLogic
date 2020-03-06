@@ -2,7 +2,7 @@ package networks.structure.components.neurons.types;
 
 import networks.structure.components.neurons.Neurons;
 import networks.structure.components.weights.Weight;
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.State;
 
 /**
  * For now a useless interface, just a formal grouping for Atom and Fact neurons.

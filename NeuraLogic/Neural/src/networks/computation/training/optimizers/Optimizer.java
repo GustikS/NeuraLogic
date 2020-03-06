@@ -1,6 +1,6 @@
 package networks.computation.training.optimizers;
 
-import networks.computation.evaluation.values.Value;
+import evaluation.values.Value;
 import networks.computation.iteration.visitors.weights.WeightUpdater;
 import networks.computation.training.NeuralModel;
 import networks.structure.components.weights.Weight;

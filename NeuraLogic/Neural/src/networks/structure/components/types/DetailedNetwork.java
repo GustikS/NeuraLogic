@@ -5,13 +5,14 @@ import networks.structure.components.NeuralSets;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.WeightedNeuron;
+import networks.structure.components.neurons.states.StatesCache;
 import networks.structure.components.neurons.types.AtomNeurons;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.NetworkMetadata;
 import networks.structure.metadata.inputMappings.LinkedMapping;
 import networks.structure.metadata.inputMappings.NeuronMapping;
 import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.State;
 import utils.generic.Pair;
 
 import java.util.*;
@@ -30,7 +31,7 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
 
     /**
      * Locally valid input overloading for some neurons to facilitate dynamic structure changes.
-     * This map is only to be used before the faster neural {@link networks.structure.metadata.states.StatesCache} is created for the same thing in a regular network.
+     * This map is only to be used before the faster neural {@link StatesCache} is created for the same thing in a regular network.
      */
     @Nullable
     public Map<BaseNeuron, NeuronMapping<Neurons>> extraInputMapping;

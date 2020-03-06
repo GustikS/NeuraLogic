@@ -4,7 +4,7 @@ import networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neurons;
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.State;
 
 /**
  * Iteration strategy {@link IterationStrategy} based on the clean Iterator pattern. I.e. we are traversing the structure

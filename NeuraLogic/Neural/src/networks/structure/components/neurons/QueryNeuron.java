@@ -1,12 +1,12 @@
 package networks.structure.components.neurons;
 
+import evaluation.values.Value;
 import learning.Query;
-import networks.computation.evaluation.values.Value;
 import networks.computation.iteration.actions.Evaluation;
 import networks.computation.training.NeuralModel;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.types.AtomNeurons;
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.State;
 import settings.Settings;
 
 /**

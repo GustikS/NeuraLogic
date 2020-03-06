@@ -1,9 +1,10 @@
 package networks.computation.training.strategies.trainers;
 
-import networks.computation.evaluation.results.Result;
+import learning.results.Result;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import networks.computation.training.optimizers.Optimizer;
+import networks.computation.training.strategies.debugging.NeuralDebugging;
 import settings.Settings;
 
 import java.util.List;
@@ -55,6 +56,11 @@ public class AsyncParallelTrainer extends SequentialTrainer {
         public void restart(Settings settings) {
             AsyncParallelTrainer.this.optimizer.restart(settings);
         }
+
+        @Override
+        public void setupDebugger(NeuralDebugging trainingDebugger) {
+            neuralDebugger = trainingDebugger;
+        }
     }
 
     public class AsyncStreamTrainer implements StreamTrainer {
@@ -63,6 +69,11 @@ public class AsyncParallelTrainer extends SequentialTrainer {
         public Stream<Result> learnEpoch(NeuralModel neuralModel, Stream<NeuralSample> sampleStream) {
             Stream<Result> resultStream = sampleStream.parallel().map(sample -> learnFromSample(neuralModel, sample, dropout, invalidation, evaluation, backpropagation));
             return resultStream;
+        }
+
+        @Override
+        public void setupDebugger(NeuralDebugging trainingDebugger) {
+            neuralDebugger = trainingDebugger;
         }
     }
 }

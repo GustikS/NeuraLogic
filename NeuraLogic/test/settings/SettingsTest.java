@@ -14,7 +14,7 @@ public class SettingsTest {
     @Test
     public void exportToJsonFile() {
         Settings settings = new Settings();
-        settings.exporter.exportSettings(settings);
+        settings.exporter.exportSettings(settings.exportToJson(), settings.settingsExportFile);
     }
 
 

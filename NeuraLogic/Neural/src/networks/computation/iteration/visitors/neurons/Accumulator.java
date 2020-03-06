@@ -1,13 +1,13 @@
 package networks.computation.iteration.visitors.neurons;
 
-import networks.computation.evaluation.values.ScalarValue;
-import networks.computation.evaluation.values.Value;
+import evaluation.values.ScalarValue;
+import evaluation.values.Value;
 import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.WeightedNeuron;
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.State;
 
 import java.util.logging.Logger;
 

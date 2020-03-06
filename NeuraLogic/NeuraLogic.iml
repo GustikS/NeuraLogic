@@ -3,20 +3,25 @@
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
-      <excludeFolder url="file://$MODULE_DIR$/lib" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="commons-cli-1.4" level="project" />
-    <orderEntry type="module" module-name="Neural" />
-    <orderEntry type="module" module-name="Logical" />
-    <orderEntry type="module" module-name="Logic" />
-    <orderEntry type="module" module-name="Utils" />
-    <orderEntry type="library" name="gson-2.6.2-javadoc" level="project" />
-    <orderEntry type="library" name="antlr4" level="project" />
-    <orderEntry type="library" name="junit-4.12" level="application" />
-    <orderEntry type="library" name="hamcrest-core-1.3" level="application" />
+    <orderEntry type="library" scope="TEST" name="hamcrest-core-1.3" level="application" />
+    <orderEntry type="library" scope="TEST" name="junit-4.12" level="application" />
+    <orderEntry type="module" module-name="Logging" scope="TEST" />
+    <orderEntry type="module" module-name="Settings" scope="TEST" />
+    <orderEntry type="module" module-name="Workflow" scope="TEST" />
+    <orderEntry type="module" module-name="Utils" scope="TEST" />
+    <orderEntry type="module" module-name="Logic" scope="TEST" />
+    <orderEntry type="module" module-name="Algebra" scope="TEST" />
+    <orderEntry type="module" module-name="Neural" scope="TEST" />
+    <orderEntry type="module" module-name="Pipelines" scope="TEST" />
+    <orderEntry type="module" module-name="CLI" scope="TEST" />
+    <orderEntry type="module" module-name="LogicParsing" scope="TEST" />
+    <orderEntry type="library" scope="TEST" name="antlr4" level="project" />
+    <orderEntry type="module" module-name="Logical" scope="TEST" />
+    <orderEntry type="module" module-name="Learning" scope="TEST" />
   </component>
 </module>

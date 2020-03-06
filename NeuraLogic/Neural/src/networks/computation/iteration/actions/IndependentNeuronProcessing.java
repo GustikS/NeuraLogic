@@ -9,7 +9,7 @@ import networks.computation.iteration.visitors.states.StateVisiting;
 import networks.structure.components.NeuralNetwork;
 import networks.structure.components.neurons.Neurons;
 import networks.structure.components.types.TopologicNetwork;
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.State;
 import settings.Settings;
 
 import java.util.logging.Logger;

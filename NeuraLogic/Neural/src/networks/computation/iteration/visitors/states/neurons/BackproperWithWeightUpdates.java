@@ -1,6 +1,6 @@
 package networks.computation.iteration.visitors.states.neurons;
 
-import networks.computation.evaluation.values.Value;
+import evaluation.values.Value;
 
 import java.util.logging.Logger;
 

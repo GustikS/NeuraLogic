@@ -6,7 +6,7 @@ import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.QueryNeuron;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.types.DetailedNetwork;
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.State;
 import settings.Settings;
 import utils.Timing;
 

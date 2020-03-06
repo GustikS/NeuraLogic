@@ -133,7 +133,7 @@ public class HerbrandModel {
     /**
      * We cannot simply merge logically identical body literals in a ground rule's body, nor can we merge two permuted bodies.
      * These merging transformations can only be done depending on the properties of the used activation/aggregation functions,
-     * and so it is taken care of later in {@link pipelines.building.NeuralNetsBuilder} with {@link networks.structure.transforming.ParallelEdgeMerger}.
+     * and so it is taken care of later in {NeuralNetsBuilder} with {networks.structure.transforming.ParallelEdgeMerger}.
      *
      * @param liftedRule
      * @param hc

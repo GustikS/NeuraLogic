@@ -1,6 +1,7 @@
 package settings;
 
 import org.junit.Test;
+import utils.Runner;
 
 public class SourcesTest {
 
@@ -10,7 +11,7 @@ public class SourcesTest {
                 "-e ./resources/datasets/relational/kbs/nations/embeddings " +
                 "-t ./resources/datasets/relational/kbs/nations/template_2layers").split(" ");
         Settings settings = new Settings();
-        Sources sources = Sources.getSources(args, settings);
+        Sources sources = Runner.getSources(args, settings);
         String json = sources.exportToJson();
         System.out.println(json);
     }
@@ -18,7 +19,7 @@ public class SourcesTest {
     @Test
     public void exportToJsonFile() {
         Settings settings = new Settings();
-        settings.exporter.exportSettings(settings);
+        settings.exporter.exportSettings(settings.exportToJson(), settings.settingsExportFile);
     }
 
     @Test

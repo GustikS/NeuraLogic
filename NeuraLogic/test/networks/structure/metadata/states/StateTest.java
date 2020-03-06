@@ -1,8 +1,10 @@
 package networks.structure.metadata.states;
 
-import networks.computation.evaluation.functions.specific.Sigmoid;
-import networks.computation.evaluation.values.Value;
+import evaluation.functions.specific.Sigmoid;
+import evaluation.values.Value;
 import networks.computation.iteration.visitors.states.neurons.Evaluator;
+import networks.structure.components.neurons.states.State;
+import networks.structure.components.neurons.states.States;
 import org.junit.Test;
 
 public class StateTest {

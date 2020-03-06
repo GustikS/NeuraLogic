@@ -5,15 +5,15 @@ import constructs.example.LiftedExample;
 import constructs.example.ValuedFact;
 import constructs.template.Template;
 import constructs.template.components.WeightedRule;
+import evaluation.functions.Aggregation;
+import evaluation.values.Value;
+import exporting.Exportable;
 import grounding.bottomUp.BottomUp;
 import grounding.topDown.TopDown;
 import ida.ilp.logic.HornClause;
 import ida.ilp.logic.Literal;
-import networks.computation.evaluation.functions.Aggregation;
-import networks.computation.evaluation.values.Value;
 import settings.Settings;
 import utils.Timing;
-import utils.exporting.Exportable;
 import utils.generic.Pair;
 
 import java.util.*;

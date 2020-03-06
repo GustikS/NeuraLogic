@@ -2,6 +2,7 @@ package networks.structure.building.debugging;
 
 import org.junit.Test;
 import settings.Settings;
+import utils.Runner;
 import utils.logging.Logging;
 
 import java.util.logging.Level;
@@ -15,7 +16,7 @@ public class NeuralDebuggerTest {
         Settings settings = new Settings();
         settings.intermediateDebug = true;
         Settings.loggingLevel = Level.WARNING;
-        NeuralDebugger neuralDebugger = new NeuralDebugger(args, settings);
+        NeuralDebugger neuralDebugger = new NeuralDebugger(Runner.getSources(args, settings), settings);
         neuralDebugger.executeDebug();
     }
 }

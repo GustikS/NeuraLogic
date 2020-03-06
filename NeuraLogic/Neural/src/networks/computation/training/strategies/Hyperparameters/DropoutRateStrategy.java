@@ -1,8 +1,8 @@
 package networks.computation.training.strategies.Hyperparameters;
 
 import networks.structure.components.neurons.BaseNeuron;
-import networks.structure.metadata.states.State;
-import networks.structure.metadata.states.States;
+import networks.structure.components.neurons.states.State;
+import networks.structure.components.neurons.states.States;
 import settings.Settings;
 
 import java.util.logging.Logger;

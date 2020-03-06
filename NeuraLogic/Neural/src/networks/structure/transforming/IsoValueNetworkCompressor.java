@@ -1,9 +1,9 @@
 package networks.structure.transforming;
 
+import evaluation.functions.Activation;
+import evaluation.values.Value;
+import evaluation.values.distributions.ValueInitializer;
 import ida.ilp.logic.Literal;
-import networks.computation.evaluation.functions.Activation;
-import networks.computation.evaluation.values.Value;
-import networks.computation.evaluation.values.distributions.ValueInitializer;
 import networks.computation.iteration.actions.Evaluation;
 import networks.computation.iteration.actions.IndependentNeuronProcessing;
 import networks.computation.iteration.visitors.states.neurons.Invalidator;
@@ -15,8 +15,8 @@ import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.neurons.types.AtomNeuron;
 import networks.structure.components.types.DetailedNetwork;
 import networks.structure.components.weights.Weight;
-import networks.structure.metadata.states.State;
-import networks.structure.metadata.states.States;
+import networks.structure.components.neurons.states.State;
+import networks.structure.components.neurons.states.States;
 import settings.Settings;
 import utils.Timing;
 import utils.generic.Pair;

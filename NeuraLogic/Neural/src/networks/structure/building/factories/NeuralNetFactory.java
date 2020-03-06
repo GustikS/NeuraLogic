@@ -7,7 +7,7 @@ import networks.structure.components.neurons.types.AtomNeurons;
 import networks.structure.components.types.DetailedNetwork;
 import networks.structure.components.types.TopologicNetwork;
 import networks.structure.metadata.inputMappings.LinkedMapping;
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.State;
 import settings.Settings;
 
 import java.util.*;

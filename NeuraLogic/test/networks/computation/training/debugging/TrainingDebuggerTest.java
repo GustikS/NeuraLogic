@@ -1,7 +1,9 @@
 package networks.computation.training.debugging;
 
+import networks.computation.debugging.TrainingDebugger;
 import org.junit.Test;
 import settings.Settings;
+import utils.Runner;
 import utils.logging.Logging;
 
 import java.util.logging.Level;
@@ -16,7 +18,7 @@ public class TrainingDebuggerTest {
         settings.maxCumEpochCount = 2;
         settings.intermediateDebug = true;
         settings.undoWeightTrainingChanges = true;
-        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
 
@@ -37,7 +39,7 @@ public class TrainingDebuggerTest {
         settings.debugTemplateTraining = false; //too big
         settings.debugTemplate = false;
         settings.optimizer = Settings.OptimizerSet.SGD;
-        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
 
@@ -65,7 +67,7 @@ public class TrainingDebuggerTest {
         settings.debugTemplateTraining = false; //too big
         settings.debugTemplate = false;
         settings.optimizer = Settings.OptimizerSet.ADAM;
-        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
 
@@ -100,7 +102,7 @@ public class TrainingDebuggerTest {
         settings.debugTemplate = false;
         settings.initializer = Settings.InitSet.SIMPLE;
         settings.optimizer = Settings.OptimizerSet.SGD;
-        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
 
@@ -135,7 +137,7 @@ public class TrainingDebuggerTest {
         settings.storeNotShow = true;
         settings.debugTemplateTraining = false; //too big
         settings.debugTemplate = false;
-        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
 
@@ -171,7 +173,7 @@ public class TrainingDebuggerTest {
         settings.chainPruning = true;
         settings.storeNotShow = true;
 
-        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
 
@@ -209,7 +211,7 @@ public class TrainingDebuggerTest {
         settings.isoValueCompression = false;
         settings.chainPruning = true;
 
-        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
 
@@ -247,7 +249,7 @@ public class TrainingDebuggerTest {
         settings.isoValueCompression = false;
         settings.chainPruning = true;
 
-        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
 
@@ -287,7 +289,7 @@ public class TrainingDebuggerTest {
 
         settings.storeNotShow = true;
 
-        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
 
@@ -321,7 +323,7 @@ public class TrainingDebuggerTest {
         settings.isoValueCompression = true;
         settings.storeNotShow = true;
 
-        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
 
@@ -353,16 +355,17 @@ public class TrainingDebuggerTest {
         settings.neuralNetsPostProcessing = true;
         settings.chainPruning = true;
 
-        settings.isoValueCompression = false;
+        settings.isoValueCompression = true;
         settings.losslessIsoCompression = false;
         settings.isoValueInits = 1;
         settings.isoDecimals = 12;
+        settings.plotProgress = -1;
 
         settings.errorFunction = Settings.ErrorFcn.SQUARED_DIFF;
 
         settings.storeNotShow = true;
 
-        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
 
@@ -401,7 +404,7 @@ public class TrainingDebuggerTest {
 
         settings.storeNotShow = true;
 
-        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
 
@@ -437,7 +440,7 @@ public class TrainingDebuggerTest {
         settings.isoDecimals = 12;
         settings.storeNotShow = true;
 
-        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
 
@@ -448,7 +451,7 @@ public class TrainingDebuggerTest {
                 "-t ./resources/datasets/relational/molecules/template_unified_bad" +
                 " -out " + outputFolder).split(" ");
 
-        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
 
@@ -481,7 +484,7 @@ public class TrainingDebuggerTest {
 //        settings.isoValueCompression = true;
 //        settings.losslessIsoCompression = false;
 
-        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
 
@@ -502,7 +505,7 @@ public class TrainingDebuggerTest {
 
 //        settings.iterationMode = Settings.IterationMode.DFS_STACK;    //todo now why doesnt learn?
 
-        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
 
@@ -521,7 +524,7 @@ public class TrainingDebuggerTest {
         settings.isoValueCompression = true;
 //        settings.losslessIsoCompression = false;
 
-        TrainingDebugger trainingDebugger = new TrainingDebugger(args, settings);
+        TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
 }

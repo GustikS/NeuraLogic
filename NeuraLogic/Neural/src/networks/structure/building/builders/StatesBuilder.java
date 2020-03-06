@@ -1,20 +1,26 @@
 package networks.structure.building.builders;
 
-import networks.computation.evaluation.functions.CrossProduct;
-import networks.computation.evaluation.values.Value;
+import evaluation.functions.Activation;
+import evaluation.functions.Aggregation;
+import evaluation.functions.CrossProduct;
+import evaluation.functions.ElementProduct;
+import evaluation.functions.specific.Average;
+import evaluation.functions.specific.Maximum;
+import evaluation.functions.specific.Sum;
+import evaluation.values.Value;
 import networks.computation.training.strategies.Hyperparameters.DropoutRateStrategy;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.WeightedNeuron;
+import networks.structure.components.neurons.states.AggregationState;
+import networks.structure.components.neurons.states.State;
+import networks.structure.components.neurons.states.States;
+import networks.structure.components.neurons.states.StatesCache;
 import networks.structure.components.neurons.types.FactNeuron;
 import networks.structure.components.types.DetailedNetwork;
 import networks.structure.components.weights.Weight;
 import networks.structure.metadata.inputMappings.NeuronMapping;
 import networks.structure.metadata.inputMappings.WeightedNeuronMapping;
-import networks.structure.metadata.states.AggregationState;
-import networks.structure.metadata.states.State;
-import networks.structure.metadata.states.States;
-import networks.structure.metadata.states.StatesCache;
 import settings.Settings;
 import utils.generic.Pair;
 
@@ -53,7 +59,7 @@ public class StatesBuilder {
     }
 
     /**
-     * Infer correct dimensions of all the value tensors within this network and create respective {@link networks.computation.evaluation.values.Value} objects.
+     * Infer correct dimensions of all the value tensors within this network and create respective {@link Value} objects.
      *
      * @param detailedNetwork
      */
@@ -229,7 +235,7 @@ public class StatesBuilder {
 
     /**
      * Setup parentsCount number into {@link networks.computation.iteration.visitors.states.StateVisiting.Computation} states, or
-     * extract parentsCount-based States of shared neurons into the networks' {@link networks.structure.metadata.states.State.Structure} states.
+     * extract parentsCount-based States of shared neurons into the networks' {@link State.Structure} states.
      * This will only alter states of neurons which have different number of parents in different networks.
      *
      * @param network
@@ -344,5 +350,23 @@ public class StatesBuilder {
         }
         neuralNetwork.neuronStates = StatesCache.getCache(settings, structureStates);
         return neuralNetwork;
+    }
+
+    public static AggregationState getAggregationState(Aggregation aggregation) {
+        if (aggregation instanceof CrossProduct) {
+            return new AggregationState.CrossProducState(aggregation);
+        } else if (aggregation instanceof ElementProduct) {
+            return new AggregationState.CumulationState(aggregation);
+        } else if (aggregation instanceof Average) {
+            return new AggregationState.Pooling.Avg(aggregation);
+        } else if (aggregation instanceof Maximum) {
+            return new AggregationState.Pooling.Max(aggregation);
+        } else if (aggregation instanceof Sum) {
+            return new AggregationState.Pooling.Sum(aggregation);
+        } else if (aggregation instanceof Activation) {
+            return new AggregationState.ActivationState((Activation) aggregation);
+        } else {
+            throw new UnsupportedOperationException("unkown Aggregation function state");
+        }
     }
 }

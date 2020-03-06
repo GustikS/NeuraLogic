@@ -2,9 +2,9 @@ package constructs.example;
 
 import constructs.template.Template;
 import constructs.template.components.HeadAtom;
+import evaluation.functions.Activation;
+import evaluation.values.Value;
 import learning.Query;
-import networks.computation.evaluation.functions.Activation;
-import networks.computation.evaluation.values.Value;
 import settings.Settings;
 import utils.generic.Pair;
 

@@ -2,10 +2,10 @@ package constructs;
 
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
+import evaluation.functions.Activation;
 import ida.ilp.logic.Literal;
 import ida.ilp.logic.Predicate;
 import ida.ilp.logic.Term;
-import networks.computation.evaluation.functions.Activation;
 
 import java.util.List;
 import java.util.logging.Logger;

@@ -1,6 +1,6 @@
 package networks.computation.training.strategies.trainers;
 
-import networks.computation.evaluation.results.Result;
+import learning.results.Result;
 import networks.computation.iteration.actions.Backpropagation;
 import networks.computation.iteration.actions.Evaluation;
 import networks.computation.iteration.actions.IndependentNeuronProcessing;
@@ -8,7 +8,7 @@ import networks.computation.iteration.visitors.weights.WeightUpdater;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import networks.computation.training.optimizers.Optimizer;
-import networks.structure.building.debugging.NeuralDebugger;
+import networks.computation.training.strategies.debugging.NeuralDebugging;
 import settings.Settings;
 
 import java.util.logging.Logger;
@@ -25,12 +25,12 @@ public class Trainer {
 
     Optimizer optimizer;
 
-    NeuralDebugger neuralDebugger;
+    public NeuralDebugging neuralDebugger;
 
     public Trainer(Settings settings, Optimizer optimizer) {
         this.settings = settings;
         this.optimizer = optimizer;
-        this.neuralDebugger = new NeuralDebugger(settings);
+//        this.neuralDebugger = new NeuralDebugger(settings);
     }
 
     public Trainer() {

@@ -6,16 +6,17 @@ import constructs.template.components.GroundHeadRule;
 import constructs.template.components.GroundRule;
 import constructs.template.components.HeadAtom;
 import constructs.template.components.WeightedRule;
+import evaluation.functions.Activation;
+import evaluation.functions.Aggregation;
+import evaluation.functions.CrossProduct;
+import evaluation.values.ScalarValue;
+import evaluation.values.Value;
 import ida.ilp.logic.Literal;
-import networks.computation.evaluation.functions.Activation;
-import networks.computation.evaluation.functions.Aggregation;
-import networks.computation.evaluation.functions.CrossProduct;
-import networks.computation.evaluation.values.ScalarValue;
 import networks.structure.building.NeuronMaps;
+import networks.structure.components.neurons.states.State;
+import networks.structure.components.neurons.states.States;
 import networks.structure.components.neurons.types.*;
 import networks.structure.components.weights.Weight;
-import networks.structure.metadata.states.State;
-import networks.structure.metadata.states.States;
 import settings.Settings;
 
 import java.util.logging.Logger;
@@ -34,6 +35,8 @@ public class NeuronFactory {
     private Weight atomOffset;
     private Weight ruleOffset;
 
+    private Value defaultFactValue = Value.ONE;
+
     /**
      * A mapping from ground literals and ground rules to respective neurons, which will be incrementally modified during the building process
      */
@@ -44,6 +47,9 @@ public class NeuronFactory {
         this.settings = settings;
         atomOffset = weightFactory.construct("fixedAtomOffset", new ScalarValue(settings.defaultAtomNeuronOffset), true, true);
         ruleOffset = weightFactory.construct("fixedRuleOffset", new ScalarValue(settings.defaultRuleNeuronOffset), true, true);
+        if (settings.defaultFactValue != 1){
+            defaultFactValue = new ScalarValue(settings.defaultFactValue);
+        }
     }
 
     public WeightedAtomNeuron createWeightedAtomNeuron(HeadAtom head, Literal groundHead) {
@@ -131,7 +137,7 @@ public class NeuronFactory {
     public FactNeuron createFactNeuron(ValuedFact fact) {
         FactNeuron result = neuronMaps.factNeurons.get(fact.literal);
         if (result == null) {    //fact neuron might have been created already and for them it is ok
-            States.SimpleValue simpleValue = new States.SimpleValue(fact.getValue() == null ? settings.defaultFactValue : fact.getValue());
+            States.SimpleValue simpleValue = new States.SimpleValue(fact.getValue() == null ? this.defaultFactValue : fact.getValue());
             FactNeuron factNeuron = new FactNeuron(fact, counter++, simpleValue);
             neuronMaps.factNeurons.put(fact.literal, factNeuron);
             LOG.finest("Created fact neuron: " + factNeuron);

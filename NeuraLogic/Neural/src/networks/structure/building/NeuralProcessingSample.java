@@ -1,9 +1,9 @@
 package networks.structure.building;
 
-import networks.computation.evaluation.values.Value;
+import evaluation.values.Value;
+import networks.computation.training.NeuralSample;
 import networks.structure.components.neurons.QueryNeuron;
 import networks.structure.components.types.DetailedNetwork;
-import networks.computation.training.NeuralSample;
 
 import java.util.logging.Logger;
 

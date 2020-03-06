@@ -2,6 +2,7 @@ package grounding.debugging;
 
 import org.junit.Test;
 import settings.Settings;
+import utils.Runner;
 import utils.logging.Logging;
 
 public class GroundingDebuggerTest {
@@ -12,7 +13,7 @@ public class GroundingDebuggerTest {
         Settings settings = new Settings();
         settings.intermediateDebug = false;
 //        Settings.loggingLevel = Level.WARNING;
-        GroundingDebugger groundingDebugger = new GroundingDebugger(args, settings);
+        GroundingDebugger groundingDebugger = new GroundingDebugger(Runner.getSources(args, settings), settings);
         groundingDebugger.executeDebug();
     }
 }

@@ -1,6 +1,6 @@
 package networks.structure.export;
 
-import networks.computation.evaluation.functions.Aggregation;
+import evaluation.functions.Aggregation;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import networks.structure.components.neurons.BaseNeuron;
@@ -9,7 +9,7 @@ import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.neurons.types.AggregationNeuron;
 import networks.structure.components.types.TopologicNetwork;
 import networks.structure.components.weights.Weight;
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.State;
 import utils.generic.Pair;
 
 import java.util.ArrayList;

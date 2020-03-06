@@ -1,7 +1,7 @@
 package constructs.building.factories;
 
-import networks.computation.evaluation.functions.Aggregation;
-import networks.computation.evaluation.values.Value;
+import evaluation.functions.Aggregation;
+import evaluation.values.Value;
 import networks.structure.components.weights.Weight;
 
 import java.util.Arrays;

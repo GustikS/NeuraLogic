@@ -1,9 +1,10 @@
 package networks.computation.training.strategies.trainers;
 
-import networks.computation.evaluation.results.Result;
+import learning.results.Result;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import networks.computation.training.optimizers.Optimizer;
+import networks.computation.training.strategies.debugging.NeuralDebugging;
 import settings.Settings;
 import utils.Utilities;
 
@@ -75,6 +76,11 @@ public class MiniBatchTrainer extends Trainer {
         public void restart(Settings settings) {
             MiniBatchTrainer.this.optimizer.restart(settings);
         }
+
+        @Override
+        public void setupDebugger(NeuralDebugging trainingDebugger) {
+            neuralDebugger = trainingDebugger;
+        }
     }
 
     /**
@@ -97,6 +103,11 @@ public class MiniBatchTrainer extends Trainer {
             Stream<List<NeuralSample>> minibatchStream = StreamSupport.stream(new Utilities.BatchSpliterator<>(sampleStream.spliterator(), minibatchSize), false);  //todo test this crazy thing
             Stream<Result> resultStream = minibatchStream.map(batch -> minibatchParallelLearn(neuralModel, batch)).flatMap(List::stream);
             return resultStream;
+        }
+
+        @Override
+        public void setupDebugger(NeuralDebugging trainingDebugger) {
+            neuralDebugger = trainingDebugger;
         }
     }
 

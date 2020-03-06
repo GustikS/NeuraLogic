@@ -1,9 +1,9 @@
 package networks.computation.iteration.visitors.states.neurons;
 
-import networks.computation.evaluation.values.ScalarValue;
-import networks.computation.evaluation.values.Value;
+import evaluation.values.ScalarValue;
+import evaluation.values.Value;
 import networks.computation.iteration.visitors.states.StateVisiting;
-import networks.structure.metadata.states.State;
+import networks.structure.components.neurons.states.State;
 import utils.generic.Pair;
 
 import java.util.logging.Logger;

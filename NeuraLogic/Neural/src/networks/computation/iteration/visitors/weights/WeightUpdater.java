@@ -1,6 +1,6 @@
 package networks.computation.iteration.visitors.weights;
 
-import networks.computation.evaluation.values.Value;
+import evaluation.values.Value;
 import networks.structure.components.weights.StatefulWeight;
 import networks.structure.components.weights.Weight;
 

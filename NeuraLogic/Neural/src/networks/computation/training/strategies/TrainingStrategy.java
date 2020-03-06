@@ -1,15 +1,17 @@
 package networks.computation.training.strategies;
 
-import networks.computation.evaluation.results.Progress;
-import networks.computation.evaluation.results.Result;
-import networks.computation.evaluation.results.Results;
-import networks.computation.evaluation.values.ScalarValue;
+import evaluation.values.ScalarValue;
+import exporting.Exportable;
+import exporting.Exporter;
+import learning.results.Progress;
+import learning.results.Result;
+import learning.results.Results;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
+import networks.computation.training.strategies.debugging.NeuralDebugging;
+import networks.computation.training.strategies.debugging.TrainingDebugging;
 import settings.Settings;
 import utils.Timing;
-import utils.exporting.Exportable;
-import utils.exporting.Exporter;
 import utils.generic.Pair;
 
 import java.io.IOException;
@@ -43,6 +45,8 @@ public abstract class TrainingStrategy implements Exportable {
 
     static int counter = 0;
 
+    transient TrainingDebugging trainingDebugger;
+
     public TrainingStrategy(Settings settings, NeuralModel model) {
         this.settings = settings;
         this.learningRate = new ScalarValue(settings.initLearningRate);
@@ -53,8 +57,8 @@ public abstract class TrainingStrategy implements Exportable {
     }
 
     protected void setupExporter() {
-        this.exporter = new Exporter(settings, "progress/training" + counter++ + "restart" + restart);
-        exporter.resultsLine("[");
+        this.exporter = Exporter.getExporter(settings, "progress/training" + counter++ + "restart" + restart);
+        exporter.exportLine("[");
 
         if (settings.plotProgress > 0) {
             ProcessBuilder processBuilder = new ProcessBuilder(settings.pythonPath, settings.progressPlotterPath, settings.exportDir, "" + settings.plotProgress);
@@ -76,6 +80,12 @@ public abstract class TrainingStrategy implements Exportable {
 
     public abstract Pair<NeuralModel, Progress> train();
 
+    public abstract void setupDebugger(NeuralDebugging neuralDebugger);
+
+    public void setupDebugger(TrainingDebugging trainingDebugger) {
+        this.trainingDebugger = trainingDebugger;
+    }
+
     public static TrainingStrategy getFrom(Settings settings, NeuralModel model, Stream<NeuralSample> sampleStream) {
         if (settings.neuralStreaming) {
             return new StreamTrainingStrategy(settings, model, sampleStream);
@@ -89,7 +99,8 @@ public abstract class TrainingStrategy implements Exportable {
         if (settings.undoWeightTrainingChanges) {
             loadParametersState();
         }
-        progressPlotter.destroy();
+        if (progressPlotter != null)
+            progressPlotter.destroy();
     }
 
 
