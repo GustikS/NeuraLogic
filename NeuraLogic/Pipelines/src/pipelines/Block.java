@@ -24,10 +24,17 @@ public abstract class Block {
         return par;
     }
 
+    public static Exporter createExporter(String id, Settings settings) {
+        if (settings == null){
+            return null;
+        }
+        return Exporter.getFrom(settings.exportDir, id, settings.exportBlocks, settings.blockExporting.name());
+    }
+
     protected <T> void export(T outputReady) {
         if (outputReady instanceof Exportable) {
             if (exporter == null && parent != null) {
-                exporter = Exporter.getFrom(this.ID, parent.settings);
+                exporter = createExporter(this.ID, settings);
             }
             if (exporter != null) {
                 ((Exportable) outputReady).export(this.exporter);

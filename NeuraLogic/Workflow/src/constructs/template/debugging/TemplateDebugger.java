@@ -3,7 +3,7 @@ package constructs.template.debugging;
 import constructs.example.LogicSample;
 import constructs.template.Template;
 import pipelines.Pipeline;
-import pipelines.debug.Debugger;
+import pipelines.debuging.End2EndDebugger;
 import pipelines.pipes.generic.FirstFromPairPipe;
 import pipelines.pipes.generic.StreamifyPipe;
 import settings.Settings;
@@ -14,7 +14,7 @@ import utils.generic.Pair;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class TemplateDebugger extends Debugger<Template> {
+public class TemplateDebugger extends End2EndDebugger<Template> {
     private static final Logger LOG = Logger.getLogger(TemplateDebugger.class.getName());
 
     public TemplateDebugger(Settings settings) {

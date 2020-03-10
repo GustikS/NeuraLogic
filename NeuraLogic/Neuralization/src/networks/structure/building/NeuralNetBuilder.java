@@ -1,4 +1,4 @@
-package networks.structure.building.builders;
+package networks.structure.building;
 
 import com.sun.istack.internal.NotNull;
 import constructs.example.ValuedFact;
@@ -6,7 +6,7 @@ import constructs.template.components.BodyAtom;
 import constructs.template.components.GroundHeadRule;
 import constructs.template.components.GroundRule;
 import ida.ilp.logic.Literal;
-import networks.structure.building.NeuronMaps;
+import networks.structure.building.builders.StatesBuilder;
 import networks.structure.components.NeuralSets;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.WeightedNeuron;
@@ -245,7 +245,7 @@ public class NeuralNetBuilder {
 
     /**
      * This is only meant to go through the most necessary postprocessing steps to make for a valid neural network.
-     * For the more advanced postprocessing optimization there is a whole configurable pipeline in {@link building.NeuralNetsBuilder}
+     * For the more advanced postprocessing optimization there is a whole configurable pipeline in {NeuralNetsBuilder}
      *
      * @return
      */

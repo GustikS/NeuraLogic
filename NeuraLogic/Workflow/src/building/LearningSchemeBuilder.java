@@ -12,7 +12,7 @@ import networks.structure.building.debugging.NeuralDebugger;
 import pipelines.Pipe;
 import pipelines.Pipeline;
 import pipelines.bulding.AbstractPipelineBuilder;
-import pipelines.debug.drawing.PipelineDebugger;
+import pipelines.debuging.drawing.PipelineDebugger;
 import pipelines.pipes.generic.SecondFromPairPipe;
 import pipes.specific.ResultsFromProgressPipe;
 import settings.Settings;

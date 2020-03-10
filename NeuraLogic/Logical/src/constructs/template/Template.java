@@ -8,11 +8,9 @@ import constructs.template.components.BodyAtom;
 import constructs.template.components.WeightedRule;
 import constructs.template.types.GraphTemplate;
 import evaluation.values.Value;
-import grounding.bottomUp.HerbrandModel;
 import ida.ilp.logic.HornClause;
 import ida.ilp.logic.Literal;
-import ida.ilp.logic.Predicate;
-import ida.utils.collections.MultiMap;
+import ida.ilp.logic.subsumption.HerbrandModel;
 import learning.Model;
 import networks.structure.components.weights.Weight;
 
@@ -142,8 +140,8 @@ public class Template implements Model<QueryAtom> {
         HerbrandModel herbrandModel = new HerbrandModel();
         Set<Literal> facts = this.facts.stream().map(ValuedFact::getLiteral).collect(Collectors.toSet());
         Set<HornClause> rules = this.rules.stream().map(WeightedRule::toHornClause).collect(Collectors.toSet());
-        MultiMap<Predicate, Literal> multiMap = herbrandModel.inferModel(rules, facts);
-        multiMap.values().forEach(inferredLiterals::addAll);
+        Collection<Literal> values = herbrandModel.inferLiterals(rules, facts);
+        inferredLiterals.addAll(values);
         return inferredLiterals;
     }
 

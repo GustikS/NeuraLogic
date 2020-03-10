@@ -1,6 +1,5 @@
 package networks.computation.training;
 
-import constructs.template.Template;
 import evaluation.values.Value;
 import evaluation.values.distributions.ValueInitializer;
 import learning.Model;
@@ -11,6 +10,7 @@ import settings.Settings;
 import java.io.Reader;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -28,7 +28,7 @@ public class NeuralModel implements Model<QueryNeuron> {    //todo now add accur
     /**
      * Only used in debug mode for drawing of original template during training.
      */
-    private Template template;
+    public Consumer<Map<Integer, Weight>> templateDebugCallback;
 
     public NeuralModel(List<Weight> weights, Settings settings) {
         this.settings = settings;
@@ -39,14 +39,14 @@ public class NeuralModel implements Model<QueryNeuron> {    //todo now add accur
         }
     }
 
-    public NeuralModel(Template template, Settings settings) {  //todo next add debug option for neuralModel only - ie.e. printing out weights (nicely) only
-        this(template.getAllWeights(), settings);
+    public NeuralModel(List<Weight> weights, Consumer<Map<Integer, Weight>> templateUpdateCallback, Settings settings) {  //todo next add debug option for neuralModel only - ie.e. printing out weights (nicely) only
+        this(weights, settings);
         if (settings.debugTemplateTraining) {
-            this.template = template;
+            this.templateDebugCallback = templateUpdateCallback;
         }
     }
 
-    private NeuralModel(Settings settings){
+    private NeuralModel(Settings settings) {
         this.settings = settings;
     }
 
@@ -59,13 +59,14 @@ public class NeuralModel implements Model<QueryNeuron> {    //todo now add accur
 
     /**
      * Be careful with this, as the returned weights are not bind in the neural structures, they can be used just to store values
+     *
      * @return
      */
     public NeuralModel cloneValues() {
         List<Weight> clonedWeights = weights.stream().map(Weight::clone).collect(Collectors.toList());
         NeuralModel clone = new NeuralModel(this.settings);
         clone.weights = clonedWeights;
-        clone.template = this.template;
+//        clone.template = this.template;
         return clone;
     }
 
@@ -77,6 +78,7 @@ public class NeuralModel implements Model<QueryNeuron> {    //todo now add accur
 
     /**
      * Restore weight Values from another model
+     *
      * @param otherModel
      */
     public void loadWeightValues(NeuralModel otherModel) {
@@ -90,7 +92,7 @@ public class NeuralModel implements Model<QueryNeuron> {    //todo now add accur
         //go through weights and set them randomly off
     }
 
-    public List<Weight> filterLearnable(List<Weight> allWeights){
+    public List<Weight> filterLearnable(List<Weight> allWeights) {
         return allWeights.stream().filter(Weight::isLearnable).collect(Collectors.toList());
     }
 
@@ -136,11 +138,12 @@ public class NeuralModel implements Model<QueryNeuron> {    //todo now add accur
     public List<Weight> getAllWeights() {
         return weights;
     }
-
-    public Template getTemplate() {
-        if (template == null){
-            LOG.severe("No template was stored in this NeuralModel");
-        }
-        return template;
-    }
+//
+//
+//    private Template getTemplate() {
+//        if (template == null) {
+//            LOG.severe("No template was stored in this NeuralModel");
+//        }
+//        return template;
+//    }
 }

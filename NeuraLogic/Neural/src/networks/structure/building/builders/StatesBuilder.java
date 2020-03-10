@@ -46,7 +46,7 @@ public class StatesBuilder {
             return false;
     }
 
-    void addLinkedInputsToNetworkStates(DetailedNetwork<State.Structure> neuralNetwork) {
+    public void addLinkedInputsToNetworkStates(DetailedNetwork<State.Structure> neuralNetwork) {
         neuralNetwork.extraInputMapping.forEach((neuron, inputs) -> {
             if (inputs instanceof NeuronMapping) {
                 States.Inputs inputsState = new States.Inputs((NeuronMapping) inputs);
@@ -187,7 +187,7 @@ public class StatesBuilder {
      *
      * @param detailedNetwork
      */
-    void setupDropoutStates(DetailedNetwork<State.Neural.Structure> detailedNetwork) {
+    public void setupDropoutStates(DetailedNetwork<State.Neural.Structure> detailedNetwork) {
         DropoutRateStrategy dropoutRateStrategy = new DropoutRateStrategy(settings);
         for (int i = detailedNetwork.allNeuronsTopologic.size() - 1; i > 0; i--) {
             BaseNeuron<Neurons, State.Neural> neuron = detailedNetwork.allNeuronsTopologic.get(i);
@@ -217,7 +217,7 @@ public class StatesBuilder {
      * @param detailedNetwork
      * @return
      */
-    int makeSharedStatesRecursively(DetailedNetwork<State.Neural.Structure> detailedNetwork) {
+    public int makeSharedStatesRecursively(DetailedNetwork<State.Neural.Structure> detailedNetwork) {
         int sharedCount = 0;
         for (int i = detailedNetwork.allNeuronsTopologic.size() - 1; i > 0; i--) {
             BaseNeuron<Neurons, State.Neural> neuron = detailedNetwork.allNeuronsTopologic.get(i);
@@ -240,7 +240,7 @@ public class StatesBuilder {
      *
      * @param network
      */
-    void setupParentStateNumbers(DetailedNetwork<State.Neural.Structure> network) {
+    public void setupParentStateNumbers(DetailedNetwork<State.Neural.Structure> network) {
         Map<BaseNeuron, NeuronMapping<Neurons>> neuronOutputs = network.outputMapping;
         neuronOutputs.forEach((neuron, outputs) -> {
             State.Neural.Computation state = neuron.getComputationView(0); //all computation views should be exactly the same at this stage

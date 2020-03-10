@@ -1,6 +1,7 @@
 package pipes.specific;
 
 import constructs.template.Template;
+import networks.computation.debugging.TrainingDebugger;
 import networks.computation.training.NeuralModel;
 import pipelines.Pipe;
 import settings.Settings;
@@ -25,6 +26,7 @@ public class TemplateToNeuralPipe extends Pipe<Template, NeuralModel> {
 
     @Override
     public NeuralModel apply(Template template) {
-        return new NeuralModel(template, this.settings);
+        TrainingDebugger trainingDebugger = new TrainingDebugger(this.settings, template);
+        return new NeuralModel(template.getAllWeights(), trainingDebugger::debugWeights, this.settings);
     }
 }

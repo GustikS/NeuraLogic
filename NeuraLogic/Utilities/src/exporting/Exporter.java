@@ -1,6 +1,6 @@
 package exporting;
 
-import settings.Settings;
+//import settings.Settings;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -21,6 +21,8 @@ public abstract class Exporter {
     File exportFile;
     PrintWriter exportWriter;
 
+    String type;
+
     String id;
 
     String suffix = "";
@@ -30,30 +32,28 @@ public abstract class Exporter {
     /**
      * A particular named exporter - will create a new file
      *
-     * @param settings
      * @param id
      */
-    public Exporter(Settings settings, String id) {
-        if (settings == null) {
-            return;
-        }
-        this.id = id;
-
-        if (settings.blockExporting == Settings.BlockExporting.JSON) {
-            this.suffix = ".json";
-        }
-        this.exportWriter = getWriter(settings.exportDir + "/" + id + suffix, true);
+    public Exporter(String exportDir, String id, String type) {
+//        if (settings == null) {
+//            return;
+//        }
+        this(type, id);
+        this.exportWriter = getWriter(exportDir + "/" + id + suffix, true);
     }
 
-    public static Exporter getFrom(String id, Settings settings) {
-        if (settings == null)
-            return null;
-        for (String exportPipeline : settings.exportBlocks) {
+    private Exporter(String type, String id) {
+        this.type = type;
+        this.id = id;
+        this.suffix = "." + type.toLowerCase();
+    }
+
+    public static Exporter getFrom(String exportDir, String id, String[] exportBlocks, String type) {
+//        if (settings == null)
+//            return null;
+        for (String exportPipeline : exportBlocks) {
             if (id.equals(exportPipeline)) {
-                if (settings.blockExporting == Settings.BlockExporting.TEXT)
-                    return new TextExporter(settings, id);
-                else
-                    return getExporter(settings, id);
+                return getExporter(exportDir, id, type);
             }
         }
         return null;
@@ -74,20 +74,12 @@ public abstract class Exporter {
         file.delete();
     }
 
-    public void exportSettings(String exportToJson, String settingsExportFile) {
-        LOG.info("Exporting settings to " + settingsExportFile);
-        PrintWriter settingsWriter = getWriter(settingsExportFile, false);
+    public void exportObject(String exportToJson, String exportFile) {
+        LOG.info("Exporting serialized object to " + exportFile);
+        PrintWriter settingsWriter = getWriter(exportFile + suffix, false);
         settingsWriter.println(exportToJson);
         settingsWriter.flush();
         settingsWriter.close();
-    }
-
-    public void exportSources(String exportToJson, String exportFile) {
-        LOG.info("Exporting sources to " + exportFile);
-        PrintWriter writer = getWriter(exportFile, false);
-        writer.println(exportFile);
-        writer.flush();
-        writer.close();
     }
 
     public void exportLine(String line) {
@@ -115,13 +107,13 @@ public abstract class Exporter {
         return out;
     }
 
-    public static Exporter getExporter(Settings settings, String id) {
-        if (settings.blockExporting == Settings.BlockExporting.JSON)
-            return new JsonExporter(settings, id);
-        else if (settings.blockExporting == Settings.BlockExporting.TEXT)
-            return new TextExporter(settings, id);
+    public static Exporter getExporter(String exportDir, String id, String type) {
+        if (type == "JSON")
+            return new JsonExporter(exportDir, id);
+        else if (type == "TEXT")
+            return new TextExporter(exportDir, id);
         else
-            return new JsonExporter(settings, id);
+            return new JsonExporter(exportDir, id);
     }
 
 }

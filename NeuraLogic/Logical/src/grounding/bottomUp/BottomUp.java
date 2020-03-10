@@ -12,7 +12,7 @@ import grounding.Grounder;
 import ida.ilp.logic.HornClause;
 import ida.ilp.logic.Literal;
 import ida.ilp.logic.Term;
-import ida.utils.Sugar;
+import ida.ilp.logic.subsumption.HerbrandModel;
 import settings.Settings;
 import utils.generic.Pair;
 
@@ -66,8 +66,8 @@ public class BottomUp extends Grounder {
         }
 
         LOG.fine("Infering Herbrand model...");
-        herbrandModel.inferModel(ruleMap.keySet(), facts);
-        Map<Literal, Literal> allLiterals = Sugar.flatten(herbrandModel.herbrand.values()).stream().collect(Collectors.toMap(l -> l, l -> l));
+        Collection<Literal> literals = herbrandModel.inferLiterals(ruleMap.keySet(), facts);
+        Map<Literal, Literal> allLiterals = literals.stream().collect(Collectors.toMap(l -> l, l -> l));
         LOG.fine("...HerbrandModel inferred with " + allLiterals.size() + " facts");
         herbrandCumSize += allLiterals.size();
 
@@ -76,7 +76,7 @@ public class BottomUp extends Grounder {
         for (Map.Entry<HornClause, List<WeightedRule>> ruleEntry : ruleMap.entrySet()) {
             Pair<Term[], List<Term[]>> groundingSubstitutions = herbrandModel.groundingSubstitutions(ruleEntry.getKey());
             for (WeightedRule weightedRule : ruleEntry.getValue()) {
-                List<GroundRule> groundings = herbrandModel.groundRules(weightedRule, groundingSubstitutions);
+                List<GroundRule> groundings = groundRules(weightedRule, groundingSubstitutions);
                 for (GroundRule grounding : groundings) {
 
                     grounding.internLiterals(allLiterals);
@@ -124,4 +124,33 @@ public class BottomUp extends Grounder {
         memory.derivedGroundFacts = bigger.derivedGroundFacts;
         return diff;
     }
+
+
+    public List<GroundRule> groundRules(HerbrandModel herbrandModel, WeightedRule liftedRule) {
+        return groundRules(herbrandModel, liftedRule, liftedRule.toHornClause());
+    }
+
+    /**
+     * We cannot simply merge logically identical body literals in a ground rule's body, nor can we merge two permuted bodies.
+     * These merging transformations can only be done depending on the properties of the used activation/aggregation functions,
+     * and so it is taken care of later in {NeuralNetsBuilder} with {networks.structure.transforming.ParallelEdgeMerger}.
+     *
+     * @param liftedRule
+     * @param hc
+     * @return
+     */
+    public List<GroundRule> groundRules(HerbrandModel herbrandModel, WeightedRule liftedRule, HornClause hc) {
+        Pair<Term[], List<Term[]>> substitutions = herbrandModel.groundingSubstitutions(hc);
+        return groundRules(liftedRule, substitutions);
+    }
+
+    public List<GroundRule> groundRules(WeightedRule liftedRule, Pair<Term[], List<Term[]>> substitutions) {
+        List<GroundRule> groundRules = new ArrayList<>();
+        for (int i = 0; i < substitutions.s.size(); i++) {
+            GroundRule groundRule = liftedRule.groundRule(substitutions.s.get(i));
+            groundRules.add(groundRule);
+        }
+        return groundRules;
+    }
+
 }

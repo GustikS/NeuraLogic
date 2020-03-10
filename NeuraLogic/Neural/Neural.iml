@@ -7,8 +7,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="Logical" />
-    <orderEntry type="module" module-name="Logic" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -18,9 +16,9 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="gson-2.6.2-javadoc" level="project" />
     <orderEntry type="module" module-name="Algebra" />
     <orderEntry type="module" module-name="Settings" />
     <orderEntry type="module" module-name="Learning" />
+    <orderEntry type="module" module-name="Utilities" />
   </component>
 </module>

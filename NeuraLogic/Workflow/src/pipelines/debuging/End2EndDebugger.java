@@ -1,10 +1,10 @@
-package pipelines.debug;
+package pipelines.debuging;
 
 import building.End2endTrainigBuilder;
 import pipelines.Pipe;
 import pipelines.Pipeline;
 import pipelines.bulding.AbstractPipelineBuilder;
-import pipelines.debug.drawing.PipelineDrawer;
+import pipelines.debuging.drawing.PipelineDrawer;
 import settings.Settings;
 import settings.Sources;
 import utils.drawing.Drawer;
@@ -13,8 +13,8 @@ import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public abstract class Debugger<S> extends AbstractPipelineBuilder<Sources, Stream<S>> {
-    private static final Logger LOG = Logger.getLogger(Debugger.class.getName());
+public abstract class End2EndDebugger<S> extends AbstractPipelineBuilder<Sources, Stream<S>> {
+    private static final Logger LOG = Logger.getLogger(End2EndDebugger.class.getName());
 
     /**
      * i.e. what object are we debugging? (Template, GroundSample, NeuralSample,.. ?)
@@ -43,11 +43,11 @@ public abstract class Debugger<S> extends AbstractPipelineBuilder<Sources, Strea
 
     public boolean intermediateDebug;
 
-    public Debugger(Settings settings) {
+    public End2EndDebugger(Settings settings) {
         super(settings);
     }
 
-    public Debugger(Sources sources, Settings settings) {
+    public End2EndDebugger(Sources sources, Settings settings) {
         super(settings);
         this.sources = sources;
         this.end2endTrainigBuilder = new End2endTrainigBuilder(settings, sources);
@@ -79,7 +79,7 @@ public abstract class Debugger<S> extends AbstractPipelineBuilder<Sources, Strea
         pipeline.registerEnd(pipeline.terminal.connectAfter(new Pipe<Stream<S>, Stream<S>>("PeekPipe") {
             @Override
             public Stream<S> apply(Stream<S> stream) {
-                return stream.peek(Debugger.this::debug);
+                return stream.peek(End2EndDebugger.this::debug);
             }
         }));
     }

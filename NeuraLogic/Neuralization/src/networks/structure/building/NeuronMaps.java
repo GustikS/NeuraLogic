@@ -12,7 +12,7 @@ import networks.structure.metadata.inputMappings.LinkedMapping;
 
 import java.util.*;
 
-public class NeuronMaps {
+public class NeuronMaps implements Cachable {
 
     /**
      * Ground rules that are NOT yet in the neuronmaps
@@ -73,5 +73,18 @@ public class NeuronMaps {
         sb.append(", factNeurons: ").append(factNeurons.size());
         sb.append(", negationNeurons: ").append(negationNeurons.size());
         return sb.toString();
+    }
+
+    private NeuronMaps() {
+        this.groundRules = new LinkedHashMap<>();
+        this.groundFacts = new HashMap<>();
+    }
+
+
+    @Override
+    public Cachable copy() {
+        NeuronMaps copy = new NeuronMaps();
+        copy.addAllFrom(this);
+        return copy;
     }
 }

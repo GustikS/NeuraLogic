@@ -1,10 +1,10 @@
 package networks.computation.debugging;
 
-import constructs.template.debugging.TemplateDebugger;
 import constructs.template.Template;
+import constructs.template.debugging.TemplateDebugger;
 import learning.results.Progress;
 import networks.computation.training.NeuralModel;
-import networks.computation.training.strategies.debugging.TrainingDebugging;
+import networks.structure.components.weights.Weight;
 import pipelines.Pipe;
 import pipelines.Pipeline;
 import pipelines.pipes.generic.FirstFromPairPipe;
@@ -13,15 +13,19 @@ import settings.Settings;
 import settings.Sources;
 import utils.generic.Pair;
 
+import java.util.Map;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class TrainingDebugger extends TemplateDebugger implements TrainingDebugging {
+public class TrainingDebugger extends TemplateDebugger {
     private static final Logger LOG = Logger.getLogger(TrainingDebugger.class.getName());
+
+    private Consumer<Map<Integer, Weight>> templateRedrawCallback;
 
     public TrainingDebugger(Sources sources, Settings settings) {
         super(sources, settings);
-        if (intermediateDebug){
+        if (intermediateDebug) {
             settings.debugPipeline = true;
             settings.debugTemplate = true;
             settings.debugSampleTraining = true;
@@ -29,9 +33,13 @@ public class TrainingDebugger extends TemplateDebugger implements TrainingDebugg
         }
     }
 
-    public TrainingDebugger(Settings settings) {
+    public TrainingDebugger(Settings settings, Template template) {
         super(settings);
-        if (intermediateDebug){
+        this.templateRedrawCallback = (weightMap -> {
+            template.updateWeightsFrom(weightMap);
+            drawer.draw(template);
+        });
+        if (intermediateDebug) {
             settings.debugPipeline = true;
             settings.debugTemplate = true;
             settings.debugSampleTraining = true;
@@ -53,5 +61,9 @@ public class TrainingDebugger extends TemplateDebugger implements TrainingDebugg
         Pipe<Pair<Template, NeuralModel>, Template> pairTemplatePipe = pipeline.register(pairTemplatePipe1.connectAfter(new FirstFromPairPipe<>("FirstFromPairPipe2")));
         pipeline.registerEnd(pairTemplatePipe.connectAfter(new StreamifyPipe<>()));
         return pipeline;
+    }
+
+    public void debugWeights(Map<Integer, Weight> weightMap) {
+        templateRedrawCallback.accept(weightMap);
     }
 }

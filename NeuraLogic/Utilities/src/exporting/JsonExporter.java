@@ -1,6 +1,6 @@
 package exporting;
 
-import settings.Settings;
+//import settings.Settings;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -13,14 +13,8 @@ import java.util.logging.Logger;
 public class JsonExporter extends Exporter {
     private static final Logger LOG = Logger.getLogger(JsonExporter.class.getName());
 
-
-
-    public JsonExporter(Settings settings) {
-        super(settings, "");
-    }
-
-    public JsonExporter(Settings settings, String id) {
-        super(settings, id);
+    public JsonExporter(String ExportDir, String id) {
+        super(ExportDir, id, "JSON");
     }
 
     public void export(Exportable t) {

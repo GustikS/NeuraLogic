@@ -3,14 +3,9 @@ package settings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
-import exporting.Exportable;
-import exporting.Exporter;
 import org.apache.commons.cli.CommandLine;
-import utils.generic.Pair;
 
-import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
@@ -19,10 +14,13 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+//import exporting.Exportable;
+//import exporting.Exporter;
+
 /**
  * Created by gusta on 8.3.17.
  */
-public class Settings implements Exportable {
+public class Settings {
 
     //todo - uncompressed lambda template for experiments
     //todo - how to handle non-entailed examples
@@ -41,6 +39,18 @@ public class Settings implements Exportable {
 
     public enum OS {
         LINUX, MACOSX, WINDOWS
+    }
+
+    public static OS getOs() {
+        String osName = System.getProperty("os.name").replaceAll("\\s", "");
+        if (osName.contains("Windows")) {
+            return OS.WINDOWS;
+        } else if (osName.contains("MacOSX")) {
+            return OS.MACOSX;
+        } else if (osName.contains("Linux")) {
+            return OS.LINUX;
+        }
+        return OS.LINUX;
     }
 
     /**
@@ -92,15 +102,15 @@ public class Settings implements Exportable {
 
     public String resultFile = outDir + "/results";
 
-    public String settingsExportFile = outDir + "/settings.json";
+    public String settingsExportFile = outDir + "/settings";
 
-    public String sourcesExportFile = outDir + "/sources.json";
+    public String sourcesExportFile = outDir + "/sources";
 
     public String console = outDir + "/consoleOutput";
 
     public String exportDir = outDir + "/export";
 
-    public transient Exporter exporter;
+//    public transient Exporter exporter;
 
     /**
      * Outputs of these blocks will be exported into respective files
@@ -905,9 +915,8 @@ public class Settings implements Exportable {
      *
      * @return
      */
-    public Pair<Boolean, String> validate() {
+    public Boolean validate(StringBuilder message) {
         boolean valid = true;
-        StringBuilder message = new StringBuilder();
 
         if (groundingMode == GroundingMode.SEQUENTIAL) {
             if (parallelGrounding)
@@ -925,7 +934,7 @@ public class Settings implements Exportable {
         }
         //todo more validation and inference of settings
 
-        return new Pair(valid, message);
+        return valid;
     }
 
     /**
@@ -956,8 +965,8 @@ public class Settings implements Exportable {
 
         //in case the outDir changed...
         resultFile = outDir + "/results";
-        settingsExportFile = outDir + "/settings.json";
-        sourcesExportFile = outDir + "/sources.json";
+        settingsExportFile = outDir + "/settings";
+        sourcesExportFile = outDir + "/sources";
         console = outDir + "/consoleOutput";
         exportDir = outDir + "/export";
 
@@ -976,13 +985,7 @@ public class Settings implements Exportable {
      * Steps to be performed once the settings are totally complete, i.e. after all the inference and validation
      */
     private void finish() {
-        exporter = Exporter.getExporter(this, "");
 
-        if (cleanUpFirst) {
-            exporter.deleteDir(new File(exportDir));
-        }
-
-        exporter.exportSettings(exportToJson(), settingsExportFile);
     }
 
     public void importFromCSV(String inPath) {
@@ -990,11 +993,7 @@ public class Settings implements Exportable {
     }
 
     public Settings loadFromJson(String inPath) {
-        InstanceCreator<Settings> creator = new InstanceCreator<Settings>() {
-            public Settings createInstance(Type type) {
-                return Settings.this;
-            }
-        };
+        InstanceCreator<Settings> creator = type -> Settings.this;
         Gson gson = new GsonBuilder().registerTypeAdapter(Settings.class, creator).create();
         try {
             String json = new String(Files.readAllBytes(Paths.get(inPath)));
@@ -1006,20 +1005,25 @@ public class Settings implements Exportable {
         }
     }
 
+    public String export() {
+        if (blockExporting == BlockExporting.JSON)
+            return exportToJson();
+        else {
+            LOG.warning("Only exporting of Settings to JSON is supported");
+            return exportToJson();
+        }
+    }
+
+    public String exportToJson() {
+        Gson gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .serializeSpecialFloatingPointValues()
+                .create();
+        String json = gson.toJson(this);
+        return json;
+    }
+
     public void exportToCSV(String outPath) {
 
     }
-
-    public static OS getOs() {
-        String osName = System.getProperty("os.name").replaceAll("\\s", "");
-        if (osName.contains("Windows")) {
-            return Settings.OS.WINDOWS;
-        } else if (osName.contains("MacOSX")) {
-            return Settings.OS.MACOSX;
-        } else if (osName.contains("Linux")) {
-            return Settings.OS.LINUX;
-        }
-        return Settings.OS.LINUX;
-    }
-
 }

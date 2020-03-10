@@ -106,7 +106,7 @@ public class GroundingBuilder extends AbstractPipelineBuilder<Pair<Template, Str
         }
 
         if (settings.explicitSupervisedGroundTemplatePruning) {
-            Pipe<Stream<GroundingSample>, Stream<GroundingSample>> groundReducingPipe = pipeline.registerEnd(new SupervisedGroundTemplatePruning());
+            Pipe<Stream<GroundingSample>, Stream<GroundingSample>> groundReducingPipe = pipeline.registerEnd(new SupervisedGroundTemplatePruningPipe());
 
             nextPipe.connectAfter(groundReducingPipe);
             nextPipe = groundReducingPipe;

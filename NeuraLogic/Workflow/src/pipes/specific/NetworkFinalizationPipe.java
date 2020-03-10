@@ -1,11 +1,11 @@
 package pipes.specific;
 
+import networks.structure.building.NeuralNetBuilder;
 import networks.structure.building.NeuralProcessingSample;
-import networks.structure.building.builders.NeuralNetBuilder;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neurons;
-import networks.structure.components.types.DetailedNetwork;
 import networks.structure.components.neurons.states.State;
+import networks.structure.components.types.DetailedNetwork;
 import networks.structure.transforming.NetworkReducing;
 import networks.structure.transforming.ParentsExtractor;
 import pipelines.Pipe;

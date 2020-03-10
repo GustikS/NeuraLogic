@@ -1,7 +1,5 @@
 package settings;
 
-import utils.generic.Pair;
-
 import java.io.Reader;
 import java.util.logging.Logger;
 
@@ -19,10 +17,9 @@ public class Source {
 
     public boolean QueriesLinkedById;
 
-    public Pair<Boolean, String> validate(Settings settings) {
-        Pair<Boolean, String> validation = new Pair<>(true,"");
+    public Boolean validate(Settings settings, StringBuilder problems) {
         //TODO
-        return validation;
+        return true;
     }
 
     public void infer(Settings settings) {

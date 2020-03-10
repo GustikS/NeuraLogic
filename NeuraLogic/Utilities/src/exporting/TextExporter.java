@@ -1,7 +1,5 @@
 package exporting;
 
-import settings.Settings;
-
 import java.util.logging.Logger;
 
 /**
@@ -11,8 +9,8 @@ import java.util.logging.Logger;
 public class TextExporter extends Exporter {
     private static final Logger LOG = Logger.getLogger(TextExporter.class.getName());
 
-    public TextExporter(Settings settings, String id) {
-        super(settings, id);
+    public TextExporter(String exportDir, String id) {
+        super(exportDir, id, "TEXT");
     }
 
     @Override

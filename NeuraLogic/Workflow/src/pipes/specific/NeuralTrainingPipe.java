@@ -1,8 +1,6 @@
 package pipes.specific;
 
-import exporting.Exporter;
 import learning.results.Progress;
-import networks.computation.debugging.TrainingDebugger;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import networks.computation.training.strategies.TrainingStrategy;
@@ -42,7 +40,6 @@ public class NeuralTrainingPipe extends Pipe<Pair<NeuralModel, Stream<NeuralSamp
 
         trainingStrategy = TrainingStrategy.getFrom(settings, model, sampleStream);
         trainingStrategy.setupDebugger(new NeuralDebugger(settings));
-        trainingStrategy.setupDebugger(new TrainingDebugger(settings));
         Pair<NeuralModel, Progress> training = trainingStrategy.train();
         return training;
     }
@@ -50,7 +47,7 @@ public class NeuralTrainingPipe extends Pipe<Pair<NeuralModel, Stream<NeuralSamp
     @Override
     protected <T> void export(T outputReady) {
         if (exporter == null && parent != null) {
-            exporter = Exporter.getFrom(this.ID, parent.settings);
+            exporter = createExporter(this.ID, parent.settings);
         }
         if (exporter != null) {
             trainingStrategy.export(exporter);

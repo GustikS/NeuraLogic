@@ -2,11 +2,8 @@ package utils;
 
 import utils.generic.Pair;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -69,21 +66,6 @@ public class Utilities {
         LOG.finer(totalGarbageCollections + " garbage colletions with total time: " + garbageCollectionTime / 1000 + "s, made " + gcPercent * 100 + "% of time spent in GC since the last time.");
         tic = now;
         lastGarbageCollectionTime = garbageCollectionTime;
-    }
-
-    public static String identifyFileTypeUsingFilesProbeContentType(final String fileName) {
-        String fileType = null;
-        final File file = new File(fileName);
-        try {
-            fileType = Files.probeContentType(file.toPath());
-        } catch (IOException ioException) {
-            LOG.severe("ERROR: Unable to determine file type for " + fileName + " due to IOException " + ioException);
-        }
-        if (fileType == null) {
-            LOG.severe("ERROR: Unable to determine file type (for unknown reason, probably opened by other process?): " + fileName + " defaulting to text/plain");
-            fileType = "text/plain";
-        }
-        return fileType;
     }
 
     public static <A, B> List<Pair<A, B>> zipLists(ArrayList<A> as, ArrayList<B> bs) {

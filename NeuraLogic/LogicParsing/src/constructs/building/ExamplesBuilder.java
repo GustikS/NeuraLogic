@@ -8,7 +8,6 @@ import parsing.antlr.NeuralogicParser;
 import parsing.examples.PlainExamplesParseTree;
 import parsing.examples.PlainExamplesParseTreeExtractor;
 import parsing.grammarParsing.PlainGrammarVisitor;
-import pipelines.Pipeline;
 import settings.Settings;
 import utils.generic.Pair;
 
@@ -86,22 +85,16 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
             LOG.info("Detecting exactly 1 (big) example in the examples source (file), switching to knowledge-base mode.");
             if (settings.groundingMode != Settings.GroundingMode.GLOBAL) {
                 settings.groundingMode = Settings.GroundingMode.GLOBAL;
-                LOG.warning("Settings were set to a different grounding mode than detected! Will perform online rebuild of the grounding pipeline!");
-                Pipeline groundingPipeline = encompassingPipe.getRoot().findPipeline("GroundingPipeline");
-                if (groundingPipeline == null){
-                    LOG.severe("Not able to rebuild grounding pipeline to perform GLOBAL grounding!!");
-                } else {
-                    groundingPipeline.rebuild(settings);
-                }
+                LOG.warning("Settings were set to a different grounding mode than detected! Will perform online rebuild of the grounding pipeline to the GLOBAL mode!");
+                rebuildCallback.apply("GroundingPipeline");
             }
         } else {
             LOG.info("Detecting multiple individual examples in the examples source (file), assuming independent graph mode");
             settings.queriesAlignedWithExamples = true;
             if (settings.groundingMode != Settings.GroundingMode.STANDARD) {
                 settings.groundingMode = Settings.GroundingMode.STANDARD;
-                LOG.warning("Settings were set to a different grounding mode than detected! Will perform online rebuild of the grounding pipeline!");
-                Pipeline groundingPipeline = encompassingPipe.getRoot().findPipeline("GroundingPipeline");
-                groundingPipeline.rebuild(settings);
+                LOG.warning("Settings were set to a different grounding mode than detected! Will perform online rebuild of the grounding pipeline to the STANDARD mode!");
+                rebuildCallback.apply("GroundingPipeline");
             }
         }
         if (examplesFileContext.label() != null && !examplesFileContext.label().isEmpty()) {

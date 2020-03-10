@@ -12,5 +12,6 @@
     <orderEntry type="module" module-name="Settings" />
     <orderEntry type="module" module-name="Logging" />
     <orderEntry type="library" name="commons-cli-1.4" level="project" />
+    <orderEntry type="module" module-name="Utilities" />
   </component>
 </module>

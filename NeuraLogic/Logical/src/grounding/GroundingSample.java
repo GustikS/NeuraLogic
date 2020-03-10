@@ -3,6 +3,7 @@ package grounding;
 import constructs.example.LiftedExample;
 import constructs.example.LogicSample;
 import constructs.template.Template;
+import networks.structure.building.Cachable;
 
 public class GroundingSample extends LogicSample {
 
@@ -33,7 +34,14 @@ public class GroundingSample extends LogicSample {
          * Duplicate reference (to GroundingSample.Query.Evidence) but with synchronized access
          */
         private LiftedExample example;
+        /**
+         * Memory for Herbrand models
+         */
         private GroundTemplate groundTemplate;
+        /**
+         * Memory for created neurons
+         */
+        private  Cachable neuronMaps;
 
         public synchronized LiftedExample getExample() {
             return example;
@@ -53,6 +61,14 @@ public class GroundingSample extends LogicSample {
 
         public synchronized void setGroundTemplate(GroundTemplate groundTemplate) {
             this.groundTemplate = groundTemplate;
+        }
+
+        public synchronized Cachable getNeuronMaps() {
+            return neuronMaps;
+        }
+
+        public synchronized void setNeuronMaps(Cachable neuronMaps) {
+            this.neuronMaps = neuronMaps;
         }
     }
 

@@ -1,14 +1,13 @@
 package constructs.template.types;
 
 import constructs.example.QueryAtom;
-import constructs.template.components.BodyAtom;
 import constructs.template.Template;
+import constructs.template.components.BodyAtom;
 import constructs.template.components.WeightedRule;
 import ida.ilp.logic.Clause;
 import ida.ilp.logic.Literal;
 import ida.ilp.logic.Predicate;
 import ida.ilp.logic.subsumption.Matching;
-import ida.utils.Sugar;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -33,7 +32,7 @@ public class GraphTemplate extends Template {
      */
     Set<Literal> openAtoms;
 
-    public GraphTemplate(){
+    public GraphTemplate() {
         atom2rules = new HashMap<>();
     }
 
@@ -45,8 +44,8 @@ public class GraphTemplate extends Template {
         closedAtoms = new HashSet<>();
         openAtoms = new HashSet<>();
 
-        Matching matching = new Matching(Sugar.list(new Clause(template.facts.stream().map(f -> f.literal).collect(Collectors.toList()))));
-
+        Clause clause = new Clause(template.facts.stream().map(f -> f.literal).collect(Collectors.toList()));
+        Matching matching = new Matching(Collections.singletonList(clause));
 
         for (WeightedRule rule : template.rules) {
             List<WeightedRule> list = predicate2heads.computeIfAbsent(rule.getHead().literal.predicate(), k -> new ArrayList<>());

@@ -5,7 +5,7 @@ import grounding.debugging.GroundingDebugger;
 import networks.computation.training.NeuralSample;
 import networks.computation.training.strategies.debugging.NeuralDebugging;
 import pipelines.Pipeline;
-import pipelines.debug.Debugger;
+import pipelines.debuging.End2EndDebugger;
 import settings.Settings;
 import settings.Sources;
 import networks.computation.debugging.drawing.NeuralNetDrawer;
@@ -13,7 +13,7 @@ import networks.computation.debugging.drawing.NeuralNetDrawer;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class NeuralDebugger extends Debugger<NeuralSample> implements NeuralDebugging {
+public class NeuralDebugger extends End2EndDebugger<NeuralSample> implements NeuralDebugging {
     private static final Logger LOG = Logger.getLogger(NeuralDebugger.class.getName());
 
     public GroundingDebugger groundingDebugger;

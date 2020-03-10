@@ -3,7 +3,6 @@ package networks.structure.transforming;
 import evaluation.functions.Activation;
 import evaluation.values.Value;
 import evaluation.values.distributions.ValueInitializer;
-import ida.ilp.logic.Literal;
 import networks.computation.iteration.actions.Evaluation;
 import networks.computation.iteration.actions.IndependentNeuronProcessing;
 import networks.computation.iteration.visitors.states.neurons.Invalidator;
@@ -12,11 +11,11 @@ import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.Neurons;
 import networks.structure.components.neurons.QueryNeuron;
 import networks.structure.components.neurons.WeightedNeuron;
+import networks.structure.components.neurons.states.State;
+import networks.structure.components.neurons.states.States;
 import networks.structure.components.neurons.types.AtomNeuron;
 import networks.structure.components.types.DetailedNetwork;
 import networks.structure.components.weights.Weight;
-import networks.structure.components.neurons.states.State;
-import networks.structure.components.neurons.states.States;
 import settings.Settings;
 import utils.Timing;
 import utils.generic.Pair;
@@ -72,7 +71,7 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
         if (outputs.size() > 1) {
             States.ComputationStateStandard dummyState = new States.ComputationStateStandard(Activation.Singletons.identity);
             dummyState.outputValue = Value.ZERO;
-            AtomNeuron dummy = new AtomNeuron(new Literal("dummy", 0), -1, dummyState);
+            AtomNeuron dummy = new AtomNeuron("dummy", -1, dummyState);
             queryNeuron = new QueryNeuron("", -1, 1.0, dummy, inet);
         } else {
             queryNeuron = new QueryNeuron("", -1, 1.0, outputs.get(0).neuron, inet);

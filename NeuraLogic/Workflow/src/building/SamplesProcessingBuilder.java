@@ -35,7 +35,7 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
 
     public Pipeline<Source, Stream<LogicSample>> buildPipeline(Source source) {
         Pipeline<Source, Stream<LogicSample>> samplesProcessingPipeline = new Pipeline<>("SamplesProcessingPipeline", this);
-        Pipe<Source, Stream<LogicSample>> sourcesSamplesPipe = samplesProcessingPipeline.registerStart(extractSamplesPipe(source));
+        Pipe<Source, Stream<LogicSample>> sourcesSamplesPipe = samplesProcessingPipeline.registerStart(extractSamplesPipe(source, samplesProcessingPipeline));
         Pipe<Stream<LogicSample>, Stream<LogicSample>> samplesPostprocessPipe = samplesProcessingPipeline.registerEnd(postprocessSamplesPipe());
         sourcesSamplesPipe.connectAfter(samplesPostprocessPipe);
         return samplesProcessingPipeline;
@@ -52,7 +52,7 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
     }
 
 
-    public Pipe<Source, Stream<LogicSample>> extractSamplesPipe(Source source) {
+    public Pipe<Source, Stream<LogicSample>> extractSamplesPipe(Source source, Pipeline<Source, Stream<LogicSample>> samplesProcessingPipeline) {
 
         if (source.ExamplesReader == null && source.QueriesReader == null) {
             LOG.severe("No sources found to assemble Samples at construction");
@@ -104,7 +104,7 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
             return null;
         }
 
-        examplesBuilder.setEncompassingPipe(sampleExtractionPipe);
+        examplesBuilder.setRebuildCallback(samplesProcessingPipeline::rebuildPipeline);
         return sampleExtractionPipe;
     }
 

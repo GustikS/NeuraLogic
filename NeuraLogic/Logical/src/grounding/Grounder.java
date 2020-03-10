@@ -73,7 +73,6 @@ public abstract class Grounder implements Exportable {
      */
     public abstract GroundTemplate groundRulesAndFacts(LiftedExample example, Template template, GroundTemplate memory);
 
-
     /**
      * Extracting set of rules and facts from the merge of an example and template
      *
@@ -172,4 +171,5 @@ public abstract class Grounder implements Exportable {
         sampleList.forEach(sample -> sample.groundingWrap.setGroundTemplate(groundTemplate));
         return sampleList;
     }
+
 }

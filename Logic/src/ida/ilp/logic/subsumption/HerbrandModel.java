@@ -1,11 +1,6 @@
-package grounding.bottomUp;
+package ida.ilp.logic.subsumption;
 
-import constructs.template.components.GroundRule;
-import constructs.template.components.WeightedRule;
 import ida.ilp.logic.*;
-import ida.ilp.logic.subsumption.CustomPredicate;
-import ida.ilp.logic.subsumption.Matching;
-import ida.ilp.logic.subsumption.SolutionConsumer;
 import ida.utils.Sugar;
 import ida.utils.VectorUtils;
 import ida.utils.collections.MultiMap;
@@ -21,22 +16,26 @@ public class HerbrandModel {
     private static final Logger LOG = Logger.getLogger(HerbrandModel.class.getName());
 
     /**
-     * map predicates to ground literal Sets
+     * Map predicates to ground literal Sets
      */
-    MultiMap<Predicate, Literal> herbrand;
+    public HerbrandMap herbrand;
+
+    /**
+     * Using the subsumption engine wrapper
+     */
     Matching matching;
 
     public HerbrandModel() {
-        herbrand = new MultiMap<>();
+        herbrand = new HerbrandMap();
     }
 
-    public HerbrandModel(MultiMap<Predicate, Literal> init) {
+    public HerbrandModel(HerbrandMap init) {
         herbrand = init;
     }
 
 
     public HerbrandModel(Collection<Literal> facts) {
-        herbrand = new MultiMap<>();
+        herbrand = new HerbrandMap();
         populateHerbrand(facts);
     }
 
@@ -45,11 +44,16 @@ public class HerbrandModel {
      * @param clauses - may contain facts and rules
      * @return
      */
-    public MultiMap<Predicate, Literal> inferModel(Collection<? extends Clause> clauses) {
+    public HerbrandMap inferModel(Collection<? extends Clause> clauses) {
         Pair<List<HornClause>, List<Literal>> rulesAndFacts = rulesAndFacts(clauses);
         return inferModel(rulesAndFacts.r, rulesAndFacts.s);
     }
 
+
+    public Collection<Literal> inferLiterals(Collection<HornClause> irules, Collection<Literal> facts) {
+        HerbrandMap herbrandMap = inferModel(irules, facts);
+        return Sugar.flatten(herbrandMap.getLiterals());
+    }
 
     /**
      * todo add version with constraints at input
@@ -58,7 +62,7 @@ public class HerbrandModel {
      * @param facts
      * @return
      */
-    public MultiMap<Predicate, Literal> inferModel(Collection<HornClause> irules, Collection<Literal> facts) {
+    public HerbrandMap inferModel(Collection<HornClause> irules, Collection<Literal> facts) {
         populateHerbrand(facts);
 
         LinkedHashSet<HornClause> rules = new LinkedHashSet<>(irules); //for removing
@@ -126,39 +130,13 @@ public class HerbrandModel {
         return new Pair<>(variables, listPair.s);
     }
 
-    public List<GroundRule> groundRules(WeightedRule liftedRule) {
-        return groundRules(liftedRule, liftedRule.toHornClause());
-    }
-
-    /**
-     * We cannot simply merge logically identical body literals in a ground rule's body, nor can we merge two permuted bodies.
-     * These merging transformations can only be done depending on the properties of the used activation/aggregation functions,
-     * and so it is taken care of later in {NeuralNetsBuilder} with {networks.structure.transforming.ParallelEdgeMerger}.
-     *
-     * @param liftedRule
-     * @param hc
-     * @return
-     */
-    public List<GroundRule> groundRules(WeightedRule liftedRule, HornClause hc) {
-        Pair<Term[], List<Term[]>> substitutions = groundingSubstitutions(hc);
-        return groundRules(liftedRule, substitutions);
-    }
-
-    public List<GroundRule> groundRules(WeightedRule liftedRule, Pair<Term[], List<Term[]>> substitutions) {
-        List<GroundRule> groundRules = new ArrayList<>();
-        for (int i = 0; i < substitutions.s.size(); i++) {
-            GroundRule groundRule = liftedRule.groundRule(substitutions.s.get(i));
-            groundRules.add(groundRule);
-        }
-        return groundRules;
-    }
 
     /**
      * add all existing unit ground literals (facts) to herbrand set
      *
      * @param facts
      */
-    protected void populateHerbrand(Collection<Literal> facts) {
+    public void populateHerbrand(Collection<Literal> facts) {
         for (Literal groundLiteral : facts) {
             herbrand.put(new Predicate(groundLiteral.predicateName(), groundLiteral.arity()), groundLiteral);
         }
@@ -252,6 +230,12 @@ public class HerbrandModel {
                 }
             }
             return !literals.contains(new Literal(predicate, arguments));
+        }
+    }
+
+    public static class HerbrandMap extends MultiMap<Predicate, Literal> {
+        public Collection<Set<Literal>> getLiterals() {
+            return super.values();
         }
     }
 }

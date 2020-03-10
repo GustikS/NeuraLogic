@@ -1,11 +1,11 @@
 package networks.structure.components.neurons.types;
 
-import constructs.example.ValuedFact;
 import networks.computation.iteration.NeuronVisiting;
 import networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import networks.structure.components.neurons.BaseNeuron;
 import networks.structure.components.neurons.WeightedNeuron;
 import networks.structure.components.neurons.states.States;
+import networks.structure.components.weights.Weight;
 
 import java.util.ArrayList;
 
@@ -14,8 +14,8 @@ import java.util.ArrayList;
  */
 public class FactNeuron extends WeightedNeuron<BaseNeuron, States.SimpleValue> implements AtomFact<BaseNeuron, States.SimpleValue> {
 
-    public FactNeuron(ValuedFact fact, int index, States.SimpleValue state) {
-        super(fact.toString(), index, state, fact.getOffset());
+    public FactNeuron(String fact, Weight offset, int index, States.SimpleValue state) {
+        super(fact, index, state, offset);
         inputs = new ArrayList<>(0);
         weights = new ArrayList<>(0);
     }

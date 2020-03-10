@@ -13,8 +13,10 @@
     <orderEntry type="module" module-name="Settings" />
     <orderEntry type="module" module-name="Learning" />
     <orderEntry type="module" module-name="Algebra" />
-    <orderEntry type="module" module-name="Logging" />
     <orderEntry type="module" module-name="Logic" />
     <orderEntry type="module" module-name="LogicParsing" />
+    <orderEntry type="module" module-name="Neuralization" />
+    <orderEntry type="module" module-name="Utilities" />
+    <orderEntry type="module" module-name="Drawing" />
   </component>
 </module>

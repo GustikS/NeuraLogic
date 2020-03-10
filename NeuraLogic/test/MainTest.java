@@ -303,7 +303,7 @@ public class MainTest {
         String[] args = ("-q ./resources/datasets/relational/kbs/kinships/queries " +
                 "-e ./resources/datasets/relational/kbs/kinships/examples " +
                 "-t ./resources/datasets/relational/kbs/kinships/template_embeddings"+
-                " -out ./out/kinships").split(" ");
+                " -out ./out/kinships_test").split(" ");
 
         Settings settings = new Settings();
 

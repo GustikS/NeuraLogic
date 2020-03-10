@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/NeuraLogic/Algebra/Algebra.iml" filepath="$PROJECT_DIR$/NeuraLogic/Algebra/Algebra.iml" />
       <module fileurl="file://$PROJECT_DIR$/CLI/CLI.iml" filepath="$PROJECT_DIR$/CLI/CLI.iml" />
+      <module fileurl="file://$PROJECT_DIR$/NeuraLogic/Drawing/Drawing.iml" filepath="$PROJECT_DIR$/NeuraLogic/Drawing/Drawing.iml" />
       <module fileurl="file://$PROJECT_DIR$/Frontend/Frontend.iml" filepath="$PROJECT_DIR$/Frontend/Frontend.iml" />
       <module fileurl="file://$PROJECT_DIR$/NeuraLogic/Learning/Learning.iml" filepath="$PROJECT_DIR$/NeuraLogic/Learning/Learning.iml" />
       <module fileurl="file://$PROJECT_DIR$/NeuraLogic/Logging/Logging.iml" filepath="$PROJECT_DIR$/NeuraLogic/Logging/Logging.iml" />
@@ -15,6 +16,7 @@
       <module fileurl="file://$PROJECT_DIR$/NeuraLogic/Neuralization/Neuralization.iml" filepath="$PROJECT_DIR$/NeuraLogic/Neuralization/Neuralization.iml" />
       <module fileurl="file://$PROJECT_DIR$/NeuraLogic/Pipelines/Pipelines.iml" filepath="$PROJECT_DIR$/NeuraLogic/Pipelines/Pipelines.iml" />
       <module fileurl="file://$PROJECT_DIR$/NeuraLogic/Settings/Settings.iml" filepath="$PROJECT_DIR$/NeuraLogic/Settings/Settings.iml" />
+      <module fileurl="file://$PROJECT_DIR$/NeuraLogic/Utilities/Utilities.iml" filepath="$PROJECT_DIR$/NeuraLogic/Utilities/Utilities.iml" />
       <module fileurl="file://$PROJECT_DIR$/Utils/Utils.iml" filepath="$PROJECT_DIR$/Utils/Utils.iml" />
       <module fileurl="file://$PROJECT_DIR$/NeuraLogic/Workflow/Workflow.iml" filepath="$PROJECT_DIR$/NeuraLogic/Workflow/Workflow.iml" />
     </modules>

@@ -23,5 +23,6 @@
     <orderEntry type="library" scope="TEST" name="antlr4" level="project" />
     <orderEntry type="module" module-name="Logical" scope="TEST" />
     <orderEntry type="module" module-name="Learning" scope="TEST" />
+    <orderEntry type="module" module-name="Utilities" scope="TEST" />
   </component>
 </module>

@@ -1,5 +1,6 @@
 package settings;
 
+import exporting.JsonExporter;
 import org.junit.Test;
 import utils.Runner;
 
@@ -19,7 +20,7 @@ public class SourcesTest {
     @Test
     public void exportToJsonFile() {
         Settings settings = new Settings();
-        settings.exporter.exportSettings(settings.exportToJson(), settings.settingsExportFile);
+        new JsonExporter(settings.exportDir,"").exportObject(settings.exportToJson(), settings.settingsExportFile);
     }
 
     @Test

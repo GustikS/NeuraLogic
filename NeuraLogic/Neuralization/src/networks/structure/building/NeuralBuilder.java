@@ -1,8 +1,8 @@
-package networks.structure.building.builders;
+package networks.structure.building;
 
 import constructs.building.factories.WeightFactory;
+import networks.structure.building.builders.StatesBuilder;
 import networks.structure.building.factories.NeuralNetFactory;
-import networks.structure.building.factories.NeuronFactory;
 import settings.Settings;
 
 import java.util.logging.Logger;

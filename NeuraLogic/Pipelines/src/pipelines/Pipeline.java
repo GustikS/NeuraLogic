@@ -73,7 +73,7 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
     }
 
     public Pipeline(String id, Settings settings) {
-        this(id, settings, Exporter.getFrom(id, settings));
+        this(id, settings, createExporter(id, settings));
     }
 
     public Pipeline(String id, Settings settings, Exporter exporter) {
@@ -240,6 +240,17 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
         pipeline.start.setInput(this.start.getInput());
         pipeline.terminal.setOutput(this.terminal.getOutput());
         this.copyFrom(pipeline);
+    }
+
+    public boolean rebuildPipeline(String name) {
+        Pipeline groundingPipeline = getRoot().findPipeline(name);
+        if (groundingPipeline == null) {
+            LOG.severe("Not able to rebuild " + name + " pipeline !!");
+            return false;
+        } else {
+            groundingPipeline.rebuild(settings);
+            return true;
+        }
     }
 
     private void copyFrom(Pipeline<S, T> pipeline) {

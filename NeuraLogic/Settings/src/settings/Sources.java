@@ -1,9 +1,9 @@
 package settings;
 
-import exporting.Exportable;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.commons.cli.CommandLine;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-import utils.generic.Pair;
 
 import java.io.Reader;
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.logging.Logger;
  * <p>
  * Created by gusta on 26.3.17.
  */
-public class Sources implements Exportable {
+public class Sources {
 
     private static final Logger LOG = Logger.getLogger(Sources.class.getName());
 
@@ -56,14 +56,15 @@ public class Sources implements Exportable {
         }
 
         settings.infer();
-        Pair<Boolean, String> validation = settings.validate();
-        if (!validation.r) {
-            LOG.severe("Invalid pipelines setting.\n" + validation.s);
+        StringBuilder problems = new StringBuilder();
+        Boolean validation = settings.validate(problems);
+        if (!validation) {
+            LOG.severe("Invalid pipelines setting.\n" + problems);
             System.exit(2);
         }
-        validation = sources.validate(settings);
-        if (!validation.r) {
-            LOG.severe("Invalid source files configuration.\n" + validation.s);
+        validation = sources.validate(settings, problems);
+        if (!validation) {
+            LOG.severe("Invalid source files configuration.\n" + problems);
             System.exit(2);
         }
         return sources;
@@ -131,7 +132,7 @@ public class Sources implements Exportable {
      * Steps to be performed once the settings are totally complete, i.e. after all the inference and validation
      */
     private void finish(Settings settings) {
-        settings.exporter.exportSources(exportToJson(), settings.sourcesExportFile);
+        //todo
     }
 
     /**
@@ -140,40 +141,43 @@ public class Sources implements Exportable {
      * @param settings
      * @return
      */
-    public Pair<Boolean, String> validate(Settings settings) {
+    public Boolean validate(Settings settings, StringBuilder problems) {
         boolean valid = true;
-        String msg = "";
 
         infer(settings);
+        String msg;
 
         if (!settings.allowStructureLearning && !templateProvided){
-            LOG.severe(msg += "Structure learning is forbidden (not implemented) but no template provided\n");
+            LOG.severe(msg = "Structure learning is forbidden (not implemented) but no template provided\n");
+            problems.append(msg);
             valid = false;
         }
 
         if (!train.QueriesProvided && !test.QueriesProvided && folds == null) {
-            LOG.severe(msg += "Invalid learning setup - no training queries nor testing queries provided\n");
+            LOG.severe(msg = "Invalid learning setup - no training queries nor testing queries provided\n");
+            problems.append(msg);
             valid = false;
         }
         if (templateReader == null && train.QueriesReader == null && test.QueriesReader == null) {
-            LOG.severe(msg += "Invalid learning setup - no template nor queries provided\n");
+            LOG.severe(msg = "Invalid learning setup - no template nor queries provided\n");
+            problems.append(msg);
             valid = false;
         }
         if (crossvalidation && (testOnly || trainTest || trainOnly)) {
-            LOG.severe(msg += "Invalid learning setup - cannot decide between crossvalidation and other modes.\n");
+            LOG.severe(msg = "Invalid learning setup - cannot decide between crossvalidation and other modes.\n");
+            problems.append(msg);
             valid = false;
         }
         if (foldFiles) {
-            Pair<Boolean, String> val = checkJointConsistency(folds);
+            boolean val = checkJointConsistency(folds, problems);
+            valid &= val;
         }
         //TODO add some general validation
-        Pair<Boolean, String> valtrain = train.validate(settings);
-        valid &= valtrain.r;
-        msg += valtrain.s;
-        Pair<Boolean, String> valtest = test.validate(settings);
-        msg += valtest.s;
-        valid &= valtest.r;
-        return new Pair<>(valid, msg);
+        Boolean valtrain = train.validate(settings, problems);
+        valid &= valtrain;
+        Boolean valtest = test.validate(settings, problems);
+        valid &= valtest;
+        return valid;
     }
 
     /**
@@ -183,9 +187,9 @@ public class Sources implements Exportable {
      * @param folds
      * @return
      */
-    private Pair<Boolean, String> checkJointConsistency(List<Sources> folds) {
+    private boolean checkJointConsistency(List<Sources> folds, StringBuilder problems) {
         //1) all folds have different templates is OK, but some have and some not is not ok, none have is ok, only superfold has template is ok
-        return null;
+        return true;
     }
 
 
@@ -202,5 +206,23 @@ public class Sources implements Exportable {
             sources.crossvalidation = true;
         }
         return sources;
+    }
+
+    public String export() {
+        if (settings.blockExporting == Settings.BlockExporting.JSON)
+            return exportToJson();
+        else {
+            LOG.warning("Only exporting of Sources to JSON is supported");
+            return exportToJson();
+        }
+    }
+
+    public String exportToJson() {
+        Gson gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .serializeSpecialFloatingPointValues()
+                .create();
+        String json = gson.toJson(this);
+        return json;
     }
 }

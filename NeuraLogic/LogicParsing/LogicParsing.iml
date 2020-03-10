@@ -14,8 +14,8 @@
     <orderEntry type="module" module-name="Logical" />
     <orderEntry type="library" name="antlr4" level="project" />
     <orderEntry type="module" module-name="Algebra" />
-    <orderEntry type="module" module-name="Pipelines" />
     <orderEntry type="module" module-name="Learning" />
     <orderEntry type="module" module-name="Logic" />
+    <orderEntry type="module" module-name="Utilities" />
   </component>
 </module>

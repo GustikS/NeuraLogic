@@ -4,7 +4,7 @@ import building.LearningSchemeBuilder;
 import org.junit.Test;
 import pipelines.Pipeline;
 import pipelines.bulding.AbstractPipelineBuilder;
-import pipelines.debug.drawing.PipelineDebugger;
+import pipelines.debuging.drawing.PipelineDebugger;
 import settings.Settings;
 import settings.Sources;
 import utils.Runner;

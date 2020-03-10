@@ -1,6 +1,7 @@
 package grounding.bottomUp;
 
 import ida.ilp.logic.*;
+import ida.ilp.logic.subsumption.HerbrandModel;
 import ida.ilp.logic.subsumption.Matching;
 import ida.utils.Sugar;
 import ida.utils.collections.MultiMap;

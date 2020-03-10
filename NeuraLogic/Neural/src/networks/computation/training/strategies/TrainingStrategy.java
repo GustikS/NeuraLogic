@@ -9,13 +9,15 @@ import learning.results.Results;
 import networks.computation.training.NeuralModel;
 import networks.computation.training.NeuralSample;
 import networks.computation.training.strategies.debugging.NeuralDebugging;
-import networks.computation.training.strategies.debugging.TrainingDebugging;
+import networks.structure.components.weights.Weight;
 import settings.Settings;
 import utils.Timing;
 import utils.generic.Pair;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -45,7 +47,7 @@ public abstract class TrainingStrategy implements Exportable {
 
     static int counter = 0;
 
-    transient TrainingDebugging trainingDebugger;
+    transient Consumer<Map<Integer, Weight>> trainingDebugCallback;
 
     public TrainingStrategy(Settings settings, NeuralModel model) {
         this.settings = settings;
@@ -54,10 +56,11 @@ public abstract class TrainingStrategy implements Exportable {
         storeParametersState(model);
         this.resultsFactory = Results.Factory.getFrom(settings);
         this.timing = new Timing();
+        this.trainingDebugCallback = model.templateDebugCallback;
     }
 
     protected void setupExporter() {
-        this.exporter = Exporter.getExporter(settings, "progress/training" + counter++ + "restart" + restart);
+        this.exporter = Exporter.getExporter(settings.exportDir, "progress/training" + counter++ + "restart" + restart, "json");
         exporter.exportLine("[");
 
         if (settings.plotProgress > 0) {
@@ -81,10 +84,6 @@ public abstract class TrainingStrategy implements Exportable {
     public abstract Pair<NeuralModel, Progress> train();
 
     public abstract void setupDebugger(NeuralDebugging neuralDebugger);
-
-    public void setupDebugger(TrainingDebugging trainingDebugger) {
-        this.trainingDebugger = trainingDebugger;
-    }
 
     public static TrainingStrategy getFrom(Settings settings, NeuralModel model, Stream<NeuralSample> sampleStream) {
         if (settings.neuralStreaming) {

@@ -1,4 +1,4 @@
-package networks.structure.building.factories;
+package networks.structure.building;
 
 import constructs.building.factories.WeightFactory;
 import constructs.example.ValuedFact;
@@ -12,7 +12,6 @@ import evaluation.functions.CrossProduct;
 import evaluation.values.ScalarValue;
 import evaluation.values.Value;
 import ida.ilp.logic.Literal;
-import networks.structure.building.NeuronMaps;
 import networks.structure.components.neurons.states.State;
 import networks.structure.components.neurons.states.States;
 import networks.structure.components.neurons.types.*;
@@ -69,7 +68,7 @@ public class NeuronFactory {
                 }
             }
         }
-        WeightedAtomNeuron<State.Neural.Computation> atomNeuron = new WeightedAtomNeuron<>(groundHead, offset, counter++, state);
+        WeightedAtomNeuron<State.Neural.Computation> atomNeuron = new WeightedAtomNeuron<>(groundHead.toString(), offset, counter++, state);
         neuronMaps.atomNeurons.put(groundHead, atomNeuron);
         LOG.finest("Created atom neuron: " + atomNeuron);
         return atomNeuron;
@@ -78,7 +77,7 @@ public class NeuronFactory {
     public AtomNeuron createUnweightedAtomNeuron(HeadAtom head, Literal groundHead) {
         Activation activation = head.getActivation() != null ? head.getActivation() : Activation.getActivationFunction(settings.atomNeuronActivation);
         State.Neural.Computation state = State.createBaseState(settings, activation);
-        AtomNeuron<State.Neural.Computation> atomNeuron = new AtomNeuron<>(groundHead, counter++, state);
+        AtomNeuron<State.Neural.Computation> atomNeuron = new AtomNeuron<>(groundHead.toString(), counter++, state);
         neuronMaps.atomNeurons.put(groundHead, atomNeuron);
         LOG.finest("Created atom neuron: " + atomNeuron);
         return atomNeuron;
@@ -138,7 +137,7 @@ public class NeuronFactory {
         FactNeuron result = neuronMaps.factNeurons.get(fact.literal);
         if (result == null) {    //fact neuron might have been created already and for them it is ok
             States.SimpleValue simpleValue = new States.SimpleValue(fact.getValue() == null ? this.defaultFactValue : fact.getValue());
-            FactNeuron factNeuron = new FactNeuron(fact, counter++, simpleValue);
+            FactNeuron factNeuron = new FactNeuron(fact.toString(), fact.getOffset(), counter++, simpleValue);
             neuronMaps.factNeurons.put(fact.literal, factNeuron);
             LOG.finest("Created fact neuron: " + factNeuron);
             return factNeuron;

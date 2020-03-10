@@ -5,7 +5,7 @@ import constructs.example.LogicSample;
 import constructs.template.Template;
 import grounding.GroundingSample;
 import pipelines.Pipeline;
-import pipelines.debug.Debugger;
+import pipelines.debuging.End2EndDebugger;
 import settings.Settings;
 import settings.Sources;
 import grounding.debugging.drawing.GroundingDrawer;
@@ -14,7 +14,7 @@ import utils.generic.Pair;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class GroundingDebugger extends Debugger<GroundingSample> {
+public class GroundingDebugger extends End2EndDebugger<GroundingSample> {
     private static final Logger LOG = Logger.getLogger(GroundingDebugger.class.getName());
     WeightFactory weightFactory;
 

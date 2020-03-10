@@ -1,6 +1,7 @@
 package utils;
 
 import building.LearningSchemeBuilder;
+import exporting.Exporter;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 import pipelines.Pipeline;
@@ -9,6 +10,7 @@ import settings.Sources;
 import utils.generic.Pair;
 import utils.logging.Logging;
 
+import java.io.File;
 import java.util.logging.Logger;
 
 public class Runner {
@@ -24,7 +26,6 @@ public class Runner {
         if (settings == null) {
             settings = new Settings();
         }
-
         Sources sources = getSources(args, settings);
 
         Pipeline<Sources, ?> pipeline = LearningSchemeBuilder.getPipeline(settings, sources);
@@ -47,6 +48,24 @@ public class Runner {
             System.exit(1);
         }
 
-        return Sources.getSources(cmd, settings);
+        Sources sources = Sources.getSources(cmd, settings);
+
+        startupExport(settings, sources);
+
+        return sources;
+    }
+
+    private static void startupExport(Settings settings, Sources sources) {
+        Exporter exporter = Exporter.getExporter(settings.exportDir, "", settings.blockExporting.name());
+
+        if (settings.cleanUpFirst) {
+            exporter.deleteDir(new File(settings.exportDir));
+        }
+
+        LOG.info("Exporting Settings");
+        exporter.exportObject(settings.export(), settings.settingsExportFile);
+
+        LOG.info("Exporting Sources");
+        exporter.exportObject(sources.export(), settings.sourcesExportFile);
     }
 }

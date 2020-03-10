@@ -21,11 +21,13 @@ import networks.computation.training.strategies.trainers.AsyncParallelTrainer;
 import networks.computation.training.strategies.trainers.ListTrainer;
 import networks.computation.training.strategies.trainers.MiniBatchTrainer;
 import networks.computation.training.strategies.trainers.SequentialTrainer;
+import networks.structure.components.weights.Weight;
 import settings.Settings;
 import utils.generic.Pair;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -154,9 +156,9 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         LOG.info("epoch: " + count + " : online results : " + onlineResults.toString(settings));
         if (count % settings.resultsRecalculationEpochae == 0) {
             recalculateResults();
-            if (settings.debugTemplateTraining && trainingDebugger != null) {
-                currentModel.getTemplate().updateWeightsFrom(currentModel.mapWeightsToIds());
-                trainingDebugger.debug(currentModel.getTemplate());
+            if (settings.debugTemplateTraining && trainingDebugCallback != null) {
+                Map<Integer, Weight> integerWeightMap = currentModel.mapWeightsToIds();
+                trainingDebugCallback.accept(integerWeightMap);
             }
         }
     }

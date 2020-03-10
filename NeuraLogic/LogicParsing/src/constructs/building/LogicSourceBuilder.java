@@ -3,23 +3,23 @@ package constructs.building;
 import constructs.building.factories.ConstantFactory;
 import constructs.building.factories.WeightFactory;
 import constructs.building.factories.WeightedPredicateFactory;
-import constructs.example.LogicSample;
 import org.antlr.v4.runtime.ParserRuleContext;
 import parsing.grammarParsing.PlainParseTree;
-import pipelines.Pipe;
 import settings.Settings;
-import settings.Source;
 
 import java.io.Reader;
+import java.util.function.Function;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 public abstract class LogicSourceBuilder<I extends PlainParseTree<? extends ParserRuleContext>, O> {
     private static final Logger LOG = Logger.getLogger(LogicSourceBuilder.class.getName());
 
     public Settings settings;
 
-    protected Pipe<Source, Stream<LogicSample>> encompassingPipe;   //todo now now this is antipattern - dependency on Pipelines module, send in some rebuilt callback hook during creation instead
+    /**
+     * Call this to rebuild a specific pipeline if an inconsistency with settings is detected at runtime
+     */
+    public Function<String, Boolean> rebuildCallback;
 
     // Constants are shared over the whole logic source
     public ConstantFactory constantFactory = new ConstantFactory();
@@ -27,9 +27,10 @@ public abstract class LogicSourceBuilder<I extends PlainParseTree<? extends Pars
     public WeightedPredicateFactory predicateFactory = new WeightedPredicateFactory();
     // Weights are shared over the whole logic source
     public WeightFactory weightFactory = new WeightFactory();
+
     //variable factories are typically just used locally (variables shared only within clauses)
 
-    public void setFactoriesFrom(LogicSourceBuilder other){
+    public void setFactoriesFrom(LogicSourceBuilder other) {
         this.constantFactory = other.constantFactory;
         this.predicateFactory = other.predicateFactory;
         this.weightFactory = other.weightFactory;
@@ -41,9 +42,8 @@ public abstract class LogicSourceBuilder<I extends PlainParseTree<? extends Pars
 
     /**
      * Sometimes it is useful to store reference to the outer pipe within which we work
-     * @param encompassingPipe
      */
-    public void setEncompassingPipe(Pipe<Source, Stream<LogicSample>> encompassingPipe) {
-        this.encompassingPipe = encompassingPipe;
+    public void setRebuildCallback(Function<String, Boolean> callback) {
+        this.rebuildCallback = callback;
     }
 }

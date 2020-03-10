@@ -113,7 +113,7 @@ public class Literal {
         this.negated = negated;
     }
 
-    public Literal(Predicate predicate, boolean negated, List<Term> terms) {
+    public Literal(Predicate predicate, boolean negated, List<? extends Term> terms) {
         this(predicate);
         if (predicate.arity != terms.size()) {
             LOG.severe("Arity mismatch while creating a literal from predicate+terms");

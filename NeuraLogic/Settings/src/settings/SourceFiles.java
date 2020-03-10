@@ -4,8 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import org.apache.commons.cli.CommandLine;
-import utils.Utilities;
-import utils.generic.Pair;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -39,16 +37,16 @@ public class SourceFiles extends Sources {
         super(settings);
     }
 
-    public Pair<Boolean, String> validate(Settings settings) {
-        Pair<Boolean, String> basePair = isValid(settings);
+    public Boolean validate(Settings settings, StringBuilder problems) {
+        Boolean valid = isValid(settings, problems);
         String msg = "";
         if (folds != null)
             for (Sources fold : folds) {
-                Pair<Boolean, String> foldpair = fold.validate(settings);
-                basePair.r &= foldpair.r;
-                basePair.s += "due to fold: " + foldpair.s;
+                Boolean validate = fold.validate(settings, problems);
+                valid &= validate;
+//                problems.append("due to fold: " + foldpair);
             }
-        return basePair;
+        return valid;
     }
 
     @Override
@@ -66,8 +64,8 @@ public class SourceFiles extends Sources {
         super.infer(settings);
     }
 
-    public Pair<Boolean, String> isValid(Settings settings) {
-        Pair<Boolean, String> validate = super.validate(settings);
+    public Boolean isValid(Settings settings, StringBuilder problems) {
+        Boolean validate = super.validate(settings, problems);
         //TODO is complete?
         return validate;
     }
@@ -331,7 +329,7 @@ public class SourceFiles extends Sources {
     }
 
     private void recognizeFileType(String path, String sourceType, Settings settings) {
-        switch (Utilities.identifyFileTypeUsingFilesProbeContentType(path)) {
+        switch (identifyFileTypeUsingFilesProbeContentType(path)) {
             case "text/plain":
                 settings.plaintextInput = true;
                 LOG.finer("Input " + sourceType + " file type identified as plain text");
@@ -400,5 +398,20 @@ public class SourceFiles extends Sources {
 
     public void exportToCSV(String outPath) {
 
+    }
+
+    public static String identifyFileTypeUsingFilesProbeContentType(final String fileName) {
+        String fileType = null;
+        final File file = new File(fileName);
+        try {
+            fileType = Files.probeContentType(file.toPath());
+        } catch (IOException ioException) {
+            LOG.severe("ERROR: Unable to determine file type for " + fileName + " due to IOException " + ioException);
+        }
+        if (fileType == null) {
+            LOG.severe("ERROR: Unable to determine file type (for unknown reason, probably opened by other process?): " + fileName + " defaulting to text/plain");
+            fileType = "text/plain";
+        }
+        return fileType;
     }
 }

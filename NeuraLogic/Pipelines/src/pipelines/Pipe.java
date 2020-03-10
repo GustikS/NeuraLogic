@@ -1,6 +1,5 @@
 package pipelines;
 
-import exporting.Exporter;
 import settings.Settings;
 
 import java.lang.reflect.InvocationTargetException;
@@ -27,7 +26,7 @@ public abstract class Pipe<I, O> extends Block implements Function<I, O>, Connec
     protected Pipe(String id, Settings settings) {
         this.settings = settings;
         this.ID = id;
-        this.exporter = Exporter.getFrom(id, settings);
+        this.exporter = createExporter(id, settings);
     }
 
     /**

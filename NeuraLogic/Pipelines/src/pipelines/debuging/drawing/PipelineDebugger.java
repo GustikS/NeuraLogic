@@ -1,4 +1,4 @@
-package pipelines.debug.drawing;
+package pipelines.debuging.drawing;
 
 import pipelines.Pipeline;
 import settings.Settings;

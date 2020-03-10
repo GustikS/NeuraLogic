@@ -10,7 +10,6 @@ import ida.ilp.logic.Clause;
 import ida.ilp.logic.Literal;
 import ida.ilp.logic.subsumption.Matching;
 import learning.Example;
-import networks.structure.building.NeuronMaps;
 
 import java.util.*;
 
@@ -43,7 +42,7 @@ public class GroundTemplate extends GraphTemplate implements Example {
     /**
      * Linking between logic literals and rules and neurons - can be possibly reused between different GroundTemplates, so it is saved here.
      */
-    public NeuronMaps neuronMaps;   //todo now move to grounding.GroundingSample for clarity
+//    public NeuronMaps neuronMaps;   //todo now move to grounding.GroundingSample for clarity
 
     public GroundTemplate() {
         this.id = "g" + counter++;
@@ -54,7 +53,7 @@ public class GroundTemplate extends GraphTemplate implements Example {
         this.groundRules = groundRules;
         this.groundFacts = groundFacts;
         this.derivedGroundFacts = getFactsFromGroundRules(groundRules);
-        this.neuronMaps = new NeuronMaps(groundRules, groundFacts);
+//        this.neuronMaps = new NeuronMaps(groundRules, groundFacts);
     }
 
     public GroundTemplate(GroundTemplate other) {
@@ -62,7 +61,7 @@ public class GroundTemplate extends GraphTemplate implements Example {
         this.groundRules = other.groundRules;
         this.groundFacts = other.groundFacts;
         this.derivedGroundFacts = other.derivedGroundFacts;
-        this.neuronMaps = other.neuronMaps;
+//        this.neuronMaps = other.neuronMaps;
     }
 
     @Override
@@ -119,7 +118,7 @@ public class GroundTemplate extends GraphTemplate implements Example {
         diff.groundFacts.keySet().removeAll(memory.groundFacts.keySet());
 
         //but take all the previously created neurons
-        diff.neuronMaps.addAllFrom(memory.neuronMaps);
+//        diff.neuronMaps.addAllFrom(memory.neuronMaps);
 
         return diff;
     }
