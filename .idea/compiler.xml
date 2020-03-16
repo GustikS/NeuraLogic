@@ -1,9 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel>
-      <module name="Parsing_main" target="1.8" />
-      <module name="Parsing_test" target="1.8" />
-    </bytecodeTargetLevel>
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="Algebra" />
+        <module name="CLI" />
+        <module name="Drawing" />
+        <module name="Learning" />
+        <module name="Logging" />
+        <module name="Logic" />
+        <module name="Logical" />
+        <module name="LogicParsing" />
+        <module name="Neural" />
+        <module name="Neuralization" />
+        <module name="Pipelines" />
+        <module name="Settings" />
+        <module name="Utilities" />
+        <module name="Workflow" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel target="8" />
   </component>
 </project>

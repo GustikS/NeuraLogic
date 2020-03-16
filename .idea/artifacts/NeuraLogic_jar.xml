@@ -1,15 +1,28 @@
 <component name="ArtifactManager">
-  <artifact type="jar" build-on-make="true" name="NeuraLogic:jar">
-    <output-path>$PROJECT_DIR$/NeuraLogic/out/artifacts</output-path>
+  <artifact type="jar" name="NeuraLogic:jar">
+    <output-path>$PROJECT_DIR$/target/artifacts</output-path>
     <root id="archive" name="NeuraLogic.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+      </element>
       <element id="module-output" name="NeuraLogic" />
-      <element id="module-output" name="Neural" />
+      <element id="module-output" name="Algebra" />
+      <element id="module-output" name="Settings" />
+      <element id="module-output" name="Utilities" />
+      <element id="module-output" name="CLI" />
+      <element id="module-output" name="Pipelines" />
+      <element id="module-output" name="Drawing" />
+      <element id="module-output" name="Logging" />
+      <element id="module-output" name="Workflow" />
       <element id="module-output" name="Logical" />
       <element id="module-output" name="Logic" />
-      <element id="module-output" name="Utils" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/NeuraLogic/lib/commons-cli-1.4/commons-cli-1.4.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/NeuraLogic/lib/gson-2.6.2.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/NeuraLogic/lib/antlr4.jar" path-in-jar="/" />
+      <element id="module-output" name="Learning" />
+      <element id="module-output" name="LogicParsing" />
+      <element id="module-output" name="Neural" />
+      <element id="module-output" name="Neuralization" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libraries/commons-cli-1.4/commons-cli-1.4.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libraries/antlr4.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libraries/gson-2.6.2.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

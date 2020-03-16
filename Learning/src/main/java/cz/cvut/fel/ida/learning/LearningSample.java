@@ -1,0 +1,28 @@
+package cz.cvut.fel.ida.learning;
+
+import cz.cvut.fel.ida.algebra.values.Value;
+
+public abstract class LearningSample<Q extends Query, Object> {
+    //should learning samples contain reference to Model - probably not (Structure learning)
+
+    public Q query;
+    public Value target;
+
+    /**
+     * For storing extra precomputed content for reuse, e.g. partial groundings or neuralizations
+     */
+    public Object cache;
+
+    public String getId(){
+        return query.ID;
+    }
+
+    public double getImportance(){
+        return query.importance;
+    }
+
+    @Override
+    public String toString() {
+        return getId() + ": " + target + "=" + query;
+    }
+}
