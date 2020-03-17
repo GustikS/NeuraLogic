@@ -5,7 +5,7 @@ import dynet_config
 # Declare GPU as the default device type
 # dynet_config.set_gpu()
 # Set some parameters manualy
-from dynetcon.deserialization import Deserializer
+from dynetcon import Deserializer
 
 dynet_config.set(mem=4, random_seed=9)
 # Initialize dynet import using above configuration in the current scope
@@ -15,9 +15,8 @@ dyparams = dy.DynetParams()
 
 dy.init()
 
-from dynetcon.learner import Learner
+from dynetcon import Learner
 from neuralogic import lrnn
-import neuralogic as nl
 
 
 def main(argv):

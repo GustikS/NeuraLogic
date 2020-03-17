@@ -2,8 +2,8 @@ package cz.cvut.fel.ida.learning.results;
 
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
-import cz.cvut.fel.ida.utils.exporting.Exporter;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.exporting.Exporter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -134,7 +134,11 @@ public class ClassificationResults extends RegressionResults {
             } while (i < evaluations.size() && evaluations.get(i).output.equals(evaluations.get(i - 1).output));
         }
 
-        bestThreshold = evaluations.get(bestIndex).output;
+        try {
+            bestThreshold = evaluations.get(bestIndex).output;
+        } catch (IndexOutOfBoundsException e) {
+            bestThreshold = evaluations.get(0).output;
+        }
         if (bestIndex - 1 >= 0) {
             bestThreshold = (bestThreshold.plus(evaluations.get(bestIndex - 1).output)).times(oneHalf);
         }

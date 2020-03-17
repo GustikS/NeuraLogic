@@ -17,6 +17,7 @@
         <module name="Neural" />
         <module name="Neuralization" />
         <module name="Pipelines" />
+        <module name="Resources" />
         <module name="Settings" />
         <module name="Utilities" />
         <module name="Workflow" />

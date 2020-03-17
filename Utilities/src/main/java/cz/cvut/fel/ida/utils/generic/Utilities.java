@@ -1,7 +1,10 @@
 package cz.cvut.fel.ida.utils.generic;
 
+import java.io.*;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -30,6 +33,37 @@ public class Utilities {
     public static void myExit(Logger log, String msg) throws Exception {
         log.severe(msg);
         throw new Exception(msg);
+    }
+
+    public static String[] splitArgs(String args) {
+        return args.split("(?=\")|(?<=\")\\s| ");
+    }
+
+    public static String getResourcePath(String filename){
+        URL resource = Thread.currentThread().getContextClassLoader().getResource(filename);
+        return resource.getPath();
+    }
+
+    public static String readResourceFile(String path) {
+        InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int length;
+        try {
+            while (true) {
+                if (!((length = inputStream.read(buffer)) != -1)) break;
+                result.write(buffer, 0, length);
+            }
+        } catch (IOException e) {
+            LOG.severe(e.getMessage());
+            return null;
+        }
+        try {
+            return result.toString(StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            LOG.severe(e.getMessage());
+            return null;
+        }
     }
 
     public static String sanitize(String name) {

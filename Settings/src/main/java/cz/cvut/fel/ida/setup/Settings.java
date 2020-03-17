@@ -41,6 +41,8 @@ public class Settings {
         LINUX, MACOSX, WINDOWS
     }
 
+    private static String inputFilesSuffix = ".txt";
+
     public static OS getOs() {
         String osName = System.getProperty("os.name").replaceAll("\\s", "");
         if (osName.contains("Windows")) {
@@ -100,15 +102,15 @@ public class Settings {
 
     public String outDir = "./out";
 
-    public String resultFile = outDir + "/results";
+    public String resultFile;
 
-    public String settingsExportFile = outDir + "/settings";
+    public String settingsExportFile;
 
-    public String sourcesExportFile = outDir + "/sources";
+    public String sourcesExportFile;
 
-    public String console = outDir + "/consoleOutput";
+    public String console;
 
-    public String exportDir = outDir + "/export";
+    public String exportDir;
 
 //    public transient Exporter exporter;
 
@@ -604,20 +606,20 @@ public class Settings {
      */
     public boolean sourcePathProvided = false;
     public String sourcePath = ".";
-    public String templateFile = "template.txt";    //todo remove/unify the txt
-    public String mergedTemplatesFile = "templates_merged.txt";
-    public String trainExamplesFile = "trainExamples.txt";
+    public String templateFile = "template" + inputFilesSuffix;    //todo remove/unify the txt
+    public String mergedTemplatesFile = "templates_merged" + inputFilesSuffix;
+    public String trainExamplesFile = "trainExamples" + inputFilesSuffix;
     /**
      * Alternative file name
      */
-    public String trainExamplesFile2 = "examples.txt";
-    public String testExamplesFile = "testExamples.txt";
-    public String trainQueriesFile = "trainQueries.txt";
+    public String trainExamplesFile2 = "examples" + inputFilesSuffix;
+    public String testExamplesFile = "testExamples" + inputFilesSuffix;
+    public String trainQueriesFile = "trainQueries" + inputFilesSuffix;
     /**
      * Alternative file name
      */
-    public String trainQueriesFile2 = "queries.txt";
-    public String testQueriesFile = "testQueries.txt";
+    public String trainQueriesFile2 = "queries" + inputFilesSuffix;
+    public String testQueriesFile = "testQueries" + inputFilesSuffix;
 
     public String foldsPrefix = "fold";
 

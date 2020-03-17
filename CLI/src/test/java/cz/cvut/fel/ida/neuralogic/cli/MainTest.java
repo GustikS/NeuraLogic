@@ -1,106 +1,56 @@
 package cz.cvut.fel.ida.neuralogic.cli;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import cz.cvut.fel.ida.utils.generic.TestAnnotations;
+import cz.cvut.fel.ida.utils.generic.Utilities;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static cz.cvut.fel.ida.utils.generic.Utilities.splitArgs;
 
-//@RunWith(Parameterized.class)
 public class MainTest {
+    private static final Logger LOG = Logger.getLogger(MainTest.class.getName());
 
-    private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-    private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
-    private final PrintStream originalOut = System.out;
-    private final PrintStream originalErr = System.err;
-
-    @Before
-    public void setUpStreams() {
-        System.setOut(new PrintStream(outContent));
-        System.setErr(new PrintStream(errContent));
+    @TestAnnotations.Fast
+    public void listAvailableResources() {
+        boolean available = false;
+        Enumeration<URL> e = null;
+        try {
+            e = getClass().getClassLoader().getResources(".");
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        while (e.hasMoreElements()) {
+            URL u = e.nextElement();
+            String file = u.getFile();
+            System.out.println(file);
+            if (file.endsWith("/NeuraLogic/Resources/target/classes/"))
+                available = true;
+        }
+        assert available;
     }
 
-    @After
-    public void restoreStreams() {
-        System.setOut(originalOut);
-        System.setErr(originalErr);
+    @TestAnnotations.Fast
+    void checkDatasetsAvailable() throws IOException {
+        String path = Utilities.getResourcePath("simple");
+        List<Path> collect = Files.walk(Paths.get(path))
+                .filter(Files::isRegularFile)
+                .peek(System.out::println)
+                .filter(s -> s.endsWith("family/template.txt"))
+                .collect(Collectors.toList());
+        assert !collect.isEmpty();
     }
 
-    public static String[] splitArgs(String args) {
-        return args.split(" (?=\")|(?<=\")\\s");
-    }
-
-    public interface SlowTests {
-    }
-
-    public interface FastTests {
-    }
-
-    public interface CLITests extends FastTests {
-    }
-
-    public interface PerformanceTests extends SlowTests {
-    }
-//
-//    @BeforeEach
-//    void setUp() {
-//    }
-//
-//    @AfterEach
-//    void tearDown() {
-//    }
-//
-//    @Parameterized.Parameter
-//    public String[] args;
-//
-//    public MainTest(String[] args) {
-//        this.args = args;
-//    }
-
-    @Test
-    public void emptyArgsMsg() {
-        Main.main(splitArgs(""));
-        assertThat(outContent.toString(), containsString("Lifted Relational Neural Network"));
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {
-            "wrong",
-            "",
-            "a 2",
-            "  "
-    })
-    void noArgs(String argString) {
-        Exception thrown = assertThrows(
-                Exception.class,
-                () -> Main.mainExc(splitArgs(argString)),
-                "Expected Main.mainExc() to throw Exception, but it didn't"
-        );
-
-        assertThat(thrown.getMessage(), containsString("No arguments provided"));
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {
-            "-a 2",
-            "-xxx",
-            "-t",
-            "-source"
-    })
-    void wrongArgs(String argString) {
-        Exception thrown = assertThrows(
-                Exception.class,
-                () -> Main.mainExc(splitArgs(argString)),
-                "Expected Main.mainExc() to throw Exception, but it didn't"
-        );
-
-        assertThat(thrown.getMessage(), containsString("Unable to parse arguments"));
+    @TestAnnotations.Slow
+    public void runHorseFamily() {
+        String resourcePath = Utilities.getResourcePath("simple/family");
+        Main.main(splitArgs("-ts 10 -sd " + resourcePath));
     }
 }
