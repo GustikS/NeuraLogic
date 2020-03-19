@@ -78,6 +78,34 @@ public class Settings {
 
     public static String logFile = "./out/Logging";
 
+    //------------------Builders
+
+    public static Settings forSmallTest() {
+        Settings setting = new Settings();
+        setting.drawing = false;
+        setting.plotProgress = -1;
+        setting.appLimitSamples = 2;
+        setting.seed = 0;
+        setting.maxCumEpochCount = 2;
+        setting.mainMode = MainMode.COMPLETE;
+        setting.neuralNetsPostProcessing = false;
+        setting.chainPruning = false;
+
+        setting.outDir = Settings.logFile;
+        return setting;
+    }
+
+    public static Settings forBigTest() {
+        Settings setting = new Settings();
+        setting.drawing = false;
+        setting.plotProgress = -1;
+        setting.appLimitSamples = -1;
+        setting.seed = 0;
+
+        setting.outDir = Settings.logFile;
+        return setting;
+    }
+
     //------------------Dependencies (graphviz for debugging)
 
     public String graphvizPathLinux = "/usr/bin"; // this is where the dot typically is, if not, install graphviz
@@ -100,7 +128,7 @@ public class Settings {
      */
     public boolean cleanUpFirst = true;
 
-    public String outDir = "./out";
+    public String outDir = "./target/out";
 
     public String resultFile;
 

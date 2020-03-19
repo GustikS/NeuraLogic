@@ -53,6 +53,8 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     ValueInitializer valueInitializer;
 
+    private final int resultsRecalculationEpochae;
+
     public IterativeTrainingStrategy(Settings settings, NeuralModel model, List<NeuralSample> sampleList) {
         super(settings, model);
         this.trainer = getTrainerFrom(settings);
@@ -66,6 +68,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         this.learnRateDecayStrategy = LearnRateDecayStrategy.getFrom(settings, learningRate);   //passes the single reference to learningRate shared by others
         this.restartingStrategy = RestartingStrategy.getFrom(settings);
 
+        this.resultsRecalculationEpochae = settings.resultsRecalculationEpochae;
 //        this.trainingDebugger = new TrainingDebugger(settings);
     }
 

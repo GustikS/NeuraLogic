@@ -27,7 +27,7 @@ class HtmlFormatter extends Formatter {
 
         buf.append("</td>\n");
         buf.append("\t<td>");
-        buf.append(Logging.calcDate(rec.getMillis()));
+        buf.append(Logging.calcTime(rec.getMillis()));
         buf.append("</td>\n");
         buf.append("\t<td>");
         buf.append(formatMessage(rec));

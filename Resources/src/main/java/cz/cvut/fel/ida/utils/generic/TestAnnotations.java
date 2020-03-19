@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.utils.generic;
 import org.jetbrains.annotations.TestOnly;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.openjdk.jmh.annotations.*;
 
@@ -13,12 +14,14 @@ import java.util.concurrent.TimeUnit;
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+
 public @interface TestAnnotations {
 
     @Target({TYPE, METHOD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
     @Test
     @TestOnly
+    @ExtendWith({TestLogging.class})
     @Tag("Fast")
     public @interface Fast {
     }
@@ -27,7 +30,6 @@ public @interface TestAnnotations {
     @Retention(RUNTIME)
     @ParameterizedTest
     @TestOnly
-    @Tag("Fast")
     public @interface Parameterized {
     }
 
@@ -35,10 +37,10 @@ public @interface TestAnnotations {
     @Retention(RUNTIME)
     @Test
     @TestOnly
+    @ExtendWith({TestLogging.class})
     @Tag("Slow")
     public @interface Slow {
     }
-
 
 
     @Target({TYPE, METHOD, ANNOTATION_TYPE})
@@ -82,6 +84,7 @@ public @interface TestAnnotations {
     @Warmup(time = 5)
     @Threads(4)
     @Tag("SlowBenchmark")
+    @ExtendWith({TestLogging.class})
     @interface SlowBenchmark {
     }
 

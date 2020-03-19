@@ -27,13 +27,20 @@ public class Logging {
     long startupTime = System.currentTimeMillis();
 
     public static Logging initLogging() throws Exception {
-        return initLogging(Settings.loggingLevel);
+        return initLogging(Settings.loggingLevel, Settings.supressLogFileOutput);
     }
 
-    public static Logging initLogging(Level loggingLevel) throws Exception {
+    public static Logging initTestLogging(String testName) throws Exception {
+//        Settings.loggingLevel = Level.FINEST;
+        Settings.logFile = "./testlog/" + testName + "_" + calcDateTime(System.currentTimeMillis());
+        Settings.htmlLogging = false;
+        return initLogging(Settings.loggingLevel, false);
+    }
+
+    public static Logging initLogging(Level loggingLevel, boolean noLogFile) throws Exception {
         Logging logging = new Logging();
         try {
-            logging.initialize(loggingLevel);
+            logging.initialize(loggingLevel, noLogFile);
             LOG.info("Launched NeuraLogic from location " + System.getProperty("user.dir"));
         } catch (IOException ex) {
             throw new Exception("Could not initialize Logging.\n" + ex.getMessage());
@@ -42,7 +49,7 @@ public class Logging {
         return logging;
     }
 
-    public void initialize(Level loggingLevel) throws IOException {
+    public void initialize(Level loggingLevel, boolean noLogFile) throws IOException {
         System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tF %1$tT [%4$s] (%2$s) : %5$s%6$s%n");
         System.setProperty("java.util.logging.ConsoleHandler.level", "FINEST");
 
@@ -58,11 +65,10 @@ public class Logging {
         if (defaultConsoleHandler instanceof ConsoleHandler) {
             rootLogger.removeHandler(defaultConsoleHandler);
             if (!Settings.supressConsoleOutput) {
-
                 if (Settings.customLogColors) {
                     consoleFormatter = new ColoredFormatter();
                 } else {
-                    consoleFormatter = new SimpleFormatter();
+                    consoleFormatter = new NormalFormatter();
                 }
                 StreamHandler sh = new FlushStreamHandler(System.out, consoleFormatter);
                 sh.setLevel(loggingLevel);
@@ -72,17 +78,20 @@ public class Logging {
 
         rootLogger.setLevel(loggingLevel);
 
-        if (!Settings.supressLogFileOutput) {
+        if (!noLogFile) {
+            String file = null;
             File parentFile = new File(Settings.logFile).getParentFile();
             if (parentFile != null)
                 parentFile.mkdirs();
             if (Settings.htmlLogging) {
-                loggingFile = new FileHandler(Settings.logFile + ".html");
+                file = Settings.logFile + ".html";
                 fileFormatter = new HtmlFormatter();
             } else {
-                loggingFile = new FileHandler(Settings.logFile + ".txt");
-                fileFormatter = new SimpleFormatter();
+                file = Settings.logFile + ".txt";
+                fileFormatter = new NormalFormatter();
             }
+//            new File(file).createNewFile();
+            loggingFile = new FileHandler(file);
             loggingFile.setFormatter(fileFormatter);
             rootLogger.addHandler(loggingFile);
         }
@@ -90,13 +99,28 @@ public class Logging {
 
     public void finish() {
         Logger rootLogger = Logger.getLogger("");
-        rootLogger.info("Total time: " + calcDate(System.currentTimeMillis() - startupTime));
+        rootLogger.getResourceBundleName();
+        Handler[] handlers = rootLogger.getHandlers();
+        for (Handler handler : handlers) {
+            if (handler instanceof FileHandler) {
+                rootLogger.removeHandler(handler);  //remove and close all the associated log files
+                handler.close();
+            }
+        }
+        rootLogger.info("Total time: " + calcTime(System.currentTimeMillis() - startupTime));
     }
 
 
-    public static String calcDate(long millisecs) {
+    public static String calcTime(long millisecs) {
         SimpleDateFormat date_format = new SimpleDateFormat("HH:mm:ss:SS");
-        date_format.setTimeZone(TimeZone.getTimeZone("GMT+0"));
+        date_format.setTimeZone(TimeZone.getTimeZone("GMT+1"));
+        Date resultdate = new Date(millisecs);
+        return date_format.format(resultdate);
+    }
+
+    public static String calcDateTime(long millisecs) {
+        SimpleDateFormat date_format = new SimpleDateFormat("YYYY-MM-DD_HH:mm:ss");
+        date_format.setTimeZone(TimeZone.getTimeZone("GMT+1"));
         Date resultdate = new Date(millisecs);
         return date_format.format(resultdate);
     }

@@ -1,5 +1,6 @@
 package cz.cvut.fel.ida.neuralogic.cli;
 
+import cz.cvut.fel.ida.utils.generic.TestAnnotations;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -12,9 +13,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-//@RunWith(Parameterized.class)
-@Tag("main")
-@Tag("fast")
+@TestAnnotations.Fast
 @DisplayName("Testing the basic commandline inputs")
 public class CLITests {
 
