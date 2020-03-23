@@ -63,10 +63,10 @@ public class Runner {
             exporter.deleteDir(new File(settings.exportDir));
         }
 
-        LOG.info("Exporting Settings");
+        LOG.info("Exporting Settings configuration:");
         exporter.exportObject(settings.export(), settings.settingsExportFile);
 
-        LOG.info("Exporting Sources");
+        LOG.info("Exporting Sources configuration:");
         exporter.exportObject(sources.export(), settings.sourcesExportFile);
     }
 

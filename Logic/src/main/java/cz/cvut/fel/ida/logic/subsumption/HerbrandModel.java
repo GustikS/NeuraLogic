@@ -75,9 +75,10 @@ public class HerbrandModel {
 
         boolean changed;
         int round = 0;
+
+        int herbrandSize0 = VectorUtils.sum(herbrand.sizes());
+        LOG.finer("herbrand size before round " + round + " = " + herbrandSize0);
         do {
-            int herbrandSize0 = VectorUtils.sum(herbrand.sizes());
-            LOG.finer("herbrand size before round " + round + " = " + herbrandSize0);
             //get all valid literals from current herbrand in to matching
             matching = new Matching(Sugar.<Clause>list(new Clause(Sugar.flatten(herbrand.values())))); //todo somehow change this to incrementally pass only NEW facts (ClauseE) to existing Matching object for speedup? Try version without example indexing
             //LOG.finest("Matching created.");
@@ -112,8 +113,9 @@ public class HerbrandModel {
             }
             LOG.finest(irules.size() + " rules grounded.");
             int herbrandSize1 = VectorUtils.sum(herbrand.sizes());
-            LOG.finer("herbrand size before round " + round++ + " = " + herbrandSize1);
+            LOG.finer("herbrand size after round " + round++ + " = " + herbrandSize1);
             changed = herbrandSize1 > herbrandSize0;
+            herbrandSize0 = herbrandSize1;  //reset to next round
         } while (changed);
         return herbrand;
     }

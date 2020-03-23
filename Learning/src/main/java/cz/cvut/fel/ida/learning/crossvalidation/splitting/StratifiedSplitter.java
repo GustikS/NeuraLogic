@@ -2,8 +2,8 @@ package cz.cvut.fel.ida.learning.crossvalidation.splitting;
 
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.learning.LearningSample;
-import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -79,7 +79,7 @@ public class StratifiedSplitter<T extends LearningSample> implements Splitter<T>
      */
     public List<T> representativeSubset(Collection<List<T>> classes, double percentage) {
         List<List<T>> subsets = classes.stream().map(l -> l.subList(0, (int) (l.size() * percentage))).collect(Collectors.toList());
-        LOG.info("Calculated stratified subset with distribution: " + subsets.stream().map(List::size).collect(Collectors.toList()));
+        LOG.info("Calculated stratified subset with class distribution: " + subsets.stream().map(List::size).collect(Collectors.toList()));
         List<T> collect = subsets.stream().flatMap(List::stream).collect(Collectors.toList());
         return collect;
     }
@@ -87,7 +87,7 @@ public class StratifiedSplitter<T extends LearningSample> implements Splitter<T>
     @Override
     public Pair<List<T>, List<T>> partition(List<T> samples, double percentage) {
         int split = (int) percentage * samples.size();
-        if (percentage != 1.0 && split == 1 || split == samples.size()) {
+        if (percentage != 1.0 && (split == 1 || split == samples.size())) {
             LOG.warning("Problem with samples partitioning, there are too few to be splitted: " + split + " out of " + samples.size() + " (split percentage = " + percentage + ")");
         }
         List<T> train = representativeSubset(getClasses(samples).values(), percentage);

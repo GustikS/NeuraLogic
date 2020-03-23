@@ -1,6 +1,9 @@
 package cz.cvut.fel.ida.utils.generic;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.net.URL;
@@ -39,7 +42,7 @@ public class Utilities {
         return args.split("(?=\")|(?<=\")\\s| ");
     }
 
-    public static String getResourcePath(String filename){
+    public static String getResourcePath(String filename) {
         URL resource = Thread.currentThread().getContextClassLoader().getResource(filename);
         return resource.getPath();
     }
@@ -219,8 +222,14 @@ public class Utilities {
      * @return
      */
     public static <T> List<T> terminateSampleStream(Stream<T> stream) {
+        Timing timing = new Timing();
+        timing.tic();
+        LOG.fine("------------------------------------------ PROCESSING SAMPLES (= terminating stream) -------------------------------------------------------");
         List<T> list = stream.collect(Collectors.toList());
         stream.close(); //THE IMPORTANT PART
+        timing.toc();
+        LOG.fine("------------------------------------------ SAMPLES PROCESSED into list of " + list.get(0).getClass().getSimpleName() + " (in " + timing.timeTaken + ")-------------------------------------------------------");
+        logMemory();
         return list;
     }
 }

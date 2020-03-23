@@ -52,11 +52,11 @@ public class SourceFiles extends Sources {
     @Override
     public void infer(Settings settings) {
         if (checkForSubstring(trainExamples, settings.queryExampleSeparator, 2)) {
-            LOG.info("Queries within train example file detected via separator " + settings.queryExampleSeparator);
+            LOG.info("Queries within train examples file detected via separator " + settings.queryExampleSeparator);
             this.train.QueriesProvided = true;
         }
         if (checkForSubstring(testExamples, settings.queryExampleSeparator, 2)) {
-            LOG.info("Queries within test example file detected via separator " + settings.queryExampleSeparator);
+            LOG.info("Queries within test examples file detected via separator " + settings.queryExampleSeparator);
             this.test.QueriesProvided = true;
         }
 
@@ -119,7 +119,7 @@ public class SourceFiles extends Sources {
      * @return
      */
     private SourceFiles setupFromDir(Settings settings, CommandLine cmd, File foldDir) {
-        LOG.info("Setting up sources from directory: " + foldDir + " with settings : " + settings);
+        LOG.info("Setting up input sourceFiles from directory: " + foldDir);
         mergedTemplatePath = Paths.get(foldDir.getAbsolutePath() + "/" + settings.mergedTemplatesFile + this.foldId);
         try {
             if (this.template != null) {
@@ -141,7 +141,7 @@ public class SourceFiles extends Sources {
             }
             setupTemplate(template_, foldDir);
 
-            recognizeFileType(this.template.getAbsolutePath(), "template", settings);
+            recognizeFileType(this.template.getAbsolutePath(), template_, settings);
 
         } catch (IOException e) {
             LOG.info("There is no learning template");
@@ -159,13 +159,13 @@ public class SourceFiles extends Sources {
                 trainExamples_ = Paths.get(trainExamplesPath).toFile();
             }
             if (!trainExamples_.exists()) {
-                LOG.warning("Could not find trainExamples file in " + trainExamplesPath + ", will try to use 'examples' file for the same purpose");
+                LOG.fine("Could not find trainExamples file in " + trainExamples_ + ", will try to use " + Paths.get(foldDir.toString(), settings.trainExamplesFile2) + " file for the same purpose");
                 trainExamples_ = Paths.get(foldDir.toString(), settings.trainExamplesFile2).toFile();
             }
 
             this.train.ExamplesReader = new FileReader(trainExamples_);
             this.trainExamples = trainExamples_;
-            recognizeFileType(this.trainExamples.getAbsolutePath(), "trainExamples", settings);
+            recognizeFileType(this.trainExamples.getAbsolutePath(), trainExamples_, settings);
 
         } catch (FileNotFoundException e) {
             LOG.info("There are no train examples");
@@ -184,7 +184,7 @@ public class SourceFiles extends Sources {
             }
             this.test.ExamplesReader = new FileReader(testExamples_);
             this.testExamples = testExamples_;
-            recognizeFileType(this.testExamples.getAbsolutePath(), "testExamples", settings);
+            recognizeFileType(this.testExamples.getAbsolutePath(), testExamples_, settings);
 
         } catch (FileNotFoundException e) {
             LOG.info("There are no separate test examples found.");
@@ -202,14 +202,14 @@ public class SourceFiles extends Sources {
                 trainQueries_ = Paths.get(trainQueriesPath).toFile();
             }
             if (!trainQueries_.exists()) {
-                LOG.warning("Could not find trainQueries file in " + trainQueriesPath + ", will try to use 'queries' file for the same purpose");
+                LOG.fine("Could not find trainQueries file in " + trainQueries_ + ", will try to use " + Paths.get(foldDir.toString(), settings.trainQueriesFile2) + " file for the same purpose");
                 trainQueries_ = Paths.get(foldDir.toString(), settings.trainQueriesFile2).toFile();
             }
 
             this.train.QueriesReader = new FileReader(trainQueries_);
             this.trainQueries = trainQueries_;
 
-            recognizeFileType(this.trainQueries.getAbsolutePath(), "trainQueries", settings);
+            recognizeFileType(this.trainQueries.getAbsolutePath(), trainQueries_, settings);
 
         } catch (FileNotFoundException e) {
             LOG.info("There are no separate train queries found.");
@@ -228,7 +228,7 @@ public class SourceFiles extends Sources {
             }
             this.test.QueriesReader = new FileReader(testQueries_);
             this.testQueries = testQueries_;
-            recognizeFileType(this.testQueries.getAbsolutePath(), "testQueries", settings);
+            recognizeFileType(this.testQueries.getAbsolutePath(), testQueries_, settings);
 
         } catch (FileNotFoundException e) {
             LOG.info("There are no separate test queries found.");
@@ -322,13 +322,19 @@ public class SourceFiles extends Sources {
                 this.templateReader = parent.templateReader;
                 return null;
             } else {
-                LOG.severe("There is no template found at the specified path! : " + templatePath);
-                throw new FileNotFoundException();
+                LOG.fine("Could not find template file in " + template_ + ", will try to use " + foldDir.toString() + "/" + settings.templateFile2 + " file for the same purpose");
+                template_ = Paths.get(foldDir.toString(), settings.templateFile2).toFile();
+                if (template_.exists()) {
+                    return template_;
+                } else {
+                    LOG.severe("There is no template found at the specified path! : " + templatePath);
+                    throw new FileNotFoundException();
+                }
             }
         }
     }
 
-    private void recognizeFileType(String path, String sourceType, Settings settings) {
+    private void recognizeFileType(String path, File sourceType, Settings settings) {
         switch (identifyFileTypeUsingFilesProbeContentType(path)) {
             case "text/plain":
                 settings.plaintextInput = true;

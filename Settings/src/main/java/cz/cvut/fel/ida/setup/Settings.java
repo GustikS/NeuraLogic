@@ -634,19 +634,26 @@ public class Settings {
      */
     public boolean sourcePathProvided = false;
     public String sourcePath = ".";
-    public String templateFile = "template" + inputFilesSuffix;    //todo remove/unify the txt
+
+    public String templateFile = "template" + inputFilesSuffix;
+    public String templateFile2 = Paths.get("templates", "template") + inputFilesSuffix;
+
     public String mergedTemplatesFile = "templates_merged" + inputFilesSuffix;
+
     public String trainExamplesFile = "trainExamples" + inputFilesSuffix;
     /**
      * Alternative file name
      */
     public String trainExamplesFile2 = "examples" + inputFilesSuffix;
+
     public String testExamplesFile = "testExamples" + inputFilesSuffix;
+
     public String trainQueriesFile = "trainQueries" + inputFilesSuffix;
     /**
      * Alternative file name
      */
     public String trainQueriesFile2 = "queries" + inputFilesSuffix;
+
     public String testQueriesFile = "testQueries" + inputFilesSuffix;
 
     public String foldsPrefix = "fold";

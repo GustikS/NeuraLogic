@@ -1,17 +1,17 @@
 package cz.cvut.fel.ida.pipelines.building;
 
-import cz.cvut.fel.ida.logic.constructs.template.Template;
-import cz.cvut.fel.ida.pipelines.debugging.TemplateDebugger;
-import cz.cvut.fel.ida.pipelines.debugging.GroundingDebugger;
 import cz.cvut.fel.ida.learning.crossvalidation.TrainTestResults;
 import cz.cvut.fel.ida.learning.results.Progress;
 import cz.cvut.fel.ida.learning.results.Results;
-import cz.cvut.fel.ida.pipelines.debugging.TrainingDebugger;
+import cz.cvut.fel.ida.logic.constructs.template.Template;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
-import cz.cvut.fel.ida.pipelines.debugging.NeuralDebugger;
 import cz.cvut.fel.ida.pipelines.Pipe;
 import cz.cvut.fel.ida.pipelines.Pipeline;
 import cz.cvut.fel.ida.pipelines.bulding.AbstractPipelineBuilder;
+import cz.cvut.fel.ida.pipelines.debugging.GroundingDebugger;
+import cz.cvut.fel.ida.pipelines.debugging.NeuralDebugger;
+import cz.cvut.fel.ida.pipelines.debugging.TemplateDebugger;
+import cz.cvut.fel.ida.pipelines.debugging.TrainingDebugger;
 import cz.cvut.fel.ida.pipelines.debuging.drawing.PipelineDebugger;
 import cz.cvut.fel.ida.pipelines.pipes.generic.SecondFromPairPipe;
 import cz.cvut.fel.ida.pipelines.pipes.specific.ResultsFromProgressPipe;
@@ -92,20 +92,22 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
     public Pipeline<Sources, Results> buildPipeline(Sources sources) {
         Pipeline<Sources, Results> pipeline = new Pipeline<>("LearningSchemePipeline", this);
 
+        LOG.fine("------------------------------------------WORKFLOW SETUP-------------------------------------------------------");
+
         if (sources.crossvalidation) { //returns only test results in this case
-            LOG.info("Learning scheme inferred as : crossvalidation.");
+            LOG.info("Learning scheme inferred as : ---CROSSVALIDATION---");
             CrossvalidationBuilder crossvalidationSchemeBuilder = new CrossvalidationBuilder(settings, sources);
             Pipeline<Sources, TrainTestResults> crossvalPipeline = pipeline.registerStart(crossvalidationSchemeBuilder.buildPipeline());
             crossvalPipeline.connectAfter(pipeline.registerEnd(getTestResultsPipe()));
 
         } else if (sources.trainTest) { //returns only test results in this case
-            LOG.info("Learning scheme inferred as : train-test.");
+            LOG.info("Learning scheme inferred as : ---TRAIN-TEST---");
             TrainTestBuilder trainTestBuilder = new TrainTestBuilder(settings, sources);
             Pipeline<Sources, TrainTestResults> trainTestPipeline = pipeline.registerStart(trainTestBuilder.buildPipeline());
             trainTestPipeline.connectAfter(pipeline.registerEnd(getTestResultsPipe()));
 
         } else if (sources.trainOnly) {
-            LOG.info("Learning scheme inferred as : pure training.");
+            LOG.info("Learning scheme inferred as : ---TRAINING ONLY---");
             Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> trainingPipeline = pipeline.registerStart(new TrainingBuilder(settings, sources).buildPipeline());
             SecondFromPairPipe<Pair<Template, NeuralModel>, Progress> secondFromPairPipe = pipeline.register(new SecondFromPairPipe<>());
             trainingPipeline.connectAfter(secondFromPairPipe);
@@ -113,7 +115,7 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
             secondFromPairPipe.connectAfter(resultsFromProgressPipe);
 
         } else if (sources.testOnly) {
-            LOG.info("Learning scheme inferred as : pure testing.");
+            LOG.info("Learning scheme inferred as : ---TESTING ONLY---");
             Pipeline<Sources, Results> testingPipeline = pipeline.registerEnd(pipeline.registerStart(new TestingBuilder(settings, sources).buildPipeline()));
 
         } else {

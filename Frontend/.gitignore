@@ -1,8 +1,8 @@
 .idea/*
 
-scratch
-test
-out
+scratch/*
+test/*
+out/*
 .DS_Store
 
 # Compiled class file

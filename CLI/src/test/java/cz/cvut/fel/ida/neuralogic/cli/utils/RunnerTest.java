@@ -28,7 +28,7 @@ class RunnerTest {
 
     @TestAnnotations.Fast
     void getResource(){
-        String tmp2 = Utilities.readResourceFile("tmp2.txt");
+        String tmp2 = Utilities.readResourceFile("dummy.txt");
         System.out.println(tmp2);
     }
 }
