@@ -4,7 +4,7 @@ import cz.cvut.fel.ida.logging.Logging;
 import cz.cvut.fel.ida.neuralogic.cli.utils.Runner;
 import cz.cvut.fel.ida.pipelines.debugging.TrainingDebugger;
 import cz.cvut.fel.ida.setup.Settings;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.logging.Level;
 

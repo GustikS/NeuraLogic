@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.old_tests.utils;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import sun.misc.Launcher;
 
 import java.io.File;

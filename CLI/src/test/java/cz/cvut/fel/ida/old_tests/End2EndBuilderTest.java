@@ -10,7 +10,7 @@ import cz.cvut.fel.ida.pipelines.building.End2endTrainigBuilder;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.setup.Sources;
 import cz.cvut.fel.ida.utils.generic.Pair;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class End2EndBuilderTest {
 

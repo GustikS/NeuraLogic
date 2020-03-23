@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.neuralogic.cli.dummy;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.results.RunResult;

@@ -3,7 +3,7 @@ package cz.cvut.fel.ida.old_tests;
 import cz.cvut.fel.ida.logging.Logging;
 import cz.cvut.fel.ida.neuralogic.cli.Main;
 import cz.cvut.fel.ida.setup.Settings;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.logging.Level;
 

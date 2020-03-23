@@ -5,7 +5,7 @@ import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.setup.SourceFiles;
 import cz.cvut.fel.ida.setup.Sources;
 import cz.cvut.fel.ida.utils.exporting.JsonExporter;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SourcesTest {
 

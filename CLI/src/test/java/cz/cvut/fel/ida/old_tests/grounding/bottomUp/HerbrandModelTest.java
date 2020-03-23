@@ -6,7 +6,7 @@ import cz.cvut.fel.ida.logic.subsumption.Matching;
 import cz.cvut.fel.ida.utils.generic.tuples.Pair;
 import cz.cvut.fel.ida.utils.math.Sugar;
 import cz.cvut.fel.ida.utils.math.collections.MultiMap;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 import java.util.logging.Logger;

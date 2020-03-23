@@ -1,7 +1,7 @@
 package cz.cvut.fel.ida.old_tests.utils;
 
 import cz.cvut.fel.ida.neuralogic.cli.utils.Runner;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CommandLineHandlerTest {
 

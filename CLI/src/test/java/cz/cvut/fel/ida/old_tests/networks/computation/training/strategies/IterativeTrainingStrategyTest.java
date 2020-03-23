@@ -4,7 +4,7 @@ import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
 import cz.cvut.fel.ida.neural.networks.computation.training.strategies.IterativeTrainingStrategy;
 import cz.cvut.fel.ida.neural.networks.computation.training.strategies.TrainingStrategy;
 import cz.cvut.fel.ida.setup.Settings;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 

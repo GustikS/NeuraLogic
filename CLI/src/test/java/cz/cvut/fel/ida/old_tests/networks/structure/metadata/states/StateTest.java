@@ -5,7 +5,7 @@ import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.neurons.Evaluator;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.States;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class StateTest {
 

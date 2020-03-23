@@ -2,6 +2,7 @@ package cz.cvut.fel.ida.neuralogic.cli.utils;
 
 import cz.cvut.fel.ida.setup.Settings;
 import org.apache.commons.cli.*;
+import org.apache.commons.cli.DefaultParser;
 
 import java.util.Arrays;
 import java.util.logging.Logger;

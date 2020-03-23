@@ -1,7 +1,7 @@
 package cz.cvut.fel.ida.old_tests.utils.logging;
 
 import cz.cvut.fel.ida.logging.Logging;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

@@ -2,7 +2,7 @@ package cz.cvut.fel.ida.old_tests.settings;
 
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.JsonExporter;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SettingsTest {
 
