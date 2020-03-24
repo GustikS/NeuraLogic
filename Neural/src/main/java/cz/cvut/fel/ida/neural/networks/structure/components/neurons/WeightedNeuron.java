@@ -39,6 +39,9 @@ public abstract class WeightedNeuron<T extends Neurons, S extends State.Neural> 
         weights = new ArrayList<>();
     }
 
+    protected WeightedNeuron() {
+    }
+
     public final void addInput(T input) {
         LOG.warning("Adding unnecessarily weighted input. Use plain Neuron Object for unweighted inputs instead!");
         inputs.add(input);

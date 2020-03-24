@@ -7,6 +7,7 @@ import org.apache.commons.cli.CommandLine;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -80,7 +81,7 @@ public class Settings {
 
     //------------------Builders
 
-    public static Settings forSmallTest() {
+    public static Settings forFastTest() {
         Settings setting = new Settings();
         setting.drawing = false;
         setting.plotProgress = -1;
@@ -92,10 +93,11 @@ public class Settings {
         setting.chainPruning = false;
 
         setting.outDir = Settings.logFile;
+        setting.infer();
         return setting;
     }
 
-    public static Settings forBigTest() {
+    public static Settings forSlowTest() {
         Settings setting = new Settings();
         setting.drawing = false;
         setting.plotProgress = -1;
@@ -103,6 +105,7 @@ public class Settings {
         setting.seed = 0;
 
         setting.outDir = Settings.logFile;
+        setting.infer();
         return setting;
     }
 
@@ -117,10 +120,10 @@ public class Settings {
 
     //------------------Exporting (i.e. output files for logging etc.)
 
-    public BlockExporting blockExporting = BlockExporting.JSON;
+    public ExportFileType exportType = ExportFileType.JSON;
 
-    public enum BlockExporting {
-        JSON, TEXT
+    public enum ExportFileType {
+        JSON, TEXT, JAVA
     }
 
     /**
@@ -145,8 +148,18 @@ public class Settings {
     /**
      * Outputs of these blocks will be exported into respective files
      */
-    public String[] exportBlocks = {"NeuralTrainTestPipeline", "NeuralEvaluationPipe", "CrossvalidationPipeline",
-            "CompressionPipe", "NetworkPruningPipe", "NeuralTrainingPipe", "GroundingPipeline", "NeuralizationPipeline", "LearningPipeline", "LearningSchemePipeline"};
+    public String[] exportBlocks = {
+            "NeuralTrainTestPipeline",  //exports TrainTestResults (default output)
+            "NeuralEvaluationPipe",     //exports Results (default output)
+            "CrossvalidationPipeline",  //exports (aggregated) TrainTestResults (default output)
+            "CompressionPipe",          //exports IsoValueNetworkCompressor = compression statistics (overriden!, default output would be Stream<NeuralProcessingSample>)
+            "NetworkPruningPipe",       //exports LinearChainReducer = pruning statistics (overriden!, default output would be Stream<NeuralProcessingSample>)
+            "NeuralTrainingPipe",       //exports stats from {@link TrainingStrategy} (through ExportingPipe!, default would be Pair<NeuralModel, Progress>)
+            "GroundingPipeline",        //exports stats from {@link Grounder} (through ExportingPipe!, default output would be Stream<GroundingSample>)
+            "NeuralizationPipeline",    //exports stats from {@link Neuralizer} (through ExportingPipe!, default output would be Stream<NeuralSample>)
+            "LearningPipeline",         //exports Pair<Pair<Template, NeuralModel>, Progress> (default output)  todo this is too big, create TemplateExporter
+            "LearningSchemePipeline"    //exports PipelineTiming<Results> (default output = Results + Timing due to Pipeline default functionality)
+    };
 
     //------------------Drawing/Debugging
 
@@ -173,6 +186,11 @@ public class Settings {
      * otherwise only the last consumer will trigger the debugger
      */
     public boolean intermediateDebug;
+
+    /**
+     * Debugger will export the final output as a List of objects into json file
+     */
+    public boolean debugExporting = true;
 
     public Detail drawingDetail = Detail.HIGH;
 
@@ -755,7 +773,7 @@ public class Settings {
 
         if (cmd.hasOption("settingsFile")) {
             String _settingsPath = cmd.getOptionValue("settings");
-            settings = loadFromJson(_settingsPath);
+            settings = updateFromJson(Paths.get(_settingsPath));
         }
 
         if (cmd.hasOption("out")) {
@@ -1025,15 +1043,11 @@ public class Settings {
 
     }
 
-    public void importFromCSV(String inPath) {
-
-    }
-
-    public Settings loadFromJson(String inPath) {
+    public Settings updateFromJson(Path inPath) {
         InstanceCreator<Settings> creator = type -> Settings.this;
         Gson gson = new GsonBuilder().registerTypeAdapter(Settings.class, creator).create();
         try {
-            String json = new String(Files.readAllBytes(Paths.get(inPath)));
+            String json = new String(Files.readAllBytes(inPath));
             Settings settings = gson.fromJson(json, Settings.class);
             return settings;
         } catch (IOException e) {
@@ -1042,8 +1056,13 @@ public class Settings {
         }
     }
 
+    public static Settings loadFromJson(Path inPath){
+        Settings settings = new Settings().updateFromJson(inPath);
+        return settings;
+    }
+
     public String export() {
-        if (blockExporting == BlockExporting.JSON)
+        if (exportType == ExportFileType.JSON)
             return exportToJson();
         else {
             LOG.warning("Only exporting of Settings to JSON is supported");
@@ -1058,9 +1077,5 @@ public class Settings {
                 .create();
         String json = gson.toJson(this);
         return json;
-    }
-
-    public void exportToCSV(String outPath) {
-
     }
 }

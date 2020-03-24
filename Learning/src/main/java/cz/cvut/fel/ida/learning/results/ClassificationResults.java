@@ -3,7 +3,6 @@ package cz.cvut.fel.ida.learning.results;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
-import cz.cvut.fel.ida.utils.exporting.Exporter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -172,10 +171,5 @@ public class ClassificationResults extends RegressionResults {
             }
         }
         return sb.toString();
-    }
-
-    @Override
-    public void export(Exporter exporter) {
-        exporter.export(this);
     }
 }

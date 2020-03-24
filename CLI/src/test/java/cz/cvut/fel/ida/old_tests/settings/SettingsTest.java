@@ -1,28 +1,46 @@
 package cz.cvut.fel.ida.old_tests.settings;
 
 import cz.cvut.fel.ida.setup.Settings;
-import cz.cvut.fel.ida.utils.exporting.JsonExporter;
-import org.junit.jupiter.api.Test;
+import cz.cvut.fel.ida.utils.exporting.TextExporter;
+import cz.cvut.fel.ida.utils.generic.TestAnnotations;
+import org.junit.jupiter.api.Assertions;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.logging.Logger;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SettingsTest {
 
-    @Test
+    private static final Logger LOG = Logger.getLogger(SettingsTest.class.getName());
+
+    @TestAnnotations.Fast
     public void exportToJson() {
         Settings settings = new Settings();
         String json = settings.exportToJson();
-        System.out.println(json);
+        LOG.fine(json);
+        assertFalse(json.isEmpty());
     }
 
-    @Test
+    @TestAnnotations.Fast
     public void exportToJsonFile() {
-        Settings settings = new Settings();
-        new JsonExporter(settings.exportDir,"").exportObject(settings.exportToJson(), settings.settingsExportFile);
+        Settings settings = Settings.forFastTest();
+        Path exportPath = Paths.get(Settings.logFile, settings.settingsExportFile);
+        TextExporter.exportString(settings.exportToJson(), exportPath);
+        assertTrue(exportPath.toFile().exists());
     }
 
-
-    @Test
-    public void importFromJson() {
-        Settings settings = new Settings().loadFromJson("./resources/settings/settings.json");
-        System.out.println(settings);
+    @TestAnnotations.Fast
+    public void exportImportFromJson() {
+        Settings settings = Settings.forFastTest();
+        Path exportPath = Paths.get(Settings.logFile, settings.settingsExportFile);
+        settings.maxCumEpochCount = 7;
+        TextExporter.exportString(settings.exportToJson(), exportPath);
+        settings.maxCumEpochCount = 10;
+        settings = settings.updateFromJson(exportPath);
+        LOG.fine(settings.export());
+        Assertions.assertEquals(settings.maxCumEpochCount, 7);
     }
 }

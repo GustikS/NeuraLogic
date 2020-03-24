@@ -44,6 +44,10 @@ public abstract class Query<E extends Example, M extends Model> {
      */
     public double importance;
 
+    protected Query() {
+        //do not use (for serialization only)
+    }
+
     /**
      * Return an getValue result of this query, this might be boolean (for logical query) or any numerical value
      *

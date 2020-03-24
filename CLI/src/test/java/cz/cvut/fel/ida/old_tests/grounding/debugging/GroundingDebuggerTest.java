@@ -1,20 +1,36 @@
 package cz.cvut.fel.ida.old_tests.grounding.debugging;
 
-import cz.cvut.fel.ida.logging.Logging;
+import cz.cvut.fel.ida.logic.grounding.GroundingSample;
 import cz.cvut.fel.ida.neuralogic.cli.utils.Runner;
 import cz.cvut.fel.ida.pipelines.debugging.GroundingDebugger;
 import cz.cvut.fel.ida.setup.Settings;
-import org.junit.jupiter.api.Test;
+import cz.cvut.fel.ida.utils.exporting.JavaExporter;
+import cz.cvut.fel.ida.utils.generic.TestAnnotations;
+
+import java.nio.file.Paths;
+import java.util.List;
+
+import static cz.cvut.fel.ida.setup.Settings.ExportFileType.JAVA;
+import static cz.cvut.fel.ida.utils.generic.Utilities.getDatasetArgs;
 
 public class GroundingDebuggerTest {
-    @Test
+
+    @TestAnnotations.Slow
     public void family() throws Exception {
-        Logging logging = Logging.initLogging();
-        String[] args = new String("-path ./resources/datasets/family").split(" ");
-        Settings settings = new Settings();
+        Settings settings = Settings.forSlowTest();
         settings.intermediateDebug = false;
-//        Settings.loggingLevel = Level.WARNING;
-        GroundingDebugger groundingDebugger = new GroundingDebugger(Runner.getSources(args, settings), settings);
+        settings.exportType = JAVA;
+        settings.debugExporting = true;
+        GroundingDebugger groundingDebugger = new GroundingDebugger(Runner.getSources(getDatasetArgs("simple/family"), settings), settings);
         groundingDebugger.executeDebug();
     }
+
+    @TestAnnotations.Slow
+    public void loadGroundSamples() throws Exception {
+        List<GroundingSample> groundingSamples = new JavaExporter().importListFrom(Paths.get("../Resources/datasets/simple/family/mock/GroundingDebugger.java"), GroundingSample.class);
+        for (GroundingSample groundingSample : groundingSamples) {
+            System.out.println(groundingSample.exportToJson());
+        }
+    }
+
 }

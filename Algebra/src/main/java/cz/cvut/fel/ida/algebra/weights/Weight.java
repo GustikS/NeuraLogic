@@ -4,11 +4,12 @@ import com.sun.istack.internal.Nullable;
 import cz.cvut.fel.ida.algebra.utils.metadata.WeightMetadata;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 /**
  * Created by gusta on 8.3.17.
  */
-public class Weight {
+public class Weight implements Exportable {
     /**
      * Weights should be created via factory => this is a unique identifier
      */

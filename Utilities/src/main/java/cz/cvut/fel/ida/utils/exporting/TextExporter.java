@@ -1,63 +1,80 @@
 package cz.cvut.fel.ida.utils.exporting;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Path;
 import java.util.logging.Logger;
 
-/**
- * This is an antipattern, exporting shouldn't be dependent on the particular classes, move it to toString method of each class
- */
-@Deprecated
-public class TextExporter extends Exporter {
+
+public abstract class TextExporter extends Exporter {
     private static final Logger LOG = Logger.getLogger(TextExporter.class.getName());
 
-    public TextExporter(String exportDir, String id) {
-        super(exportDir, id, "TEXT");
-    }
+    PrintWriter exportWriter;
 
-    @Override
-    public <I> void export(Exportable iExportable) {
-        exportLine(iExportable.toString());
-    }
+    /**
+     * Repeated export to the same file (e.g. Crossvalidation folds)
+     */
+    boolean repeatedExportAppend;
 
-    /*
-    public void export(TrainTestResults trainTestResults) {
-        exportLine("TrainTestResults:");
-        trainTestResults.training.bestResults.export(this);
-        exportLine("Testing:");
-        trainTestResults.testing.export(this);
-    }
-
-    public void export(Results results) {
-//        resultsLine("Results:");
-        exportLine(results.toString());
-    }
-
-    public void export(Progress.TrainVal trainVal) {
-        exportLine("TrainVal:");
-        exportLine("Training:");
-        trainVal.training.export(this);
-        exportLine("Validation:");
-        trainVal.validation.export(this);
-    }
-
-    public void export(Progress progress) {
-        exportLine("Progress:");
-        exportLine("BestResults:");
-        progress.bestResults.export(this);
-        exportLine("Training");
-        for (Progress.Restart restart : progress.restarts) {
-            exportLine("onlineTrainingResults-----------------");
-            for (Results onlineTrainingResult : restart.onlineTrainingResults) {
-                export(onlineTrainingResult);
-            }
-            exportLine("trueTrainingResults----------------");
-            for (Results trueTrainingResult : restart.trueTrainingResults) {
-                export(trueTrainingResult);
-            }
-            exportLine("validationResults------------------");
-            for (Results validationResult : restart.validationResults) {
-                export(validationResult);
-            }
+    /**
+     * A particular named exporter - will create a new file
+     *
+     * @param id
+     */
+    public TextExporter(String exportDir, String id, String type) {
+        super(exportDir, id, type);
+        if (exportFile.exists()) {
+            repeatedExportAppend = true;
         }
+        this.exportWriter = getWriter(exportFile.toString(), true);
     }
- */
+
+    protected TextExporter() {
+    }
+
+    public void finish() {
+        exportWriter.close();
+    }
+
+    public void exportLine(String line) {
+        exportWriter.println(line);
+        exportWriter.println();
+        exportWriter.flush();
+    }
+
+    private static PrintWriter getWriter(String filename, boolean append) {
+        FileWriter fw = null;
+        File file = new File(filename);
+        try {
+            createFile(file);
+            fw = new FileWriter(filename, append);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //BufferedWriter bw = new BufferedWriter(fw);
+        PrintWriter out = new PrintWriter(fw);
+        return out;
+    }
+
+    public static boolean createFile(File file) {
+        if (file.getParentFile() != null)
+            file.getParentFile().mkdirs();
+        boolean created = false;// if file already exists will do nothing
+        try {
+            created = file.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return created;
+    }
+
+    public static void exportString(String exportToJson, Path exportFile) {
+        LOG.info("Exporting serialized object to " + exportFile);
+        PrintWriter settingsWriter = getWriter(exportFile.toString(), false);
+        settingsWriter.println(exportToJson);
+        settingsWriter.flush();
+        settingsWriter.close();
+    }
 }

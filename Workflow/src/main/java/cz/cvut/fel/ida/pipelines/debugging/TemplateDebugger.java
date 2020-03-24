@@ -2,13 +2,13 @@ package cz.cvut.fel.ida.pipelines.debugging;
 
 import cz.cvut.fel.ida.logic.constructs.example.LogicSample;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
-import cz.cvut.fel.ida.pipelines.debugging.drawing.TemplateDrawer;
-import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.pipelines.Pipeline;
+import cz.cvut.fel.ida.pipelines.debugging.drawing.TemplateDrawer;
 import cz.cvut.fel.ida.pipelines.pipes.generic.FirstFromPairPipe;
 import cz.cvut.fel.ida.pipelines.pipes.generic.StreamifyPipe;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.setup.Sources;
+import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -18,18 +18,22 @@ public class TemplateDebugger extends End2EndDebugger<Template> {
 
     public TemplateDebugger(Settings settings) {
         super(settings);
-        drawer = new TemplateDrawer(settings);
+        if (settings.drawing)
+            drawer = new TemplateDrawer(settings);
     }
 
     public TemplateDebugger(Sources sources, Settings settings) {
         super(sources, settings);
-        drawer = new TemplateDrawer(settings);
+        if (settings.drawing)
+            drawer = new TemplateDrawer(settings);
 
     }
 
     @Override
     public void debug(Template obj) {
-        drawer.draw(obj);
+        LOG.fine(obj.toString());
+        if (settings.drawing)
+            drawer.draw(obj);
     }
 
     /**

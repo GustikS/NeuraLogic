@@ -1,19 +1,22 @@
 package cz.cvut.fel.ida.pipelines.debugging;
 
 import cz.cvut.fel.ida.drawing.Drawer;
-import cz.cvut.fel.ida.pipelines.building.End2endTrainigBuilder;
 import cz.cvut.fel.ida.pipelines.Pipe;
 import cz.cvut.fel.ida.pipelines.Pipeline;
+import cz.cvut.fel.ida.pipelines.building.End2endTrainigBuilder;
 import cz.cvut.fel.ida.pipelines.bulding.AbstractPipelineBuilder;
 import cz.cvut.fel.ida.pipelines.debuging.drawing.PipelineDrawer;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.setup.Sources;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
+import cz.cvut.fel.ida.utils.exporting.Exporter;
 
+import java.nio.file.Paths;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public abstract class End2EndDebugger<S> extends AbstractPipelineBuilder<Sources, Stream<S>> {
+public abstract class End2EndDebugger<S extends Exportable> extends AbstractPipelineBuilder<Sources, Stream<S>> {
     private static final Logger LOG = Logger.getLogger(End2EndDebugger.class.getName());
 
     /**
@@ -41,7 +44,12 @@ public abstract class End2EndDebugger<S> extends AbstractPipelineBuilder<Sources
      */
     protected End2endTrainigBuilder end2endTrainigBuilder;
 
-    public boolean intermediateDebug;
+
+    protected boolean intermediateDebug;
+    protected boolean exporting;
+    protected boolean drawing;
+
+    protected Exporter exporter;
 
     public End2EndDebugger(Settings settings) {
         super(settings);
@@ -54,11 +62,19 @@ public abstract class End2EndDebugger<S> extends AbstractPipelineBuilder<Sources
         this.pipeline = new Pipeline<Sources, Stream<S>>(this.getClass().getSimpleName() + "Pipeline", this);
 //        this.settings.root = pipeline;
         this.intermediateDebug = settings.intermediateDebug;
+        this.exporting = settings.debugExporting;
+        if (exporting) {
+            startExport();
+        }
+        this.drawing = settings.drawing;
+        if (drawing && drawer == null) {
+            LOG.warning("There is no Drawer to use!");
+        }
     }
 
     public void executeDebug() {
         pipeline = buildPipeline();
-        if (settings.debugPipeline){
+        if (settings.debugPipeline) {
             drawPipeline();
         }
         addDebugTerminal(pipeline);
@@ -79,11 +95,14 @@ public abstract class End2EndDebugger<S> extends AbstractPipelineBuilder<Sources
         pipeline.registerEnd(pipeline.terminal.connectAfter(new Pipe<Stream<S>, Stream<S>>("PeekPipe") {
             @Override
             public Stream<S> apply(Stream<S> stream) {
-                return stream.peek(End2EndDebugger.this::debug);
+                return stream.peek(s -> {
+                    if (exporting)
+                        exportSample(s);
+                    debug(s);
+                });
             }
         }));
     }
-
 
     public void addDebugTerminal(Pipeline<?, Stream<S>> pipeline) {
         pipeline.registerEnd(pipeline.terminal.connectAfter(new Pipe<Stream<S>, Stream<S>>("StreamTerminationPipe") {
@@ -92,9 +111,12 @@ public abstract class End2EndDebugger<S> extends AbstractPipelineBuilder<Sources
                 stream.forEach(new Consumer<S>() {
                     @Override
                     public void accept(S s) {
+                        if (exporting)
+                            exportSample(s);
                         debug(s);
                     }
                 });
+                endExport();
                 return stream;  //obviously the returned stream is void now, should not be used (but we need to keep the pipe I-O interface)
             }
         }));
@@ -110,5 +132,24 @@ public abstract class End2EndDebugger<S> extends AbstractPipelineBuilder<Sources
     }
 
     public abstract void debug(S obj);
+
+    protected void exportSample(S sample) {
+        exporter.export(sample);
+        if (settings.exportType == Settings.ExportFileType.JSON)
+            exporter.delimitNext();
+    }
+
+    protected void startExport() {
+        exporter = Exporter.getExporter(Paths.get(settings.exportDir, "debug").toString(), this.getClass().getSimpleName(), settings.exportType.name());
+        if (settings.exportType == Settings.ExportFileType.JSON)
+            exporter.delimitStart();
+    }
+
+    protected void endExport() {
+        if (settings.exportType == Settings.ExportFileType.JSON) {
+            exporter.delimitEnd();
+        }
+        exporter.finish();
+    }
 
 }

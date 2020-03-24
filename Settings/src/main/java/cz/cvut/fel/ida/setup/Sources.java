@@ -209,7 +209,7 @@ public class Sources {
     }
 
     public String export() {
-        if (settings.blockExporting == Settings.BlockExporting.JSON)
+        if (settings.exportType == Settings.ExportFileType.JSON)
             return exportToJson();
         else {
             LOG.warning("Only exporting of Sources to JSON is supported");

@@ -134,7 +134,7 @@ public class SourceFiles extends Sources {
                 if (templatePath.startsWith("["))
                     templatePath = templatePath.substring(1, templatePath.length() - 2);
                 String[] split = templatePath.split(",");
-                mergedTemplatePath.toFile().delete();
+                mergedTemplatePath.toFile().delete();   //delete previously existing
                 template_ = mergeTemplates(settings, cmd, foldDir, split);
             } else {
                 template_ = getTemplate(settings, cmd, foldDir, templatePath);
@@ -402,6 +402,18 @@ public class SourceFiles extends Sources {
         }
     }
 
+    public static SourceFiles loadFromJson(Settings settings, String inPath) {
+        SourceFiles sourceFiles = null;
+        if (new File(inPath).exists())
+            sourceFiles = new SourceFiles(settings).loadFromJson(inPath);
+        else if (Paths.get(inPath, "sources.json").toFile().exists())
+            sourceFiles = new SourceFiles(settings).loadFromJson(Paths.get(inPath, "sources.json").toString());
+        if (sourceFiles == null) {
+            LOG.warning("No SourceFiles have been found at: " + inPath);
+        }
+        return sourceFiles;
+    }
+
     public void exportToCSV(String outPath) {
 
     }
@@ -420,4 +432,5 @@ public class SourceFiles extends Sources {
         }
         return fileType;
     }
+
 }

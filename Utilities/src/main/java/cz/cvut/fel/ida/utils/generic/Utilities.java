@@ -42,6 +42,18 @@ public class Utilities {
         return args.split("(?=\")|(?<=\")\\s| ");
     }
 
+    public static String[] getDatasetArgs(String... args) {
+        String datasetDirResourcePath = args[0];
+        StringBuilder additional = new StringBuilder(" ");
+        if (args.length > 1) {
+            for (int i = 1; i < args.length; i++) {
+                additional.append(args[i]).append(" ");
+            }
+        }
+        String resourcePath = getResourcePath(datasetDirResourcePath);
+        return splitArgs("-sd " + resourcePath + additional.toString());
+    }
+
     public static String getResourcePath(String filename) {
         URL resource = Thread.currentThread().getContextClassLoader().getResource(filename);
         return resource.getPath();

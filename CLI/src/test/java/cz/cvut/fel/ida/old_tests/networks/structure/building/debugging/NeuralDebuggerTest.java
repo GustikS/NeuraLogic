@@ -1,23 +1,35 @@
 package cz.cvut.fel.ida.old_tests.networks.structure.building.debugging;
 
-import cz.cvut.fel.ida.logging.Logging;
+import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
 import cz.cvut.fel.ida.neuralogic.cli.utils.Runner;
 import cz.cvut.fel.ida.pipelines.debugging.NeuralDebugger;
 import cz.cvut.fel.ida.setup.Settings;
-import org.junit.jupiter.api.Test;
+import cz.cvut.fel.ida.utils.exporting.JavaExporter;
+import cz.cvut.fel.ida.utils.generic.TestAnnotations;
 
-import java.util.logging.Level;
+import java.nio.file.Paths;
+import java.util.List;
+
+import static cz.cvut.fel.ida.setup.Settings.ExportFileType.JAVA;
+import static cz.cvut.fel.ida.utils.generic.Utilities.getDatasetArgs;
 
 public class NeuralDebuggerTest {
 
-    @Test
+    @TestAnnotations.Slow
     public void family() throws Exception {
-        Logging logging = Logging.initLogging();
-        String[] args = new String("-path .resources/datasets/family").split(" ");
-        Settings settings = new Settings();
-        settings.intermediateDebug = true;
-        Settings.loggingLevel = Level.WARNING;
-        NeuralDebugger neuralDebugger = new NeuralDebugger(Runner.getSources(args, settings), settings);
+        Settings settings = Settings.forSlowTest();
+        settings.intermediateDebug = false;
+        settings.exportType = JAVA;
+        settings.debugExporting = true;
+        NeuralDebugger neuralDebugger = new NeuralDebugger(Runner.getSources(getDatasetArgs("simple/family"), settings), settings);
         neuralDebugger.executeDebug();
+    }
+
+    @TestAnnotations.Slow
+    public void loadGroundSamples() throws Exception {
+        List<NeuralSample> neuralSamples = new JavaExporter().importListFrom(Paths.get("../Resources/datasets/simple/family/mock/NeuralDebugger.java"), NeuralSample.class);
+        for (NeuralSample neuralSample : neuralSamples) {
+            System.out.println(neuralSample.exportToJson());
+        }
     }
 }

@@ -2,13 +2,14 @@ package cz.cvut.fel.ida.algebra.utils.metadata;
 
 import cz.cvut.fel.ida.algebra.values.*;
 import cz.cvut.fel.ida.algebra.weights.Weight;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 import java.util.logging.Logger;
 
 /**
  * A dictionary of all possible values corresponding to the possible {@link Parameter} types.
  */
-public class ParameterValue {
+public class ParameterValue implements Exportable {
     private static final Logger LOG = Logger.getLogger(ParameterValue.class.getName());
 
     public Type type;

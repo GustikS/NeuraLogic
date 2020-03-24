@@ -3,10 +3,11 @@ package cz.cvut.fel.ida.logic.grounding;
 import cz.cvut.fel.ida.logic.constructs.example.LiftedExample;
 import cz.cvut.fel.ida.logic.constructs.example.LogicSample;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 public class GroundingSample extends LogicSample {
 
-    public Template template;
+    transient public Template template;
     public Wrap groundingWrap;
 
     /**
@@ -23,7 +24,7 @@ public class GroundingSample extends LogicSample {
     /**
      * Helper subclass for keeping references to existing GroundTemplate that may be shared between different GroundingSamples based on common LiftedExample
      */
-    public static class Wrap {
+    public static class Wrap implements Exportable {
 
         public Wrap(LiftedExample example) {
             this.setExample(example);
@@ -40,7 +41,7 @@ public class GroundingSample extends LogicSample {
         /**
          * Memory for created neurons
          */
-        private  Object neuronMaps;
+        transient private  Object neuronMaps;
 
         public synchronized LiftedExample getExample() {
             return example;

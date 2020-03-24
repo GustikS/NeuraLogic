@@ -28,7 +28,7 @@ public abstract class Block {
         if (settings == null){
             return null;
         }
-        return Exporter.getFrom(settings.exportDir, id, settings.exportBlocks, settings.blockExporting.name());
+        return Exporter.getFrom(settings.exportDir, id, settings.exportBlocks, settings.exportType.name());
     }
 
     protected <T> void export(T outputReady) {

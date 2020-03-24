@@ -73,6 +73,9 @@ public abstract class BaseNeuron<T extends Neurons, S extends State.Neural> impl
         inputs = new ArrayList<>();
     }
 
+    protected BaseNeuron() {
+    }
+
     public void addInput(T input) {
         inputs.add(input);
     }

@@ -29,7 +29,7 @@ public class Pair<R, S> extends cz.cvut.fel.ida.utils.generic.tuples.Pair<R, S> 
         if (r instanceof Exportable)
             ((Exportable) r).export(exporter);
         if (s instanceof Exportable)
-            exporter.exportLine(",");
+            exporter.delimitNext();
         ((Exportable) s).export(exporter);
     }
 }

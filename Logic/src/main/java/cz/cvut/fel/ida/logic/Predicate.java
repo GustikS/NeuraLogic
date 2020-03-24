@@ -1,11 +1,12 @@
 package cz.cvut.fel.ida.logic;
 
+import java.io.Serializable;
 import java.util.logging.Logger;
 
 /**
  * Created by gusta on 1.3.18.
  */
-public class Predicate {
+public class Predicate implements Serializable {
     private static final Logger LOG = Logger.getLogger(Predicate.class.getName());
 
     public String name;

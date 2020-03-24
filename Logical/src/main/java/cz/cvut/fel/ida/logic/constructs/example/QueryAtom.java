@@ -8,14 +8,20 @@ import cz.cvut.fel.ida.logic.grounding.Grounder;
 import cz.cvut.fel.ida.learning.Query;
 import cz.cvut.fel.ida.setup.Settings;
 
+import java.io.Serializable;
+
 /**
  * Created by Gusta on 04.10.2016.
  * <p>
  * HeadAtom desont have to be ground! - it will apply to all compatible neuralize neurons then
  */
-public class QueryAtom extends Query<LiftedExample, Template> {
+public class QueryAtom extends Query<LiftedExample, Template> implements Serializable {
 
     public HeadAtom headAtom;
+
+    private QueryAtom(){
+        super();
+    }
 
     public QueryAtom(String id, int queryCounter, double importance, HeadAtom query, LiftedExample evidence) {
         super(id, queryCounter, importance, evidence);

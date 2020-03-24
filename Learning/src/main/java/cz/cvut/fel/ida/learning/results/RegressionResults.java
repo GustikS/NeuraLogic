@@ -1,6 +1,5 @@
 package cz.cvut.fel.ida.learning.results;
 
-import cz.cvut.fel.ida.utils.exporting.Exporter;
 import cz.cvut.fel.ida.setup.Settings;
 
 import java.util.List;
@@ -33,9 +32,5 @@ public class RegressionResults extends Results {
     @Override
     public String toString(Settings settings) {
         return null;
-    }
-
-    public void export(Exporter exporter) {
-        exporter.export(this);
     }
 }

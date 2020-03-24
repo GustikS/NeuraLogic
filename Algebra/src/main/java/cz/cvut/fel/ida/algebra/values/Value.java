@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.algebra.values;
 import com.sun.istack.internal.NotNull;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -15,7 +16,7 @@ import java.util.logging.Logger;
  * <p>
  * Created by gusta on 8.3.17.
  */
-public abstract class Value implements Iterable<Double> {   //todo add division
+public abstract class Value implements Iterable<Double>, Serializable {   //todo add division
     private static final Logger LOG = Logger.getLogger(Value.class.getName());
 
     /**
@@ -104,6 +105,7 @@ public abstract class Value implements Iterable<Double> {   //todo add division
 
     /**
      * Can be used for debugging
+     *
      * @return
      */
     public String toDetailedString() {

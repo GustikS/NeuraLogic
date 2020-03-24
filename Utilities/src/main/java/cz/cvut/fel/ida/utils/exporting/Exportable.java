@@ -3,7 +3,9 @@ package cz.cvut.fel.ida.utils.exporting;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public interface Exportable<I> {
+import java.io.Serializable;
+
+public interface Exportable<I> extends Serializable {
 
     default void export(Exporter exporter) {
         exporter.export(this);

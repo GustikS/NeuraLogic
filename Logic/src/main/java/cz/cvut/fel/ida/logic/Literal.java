@@ -23,6 +23,7 @@ import cz.cvut.fel.ida.utils.math.UniqueIDs;
 import cz.cvut.fel.ida.utils.math.collections.FakeMap;
 import cz.cvut.fel.ida.utils.generic.tuples.Pair;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -31,7 +32,7 @@ import java.util.logging.Logger;
  *
  * @author Ondra
  */
-public class Literal {
+public class Literal implements Serializable {
     private static final Logger LOG = Logger.getLogger(Literal.class.getName());
 
     private Term[] terms;

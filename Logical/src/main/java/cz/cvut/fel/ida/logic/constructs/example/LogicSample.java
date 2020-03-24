@@ -2,6 +2,7 @@ package cz.cvut.fel.ida.logic.constructs.example;
 
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.learning.LearningSample;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 import java.util.logging.Logger;
 
@@ -9,7 +10,7 @@ import java.util.logging.Logger;
 /**
  * Created by gusta on 8.3.17.
  */
-public class LogicSample extends LearningSample<QueryAtom, Object> {
+public class LogicSample extends LearningSample<QueryAtom, Object> implements Exportable {
     private static final Logger LOG = Logger.getLogger(LogicSample.class.getName());
 
     public LogicSample(Value v, QueryAtom q) {
@@ -27,7 +28,7 @@ public class LogicSample extends LearningSample<QueryAtom, Object> {
         return 0;
     }
 
-    public String getQueryId(){
+    public String getQueryId() {
         return super.getId();
     }
 }

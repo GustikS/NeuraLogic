@@ -47,7 +47,7 @@ public class StratifiedSplitter<T extends LearningSample> implements Splitter<T>
             LOG.warning("Limiting samples to a greater number than there actually is!");
             appCount = samples.size();
         }
-        List<T> subset = representativeSubset(getClasses(samples).values(), (double) appCount / samples.size());
+        List<T> subset = representativeSubset(getClasses(samples), (double) appCount / samples.size());
         if (subset.size() > appCount)
             subset = subset.subList(0, appCount);
         if (subset.size() == 0) {
@@ -77,9 +77,9 @@ public class StratifiedSplitter<T extends LearningSample> implements Splitter<T>
      * @param classes
      * @param percentage
      */
-    public List<T> representativeSubset(Collection<List<T>> classes, double percentage) {
-        List<List<T>> subsets = classes.stream().map(l -> l.subList(0, (int) (l.size() * percentage))).collect(Collectors.toList());
-        LOG.info("Calculated stratified subset with class distribution: " + subsets.stream().map(List::size).collect(Collectors.toList()));
+    public List<T> representativeSubset(Map<Value, List<T>> classes, double percentage) {
+        List<List<T>> subsets = classes.values().stream().map(l -> l.subList(0, (int) (l.size() * percentage))).collect(Collectors.toList());
+        LOG.info("Calculated stratified subset with class distribution: " + classes.entrySet().stream().map(entry -> entry.getKey() + ":" + entry.getValue().size()).collect(Collectors.toList()));
         List<T> collect = subsets.stream().flatMap(List::stream).collect(Collectors.toList());
         return collect;
     }
@@ -90,7 +90,7 @@ public class StratifiedSplitter<T extends LearningSample> implements Splitter<T>
         if (percentage != 1.0 && (split == 1 || split == samples.size())) {
             LOG.warning("Problem with samples partitioning, there are too few to be splitted: " + split + " out of " + samples.size() + " (split percentage = " + percentage + ")");
         }
-        List<T> train = representativeSubset(getClasses(samples).values(), percentage);
+        List<T> train = representativeSubset(getClasses(samples), percentage);
         List<T> test = new ArrayList<>(samples);
         boolean b = test.removeAll(train);
         return new Pair<>(train, test);

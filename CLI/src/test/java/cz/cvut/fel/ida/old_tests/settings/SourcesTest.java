@@ -5,32 +5,43 @@ import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.setup.SourceFiles;
 import cz.cvut.fel.ida.setup.Sources;
 import cz.cvut.fel.ida.utils.exporting.JsonExporter;
-import org.junit.jupiter.api.Test;
+import cz.cvut.fel.ida.utils.exporting.TextExporter;
+import cz.cvut.fel.ida.utils.generic.TestAnnotations;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import static cz.cvut.fel.ida.utils.generic.Utilities.getDatasetArgs;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SourcesTest {
 
-    @Test
+    @TestAnnotations.Fast
     public void exportToJson() throws Exception {
-        String[] args = ("-q ./resources/datasets/relational/kbs/nations/queries_small.txt " +
-                "-e ./resources/datasets/relational/kbs/nations/embeddings " +
-                "-t ./resources/datasets/relational/kbs/nations/template_2layers").split(" ");
-        Settings settings = new Settings();
-        Sources sources = Runner.getSources(args, settings);
+        Settings settings = Settings.forFastTest();
+        Sources sources = Runner.getSources(getDatasetArgs("simple/family"), settings);
         String json = sources.exportToJson();
         System.out.println(json);
+        assertFalse(json.isEmpty());
     }
 
-    @Test
-    public void exportToJsonFile() {
+    @TestAnnotations.Fast
+    public void exportToJsonFile() throws Exception {
         Settings settings = new Settings();
-        new JsonExporter(settings.exportDir,"").exportObject(settings.exportToJson(), settings.settingsExportFile);
+        Sources sources = Runner.getSources(getDatasetArgs("simple/family"), settings);
+        Path exportPath = Paths.get(Settings.logFile, settings.sourcesExportFile);
+        TextExporter.exportString(sources.exportToJson(), exportPath);
+        assertTrue(exportPath.toFile().exists());
     }
 
-    @Test
-    public void importFromJson() {
-        Settings settings = new Settings();
-        SourceFiles sources = new SourceFiles(settings).loadFromJson("./resources/settings/sources.json");
-        System.out.println(sources);
+    @TestAnnotations.Fast
+    public void exportImportFromJson() throws Exception {
+        Settings settings = Settings.forFastTest();
+        Sources sources = Runner.getSources(getDatasetArgs("simple/family"), settings);
+        Path exportPath = Paths.get(Settings.logFile, settings.sourcesExportFile);
+        TextExporter.exportString(sources.exportToJson(), exportPath);
+        SourceFiles sourceFiles = new JsonExporter().importObjectFrom(exportPath, SourceFiles.class);
+        assertTrue(sourceFiles.template.exists());
     }
-
 }

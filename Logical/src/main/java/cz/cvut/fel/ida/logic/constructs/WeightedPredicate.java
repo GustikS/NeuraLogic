@@ -6,9 +6,10 @@ import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.logic.Predicate;
 import cz.cvut.fel.ida.logic.constructs.template.metadata.PredicateMetadata;
 
+import java.io.Serializable;
 import java.util.logging.Logger;
 
-public class WeightedPredicate {
+public class WeightedPredicate implements Serializable {
     private static final Logger LOG = Logger.getLogger(WeightedPredicate.class.getName());
 
     /**

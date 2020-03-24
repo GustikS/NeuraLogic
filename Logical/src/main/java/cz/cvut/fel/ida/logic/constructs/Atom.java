@@ -6,11 +6,12 @@ import cz.cvut.fel.ida.algebra.functions.Activation;
 import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.logic.Predicate;
 import cz.cvut.fel.ida.logic.Term;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 import java.util.List;
 import java.util.logging.Logger;
 
-public class Atom {
+public class Atom implements Exportable {
     private static final Logger LOG = Logger.getLogger(Atom.class.getName());
 
     /**

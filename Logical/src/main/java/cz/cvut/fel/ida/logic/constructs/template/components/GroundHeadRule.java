@@ -1,12 +1,13 @@
 package cz.cvut.fel.ida.logic.constructs.template.components;
 
 import cz.cvut.fel.ida.logic.Literal;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Logger;
 
-public class GroundHeadRule {
+public class GroundHeadRule implements Exportable {
     private static final Logger LOG = Logger.getLogger(GroundHeadRule.class.getName());
 
     public WeightedRule weightedRule;

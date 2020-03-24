@@ -6,11 +6,13 @@ import cz.cvut.fel.ida.pipelines.building.LearningSchemeBuilder;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.setup.Sources;
 import cz.cvut.fel.ida.utils.exporting.Exporter;
+import cz.cvut.fel.ida.utils.exporting.TextExporter;
 import cz.cvut.fel.ida.utils.generic.Pair;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.logging.Logger;
 
 import static cz.cvut.fel.ida.utils.generic.Utilities.myExit;
@@ -57,17 +59,17 @@ public class Runner {
     }
 
     private static void startupExport(Settings settings, Sources sources) {
-        Exporter exporter = Exporter.getExporter(settings.exportDir, "", settings.blockExporting.name());
+        Exporter exporter = Exporter.getExporter(settings.exportDir, "", settings.exportType.name());
 
         if (settings.cleanUpFirst) {
             exporter.deleteDir(new File(settings.exportDir));
         }
 
         LOG.info("Exporting Settings configuration:");
-        exporter.exportObject(settings.export(), settings.settingsExportFile);
+        TextExporter.exportString(settings.export(), Paths.get(settings.settingsExportFile));
 
         LOG.info("Exporting Sources configuration:");
-        exporter.exportObject(sources.export(), settings.sourcesExportFile);
+        TextExporter.exportString(sources.export(), Paths.get(settings.sourcesExportFile));
     }
 
     public static String testConnection(String socket) {

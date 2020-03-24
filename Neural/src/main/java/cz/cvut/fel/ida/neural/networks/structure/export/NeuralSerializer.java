@@ -1,15 +1,16 @@
 package cz.cvut.fel.ida.neural.networks.structure.export;
 
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
+import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.BaseNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.WeightedNeuron;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.AggregationNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.types.TopologicNetwork;
-import cz.cvut.fel.ida.algebra.weights.Weight;
-import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public class NeuralSerializer {
         return null;
     }
 
-    public class SerializedSample {
+    public class SerializedSample implements Exportable {
         public int neuron;
         public List<SerializedNeuron> network;
         public String id;
@@ -54,7 +55,7 @@ public class NeuralSerializer {
     }
 
 
-    public static class SerializedNeuron {
+    public static class SerializedNeuron implements Exportable {
 
         public boolean weighted;
 
@@ -87,7 +88,7 @@ public class NeuralSerializer {
             Aggregation aggregation = neuron.getAggregation();
             if (aggregation != null)
                 activation = aggregation.getName();
-            if (neuron instanceof AggregationNeuron){
+            if (neuron instanceof AggregationNeuron) {
                 pooling = true;
             }
             Iterator<Neurons> inputs = network.getInputs(neuron);
@@ -122,7 +123,7 @@ public class NeuralSerializer {
         }
     }
 
-    public class SerializedWeight {
+    public class SerializedWeight implements Exportable {
         public String name;
         public int index;
 

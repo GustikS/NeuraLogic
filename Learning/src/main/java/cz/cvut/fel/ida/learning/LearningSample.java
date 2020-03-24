@@ -1,8 +1,9 @@
 package cz.cvut.fel.ida.learning;
 
 import cz.cvut.fel.ida.algebra.values.Value;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 
-public abstract class LearningSample<Q extends Query, Object> {
+public abstract class LearningSample<Q extends Query, Object> implements Exportable {
     //should learning samples contain reference to Model - probably not (Structure learning)
 
     public Q query;
@@ -13,11 +14,11 @@ public abstract class LearningSample<Q extends Query, Object> {
      */
     public Object cache;
 
-    public String getId(){
+    public String getId() {
         return query.ID;
     }
 
-    public double getImportance(){
+    public double getImportance() {
         return query.importance;
     }
 

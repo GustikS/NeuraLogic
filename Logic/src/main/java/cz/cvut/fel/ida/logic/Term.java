@@ -19,11 +19,13 @@
 
 package cz.cvut.fel.ida.logic;
 
+import java.io.Serializable;
+
 /**
  * Terms are variables, constants, function symbols and lists.
  * @author Ondra
  */
-public interface Term {
+public interface Term extends Serializable {
     
     /**
      *  

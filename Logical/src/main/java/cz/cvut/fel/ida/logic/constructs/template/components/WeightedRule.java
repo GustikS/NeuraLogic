@@ -7,6 +7,7 @@ import cz.cvut.fel.ida.logic.HornClause;
 import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.logic.Term;
 import cz.cvut.fel.ida.algebra.weights.Weight;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
  * Created by Gusta on 04.10.2016.
  * <p>
  */
-public class WeightedRule {
+public class WeightedRule  implements Exportable {
 
     /**
      * changable by structure learning?

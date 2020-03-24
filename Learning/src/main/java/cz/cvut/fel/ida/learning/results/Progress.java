@@ -1,7 +1,6 @@
 package cz.cvut.fel.ida.learning.results;
 
 import cz.cvut.fel.ida.utils.exporting.Exportable;
-import cz.cvut.fel.ida.utils.exporting.Exporter;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.List;
  */
 public class Progress implements Exportable<Progress> {
 
-    transient Restart currentRestart;
+    transient Restart currentRestart;   //transient here since the progress gets exported online during training
 
     transient public List<Restart> restarts;
 
@@ -92,10 +91,5 @@ public class Progress implements Exportable<Progress> {
                 return training.betterThan(other.training);
             }
         }
-    }
-
-    @Override
-    public void export(Exporter exporter) {
-        exporter.export(this);
     }
 }

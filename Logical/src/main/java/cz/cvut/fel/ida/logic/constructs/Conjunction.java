@@ -3,11 +3,12 @@ package cz.cvut.fel.ida.logic.constructs;
 //import cz.cvut.fel.ida.ml.constructs.example.ValuedFact;
 
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 import java.util.List;
 import java.util.logging.Logger;
 
-public class Conjunction {
+public class Conjunction implements Exportable {
     private static final Logger LOG = Logger.getLogger(Conjunction.class.getName());
 
     public List<ValuedFact> facts;

@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.logic.constructs.building.factories;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 /**
  * Created by gusta on 5.3.18.
  */
-public class WeightFactory {
+public class WeightFactory implements Exportable {
     private static final Logger LOG = Logger.getLogger(WeightFactory.class.getName());
 
     private int index = 0;
@@ -58,7 +59,7 @@ public class WeightFactory {
     }
 
     public Weight construct(String name, Value value, boolean fixed, boolean isInitialized) {
-        if (value == null){
+        if (value == null) {
             return null;
         }
         Weight result = str2weight.get(name);
@@ -72,12 +73,13 @@ public class WeightFactory {
 
     /**
      * Generic unknown weights are not put into cache.
+     *
      * @param value
      * @param fixed
      * @return
      */
     public Weight construct(Value value, boolean fixed, boolean isInitialized) {
-        if (value == null){
+        if (value == null) {
             return null;
         }
         Weight result = new Weight(index, genericName + index++, value, fixed, isInitialized);

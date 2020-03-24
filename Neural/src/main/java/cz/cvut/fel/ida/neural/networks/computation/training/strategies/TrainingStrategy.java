@@ -2,10 +2,6 @@ package cz.cvut.fel.ida.neural.networks.computation.training.strategies;
 
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.weights.Weight;
-import cz.cvut.fel.ida.utils.exporting.Exportable;
-import cz.cvut.fel.ida.utils.exporting.Exporter;
-import cz.cvut.fel.ida.utils.generic.Pair;
-import cz.cvut.fel.ida.utils.generic.Timing;
 import cz.cvut.fel.ida.learning.results.Progress;
 import cz.cvut.fel.ida.learning.results.Result;
 import cz.cvut.fel.ida.learning.results.Results;
@@ -13,6 +9,10 @@ import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
 import cz.cvut.fel.ida.neural.networks.computation.training.strategies.debugging.NeuralDebugging;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
+import cz.cvut.fel.ida.utils.exporting.Exporter;
+import cz.cvut.fel.ida.utils.generic.Pair;
+import cz.cvut.fel.ida.utils.generic.Timing;
 
 import java.io.IOException;
 import java.util.List;
@@ -60,8 +60,8 @@ public abstract class TrainingStrategy implements Exportable {
     }
 
     protected void setupExporter() {
-        this.exporter = Exporter.getExporter(settings.exportDir, "progress/training" + counter++ + "restart" + restart, "json");
-        exporter.exportLine("[");
+        this.exporter = Exporter.getExporter(settings.exportDir, "progress/training" + counter++ + "restart" + restart, settings.exportType.name());
+        exporter.delimitStart();
 
         if (settings.plotProgress > 0) {
             ProcessBuilder processBuilder = new ProcessBuilder(settings.pythonPath, settings.progressPlotterPath, settings.exportDir, "" + settings.plotProgress);

@@ -1,18 +1,19 @@
 package cz.cvut.fel.ida.logic.constructs.template;
 
 import com.sun.istack.internal.Nullable;
-import cz.cvut.fel.ida.logic.constructs.example.QueryAtom;
+import cz.cvut.fel.ida.algebra.values.Value;
+import cz.cvut.fel.ida.algebra.weights.Weight;
+import cz.cvut.fel.ida.learning.Model;
+import cz.cvut.fel.ida.logic.HornClause;
+import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.logic.constructs.Conjunction;
+import cz.cvut.fel.ida.logic.constructs.example.QueryAtom;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
 import cz.cvut.fel.ida.logic.constructs.template.components.BodyAtom;
 import cz.cvut.fel.ida.logic.constructs.template.components.WeightedRule;
 import cz.cvut.fel.ida.logic.constructs.template.types.GraphTemplate;
-import cz.cvut.fel.ida.algebra.values.Value;
-import cz.cvut.fel.ida.logic.HornClause;
-import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.logic.subsumption.HerbrandModel;
-import cz.cvut.fel.ida.learning.Model;
-import cz.cvut.fel.ida.algebra.weights.Weight;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -21,12 +22,12 @@ import java.util.stream.Collectors;
 /**
  * Created by Gusta on 04.10.2016.
  */
-public class Template implements Model<QueryAtom> {
+public class Template implements Model<QueryAtom>, Exportable {
     private static final Logger LOG = Logger.getLogger(Template.class.getName());
 
     static int counter = 0;
 
-    String id;
+    protected String id;
 
     public LinkedHashSet<WeightedRule> rules;
 

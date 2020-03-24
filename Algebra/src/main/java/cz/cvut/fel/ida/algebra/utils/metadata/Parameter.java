@@ -1,11 +1,13 @@
 package cz.cvut.fel.ida.algebra.utils.metadata;
 
+import cz.cvut.fel.ida.utils.exporting.Exportable;
+
 import java.util.logging.Logger;
 
 /**
  * A dictionary for all possible metadata parameter names.
  */
-public class Parameter {
+public class Parameter implements Exportable {
     private static final Logger LOG = Logger.getLogger(Parameter.class.getName());
 
     String name;

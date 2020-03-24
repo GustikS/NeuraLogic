@@ -18,7 +18,7 @@ public class Datasets {
     public void mutagenesis() throws Exception {
         String resourcePath = Utilities.getResourcePath("relational/molecules/mutagenesis");
         String args = "-sd " + resourcePath;
-        Settings settings = Settings.forBigTest();
+        Settings settings = Settings.forSlowTest();
         settings.maxCumEpochCount = 1000;
         Main.main(splitArgs(args), settings);
     }

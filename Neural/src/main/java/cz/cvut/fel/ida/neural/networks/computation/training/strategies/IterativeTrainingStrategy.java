@@ -43,7 +43,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     transient List<NeuralSample> validationSet;
 
-    transient Progress progress;
+    Progress progress;
 
     RestartingStrategy restartingStrategy;
 
@@ -168,7 +168,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     protected void endRestart() {
         recalculateResults();
-        exporter.exportLine("{}\n]");
+        exporter.delimitEnd();
         restartingStrategy.nextRestart();
         if (LOG.isLoggable(Level.FINER)) {
             logSampleOutputs();
@@ -261,6 +261,6 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     private void exportProgress(Exportable results) {
         results.export(exporter);
-        exporter.exportLine(",");
+        exporter.delimitNext();
     }
 }

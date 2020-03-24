@@ -43,7 +43,7 @@ public class FunctionalTests {
     public void mutagenesisSetting() throws Exception {
         String resourcePath = Utilities.getResourcePath("relational/molecules/mutagenesis");
         String args = "-sd " + resourcePath;
-        Settings settings = Settings.forBigTest();
+        Settings settings = Settings.forSlowTest();
         settings.maxCumEpochCount = 10;
         Main.main(splitArgs(args), settings);
     }
