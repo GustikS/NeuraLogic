@@ -29,7 +29,7 @@ public abstract class MultiMerge<I, O> extends Block implements ConnectAfter<O>{
         for (int i = 0; i < count; i++) {
             inputs.add(new Pipe<I, I>(id + "Input" + i) {
                 @Override
-                public I apply(I i) {
+                public I apply(I i) throws Exception {
                     MultiMerge.this.accept(i);
                     return i;
                 }
@@ -38,7 +38,7 @@ public abstract class MultiMerge<I, O> extends Block implements ConnectAfter<O>{
         inputsReady = new ConcurrentLinkedQueue<>();
     }
 
-    private void accept(I i) {
+    private void accept(I i) throws Exception {
         inputsReady.add(i);
         if (inputsReady.size() == inputs.size()){
             LOG.finer("Entering: " + ID);
@@ -61,7 +61,7 @@ public abstract class MultiMerge<I, O> extends Block implements ConnectAfter<O>{
      *
      * @param allInputs
      */
-    public void accept(List<I> allInputs) {
+    public void accept(List<I> allInputs) throws Exception {
         outputReady = merge(allInputs);
         if (this.output != null) {
             this.output.accept(outputReady);

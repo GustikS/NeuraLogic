@@ -19,6 +19,8 @@ import java.util.logging.*;
 public class Logging {
     private static final Logger LOG = Logger.getLogger(Logging.class.getName());
 
+    public static File logFile;
+
     private FileHandler loggingFile;
 
     Formatter fileFormatter;
@@ -33,6 +35,7 @@ public class Logging {
     public static Logging initTestLogging(String testName) throws Exception {
 //        Settings.loggingLevel = Level.FINEST;
         Settings.logFile = "./testlog/" + testName + "_" + calcDateTime(System.currentTimeMillis());
+        Logging.logFile = new File(Settings.logFile);
         Settings.htmlLogging = false;
         return initLogging(Settings.loggingLevel, false);
     }

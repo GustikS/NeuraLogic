@@ -42,7 +42,7 @@ public class MainBenchmark {
     }
 
     @Benchmark
-    public void main(BenchmarkState state) {
-        Main.main(state.args);
+    public void main(BenchmarkState state) throws Exception {
+        Main.mainExc(state.args);
     }
 }

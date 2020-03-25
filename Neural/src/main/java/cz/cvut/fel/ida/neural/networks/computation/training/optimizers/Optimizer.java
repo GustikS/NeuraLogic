@@ -8,7 +8,7 @@ import cz.cvut.fel.ida.setup.Settings;
 
 import java.util.List;
 
-public interface Optimizer {
+public interface Optimizer{
 
     static Optimizer getFrom(Settings settings, Value learningRate) {
         if (settings.optimizer == Settings.OptimizerSet.SGD) {

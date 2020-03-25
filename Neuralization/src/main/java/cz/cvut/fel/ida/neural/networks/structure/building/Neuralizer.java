@@ -64,7 +64,7 @@ public class Neuralizer implements Exportable {
      * @param samples
      * @return
      */
-    public List<NeuralProcessingSample> neuralize(GroundTemplate groundTemplate, List<GroundingSample> samples) {
+    public List<NeuralProcessingSample> neuralize(GroundTemplate groundTemplate, List<GroundingSample> samples) throws RuntimeException {
         timing.tic();
         networksCreated++;
 
@@ -130,7 +130,7 @@ public class Neuralizer implements Exportable {
      * @param groundingSample
      * @return
      */
-    public List<NeuralProcessingSample> neuralize(GroundingSample groundingSample) {
+    public List<NeuralProcessingSample> neuralize(GroundingSample groundingSample) throws RuntimeException {
         timing.tic();
         networksCreated++;
 
@@ -164,7 +164,7 @@ public class Neuralizer implements Exportable {
      *
      * @return
      */
-    private List<QueryNeuron> supervisedNeuralization(GroundingSample groundingSample, NeuronMaps neuronMaps, NeuralSets createdNeurons) { // - todo test if all correct in sequential sharing mode!!!
+    private List<QueryNeuron> supervisedNeuralization(GroundingSample groundingSample, NeuronMaps neuronMaps, NeuralSets createdNeurons) throws RuntimeException { // - todo test if all correct in sequential sharing mode!!!
         QueryAtom queryAtom = groundingSample.query;
         GroundTemplate groundTemplate = groundingSample.groundingWrap.getGroundTemplate();
 
@@ -193,7 +193,7 @@ public class Neuralizer implements Exportable {
      * @param groundTemplate
      * @return
      */
-    private DetailedNetwork blindNeuralization(GroundTemplate groundTemplate, NeuronMaps neuronMaps, NeuralSets currentNeuralSets) {
+    private DetailedNetwork blindNeuralization(GroundTemplate groundTemplate, NeuronMaps neuronMaps, NeuralSets currentNeuralSets) throws RuntimeException {
         //simply create neurons for all the ground rules
         for (Map.Entry<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> entry : neuronMaps.groundRules.entrySet()) {
             neuralNetBuilder.loadNeuronsFromRules(entry.getKey(), entry.getValue(), currentNeuralSets);
@@ -203,7 +203,7 @@ public class Neuralizer implements Exportable {
         return getDetailedNetwork(neuronMaps, currentNeuralSets, groundTemplate, null);
     }
 
-    private DetailedNetwork getDetailedNetwork(NeuronMaps neuronMaps, NeuralSets createdNeurons, GroundTemplate groundTemplate, List<Literal> queryMatchingLiterals) {
+    private DetailedNetwork getDetailedNetwork(NeuronMaps neuronMaps, NeuralSets createdNeurons, GroundTemplate groundTemplate, List<Literal> queryMatchingLiterals) throws RuntimeException {
         if (neuralNetBuilder.neuralBuilder.neuronFactory.neuronMaps.factNeurons.isEmpty() || settings.groundingMode == Settings.GroundingMode.SEQUENTIAL)
             neuralNetBuilder.loadNeuronsFromFacts(neuronMaps.groundFacts, createdNeurons);   //global sharing mode transfers facts   - todo check after changes
 

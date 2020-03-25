@@ -4,10 +4,11 @@ import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.NeuronVisiting;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 import java.util.ArrayList;
 
-public interface Neurons<T extends Neurons, S extends State.Neural> {
+public interface Neurons<T extends Neurons, S extends State.Neural> extends Exportable {
 
     void visit(NeuronVisitor.Weighted visitor);
 

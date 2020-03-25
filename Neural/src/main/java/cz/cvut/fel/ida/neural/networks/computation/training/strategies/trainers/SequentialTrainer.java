@@ -25,10 +25,10 @@ import java.util.stream.Stream;
 public class SequentialTrainer extends Trainer {
     private static final Logger LOG = Logger.getLogger(SequentialTrainer.class.getName());
 
-    IndependentNeuronProcessing dropout;
-    IndependentNeuronProcessing invalidation;
-    Evaluation evaluation;
-    Backpropagation backpropagation;
+    transient IndependentNeuronProcessing dropout;
+    transient IndependentNeuronProcessing invalidation;
+    transient Evaluation evaluation;
+    transient Backpropagation backpropagation;
 
     public SequentialTrainer(Settings settings, Optimizer optimizer, NeuralModel neuralModel) {
         this(settings, optimizer, neuralModel, -1);

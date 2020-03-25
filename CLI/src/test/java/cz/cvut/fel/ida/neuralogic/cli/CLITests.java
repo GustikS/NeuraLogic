@@ -7,6 +7,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.logging.Logger;
 
 import static cz.cvut.fel.ida.utils.generic.Utilities.splitArgs;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -16,6 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @TestAnnotations.Fast
 @DisplayName("Testing the basic commandline inputs")
 public class CLITests {
+
+    private static final Logger LOG = Logger.getLogger(CLITests.class.getName());
 
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
     private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
@@ -40,8 +43,8 @@ public class CLITests {
 
         @Test
         @DisplayName("Test empty commandline help message printing")
-        public void emptyArgsMsg() {
-            Main.main(splitArgs(""));
+        public void emptyArgsMsg() throws Exception {
+            Main.mainExc(splitArgs(""));
             assertThat(outContent.toString(), containsString("Lifted Relational Neural Network"));
         }
 
@@ -78,5 +81,19 @@ public class CLITests {
 
             assertThat(thrown.getMessage(), containsString("Unable to parse arguments"));
         }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "-sd simple/family -t ./xxx",
+            "-q simple/family -e simple/family",
+    })
+    public void missingTemplate(String argString){
+        Exception thrown = assertThrows(
+                Exception.class,
+                () -> Main.mainExc(splitArgs(argString)),
+                "Expected Main.mainExc() to throw Exception, but it didn't"
+        );
+        assertThat(thrown.getMessage(), containsString("no template provided"));
     }
 }

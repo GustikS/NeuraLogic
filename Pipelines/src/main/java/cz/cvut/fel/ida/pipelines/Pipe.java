@@ -5,7 +5,6 @@ import cz.cvut.fel.ida.setup.Settings;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.logging.Logger;
 
 /**
@@ -15,7 +14,7 @@ import java.util.logging.Logger;
  * @param <I>
  * @param <O>
  */
-public abstract class Pipe<I, O> extends Block implements Function<I, O>, ConnectBefore<I>, ConnectAfter<O> {
+public abstract class Pipe<I, O> extends Block implements CheckedFunction<I, O>, ConnectBefore<I>, ConnectAfter<O> {
     private static final Logger LOG = Logger.getLogger(Pipe.class.getName());
 
 
@@ -41,7 +40,8 @@ public abstract class Pipe<I, O> extends Block implements Function<I, O>, Connec
     /**
      * @param input - can be a Stream!
      */
-    public void accept(I input) {
+    @Override
+    public void accept(I input) throws Exception {
         LOG.finer("Entering: " + ID);
         outputReady = apply(input);
 
@@ -52,7 +52,8 @@ public abstract class Pipe<I, O> extends Block implements Function<I, O>, Connec
         }
     }
 
-    public O get() {
+    @Override
+    public O get() throws Exception {
         if (outputReady == null) {
             LOG.finer("Backtracking pipe " + ID);
         }
@@ -142,8 +143,9 @@ public abstract class Pipe<I, O> extends Block implements Function<I, O>, Connec
         List<Pipe<I, O>> copies = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             Pipe<I, O> clone = new Pipe<I, O>(this.ID + i) {
+
                 @Override
-                public O apply(I i) {
+                public O apply(I i) throws Exception {
                     return Pipe.this.apply(i);  //TODO check if working correctly
                 }
             };

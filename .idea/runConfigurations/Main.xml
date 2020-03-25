@@ -5,7 +5,7 @@
     <option name="PROGRAM_PARAMETERS" value="-sd ./Resources/datasets/relational/molecules/mutagenesis -iso 10 -ts 100 -opt adam -lr 0.01" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="cz.cvut.fel.ida.neuralogic.cli.dummy.*" />
+        <option name="PATTERN" value="cz.cvut.fel.ida.neuralogic.cli.dummy.TestBenchmark" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

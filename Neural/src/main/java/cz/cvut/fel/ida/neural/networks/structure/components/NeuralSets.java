@@ -3,12 +3,13 @@ package cz.cvut.fel.ida.neural.networks.structure.components;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.BaseNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.*;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class NeuralSets {
+public class NeuralSets implements Exportable{
 
     public List<AtomNeuron> atomNeurons;
     public List<WeightedAtomNeuron> weightedAtomNeurons;
@@ -72,7 +73,7 @@ public class NeuralSets {
         return new NeuronCounter(this);
     }
 
-    public class NeuronCounter {
+    public class NeuronCounter implements Exportable {
 
         int atomNeuronsCreated;
         int weightedAtomNeuronsCreated;

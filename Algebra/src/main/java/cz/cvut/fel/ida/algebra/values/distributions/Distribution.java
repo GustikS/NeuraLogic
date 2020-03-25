@@ -1,11 +1,12 @@
 package cz.cvut.fel.ida.algebra.values.distributions;
 
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 import java.util.Random;
 import java.util.logging.Logger;
 
-public abstract class Distribution {
+public abstract class Distribution implements Exportable {
     private static final Logger LOG = Logger.getLogger(Distribution.class.getName());
 
     transient Settings setting;

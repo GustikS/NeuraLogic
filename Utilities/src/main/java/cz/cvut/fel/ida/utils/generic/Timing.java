@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 public class Timing implements Exportable {
     private static final Logger LOG = Logger.getLogger(Timing.class.getName());
 
-    Duration timeTaken;
+    private Duration timeTaken;
     transient Instant now;
 
     String totalTimeTaken;
@@ -17,7 +17,7 @@ public class Timing implements Exportable {
     long allocatedMemory;
 
     public Timing() {
-        timeTaken = Duration.ofMillis(0);
+        setTimeTaken(Duration.ofMillis(0));
     }
 
     public void tic() {
@@ -27,7 +27,7 @@ public class Timing implements Exportable {
     public void toc() {
         Instant later = Instant.now();
         Duration elapsed = Duration.between(now, later);
-        timeTaken = timeTaken.plus(elapsed);
+        setTimeTaken(getTimeTaken().plus(elapsed));
         now = later;
     }
 
@@ -37,7 +37,15 @@ public class Timing implements Exportable {
     }
 
     public void finish() {
-        totalTimeTaken = timeTaken.toString();
+        totalTimeTaken = getTimeTaken().toString();
         checkMemory();
+    }
+
+    public Duration getTimeTaken() {
+        return timeTaken;
+    }
+
+    public void setTimeTaken(Duration timeTaken) {
+        this.timeTaken = timeTaken;
     }
 }

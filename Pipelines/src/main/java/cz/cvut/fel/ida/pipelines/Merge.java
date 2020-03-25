@@ -28,7 +28,7 @@ public abstract class Merge<I1, I2, O> extends Block implements ConnectAfter<O> 
         ID = id;
         input1 = new Pipe<I1, I1>(id + "-Input1") {
             @Override
-            public I1 apply(I1 i1) {
+            public I1 apply(I1 i1) throws Exception {
                 this.outputReady = i1;
                 Merge.this.accept(i1);
                 return i1;
@@ -36,7 +36,7 @@ public abstract class Merge<I1, I2, O> extends Block implements ConnectAfter<O> 
         };
         input2 = new Pipe<I2, I2>(id + "-Input2") {
             @Override
-            public I2 apply(I2 i2) {
+            public I2 apply(I2 i2) throws Exception {
                 this.outputReady = i2;
                 Merge.this.accept(i2);
                 return i2;
@@ -58,7 +58,7 @@ public abstract class Merge<I1, I2, O> extends Block implements ConnectAfter<O> 
      *
      * @param o
      */
-    public void accept(Object o) {
+    public void accept(Object o) throws Exception {
         I1 i1;
         I2 i2;
         if ((i1 = input1.get()) != null && (i2 = input2.get()) != null) {
@@ -69,7 +69,7 @@ public abstract class Merge<I1, I2, O> extends Block implements ConnectAfter<O> 
             LOG.finer("Backtracking: " + ID );
     }
 
-    public void accept(I1 input1, I2 input2) {
+    public void accept(I1 input1, I2 input2) throws Exception {
         outputReady = merge(input1, input2);
 
         super.export(outputReady);

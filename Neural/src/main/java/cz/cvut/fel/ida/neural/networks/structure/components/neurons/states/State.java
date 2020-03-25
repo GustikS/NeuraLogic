@@ -1,16 +1,17 @@
 package cz.cvut.fel.ida.neural.networks.structure.components.neurons.states;
 
 import com.sun.istack.internal.NotNull;
-import cz.cvut.fel.ida.neural.networks.computation.iteration.modes.DFSstack;
-import cz.cvut.fel.ida.neural.networks.computation.iteration.modes.Topologic;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.values.Value;
+import cz.cvut.fel.ida.neural.networks.computation.iteration.modes.DFSstack;
+import cz.cvut.fel.ida.neural.networks.computation.iteration.modes.Topologic;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.StateVisiting;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.networks.ParentsTransfer;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.NeuronMapping;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 import java.lang.reflect.Array;
 import java.util.List;
@@ -21,7 +22,7 @@ import java.util.List;
  * and so that compound states supporting multiple interfaces (e.g. dropout AND parents) can be created.
  * Special class States then contains particular formations of typical useful states.
  */
-public interface State<V> {
+public interface State<V> extends Exportable {
 
     /**
      * Set all stateful values void.
@@ -70,7 +71,7 @@ public interface State<V> {
         return stateComposite;
     }
 
-    interface Neural<V> extends State<V> {
+    interface Neural<V> extends State<V>{
 
         /**
          * Each Neural State must have a Computation State!

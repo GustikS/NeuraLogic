@@ -10,10 +10,11 @@ import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
 import cz.cvut.fel.ida.neural.networks.computation.training.optimizers.Optimizer;
 import cz.cvut.fel.ida.neural.networks.computation.training.strategies.debugging.NeuralDebugging;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 import java.util.logging.Logger;
 
-public class Trainer {
+public class Trainer implements Exportable {
     private static final Logger LOG = Logger.getLogger(Trainer.class.getName());
 
     protected Settings settings;
@@ -23,7 +24,7 @@ public class Trainer {
      */
     int index;
 
-    Optimizer optimizer;
+    transient Optimizer optimizer;
 
     public NeuralDebugging neuralDebugger;
 

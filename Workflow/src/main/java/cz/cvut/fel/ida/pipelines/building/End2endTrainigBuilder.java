@@ -40,7 +40,7 @@ public class End2endTrainigBuilder extends AbstractPipelineBuilder<Sources, Pair
     }
 
     public Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> buildPipeline() {  //todo use this to make other pipelines simpler
-        Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> pipeline = new Pipeline<>("End2endTrainingBuilder", this);
+        Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> pipeline = new Pipeline<>("End2endTraining", this);
 
         //build neural nets first
         End2endNNBuilder end2endNNBuilder = new End2endNNBuilder();
@@ -79,7 +79,7 @@ public class End2endTrainigBuilder extends AbstractPipelineBuilder<Sources, Pair
     }
 
     public Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Progress>> buildTraining(Settings settings) {
-        return new TrainingBuilder(settings, null).new NeuralLearningBuilder(settings).buildPipeline();
+        return new TrainingBuilder.NeuralLearningBuilder(settings).buildPipeline();
     }
 
     public Pipe<Template, NeuralModel> convertModel() {
@@ -105,7 +105,7 @@ public class End2endTrainigBuilder extends AbstractPipelineBuilder<Sources, Pair
 
         @Override
         public Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> buildPipeline() {
-            Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> pipeline = new Pipeline<>("end2endNNbuilding", this);
+            Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> pipeline = new Pipeline<>("End2EndNNbuilding", this);
 
             //simple pipes
             FirstFromPairExtractionBranch<Template, Stream<LogicSample>> templateSamplesBranch = pipeline.register(new FirstFromPairExtractionBranch<>());
@@ -136,7 +136,7 @@ public class End2endTrainigBuilder extends AbstractPipelineBuilder<Sources, Pair
             return pipeline;
         }
 
-        public Pair<List<NeuralSerializer.SerializedWeight>, Stream<NeuralSerializer.SerializedSample>> getSerializedNNs() {
+        public Pair<List<NeuralSerializer.SerializedWeight>, Stream<NeuralSerializer.SerializedSample>> getSerializedNNs() throws Exception {
             Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> buildNNsPipeline = buildPipeline();
             NeuralSerializerPipe neuralSerializerPipe = new NeuralSerializerPipe();
             Pipe<Pair<NeuralModel, Stream<NeuralSample>>, Pair<List<NeuralSerializer.SerializedWeight>, Stream<NeuralSerializer.SerializedSample>>> serializationPipe = buildNNsPipeline.connectAfter(neuralSerializerPipe);

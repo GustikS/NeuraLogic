@@ -2,10 +2,11 @@ package cz.cvut.fel.ida.neural.networks.computation.training.strategies.Hyperpar
 
 import cz.cvut.fel.ida.learning.results.Progress;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 import java.util.logging.Logger;
 
-public abstract class RestartingStrategy {
+public abstract class RestartingStrategy implements Exportable {
     private static final Logger LOG = Logger.getLogger(RestartingStrategy.class.getName());
 
     public RestartingStrategy(){

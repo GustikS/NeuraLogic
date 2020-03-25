@@ -8,12 +8,11 @@ import cz.cvut.fel.ida.neural.networks.structure.components.NeuralNetwork;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.AtomNeurons;
 import cz.cvut.fel.ida.setup.Settings;
-import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 /**
  * Created by gusta on 11.3.17.
  */
-public class QueryNeuron extends Query<NeuralNetwork<State.Neural.Structure>, NeuralModel> implements Exportable {
+public class QueryNeuron extends Query<NeuralNetwork<State.Neural.Structure>, NeuralModel> {
 
     public AtomNeurons neuron;
 

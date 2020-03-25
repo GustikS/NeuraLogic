@@ -4,8 +4,9 @@ import cz.cvut.fel.ida.algebra.values.MatrixValue;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.VectorValue;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 
-public interface ValueInitializer {
+public interface ValueInitializer extends Exportable {
 
     void initScalar(ScalarValue scalar);
 

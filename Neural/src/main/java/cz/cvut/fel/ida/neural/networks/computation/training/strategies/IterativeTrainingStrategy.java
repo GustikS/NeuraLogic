@@ -49,7 +49,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     LearnRateDecayStrategy learnRateDecayStrategy;
 
-    ListTrainer trainer;
+    transient ListTrainer trainer;
 
     ValueInitializer valueInitializer;
 

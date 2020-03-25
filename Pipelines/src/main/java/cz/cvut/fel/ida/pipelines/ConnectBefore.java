@@ -1,8 +1,6 @@
 package cz.cvut.fel.ida.pipelines;
 
-import java.util.function.Consumer;
-
-public interface ConnectBefore<T>  extends Consumer<T> {
+public interface ConnectBefore<T>  extends CheckedConsumer<T> {
 
     ConnectAfter<T> getInput();
     void setInput(ConnectAfter<T> prev);

@@ -202,6 +202,7 @@ public class VectorValue extends Value {
             return result;
         } else {
             LOG.severe("Incompatible dimensions for vector multiplication: " + Arrays.toString(value.size()) + " x " + Arrays.toString(size()) + " (try transposition)");
+//            throw new NumberFormatException(); todo measure if any cost of this
             return null;
         }
     }

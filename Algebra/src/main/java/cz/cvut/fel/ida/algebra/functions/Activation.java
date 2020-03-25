@@ -20,11 +20,11 @@ public abstract class Activation extends Aggregation {
     /**
      * Forward-pass function
      */
-    Function<Double, Double> evaluation;
+    transient Function<Double, Double> evaluation;
     /**
      * Backward-pass / derivative of the evaluation function
      */
-    Function<Double, Double> gradient;
+    transient Function<Double, Double> gradient;
 
     protected Activation(Function<Double, Double> evaluation, Function<Double, Double> gradient) {
         this.evaluation = evaluation;

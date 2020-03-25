@@ -22,7 +22,7 @@ public abstract class Branch<I, O1, O2> extends Block implements ConnectBefore<I
         output2 = new IdentityGenPipe<>(id + "Output2");
     }
 
-    public void accept(I outputFromInputPipe) {
+    public void accept(I outputFromInputPipe) throws Exception {
         LOG.finer("Entering: " + ID);
         outputReady = branch(outputFromInputPipe);
         output1.accept(outputReady.r);

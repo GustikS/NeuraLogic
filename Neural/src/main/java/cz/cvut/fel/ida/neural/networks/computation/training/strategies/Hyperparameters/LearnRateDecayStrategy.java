@@ -2,10 +2,11 @@ package cz.cvut.fel.ida.neural.networks.computation.training.strategies.Hyperpar
 
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 import java.util.logging.Logger;
 
-public abstract class LearnRateDecayStrategy {
+public abstract class LearnRateDecayStrategy implements Exportable {
     private static final Logger LOG = Logger.getLogger(LearnRateDecayStrategy.class.getName());
 
     transient Settings settings;

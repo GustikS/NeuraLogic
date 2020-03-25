@@ -2,6 +2,8 @@ package cz.cvut.fel.ida.neural.networks.computation.training.strategies.debuggin
 
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
 
-public interface NeuralDebugging {
+import java.io.Serializable;
+
+public interface NeuralDebugging extends Serializable {
     void debug(NeuralSample neuralSample);
 }

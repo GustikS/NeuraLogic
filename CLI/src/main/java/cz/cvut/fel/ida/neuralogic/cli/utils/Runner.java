@@ -24,7 +24,7 @@ public class Runner {
         main(args, new Settings());
     }
 
-    public static void main(String[] args, Settings settings) throws Exception {
+    public static Pair<Pipeline, ?> main(String[] args, Settings settings) throws Exception {
         Logging logging = Logging.initLogging();
 
         if (settings == null) {
@@ -36,10 +36,11 @@ public class Runner {
 //        settings.root = pipeline;
 
         LOG.finest("Running the main pipeline on the provided sources...");
-        Pair<String, ?> target = pipeline.execute(sources);
-        LOG.info("Pipeline: " + target.r + " finished with result: " + target.s.toString());
+        Pair<String, ?> result = pipeline.execute(sources);
+        LOG.info("Pipeline: " + result.r + " finished with result: " + result.s.toString());
 
         logging.finish();
+        return new Pair<>(pipeline, result.s);
     }
 
     public static Sources getSources(String[] args, Settings settings) throws Exception {

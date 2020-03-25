@@ -36,7 +36,7 @@ public abstract class MultiBranch<I, O> extends Block implements ConnectBefore<I
      *
      * @param outputFromInputPipe
      */
-    public void accept(I outputFromInputPipe) {
+    public void accept(I outputFromInputPipe) throws Exception {
         LOG.finer("Entering: " + ID);
         outputReady = branch(outputFromInputPipe);
         if (outputs.size() != outputReady.size()) {

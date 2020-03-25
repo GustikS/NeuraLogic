@@ -28,6 +28,15 @@ public @interface TestAnnotations {
 
     @Target({TYPE, METHOD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
+    @Test
+    @TestOnly
+    @ExtendWith({TestLogging.class})
+    @Tag("Medium")
+    public @interface Medium {
+    }
+
+    @Target({TYPE, METHOD, ANNOTATION_TYPE})
+    @Retention(RUNTIME)
     @ParameterizedTest
     @TestOnly
     public @interface Parameterized {
@@ -42,6 +51,14 @@ public @interface TestAnnotations {
     public @interface Slow {
     }
 
+    @Target({TYPE, METHOD, ANNOTATION_TYPE})
+    @Retention(RUNTIME)
+    @Test
+    @TestOnly
+    @ExtendWith({TestLogging.class})
+    @Tag("Interactive")
+    public @interface Interactive {
+    }
 
     @Target({TYPE, METHOD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
@@ -77,7 +94,6 @@ public @interface TestAnnotations {
 
     @Target({TYPE, METHOD, ANNOTATION_TYPE})
     @Retention(RUNTIME)
-    @Test
     @TestOnly
     @BenchmarkMode(Mode.SingleShotTime)
     @OutputTimeUnit(TimeUnit.SECONDS)
@@ -88,17 +104,16 @@ public @interface TestAnnotations {
     @interface SlowBenchmark {
     }
 
-    @Target({TYPE, METHOD, ANNOTATION_TYPE})
-    @Retention(RUNTIME)
-    @Test
-    @TestOnly
+//    @Target({TYPE, METHOD, ANNOTATION_TYPE})
+//    @Retention(RUNTIME)
+//    @TestOnly
 //    @BenchmarkMode(Mode.AverageTime)
 //    @OutputTimeUnit(TimeUnit.MILLISECONDS)
-//    @Warmup(time = 3)   //3 seconds
-//    @Fork(2)
-//    @Threads(4)
-    @Tag("FastBenchmark")
+    @Warmup(iterations = 3, time = 2)   //3 seconds
+    @Measurement(iterations = 2)
+    @Fork(2)
+    @Threads(4)
+//    @Tag("FastBenchmark")
     @interface FastBenchmark {
     }
-
 }

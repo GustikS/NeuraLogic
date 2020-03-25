@@ -4,8 +4,9 @@ import cz.cvut.fel.ida.algebra.functions.specific.Average;
 import cz.cvut.fel.ida.algebra.functions.specific.Maximum;
 import cz.cvut.fel.ida.algebra.functions.specific.Sum;
 import cz.cvut.fel.ida.algebra.values.Value;
-import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
+import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -16,7 +17,7 @@ import java.util.logging.Logger;
  * i.e. if the inputs are always summed up at first and then some non-linearity applied to the sum, use Activation class instead,
  * which is based on providing existing Function<Double, Double> processing, while here the calculation must be implemented via inheritance.
  */
-public abstract class Aggregation {
+public abstract class Aggregation implements Exportable {
     private static final Logger LOG = Logger.getLogger(Aggregation.class.getName());
 
     /**
@@ -87,7 +88,7 @@ public abstract class Aggregation {
      * This interface applies equally to the Activation subclass, so it is just kept here once.
      * See AggregationState for concrete implementations.
      */
-    public interface State {
+    public interface State extends Exportable {
         /**
          * Store a value - add it to the current state
          *

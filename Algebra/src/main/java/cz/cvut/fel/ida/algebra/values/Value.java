@@ -122,7 +122,7 @@ public abstract class Value implements Iterable<Double>, Serializable {   //todo
      */
     public abstract Value times(Value value);
 
-    protected abstract Value times(ScalarValue value);
+    protected abstract Value times(ScalarValue value);  //always keep the specific dispatch methods protected from outside calls so that it always goes correctly through the double dispatch as expected
 
     protected abstract Value times(VectorValue value);
 

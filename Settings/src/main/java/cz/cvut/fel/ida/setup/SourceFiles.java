@@ -243,6 +243,7 @@ public class SourceFiles extends Sources {
         String content = checkTemplate4Imports(templPath, changed, foldDir);
         if (changed.get()) {
             Files.write(mergedTemplatePath, content.getBytes());
+            template_ = mergedTemplatePath.toFile();
         }
         this.templateReader = new FileReader(template_);
         this.template = template_;
@@ -250,7 +251,7 @@ public class SourceFiles extends Sources {
 
     private String checkTemplate4Imports(Path toImport, AtomicBoolean changed, File foldDir) throws FileNotFoundException {
         try {
-            if (toImport.startsWith(".")) {
+            if (toImport.startsWith(".")) { //todo repair relative path finding if subtemplate with import statement came from different folder
                 toImport = Paths.get(foldDir + "/" + toImport);
             }
             List<String> strings = Files.readAllLines(toImport);

@@ -153,7 +153,7 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
             Pipeline<Pair<Stream<LogicSample>, Stream<LogicSample>>, TrainTestResults> pipeline = new Pipeline<>("StructureTrainTestPipeline", this);
 
             PairBranch<Stream<LogicSample>, Stream<LogicSample>> trainTestBranch = pipeline.registerStart(new PairBranch<>());
-            Pipeline<Stream<LogicSample>, Pair<Pair<Template, NeuralModel>, Progress>> trainingPipeline = pipeline.register(trainingBuilder.new StructureLearningBuilder(settings).buildPipeline());
+            Pipeline<Stream<LogicSample>, Pair<Pair<Template, NeuralModel>, Progress>> trainingPipeline = pipeline.register(new TrainingBuilder.StructureLearningBuilder(settings).buildPipeline());
 
             Pipeline<Pair<Pair<Template, NeuralModel>, Stream<LogicSample>>, Results> testingPipeline = pipeline.register(testingBuilder.new LogicTestingBuilder(settings).buildPipeline());
 
@@ -190,7 +190,7 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
         @Override
         public Pipeline<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>, TrainTestResults> buildPipeline() {
             Pipeline<Pair<NeuralModel, Pair<Stream<NeuralSample>, Stream<NeuralSample>>>, TrainTestResults> pipeline = new Pipeline<>("NeuralTrainTestPipeline", this);
-            TrainingBuilder.NeuralLearningBuilder neuralLearningBuilder = new TrainingBuilder(settings, sources).new NeuralLearningBuilder(settings);
+            TrainingBuilder.NeuralLearningBuilder neuralLearningBuilder = new TrainingBuilder.NeuralLearningBuilder(settings);
             Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Progress>> neuralLearning = pipeline.register(neuralLearningBuilder.buildPipeline());
             TestingBuilder.NeuralTestingBuilder neuralTestingBuilder = new TestingBuilder(settings, sources).new NeuralTestingBuilder(settings);
             Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Results> neuralTesting = pipeline.register(neuralTestingBuilder.buildPipeline());

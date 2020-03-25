@@ -131,7 +131,7 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
         }
     }
 
-    public class StructureLearningBuilder extends AbstractPipelineBuilder<Stream<LogicSample>, Pair<Pair<Template, NeuralModel>, Progress>> {
+    public static class StructureLearningBuilder extends AbstractPipelineBuilder<Stream<LogicSample>, Pair<Pair<Template, NeuralModel>, Progress>> {
 
         public StructureLearningBuilder(Settings settings) {
             super(settings);
@@ -150,7 +150,7 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
         }
     }
 
-    public class NeuralLearningBuilder extends AbstractPipelineBuilder<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Progress>> {
+    public static class NeuralLearningBuilder extends AbstractPipelineBuilder<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Progress>> {
 
         public NeuralLearningBuilder(Settings settings) {
             super(settings);

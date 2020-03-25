@@ -1,8 +1,6 @@
 package cz.cvut.fel.ida.pipelines;
 
-import java.util.function.Supplier;
-
-public interface ConnectAfter<T> extends Supplier<T> {
+public interface ConnectAfter<T> extends CheckedSupplier<T> {
 
     ConnectBefore<T> getOutput();
 

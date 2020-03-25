@@ -1,21 +1,19 @@
 package cz.cvut.fel.ida.logic.constructs.example;
 
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
-import cz.cvut.fel.ida.logic.grounding.GroundTemplate;
+import cz.cvut.fel.ida.learning.Query;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
 import cz.cvut.fel.ida.logic.constructs.template.components.HeadAtom;
+import cz.cvut.fel.ida.logic.grounding.GroundTemplate;
 import cz.cvut.fel.ida.logic.grounding.Grounder;
-import cz.cvut.fel.ida.learning.Query;
 import cz.cvut.fel.ida.setup.Settings;
-
-import java.io.Serializable;
 
 /**
  * Created by Gusta on 04.10.2016.
  * <p>
  * HeadAtom desont have to be ground! - it will apply to all compatible neuralize neurons then
  */
-public class QueryAtom extends Query<LiftedExample, Template> implements Serializable {
+public class QueryAtom extends Query<LiftedExample, Template> {
 
     public HeadAtom headAtom;
 

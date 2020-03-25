@@ -240,7 +240,7 @@ public class Utilities {
         List<T> list = stream.collect(Collectors.toList());
         stream.close(); //THE IMPORTANT PART
         timing.toc();
-        LOG.fine("------------------------------------------ SAMPLES PROCESSED into list of " + list.get(0).getClass().getSimpleName() + " (in " + timing.timeTaken + ")-------------------------------------------------------");
+        LOG.fine("------------------------------------------ SAMPLES PROCESSED into list of " + list.get(0).getClass().getSimpleName() + " (in " + timing.getTimeTaken() + ")-------------------------------------------------------");
         logMemory();
         return list;
     }

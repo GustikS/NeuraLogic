@@ -10,6 +10,7 @@ import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.setup.Sources;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 import cz.cvut.fel.ida.utils.exporting.Exporter;
+import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.nio.file.Paths;
 import java.util.function.Consumer;
@@ -72,13 +73,13 @@ public abstract class End2EndDebugger<S extends Exportable> extends AbstractPipe
         }
     }
 
-    public void executeDebug() {
+    public Pair<String, Stream<S>> executeDebug() throws Exception {
         pipeline = buildPipeline();
         if (settings.debugPipeline) {
             drawPipeline();
         }
         addDebugTerminal(pipeline);
-        pipeline.execute(sources);
+        return pipeline.execute(sources);
     }
 
     public void addDebugElement(Pipeline<?, S> pipeline) {

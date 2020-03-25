@@ -1,11 +1,12 @@
 package cz.cvut.fel.ida.neural.networks.structure.building;
 
 import com.sun.istack.internal.NotNull;
+import cz.cvut.fel.ida.algebra.weights.Weight;
+import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
 import cz.cvut.fel.ida.logic.constructs.template.components.BodyAtom;
 import cz.cvut.fel.ida.logic.constructs.template.components.GroundHeadRule;
 import cz.cvut.fel.ida.logic.constructs.template.components.GroundRule;
-import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.neural.networks.structure.building.builders.StatesBuilder;
 import cz.cvut.fel.ida.neural.networks.structure.components.NeuralSets;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.BaseNeuron;
@@ -15,7 +16,6 @@ import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.*;
 import cz.cvut.fel.ida.neural.networks.structure.components.types.DetailedNetwork;
 import cz.cvut.fel.ida.neural.networks.structure.components.types.TopologicNetwork;
-import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.LinkedMapping;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.NeuronMapping;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.WeightedNeuronMapping;
@@ -23,7 +23,6 @@ import cz.cvut.fel.ida.setup.Settings;
 
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 //todo now decompose the creation phase dependent of Logic module into a separate Neuralization module
 public class NeuralNetBuilder {
@@ -249,18 +248,33 @@ public class NeuralNetBuilder {
      *
      * @return
      */
-    public DetailedNetwork finalizeStoredNetwork(String id, NeuralSets createdNeurons, List<Literal> queryMatchingLiterals) {
+    public DetailedNetwork finalizeStoredNetwork(String id, NeuralSets createdNeurons, List<Literal> queryMatchingLiterals) throws RuntimeException {
         List<AtomNeurons> queryNeurons = null;
         if (queryMatchingLiterals != null) {
-            queryNeurons = queryMatchingLiterals.stream().map(key -> {
-                AtomNeurons qn = neuralBuilder.neuronFactory.neuronMaps.atomNeurons.get(key);
+
+            queryNeurons = new ArrayList<>();
+            for (Literal queryMatchingLiteral : queryMatchingLiterals) {
+                AtomNeurons qn = neuralBuilder.neuronFactory.neuronMaps.atomNeurons.get(queryMatchingLiteral);
                 if (qn == null){
-                    LOG.severe("Query not matched anywhere in the ground network: " + key);
+                    String err = "Query not matched anywhere in the ground network: " + queryMatchingLiteral;
+                    LOG.severe(err);
                     LOG.severe("Cannot calculate its output!");
-                    System.exit(5);
+//                    System.exit(5);
+                    throw new InputMismatchException("Query not matched anywhere in the ground network:");
                 }
-                return qn;
-            }).collect(Collectors.toList());
+                queryNeurons.add(qn);
+            }
+
+//            queryNeurons = queryMatchingLiterals.stream().map(key -> {
+//                AtomNeurons qn = neuralBuilder.neuronFactory.neuronMaps.atomNeurons.get(key);
+//                if (qn == null){
+//                    LOG.severe("Query not matched anywhere in the ground network: " + key);
+//                    LOG.severe("Cannot calculate its output!");
+//                    System.exit(5);
+////                    throw new Exception("Query not matched anywhere in the ground network:");
+//                }
+//                return qn;
+//            }).collect(Collectors.toList());
         }
         DetailedNetwork neuralNetwork = neuralBuilder.networkFactory.createDetailedNetwork(queryNeurons, createdNeurons, id, neuralBuilder.neuronFactory.neuronMaps.extraInputMapping);
         LOG.fine("DetailedNetwork created.");

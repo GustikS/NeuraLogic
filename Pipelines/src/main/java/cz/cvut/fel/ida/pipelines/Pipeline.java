@@ -1,13 +1,12 @@
 package cz.cvut.fel.ida.pipelines;
 
+import cz.cvut.fel.ida.pipelines.bulding.AbstractPipelineBuilder;
+import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exporter;
 import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.utils.generic.Timing;
-import cz.cvut.fel.ida.pipelines.bulding.AbstractPipelineBuilder;
-import cz.cvut.fel.ida.setup.Settings;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 import java.util.logging.Logger;
 
 /**
@@ -19,11 +18,11 @@ import java.util.logging.Logger;
  * <p>
  * Created by gusta on 14.3.17.
  */
-public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAfter<T>, Function<S, T> {
+public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAfter<T>, CheckedFunction<S, T> {
     // pipelines - vstup a vystup by byl Pipe/Merge/Branch?
 
     private static final Logger LOG = Logger.getLogger(Pipeline.class.getName());
-    private Timing timing;
+    public Timing timing;
 
     transient public AbstractPipelineBuilder<S, T> originalBuilder;
 
@@ -87,7 +86,7 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
      *
      */
     //ConcurrentLinkedQueue<Executable> executionQueue;
-    public Pair<String, T> execute(S source) {
+    public Pair<String, T> execute(S source) throws Exception {
         LOG.info("Executing pipeline : " + this.ID);
         this.accept(source);
         //collect and return all the terminal results
@@ -204,7 +203,7 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
     }
 
     @Override
-    public void accept(S sources) {
+    public void accept(S sources) throws Exception {
         LOG.finer("Entering pipeline: " + ID);
         if (this.invalidated) {
             this.rebuild(settings);
@@ -265,7 +264,7 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
     }
 
     @Override
-    public T get() {
+    public T get() throws Exception {
         return terminal.get();
     }
 
@@ -290,7 +289,7 @@ public class Pipeline<S, T> extends Block implements ConnectBefore<S>, ConnectAf
     }
 
     @Override
-    public T apply(S s) {
+    public T apply(S s) throws Exception {
         return execute(s).s;
     }
 

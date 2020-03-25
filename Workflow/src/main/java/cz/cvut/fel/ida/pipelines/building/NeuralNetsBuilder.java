@@ -1,24 +1,21 @@
 package cz.cvut.fel.ida.pipelines.building;
 
 import cz.cvut.fel.ida.logic.constructs.building.factories.WeightFactory;
-import cz.cvut.fel.ida.utils.generic.Utilities;
-import cz.cvut.fel.ida.logic.grounding.GroundTemplate;
 import cz.cvut.fel.ida.logic.grounding.GroundingSample;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
 import cz.cvut.fel.ida.neural.networks.structure.building.NeuralProcessingSample;
 import cz.cvut.fel.ida.neural.networks.structure.building.Neuralizer;
-import cz.cvut.fel.ida.pipelines.debugging.NeuralDebugger;
-import cz.cvut.fel.ida.neural.networks.structure.components.types.DetailedNetwork;
-import cz.cvut.fel.ida.pipelines.pipes.specific.*;
 import cz.cvut.fel.ida.pipelines.ConnectAfter;
 import cz.cvut.fel.ida.pipelines.Pipe;
 import cz.cvut.fel.ida.pipelines.Pipeline;
 import cz.cvut.fel.ida.pipelines.bulding.AbstractPipelineBuilder;
+import cz.cvut.fel.ida.pipelines.debugging.NeuralDebugger;
 import cz.cvut.fel.ida.pipelines.pipes.generic.ExportingPipe;
 import cz.cvut.fel.ida.pipelines.pipes.generic.IdentityGenPipe;
+import cz.cvut.fel.ida.pipelines.pipes.specific.*;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.generic.Utilities;
 
-import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -44,26 +41,7 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
 
         ConnectAfter<Stream<NeuralProcessingSample>> nextPipe = null;
 
-        nextPipe = pipeline.registerStart(new Pipe<Stream<GroundingSample>, Stream<NeuralProcessingSample>>("SupervisedNeuralizationPipe", settings) {
-            @Override
-            public Stream<NeuralProcessingSample> apply(Stream<GroundingSample> groundingSampleStream) {
-                if (settings.groundingMode == Settings.GroundingMode.GLOBAL) {
-                    List<GroundingSample> groundingSamples = Utilities.terminateSampleStream(groundingSampleStream);
-                    GroundTemplate groundTemplate = groundingSamples.get(0).groundingWrap.getGroundTemplate();
-                    LOG.info("Neuralizing GLOBAL sample " + groundTemplate.toString());
-                    List<NeuralProcessingSample> neuralizedSamples = neuralizer.neuralize(groundTemplate, groundingSamples);
-                    DetailedNetwork detailedNetwork = neuralizedSamples.get(0).detailedNetwork;
-                    LOG.info("GLOBAL NeuralNet created: " + detailedNetwork.toString());
-                    return neuralizedSamples.stream();
-                } else {
-                    return groundingSampleStream
-                            .peek(s -> LOG.info("Neuralizing sample " + s.toString()))
-                            .map(sample -> neuralizer.neuralize(sample).stream())
-                            .flatMap(f -> f)
-                            .peek(s -> LOG.info("NeuralNet created: " + s.toString()));
-                }
-            }
-        });
+        nextPipe = pipeline.registerStart(new SupervisedNeuralizationPipe(settings, neuralizer));
 
         if (pipeline.exporter != null) {
             ExportingPipe<NeuralProcessingSample> exportingPipe = pipeline.register(new ExportingPipe<>(neuralizer, pipeline.exporter, neuralizer.timing, settings));

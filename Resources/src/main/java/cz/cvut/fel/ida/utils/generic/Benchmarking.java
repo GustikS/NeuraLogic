@@ -12,6 +12,8 @@ import org.openjdk.jmh.util.Statistics;
 
 import java.text.DecimalFormat;
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -24,20 +26,31 @@ public class Benchmarking {
     /**
      * must stat Millis as there is no easy conversion of it later
      */
-    private static TimeUnit timeUnit = TimeUnit.NANOSECONDS;
+    private static TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+    private static TemporalUnit temporalUnit = ChronoUnit.MILLIS;   //these 2 must be the same as there is no direct conversion between them!
 
     private static DecimalFormat df = new DecimalFormat("0.000");
 
-    public static void assertSmallRuntimeDeviation(Collection<RunResult> runResults, Duration referenceScore, double maxDeviation) {
-        double referenceScoreMillis = referenceScore.toNanos();
+    public static void assertSmallRuntimeDeviation(Collection<RunResult> runResults, Duration referenceDuration, double maxDeviation) {
 
         double score = getMeanTime(runResults);
-        double deviation = Math.abs(score / referenceScoreMillis - 1);
-        LOG.info(score + " vs. expected: " + referenceScoreMillis);
+
+        Duration realDuration = Duration.of(Math.round(score), temporalUnit);
+
+        double deviation = Math.abs(realDuration.toNanos() / referenceDuration.toNanos() - 1);
+        LOG.warning(realDuration + " vs. expected: " + referenceDuration);
         String deviationString = df.format(deviation * 100) + "%";
         String maxDeviationString = df.format(maxDeviation * 100) + "%";
         String errorMessage = "Deviation " + deviationString + " exceeds maximum allowed deviation " + maxDeviationString;
         assertTrue(deviation < maxDeviation, errorMessage);
+    }
+
+    public static long getMeanTime(Collection<RunResult> runResults, TimeUnit requested) {
+        Double meanTime = getMeanTime(runResults);
+        long longValue = meanTime.longValue();
+        long convert = requested.convert(longValue, timeUnit);
+
+        return convert;
     }
 
     public static Double getMeanTime(Collection<RunResult> runResults) {
@@ -72,9 +85,9 @@ public class Benchmarking {
                 .mode(Mode.AverageTime)
                 .timeUnit(timeUnit)
                 .warmupTime(TimeValue.seconds(3))
-                .warmupIterations(10)
+                .warmupIterations(3)
                 .measurementTime(TimeValue.milliseconds(1))
-                .measurementIterations(20)
+                .measurementIterations(10)
                 .threads(4)
                 .forks(1)
                 .shouldFailOnError(true)

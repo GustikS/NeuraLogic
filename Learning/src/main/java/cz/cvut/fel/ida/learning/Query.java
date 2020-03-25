@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.learning;
 import com.sun.istack.internal.Nullable;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 /**
  * Query is like an output (Y) in supervised learning. It connects to a particular example, just like we're given data in normal learning (Y<-X).
@@ -10,7 +11,7 @@ import cz.cvut.fel.ida.setup.Settings;
  * <p>
  * Created by Gusta on 04.10.2016.
  */
-public abstract class Query<E extends Example, M extends Model> {
+public abstract class Query<E extends Example, M extends Model> implements Exportable {
 
     /**
      * Some relative position within context of a builder (a train/test set (fold)) before shuffling

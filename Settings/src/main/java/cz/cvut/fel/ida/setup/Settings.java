@@ -6,6 +6,7 @@ import com.google.gson.InstanceCreator;
 import org.apache.commons.cli.CommandLine;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,7 +22,7 @@ import java.util.logging.Logger;
 /**
  * Created by gusta on 8.3.17.
  */
-public class Settings {
+public class Settings implements Serializable {
 
     //todo - uncompressed lambda template for experiments
     //todo - how to handle non-entailed examples
@@ -85,7 +86,7 @@ public class Settings {
         Settings setting = new Settings();
         setting.drawing = false;
         setting.plotProgress = -1;
-        setting.appLimitSamples = 2;
+        setting.appLimitSamples = 2;    //todo check why this doesn work in KB mode
         setting.seed = 0;
         setting.maxCumEpochCount = 2;
         setting.mainMode = MainMode.COMPLETE;
@@ -97,10 +98,34 @@ public class Settings {
         return setting;
     }
 
+    public static Settings forMediumTest() {
+        Settings setting = new Settings();
+        setting.drawing = false;
+        setting.plotProgress = -1;
+        setting.appLimitSamples = -1;
+        setting.seed = 0;
+
+        setting.outDir = Settings.logFile;
+        setting.infer();
+        return setting;
+    }
+
     public static Settings forSlowTest() {
         Settings setting = new Settings();
         setting.drawing = false;
         setting.plotProgress = -1;
+        setting.appLimitSamples = -1;
+        setting.seed = 0;
+
+        setting.outDir = Settings.logFile;
+        setting.infer();
+        return setting;
+    }
+
+    public static Settings forInteractiveTest() {
+        Settings setting = new Settings();
+        setting.drawing = true;
+        setting.plotProgress = 1;
         setting.appLimitSamples = -1;
         setting.seed = 0;
 
