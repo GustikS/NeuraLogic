@@ -1,23 +1,24 @@
 package cz.cvut.fel.ida.pipelines.building;
 
-import cz.cvut.fel.ida.logic.constructs.example.LogicSample;
-import cz.cvut.fel.ida.logic.constructs.template.Template;
-import cz.cvut.fel.ida.utils.generic.Pair;
-import cz.cvut.fel.ida.logic.grounding.GroundingSample;
 import cz.cvut.fel.ida.learning.LearningSample;
 import cz.cvut.fel.ida.learning.Model;
 import cz.cvut.fel.ida.learning.crossvalidation.Crossvalidation;
+import cz.cvut.fel.ida.learning.crossvalidation.MeanStdResults;
 import cz.cvut.fel.ida.learning.crossvalidation.TrainTestResults;
 import cz.cvut.fel.ida.learning.crossvalidation.splitting.Splitter;
+import cz.cvut.fel.ida.logic.constructs.example.LogicSample;
+import cz.cvut.fel.ida.logic.constructs.template.Template;
+import cz.cvut.fel.ida.logic.grounding.GroundingSample;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
-import cz.cvut.fel.ida.pipelines.pipes.specific.TemplateToNeuralPipe;
 import cz.cvut.fel.ida.pipelines.*;
 import cz.cvut.fel.ida.pipelines.bulding.AbstractPipelineBuilder;
 import cz.cvut.fel.ida.pipelines.pipes.generic.*;
+import cz.cvut.fel.ida.pipelines.pipes.specific.TemplateToNeuralPipe;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.setup.Source;
 import cz.cvut.fel.ida.setup.Sources;
+import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +28,7 @@ import java.util.stream.Stream;
 /**
  * Build CV pipeline w.r.t. given Sources and Settings
  */
-public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, TrainTestResults> {    //todo now in crossvalidation we need visitor access indexes on the level of pipelines!! So that two trainingPipelines can access the same neuron at the same time (i.e. minibatch dimension is also a fold dimension)
+public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Pair<MeanStdResults.TrainValTest, TrainTestResults>> {    //todo now in crossvalidation we need visitor access indexes on the level of pipelines!! So that two trainingPipelines can access the same neuron at the same time (i.e. minibatch dimension is also a fold dimension)
     private static final Logger LOG = Logger.getLogger(CrossvalidationBuilder.class.getName());
     private Sources sources;
 
@@ -37,20 +38,22 @@ public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Tra
     }
 
     @Override
-    public Pipeline<Sources, TrainTestResults> buildPipeline() {
+    public Pipeline<Sources, Pair<MeanStdResults.TrainValTest, TrainTestResults>> buildPipeline() {
         return buildPipeline(sources);
     }
 
-    public Pipeline<Sources, TrainTestResults> buildPipeline(Sources sources) {
-        Pipeline<Sources, TrainTestResults> pipeline = new Pipeline<>("CrossvalidationPipeline", this);
+    public Pipeline<Sources, Pair<MeanStdResults.TrainValTest, TrainTestResults>> buildPipeline(Sources sources) {
+        Pipeline<Sources, Pair<MeanStdResults.TrainValTest, TrainTestResults>> pipeline = new Pipeline<>("CrossvalidationPipeline", this);
 
-        MultiMerge<TrainTestResults, TrainTestResults> resultsMultiMerge = pipeline.registerEnd(new MultiMerge<TrainTestResults, TrainTestResults>("ResultsAggregateMerge", settings.foldsCount, settings) {
-            @Override
-            protected TrainTestResults merge(List<TrainTestResults> inputs) {
-                Crossvalidation crossvalidation = new Crossvalidation(settings);
-                return crossvalidation.aggregateResults(inputs);
-            }
-        });
+        MultiMerge<TrainTestResults, Pair<MeanStdResults.TrainValTest, TrainTestResults>> resultsMultiMerge =
+                pipeline.registerEnd(new MultiMerge<TrainTestResults, Pair<MeanStdResults.TrainValTest, TrainTestResults>>("ResultsAggregateMerge", settings.foldsCount, settings) {
+                    @Override
+                    protected Pair<MeanStdResults.TrainValTest, TrainTestResults> merge(List<TrainTestResults> inputs) {
+                        Crossvalidation crossvalidation = new Crossvalidation(settings);
+                        Pair<MeanStdResults.TrainValTest, TrainTestResults> pair = crossvalidation.aggregateResults(inputs);
+                        return pair;
+                    }
+                });
 
         TrainTestBuilder trainTestBuilder = new TrainTestBuilder(settings, sources);
 

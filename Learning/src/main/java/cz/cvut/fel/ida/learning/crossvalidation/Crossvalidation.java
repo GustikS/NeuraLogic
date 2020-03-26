@@ -1,16 +1,15 @@
 package cz.cvut.fel.ida.learning.crossvalidation;
 
 import com.sun.istack.internal.Nullable;
-import cz.cvut.fel.ida.learning.results.Progress;
-import cz.cvut.fel.ida.learning.results.Results;
 import cz.cvut.fel.ida.learning.LearningSample;
 import cz.cvut.fel.ida.learning.crossvalidation.splitting.Splitter;
-import cz.cvut.fel.ida.learning.results.Result;
+import cz.cvut.fel.ida.learning.results.*;
 import cz.cvut.fel.ida.setup.Settings;
-import cz.cvut.fel.ida.learning.results.ClassificationResults;
+import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -57,7 +56,10 @@ public class Crossvalidation<T extends LearningSample> {
         this.samples = extractSamples(this.folds);
     }
 
-    public TrainTestResults aggregateResults(List<TrainTestResults> foldRunStatsList) {
+    public Pair<MeanStdResults.TrainValTest, TrainTestResults> aggregateResults(List<TrainTestResults> foldRunStatsList) {
+
+        MeanStdResults.TrainValTest trainValTest = aggregateResultsMeanStd(foldRunStatsList);
+
         List<Result> allTrain = new ArrayList<>();
         List<Result> allValidation = new ArrayList<>();
         List<Result> allTest = new ArrayList<>();
@@ -67,7 +69,7 @@ public class Crossvalidation<T extends LearningSample> {
         int correctClassCount = 0;
         int allCount = 0;
 
-        for (TrainTestResults trainTestResults : foldRunStatsList) {    //todo now get also standard deviations
+        for (TrainTestResults trainTestResults : foldRunStatsList) {    //todo now now test this crossval output
             Results training = trainTestResults.training.bestResults.training;
 
             allTrain.addAll(training.evaluations);
@@ -98,7 +100,27 @@ public class Crossvalidation<T extends LearningSample> {
         allTrainingMerged.bestResults = new Progress.TrainVal(allTrainResults, allValidationResults);
 
         TrainTestResults finalTrainTestResults = new TrainTestResults(allTrainingMerged, allTestResults);
-        return finalTrainTestResults;
+        Pair<MeanStdResults.TrainValTest, TrainTestResults> resultsPair = new Pair<>(trainValTest, finalTrainTestResults);
+        return resultsPair;
+    }
+
+    public MeanStdResults.TrainValTest aggregateResultsMeanStd(List<TrainTestResults> foldRunStatsList) {
+
+        List<Results> training = foldRunStatsList.stream().map(fold -> fold.training.bestResults.training).collect(Collectors.toList());
+        List<Results> validation = foldRunStatsList.stream().map(fold -> fold.training.bestResults.validation).collect(Collectors.toList());
+        List<Results> testing = foldRunStatsList.stream().map(fold -> fold.testing).collect(Collectors.toList());
+
+        if (training.get(0) instanceof ClassificationResults) {
+            MeanStdResults train = ClassificationResults.aggregateClassifications(training.stream().map(res -> (ClassificationResults) res).collect(Collectors.toList()));
+            MeanStdResults val = ClassificationResults.aggregateClassifications(validation.stream().map(res -> (ClassificationResults) res).collect(Collectors.toList()));
+            MeanStdResults test = ClassificationResults.aggregateClassifications(testing.stream().map(res -> (ClassificationResults) res).collect(Collectors.toList()));
+            return new MeanStdResults.TrainValTest(train, val, test);
+        } else {
+            MeanStdResults train = RegressionResults.aggregateRegressions(training.stream().map(res -> (RegressionResults) res).collect(Collectors.toList()));
+            MeanStdResults val = RegressionResults.aggregateRegressions(validation.stream().map(res -> (RegressionResults) res).collect(Collectors.toList()));
+            MeanStdResults test = RegressionResults.aggregateRegressions(testing.stream().map(res -> (RegressionResults) res).collect(Collectors.toList()));
+            return new MeanStdResults.TrainValTest(train, val, test);
+        }
     }
 
     private List<T> extractSamples(List<Fold<T>> folds) {

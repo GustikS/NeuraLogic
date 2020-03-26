@@ -2,7 +2,6 @@ package cz.cvut.fel.ida.algebra.functions;
 
 import cz.cvut.fel.ida.algebra.values.Value;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -45,13 +44,15 @@ public class ElementProduct extends Activation {
 
     private Value sumInputs(List<Value> inputs){
         int[] size = inputs.get(0).size();
+        /*
         for (int i = 0; i < inputs.size(); i++) {
             if (!Arrays.equals(size,inputs.get(i).size())) {
-                LOG.severe("ScalarProduct dimensions mismatch!");   //todo now get maximal dimension here instead
+                LOG.severe("ScalarProduct dimensions mismatch!");   //get maximal dimension here instead (zero-pad the rest) ? -> no, invalid vector/matrix operation anyway, rather do not misuse it
                 return null;
             }
         }
-        Value sum = inputs.get(0).clone().zero();
+        */
+        Value sum = inputs.get(0).getForm();
         for (Value input : inputs) {
             //"Scalar" element-wise aligned summation
             sum.incrementBy(input);

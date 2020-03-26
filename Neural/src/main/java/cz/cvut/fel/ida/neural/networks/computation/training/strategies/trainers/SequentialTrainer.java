@@ -64,7 +64,7 @@ public class SequentialTrainer extends Trainer {
             for (NeuralSample neuralSample : trainingSet) {
                 invalidateSample(invalidation, neuralSample);
                 Result result = evaluateSample(evaluation, neuralSample);
-                LOG.finest(neuralSample + " : " + result);
+                LOG.finest(() -> neuralSample + " : " + result);
                 resultList.add(result);
             }
             return resultList;

@@ -81,7 +81,7 @@ public class Sources {
         test = new Source();
     }
 
-    public void infer(Settings settings) {  //todo now export after this
+    public void infer(Settings settings) {
         if (folds != null) {
             foldFiles = true;
             crossvalidation = true;

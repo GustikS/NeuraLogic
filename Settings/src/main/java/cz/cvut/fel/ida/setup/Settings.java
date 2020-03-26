@@ -581,15 +581,39 @@ public class Settings implements Serializable {
      */
     public double constantInitValue = 0.1;
 
+    /**
+     * Default (init) learning rate possibly altered during learning by decay strategies
+     */
     public double initLearningRate = 0.01;
 
     public double dropoutRate = 0.0;
 
-    public OptimizerSet optimizer = OptimizerSet.ADAM;
+    private OptimizerSet optimizer = OptimizerSet.ADAM;
 
     public enum OptimizerSet {
         SGD, ADAM
     }
+
+    public OptimizerSet getOptimizer() {
+        return optimizer;
+    }
+
+    /**
+     * The default/initial learning rate is bound to the optimizer - that's why access through setter
+     * @param iOptimizer
+     */
+    public void setOptimizer(OptimizerSet iOptimizer) {
+        switch (iOptimizer) {
+            case SGD:
+                initLearningRate = 0.3;
+                break;
+            case ADAM:
+                initLearningRate = 0.01;
+                break;
+        }
+        this.optimizer = iOptimizer;
+    }
+
 
     /**
      * Percentual size of validation set separated from training set
@@ -608,7 +632,7 @@ public class Settings implements Serializable {
      * Whether to search for best threshold splitting between positive and negative samples in binary classification
      * that maximizes accuracy (to be reported then), instead of simple 0.5 threshold
      */
-    public boolean calculateBestThreshold = true;   //todo now only do with recalculation of true results!
+    public boolean calculateBestThreshold = true;
 
     public ErrorFcn errorFunction = ErrorFcn.SQUARED_DIFF;
 
@@ -860,13 +884,13 @@ public class Settings implements Serializable {
         }
 
         if (cmd.hasOption("optimizer")) {
-            String _optimizer = cmd.getOptionValue("optimizer", String.valueOf(optimizer));
+            String _optimizer = cmd.getOptionValue("optimizer", String.valueOf(getOptimizer()));
             switch (_optimizer.toLowerCase()) {
                 case "sgd":
-                    settings.optimizer = OptimizerSet.SGD;
+                    settings.setOptimizer(OptimizerSet.SGD);
                     break;
                 case "adam":
-                    settings.optimizer = OptimizerSet.ADAM;
+                    settings.setOptimizer(OptimizerSet.ADAM);
                     break;
                 default:
                     LOG.severe("unrecognized optimizer: " + _optimizer);
@@ -1055,6 +1079,13 @@ public class Settings implements Serializable {
         else
             neuralNetsPostProcessing = false;
 
+
+        if (getOptimizer() == OptimizerSet.ADAM) {
+            initLearningRate = 0.01;
+        } else if (getOptimizer() == OptimizerSet.SGD) {
+            initLearningRate = 0.3;
+        }
+
 //        resultsRecalculationEpochae = maxCumEpochCount / 100;
         //todo rest
 
@@ -1081,7 +1112,7 @@ public class Settings implements Serializable {
         }
     }
 
-    public static Settings loadFromJson(Path inPath){
+    public static Settings loadFromJson(Path inPath) {
         Settings settings = new Settings().updateFromJson(inPath);
         return settings;
     }

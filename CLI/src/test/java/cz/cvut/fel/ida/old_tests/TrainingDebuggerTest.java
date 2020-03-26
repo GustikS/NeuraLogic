@@ -38,13 +38,13 @@ public class TrainingDebuggerTest {
         settings.storeNotShow = true;
         settings.debugTemplateTraining = false; //too big
         settings.debugTemplate = false;
-        settings.optimizer = Settings.OptimizerSet.SGD;
+        settings.setOptimizer(Settings.OptimizerSet.SGD);
         TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
 
     @Test
-    public void mutagen_zero_init() throws Exception {   //todo now remove these weird templates and do some cleaning in the templates
+    public void mutagen_zero_init() throws Exception {
         Logging logging = Logging.initLogging();
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/trainExamples.txt " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/trainQueries.txt " +
@@ -66,7 +66,7 @@ public class TrainingDebuggerTest {
         settings.storeNotShow = true;
         settings.debugTemplateTraining = false; //too big
         settings.debugTemplate = false;
-        settings.optimizer = Settings.OptimizerSet.ADAM;
+        settings.setOptimizer(Settings.OptimizerSet.ADAM);
         TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
@@ -101,7 +101,7 @@ public class TrainingDebuggerTest {
         settings.debugTemplateTraining = false; //too big
         settings.debugTemplate = false;
         settings.initializer = Settings.InitSet.SIMPLE;
-        settings.optimizer = Settings.OptimizerSet.SGD;
+        settings.setOptimizer(Settings.OptimizerSet.SGD);
         TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
@@ -124,7 +124,7 @@ public class TrainingDebuggerTest {
 //        settings.appLimitSamples = 100;
         settings.calculateBestThreshold = false;
         settings.initializer = Settings.InitSet.SIMPLE;
-        settings.optimizer = Settings.OptimizerSet.SGD;
+        settings.setOptimizer(Settings.OptimizerSet.SGD);
 
 
         settings.stratification = false;
@@ -164,7 +164,7 @@ public class TrainingDebuggerTest {
         settings.calculateBestThreshold = false;
 //        settings.appLimitSamples = 100;
         settings.initializer = Settings.InitSet.SIMPLE;
-        settings.optimizer = Settings.OptimizerSet.SGD;
+        settings.setOptimizer(Settings.OptimizerSet.SGD);
         settings.iterationMode = Settings.IterationMode.DFS_RECURSIVE;
 
         settings.oneQueryPerExample = true;
@@ -203,7 +203,7 @@ public class TrainingDebuggerTest {
         settings.calculateBestThreshold = false;
 //        settings.appLimitSamples = 100;
         settings.initializer = Settings.InitSet.SIMPLE;
-        settings.optimizer = Settings.OptimizerSet.SGD;
+        settings.setOptimizer(Settings.OptimizerSet.SGD);
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;  //tested as equivalent to DFS
 
         settings.oneQueryPerExample = true;
@@ -241,7 +241,7 @@ public class TrainingDebuggerTest {
         settings.calculateBestThreshold = false;
 //        settings.appLimitSamples = 100;
         settings.initializer = Settings.InitSet.SIMPLE;
-        settings.optimizer = Settings.OptimizerSet.SGD;
+        settings.setOptimizer(Settings.OptimizerSet.SGD);
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;  //tested as equivalent to DFS
 
         settings.oneQueryPerExample = true;
@@ -274,7 +274,7 @@ public class TrainingDebuggerTest {
         settings.calculateBestThreshold = true;
 //        settings.appLimitSamples = 2;
         settings.initializer = Settings.InitSet.SIMPLE;
-        settings.optimizer = Settings.OptimizerSet.SGD;
+        settings.setOptimizer(Settings.OptimizerSet.SGD);
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
 
         settings.oneQueryPerExample = true;
@@ -314,7 +314,7 @@ public class TrainingDebuggerTest {
         settings.calculateBestThreshold = true;
 //        settings.appLimitSamples = 100;
         settings.initializer = Settings.InitSet.SIMPLE;
-        settings.optimizer = Settings.OptimizerSet.ADAM;
+        settings.setOptimizer(Settings.OptimizerSet.ADAM);
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
 
         settings.oneQueryPerExample = true;
@@ -340,7 +340,7 @@ public class TrainingDebuggerTest {
         settings.initDistribution = Settings.InitDistribution.UNIFORM;
 
         settings.seed = 2;
-        settings.initLearningRate = 0.3;   //todo now make default initLearningRate change based on optimizer
+        settings.initLearningRate = 0.3;
         settings.maxCumEpochCount = 1000;
         settings.resultsRecalculationEpochae = 10;
         settings.shuffleEachEpoch = true;
@@ -348,7 +348,7 @@ public class TrainingDebuggerTest {
         settings.calculateBestThreshold = true;
 //        settings.appLimitSamples = 10;
         settings.initializer = Settings.InitSet.SIMPLE;
-        settings.optimizer = Settings.OptimizerSet.SGD;
+        settings.setOptimizer(Settings.OptimizerSet.SGD);
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
 
         settings.oneQueryPerExample = true;
@@ -382,7 +382,7 @@ public class TrainingDebuggerTest {
         settings.initDistribution = Settings.InitDistribution.UNIFORM;
 
         settings.seed = 0;
-        settings.initLearningRate = 0.01;   //todo now make default initLearningRate change based on optimizer
+        settings.initLearningRate = 0.01;
         settings.maxCumEpochCount = 100000;
         settings.resultsRecalculationEpochae = 10;
         settings.shuffleEachEpoch = true;
@@ -390,7 +390,7 @@ public class TrainingDebuggerTest {
         settings.calculateBestThreshold = true;
 //        settings.appLimitSamples = 2;
         settings.initializer = Settings.InitSet.SIMPLE;
-        settings.optimizer = Settings.OptimizerSet.ADAM;
+        settings.setOptimizer(Settings.OptimizerSet.ADAM);
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
 
         settings.oneQueryPerExample = true;
@@ -421,7 +421,7 @@ public class TrainingDebuggerTest {
         settings.initDistribution = Settings.InitDistribution.UNIFORM;
 
         settings.seed = 0;
-        settings.initLearningRate = 0.01;   //todo now make default initLearningRate change based on optimizer
+        settings.initLearningRate = 0.01;
         settings.maxCumEpochCount = 10;
         settings.resultsRecalculationEpochae = 10;
         settings.shuffleEachEpoch = true;
@@ -429,7 +429,7 @@ public class TrainingDebuggerTest {
         settings.calculateBestThreshold = true;
         settings.appLimitSamples = 5;
         settings.initializer = Settings.InitSet.SIMPLE;
-        settings.optimizer = Settings.OptimizerSet.ADAM;
+        settings.setOptimizer(Settings.OptimizerSet.ADAM);
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
 
         settings.oneQueryPerExample = true;

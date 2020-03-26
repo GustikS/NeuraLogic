@@ -77,7 +77,7 @@ public class CommandLineHandler {
 
         //training
         options.addOption(new Option("init", "weightInit", true, "distribbution for weight initialization [uniform, longtail, constant] (" + settings.initDistribution.toString().toLowerCase() + ")"));
-        options.addOption(new Option("opt", "optimizer", true, "optimization algorithm (" + settings.optimizer + ")"));
+        options.addOption(new Option("opt", "optimizer", true, "optimization algorithm (" + settings.getOptimizer() + ")"));
         options.addOption(new Option("lr", "learningRate", true, "initial learning rate (" + settings.initLearningRate + ")"));
         options.addOption(new Option("ts", "trainingSteps", true, "cumulative number of epochae in neural training (" + settings.maxCumEpochCount + ")"));
 

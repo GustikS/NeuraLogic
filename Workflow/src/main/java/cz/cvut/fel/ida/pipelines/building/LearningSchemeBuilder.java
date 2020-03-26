@@ -1,5 +1,6 @@
 package cz.cvut.fel.ida.pipelines.building;
 
+import cz.cvut.fel.ida.learning.crossvalidation.MeanStdResults;
 import cz.cvut.fel.ida.learning.crossvalidation.TrainTestResults;
 import cz.cvut.fel.ida.learning.results.Progress;
 import cz.cvut.fel.ida.learning.results.Results;
@@ -97,8 +98,9 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
         if (sources.crossvalidation) { //returns only test results in this case
             LOG.info("Learning scheme inferred as : ---CROSSVALIDATION---");
             CrossvalidationBuilder crossvalidationSchemeBuilder = new CrossvalidationBuilder(settings, sources);
-            Pipeline<Sources, TrainTestResults> crossvalPipeline = pipeline.registerStart(crossvalidationSchemeBuilder.buildPipeline());
-            crossvalPipeline.connectAfter(pipeline.registerEnd(getTestResultsPipe()));
+            Pipeline<Sources, Pair<MeanStdResults.TrainValTest, TrainTestResults>> crossvalPipeline = pipeline.registerStart(crossvalidationSchemeBuilder.buildPipeline());
+            Pipe pipe = crossvalPipeline.connectAfter(pipeline.register(new SecondFromPairPipe()));
+            pipe.connectAfter(pipeline.registerEnd(getTestResultsPipe()));
 
         } else if (sources.trainTest) { //returns only test results in this case
             LOG.info("Learning scheme inferred as : ---TRAIN-TEST---");

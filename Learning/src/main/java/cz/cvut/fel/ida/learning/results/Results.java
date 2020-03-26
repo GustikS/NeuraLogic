@@ -4,8 +4,8 @@ import com.sun.istack.internal.NotNull;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.functions.specific.Average;
 import cz.cvut.fel.ida.algebra.values.Value;
-import cz.cvut.fel.ida.utils.exporting.Exportable;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -55,6 +55,10 @@ public abstract class Results implements Exportable<Results> {
     public abstract boolean recalculate();
 
     public abstract boolean betterThan(Results other);
+
+    protected Results(Value meanError){
+        this.error = meanError;
+    }
 
     public void printOutputs() {
         for (Result evaluation : evaluations) {

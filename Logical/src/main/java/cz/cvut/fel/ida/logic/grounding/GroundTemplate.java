@@ -40,7 +40,7 @@ public class GroundTemplate extends GraphTemplate implements Example {
     /**
      * Linking between logic literals and rules and neurons - can be possibly reused between different GroundTemplates, so it is saved here.
      */
-//    public NeuronMaps neuronMaps;   //todo now move to grounding.GroundingSample for clarity
+//    public NeuronMaps neuronMaps;   //now move to grounding.GroundingSample for clarity   -> moved
 
     public GroundTemplate() {
         this.id = "g" + counter++;

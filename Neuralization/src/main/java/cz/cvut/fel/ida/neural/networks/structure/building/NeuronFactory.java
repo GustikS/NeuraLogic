@@ -70,7 +70,7 @@ public class NeuronFactory {
         }
         WeightedAtomNeuron<State.Neural.Computation> atomNeuron = new WeightedAtomNeuron<>(groundHead.toString(), offset, counter++, state);
         neuronMaps.atomNeurons.put(groundHead, atomNeuron);
-        LOG.finest("Created atom neuron: " + atomNeuron);
+        LOG.finest(() -> "Created atom neuron: " + atomNeuron);
         return atomNeuron;
     }
 
@@ -79,7 +79,7 @@ public class NeuronFactory {
         State.Neural.Computation state = State.createBaseState(settings, activation);
         AtomNeuron<State.Neural.Computation> atomNeuron = new AtomNeuron<>(groundHead.toString(), counter++, state);
         neuronMaps.atomNeurons.put(groundHead, atomNeuron);
-        LOG.finest("Created atom neuron: " + atomNeuron);
+        LOG.finest(() -> "Created atom neuron: " + atomNeuron);
         return atomNeuron;
     }
 
@@ -89,7 +89,7 @@ public class NeuronFactory {
         State.Neural.Computation state = State.createBaseState(settings, aggregation);
         AggregationNeuron<State.Neural.Computation> aggregationNeuron = new AggregationNeuron<>(settings.fullAggNeuronStrings ? groundHeadRule.toFullString() : weightedRule.getOriginalString(), counter++, state);
         neuronMaps.aggNeurons.put(groundHeadRule, aggregationNeuron);
-        LOG.finest("Created aggregation neuron: " + aggregationNeuron);
+        LOG.finest(() -> "Created aggregation neuron: " + aggregationNeuron);
         return aggregationNeuron;
     }
 
@@ -102,7 +102,7 @@ public class NeuronFactory {
         State.Neural.Computation state = State.createBaseState(settings, activation);
         RuleNeuron<State.Neural.Computation> ruleNeuron = new RuleNeuron<>(settings.fullRuleNeuronStrings ? groundRule.toFullString() : weightedRule.getOriginalString(), counter++, state);
         neuronMaps.ruleNeurons.put(groundRule, ruleNeuron);
-        LOG.finest("Created rule neuron: " + ruleNeuron);
+        LOG.finest(() -> "Created rule neuron: " + ruleNeuron);
         return ruleNeuron;
     }
 
@@ -129,7 +129,7 @@ public class NeuronFactory {
         State.Neural.Computation state = State.createBaseState(settings, activation);
         WeightedRuleNeuron<State.Neural.Computation> weightedRuleNeuron = new WeightedRuleNeuron<>(settings.fullRuleNeuronStrings ? groundRule.toFullString() : weightedRule.getOriginalString(), offset, counter++, state);
         neuronMaps.ruleNeurons.put(groundRule, weightedRuleNeuron);
-        LOG.finest("Created weightedRule neuron: " + weightedRuleNeuron);
+        LOG.finest(() -> "Created weightedRule neuron: " + weightedRuleNeuron);
         return weightedRuleNeuron;
     }
 
@@ -139,7 +139,7 @@ public class NeuronFactory {
             States.SimpleValue simpleValue = new States.SimpleValue(fact.getValue() == null ? this.defaultFactValue : fact.getValue());
             FactNeuron factNeuron = new FactNeuron(fact.toString(), fact.getOffset(), counter++, simpleValue);
             neuronMaps.factNeurons.put(fact.literal, factNeuron);
-            LOG.finest("Created fact neuron: " + factNeuron);
+            LOG.finest(() -> "Created fact neuron: " + factNeuron);
             return factNeuron;
         } else {
             return result;
@@ -151,7 +151,7 @@ public class NeuronFactory {
         State.Neural.Computation state = State.createBaseState(settings, activation);
         NegationNeuron<State.Neural.Computation> negationNeuron = new NegationNeuron<>(atomFact, counter++, state);
         neuronMaps.negationNeurons.add(negationNeuron);
-        LOG.finest("Created negation neuron: " + negationNeuron);
+        LOG.finest(() -> "Created negation neuron: " + negationNeuron);
         return negationNeuron;
     }
 

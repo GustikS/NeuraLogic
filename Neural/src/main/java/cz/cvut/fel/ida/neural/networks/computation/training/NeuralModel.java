@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * Created by gusta on 8.3.17.
  */
-public class NeuralModel implements Model<QueryNeuron> {    //todo now add accuracy progress plotting
+public class NeuralModel implements Model<QueryNeuron> {
     private static final Logger LOG = Logger.getLogger(NeuralModel.class.getName());
 
     public List<Weight> weights;
@@ -34,7 +34,7 @@ public class NeuralModel implements Model<QueryNeuron> {    //todo now add accur
         this.settings = settings;
         this.weights = weights;
 //        this.weights = filterLearnable(weights);  //todo now SPEEDUP - reindex weights here so that the first N are only learnable, and so no further checks are necessary, as we have a continuous array in weightupdates
-        if (settings.optimizer == Settings.OptimizerSet.ADAM) {
+        if (settings.getOptimizer() == Settings.OptimizerSet.ADAM) {
             init4Adam(weights);
         }
     }

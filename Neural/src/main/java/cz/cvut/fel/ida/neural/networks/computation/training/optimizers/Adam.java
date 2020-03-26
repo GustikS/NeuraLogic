@@ -18,8 +18,6 @@ public class Adam implements Optimizer {
     public ScalarValue beta2;
     public ScalarValue epsilon;
 
-    private long iterrationCount = 1;   //todo move this as parameter into performGradientStep
-
     private ScalarValue minusOne = new ScalarValue(-1);
 
     public Adam(Value learningRate) {
@@ -34,15 +32,15 @@ public class Adam implements Optimizer {
     }
 
     @Override
-    public void performGradientStep(NeuralModel neuralModel, WeightUpdater weightUpdater) {
-        performGradientStep(neuralModel.weights, weightUpdater.weightUpdates);
+    public void performGradientStep(NeuralModel neuralModel, WeightUpdater weightUpdater, int iteration) {
+        performGradientStep(neuralModel.weights, weightUpdater.weightUpdates, iteration);
     }
 
     @Override
-    public void performGradientStep(List<Weight> weights, Value[] weightUpdates) {
+    public void performGradientStep(List<Weight> weights, Value[] weightUpdates, int iteration) {
         //correction
-        ScalarValue fix1 = new ScalarValue(1 / (1 - Math.pow(beta1.value, this.iterrationCount)));
-        ScalarValue fix2 = new ScalarValue(1 / (1 - Math.pow(beta2.value, this.iterrationCount)));
+        ScalarValue fix1 = new ScalarValue(1 / (1 - Math.pow(beta1.value, iteration)));
+        ScalarValue fix2 = new ScalarValue(1 / (1 - Math.pow(beta2.value, iteration)));
 
         for (Weight weight : weights) {
             if (weight.isFixed || weight.index < 0) {
@@ -57,15 +55,14 @@ public class Adam implements Optimizer {
 
                 //update
                 Value divider = s_corr.apply(Math::sqrt).plus(epsilon).apply(val -> (-1 / val));
-                Value update = v_corr.elementTimes(divider);
-                weight.value.incrementBy(update.times(learningRate));
+                Value update = v_corr.elementTimes(divider).times(learningRate);
+                weight.value.incrementBy(update);
             }
         }
-        this.iterrationCount++;
     }
 
     @Override
     public void restart(Settings settings) {
-        iterrationCount = 1;
+
     }
 }

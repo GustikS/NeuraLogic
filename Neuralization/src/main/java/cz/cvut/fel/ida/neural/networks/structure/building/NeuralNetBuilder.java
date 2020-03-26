@@ -24,7 +24,6 @@ import cz.cvut.fel.ida.setup.Settings;
 import java.util.*;
 import java.util.logging.Logger;
 
-//todo now decompose the creation phase dependent of Logic module into a separate Neuralization module
 public class NeuralNetBuilder {
     private static final Logger LOG = Logger.getLogger(NeuralNetBuilder.class.getName());
 

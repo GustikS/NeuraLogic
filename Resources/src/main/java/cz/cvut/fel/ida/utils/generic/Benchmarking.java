@@ -37,7 +37,9 @@ public class Benchmarking {
 
         Duration realDuration = Duration.of(Math.round(score), temporalUnit);
 
-        double deviation = Math.abs(realDuration.toNanos() / referenceDuration.toNanos() - 1);
+        LOG.finer("real: " + realDuration.toNanos() + " vs exp: " + referenceDuration.toNanos());
+
+        double deviation = Math.abs((double) realDuration.toNanos() / (double) referenceDuration.toNanos() - 1);
         LOG.warning(realDuration + " vs. expected: " + referenceDuration);
         String deviationString = df.format(deviation * 100) + "%";
         String maxDeviationString = df.format(maxDeviation * 100) + "%";

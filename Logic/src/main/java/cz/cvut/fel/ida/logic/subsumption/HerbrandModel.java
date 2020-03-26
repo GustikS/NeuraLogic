@@ -111,7 +111,7 @@ public class HerbrandModel {
                 }
                 matching.getEngine().removeSolutionConsumer(solutionConsumer); //the found substitutions should be applied only to the head of the currently solved rule
             }
-            LOG.finest(irules.size() + " rules grounded.");
+            LOG.finest(() -> irules.size() + " rules grounded.");
             int herbrandSize1 = VectorUtils.sum(herbrand.sizes());
             LOG.finer("herbrand size after round " + round++ + " = " + herbrandSize1);
             changed = herbrandSize1 > herbrandSize0;

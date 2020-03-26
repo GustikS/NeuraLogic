@@ -20,7 +20,6 @@ import static cz.cvut.fel.ida.utils.generic.Benchmarking.getMeanTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-//todo now make a proper benchmark
 @TestAnnotations.FastBenchmark
 public class HerbrandModelTest {
     private static final Logger LOG = Logger.getLogger(HerbrandModelTest.class.getName());

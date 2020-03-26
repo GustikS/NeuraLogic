@@ -26,7 +26,7 @@ public class MainTest {
         settings.resultsRecalculationEpochae = 20;
         settings.neuralNetsPostProcessing = false;  //crucial to be True!
         settings.chainPruning = true;
-        settings.optimizer = Settings.OptimizerSet.ADAM;
+        settings.setOptimizer(Settings.OptimizerSet.ADAM);
         Settings.loggingLevel = Level.FINER;
         Main.main(args, settings);
     }
@@ -153,7 +153,7 @@ public class MainTest {
         settings.calculateBestThreshold = false;
 //        settings.appLimitSamples = 100;
         settings.initializer = Settings.InitSet.SIMPLE;
-        settings.optimizer = Settings.OptimizerSet.ADAM;
+        settings.setOptimizer(Settings.OptimizerSet.ADAM);
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;  //tested as equivalent to DFS
 
         settings.oneQueryPerExample = true;
@@ -188,7 +188,7 @@ public class MainTest {
         settings.calculateBestThreshold = false;
 //        settings.appLimitSamples = 100;
         settings.initializer = Settings.InitSet.SIMPLE;
-        settings.optimizer = Settings.OptimizerSet.SGD;
+        settings.setOptimizer(Settings.OptimizerSet.SGD);
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;  //tested as equivalent to DFS
 
         settings.oneQueryPerExample = true;
@@ -219,7 +219,7 @@ public class MainTest {
         settings.debugSampleOutputs = false;
         settings.calculateBestThreshold = true;
         settings.initializer = Settings.InitSet.SIMPLE;
-        settings.optimizer = Settings.OptimizerSet.ADAM;
+        settings.setOptimizer(Settings.OptimizerSet.ADAM);
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
 
         settings.oneQueryPerExample = true;

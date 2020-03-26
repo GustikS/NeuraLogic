@@ -1,6 +1,5 @@
 package cz.cvut.fel.ida.neural.networks.computation.iteration.actions;
 
-import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.learning.results.Result;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.TopDown;
@@ -17,9 +16,9 @@ import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
 import cz.cvut.fel.ida.neural.networks.structure.components.NeuralNetwork;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.AtomNeurons;
 import cz.cvut.fel.ida.neural.networks.structure.components.types.TopologicNetwork;
-import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
 import cz.cvut.fel.ida.setup.Settings;
 
 import java.util.logging.Logger;
@@ -83,7 +82,7 @@ public class Backpropagation {
 
         Value errorGradient = evaluatedResult.errorGradient();
 
-        errorGradient = errorGradient.times(new ScalarValue(settings.initLearningRate));//todo now measure properly the performance of this single multiplication by learningRate and remove if no help
+//        errorGradient = errorGradient.times(new ScalarValue(settings.initLearningRate));//rather do not use this old trick, it does not help performance-wise that much and isn't too readable (and only usable for SGD, not ADAM)
 
         weightUpdater.clearUpdates();
         outputNeuron.getComputationView(backproper.stateIndex).storeGradient(errorGradient); //store the error gradient into the output neuron, from where it will be further propagated

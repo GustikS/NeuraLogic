@@ -191,7 +191,7 @@ public class VectorValue extends Value {
             result.value = resultValue;
             return result;
         } else if (!value.rowOrientation && this.rowOrientation) {
-            LOG.finest("Performing vector x vector matrix multiplication.");
+            LOG.finest(() -> "Performing vector x vector matrix multiplication.");
             MatrixValue result = new MatrixValue(value.values.length, values.length);
             double[][] resultValues = result.values;
             for (int i = 0; i < value.values.length; i++) {

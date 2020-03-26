@@ -24,6 +24,11 @@ public class Trainer implements Exportable {
      */
     int index;
 
+    /**
+     * Current iteration number
+     */
+    int iterationNumber;
+
     transient Optimizer optimizer;
 
     public NeuralDebugging neuralDebugger;
@@ -31,6 +36,7 @@ public class Trainer implements Exportable {
     public Trainer(Settings settings, Optimizer optimizer) {
         this.settings = settings;
         this.optimizer = optimizer;
+        this.iterationNumber = 0;
 //        this.neuralDebugger = new NeuralDebugger(settings);
     }
 
@@ -41,7 +47,7 @@ public class Trainer implements Exportable {
         if (settings.dropoutMode == Settings.DropoutMode.DROPOUT && settings.dropoutRate > 0) {
             dropoutSample(dropouter, neuralSample);
         }
-        invalidateSample(invalidation, neuralSample);   //todo now check why there is a huge number at init for outputValue
+        invalidateSample(invalidation, neuralSample);   //todo check why there is a huge number at init for outputValue - is it?
         Result result = evaluateSample(evaluation, neuralSample);
         WeightUpdater weightUpdater = backpropSample(backpropagation, result, neuralSample);
         updateWeights(neuralModel, weightUpdater);
@@ -75,7 +81,7 @@ public class Trainer implements Exportable {
      * @param weightUpdater
      */
     synchronized void updateWeights(NeuralModel model, WeightUpdater weightUpdater) {
-        optimizer.performGradientStep(model, weightUpdater);
+        optimizer.performGradientStep(model, weightUpdater, ++iterationNumber);
     }
 
     public void restart() {
