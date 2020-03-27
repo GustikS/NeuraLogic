@@ -34,7 +34,7 @@ public class End2EndBuilderTest {
         Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> pipeline = end2EndTrainigBuilder.buildPipeline();
         Pair<String, Pair<Pair<Template, NeuralModel>, Progress>> result = pipeline.execute(sources);
         LOG.fine(result.exportToJson());
-        assertNotNull(result.s.r.s.weights);
+        assertNotNull(result.s.r.s.allWeights);
     }
 
 }

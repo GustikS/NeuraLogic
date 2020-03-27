@@ -2,8 +2,9 @@ package cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.weights;
 
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
-import cz.cvut.fel.ida.algebra.weights.StatefulWeight;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -11,35 +12,47 @@ public class WeightUpdater implements WeightVisitor {
     private static final Logger LOG = Logger.getLogger(WeightUpdater.class.getName());
 
     /**
-     * To be used instead of storing the gradient update in the weight object (StetefulWeight) for PARALLEL backproping.
+     * To be used instead of storing the gradient update in the weight object (StatefulWeight) for PARALLEL backproping.
      * Since the number of all unique weights is typically low, each thread has its own full index of weightUpdates.
      * <p>
      * UNSYCHRONIZED storage of weight updates.
      */
     public Value[] weightUpdates;
 
-    private boolean[] active;
+    /**
+     * Stores only the subset of the weight that have been updated during the last iteration (gets cleared in clearUpdates())
+     */
+    public List<Weight> updatedWeightsOnly;
 
-    public WeightUpdater(List<Weight> weights) {
-        weightUpdates = new Value[weights.size()];
-        active = new boolean[weights.size()];
+    public WeightUpdater(List<Weight> learnableWeights, int maxWeightIndex) {
 
-        for (Weight weight : weights) {
+        check4mistakes(learnableWeights, maxWeightIndex);
+
+        weightUpdates = new Value[maxWeightIndex + 1];
+        updatedWeightsOnly = new ArrayList<>(maxWeightIndex + 1);
+    }
+
+    private void check4mistakes(List<Weight> learnableWeights, int maxWeightIndex) {
+        if (maxWeightIndex < learnableWeights.size()) {
+            LOG.severe("Weight indices are off!!");
+        }
+
+        boolean[] duplicate = new boolean[maxWeightIndex + 1];
+
+        for (Weight weight : learnableWeights) {
             int index = weight.index;
-            if (index >= weightUpdates.length) {
-                LOG.severe("Weight index exceeding number of all extracted weights");
+            if (index > maxWeightIndex) {
+                LOG.severe("Weight index exceeding number of all extracted allWeights!");
             }
-            if (weight.isLearnable()) {
-                weightUpdates[index] = weight.value.getForm();
+            if (weight.isLearnable) {
+//                weightUpdates[index] = weight.value.getForm();    //not necessary anymore
             } else {
-                continue;
-                //void, these are constant weights not to be updated
-                //or these are weights with fixed values by user
+                LOG.severe("Fixed weights leaking through into WeightUpdater!! (should have been filtered before)");
             }
-            if (active[index]) {
+            if (duplicate[index]) {
                 LOG.severe("Weight index seen twice! Input weight list is not unique! Some weight will try to be updated twice!");
             }
-            active[index] = true;
+            duplicate[index] = true;
         }
     }
 
@@ -47,20 +60,21 @@ public class WeightUpdater implements WeightVisitor {
     public void visit(Weight weight, Value value) {
         if (weight.isLearnable) {   //faster access version
             int index = weight.index;
-            weightUpdates[index].incrementBy(value);
-        }
-    }
 
-    @Deprecated
-    public void visit(StatefulWeight weight, Value value) {
-        weight.getAccumulatedUpdate().incrementBy(value); //todo this will probably never get called, is StatefulWeight necessary?
+            Value weightUpdate = weightUpdates[index];
+            if (weightUpdate != null) {
+                weightUpdate.incrementBy(value);
+            } else {
+                weightUpdates[index] = value;
+                updatedWeightsOnly.add(weight);
+            }
+        }
     }
 
     public void clearUpdates() {
-        for (int i = 0; i < weightUpdates.length; i++) {
-            Value weightUpdate = weightUpdates[i];
-            if (weightUpdate != null)
-                weightUpdate.zero();
-        }
+
+        Arrays.fill(weightUpdates, null);
+        updatedWeightsOnly.clear();
+
     }
 }

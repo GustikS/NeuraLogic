@@ -76,6 +76,10 @@ public class Template implements Model<QueryAtom>, Exportable {
         return null;
     }
 
+    /**
+     * Return UNIQUE weights list
+     * @return
+     */
     @Override
     public List<Weight> getAllWeights() {
         List<Weight> weightList = new ArrayList<>();
@@ -97,7 +101,7 @@ public class Template implements Model<QueryAtom>, Exportable {
                     weightList.add(bodyAtom.getConjunctWeight());
             }
         }
-        List<Weight> uniqueWeights = filterUnique(weightList);  //todo now reindex here so that there are no holes in numbering (which will cause weightupdater out of bounds error)
+        List<Weight> uniqueWeights = filterUnique(weightList);
         return uniqueWeights;
     }
 

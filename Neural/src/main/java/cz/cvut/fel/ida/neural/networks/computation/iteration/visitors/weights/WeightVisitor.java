@@ -5,6 +5,6 @@ import cz.cvut.fel.ida.algebra.weights.Weight;
 
 public interface WeightVisitor {
 
-    public abstract void visit(Weight weight, Value value);
+    void visit(Weight weight, Value value);
 
 }

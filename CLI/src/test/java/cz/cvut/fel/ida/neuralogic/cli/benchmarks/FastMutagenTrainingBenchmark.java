@@ -34,7 +34,7 @@ public class FastMutagenTrainingBenchmark {
 
     static String[] dataset = getDatasetArgs("relational/molecules/mutagenesis");
     static int learningSteps = 100;
-    static Settings.OptimizerSet optimizer = Settings.OptimizerSet.SGD;
+    static Settings.OptimizerSet optimizer = Settings.OptimizerSet.ADAM;
 
 
 

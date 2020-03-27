@@ -37,7 +37,7 @@ public class Backpropagation {
     public Backpropagation(Settings settings, NeuralModel model, int index) {
         this.settings = settings;
         this.backproper = Backproper.getFrom(settings, index);
-        this.weightUpdater = new WeightUpdater(model.weights);
+        this.weightUpdater = new WeightUpdater(model.learnableWeights, model.maxWeightIndex);
     }
 
     public Backpropagation(Settings settings, NeuralModel neuralModel) {

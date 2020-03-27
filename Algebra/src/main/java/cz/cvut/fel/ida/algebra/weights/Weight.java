@@ -10,12 +10,17 @@ import cz.cvut.fel.ida.utils.exporting.Exportable;
  * Created by gusta on 8.3.17.
  */
 public class Weight implements Exportable {
+
     /**
-     * Weights should be created via factory => this is a unique identifier
+     * Weights should be created via factory => this is a unique identifier, but can be reindexed
      */
     public final int index;
 
-    public String name;
+    /**
+     * This is a globally unique identifier, contains the index at construction time, cannot be changed
+     */
+    public final String name;
+
     public Value value;
     public boolean isFixed = false;
     public Boolean isLearnable;
@@ -100,7 +105,7 @@ public class Weight implements Exportable {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        if (manualInitialization || isFixed || isShared){
+        if (manualInitialization || isFixed || isShared) {
             sb.append("<" + name + "> ");
         }
         sb.append(value.toString());
@@ -113,14 +118,13 @@ public class Weight implements Exportable {
         }
         if (isFixed) {
             isLearnable = false;
-        }
-        if (index < 0) {
+        } else if (index < 0) {
             isLearnable = false;
-        }
-        if (value == Value.ONE || value == Value.ZERO) {
+        } else if (value == Value.ONE || value == Value.ZERO) {
             isLearnable = false;
+        } else {
+            isLearnable = true;
         }
-        isLearnable = true;
         return isLearnable;
     }
 }

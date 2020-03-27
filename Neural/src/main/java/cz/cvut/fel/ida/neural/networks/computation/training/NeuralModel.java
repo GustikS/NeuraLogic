@@ -2,9 +2,9 @@ package cz.cvut.fel.ida.neural.networks.computation.training;
 
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
+import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.learning.Model;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.QueryNeuron;
-import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.setup.Settings;
 
 import java.io.Reader;
@@ -20,8 +20,11 @@ import java.util.stream.Collectors;
 public class NeuralModel implements Model<QueryNeuron> {
     private static final Logger LOG = Logger.getLogger(NeuralModel.class.getName());
 
-    public List<Weight> weights;
     private transient Settings settings;
+
+    public final List<Weight> allWeights;
+    public final int maxWeightIndex;
+    public final List<Weight> learnableWeights;
 
     public Value threshold;
 
@@ -32,11 +35,12 @@ public class NeuralModel implements Model<QueryNeuron> {
 
     public NeuralModel(List<Weight> weights, Settings settings) {
         this.settings = settings;
-        this.weights = weights;
-//        this.weights = filterLearnable(weights);  //todo now SPEEDUP - reindex weights here so that the first N are only learnable, and so no further checks are necessary, as we have a continuous array in weightupdates
+        this.allWeights = weights;
+        this.learnableWeights = filterLearnable(weights);
         if (settings.getOptimizer() == Settings.OptimizerSet.ADAM) {
             init4Adam(weights);
         }
+        maxWeightIndex = allWeights.size()-1;
     }
 
     public NeuralModel(List<Weight> weights, Consumer<Map<Integer, Weight>> templateUpdateCallback, Settings settings) {  //todo next add debug option for neuralModel only - ie.e. printing out weights (nicely) only
@@ -44,10 +48,6 @@ public class NeuralModel implements Model<QueryNeuron> {
         if (settings.debugTemplateTraining) {
             this.templateDebugCallback = templateUpdateCallback;
         }
-    }
-
-    private NeuralModel(Settings settings) {
-        this.settings = settings;
     }
 
     protected void init4Adam(List<Weight> weights) {
@@ -63,15 +63,14 @@ public class NeuralModel implements Model<QueryNeuron> {
      * @return
      */
     public NeuralModel cloneValues() {
-        List<Weight> clonedWeights = weights.stream().map(Weight::clone).collect(Collectors.toList());
-        NeuralModel clone = new NeuralModel(this.settings);
-        clone.weights = clonedWeights;
+        List<Weight> clonedWeights = allWeights.stream().map(Weight::clone).collect(Collectors.toList());
+        NeuralModel clone = new NeuralModel(clonedWeights, this.settings);
 //        clone.template = this.template;
         return clone;
     }
 
     public void resetWeights(ValueInitializer valueInitializer) {
-        for (Weight weight : weights) {
+        for (Weight weight : allWeights) {
             weight.init(valueInitializer);
         }
     }
@@ -83,7 +82,7 @@ public class NeuralModel implements Model<QueryNeuron> {
      */
     public void loadWeightValues(NeuralModel otherModel) {
         Map<Integer, Weight> otherWeights = otherModel.mapWeightsToIds();
-        for (Weight weight : weights) {
+        for (Weight weight : allWeights) {
             weight.value = otherWeights.get(weight.index).value;
         }
     }
@@ -92,7 +91,7 @@ public class NeuralModel implements Model<QueryNeuron> {
         //go through weights and set them randomly off
     }
 
-    public List<Weight> filterLearnable(List<Weight> allWeights) {
+    public static List<Weight> filterLearnable(List<Weight> allWeights) {
         return allWeights.stream().filter(Weight::isLearnable).collect(Collectors.toList());
     }
 
@@ -102,7 +101,7 @@ public class NeuralModel implements Model<QueryNeuron> {
      * @return
      */
     public Map<Integer, Weight> mapWeightsToIds() {
-        return weights.stream().collect(Collectors.toMap(w -> w.index, w -> w));
+        return allWeights.stream().collect(Collectors.toMap(w -> w.index, w -> w));
     }
 
     /**
@@ -111,7 +110,7 @@ public class NeuralModel implements Model<QueryNeuron> {
      * @return
      */
     public Map<String, Weight> mapWeightsToNames() {
-        return weights.stream().collect(Collectors.toMap(w -> w.name, w -> w));
+        return allWeights.stream().collect(Collectors.toMap(w -> w.name, w -> w));
     }
 
     /**
@@ -136,7 +135,7 @@ public class NeuralModel implements Model<QueryNeuron> {
 
     @Override
     public List<Weight> getAllWeights() {
-        return weights;
+        return allWeights;
     }
 //
 //
