@@ -394,11 +394,11 @@ public class Settings implements Serializable {
     /**
      * Remove unnecessary parts from the networks (e.g. linear chains)
      */
-    public boolean chainPruning = false;
+    public boolean chainPruning = true;
     /**
      * Bottom-up value based sub-graph isomorphism collapsing (merging)
      */
-    public boolean isoValueCompression = false;
+    public boolean isoValueCompression = true;
     /**
      * If the isoValueCompression is performed, check whether the merged neurons are truly equivalent
      */
@@ -584,7 +584,7 @@ public class Settings implements Serializable {
     /**
      * Default (init) learning rate possibly altered during learning by decay strategies
      */
-    public double initLearningRate = 0.01;
+    public double initLearningRate = 0.001;
 
     public double dropoutRate = 0.0;
 
@@ -608,7 +608,7 @@ public class Settings implements Serializable {
                 initLearningRate = 0.3;
                 break;
             case ADAM:
-                initLearningRate = 0.01;
+                initLearningRate = 0.001;
                 break;
         }
         this.optimizer = iOptimizer;

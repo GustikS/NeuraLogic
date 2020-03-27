@@ -1,5 +1,6 @@
 package cz.cvut.fel.ida.utils.generic;
 
+import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.results.Result;
 import org.openjdk.jmh.results.RunResult;
@@ -15,9 +16,13 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Benchmarking {
@@ -30,6 +35,68 @@ public class Benchmarking {
     private static TemporalUnit temporalUnit = ChronoUnit.MILLIS;   //these 2 must be the same as there is no direct conversion between them!
 
     private static DecimalFormat df = new DecimalFormat("0.000");
+
+    @TestAnnotations.SlowBenchmark
+    public void genericPreciesBenchmark(){
+        Double coeff = TestLogging.baselinePerformanceCoeff;
+        LOG.warning("TESTING NOW");
+        double baselinePerformanceCoeff = getBaselinePerformanceCoeff();
+        assertEquals(coeff,baselinePerformanceCoeff,0.001);
+    }
+
+    @TestAnnotations.Fast
+    public void testBaseline() {
+        double baselinePerformanceCoeff = getBaselinePerformanceCoeff();
+        System.out.println(baselinePerformanceCoeff);
+    }
+
+    public static double getBaselinePerformanceCoeff() {
+        Duration reference = Duration.ofSeconds(1);
+        LOG.warning("----- benchmarking baseline performance of this computer for subsequent performance testing (runtime assertions) PLEASE PAUSE OTHER RUNNING PROCESSES -----");
+
+        try {
+            Collection<RunResult> runResults = benchmarkFast(Benchmarking.class.getName() + ".baselinePerformance");
+            Double meanTime = getMeanTime(runResults);
+            Duration realTime = Duration.of(meanTime.longValue(), temporalUnit);
+
+            LOG.warning(realTime + " vs. expected: " + reference);
+
+            double coeff = realTime.toMillis() / (double) reference.toMillis();
+            return coeff;
+        } catch (RunnerException e) {
+            e.printStackTrace();
+        }
+        return 1.0;
+    }
+
+    /**
+     * Tuned for my PC to give a performance coefficient of app. 1.0 = 1s
+     * Intel i7-5500 Linux (mint 17.3, kernel 4.4.0)
+     * (Only IntelliJ and system performance monitoring turned on)
+     * @return
+     */
+    @Benchmark
+    public List<Integer> baselinePerformance() {
+        int tuning = 45100;
+        Random random = new Random(0);
+        List<Integer> list = new LinkedList<>();
+        for (int i = 0; i < tuning; i++) {
+            list.add(random.nextInt());
+        }
+
+        List<Integer> out = new LinkedList<>();
+        for (int i = 0; i < tuning; i++) {
+            out.add(list.get(i));
+        }
+        return out;
+    }
+
+
+    public static void assertDispersionAndTime(Pair<Double, Duration> results, Double dispersion, Duration referenceTime) {
+        assertEquals(dispersion, results.r, 0.01);
+        LOG.warning("time taken: " + results.s);
+        assertEquals(results.s.toMillis() / (double) referenceTime.toMillis(), 1, 0.01);
+    }
 
     public static void assertSmallRuntimeDeviation(Collection<RunResult> runResults, Duration referenceDuration, double maxDeviation) {
 
@@ -69,7 +136,7 @@ public class Benchmarking {
         Result primaryResult = runResult.getAggregatedResult().getPrimaryResult();
         Statistics statistics = primaryResult.getStatistics();
         double cvar = statistics.getStandardDeviation() / statistics.getMean();
-        if (cvar > 0.2) {
+        if (cvar > 0.5) {
             LOG.warning("Benchmark measured performance vary too much across individual runs! cvar=" + df.format(cvar * 100) + "%");
         }
         String scoreUnit = primaryResult.getScoreUnit();
@@ -86,11 +153,11 @@ public class Benchmarking {
                 // Set the following options as needed
                 .mode(Mode.AverageTime)
                 .timeUnit(timeUnit)
-                .warmupTime(TimeValue.seconds(3))
-                .warmupIterations(3)
+//                .warmupTime(TimeValue.seconds(3))
+                .warmupIterations(2)
                 .measurementTime(TimeValue.milliseconds(1))
-                .measurementIterations(10)
-                .threads(4)
+                .measurementIterations(15)
+                .threads(1)
                 .forks(1)
                 .shouldFailOnError(true)
                 .shouldDoGC(true)

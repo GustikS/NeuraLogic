@@ -1,26 +1,24 @@
 package cz.cvut.fel.ida.utils.generic;
 
 import cz.cvut.fel.ida.logging.Logging;
-import cz.cvut.fel.ida.setup.Settings;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
+import java.util.logging.Logger;
+
 import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.GLOBAL;
 
 public class TestLogging implements BeforeAllCallback, BeforeEachCallback, AfterEachCallback, ExtensionContext.Store.CloseableResource {
+    private static final Logger LOG = Logger.getLogger(Benchmarking.class.getName());
 
-    private static boolean started = false;
+    public static Double baselinePerformanceCoeff;
 
     Logging logging;
 
     @Override
     public void beforeEach(ExtensionContext context) {
-//        if (!started) {
-        started = true;
-        // Your "before all tests" startup logic goes here
-        // The following line registers a callback hook when the root test context is shut down
         context.getRoot().getStore(GLOBAL).put("any unique name", this);
         try {
             logging = Logging.initTestLogging("log" + sanitize(context));
@@ -35,16 +33,10 @@ public class TestLogging implements BeforeAllCallback, BeforeEachCallback, After
         logging = null;
     }
 
-
     @Override
     public void close() {
         // Your "after all tests" logic goes here
 //        logging.finish();
-    }
-
-    @Override
-    public void beforeAll(ExtensionContext extensionContext) throws Exception {
-        Settings.htmlLogging = false;
     }
 
     private String sanitize(ExtensionContext context) {
@@ -53,5 +45,25 @@ public class TestLogging implements BeforeAllCallback, BeforeEachCallback, After
                 .replaceAll("/", "_").replaceAll(":", "")
                 .replaceAll("class", "").replaceAll("cz.cvut.fel.ida", "")
                 .replaceAll("test-template", "").replaceAll("java.lang", "").replaceAll("method","");
+    }
+
+    @Override
+    public void beforeAll(ExtensionContext extensionContext) throws Exception {
+        LOG.warning("beforeAll is not called?");
+    }
+
+    public static class PreciseBenchmarking extends TestLogging {
+        private static boolean started = false;
+
+        @Override
+        public void beforeEach(ExtensionContext context) {
+            // Your "before all tests" startup logic goes here
+            // The following line registers a callback hook when the root test context is shut down
+            super.beforeEach(context);
+            if (!started){
+                baselinePerformanceCoeff = Benchmarking.getBaselinePerformanceCoeff();
+            }
+        }
+
     }
 }

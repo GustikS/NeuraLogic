@@ -41,13 +41,6 @@
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
-
-        <dependency>
-            <groupId>cz.cvut.fel.ida</groupId>
-            <artifactId>Resources</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
         <!-- https://mvnrepository.com/artifact/commons-cli/commons-cli -->
         <dependency>
             <groupId>commons-cli</groupId>
@@ -55,17 +48,29 @@
             <version>1.4</version>
             <scope>compile</scope>
         </dependency>
-        
+
+
+        <dependency>
+            <groupId>cz.cvut.fel.ida</groupId>
+            <artifactId>Resources</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-core</artifactId>
-            <version>1.12</version>
+            <version>1.23</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-generator-annprocess</artifactId>
-            <version>1.12</version>
+            <version>1.23</version>
+            <scope>test</scope>
         </dependency>
+
+
     </dependencies>
 
 

@@ -21,8 +21,8 @@ public class ClassificationResults extends RegressionResults {
     private Double precision;
     private Double recall;
     private Double f_Measure;
-    private Double majorityErr;
-    private Double dispersion;
+    public Double majorityErr;
+    public Double dispersion;
 
     private int goodCount;
     private int zeroCount;
