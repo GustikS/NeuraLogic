@@ -483,4 +483,14 @@ public class MatrixValue extends Value {
         }
         return greater > cols * rows / 2;
     }
+
+    @Override
+    public boolean equals(Value obj) {
+        if (obj instanceof MatrixValue) {
+            if (Arrays.deepEquals(values, ((MatrixValue) obj).values)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

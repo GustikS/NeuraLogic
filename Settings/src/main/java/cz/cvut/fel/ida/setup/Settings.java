@@ -482,8 +482,12 @@ public class Settings implements Serializable {
     /**
      * Include also AUC ROC and AUC PR etc. in results calculations (might be demanding if recalculated too often)
      */
-    public boolean detailedResults = false;
+    public boolean detailedResults = true;
 
+    /**
+     * Alternative calculation from Jesse
+     */
+    public boolean alternativeAUC = false;
     /**
      * Recalculate results after every N epochae
      */
@@ -1084,6 +1088,10 @@ public class Settings implements Serializable {
             initLearningRate = 0.01;
         } else if (getOptimizer() == OptimizerSet.SGD) {
             initLearningRate = 0.3;
+        }
+
+        if (detailedResults){
+            calculateBestThreshold = true;  //it does not cost more then
         }
 
 //        resultsRecalculationEpochae = maxCumEpochCount / 100;

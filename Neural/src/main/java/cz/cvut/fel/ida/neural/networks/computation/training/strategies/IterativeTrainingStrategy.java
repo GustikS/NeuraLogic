@@ -3,12 +3,9 @@ package cz.cvut.fel.ida.neural.networks.computation.training.strategies;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
+import cz.cvut.fel.ida.learning.results.*;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 import cz.cvut.fel.ida.learning.crossvalidation.splitting.Splitter;
-import cz.cvut.fel.ida.learning.results.ClassificationResults;
-import cz.cvut.fel.ida.learning.results.Progress;
-import cz.cvut.fel.ida.learning.results.Result;
-import cz.cvut.fel.ida.learning.results.Results;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.Accumulating;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.neurons.SaturationChecker;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
@@ -196,9 +193,9 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         TrainVal trueEvaluations = evaluateModel();
         Results trainingResults = resultsFactory.createFrom(trueEvaluations.training);
         Results validationResults = resultsFactory.createFrom(trueEvaluations.validation);
-        if (settings.calculateBestThreshold && validationResults instanceof ClassificationResults) {   // pass the best threshold from training to validation set
-            ((ClassificationResults) trainingResults).getBestAccuracy(trainingResults.evaluations);
-            ((ClassificationResults) validationResults).getBestAccuracy(validationResults.evaluations, ((ClassificationResults) trainingResults).bestThreshold);
+        if (settings.calculateBestThreshold && validationResults instanceof DetailedClassificationResults) {   // pass the best threshold from training to validation set
+            ((DetailedClassificationResults) trainingResults).computeDetailedMetrics(trainingResults.evaluations);
+            ((DetailedClassificationResults) validationResults).computeDetailedMetrics(validationResults.evaluations, ((DetailedClassificationResults) trainingResults).bestThreshold);
         }
         progress.addTrueResults(trainingResults, validationResults);
 
@@ -227,8 +224,8 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     private void saveIfBest(Progress.TrainVal trainVal) {
         if (progress.bestResults == null || trainVal.betterThan(progress.bestResults)) {
             bestModel = currentModel.cloneValues();
-            if (settings.calculateBestThreshold && trainVal.training instanceof ClassificationResults) {
-                bestModel.threshold = ((ClassificationResults) trainVal.training).bestThreshold;
+            if (settings.calculateBestThreshold && trainVal.training instanceof DetailedClassificationResults) {
+                bestModel.threshold = ((DetailedClassificationResults) trainVal.training).bestThreshold;
             }
             progress.bestResults = trainVal;
         }

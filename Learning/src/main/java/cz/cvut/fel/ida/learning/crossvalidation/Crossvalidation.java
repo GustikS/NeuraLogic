@@ -78,8 +78,8 @@ public class Crossvalidation<T extends LearningSample> {
 
             allRestarts.addAll(trainTestResults.training.restarts);
 
-            if (settings.calculateBestThreshold && training instanceof ClassificationResults) {   // pass the best threshold from training to validation set
-                Double bestAccuracy = ((ClassificationResults) trainTestResults.testing).getBestAccuracy(trainTestResults.testing.evaluations, ((ClassificationResults) training).bestThreshold);
+            if (settings.calculateBestThreshold && training instanceof DetailedClassificationResults) {   // pass the best threshold from training to validation set
+                Double bestAccuracy = ((DetailedClassificationResults) trainTestResults.testing).computeDetailedMetrics(trainTestResults.testing.evaluations, ((DetailedClassificationResults) training).bestThreshold);
                 correctClassCount += Math.round(bestAccuracy * trainTestResults.testing.evaluations.size());
                 allCount += trainTestResults.testing.evaluations.size();
             }
@@ -92,7 +92,7 @@ public class Crossvalidation<T extends LearningSample> {
 
         if (settings.calculateBestThreshold && allTestResults instanceof ClassificationResults) {
             double mergedBestAccuracy = (double) correctClassCount / allCount;
-            ((ClassificationResults) allTestResults).bestAccuracy = mergedBestAccuracy;
+            ((DetailedClassificationResults) allTestResults).bestAccuracy = mergedBestAccuracy;
         }
 
         Progress allTrainingMerged = new Progress();

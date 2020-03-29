@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  * <p>
  * Created by gusta on 8.3.17.
  */
-public abstract class Value implements Iterable<Double>, Serializable {   //todo add division
+public abstract class Value implements Iterable<Double>, Comparable<Value>, Serializable {   //todo add division
     private static final Logger LOG = Logger.getLogger(Value.class.getName());
 
     /**
@@ -192,7 +192,7 @@ public abstract class Value implements Iterable<Double>, Serializable {   //todo
      * @param maxValue
      * @return
      */
-    public abstract boolean greaterThan(Value maxValue);    //todo add GTE version and Equals version, too
+    public abstract boolean greaterThan(Value maxValue);    //todo add GTE version too
 
     protected abstract boolean greaterThan(ScalarValue maxValue);
 
@@ -200,6 +200,19 @@ public abstract class Value implements Iterable<Double>, Serializable {   //todo
 
     protected abstract boolean greaterThan(MatrixValue maxValue);
 
+
+    public abstract boolean equals(Value obj);
+
+    @Override
+    public int compareTo(Value o) {
+        if (greaterThan(o)) {
+            return 1;
+        } else if (o.greaterThan(this)) {   //this shouldn't depend on equals() ! as that means something different (use for Maps etc.)...
+            return -1;
+        } else {
+            return 0;   // this also covers mixed cases such as ScalarValue <=all=> values in VectorValue
+        }
+    }
 
     //----------todo consider replacing these constant classes with simple ScalarValue(0/1), the speedup might be small.
 
@@ -395,6 +408,14 @@ public abstract class Value implements Iterable<Double>, Serializable {   //todo
         @Override
         public boolean greaterThan(MatrixValue maxValue) {
             return one.greaterThan(maxValue);
+        }
+
+        @Override
+        public boolean equals(Value obj) {
+            if (obj instanceof One) {
+                return true;
+            }
+            return false;
         }
 
         @NotNull
@@ -596,6 +617,14 @@ public abstract class Value implements Iterable<Double>, Serializable {   //todo
         @Override
         public boolean greaterThan(MatrixValue maxValue) {
             return zero.greaterThan(maxValue);
+        }
+
+        @Override
+        public boolean equals(Value obj) {
+            if (obj instanceof Zero) {
+                return true;
+            }
+            return false;
         }
 
         @NotNull

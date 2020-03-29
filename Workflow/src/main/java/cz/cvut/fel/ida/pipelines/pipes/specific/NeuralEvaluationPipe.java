@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.pipelines.pipes.specific;
 
-import cz.cvut.fel.ida.learning.results.ClassificationResults;
+import cz.cvut.fel.ida.learning.results.DetailedClassificationResults;
 import cz.cvut.fel.ida.learning.results.Result;
 import cz.cvut.fel.ida.learning.results.Results;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.Evaluation;
@@ -9,8 +9,8 @@ import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.neu
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
 import cz.cvut.fel.ida.neural.networks.structure.components.NeuralNetwork;
-import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.AtomNeurons;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.AtomNeurons;
 import cz.cvut.fel.ida.pipelines.Pipe;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.generic.Pair;
@@ -55,8 +55,8 @@ public class NeuralEvaluationPipe extends Pipe<Pair<NeuralModel, Stream<NeuralSa
 
         Results.Factory factory = Results.Factory.getFrom(settings);
         Results results = factory.createFrom(resultList);
-        if (neuralModelStreamPair.r.threshold != null && results instanceof ClassificationResults) {    // pass the trained threshold from train to test set
-            ((ClassificationResults) results).getBestAccuracy(results.evaluations, neuralModelStreamPair.r.threshold);
+        if (neuralModelStreamPair.r.threshold != null && results instanceof DetailedClassificationResults) {    // pass the trained threshold from train to test set
+            ((DetailedClassificationResults) results).computeDetailedMetrics(results.evaluations, neuralModelStreamPair.r.threshold);
         }
         LOG.finer("Testing outputs");
         LOG.fine(results.toString(settings));

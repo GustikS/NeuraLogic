@@ -62,7 +62,7 @@ public abstract class Results implements Exportable<Results> {
 
     public void printOutputs() {
         for (Result evaluation : evaluations) {
-            LOG.finer(evaluation.sampleId + " : target: " + evaluation.target + " output: " + evaluation.output.toDetailedString());
+            LOG.finer(evaluation.sampleId + " : target: " + evaluation.getTarget() + " output: " + evaluation.getOutput().toDetailedString());
         }
     }
 

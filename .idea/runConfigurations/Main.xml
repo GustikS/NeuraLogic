@@ -2,7 +2,7 @@
   <configuration default="false" name="Main" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="cz.cvut.fel.ida.neuralogic.cli.Main" />
     <module name="CLI" />
-    <option name="PROGRAM_PARAMETERS" value="-sd ./Resources/datasets/relational/molecules/mutagenesis -iso 10 -ts 100 -opt adam -lr 0.01" />
+    <option name="PROGRAM_PARAMETERS" value="-sd ./Resources/datasets/relational/molecules/mutagenesis -iso -1 -prune -1 -ts 500 -opt sgd -lr 0.3" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="cz.cvut.fel.ida.neuralogic.cli.dummy.TestBenchmark" />

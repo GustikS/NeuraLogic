@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.neuralogic.cli.datasets.neural;
 
-import cz.cvut.fel.ida.learning.results.ClassificationResults;
+import cz.cvut.fel.ida.learning.results.DetailedClassificationResults;
 import cz.cvut.fel.ida.neuralogic.cli.Main;
 import cz.cvut.fel.ida.pipelines.Pipeline;
 import cz.cvut.fel.ida.setup.Settings;
@@ -25,7 +25,7 @@ public class XOR {
         settings.appLimitSamples = -1;
         settings.maxCumEpochCount = 1000;
         Pair<Pipeline, ?> results = Main.main(dataset, settings);
-        ClassificationResults classificationResults = (ClassificationResults) results.s;
+        DetailedClassificationResults classificationResults = (DetailedClassificationResults) results.s;
         Double bestAccuracy = classificationResults.bestAccuracy;
         assertEquals(bestAccuracy, 1.0);
         Duration timeTaken = results.r.timing.getTimeTaken();

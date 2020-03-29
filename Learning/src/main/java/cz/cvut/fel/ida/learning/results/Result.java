@@ -22,22 +22,38 @@ public class Result implements Comparable<Result> {
 
     String sampleId;
 
-    Value output;
-    Value target;
+    private Value output;
+    private Value target;
 
     private Result(ErrorFcn errorFcn, String sampleId, Value target, Value output) {
         this.errorFcn = errorFcn;
         this.sampleId = sampleId;
-        this.target = target;
-        this.output = output;
+        this.setTarget(target);
+        this.setOutput(output);
     }
 
     public Value errorValue() {
-        return errorFcn.evaluate(output, target);
+        return errorFcn.evaluate(getOutput(), getTarget());
     }
 
     public Value errorGradient() {
-        return errorFcn.differentiate(output, target);
+        return errorFcn.differentiate(getOutput(), getTarget());
+    }
+
+    public Value getOutput() {
+        return output;
+    }
+
+    public void setOutput(Value output) {
+        this.output = output;
+    }
+
+    public Value getTarget() {
+        return target;
+    }
+
+    public void setTarget(Value target) {
+        this.target = target;
     }
 
     public static class Factory {
@@ -70,17 +86,11 @@ public class Result implements Comparable<Result> {
 
     @Override
     public String toString() {
-        return sampleId + " -> " + output + " : " + target;
+        return sampleId + " -> " + getOutput() + " : " + getTarget();
     }
 
     @Override
     public int compareTo(Result other) {
-        if (output.greaterThan(other.output)) {
-            return 1;
-        } else if (output.equals(other.output)) {
-            return 0;
-        } else {
-            return -1;
-        }
+        return getOutput().compareTo(other.getOutput());
     }
 }

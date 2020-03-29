@@ -203,6 +203,16 @@ public class StringValue extends Value {
         return false;
     }
 
+    @Override
+    public boolean equals(Value obj) {
+        if (obj instanceof StringValue){
+            if (value.equals(((StringValue) obj).value)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     @NotNull
     @Override
     public Iterator<Double> iterator() {

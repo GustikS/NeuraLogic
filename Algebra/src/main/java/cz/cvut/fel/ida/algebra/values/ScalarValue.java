@@ -376,6 +376,16 @@ public class ScalarValue extends Value {
     }
 
     @Override
+    public boolean equals(Value obj) {
+        if (obj instanceof ScalarValue){
+            if (value == ((ScalarValue) obj).value){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public int hashCode() {
         return Double.valueOf(value).hashCode();
     }

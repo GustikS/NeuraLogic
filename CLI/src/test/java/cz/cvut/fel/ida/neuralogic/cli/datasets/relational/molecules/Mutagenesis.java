@@ -24,6 +24,9 @@ public class Mutagenesis {
         Duration referenceTime = Duration.ofMinutes(10);
 
         Settings settings = Settings.forSlowTest();
+        settings.setOptimizer(Settings.OptimizerSet.SGD);
+        settings.maxCumEpochCount = 1000;
+
         Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset), settings);
         Benchmarking.assertDispersionAndTime(WorkflowUtils.getDisperionAndTime(results), referenceDispersion, referenceTime);
     }
