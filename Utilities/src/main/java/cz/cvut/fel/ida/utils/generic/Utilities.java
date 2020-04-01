@@ -8,6 +8,7 @@ import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -23,6 +24,8 @@ import java.util.stream.StreamSupport;
 public class Utilities {
 
     private static final Logger LOG = Logger.getLogger(Utilities.class.getName());
+
+    public static DecimalFormat numberFormat = new DecimalFormat("##.##");
 
     public static int mb = 1024 * 1024;
     public static double gcPercentLimit = 0.2;
@@ -113,7 +116,7 @@ public class Utilities {
         double gcDelta = (garbageCollectionTime - lastGarbageCollectionTime);
         double gcPercent = gcDelta / (now - tic);
         if (gcPercent > gcPercentLimit) {
-            LOG.warning("Garbage collection takes more than " + gcPercentLimit * 100 + "% of calculation time!");
+            LOG.warning("Garbage collection takes" + numberFormat.format(gcPercent * 100) + "% of time!!");
         }
         LOG.finer(totalGarbageCollections + " garbage colletions with total time: " + garbageCollectionTime / 1000 + "s, made " + gcPercent * 100 + "% of time spent in GC since the last time.");
         tic = now;
@@ -236,11 +239,11 @@ public class Utilities {
     public static <T> List<T> terminateSampleStream(Stream<T> stream) {
         Timing timing = new Timing();
         timing.tic();
-        LOG.fine("------------------------------------------ PROCESSING SAMPLES (= terminating stream) -------------------------------------------------------");
+        LOG.fine("--------------------- PROCESSING SAMPLES (= terminating stream) ------------------------------");
         List<T> list = stream.collect(Collectors.toList());
         stream.close(); //THE IMPORTANT PART
         timing.toc();
-        LOG.fine("------------------------------------------ SAMPLES PROCESSED into list of " + list.get(0).getClass().getSimpleName() + " (in " + timing.getTimeTaken() + ")-------------------------------------------------------");
+        LOG.fine("--------------------- SAMPLES PROCESSED into list of " + list.get(0).getClass().getSimpleName() + " (in " + timing.getTimeTaken() + ") -----------------------");
         logMemory();
         return list;
     }

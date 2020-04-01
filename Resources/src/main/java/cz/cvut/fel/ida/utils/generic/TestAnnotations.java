@@ -62,6 +62,16 @@ public @interface TestAnnotations {
     @Retention(RUNTIME)
     @Test
     @TestOnly
+    @ExtendWith({TestLogging.class})
+    @Tag("AdHoc")
+    public @interface AdHoc {
+    }
+
+
+    @Target({TYPE, METHOD, ANNOTATION_TYPE})
+    @Retention(RUNTIME)
+    @Test
+    @TestOnly
     @Tag("SlowBenchmark")
     @ExtendWith({TestLogging.PreciseBenchmarking.class})
     @interface SlowBenchmark {

@@ -93,23 +93,23 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
     public Pipeline<Sources, Results> buildPipeline(Sources sources) {
         Pipeline<Sources, Results> pipeline = new Pipeline<>("LearningSchemePipeline", this);
 
-        LOG.fine("------------------------------------------WORKFLOW SETUP-------------------------------------------------------");
+        LOG.finer("------------------------------------------WORKFLOW SETUP-------------------------------------------------------");
 
         if (sources.crossvalidation) { //returns only test results in this case
-            LOG.info("Learning scheme inferred as : ---CROSSVALIDATION---");
+            LOG.fine("Learning scheme inferred as : ---CROSSVALIDATION---");
             CrossvalidationBuilder crossvalidationSchemeBuilder = new CrossvalidationBuilder(settings, sources);
             Pipeline<Sources, Pair<MeanStdResults.TrainValTest, TrainTestResults>> crossvalPipeline = pipeline.registerStart(crossvalidationSchemeBuilder.buildPipeline());
             Pipe pipe = crossvalPipeline.connectAfter(pipeline.register(new SecondFromPairPipe()));
             pipe.connectAfter(pipeline.registerEnd(getTestResultsPipe()));
 
         } else if (sources.trainTest) { //returns only test results in this case
-            LOG.info("Learning scheme inferred as : ---TRAIN-TEST---");
+            LOG.fine("Learning scheme inferred as : ---TRAIN-TEST---");
             TrainTestBuilder trainTestBuilder = new TrainTestBuilder(settings, sources);
             Pipeline<Sources, TrainTestResults> trainTestPipeline = pipeline.registerStart(trainTestBuilder.buildPipeline());
             trainTestPipeline.connectAfter(pipeline.registerEnd(getTestResultsPipe()));
 
         } else if (sources.trainOnly) {
-            LOG.info("Learning scheme inferred as : ---TRAINING ONLY---");
+            LOG.fine("Learning scheme inferred as : ---TRAINING ONLY---");
             Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> trainingPipeline = pipeline.registerStart(new TrainingBuilder(settings, sources).buildPipeline());
             SecondFromPairPipe<Pair<Template, NeuralModel>, Progress> secondFromPairPipe = pipeline.register(new SecondFromPairPipe<>());
             trainingPipeline.connectAfter(secondFromPairPipe);
@@ -117,7 +117,7 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
             secondFromPairPipe.connectAfter(resultsFromProgressPipe);
 
         } else if (sources.testOnly) {
-            LOG.info("Learning scheme inferred as : ---TESTING ONLY---");
+            LOG.fine("Learning scheme inferred as : ---TESTING ONLY---");
             Pipeline<Sources, Results> testingPipeline = pipeline.registerEnd(pipeline.registerStart(new TestingBuilder(settings, sources).buildPipeline()));
 
         } else {

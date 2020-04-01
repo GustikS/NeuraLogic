@@ -14,7 +14,7 @@ from os.path import isfile
 import matplotlib.pyplot as plt
 import matplotlib
 
-matplotlib.use("Qt4agg")
+matplotlib.use("Qt5agg")
 from matplotlib.font_manager import FontProperties
 
 from pandas.core.dtypes.common import is_numeric_dtype
@@ -241,7 +241,7 @@ class ProgressObserver(FileObserver):
         try:
             progress = json.loads(lines)
         except:
-            lines = lines[:-3] + "]"
+            lines = lines[:-2] + "]"
             progress = json.loads(lines)
         extracted = {}
         for field in self.filter.fields:
@@ -319,6 +319,8 @@ class Filter:
             ["dispersion"],
             ["bestAccuracy"],
             ["error", "value"],
+            ["AUCroc"],
+            ["AUCpr"]
         ],
         "progress_val": [
             ["validation", "accuracy"],

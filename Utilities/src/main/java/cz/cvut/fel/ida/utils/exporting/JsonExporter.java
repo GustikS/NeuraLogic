@@ -99,6 +99,7 @@ public class JsonExporter extends TextExporter {
     @Override
     public void delimitNext() {
         exportWriter.println(",");
+        exportWriter.flush();
     }
 
     @Override

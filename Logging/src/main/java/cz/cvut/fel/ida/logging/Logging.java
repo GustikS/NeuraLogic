@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.logging.*;
 
@@ -29,6 +30,7 @@ public class Logging {
     long startupTime = System.currentTimeMillis();
 
     public static Logging initLogging() throws Exception {
+        Locale.setDefault(Locale.US);  //to prevent various problems (like decimal commas e.g.)
         return initLogging(Settings.loggingLevel, Settings.supressLogFileOutput);
     }
 

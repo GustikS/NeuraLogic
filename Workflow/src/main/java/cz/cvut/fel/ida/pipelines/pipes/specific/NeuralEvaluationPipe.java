@@ -56,6 +56,7 @@ public class NeuralEvaluationPipe extends Pipe<Pair<NeuralModel, Stream<NeuralSa
         Results.Factory factory = Results.Factory.getFrom(settings);
         Results results = factory.createFrom(resultList);
         if (neuralModelStreamPair.r.threshold != null && results instanceof DetailedClassificationResults) {    // pass the trained threshold from train to test set
+            ((DetailedClassificationResults) results).computeDetailedMetrics(results.evaluations);
             ((DetailedClassificationResults) results).computeDetailedMetrics(results.evaluations, neuralModelStreamPair.r.threshold);
         }
         LOG.finer("Testing outputs");

@@ -35,6 +35,7 @@ public abstract class TextExporter extends Exporter {
     }
 
     public void finish() {
+        exportWriter.flush();
         exportWriter.close();
     }
 

@@ -82,7 +82,7 @@ public class ClassificationResults extends RegressionResults {
         return new MeanStdResults(mean, std);
     }
 
-    private void loadBasicCounts(List<Result> evaluations){
+    private void loadBasicCounts(List<Result> evaluations) {
         zeroCount = 0;
         oneCount = 0;
 
@@ -138,7 +138,7 @@ public class ClassificationResults extends RegressionResults {
     public String toString(Settings settings) {
         StringBuilder sb = new StringBuilder();
         if (accuracy != null)
-            sb.append("accuracy: " + Settings.shortNumberFormat.format(accuracy.doubleValue() * 100));
+            sb.append("accuracy: " + Settings.shortNumberFormat.format(accuracy.doubleValue() * 100) + "%");
         if (dispersion != null) {
             sb.append(", disp: " + dispersion.toString());
         }

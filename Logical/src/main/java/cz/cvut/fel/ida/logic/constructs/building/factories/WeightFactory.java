@@ -16,7 +16,8 @@ import java.util.stream.Collectors;
 /**
  * Created by gusta on 5.3.18.
  */
-public class WeightFactory implements Exportable {
+public class
+WeightFactory implements Exportable {
     private static final Logger LOG = Logger.getLogger(WeightFactory.class.getName());
 
     private int index = 0;

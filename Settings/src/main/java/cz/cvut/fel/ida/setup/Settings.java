@@ -11,7 +11,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -258,14 +260,16 @@ public class Settings implements Serializable {
      * Global random generator
      */
     public transient Random random;
+
+    private static DecimalFormatSymbols custom = new DecimalFormatSymbols(Locale.US);
     /**
      * Global number formats for all printing
      */
-    public transient static NumberFormat superDetailedNumberFormat = new DecimalFormat("#.################");
+    public transient static NumberFormat superDetailedNumberFormat = new DecimalFormat("#.################", custom);
 
-    public transient static NumberFormat detailedNumberFormat = new DecimalFormat("#.##########");
+    public transient static NumberFormat detailedNumberFormat = new DecimalFormat("#.##########", custom);
 
-    public transient static NumberFormat shortNumberFormat = new DecimalFormat("#.##");
+    public transient static NumberFormat shortNumberFormat = new DecimalFormat("#.##", custom);
 
     //------------------Abstract Pipelines
 
@@ -480,9 +484,14 @@ public class Settings implements Serializable {
     public boolean regression = false;
 
     /**
-     * Include also AUC ROC and AUC PR etc. in results calculations (might be demanding if recalculated too often)
+     * Include also AUC ROC and AUC PR etc. in results calculations (might be demanding if recalculated too often) in RECALCULATION
      */
     public boolean detailedResults = true;
+
+    /**
+     * Include also AUC ROC and AUC PR etc. in results calculations (might be demanding if recalculated too often) in EACH EPOCH
+     */
+    public boolean forceDetailedResults = true;
 
     /**
      * Alternative calculation from Jesse
@@ -604,6 +613,7 @@ public class Settings implements Serializable {
 
     /**
      * The default/initial learning rate is bound to the optimizer - that's why access through setter
+     *
      * @param iOptimizer
      */
     public void setOptimizer(OptimizerSet iOptimizer) {
@@ -1090,7 +1100,7 @@ public class Settings implements Serializable {
             initLearningRate = 0.3;
         }
 
-        if (detailedResults){
+        if (detailedResults) {
             calculateBestThreshold = true;  //it does not cost more then
         }
 

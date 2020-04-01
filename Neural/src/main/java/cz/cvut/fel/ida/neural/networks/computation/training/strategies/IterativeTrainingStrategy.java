@@ -166,6 +166,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     protected void endRestart() {
         recalculateResults();
         exporter.delimitEnd();
+        exporter.finish();
         restartingStrategy.nextRestart();
         if (LOG.isLoggable(Level.FINER)) {
             logSampleOutputs();

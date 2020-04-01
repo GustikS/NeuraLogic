@@ -2,6 +2,7 @@ package cz.cvut.fel.ida.learning.results;
 
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
+import cz.cvut.fel.ida.learning.results.metrics.AUC;
 import cz.cvut.fel.ida.setup.Settings;
 
 import java.util.Collections;
@@ -21,9 +22,9 @@ public class DetailedClassificationResults extends ClassificationResults {  //to
     private Double recall;
     private Double f_Measure;
 
-    private Double AUCpr;
     private Double AUCroc;
-    private Double AUCrocAlternative;
+    private Double AUCrocJesse;
+    private Double AUCpr;
 
     public DetailedClassificationResults(List<Result> outputs, Settings aggregationFcn) {
         super(outputs, aggregationFcn);
@@ -32,6 +33,9 @@ public class DetailedClassificationResults extends ClassificationResults {  //to
     @Override
     public boolean recalculate() {
         super.recalculate();
+        if (settings.forceDetailedResults){
+            computeDetailedMetrics(evaluations);
+        }
         return true;
     }
 
@@ -39,7 +43,9 @@ public class DetailedClassificationResults extends ClassificationResults {  //to
         AUCroc = calculateAUC(evaluations);
 
         if (settings.alternativeAUC)
-            AUCrocAlternative = getAlternativeAUC(evaluations);
+            AUCrocJesse = getAlternativeAUC(evaluations);
+
+        AUCpr = getAlternativeAUCPR(evaluations);
 
         computeBestAccuracyThreshold(evaluations);
         computeDetailedMetrics(evaluations, bestThreshold);
@@ -144,8 +150,19 @@ public class DetailedClassificationResults extends ClassificationResults {  //to
      * @return
      */
     public double getAlternativeAUC(List<Result> evaluations) {
-//        return AUC.getAUCroc(evaluations);
-        return 0;
+        return AUC.getAUCroc(evaluations);
+//        return 0;
+    }
+
+    /**
+     * This one from Jesse seems to be somewhat higher (better interpolation maybe)
+     *
+     * @param evaluations
+     * @return
+     */
+    public double getAlternativeAUCPR(List<Result> evaluations) {
+        return AUC.getAUCroc(evaluations);
+//        return 0;
     }
 
     @Override
@@ -160,12 +177,15 @@ public class DetailedClassificationResults extends ClassificationResults {  //to
         if (bestAccuracy != null) {
             sb.append(", (best thresh acc: " + Settings.shortNumberFormat.format(bestAccuracy * 100) + "%)");
         }
-        sb.append("% (maj. " + Settings.shortNumberFormat.format(majorityErr * 100) + "%)");
+        sb.append(" (maj. " + Settings.shortNumberFormat.format(majorityErr * 100) + "%)");
         if (AUCroc != null) {
-            sb.append(", (AUC-ROC: " + Settings.shortNumberFormat.format(AUCroc) + ")");
+            sb.append(", (AUC-ROC: " + Settings.detailedNumberFormat.format(AUCroc) + ")");
         }
-        if (AUCrocAlternative != null) {
-            sb.append(", (AUC-ROC [Jesse]: " + Settings.shortNumberFormat.format(AUCrocAlternative) + ")");
+        if (AUCrocJesse != null) {
+            sb.append(", (AUC-ROC [Jesse]: " + Settings.detailedNumberFormat.format(AUCrocJesse) + ")");
+        }
+        if (AUCpr != null) {
+            sb.append(", (AUC-PR [Jesse]: " + Settings.detailedNumberFormat.format(AUCpr) + ")");
         }
         return sb.toString();
     }

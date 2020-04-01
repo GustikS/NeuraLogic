@@ -33,8 +33,8 @@ public class WeightUpdater implements WeightVisitor {
     }
 
     private void check4mistakes(List<Weight> learnableWeights, int maxWeightIndex) {
-        if (maxWeightIndex < learnableWeights.size()) {
-            LOG.severe("Weight indices are off!!");
+        if (maxWeightIndex < learnableWeights.size() - 1) {
+            LOG.severe("Weight indices are off (there are more learnable weight than all weights?)!!");
         }
 
         boolean[] duplicate = new boolean[maxWeightIndex + 1];
