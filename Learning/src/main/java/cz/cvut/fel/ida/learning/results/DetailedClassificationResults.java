@@ -161,7 +161,7 @@ public class DetailedClassificationResults extends ClassificationResults {  //to
      * @return
      */
     public double getAlternativeAUCPR(List<Result> evaluations) {
-        return AUC.getAUCroc(evaluations);
+        return AUC.getAUCpr(evaluations);
 //        return 0;
     }
 

@@ -140,9 +140,11 @@ public class Settings implements Serializable {
 
     public String graphvizPathLinux = "/usr/bin"; // this is where the dot typically is, if not, install graphviz
     public String graphvizPathMac = "/usr/local/bin";   //never tried OSX...
-    public String graphvizPathWindows = "../resources/graphviz"; //get it if you  don't have it and want to use it!
+    public String graphvizPathWindows = "../Resources/graphviz"; //get it if you  don't have it and want to use it!
 
-    public String pythonPath = "/opt/miniconda3/envs/lrnn/bin/python";
+        public String pythonPath = "/opt/miniconda3/envs/lrnn/bin/python";
+//    public String pythonPath = "python";
+
     public String progressPlotterPath = "../Frontend/grid/loading_results.py";
 
     //------------------Exporting (i.e. output files for logging etc.)
@@ -496,7 +498,7 @@ public class Settings implements Serializable {
     /**
      * Alternative calculation from Jesse
      */
-    public boolean alternativeAUC = false;
+    public boolean alternativeAUC = true;
     /**
      * Recalculate results after every N epochae
      */
@@ -627,12 +629,6 @@ public class Settings implements Serializable {
         }
         this.optimizer = iOptimizer;
     }
-
-
-    /**
-     * Percentual size of validation set separated from training set
-     */
-    public double validationSet = 0.1;
 
     public DropoutMode dropoutMode = DropoutMode.LIFTED_DROPCONNECT;
 

@@ -22,9 +22,11 @@ public class EColi {
 
         settings.setOptimizer(Settings.OptimizerSet.ADAM);
         settings.maxCumEpochCount = 1000;
-        settings.plotProgress = 3;
+        settings.plotProgress = 5;
 
-        settings.appLimitSamples = 100;
+        settings.trainValidationPercentage = 0.3;
+
+        settings.appLimitSamples = 500;
         settings.isoValueCompression = true;
         settings.chainPruning = true;
         settings.processMetadata = true;
@@ -40,12 +42,13 @@ public class EColi {
 
         settings.setOptimizer(Settings.OptimizerSet.ADAM);
         settings.maxCumEpochCount = 100;
-        settings.plotProgress = 10;
+        settings.plotProgress = 30;
 
-        settings.appLimitSamples = -1;
+        settings.appLimitSamples = 1000;
         settings.isoValueCompression = false;
         settings.chainPruning = false;
-        settings.processMetadata = true;
+
+        settings.errorFunction = Settings.ErrorFcn.CROSSENTROPY;
 
         Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./template_cross.txt"), settings);
     }

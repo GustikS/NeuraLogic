@@ -59,7 +59,11 @@ public class Utilities {
 
     public static String getResourcePath(String filename) {
         URL resource = Thread.currentThread().getContextClassLoader().getResource(filename);
-        return resource.getPath();
+        String path = resource.getPath();
+        if (path.startsWith("/C:")) {
+            path = path.substring(1, path.length());
+        }
+        return path;
     }
 
     public static String readResourceFile(String path) {

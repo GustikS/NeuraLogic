@@ -14,7 +14,7 @@ from os.path import isfile
 import matplotlib.pyplot as plt
 import matplotlib
 
-matplotlib.use("Qt5agg")
+matplotlib.use("Qt5Agg")
 from matplotlib.font_manager import FontProperties
 
 from pandas.core.dtypes.common import is_numeric_dtype
@@ -200,6 +200,7 @@ class ProgressObserver(FileObserver):
         except:
             pass
 
+
         srted = sorted(self.json_map.keys())
         if not srted:
             print("No progress files detected!")
@@ -237,7 +238,12 @@ class ProgressObserver(FileObserver):
     def plot_file(self, file):
         self.file = self.open(file, "r")
         self.filename = file.split("/")[-1].split(".json")[0]
+
         lines = self.file.read()
+        while not lines:
+            time.sleep(self.seconds)
+            lines = self.file.read()
+
         try:
             progress = json.loads(lines)
         except:
@@ -271,7 +277,8 @@ class ProgressObserver(FileObserver):
             np.maximum.accumulate(idx, axis=0, out=idx)
             out = series1[idx]
 
-            pltr.normal_plot(out, xs, legend=metric[0])
+            leg = metric[0] if len(metric)==1 else metric[0] + "-" + metric[1]
+            pltr.normal_plot(out, xs, legend=leg)
             plt.annotate('%0.5f' % out[-1], xy=(1, out[-1]), xytext=(8, 0),
                          xycoords=('axes fraction', 'data'), textcoords='offset points')
 
@@ -314,20 +321,22 @@ class Filter:
                     ["NetworkPruningPipe", "timing", "totalTimeTaken"]],
         "train_time": ["NeuralTrainingPipe", "timing", "totalTimeTaken"],
         "progress_train": [
-            ["accuracy"],
+            # ["accuracy"],
             ["majorityErr"],
             ["dispersion"],
-            ["bestAccuracy"],
-            ["error", "value"],
+            # ["bestAccuracy"],
+            # ["error", "value"],
             ["AUCroc"],
             ["AUCpr"]
         ],
         "progress_val": [
-            ["validation", "accuracy"],
+            # ["validation", "accuracy"],
             ["validation", "majorityErr"],
             ["validation", "dispersion"],
-            ["validation", "bestAccuracy"],
-            ["validation", "error", "value"],
+            # ["validation", "bestAccuracy"],
+            # ["validation", "error", "value"],
+            ["validation", "AUCroc"],
+            ["validation", "AUCpr"]
         ]
     }
 
@@ -388,18 +397,19 @@ class Filter:
         if paramstring.startswith("_"):
             paramstring = paramstring[1:]
 
-        split = paramstring.split("_")
-        for i in range(0, len(split), 2):
-            par, val = split[i][1:], split[i + 1]
-            par_map[par] = val
-            if not par or not val:
-                continue
+        if "_" in paramstring:
+            split = paramstring.split("_")
+            for i in range(0, len(split), 2):
+                par, val = split[i][1:], split[i + 1]
+                par_map[par] = val
+                if not par or not val:
+                    continue
 
-        # if len(split) == 0:
-        #     par = "params"
-        #     res_pars = par_map.get(par, [])
-        #     res_pars.append(pair)
-        #     val = res_pars
+        if len(split) == 0:
+            par = "params"
+            res_pars = par_map.get(par, [])
+            res_pars.append(pair)
+            val = res_pars
 
         return par_map
 
@@ -457,6 +467,7 @@ class Plotter:
         self.dataframe = dataframe
 
     def plot_all(self, row=None, cols=None, xlabel="", ylabel="", legend=""):
+        plt.figure()
         if row is None:
             row = self.x
         if cols is None:

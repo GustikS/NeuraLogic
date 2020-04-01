@@ -124,7 +124,7 @@ public class Logging {
     }
 
     public static String calcDateTime(long millisecs) {
-        SimpleDateFormat date_format = new SimpleDateFormat("YYYY-MM-DD_HH:mm:ss");
+        SimpleDateFormat date_format = new SimpleDateFormat("YYYY-MM-DD_HH-mm-ss");
         date_format.setTimeZone(TimeZone.getTimeZone("GMT+0"));
         Date resultdate = new Date(millisecs);
         return date_format.format(resultdate);
