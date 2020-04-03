@@ -24,7 +24,7 @@ public class NeuralModel implements Model<QueryNeuron> {
 
     public final List<Weight> allWeights;
     public final int maxWeightIndex;
-    public final List<Weight> learnableWeights;
+    public transient final List<Weight> learnableWeights;
 
     public Value threshold;
 

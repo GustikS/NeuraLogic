@@ -4,6 +4,7 @@ import cz.cvut.fel.ida.logging.Logging;
 import cz.cvut.fel.ida.pipelines.Pipeline;
 import cz.cvut.fel.ida.pipelines.building.LearningSchemeBuilder;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.setup.SourceFiles;
 import cz.cvut.fel.ida.setup.Sources;
 import cz.cvut.fel.ida.utils.exporting.Exporter;
 import cz.cvut.fel.ida.utils.exporting.TextExporter;
@@ -60,6 +61,7 @@ public class Runner {
     }
 
     private static void startupExport(Settings settings, Sources sources) {
+//        settings.exportDir = settings.exportDir + "/" + makeCompatibleExportDir(settings, sources);
         Exporter exporter = Exporter.getExporter(settings.exportDir, "", settings.exportType.name());
 
         if (settings.cleanUpFirst) {
@@ -71,6 +73,22 @@ public class Runner {
 
         LOG.info("Exporting Sources configuration:");
         TextExporter.exportString(sources.export(), Paths.get(settings.sourcesExportFile));
+    }
+
+    /**
+     * Compatible with Python experiment loading afterwards
+     * @param settings
+     * @param sources
+     * @return
+     */
+    private static String makeCompatibleExportDir(Settings settings, Sources sources) {
+        SourceFiles sourceFiles = (SourceFiles) sources;
+        StringBuilder sb = new StringBuilder();
+        String template = sourceFiles.template.getName().replace(".txt","");
+        String dataset = sourceFiles.trainExamples.getParentFile().getName();
+        String params = settings.getChangesFromReference();
+        sb.append(dataset).append("/").append(template).append("/").append(params);
+        return sb.toString();
     }
 
     public static String testConnection(String socket) {

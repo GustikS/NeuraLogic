@@ -22,8 +22,8 @@ public class DetailedClassificationResults extends ClassificationResults {  //to
     private Double recall;
     private Double f_Measure;
 
-    private Double AUCroc;
-    private Double AUCrocJesse;
+    public Double AUCroc;
+    private Double AUCrocEmpirical;
     private Double AUCpr;
 
     public DetailedClassificationResults(List<Result> outputs, Settings aggregationFcn) {
@@ -34,24 +34,23 @@ public class DetailedClassificationResults extends ClassificationResults {  //to
     public boolean recalculate() {
         super.recalculate();
         if (settings.forceDetailedResults){
-            computeDetailedMetrics(evaluations);
+            computeDetailedAccuracy(evaluations);
         }
         return true;
     }
 
-    public void computeDetailedMetrics(List<Result> evaluations) {
-        AUCroc = calculateAUC(evaluations);
+    public void computeDetailedAccuracy(List<Result> evaluations) {
 
         if (settings.alternativeAUC)
-            AUCrocJesse = getAlternativeAUC(evaluations);
+            AUCrocEmpirical = calculateAUCsmaller(evaluations);
 
-        AUCpr = getAlternativeAUCPR(evaluations);
+        setFullAUC(evaluations);
 
         computeBestAccuracyThreshold(evaluations);
-        computeDetailedMetrics(evaluations, bestThreshold);
+        computeDetailedAccuracy(evaluations, bestThreshold);
     }
 
-    public Double computeDetailedMetrics(List<Result> evaluations, Value trainedThreshold) {
+    public Double computeDetailedAccuracy(List<Result> evaluations, Value trainedThreshold) {
         int TP = 0;
         int TN = 0;
         for (Result evaluation : evaluations) {
@@ -109,7 +108,7 @@ public class DetailedClassificationResults extends ClassificationResults {  //to
         bestAccuracy = 1 - bestCumErr;
     }
 
-    public double calculateAUC(List<Result> evaluations) {
+    public double calculateAUCsmaller(List<Result> evaluations) {
 
         double pos = oneCount;
         double neg = zeroCount;
@@ -149,20 +148,10 @@ public class DetailedClassificationResults extends ClassificationResults {  //to
      * @param evaluations
      * @return
      */
-    public double getAlternativeAUC(List<Result> evaluations) {
-        return AUC.getAUCroc(evaluations);
-//        return 0;
-    }
-
-    /**
-     * This one from Jesse seems to be somewhat higher (better interpolation maybe)
-     *
-     * @param evaluations
-     * @return
-     */
-    public double getAlternativeAUCPR(List<Result> evaluations) {
-        return AUC.getAUCpr(evaluations);
-//        return 0;
+    public void setFullAUC(List<Result> evaluations) {
+        AUC auc = new AUC(evaluations);
+        AUCroc = auc.getAUCroc();
+        AUCpr = auc.getAUCpr();
     }
 
     @Override
@@ -181,11 +170,11 @@ public class DetailedClassificationResults extends ClassificationResults {  //to
         if (AUCroc != null) {
             sb.append(", (AUC-ROC: " + Settings.detailedNumberFormat.format(AUCroc) + ")");
         }
-        if (AUCrocJesse != null) {
-            sb.append(", (AUC-ROC [Jesse]: " + Settings.detailedNumberFormat.format(AUCrocJesse) + ")");
+        if (AUCrocEmpirical != null) {
+            sb.append(", (AUC-ROC [empirical]: " + Settings.detailedNumberFormat.format(AUCrocEmpirical) + ")");
         }
         if (AUCpr != null) {
-            sb.append(", (AUC-PR [Jesse]: " + Settings.detailedNumberFormat.format(AUCpr) + ")");
+            sb.append(", (AUC-PR: " + Settings.detailedNumberFormat.format(AUCpr) + ")");
         }
         return sb.toString();
     }

@@ -12,7 +12,7 @@ class ConvertMol2ToPsPrTest {
     @TestAnnotations.AdHoc
     public void testCovertFile() throws IOException, ParseException {
         String dirPath = "/home/gusta/googledrive/NeuraLogic/molecules/splits/ecoli_scaffold";
-        convertMol2InDir(dirPath, "test");
+        convertMol2InDir(dirPath, "allMolecules");
     }
 
 }

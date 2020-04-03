@@ -5,7 +5,7 @@ import cz.cvut.fel.ida.setup.Settings;
 
 import java.util.logging.Logger;
 
-public class LinearDecay extends LearnRateDecayStrategy {
+public class LinearDecay extends LearnRateDecayStrategy {   //todo next crete exponential one...should be much better
     private static final Logger LOG = Logger.getLogger(LinearDecay.class.getName());
 
     ScalarValue diff = new ScalarValue(0);

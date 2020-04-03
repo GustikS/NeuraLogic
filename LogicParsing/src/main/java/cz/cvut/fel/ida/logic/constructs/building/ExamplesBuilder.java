@@ -91,8 +91,8 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
         } else {
             LOG.info("Detecting multiple individual examples in the examples source (file), assuming independent graph mode");
             settings.queriesAlignedWithExamples = true;
-            if (settings.groundingMode != Settings.GroundingMode.STANDARD) {
-                settings.groundingMode = Settings.GroundingMode.STANDARD;
+            if (settings.groundingMode != Settings.GroundingMode.INDEPENDENT) {
+                settings.groundingMode = Settings.GroundingMode.INDEPENDENT;
                 LOG.warning("Settings were set to a different grounding mode than detected! Will perform online rebuild of the grounding pipeline to the STANDARD mode!");
                 rebuildCallback.apply("GroundingPipeline");
             }

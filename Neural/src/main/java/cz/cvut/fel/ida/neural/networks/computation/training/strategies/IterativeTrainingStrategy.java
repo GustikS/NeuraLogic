@@ -195,8 +195,8 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         Results trainingResults = resultsFactory.createFrom(trueEvaluations.training);
         Results validationResults = resultsFactory.createFrom(trueEvaluations.validation);
         if (settings.calculateBestThreshold && validationResults instanceof DetailedClassificationResults) {   // pass the best threshold from training to validation set
-            ((DetailedClassificationResults) trainingResults).computeDetailedMetrics(trainingResults.evaluations);
-            ((DetailedClassificationResults) validationResults).computeDetailedMetrics(validationResults.evaluations, ((DetailedClassificationResults) trainingResults).bestThreshold);
+            ((DetailedClassificationResults) trainingResults).computeDetailedAccuracy(trainingResults.evaluations);
+            ((DetailedClassificationResults) validationResults).computeDetailedAccuracy(validationResults.evaluations, ((DetailedClassificationResults) trainingResults).bestThreshold);
         }
         progress.addTrueResults(trainingResults, validationResults);
 

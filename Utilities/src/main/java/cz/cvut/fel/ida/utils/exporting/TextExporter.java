@@ -28,7 +28,8 @@ public abstract class TextExporter extends Exporter {
         if (exportFile.exists()) {
             repeatedExportAppend = true;
         }
-        this.exportWriter = getWriter(exportFile.toString(), true);
+        if (!id.equals(""))
+            this.exportWriter = getWriter(exportFile.toString(), true);
     }
 
     protected TextExporter() {

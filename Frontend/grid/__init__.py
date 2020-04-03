@@ -5,6 +5,8 @@ from os import listdir
 examples = "examples"
 queries = "queries"
 jarname = "NeuraLogic.jar"
+
+
 # jarname = "/home/XXXXX/neuralogic/NeuraLogic.jar"
 
 
@@ -75,7 +77,7 @@ class ExperimentSetup():
 
     def finish_script(self):
         self.script_code += "java -XX:+UseSerialGC -XX:-BackgroundCompilation -XX:NewSize=2000m -Xms" + self.memory_min + " -Xmx" + self.memory_max + \
-                            " -jar " + self.jarpath_remote + jarname + " -t " + self.template_path_remote + " -path " + self.dataset_path_remote + \
+                            " -jar " + self.jarpath_remote + jarname + " -sd " + self.dataset_path_remote + " -t " + self.template_path_remote + \
                             self.params + \
                             " -out " + self.export_path
 
@@ -139,8 +141,8 @@ class GridSetup():
 
         self.datasets, self.local_dataset_paths = self.load_datasets(datasets)
         self.template_per_dataset = template_per_dataset  # each dataset has own template?
-        self.templates = templates
-        self.local_template_paths = self.load_templates(templates)
+
+        self.templates = self.load_templates(templates)
 
         self.walltime = walltime
         self.memory_max = memory_max
@@ -158,8 +160,12 @@ class GridSetup():
                 for template in templates:
                     template_files.append(os.path.join(self.local_templates_path, dataset, template))
         else:
-            for template in templates:
-                template_files.append(os.path.join(self.local_templates_path, template))
+            if isinstance(templates, list):
+                for template in templates:
+                    template_files.append(os.path.join(self.local_templates_path, template))
+            else:
+                for template in listdir(os.path.join(self.local_templates_path, templates)):
+                    template_files.append(os.path.join(templates, template))
         return template_files
 
     def load_datasets(self, datasets):
@@ -187,7 +193,7 @@ class GridSetup():
 
     def generate_experiments(self):
         experiments = []
-        if (self.template_per_dataset):
+        if self.template_per_dataset:
             for dataset in self.datasets:
                 for template in self.templates:
                     for param_list in self.param_lists:

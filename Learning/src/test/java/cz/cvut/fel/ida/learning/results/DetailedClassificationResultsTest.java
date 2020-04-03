@@ -39,14 +39,14 @@ class DetailedClassificationResultsTest {
     @TestAnnotations.Fast
     void calculateAUC() {
         DetailedClassificationResults detailedClassificationResults = new DetailedClassificationResults(resultList, new Settings());
-        double auc = detailedClassificationResults.calculateAUC(resultList);
+        double auc = detailedClassificationResults.calculateAUCsmaller(resultList);
         LOG.fine("auc=" + auc);
     }
 
     @TestAnnotations.Fast
     void alternativeAUC() {
         DetailedClassificationResults detailedClassificationResults = new DetailedClassificationResults(resultList, new Settings());
-        double alternativeAUC = detailedClassificationResults.getAlternativeAUC(resultList);
-        LOG.fine("alternativeAUC=" + alternativeAUC);
+        detailedClassificationResults.setFullAUC(resultList);
+        LOG.fine("alternativeAUC=" + detailedClassificationResults.AUCroc);
     }
 }

@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import org.apache.commons.cli.CommandLine;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Files;
@@ -40,6 +41,16 @@ public class Settings implements Serializable {
      * Stores current OS type
      */
     public static final OS os = getOs();
+
+    private static File referenceSettingsFile;
+
+    /**
+     *
+     */
+    public String getChangesFromReference() {
+        //todo next diff vs. some referenceSettingsFile
+        return "defaultParams";
+    }
 
     public enum OS {
         LINUX, MACOSX, WINDOWS
@@ -250,7 +261,7 @@ public class Settings implements Serializable {
     public Optimize optimize = Optimize.SPEED;
 
     public enum Optimize {
-        MEMORY, SPEED, TRADEOFF
+        MEMORY, SPEED, TRADEOFF     //todo next actually infer some fields with these presets
     }
 
     //------------------Global structures
@@ -304,10 +315,10 @@ public class Settings implements Serializable {
      */
     public boolean trainTestJointGrounding; //TODO implement this
 
-    public GroundingMode groundingMode = GroundingMode.STANDARD;
+    public GroundingMode groundingMode = GroundingMode.INDEPENDENT;
 
     public enum GroundingMode {
-        STANDARD,   //Separate independent example graphs
+        INDEPENDENT,   //Separate independent example graphs
         SEQUENTIAL, // Ground networks are grounded in a specific given sequence (i.e. sharing only with previous examples)
         GLOBAL  //Ground networks (in a given Grounder context) may share common parts (i.e. Grounder has a cache)
     }
@@ -357,7 +368,7 @@ public class Settings implements Serializable {
      * Naturally this only applies if the offset is not specified by the user in the template explicitly.
      * This offset setting has higher priority (comes first) than setting defaultRuleNeuronOffset (applied later)
      */
-    public boolean ruleAdaptiveOffset = false;
+    public boolean ruleAdaptiveOffset = false;  //todo next test this
 
     /**
      * Setup this default offset value if not explicitly specified in the template
@@ -380,7 +391,7 @@ public class Settings implements Serializable {
     /**
      * A whole pipeline of all postprocessing steps
      */
-    public boolean neuralNetsPostProcessing = true;    //todo at least one must be ON
+    public boolean neuralNetsPostProcessing = true;
     /**
      * Remove everything outside QueryNeuron's support (can appear if network have shared parts)
      */
@@ -400,13 +411,14 @@ public class Settings implements Serializable {
     /**
      * Remove unnecessary parts from the networks (e.g. linear chains)
      */
-    public boolean chainPruning = true;
+    public boolean chainPruning = false;    //todo why worse?
     /**
      * Bottom-up value based sub-graph isomorphism collapsing (merging)
      */
-    public boolean isoValueCompression = true;
+    public boolean isoValueCompression = false;     //todo why worse?
     /**
-     * If the isoValueCompression is performed, check whether the merged neurons are truly equivalent
+     * If the isoValueCompression is performed, check whether the merged neurons are truly equivalent.
+     * This is mostly for theoretical purposes and not typically needed in practice where we don't care about the true equivalence
      */
     public boolean losslessIsoCompression = false;
     /**
@@ -477,9 +489,9 @@ public class Settings implements Serializable {
 
     //-----------------Evaluation & Training
     /**
-     * Calling external tool to periodically each N seconds plot training progress in a window
+     * Calling external tool to periodically each N seconds plot training progress in a window (-1 == off)
      */
-    public int plotProgress = 1;
+    public int plotProgress = -1;
     /**
      * Evaluation mode: Regression vs. Classification
      */
@@ -496,11 +508,11 @@ public class Settings implements Serializable {
     public boolean forceDetailedResults = true;
 
     /**
-     * Alternative calculation from Jesse
+     * Alternative calculation from Wilcoxon
      */
-    public boolean alternativeAUC = true;
+    public boolean alternativeAUC = false;
     /**
-     * Recalculate results after every N epochae
+     * Recalculate true and validation results after every N epochae
      */
     public int resultsRecalculationEpochae = 10;
 
@@ -525,7 +537,7 @@ public class Settings implements Serializable {
     /**
      * Parallel training with minibatches (the only truly correct parallel training). Batch size = Number of threads. SGD = 1.
      */
-    public int minibatchSize = 1;
+    public int minibatchSize = 1;       //todo next test
 
     /**
      * EXPERIMENTAL parallel training with asynchronous updates - fastest mode, but the gradients can be very wrongly overwritten (+dynamic size minibatches)
@@ -549,7 +561,7 @@ public class Settings implements Serializable {
     /**
      * Over all the restarts, how many epoch can be done at maximum.
      */
-    public int maxCumEpochCount = 1000;
+    public int maxCumEpochCount = 3000;
 
     /**
      * Shuffle samples before neural training (only turn off for debugging purposes)
@@ -562,7 +574,7 @@ public class Settings implements Serializable {
      */
     public boolean shuffleEachEpoch = true;
 
-    public boolean islearnRateDecay = false;
+    public boolean islearnRateDecay = false;    //todo next
 
     public InitSet initializer = InitSet.SIMPLE;
 
@@ -589,7 +601,7 @@ public class Settings implements Serializable {
     /**
      * What percentage of neurons in a network must be saturated to consider it a problem
      */
-    public double saturationPercentage = 0.1;
+    public double saturationPercentage = 0.3;
 
     /**
      * Constant value to initialize all weights with, used for debugging purposes (with Constant Distribution) only!
@@ -597,11 +609,11 @@ public class Settings implements Serializable {
     public double constantInitValue = 0.1;
 
     /**
-     * Default (init) learning rate possibly altered during learning by decay strategies
+     * Default (init) learning rate possibly altered during learning by decay strategies or in the optimizer setter!
      */
     public double initLearningRate = 0.001;
 
-    public double dropoutRate = 0.0;
+    public double dropoutRate = 0.0;    //todo test
 
     private OptimizerSet optimizer = OptimizerSet.ADAM;
 
@@ -621,7 +633,7 @@ public class Settings implements Serializable {
     public void setOptimizer(OptimizerSet iOptimizer) {
         switch (iOptimizer) {
             case SGD:
-                initLearningRate = 0.3;
+                initLearningRate = 0.1;
                 break;
             case ADAM:
                 initLearningRate = 0.001;
@@ -674,7 +686,7 @@ public class Settings implements Serializable {
     /**
      * Percentage of samples from train-set used for training, 1 = empty validation set
      */
-    public double trainValidationPercentage = 1;
+    public double trainValidationPercentage = 0.9;
 
     /**
      * After neural training, i.e. finding the best set of parameters and error values,
@@ -868,7 +880,7 @@ public class Settings implements Serializable {
             String _groundingMode = cmd.getOptionValue("groundingMode", "normal");
             switch (_groundingMode) {
                 case "normal":
-                    settings.groundingMode = GroundingMode.STANDARD;
+                    settings.groundingMode = GroundingMode.INDEPENDENT;
                     break;
                 case "sequential":
                     settings.groundingMode = GroundingMode.SEQUENTIAL;
@@ -1089,12 +1101,12 @@ public class Settings implements Serializable {
         else
             neuralNetsPostProcessing = false;
 
-
-        if (getOptimizer() == OptimizerSet.ADAM) {
-            initLearningRate = 0.01;
-        } else if (getOptimizer() == OptimizerSet.SGD) {
-            initLearningRate = 0.3;
-        }
+//
+//        if (getOptimizer() == OptimizerSet.ADAM) {
+//            initLearningRate = 0.01;
+//        } else if (getOptimizer() == OptimizerSet.SGD) {
+//            initLearningRate = 0.3;
+//        }
 
         if (detailedResults) {
             calculateBestThreshold = true;  //it does not cost more then

@@ -120,7 +120,7 @@ public class Utilities {
         double gcDelta = (garbageCollectionTime - lastGarbageCollectionTime);
         double gcPercent = gcDelta / (now - tic);
         if (gcPercent > gcPercentLimit) {
-            LOG.warning("Garbage collection takes" + numberFormat.format(gcPercent * 100) + "% of time!!");
+            LOG.warning("Garbage collection takes " + numberFormat.format(gcPercent * 100) + "% of time!!");
         }
         LOG.finer(totalGarbageCollections + " garbage colletions with total time: " + garbageCollectionTime / 1000 + "s, made " + gcPercent * 100 + "% of time spent in GC since the last time.");
         tic = now;

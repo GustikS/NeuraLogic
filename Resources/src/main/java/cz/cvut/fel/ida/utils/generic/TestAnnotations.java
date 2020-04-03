@@ -37,6 +37,7 @@ public @interface TestAnnotations {
     @Retention(RUNTIME)
     @ParameterizedTest
     @TestOnly
+    @ExtendWith({TestLogging.class})
     public @interface Parameterized {
     }
 

@@ -202,8 +202,8 @@ public class VectorValue extends Value {
             return result;
         } else {
             LOG.severe("Incompatible dimensions for vector multiplication: " + Arrays.toString(value.size()) + " x " + Arrays.toString(size()) + " (try transposition)");
-//            throw new NumberFormatException(); todo measure if any cost of this
-            return null;
+            throw new NumberFormatException(); // todo measure if any cost of this
+//            return null;
         }
     }
 
@@ -219,9 +219,11 @@ public class VectorValue extends Value {
     protected VectorValue times(MatrixValue value) {
         if (value.cols != values.length) {
             LOG.severe("Matrix row length mismatch with vector length for multiplication");
+            throw new ArithmeticException("Matrix row length mismatch with vector length for multiplication");
         }
         if (value.cols > 1 && rowOrientation) {
             LOG.severe("Multiplying matrix with a row-oriented vector!");
+            throw new ArithmeticException("Multiplying matrix with a row-oriented vector!");
         }
         VectorValue result = new VectorValue(value.rows);
         double[] resultValues = result.values;

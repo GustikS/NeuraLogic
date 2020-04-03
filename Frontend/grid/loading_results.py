@@ -11,15 +11,76 @@ import pandas as pd
 from os import listdir
 from os.path import isfile
 
-import matplotlib.pyplot as plt
 import matplotlib
+import matplotlib.pyplot as plt
 
-matplotlib.use("Qt5Agg")
 from matplotlib.font_manager import FontProperties
 
 from pandas.core.dtypes.common import is_numeric_dtype
 
-#todo make plot drawing more efficient by just updating the plots data instead of new plot
+# todo make plot drawing more efficient by just updating the plots data instead of new plot
+
+# %%
+
+convert = {
+    "train_acc": [["NeuralTrainTestPipeline", "training", "bestResults", "training", "bestAccuracy"],
+                  ["NeuralTrainingPipe", "progress", "bestResults", "training", "bestAccuracy"]
+                  ],
+    "train_disp": [["NeuralTrainTestPipeline", "training", "bestResults", "training", "dispersion"],
+                   ["NeuralTrainingPipe", "progress", "bestResults", "training", "dispersion"]
+                   ],
+    "train_aucroc": [["NeuralTrainTestPipeline", "training", "bestResults", "training", "AUCroc"],
+                     ["NeuralTrainingPipe", "progress", "bestResults", "training", "AUCroc"]
+                     ],
+    "train_aucpr": [["NeuralTrainTestPipeline", "training", "bestResults", "training", "AUCpr"],
+                    ["NeuralTrainingPipe", "progress", "bestResults", "training", "AUCpr"]
+                    ],
+
+    "test_acc": [["NeuralTrainTestPipeline", "training", "bestResults", "training", "bestAccuracy"],
+                 ["NeuralTrainingPipe", "progress", "bestResults", "training", "bestAccuracy"]
+                 ],
+    "test_disp": [["NeuralTrainTestPipeline", "training", "bestResults", "training", "dispersion"],
+                  ["NeuralTrainingPipe", "progress", "bestResults", "training", "dispersion"]
+                  ],
+    "test_aucroc": [["NeuralTrainTestPipeline", "training", "bestResults", "training", "AUCroc"],
+                    ["NeuralTrainingPipe", "progress", "bestResults", "training", "AUCroc"]
+                    ],
+    "test_aucpr": [["NeuralTrainTestPipeline", "training", "bestResults", "training", "AUCpr"],
+                   ["NeuralTrainingPipe", "progress", "bestResults", "training", "AUCpr"]
+                   ],
+
+    "test_acc": ["NeuralTrainTestPipeline", "testing", "bestAccuracy"],
+    "xval_train_acc": ["CrossvalidationPipeline", "training", "bestResults", "training", "bestAccuracy"],
+    "xval_test_acc": ["CrossvalidationPipeline", "testing", "bestAccuracy"],
+    "compression": [["CompressionPipe", "allNeuronCount"],
+                    ["CompressionPipe", "compressedNeuronCount"],
+                    ["CompressionPipe", "preventedByIsoCheck"],
+                    ["CompressionPipe", "timing", "totalTimeTaken"]],
+    "pruning": [["NetworkPruningPipe", "allNeurons"],
+                ["NetworkPruningPipe", "prunedNeurons"],
+                ["NetworkPruningPipe", "timing", "totalTimeTaken"]],
+    "train_time": ["NeuralTrainingPipe", "timing", "totalTimeTaken"],
+    "progress_train": [
+        ["accuracy"],
+        ["majorityErr"],
+        ["dispersion"],
+        ["bestAccuracy"],
+        ["error", "value"],
+        ["AUCroc"],
+        ["AUCpr"]
+    ],
+    "progress_val": [
+        ["validation", "accuracy"],
+        ["validation", "majorityErr"],
+        ["validation", "dispersion"],
+        ["validation", "bestAccuracy"],
+        ["validation", "error", "value"],
+        ["validation", "AUCroc"],
+        ["validation", "AUCpr"]
+    ]
+}
+
+
 # %%
 
 class ExperimentResults:
@@ -34,7 +95,7 @@ class ExperimentResults:
 
 class Loader:
 
-    def __init__(self, id, results_path=None, login=None, filter_pos="", filter_neg="", split_std=False):
+    def __init__(self, id, results_path=None, login=None, filter_pos="", filter_neg="training", split_std=False):
         self.sftp = None
         if login:
             results_path = login[0]
@@ -80,6 +141,9 @@ class Loader:
 
     def setup_sftp(self, host, username):
         import pysftp
+        if not hasattr(self, 'password'):
+            from grid.credentials import Credentials as cred
+            self.password = cred().get_cred(host)[1]
         self.sftp = pysftp.Connection(host, username=username, password=self.password)
 
     def get_jsons(self, mypath, files, filter_pos="", filter_neg=""):
@@ -98,6 +162,7 @@ class Loader:
     def load_experiments(self):
         jsons = []
         self.get_jsons(self.results_path, jsons, self.filter_pos, self.filter_neg)
+        print("\n\n")
 
         self.json_map = {}
         for file in jsons:
@@ -118,26 +183,30 @@ class Loader:
                 continue
 
             records = self.load_records(results)
-            experiments.append(ExperimentResults(self.id, dataset, template, params, records))
+            if records:
+                experiments.append(ExperimentResults(self.id, dataset, template, params, records))
 
         return experiments
 
     def load_dataframe(self,
-                       metrics=["train_acc", "test_acc", "xval_train_acc", "xval_test_acc", "pruning", "compression",
-                                "train_time"], posprocess=True):
+                       metrics=convert.keys(), posprocess=True):
         experiments = self.load_experiments()
-        filter = Filter(metrics, self.split_std)
-        self.results = filter.filter(experiments)
+        if experiments:
+            filter = Filter(metrics, self.split_std)
+            self.results = filter.filter(experiments)
 
-        if posprocess:
-            processed = {}
-            filter.postprocess(self.results, processed)
-            self.results = processed
+            if posprocess:
+                processed = {}
+                filter.postprocess(self.results, processed)
+                self.results = processed
 
-        data = pd.DataFrame.from_dict(self.results, orient='index')
-        data = data.apply(pd.to_numeric, errors='ignore')
-        data.sort_index(inplace=True)
-        return data
+            data = pd.DataFrame.from_dict(self.results, orient='index')
+            data = data.apply(pd.to_numeric, errors='ignore')
+            data = data.dropna(1, how="all")
+            data.sort_index(inplace=True)
+            return data
+        else:
+            return None
 
     def load_records(self, jsons):
         records = {}
@@ -155,8 +224,8 @@ class Loader:
 
 class FileObserver(Loader):
 
-    def __init__(self, path=None, login=None, id=""):
-        super().__init__(id, results_path=path, login=login)
+    def __init__(self, path=None, login=None, id="", filter_pos="", filter_neg=""):
+        super().__init__(id, results_path=path, login=login, filter_pos=filter_pos, filter_neg=filter_neg)
 
     def observe(self, filepath):
         if not filepath.startswith("/home"):
@@ -164,7 +233,10 @@ class FileObserver(Loader):
         self.file = self.open(filepath, "r")
 
     def read_increment(self):
-        return self.file.read()
+        lines = self.file.read()
+        if isinstance(lines, bytes):
+            lines = lines.decode("utf-8")
+        return lines
 
     def loop(self, filepath, function):
         self.observe(filepath)
@@ -179,8 +251,9 @@ class FileObserver(Loader):
 
 class ProgressObserver(FileObserver):
 
-    def __init__(self, id, path=None, login=None, metrics=["progress_train", "progress_val"], seconds=1, plot_all=False):
-        super().__init__(path, login, id)
+    def __init__(self, id, path=None, login=None, metrics=["progress_train", "progress_val"], seconds=1,
+                 plot_all=False, filter_pos="training", filter_neg=""):
+        super().__init__(path, login, id, filter_pos=filter_pos, filter_neg=filter_neg)
         self.plot_all = plot_all
         self.seconds = seconds
         self.metrics = metrics
@@ -194,12 +267,14 @@ class ProgressObserver(FileObserver):
 
         try:
             data = self.load_dataframe()
-            # finished restart if successful
-            pltr = Plotter(data)
-            pltr.plot_all()
+            if data:
+                print(data.transpose().to_string())
+                # finished restart if successful
+                pltr = Plotter(data)
+                pltr.plot_all()
+                # plt.figure()
         except:
             pass
-
 
         srted = sorted(self.json_map.keys())
         if not srted:
@@ -238,11 +313,15 @@ class ProgressObserver(FileObserver):
     def plot_file(self, file):
         self.file = self.open(file, "r")
         self.filename = file.split("/")[-1].split(".json")[0]
+        self.fullfilename = file
 
         lines = self.file.read()
-        while not lines:
+        while not lines and self.second > 0:
             time.sleep(self.seconds)
             lines = self.file.read()
+
+        if isinstance(lines, bytes):
+            lines = lines.decode("utf-8")
 
         try:
             progress = json.loads(lines)
@@ -259,6 +338,7 @@ class ProgressObserver(FileObserver):
     def plot(self, progress: {}):
         pltr = Plotter()
         plt.gca().clear()
+        restarted_colors = False
         for metric, series in progress.items():
             # series1 = np.array(series).astype(np.double)
             # s1mask = np.isfinite(series1)
@@ -273,26 +353,33 @@ class ProgressObserver(FileObserver):
             if mask.all():
                 continue
 
-            idx = np.where(~mask, np.arange(len(mask)),0)
+            idx = np.where(~mask, np.arange(len(mask)), 0)
             np.maximum.accumulate(idx, axis=0, out=idx)
             out = series1[idx]
 
-            leg = metric[0] if len(metric)==1 else metric[0] + "-" + metric[1]
-            pltr.normal_plot(out, xs, legend=leg)
+            if not metric[0].startswith("val"):
+                pltr.normal_plot(out, xs, legend=metric[0])
+            else:
+                if not restarted_colors:
+                    restarted_colors = True
+                    plt.gca().set_prop_cycle(plt.rcParams['axes.prop_cycle'])
+                pltr.normal_plot(out, xs, style="--", legend=metric[0] + "-" + metric[1])
+
             plt.annotate('%0.5f' % out[-1], xy=(1, out[-1]), xytext=(8, 0),
                          xycoords=('axes fraction', 'data'), textcoords='offset points')
 
         fontP = FontProperties()
         fontP.set_size('small')
-        plt.title(self.filename)
-        plt.xlim((0,len(xs)))
+        plt.title(self.fullfilename)
+        plt.xlim((0, len(xs)))
         plt.legend(loc="upper center", bbox_to_anchor=(0.5, -0.1),
                    fancybox=True, shadow=True, ncol=2, prop=fontP)
 
         plt.tight_layout()
         # plt.show(block=False)
         plt.draw()
-        self.mypause(self.seconds)
+        if self.seconds > 0:
+            self.mypause(self.seconds)
 
     def mypause(self, interval):
         backend = plt.rcParams['backend']
@@ -307,38 +394,6 @@ class ProgressObserver(FileObserver):
 
 
 class Filter:
-    convert = {
-        "train_acc": ["NeuralTrainTestPipeline", "training", "bestResults", "training", "bestAccuracy"],
-        "test_acc": ["NeuralTrainTestPipeline", "testing", "bestAccuracy"],
-        "xval_train_acc": ["CrossvalidationPipeline", "training", "bestResults", "training", "bestAccuracy"],
-        "xval_test_acc": ["CrossvalidationPipeline", "testing", "bestAccuracy"],
-        "compression": [["CompressionPipe", "allNeuronCount"],
-                        ["CompressionPipe", "compressedNeuronCount"],
-                        ["CompressionPipe", "preventedByIsoCheck"],
-                        ["CompressionPipe", "timing", "totalTimeTaken"]],
-        "pruning": [["NetworkPruningPipe", "allNeurons"],
-                    ["NetworkPruningPipe", "prunedNeurons"],
-                    ["NetworkPruningPipe", "timing", "totalTimeTaken"]],
-        "train_time": ["NeuralTrainingPipe", "timing", "totalTimeTaken"],
-        "progress_train": [
-            # ["accuracy"],
-            ["majorityErr"],
-            ["dispersion"],
-            # ["bestAccuracy"],
-            # ["error", "value"],
-            ["AUCroc"],
-            ["AUCpr"]
-        ],
-        "progress_val": [
-            # ["validation", "accuracy"],
-            ["validation", "majorityErr"],
-            ["validation", "dispersion"],
-            # ["validation", "bestAccuracy"],
-            # ["validation", "error", "value"],
-            ["validation", "AUCroc"],
-            ["validation", "AUCpr"]
-        ]
-    }
 
     def __init__(self, metrics, split_std=False):
         self.split_std = split_std
@@ -347,14 +402,14 @@ class Filter:
         self.fields = []
 
         for metric in metrics:
-            convert = self.convert[metric]
+            conv = convert[metric]
             flatten = []
-            if isinstance(convert[0], list):
-                for sslist in convert:
+            if isinstance(conv[0], list):
+                for sslist in conv:
                     self.fields.append(sslist)
                     self.metrics_udpated.append(metric + "_" + sslist[-1])
             else:
-                self.fields.append(convert)
+                self.fields.append(conv)
                 self.metrics_udpated.append(metric)
 
     def filter(self, experiments):
@@ -397,7 +452,7 @@ class Filter:
         if paramstring.startswith("_"):
             paramstring = paramstring[1:]
 
-        if "_" in paramstring:
+        if "_" in paramstring and "log_" not in paramstring:
             split = paramstring.split("_")
             for i in range(0, len(split), 2):
                 par, val = split[i][1:], split[i + 1]
@@ -405,11 +460,11 @@ class Filter:
                 if not par or not val:
                     continue
 
-        if len(split) == 0:
-            par = "params"
-            res_pars = par_map.get(par, [])
-            res_pars.append(pair)
-            val = res_pars
+            if len(split) == 0:
+                par = "params"
+                res_pars = par_map.get(par, [])
+                res_pars.append(par)
+                val = res_pars
 
         return par_map
 
@@ -477,11 +532,12 @@ class Plotter:
         for col in cols:
             if is_numeric_dtype(self.dataframe[col]):
                 good_cols.append(col)
-            try:
-                if "+-" in self.dataframe[col][0]:
-                    good_cols.append(col)
-            except:
-                pass
+            else:
+                try:
+                    if "+-" in self.dataframe[col][0]:
+                        good_cols.append(col)
+                except:
+                    pass
 
         sidex = sidey = int(np.sqrt(len(good_cols)))
         if sidex ** 2 < len(good_cols):
@@ -495,6 +551,7 @@ class Plotter:
             ax = axes[i]
             leg = legend if legend else col
             col = self.dataframe[col]
+
             if is_numeric_dtype(col):
                 self.normal_plot(col, row, ax, xlabel=xlabel, ylabel=ylabel, legend=leg)
             else:
@@ -506,7 +563,8 @@ class Plotter:
         plt.gcf().tight_layout()
         plt.show()
 
-    def normal_plot(self, y, x=None, axes=None, color=None, xlabel="", ylabel="", legend="", title=None, save=None):
+    def normal_plot(self, y, x=None, axes=None, color=None, xlabel="", ylabel="", legend="", style='-', title=None,
+                    save=None):
         if axes == None:
             axes = plt.gca()
         if x is None:
@@ -515,13 +573,21 @@ class Plotter:
             title = legend
 
         if not color:
-            axes.plot(x, y, label=legend, linewidth=1)
+            if len(y) == 1:
+                axes.bar(x, y)
+            else:
+                axes.plot(x, y, style, label=legend, linewidth=1)
+
         else:
-            axes.plot(x, y, color, label=legend, linewidth=1)
+            if len(y) == 1:
+                axes.bar(x, y)
+            else:
+                axes.plot(x, y, style, color, label=legend, linewidth=1)
+
         axes.set_xlabel(xlabel)
         axes.set_ylabel(ylabel)
         axes.set_title(title)
-        axes.legend()
+        # axes.legend()
         axes.grid()
 
         if save:
@@ -579,22 +645,48 @@ class Plotter:
         self.show()
 
 
+def observe(mypath, seconds=1):
+    matplotlib.use("Qt5Agg")
+    po = ProgressObserver("", path=mypath, seconds=seconds)
+    po.observe_progress()
+
+
+def analyse(mypath, plot_progress=True):
+    loader = Loader("", mypath)
+    data = loader.load_dataframe()
+    print(data.transpose().to_string())
+    pltr = Plotter(data)
+    pltr.plot_all()
+
+    if plot_progress:
+        po = ProgressObserver("", mypath, seconds=0)
+
+        jsons = []
+        po.get_jsons(po.results_path, jsons, po.filter_pos, po.filter_neg)
+        for js in jsons:
+            plt.figure(figsize=(16, 12))
+            po.plot_file(js)
+
+    return data
+
+
+# this is for calling as an online progress observer from external process (Java) / or console
 if __name__ == '__main__':
     sys.path.append("/home/gusta/googledrive/Github/NeuraLogic/Frontend")
 
-    import grid.credentials as cred
+    # import grid.credentials as cred
+    #
+
+    # # if "kuzelon2" in mypath:
+    # #     login = cred.ondra_rci
+    # # elif "souregus" in mypath:
+    # #     login = cred.gusta_rci
+    # # else:
+    # #     login = cred.gusta_local
 
     mypath = sys.argv[1]
-    if "kuzelon2" in mypath:
-        login = cred.ondra_rci
-    elif "souregus" in mypath:
-        login = cred.gusta_rci
-    else:
-        login = cred.gusta_local
-
     seconds = 1
     if len(sys.argv) > 2:
         seconds = int(sys.argv[2])
 
-    po = ProgressObserver("", path=mypath, seconds=seconds)
-    po.observe_progress()
+    observe(mypath, seconds)
