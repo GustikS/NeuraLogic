@@ -29,12 +29,12 @@ public class EColi {
 
         settings.trainValidationPercentage = 0.9;
 
-//        settings.appLimitSamples = 200;
+        settings.appLimitSamples = 50;
         settings.isoValueCompression = false;
         settings.chainPruning = false;
         settings.processMetadata = true;
 
-        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./template.txt"), settings);
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./templates/template.txt"), settings);
     }
 
     @TestAnnotations.Slow
@@ -44,17 +44,17 @@ public class EColi {
         settings.seed = 1;
 
         settings.setOptimizer(Settings.OptimizerSet.ADAM);
-        settings.maxCumEpochCount = 100;
-        settings.plotProgress = 30;
+        settings.maxCumEpochCount = 10000;
+        settings.plotProgress = 5;
 
-        settings.appLimitSamples = 1000;
+//        settings.appLimitSamples = 1804;
         settings.isoValueCompression = false;
         settings.chainPruning = false;
 
-        settings.errorFunction = Settings.ErrorFcn.CROSSENTROPY;
-        settings.ruleNeuronActivation = Settings.ActivationFcn.TANH;
+//        settings.errorFunction = Settings.ErrorFcn.CROSSENTROPY;
+//        settings.ruleNeuronActivation = Settings.ActivationFcn.TANH;
 
-        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./template_cross.txt"), settings);
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./templates/template_cross.txt"), settings);
     }
 
 
@@ -65,6 +65,7 @@ public class EColi {
 
         settings.seed = 1;
 
+        settings.plotProgress = 60;
         settings.setOptimizer(Settings.OptimizerSet.ADAM);
         settings.maxCumEpochCount = 10000;
 
@@ -73,7 +74,7 @@ public class EColi {
         settings.chainPruning = false;
         settings.processMetadata = true;
 
-        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./template_gnn.txt"), settings);
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./templates/template_gnnW.txt"), settings);
     }
 
 
@@ -95,7 +96,7 @@ public class EColi {
         settings.trainValidationPercentage = 0.9;
         settings.errorFunction = Settings.ErrorFcn.CROSSENTROPY;
 
-        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./template_cross.txt"), settings);
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./templates/template_cross.txt"), settings);
     }
 
     @TestAnnotations.Parameterized

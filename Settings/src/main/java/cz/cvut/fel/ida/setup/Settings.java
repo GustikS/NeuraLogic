@@ -579,13 +579,13 @@ public class Settings implements Serializable {
     public InitSet initializer = InitSet.SIMPLE;
 
     public enum InitSet {
-        SIMPLE, GLOROT
+        SIMPLE, GLOROT, HE
     }
 
     public InitDistribution initDistribution = InitDistribution.UNIFORM;
 
     public enum InitDistribution {
-        UNIFORM, CONSTANT
+        UNIFORM, CONSTANT, NORMAL
     }
 
     /**

@@ -255,11 +255,12 @@ public class NeuralNetBuilder {
             for (Literal queryMatchingLiteral : queryMatchingLiterals) {
                 AtomNeurons qn = neuralBuilder.neuronFactory.neuronMaps.atomNeurons.get(queryMatchingLiteral);
                 if (qn == null){
-                    String err = "Query not matched anywhere in the ground network: " + queryMatchingLiteral;
+                    String err = "Query: " + queryMatchingLiteral + " was not matched anywhere in the ground network - Cannot calculate its output!";
                     LOG.severe(err);
-                    LOG.severe("Cannot calculate its output!");
+                    LOG.warning(" -> This most likely means that the template is wrong as there is no proof-path from the example to the query");
+                    LOG.warning("   -> Check all the predicate signatures etc. to make sure the template matches your examples and that there is at least 1 inference chain to the query");
 //                    System.exit(5);
-                    throw new InputMismatchException("Query not matched anywhere in the ground network:");
+                    throw new InputMismatchException(err);
                 }
                 queryNeurons.add(qn);
             }

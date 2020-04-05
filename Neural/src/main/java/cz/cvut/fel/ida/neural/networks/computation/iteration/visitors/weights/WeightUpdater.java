@@ -65,7 +65,7 @@ public class WeightUpdater implements WeightVisitor {
             if (weightUpdate != null) {
                 weightUpdate.incrementBy(value);
             } else {
-                weightUpdates[index] = value;
+                weightUpdates[index] = value.clone(); //!! necessary not to share weights in a very weird way!!
                 updatedWeightsOnly.add(weight);
             }
         }

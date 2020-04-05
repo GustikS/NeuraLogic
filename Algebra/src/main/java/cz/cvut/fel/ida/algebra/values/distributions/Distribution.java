@@ -11,6 +11,9 @@ public abstract class Distribution implements Exportable {
 
     transient Settings setting;
     Random rg;
+    /**
+     * this is either limit for uniform or STD for normal
+     */
     double scale;
 
     public Distribution(Random rg, Settings settings) {
@@ -23,10 +26,12 @@ public abstract class Distribution implements Exportable {
     public static Distribution getDistribution(Settings settings) {
         if (settings.initDistribution == Settings.InitDistribution.UNIFORM)
             return new Uniform(settings.random, settings);
-        else if (settings.initDistribution == Settings.InitDistribution.CONSTANT){
+        else if (settings.initDistribution == Settings.InitDistribution.NORMAL) {
+            return new Normal(settings.random, settings);
+        } else if (settings.initDistribution == Settings.InitDistribution.CONSTANT) {
             return new Constant(settings.random, settings);
         }
-        LOG.warning("Wrong weights initialization setup, choosing default distribution");
+        LOG.warning("Wrong weights initialization setup, choosing default Uniform distribution");
         return new Uniform(settings.random, settings);  //default
     }
 

@@ -19,7 +19,7 @@ public class SGD implements Optimizer {
     @Override
     public void performGradientStep(List<Weight> updatedWeights, Value[] gradients, int iteration) {
         for (Weight updatedWeight : updatedWeights) {
-            Value weightUpdate = gradients[updatedWeight.index];
+            Value weightUpdate = gradients[updatedWeight.index].times(learningRate);
             updatedWeight.value.incrementBy(weightUpdate);
         }
     }

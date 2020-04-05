@@ -17,8 +17,8 @@ public class Tanh extends Activation {
     private static final Function<Double, Double> diffTanh = in -> {
         if (in > 100 || in < -100)
             return 0.0;
-        double sigm = Math.tanh(in);
-        return 1 - (sigm * sigm);
+        double tanh1 = Math.tanh(in);
+        return 1 - (tanh1 * tanh1);
     };
 
     public Tanh() {

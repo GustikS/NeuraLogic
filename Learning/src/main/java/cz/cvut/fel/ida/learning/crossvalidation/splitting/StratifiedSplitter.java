@@ -86,7 +86,7 @@ public class StratifiedSplitter<T extends LearningSample> implements Splitter<T>
 
     @Override
     public Pair<List<T>, List<T>> partition(List<T> samples, double percentage) {
-        int split = (int) percentage * samples.size();
+        int split = (int) (percentage * samples.size());
         if (percentage != 1.0 && (split == 1 || split == samples.size())) {
             LOG.warning("Problem with samples partitioning, there are too few to be splitted: " + split + " out of " + samples.size() + " (split percentage = " + percentage + ")");
         }

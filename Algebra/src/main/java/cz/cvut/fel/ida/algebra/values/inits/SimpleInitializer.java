@@ -9,6 +9,8 @@ import cz.cvut.fel.ida.setup.Settings;
 import java.util.logging.Logger;
 
 public class SimpleInitializer implements ValueInitializer {
+    //todo do w.r.t. https://mmuratarat.github.io/2019-02-25/xavier-glorot-he-weight-init
+
     private static final Logger LOG = Logger.getLogger(SimpleInitializer.class.getName());
 
     Distribution distribution;
@@ -16,10 +18,6 @@ public class SimpleInitializer implements ValueInitializer {
     public SimpleInitializer(Settings settings) {
         this.distribution = Distribution.getDistribution(settings);
     }
-
-//    public void initWeight(Weight weight){
-//        weight.value.initialize(this);
-//    }
 
     @Override
     public void initScalar(ScalarValue scalar){

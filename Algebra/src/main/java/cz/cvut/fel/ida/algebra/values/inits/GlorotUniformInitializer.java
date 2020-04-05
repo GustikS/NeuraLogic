@@ -8,12 +8,12 @@ import cz.cvut.fel.ida.setup.Settings;
 
 import java.util.logging.Logger;
 
-public class GlorotInitializer implements ValueInitializer {
-    private static final Logger LOG = Logger.getLogger(GlorotInitializer.class.getName());
+public class GlorotUniformInitializer implements ValueInitializer {
+    private static final Logger LOG = Logger.getLogger(GlorotUniformInitializer.class.getName());
 
     Uniform distribution;
 
-    public GlorotInitializer(Settings settings) {
+    public GlorotUniformInitializer(Settings settings) {
         this.distribution = new Uniform(settings.random, settings);
     }
 
@@ -45,15 +45,15 @@ public class GlorotInitializer implements ValueInitializer {
         }
     }
 
-    private double getLimit(MatrixValue value) {
+    protected double getLimit(MatrixValue value) {
         return Math.sqrt(6) / Math.sqrt(value.cols + value.rows);
     }
 
-    private double getLimit(VectorValue value) {
+    protected double getLimit(VectorValue value) {
         return Math.sqrt(6) / Math.sqrt(value.values.length + 1);
     }
 
-    private double getLimit(ScalarValue value) {
+    protected double getLimit(ScalarValue value) {
         return Math.sqrt(6) / Math.sqrt(1 + 1);
     }
 }

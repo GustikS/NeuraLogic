@@ -37,12 +37,12 @@ public class EColiFeatures {
 
     @TestAnnotations.Parameterized
     @ValueSource(strings = {
-//            "./templates/template.txt",
-//            "./templates/template10.txt",
-//            "./templates/template100.txt",
-//            "./templates/template_cross.txt",
-//            "./templates/template_cross4.txt",
-//            "./templates/template_gnn.txt",
+            "./templates/template.txt",
+            "./templates/template10.txt",
+            "./templates/template100.txt",
+            "./templates/template_cross.txt",
+            "./templates/template_cross4.txt",
+            "./templates/template_gnn.txt",
             "./templates/template_gnn_shallow.txt",
             "./templates/template_gnn_simple.txt",
             "./templates/template_gnnW.txt",
