@@ -153,7 +153,7 @@ public class Settings implements Serializable {
     public String graphvizPathMac = "/usr/local/bin";   //never tried OSX...
     public String graphvizPathWindows = "../Resources/graphviz"; //get it if you  don't have it and want to use it!
 
-        public String pythonPath = "/opt/miniconda3/envs/lrnn/bin/python";
+    public String pythonPath = "/opt/miniconda3/envs/lrnn/bin/python";
 //    public String pythonPath = "python";
 
     public String progressPlotterPath = "../Frontend/grid/loading_results.py";
@@ -574,18 +574,38 @@ public class Settings implements Serializable {
      */
     public boolean shuffleEachEpoch = true;
 
+    /**
+     * Learning rate decay on/off
+     */
     public boolean islearnRateDecay = false;    //todo next
 
+    public double learnRateDecay = 0.5;
+
+    /**
+     * Form of learning rate decay progression
+     */
+    public DecaySet decaySet = DecaySet.GEOMETRIC;
+
+    public enum DecaySet {
+        ARITHMETIC, GEOMETRIC
+    }
+
+    /**
+     * How to initialize random weight values
+     */
     public InitSet initializer = InitSet.SIMPLE;
 
     public enum InitSet {
         SIMPLE, GLOROT, HE
     }
 
+    /**
+     * Distribution to be drawn from
+     */
     public InitDistribution initDistribution = InitDistribution.UNIFORM;
 
     public enum InitDistribution {
-        UNIFORM, CONSTANT, NORMAL
+        UNIFORM, CONSTANT, NORMAL, LONGTAIL
     }
 
     /**
@@ -727,7 +747,7 @@ public class Settings implements Serializable {
     public String templateFile = "template" + inputFilesSuffix;
     public String templateFile2 = Paths.get("templates", "template") + inputFilesSuffix;
 
-    public String mergedTemplatesFile = "templates_merged" + inputFilesSuffix;
+    public String mergedTemplatesSuffix = "_merged" + inputFilesSuffix;
 
     public String trainExamplesFile = "trainExamples" + inputFilesSuffix;
     /**
@@ -891,17 +911,40 @@ public class Settings implements Serializable {
             }
         }
 
-        if (cmd.hasOption("weightInit")) {
-            String _weightInit = cmd.getOptionValue("weightInit", String.valueOf(initDistribution));
-            switch (_weightInit.toLowerCase()) {
+        if (cmd.hasOption("distribution")) {
+            String _distr = cmd.getOptionValue("distribution");
+            switch (_distr.toLowerCase()) {
                 case "uniform":
                     settings.initDistribution = InitDistribution.UNIFORM;
                     break;
                 case "constant":
                     settings.initDistribution = InitDistribution.CONSTANT;
                     break;
+                case "normal":
+                    settings.initDistribution = InitDistribution.NORMAL;
+                    break;
+                case "longtail":
+                    settings.initDistribution = InitDistribution.LONGTAIL;
+                    break;
                 default:
-                    LOG.severe("unrecognized init distribution: " + _weightInit);
+                    LOG.severe("unrecognized distribution: " + _distr);
+            }
+        }
+
+        if (cmd.hasOption("initialization")) {
+            String _weightInit = cmd.getOptionValue("initialization");
+            switch (_weightInit.toLowerCase()) {
+                case "simple":
+                    settings.initializer = InitSet.SIMPLE;
+                    break;
+                case "glorot":
+                    settings.initializer = InitSet.GLOROT;
+                    break;
+                case "he":
+                    settings.initializer = InitSet.HE;
+                    break;
+                default:
+                    LOG.severe("unrecognized initialization: " + _weightInit);
             }
         }
 
@@ -924,6 +967,14 @@ public class Settings implements Serializable {
             settings.initLearningRate = Double.parseDouble(_learningRate);
         }
 
+        if (cmd.hasOption("learnRateDecay")) {
+            String _decay = cmd.getOptionValue("learnRateDecay");
+            settings.learnRateDecay = Double.parseDouble(_decay);
+            if (settings.learnRateDecay > 0){
+                settings.islearnRateDecay = true;
+            }
+        }
+
         if (cmd.hasOption("trainingSteps")) {
             String _trainingSteps = cmd.getOptionValue("trainingSteps", String.valueOf(maxCumEpochCount));
             settings.maxCumEpochCount = Integer.parseInt(_trainingSteps);
@@ -943,15 +994,29 @@ public class Settings implements Serializable {
 
         if (cmd.hasOption("errorFunction")) {
             String _errorFunction = cmd.getOptionValue("errorFunction", "MSE");
-            switch (_errorFunction) {
-                case "MSE":
+            switch (_errorFunction.toLowerCase()) {
+                case "mse":
                     settings.errorFunction = ErrorFcn.SQUARED_DIFF;
                     settings.errorAggregationFcn = AggregationFcn.AVG;
                     break;
-                case "XEnt":
-                    LOG.severe("XEnt not yet implemented");
+                case "xent":
+                    settings.errorFunction = ErrorFcn.CROSSENTROPY;
+                    settings.errorAggregationFcn = AggregationFcn.AVG;
                     break;
             }
+        }
+
+        if (cmd.hasOption("atomFunction")) {
+            String _fnc = cmd.getOptionValue("atomFunction");
+            settings.atomNeuronActivation = getFcn(_fnc);
+        }
+        if (cmd.hasOption("ruleFunction")) {
+            String _fnc = cmd.getOptionValue("ruleFunction");
+            settings.ruleNeuronActivation = getFcn(_fnc);
+        }
+        if (cmd.hasOption("aggFunction")) {
+            String _fnc = cmd.getOptionValue("aggFunction");
+            settings.aggNeuronActivation = getAgg(_fnc);
         }
 
         if (cmd.hasOption("sourcesDir")) {
@@ -1033,6 +1098,34 @@ public class Settings implements Serializable {
 
         //todo fill all the most useful settings
         return settings;
+    }
+
+    private AggregationFcn getAgg(String fnc) {
+        switch (fnc.toLowerCase()) {
+            case "avg":
+                return AggregationFcn.AVG;
+            case "max":
+                return AggregationFcn.MAX;
+            case "sum":
+                return AggregationFcn.SUM;
+            default:
+                throw new UnsupportedOperationException("Unknown function: " + fnc);
+        }
+    }
+
+    private ActivationFcn getFcn(String fnc) {
+        switch (fnc.toLowerCase()) {
+            case "sigm":
+                return ActivationFcn.SIGMOID;
+            case "tanh":
+                return ActivationFcn.TANH;
+            case "relu":
+                return ActivationFcn.RELU;
+            case "line":
+                return ActivationFcn.IDENTITY;
+            default:
+                throw new UnsupportedOperationException("Unknown function: " + fnc);
+        }
     }
 
 

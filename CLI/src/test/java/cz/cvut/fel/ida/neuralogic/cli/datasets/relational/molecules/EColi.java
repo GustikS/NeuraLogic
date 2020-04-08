@@ -21,20 +21,22 @@ public class EColi {
 
         settings.seed = 1;
 
-        settings.setOptimizer(Settings.OptimizerSet.SGD);
+        settings.setOptimizer(Settings.OptimizerSet.ADAM);
 //        settings.initLearningRate = 0.3;
 
-        settings.maxCumEpochCount = 5000;
-        settings.plotProgress = 5;
+        settings.crossvalidation = true;
+
+        settings.maxCumEpochCount = 100000;
+        settings.plotProgress = 10;
 
         settings.trainValidationPercentage = 0.9;
 
-        settings.appLimitSamples = 50;
+        settings.appLimitSamples = 500;
         settings.isoValueCompression = false;
-        settings.chainPruning = false;
+        settings.chainPruning = true;
         settings.processMetadata = true;
 
-        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./templates/template.txt"), settings);
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./templates/gnns/templateW10.txt"), settings);
     }
 
     @TestAnnotations.Slow
@@ -101,26 +103,17 @@ public class EColi {
 
     @TestAnnotations.Parameterized
     @ValueSource(strings = {
-            "./templates/template.txt",
-            "./templates/template10.txt",
-            "./templates/template100.txt",
-            "./templates/template_cross.txt",
-            "./templates/template_cross4.txt",
-            "./templates/template_gnn.txt",
-            "./templates/template_gnn_shallow.txt",
-            "./templates/template_gnn_simple.txt",
-            "./templates/template_gnnW.txt",
-            "./templates/template_gnnW10.txt",
-            "./templates/template_gnnW100.txt",
-            "./templates/templateW.txt",
-            "./templates/templateW10.txt",
-            "./templates/templateW100.txt"
+            "./templates/gnns/templateW10.txt",
+            "./templates/gnns/templateW10_l2.txt",
+            "./templates/gnns/template_gnnW10_l1.txt",
+            "./templates/gnns/template_gnnW10_l2.txt",
+            "./templates/gnns/template_gnnW10_l3.txt",
     })
     public void testTemplates(String template) throws Exception {
         Settings settings = Settings.forSlowTest();
 
         settings.maxCumEpochCount = 10;
-        settings.appLimitSamples = 100;
+        settings.appLimitSamples = 10;
 
         Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t " + template), settings);
     }

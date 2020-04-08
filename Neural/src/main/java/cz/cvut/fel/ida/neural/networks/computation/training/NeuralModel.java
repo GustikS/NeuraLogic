@@ -62,7 +62,7 @@ public class NeuralModel implements Model<QueryNeuron> {
      *
      * @return
      */
-    public NeuralModel cloneValues() {
+    public NeuralModel cloneWeights() {
         List<Weight> clonedWeights = allWeights.stream().map(Weight::clone).collect(Collectors.toList());
         NeuralModel clone = new NeuralModel(clonedWeights, this.settings);
 //        clone.template = this.template;

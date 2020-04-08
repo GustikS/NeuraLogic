@@ -3,9 +3,12 @@ package cz.cvut.fel.ida.neural.networks.computation.training.strategies;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
-import cz.cvut.fel.ida.learning.results.*;
-import cz.cvut.fel.ida.utils.exporting.Exportable;
+import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.learning.crossvalidation.splitting.Splitter;
+import cz.cvut.fel.ida.learning.results.DetailedClassificationResults;
+import cz.cvut.fel.ida.learning.results.Progress;
+import cz.cvut.fel.ida.learning.results.Result;
+import cz.cvut.fel.ida.learning.results.Results;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.Accumulating;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.neurons.SaturationChecker;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
@@ -18,8 +21,8 @@ import cz.cvut.fel.ida.neural.networks.computation.training.strategies.trainers.
 import cz.cvut.fel.ida.neural.networks.computation.training.strategies.trainers.ListTrainer;
 import cz.cvut.fel.ida.neural.networks.computation.training.strategies.trainers.MiniBatchTrainer;
 import cz.cvut.fel.ida.neural.networks.computation.training.strategies.trainers.SequentialTrainer;
-import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.Collections;
@@ -73,6 +76,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         LOG.info("Preparing the train-validation dataset split with percentage: " + settings.trainValidationPercentage);
         Splitter<NeuralSample> sampleSplitter = Splitter.getSplitter(settings);
         Pair<List<NeuralSample>, List<NeuralSample>> partition = sampleSplitter.partition(sampleList, settings.trainValidationPercentage);
+        LOG.info("Train-set size=" + partition.r.size() + ", Validation-set size=" + partition.s.size());
         return new Pair<>(partition.r, partition.s);
     }
 
@@ -85,7 +89,6 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
             return new SequentialTrainer(settings, Optimizer.getFrom(settings, learningRate), currentModel).new SequentialListTrainer();
         }
     }
-
 
     public Pair<NeuralModel, Progress> train() {
         timing.tic();
@@ -130,6 +133,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         currentModel.resetWeights(valueInitializer);
         progress.nextRestart();
         recalculateResults();   //todo investigate initial jump up in error - is there any still? may difference between online vs. true calculation
+        LOG.finer("New restart has been initialized");
     }
 
     /**
@@ -142,7 +146,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
             Collections.shuffle(trainingSet, settings.random);
         }
         if (settings.islearnRateDecay) {
-            learnRateDecayStrategy.decay();
+            learnRateDecayStrategy.decay(epochNumber);
         }
         if (settings.dropoutMode == Settings.DropoutMode.LIFTED_DROPCONNECT && settings.dropoutRate > 0) {
             currentModel.dropoutWeights();
@@ -224,7 +228,8 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     private void saveIfBest(Progress.TrainVal trainVal) {
         if (progress.bestResults == null || trainVal.betterThan(progress.bestResults)) {
-            bestModel = currentModel.cloneValues();
+            LOG.fine("Improvement of best results stored so far...");
+            bestModel = currentModel.cloneWeights();
             if (settings.calculateBestThreshold && trainVal.training instanceof DetailedClassificationResults) {
                 bestModel.threshold = ((DetailedClassificationResults) trainVal.training).bestThreshold;
             }

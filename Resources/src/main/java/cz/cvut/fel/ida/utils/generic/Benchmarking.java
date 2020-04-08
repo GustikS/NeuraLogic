@@ -95,7 +95,7 @@ public class Benchmarking {
     public static void assertDispersionAndTime(Pair<Double, Duration> results, Double dispersion, Duration referenceTime) {
         assertEquals(dispersion, results.r, 0.01);
         LOG.warning("time taken: " + results.s);
-        assertEquals(results.s.toMillis() / (double) referenceTime.toMillis(), 1, 0.01);
+        assertEquals(results.s.toMillis() / (double) referenceTime.toMillis(), 1, 0.1);
     }
 
     public static void assertSmallRuntimeDeviation(Collection<RunResult> runResults, Duration referenceDuration, double maxDeviation) {

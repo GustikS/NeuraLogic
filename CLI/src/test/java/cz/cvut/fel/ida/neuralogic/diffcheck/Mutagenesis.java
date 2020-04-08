@@ -20,6 +20,7 @@ public class Mutagenesis {
     String[] args2ex = Utilities.getDatasetArgs("relational/molecules/mutagenesis/diffcheck", "-e examples2only.txt");
     String[] argsAll = Utilities.getDatasetArgs("relational/molecules/mutagenesis/diffcheck", "-q allQueries.txt");
     String[] argsVect = Utilities.getDatasetArgs("relational/molecules/mutagenesis/diffcheck", "-q ./allQueries.txt -t ./template_vectorized.txt");
+    String[] argsNew = Utilities.getDatasetArgs("relational/molecules/mutagenesis/");
 
     /**
      * DO NOT TOUCH THIS!!
@@ -65,6 +66,11 @@ public class Mutagenesis {
         assertEquals(0.0014794164025840328, results.dispersion, 0.0000000000000001);
     }
 
+    /**
+     * true results :- train: accuracy: 91.49%, disp: 0.6420141023483763, error: AVG(SQUARED_DIFF) = 0.0701644803, (best thresh acc: 93.62%) (maj. 66.49%), (AUC-ROC: 0.9556825397), (AUC-PR: 0.9736792284)
+     * Total time: 02:12:49:596
+     * @throws Exception
+     */
     @TestAnnotations.Slow
     public void mutagen_diffcheck_standard() throws Exception {
 
@@ -96,7 +102,7 @@ public class Mutagenesis {
 
         Pair<Pipeline, ?> main = Main.main(argsAll, settings);
         DetailedClassificationResults results = (DetailedClassificationResults) main.s;
-//        assertEquals(results.dispersion, 0.6590494405160751, 0.01);
+        assertEquals(0.6420141023483763, results.dispersion, 0.01);
     }
 
     /**
@@ -135,6 +141,89 @@ public class Mutagenesis {
 
         Pair<Pipeline, ?> main = Main.main(argsVect, settings);
         DetailedClassificationResults results = (DetailedClassificationResults) main.s;
-        assertEquals(results.dispersion, 0.619042613350086, 0.01);
+        assertEquals(0.619042613350086, results.dispersion, 0.01);
     }
+
+    /**
+     * true results :- train: accuracy: 90.43%, disp: 0.6269538938163348, error: AVG(SQUARED_DIFF) = 0.0764636179, (best thresh acc: 92.02%) (maj. 66.49%), (AUC-ROC: 0.9601269841), (AUC-PR: 0.978976231)
+     * Total time: 00:10:02:965
+     *
+     * btw. ADAM s lr=0.01 tu bezi brutalne dobre
+     * @throws Exception
+     */
+    @TestAnnotations.Slow
+    public void mutagen_diffcheck_vectorized_compressed() throws Exception {
+
+        Settings settings = new Settings();
+
+        settings.trainValidationPercentage = 1.0;
+
+        settings.initDistribution = Settings.InitDistribution.UNIFORM;
+        settings.plotProgress = 20;
+
+        settings.seed = 0;
+        settings.maxCumEpochCount = 1000;
+        settings.resultsRecalculationEpochae = 10;
+        settings.shuffleEachEpoch = true;
+        settings.debugSampleOutputs = false;
+        settings.calculateBestThreshold = true;
+//        settings.appLimitSamples = 100;
+        settings.initializer = Settings.InitSet.SIMPLE;
+        settings.setOptimizer(Settings.OptimizerSet.SGD);
+        settings.initLearningRate = 0.3;
+        settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
+        settings.detailedResults = true;
+
+        settings.oneQueryPerExample = true;
+        settings.neuralNetsPostProcessing = false;
+        settings.chainPruning = true;
+        settings.isoValueCompression = true;
+        settings.storeNotShow = true;
+
+        Pair<Pipeline, ?> main = Main.main(argsVect, settings);
+        DetailedClassificationResults results = (DetailedClassificationResults) main.s;
+        assertEquals(0.6109891807533527, results.dispersion, 0.01);
+    }
+
+    /**
+     *
+     * with result: accuracy: 87.77%, disp: 0.49502512040795565, error: 0.1022808575, (best thresh acc: 89.36%) (maj. 66.49%), (AUC-ROC: 0.9306666667), (AUC-PR: 0.9653845754)
+     * Total time: 00:10:05:965
+     *
+     * @throws Exception
+     */
+    @TestAnnotations.Slow
+    public void mutagen_diffcheck_vectorized_compressed_newdata() throws Exception {
+
+        Settings settings = new Settings();
+
+        settings.trainValidationPercentage = 1.0;
+
+        settings.initDistribution = Settings.InitDistribution.UNIFORM;
+        settings.plotProgress = 20;
+
+        settings.seed = 0;
+        settings.maxCumEpochCount = 1000;
+        settings.resultsRecalculationEpochae = 10;
+        settings.shuffleEachEpoch = true;
+        settings.debugSampleOutputs = false;
+        settings.calculateBestThreshold = true;
+//        settings.appLimitSamples = 100;
+        settings.initializer = Settings.InitSet.SIMPLE;
+        settings.setOptimizer(Settings.OptimizerSet.SGD);
+        settings.initLearningRate = 0.3;
+        settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
+        settings.detailedResults = true;
+
+        settings.oneQueryPerExample = true;
+        settings.neuralNetsPostProcessing = false;
+        settings.chainPruning = true;
+        settings.isoValueCompression = true;
+        settings.storeNotShow = true;
+
+        Pair<Pipeline, ?> main = Main.main(argsNew, settings);
+        DetailedClassificationResults results = (DetailedClassificationResults) main.s;
+        assertEquals(0.6109891807533523, results.dispersion,  0.01);
+    }
+
 }

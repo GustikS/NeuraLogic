@@ -283,6 +283,7 @@ public class Neuralizer implements Exportable {
             if (atomNeuron == null) {
                 LOG.severe("Query not matched!");
             }
+
             QueryNeuron queryNeuron = new QueryNeuron(queryAtom.ID, queryAtom.position, queryAtom.importance, atomNeuron, neuralNetwork);
             queryNeurons.add(queryNeuron);
         }

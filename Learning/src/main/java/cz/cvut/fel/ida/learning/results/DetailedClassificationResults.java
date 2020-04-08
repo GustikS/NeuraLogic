@@ -44,7 +44,11 @@ public class DetailedClassificationResults extends ClassificationResults {  //to
         if (settings.alternativeAUC)
             AUCrocEmpirical = calculateAUCsmaller(evaluations);
 
-        setFullAUC(evaluations);
+        try {
+            setFullAUC(evaluations);
+        } catch (Exception e){
+            LOG.warning("Could not calculate AUC stats");
+        }
 
         computeBestAccuracyThreshold(evaluations);
         computeDetailedAccuracy(evaluations, bestThreshold);

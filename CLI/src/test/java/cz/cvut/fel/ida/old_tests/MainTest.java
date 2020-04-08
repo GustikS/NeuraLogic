@@ -10,7 +10,7 @@ import java.util.logging.Level;
 public class MainTest {
 
     @Test
-    public void parsing() {
+    public void parsing() throws Exception {
         String[] args = new String("-t ./resources/parsing/test_template -q ./resources/parsing/queries").split(" ");
         Main.main(args);
     }
@@ -243,7 +243,7 @@ public class MainTest {
     }
 
     @Test
-    public void mda() {
+    public void mda() throws Exception {
         String[] args = ("-e ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/examples " +
                 "-q ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/queries " +
                 "-t ./resources/datasets/relational/molecules/template_unified_bad -isoinits 1" +
@@ -254,7 +254,7 @@ public class MainTest {
     }
 
     @Test
-    public void loadFromConsole() {
+    public void loadFromConsole() throws Exception {
         String[] args = ("-path ./resources/datasets/relational/molecules/mutagenesis" +
                 " -settings ./resources/settings/settings.json" +
                 " -out ./out/loading").split(" ");
@@ -264,7 +264,7 @@ public class MainTest {
 
 
     @Test
-    public void loadFromFiles() {
+    public void loadFromFiles() throws Exception {
         String[] args = (
                 " -settings ./resources/settings/settings.json" +
                 " -sources ./resources/settings/sources.json" +
@@ -274,7 +274,7 @@ public class MainTest {
     }
 
     @Test
-    public void compression() {
+    public void compression() throws Exception {
         String[] args = ("-sourcesDir ./resources/datasets/relational/molecules/mutagenesis " +
                 "-opt sgd -lr 0.3 -iso 10 -xval 5 -out ./out/compress").split(" ");
 
@@ -291,7 +291,7 @@ public class MainTest {
     }
 
     @Test
-    public void rciTest() {
+    public void rciTest() throws Exception {
         String[] args = ("-t ./template.txt" +
                 " -path ./resources/datasets/relational/molecules/mutagenesis" +
                 " -opt adam -lr 0.01 -ts 10 -limit 10" +

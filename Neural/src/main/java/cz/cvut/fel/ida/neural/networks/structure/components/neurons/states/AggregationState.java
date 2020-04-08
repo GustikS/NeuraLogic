@@ -117,7 +117,7 @@ public abstract class AggregationState implements Aggregation.State {
 
             @Override
             public int[] getInputMask() {
-                int[] inputs = new int[0];
+                int[] inputs = new int[1];
                 inputs[0] = maxIndex;
                 return inputs;
             }

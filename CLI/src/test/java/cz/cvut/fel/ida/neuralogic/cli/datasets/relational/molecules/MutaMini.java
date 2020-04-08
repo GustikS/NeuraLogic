@@ -12,7 +12,7 @@ public class MutaMini {
     private static final Logger LOG = Logger.getLogger(MutaMini.class.getName());
 
     //muta_mini doesnt have a single file template
-    static String[] dataset = getDatasetArgs("relational/molecules/muta_mini","-sd  -t ./embeddings,./template.txt");
+    static String[] dataset = getDatasetArgs("relational/molecules/muta_mini"," -t ./embeddings,./template.txt");
 
     @TestAnnotations.Medium
     public void basic() throws Exception {

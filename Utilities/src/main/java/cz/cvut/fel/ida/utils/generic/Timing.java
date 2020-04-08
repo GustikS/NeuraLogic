@@ -13,6 +13,7 @@ public class Timing implements Exportable {
     transient Instant now;
 
     String totalTimeTaken;
+    double totalMinutes;
 
     long allocatedMemory;
 
@@ -37,6 +38,7 @@ public class Timing implements Exportable {
     }
 
     public void finish() {
+        totalMinutes = (double) timeTaken.toMillis() / 1000 / 60;
         totalTimeTaken = getTimeTaken().toString();
         checkMemory();
     }

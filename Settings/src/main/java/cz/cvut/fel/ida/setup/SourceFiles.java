@@ -120,13 +120,15 @@ public class SourceFiles extends Sources {
      */
     private SourceFiles setupFromDir(Settings settings, CommandLine cmd, File foldDir) {
         LOG.info("Setting up input sourceFiles from directory: " + foldDir);
-        mergedTemplatePath = Paths.get(foldDir.getAbsolutePath() + "/" + settings.mergedTemplatesFile + this.foldId);
         try {
             if (this.template != null) {
                 settings.templateFile = this.template.getPath();
             }
             String templatePath = cmd.getOptionValue("template", settings.templateFile);
             File template_;
+
+            File templ = sanitizePath(settings, cmd, foldDir, sanitizeTempl(templatePath));
+            mergedTemplatePath = Paths.get( templ + settings.mergedTemplatesSuffix + this.foldId);
 
             if (templatePath.contains(",")) {
                 LOG.warning("There are multiple templates, will try to merge them first");
@@ -159,7 +161,7 @@ public class SourceFiles extends Sources {
                 trainExamples_ = Paths.get(trainExamplesPath).toFile();
             }
             if (!trainExamples_.exists()) {
-                LOG.fine("Could not find trainExamples file in " + trainExamples_ + ", will try to use " + Paths.get(foldDir.toString(), settings.trainExamplesFile2) + " file for the same purpose");
+                LOG.finer("Could not find trainExamples file in " + trainExamples_ + ", will try to use " + Paths.get(foldDir.toString(), settings.trainExamplesFile2) + " file for the same purpose");
                 trainExamples_ = Paths.get(foldDir.toString(), settings.trainExamplesFile2).toFile();
             }
 
@@ -202,7 +204,7 @@ public class SourceFiles extends Sources {
                 trainQueries_ = Paths.get(trainQueriesPath).toFile();
             }
             if (!trainQueries_.exists()) {
-                LOG.fine("Could not find trainQueries file in " + trainQueries_ + ", will try to use " + Paths.get(foldDir.toString(), settings.trainQueriesFile2) + " file for the same purpose");
+                LOG.finer("Could not find trainQueries file in " + trainQueries_ + ", will try to use " + Paths.get(foldDir.toString(), settings.trainQueriesFile2) + " file for the same purpose");
                 trainQueries_ = Paths.get(foldDir.toString(), settings.trainQueriesFile2).toFile();
             }
 
@@ -237,6 +239,11 @@ public class SourceFiles extends Sources {
         return this;
     }
 
+    public static String sanitizeTempl(String name) {
+        String sane = name.replaceAll("[,:;'\\[\\]]", "_");
+        return sane;
+    }
+
     private void setupTemplate(File template_, File foldDir) throws IOException {
         AtomicBoolean changed = new AtomicBoolean(false);
         Path templPath = template_.toPath();
@@ -251,7 +258,7 @@ public class SourceFiles extends Sources {
 
     private String checkTemplate4Imports(Path toImport, AtomicBoolean changed, File foldDir) throws FileNotFoundException {
         try {
-            if (toImport.startsWith(".")) { //todo repair relative path finding if subtemplate with import statement came from different folder
+            if (toImport.startsWith(".")) { //todo next repair relative path finding if subtemplate with import statement came from different folder
                 toImport = Paths.get(foldDir + "/" + toImport);
             }
             List<String> strings = Files.readAllLines(toImport);
@@ -305,12 +312,7 @@ public class SourceFiles extends Sources {
     }
 
     private File getTemplate(Settings settings, CommandLine cmd, File foldDir, String templatePath) throws FileNotFoundException {
-        File template_;
-        if (templatePath.startsWith(".") || (settings.sourcePathProvided && !cmd.hasOption("template"))) {
-            template_ = Paths.get(foldDir.toString(), templatePath).toFile();
-        } else {
-            template_ = Paths.get(templatePath).toFile();
-        }
+        File template_ = sanitizePath(settings, cmd, foldDir, templatePath);
 
         if (template_.exists()) {
             if (parent != null && parent.templateReader != null) {
@@ -323,7 +325,7 @@ public class SourceFiles extends Sources {
                 this.templateReader = parent.templateReader;
                 return null;
             } else {
-                LOG.fine("Could not find template file in " + template_ + ", will try to use " + foldDir.toString() + "/" + settings.templateFile2 + " file for the same purpose");
+                LOG.finer("Could not find template file in " + template_ + ", will try to use " + foldDir.toString() + "/" + settings.templateFile2 + " file for the same purpose");
                 template_ = Paths.get(foldDir.toString(), settings.templateFile2).toFile();
                 if (template_.exists()) {
                     return template_;
@@ -335,21 +337,31 @@ public class SourceFiles extends Sources {
         }
     }
 
+    private File sanitizePath(Settings settings, CommandLine cmd, File foldDir, String templatePath) {
+        File template_;
+        if (templatePath.startsWith(".") || (settings.sourcePathProvided && !cmd.hasOption("template"))) {
+            template_ = Paths.get(foldDir.toString(), templatePath).toFile();
+        } else {
+            template_ = Paths.get(templatePath).toFile();
+        }
+        return template_;
+    }
+
     private void recognizeFileType(String path, File sourceType, Settings settings) {
         switch (identifyFileTypeUsingFilesProbeContentType(path)) {
             case "text/plain":
                 settings.plaintextInput = true;
-                LOG.finer("Input " + sourceType + " file type identified as plain text");
+                LOG.fine("Input " + sourceType + " file type identified as plain text");
                 break;
             case "text/x-microdvd":
                 settings.plaintextInput = true;
-                LOG.finer("Input " + sourceType + " file type identified as plain text (text/x-microdvd)");
+                LOG.fine("Input " + sourceType + " file type identified as plain text (text/x-microdvd)");
                 break;
             case "application/xml":
-                LOG.finer("Input " + sourceType + " file type identified as xml");
+                LOG.fine("Input " + sourceType + " file type identified as xml");
                 break;
             case "application/json":
-                LOG.finer("Input " + sourceType + " file type identified as json");
+                LOG.fine("Input " + sourceType + " file type identified as json");
                 break;
             default:
                 LOG.warning("File type of input " + sourceType + " not recognized!");

@@ -76,7 +76,9 @@ class ExperimentSetup():
                                         self.template_id, self.params_id)
 
     def finish_script(self):
-        self.script_code += "java -XX:+UseSerialGC -XX:-BackgroundCompilation -XX:NewSize=2000m -Xms" + self.memory_min + " -Xmx" + self.memory_max + \
+
+        decreased_memory = str(int(self.memory_max[0:self.memory_max.find("g")]) - 2) + "g"
+        self.script_code += "java -XX:+UseSerialGC -XX:-BackgroundCompilation -XX:NewSize=2000m -Xms" + self.memory_min + " -Xmx" + decreased_memory + \
                             " -jar " + self.jarpath_remote + jarname + " -sd " + self.dataset_path_remote + " -t " + self.template_path_remote + \
                             self.params + \
                             " -out " + self.export_path
@@ -162,7 +164,7 @@ class GridSetup():
         else:
             if isinstance(templates, list):
                 for template in templates:
-                    template_files.append(os.path.join(self.local_templates_path, template))
+                    template_files.append(os.path.join(template))
             else:
                 for template in listdir(os.path.join(self.local_templates_path, templates)):
                     template_files.append(os.path.join(templates, template))

@@ -23,43 +23,67 @@ from pandas.core.dtypes.common import is_numeric_dtype
 # %%
 
 convert = {
-    "train_acc": [["NeuralTrainTestPipeline", "training", "bestResults", "training", "bestAccuracy"],
-                  ["NeuralTrainingPipe", "progress", "bestResults", "training", "bestAccuracy"]
-                  ],
-    "train_disp": [["NeuralTrainTestPipeline", "training", "bestResults", "training", "dispersion"],
-                   ["NeuralTrainingPipe", "progress", "bestResults", "training", "dispersion"]
-                   ],
-    "train_aucroc": [["NeuralTrainTestPipeline", "training", "bestResults", "training", "AUCroc"],
-                     ["NeuralTrainingPipe", "progress", "bestResults", "training", "AUCroc"]
-                     ],
-    "train_aucpr": [["NeuralTrainTestPipeline", "training", "bestResults", "training", "AUCpr"],
-                    ["NeuralTrainingPipe", "progress", "bestResults", "training", "AUCpr"]
-                    ],
+    "train": [
+        ["NeuralTrainingPipe", "progress", "bestResults", "training", "bestAccuracy"],
+        ["NeuralTrainingPipe", "progress", "bestResults", "training", "dispersion"],
+        ["NeuralTrainingPipe", "progress", "bestResults", "training", "AUCroc"],
+        ["NeuralTrainingPipe", "progress", "bestResults", "training", "AUCpr"]
+    ],
 
-    "test_acc": [["NeuralTrainTestPipeline", "training", "bestResults", "training", "bestAccuracy"],
-                 ["NeuralTrainingPipe", "progress", "bestResults", "training", "bestAccuracy"]
-                 ],
-    "test_disp": [["NeuralTrainTestPipeline", "training", "bestResults", "training", "dispersion"],
-                  ["NeuralTrainingPipe", "progress", "bestResults", "training", "dispersion"]
-                  ],
-    "test_aucroc": [["NeuralTrainTestPipeline", "training", "bestResults", "training", "AUCroc"],
-                    ["NeuralTrainingPipe", "progress", "bestResults", "training", "AUCroc"]
-                    ],
-    "test_aucpr": [["NeuralTrainTestPipeline", "training", "bestResults", "training", "AUCpr"],
-                   ["NeuralTrainingPipe", "progress", "bestResults", "training", "AUCpr"]
-                   ],
+    # "train2": [
+    #     ["NeuralTrainTestPipeline", "pipelineOutput", "training", "bestResults", "training", "bestAccuracy"],
+    #     ["NeuralTrainTestPipeline", "pipelineOutput", "training", "bestResults", "training", "dispersion"],
+    #     ["NeuralTrainTestPipeline", "pipelineOutput", "training", "bestResults", "training", "AUCroc"],
+    #     ["NeuralTrainTestPipeline", "pipelineOutput", "training", "bestResults", "training", "AUCpr"],
+    # ],
 
-    "test_acc": ["NeuralTrainTestPipeline", "testing", "bestAccuracy"],
-    "xval_train_acc": ["CrossvalidationPipeline", "training", "bestResults", "training", "bestAccuracy"],
-    "xval_test_acc": ["CrossvalidationPipeline", "testing", "bestAccuracy"],
-    "compression": [["CompressionPipe", "allNeuronCount"],
-                    ["CompressionPipe", "compressedNeuronCount"],
-                    ["CompressionPipe", "preventedByIsoCheck"],
-                    ["CompressionPipe", "timing", "totalTimeTaken"]],
-    "pruning": [["NetworkPruningPipe", "allNeurons"],
-                ["NetworkPruningPipe", "prunedNeurons"],
-                ["NetworkPruningPipe", "timing", "totalTimeTaken"]],
-    "train_time": ["NeuralTrainingPipe", "timing", "totalTimeTaken"],
+    "val": [["NeuralTrainingPipe", "progress", "bestResults", "validation", "bestAccuracy"],
+            ["NeuralTrainingPipe", "progress", "bestResults", "validation", "dispersion"],
+            ["NeuralTrainingPipe", "progress", "bestResults", "validation", "AUCroc"],
+            ["NeuralTrainingPipe", "progress", "bestResults", "validation", "AUCpr"],
+            ],
+
+    # "val2": [["NeuralTrainTestPipeline", "pipelineOutput", "training", "bestResults", "validation", "bestAccuracy"],
+    #          ["NeuralTrainTestPipeline", "pipelineOutput", "training", "bestResults", "validation", "dispersion"],
+    #          ["NeuralTrainTestPipeline", "pipelineOutput", "training", "bestResults", "validation", "AUCroc"],
+    #          ["NeuralTrainTestPipeline", "pipelineOutput", "training", "bestResults", "validation", "AUCpr"]
+    #          ],
+
+    "test": [
+        ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "bestAccuracy"],
+        ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "dispersion"],
+        ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "AUCroc"],
+        ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "AUCpr"]
+
+    ],
+
+    # "test2": [
+    #     ["LearningSchemePipeline", "pipelineOutput", "bestAccuracy"],
+    #     ["LearningSchemePipeline", "pipelineOutput", "dispersion"],
+    #     ["LearningSchemePipeline", "pipelineOutput", "AUCroc"],
+    #     ["LearningSchemePipeline", "pipelineOutput", "AUCpr"],
+    # ],
+
+    # "xval_train": [["CrossvalidationPipeline", "pipelineOutput", "r", "train", "mean", "accuracy"],
+    #                ["CrossvalidationPipeline", "pipelineOutput", "r", "train", "mean", "dispersion"]],
+    #
+    # "xval_val": [["CrossvalidationPipeline", "pipelineOutput", "r", "val", "mean", "accuracy"],
+    #              ["CrossvalidationPipeline", "pipelineOutput", "r", "val", "mean", "dispersion"]],
+    #
+    # "xval_test": [["CrossvalidationPipeline", "pipelineOutput", "r", "test", "mean", "accuracy"],
+    #               ["CrossvalidationPipeline", "pipelineOutput", "r", "test", "mean", "dispersion"]],
+
+    # "compression": [["CompressionPipe", "allNeuronCount"],
+    #                 ["CompressionPipe", "compressedNeuronCount"],
+    #                 ["CompressionPipe", "preventedByIsoCheck"],
+    #                 ["CompressionPipe", "timing", "totalMinutes"]],
+    # "pruning": [["NetworkPruningPipe", "allNeurons"],
+    #             ["NetworkPruningPipe", "prunedNeurons"],
+    #             ["NetworkPruningPipe", "timing", "totalMinutes"]],
+
+    "total_minutes": ["LearningSchemePipeline", "timing", "totalMinutes"],
+    "memory": ["GroundingPipeline", "timing", "allocatedMemory"],
+
     "progress_train": [
         ["accuracy"],
         ["majorityErr"],
@@ -311,12 +335,15 @@ class ProgressObserver(FileObserver):
                 time.sleep(self.seconds)
 
     def plot_file(self, file):
+        print("plotting " + file)
+        if "dummy" in file:
+            return
         self.file = self.open(file, "r")
         self.filename = file.split("/")[-1].split(".json")[0]
         self.fullfilename = file
 
         lines = self.file.read()
-        while not lines and self.second > 0:
+        while not lines and self.seconds > 0:
             time.sleep(self.seconds)
             lines = self.file.read()
 
@@ -358,12 +385,12 @@ class ProgressObserver(FileObserver):
             out = series1[idx]
 
             if not metric[0].startswith("val"):
-                pltr.normal_plot(out, xs, legend=metric[0])
+                pltr.normal_plot(out, xs, legend=metric[0], bars=False)
             else:
                 if not restarted_colors:
                     restarted_colors = True
                     plt.gca().set_prop_cycle(plt.rcParams['axes.prop_cycle'])
-                pltr.normal_plot(out, xs, style="--", legend=metric[0] + "-" + metric[1])
+                pltr.normal_plot(out, xs, style="--", legend=metric[0] + "-" + metric[1], bars=False)
 
             plt.annotate('%0.5f' % out[-1], xy=(1, out[-1]), xytext=(8, 0),
                          xycoords=('axes fraction', 'data'), textcoords='offset points')
@@ -521,15 +548,21 @@ class Plotter:
         self.ys = ys
         self.dataframe = dataframe
 
-    def plot_all(self, row=None, cols=None, xlabel="", ylabel="", legend=""):
-        plt.figure()
+    def plot_all(self, row=None, cols=None, xlabel="", ylabel="", legend="", cont_colors=False, plot_filter_pos="",
+                 plot_filter_neg=""):
+        figr = plt.figure()
         if row is None:
             row = self.x
         if cols is None:
             cols = self.ys
 
         good_cols = []
+        text_cols = []
         for col in cols:
+            if plot_filter_neg and col.startswith(plot_filter_neg):
+                continue
+            if plot_filter_pos and not col.startswith(plot_filter_pos):
+                continue
             if is_numeric_dtype(self.dataframe[col]):
                 good_cols.append(col)
             else:
@@ -539,13 +572,27 @@ class Plotter:
                 except:
                     pass
 
-        sidex = sidey = int(np.sqrt(len(good_cols)))
-        if sidex ** 2 < len(good_cols):
-            sidex += int((len(good_cols) - sidex ** 2) / sidex) + 1
+        for col in cols:
+            if (col not in good_cols):
+                if isinstance(self.dataframe[col][0], list) and None in self.dataframe[col][0]:
+                    continue
+                if is_numeric_dtype(self.dataframe[col]) or "+-" in self.dataframe[col][0]:
+                    continue
+                text_cols.append(col)
+
+        sidex = sidey = int(np.sqrt(len(good_cols) + 1))
+        while sidex * sidey < len(good_cols) + 1:
+            # sidex += int((len(good_cols) - sidex ** 2) / sidex) + 1
+            sidex += 1
 
         fig, axs = plt.subplots(sidex, sidey)
-        fig.set_size_inches(20, 11)
+        # fig.subplots_adjust(bottom=0.2)
+        fig.set_size_inches(25, 14)
         axes = axs.ravel()
+
+        if cont_colors:  # len(self.dataframe[col]) >= 15:
+            plt.rcParams["axes.prop_cycle"] = plt.cycler("color",
+                                                         plt.cm.viridis(np.linspace(0, 1, len(self.dataframe[col]))))
 
         for i, col in enumerate(good_cols):
             ax = axes[i]
@@ -560,11 +607,55 @@ class Plotter:
                 except:
                     pass
 
+        while i < len(axes) - 1:
+            i += 1
+            axes[i].set_axis_off()
+
+        leg = self.global_legend(text_cols, fig, axes[len(good_cols)])
         plt.gcf().tight_layout()
+        fig.savefig('./img/samplefigure', bbox_extra_artists=[leg], bbox_inches='tight')
+
         plt.show()
 
+    def global_legend(self, text_col_names, fig, ax):
+        '''damn python...none of this works to make the OOB legend not cropped on show()'''
+
+        # from matplotlib.patches import Patch
+        import matplotlib.lines as mlines
+        import matplotlib.patches as mpatches
+
+        colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
+
+        text_cols = self.dataframe[text_col_names]
+        text_cols = text_cols.astype(str).apply(''.join, axis=1)
+
+        legs = []
+        for i, text in enumerate(text_cols):
+            legs.append(mpatches.Patch(color=colors[i % len(colors)], label=str(i) + " : " + str(text)))
+            # mlines.Line2D([], [], color='blue', marker='*', linestyle='None', markersize=10, label='Blue stars')
+
+        fontP = FontProperties()
+        fontP.set_size('small')
+
+        # box = plt.gca().get_position()
+        # plt.gca().set_position([box.x0, box.y0, box.width * 0.5, box.height])
+
+        # Put a legend to the right of the current axis
+        # plt.gca().legend(loc='center left', bbox_to_anchor=(1, 0.5))
+
+        return ax.legend(handles=legs,  # The line objects
+                         # labels=text_cols,  # The labels for each line
+                         # loc="center right",  # Position of legend
+                         # borderaxespad=0.1,  # Small spacing around legend box
+                         title="Legend",  # Title for the legend,
+                         loc='center',  # bbox_to_anchor=(0.5, 0.5),
+                         # loc=9, bbox_to_anchor=(0.5, -0.02),
+                         prop=fontP,
+                         # fancybox=True, shadow=True, ncol=1
+                         )
+
     def normal_plot(self, y, x=None, axes=None, color=None, xlabel="", ylabel="", legend="", style='-', title=None,
-                    save=None):
+                    save=None, bars=True):
         if axes == None:
             axes = plt.gca()
         if x is None:
@@ -572,17 +663,12 @@ class Plotter:
         if title is None:
             title = legend
 
-        if not color:
-            if len(y) == 1:
-                axes.bar(x, y)
-            else:
-                axes.plot(x, y, style, label=legend, linewidth=1)
+        colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
+        if bars or len(y) <= 2:
+            res = axes.bar(x, y, color=colors)
         else:
-            if len(y) == 1:
-                axes.bar(x, y)
-            else:
-                axes.plot(x, y, style, color, label=legend, linewidth=1)
+            res = axes.plot(x, y, style, label=legend, linewidth=1)
 
         axes.set_xlabel(xlabel)
         axes.set_ylabel(ylabel)
@@ -592,9 +678,10 @@ class Plotter:
 
         if save:
             self.save(save)
+        return res
 
     def conf_plot(self, plusminus, x=None, axes=None, color='b', xlabel="", ylabel="", legend="", title=None,
-                  save=None):
+                  save=None, bars=True):
         if axes == None:
             axes = plt.gca()
         if x is None:
@@ -611,11 +698,16 @@ class Plotter:
         if title is None:
             title = legend
 
-        self.area_plot(x, means, stds, axes, color, legend)
+        colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
+
+        if bars or len(plusminus) <= 2:
+            res = axes.bar(x, means, yerr=stds, color=colors)
+        else:
+            self.area_plot(x, means, stds, axes, color, legend)
 
         axes.set_xlabel(xlabel)
         axes.set_ylabel(ylabel)
-        axes.legend()
+        # axes.legend()
         axes.set_title(legend)
         axes.grid()
 
@@ -651,23 +743,27 @@ def observe(mypath, seconds=1):
     po.observe_progress()
 
 
-def analyse(mypath, plot_progress=True):
+def analyse(mypath, plot_progress=True, neg_pref="", pos_pref=""):
     loader = Loader("", mypath)
     data = loader.load_dataframe()
-    print(data.transpose().to_string())
+    print(data.to_string())
     pltr = Plotter(data)
-    pltr.plot_all()
+    pltr.plot_all(plot_filter_neg=neg_pref, plot_filter_pos=pos_pref)
 
     if plot_progress:
-        po = ProgressObserver("", mypath, seconds=0)
-
-        jsons = []
-        po.get_jsons(po.results_path, jsons, po.filter_pos, po.filter_neg)
-        for js in jsons:
-            plt.figure(figsize=(16, 12))
-            po.plot_file(js)
+        show_progresses(mypath)
 
     return data
+
+
+def show_progresses(mypath):
+    po = ProgressObserver("", mypath, seconds=0)
+
+    jsons = []
+    po.get_jsons(po.results_path, jsons, po.filter_pos, po.filter_neg)
+    for js in jsons:
+        plt.figure(figsize=(16, 12))
+        po.plot_file(js)
 
 
 # this is for calling as an online progress observer from external process (Java) / or console

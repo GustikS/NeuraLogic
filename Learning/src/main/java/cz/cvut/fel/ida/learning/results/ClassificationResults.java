@@ -71,7 +71,7 @@ public class ClassificationResults extends RegressionResults {
 
         List<Double> dispersions = resultsList.stream().map(res -> res.dispersion).collect(Collectors.toList());
         Double meanDisp = MathUtils.getMean(dispersions);
-        Double stdDisp = MathUtils.getStd(dispersions, meanAcc);
+        Double stdDisp = MathUtils.getStd(dispersions, meanDisp);
 
         List<Double> majorErrs = resultsList.stream().map(res -> res.majorityErr).collect(Collectors.toList());
         Double meanMajErr = MathUtils.getMean(majorErrs);

@@ -22,9 +22,18 @@ public abstract class LearnRateDecayStrategy implements Exportable {
         this.actualLearningRate = initialLearningRate;
     }
 
-    public abstract void decay();
+    public abstract void decay(int epochNumber);
 
     public static LearnRateDecayStrategy getFrom(Settings settings, ScalarValue learningRate) {
-        return new LinearDecay(settings, learningRate);    //todo rest
+        switch (settings.decaySet) {
+            case ARITHMETIC:
+                return new ArithmeticDecay(settings, learningRate);
+            case GEOMETRIC:
+                return new GeometricDecay(settings, learningRate);
+            default:
+                LOG.severe("Unknown learning rate decay strategy");
+                return new GeometricDecay(settings, learningRate);
+        }
+
     }
 }

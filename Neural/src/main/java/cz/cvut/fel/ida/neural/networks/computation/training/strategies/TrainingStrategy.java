@@ -64,6 +64,7 @@ public abstract class TrainingStrategy implements Exportable {
         exporter.delimitStart();
 
         if (settings.plotProgress > 0) {
+            LOG.fine("Will try to call the Python progress plotter...");
             ProcessBuilder processBuilder = new ProcessBuilder(settings.pythonPath, settings.progressPlotterPath, settings.exportDir, "" + settings.plotProgress);
             try {
                 progressPlotter = processBuilder.start();
@@ -71,10 +72,11 @@ public abstract class TrainingStrategy implements Exportable {
                 e.printStackTrace();
             }
         }
+        LOG.finer("End of exporter setup");
     }
 
     private void storeParametersState(NeuralModel inputModel) {
-        this.initModel = inputModel.cloneValues();
+        this.initModel = inputModel.cloneWeights();
     }
 
     private void loadParametersState() {

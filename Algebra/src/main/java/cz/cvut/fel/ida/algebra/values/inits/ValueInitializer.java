@@ -17,10 +17,9 @@ public interface ValueInitializer extends Exportable {
     static ValueInitializer getInitializer(Settings settings) {
         if (settings.initializer == Settings.InitSet.GLOROT) {
             return new GlorotUniformInitializer(settings);
-        } else if (settings.initializer == Settings.InitSet.HE){
+        } else if (settings.initializer == Settings.InitSet.HE) {
             return new HeUniformInitializer(settings);
-        }
-        else if (settings.initializer == Settings.InitSet.SIMPLE)
+        } else if (settings.initializer == Settings.InitSet.SIMPLE)
             return new SimpleInitializer(settings);
         else
             return new SimpleInitializer(settings);

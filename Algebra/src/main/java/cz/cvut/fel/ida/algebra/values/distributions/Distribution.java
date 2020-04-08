@@ -31,6 +31,9 @@ public abstract class Distribution implements Exportable {
         } else if (settings.initDistribution == Settings.InitDistribution.CONSTANT) {
             return new Constant(settings.random, settings);
         }
+        else if (settings.initDistribution == Settings.InitDistribution.LONGTAIL) {
+            return new Longtail(settings.random, settings);
+        }
         LOG.warning("Wrong weights initialization setup, choosing default Uniform distribution");
         return new Uniform(settings.random, settings);  //default
     }

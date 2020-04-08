@@ -18,7 +18,7 @@ public class Main {
      *
      * @param args
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         try {
             mainExc(args);
         } catch (Exception e) {
@@ -36,7 +36,7 @@ public class Main {
         main(args, new Settings());
     }
 
-
+    
     public static Pair<Pipeline, ?> main(String[] args, Settings settings) throws Exception {
         return Runner.main(args, settings);
     }

@@ -5,18 +5,18 @@ import cz.cvut.fel.ida.setup.Settings;
 
 import java.util.logging.Logger;
 
-public class LinearDecay extends LearnRateDecayStrategy {   //todo next crete exponential one...should be much better
-    private static final Logger LOG = Logger.getLogger(LinearDecay.class.getName());
+public class ArithmeticDecay extends LearnRateDecayStrategy {   //todo next crete exponential one...should be much better
+    private static final Logger LOG = Logger.getLogger(ArithmeticDecay.class.getName());
 
     ScalarValue diff = new ScalarValue(0);
 
-    public LinearDecay(Settings settings, ScalarValue initialLearningRate) {
+    public ArithmeticDecay(Settings settings, ScalarValue initialLearningRate) {
         super(settings, initialLearningRate);
         diff = (ScalarValue) initialLearningRate.times(new ScalarValue(-1.0 / settings.maxCumEpochCount));
     }
 
     @Override
-    public void decay() {
+    public void decay(int epochNumber) {
         decays++;
         actualLearningRate.incrementBy(diff);
     }

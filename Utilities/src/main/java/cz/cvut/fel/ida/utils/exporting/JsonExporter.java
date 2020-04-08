@@ -94,6 +94,7 @@ public class JsonExporter extends TextExporter {
     @Override
     public void delimitStart() {
         exportWriter.println("[");
+        exportWriter.flush();
     }
 
     @Override

@@ -118,7 +118,7 @@ public class NeuralNetBuilder {
             if ((aggNeuron = neuronMaps.aggNeurons.get(rules2groundings.getKey())) == null) {
                 newAggNeuron = true;
                 aggNeuron = neuralBuilder.neuronFactory.createAggNeuron(rules2groundings.getKey());
-                if (aggNeuron.getComputationView(0).getAggregationState().getInputMask() != null) { // the neuron will requires input masking!
+                if (aggNeuron.getComputationView(0).getAggregationState().getInputMask() != null) { // the neuron will require input masking!
                     neuronMaps.containsMasking = true;
                 }
                 createdNeurons.aggNeurons.add(aggNeuron);

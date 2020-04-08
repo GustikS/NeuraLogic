@@ -78,17 +78,17 @@ public class StratifiedSplitter<T extends LearningSample> implements Splitter<T>
      * @param percentage
      */
     public List<T> representativeSubset(Map<Value, List<T>> classes, double percentage) {
-        List<List<T>> subsets = classes.values().stream().map(l -> l.subList(0, (int) (l.size() * percentage))).collect(Collectors.toList());
-        LOG.info("Calculated stratified subset with class distribution: " + classes.entrySet().stream().map(entry -> entry.getKey() + ":" + entry.getValue().size()).collect(Collectors.toList()));
+        List<List<T>> subsets = classes.values().stream().map(l -> l.subList(0, (int) Math.round(l.size() * percentage))).collect(Collectors.toList());
+        LOG.info("Calculated stratified subset from class distribution: " + classes.entrySet().stream().map(entry -> entry.getKey() + ":" + entry.getValue().size()).collect(Collectors.toList()));
         List<T> collect = subsets.stream().flatMap(List::stream).collect(Collectors.toList());
         return collect;
     }
 
     @Override
     public Pair<List<T>, List<T>> partition(List<T> samples, double percentage) {
-        int split = (int) (percentage * samples.size());
-        if (percentage != 1.0 && (split == 1 || split == samples.size())) {
-            LOG.warning("Problem with samples partitioning, there are too few to be splitted: " + split + " out of " + samples.size() + " (split percentage = " + percentage + ")");
+        int split = (int) Math.round(percentage * samples.size());
+        if (percentage != 1.0 && (split == 1 || split == 0 || split == samples.size())) {
+            LOG.warning("Problem with samples partitioning, there are too few samples to be splitted nicely: " + split + " out of " + samples.size() + " (split percentage = " + percentage + ")");
         }
         List<T> train = representativeSubset(getClasses(samples), percentage);
         List<T> test = new ArrayList<>(samples);

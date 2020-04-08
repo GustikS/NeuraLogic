@@ -72,18 +72,28 @@ public class CommandLineHandler {
         options.addOptionGroup(evalGroup);
 
         //grounding
-        options.addOption(new Option("gm", "groundingMode", true, "groundings mode [normal, sequential, global] (" + "normal" + ")"));
-        options.addOption(new Option("ga", "groundingAlgorithm", true, "groundings algorithm [BUp, TDown, Gringo] (" + "BUp" + ")"));
+        options.addOption(new Option("gm", "groundingMode", true, "groundings mode [normal, sequential, global] (" + settings.groundingMode.name() + ")"));
+        options.addOption(new Option("ga", "groundingAlgorithm", true, "groundings algorithm [BUp, TDown, Gringo] (" + settings.grounding.name() + ")"));
 
         //training
-        options.addOption(new Option("init", "weightInit", true, "distribbution for weight initialization [uniform, longtail, constant] (" + settings.initDistribution.toString().toLowerCase() + ")"));
+        options.addOption(new Option("dist", "distribution", true, "distribution for weight initialization [uniform, normal, longtail, constant] (" + settings.initDistribution.toString().toLowerCase() + ")"));
+        options.addOption(new Option("init", "initialization", true, "algorithm for weight initialization [simple, glorot, he] (" + settings.initializer.toString().toLowerCase() + ")"));
+
         options.addOption(new Option("opt", "optimizer", true, "optimization algorithm (" + settings.getOptimizer() + ")"));
         options.addOption(new Option("lr", "learningRate", true, "initial learning rate (" + settings.initLearningRate + ")"));
         options.addOption(new Option("ts", "trainingSteps", true, "cumulative number of epochae in neural training (" + settings.maxCumEpochCount + ")"));
 
+        options.addOption(new Option("decay", "learnRateDecay", true, "learning rate decay geometric coefficient (-1=off) (" + settings.learnRateDecay + ")"));
+
+        //functions
+        options.addOption(new Option("atomf", "atomFunction", true, "activation function for atom neurons (" + settings.atomNeuronActivation.name().toLowerCase() + ")"));
+        options.addOption(new Option("rulef", "ruleFunction", true, "activation function for rule neurons (" + settings.ruleNeuronActivation.name().toLowerCase() + ")"));
+        options.addOption(new Option("aggf", "aggFunction", true, "aggregation function for aggregation neurons (" + settings.aggNeuronActivation.name().toLowerCase() + ")"));
+
+
         //evaluation
         options.addOption(new Option("em", "evaluationMode", true, "evaluation is either [regression, classification] (" + "classification" + ")"));
-        options.addOption(new Option("ef", "errorFunction", true, "type of error function [MSE, XEnt] (" + "MSE" + ")"));
+        options.addOption(new Option("ef", "errorFunction", true, "type of error function [MSE, XEnt] (" + settings.errorAggregationFcn.name() + settings.errorFunction.name() + ")"));
 
         //compression
         options.addOption(new Option("iso", "isoCompression", true, "iso-value network compression (lifting), number of decimal digits (" + settings.isoDecimals + ")"));

@@ -51,6 +51,10 @@ public class MainTest {
     @TestAnnotations.Slow
     public void runHorseFamily() {
         String resourcePath = Utilities.getResourcePath("simple/family");
-        Main.main(splitArgs("-ts 10 -sd " + resourcePath));
+        try {
+            Main.main(splitArgs("-ts 10 -sd " + resourcePath));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

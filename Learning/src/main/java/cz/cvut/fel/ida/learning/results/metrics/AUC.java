@@ -33,8 +33,13 @@ public class AUC {
     }
 
     public double getAUCpr() {
-        double aucpr = confusion.calculateAUCPR(0.0);
-        return aucpr;
+        try {
+            double aucpr = confusion.calculateAUCPR(0.0);
+            return aucpr;
+        } catch (Exception e){
+            LOG.severe("Could not calculate AUC PR!");
+            return  0;
+        }
     }
 
     public static double getAUCpr(List<Result> evaluations) {

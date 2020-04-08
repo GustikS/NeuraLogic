@@ -7,27 +7,82 @@ import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.generic.Benchmarking;
 import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.utils.generic.TestAnnotations;
+import cz.cvut.fel.ida.utils.generic.Utilities;
 
 import java.time.Duration;
 import java.util.logging.Logger;
 
-import static cz.cvut.fel.ida.utils.generic.Utilities.getDatasetArgs;
-
 public class Mutagenesis {
     private static final Logger LOG = Logger.getLogger(Mutagenesis.class.getName());
 
-    static String dataset = "relational/molecules/mutagenesis";
 
+    static String dataset = "relational/molecules/mutagenesis";
+    String[] args = Utilities.getDatasetArgs(dataset, "");
+
+    /**
+     * For mutagenesis better keep lr=0.3 for backward compatibility
+     * @throws Exception
+     */
     @TestAnnotations.Slow
-    public void defaultMutagenPerformance() throws Exception {
-        double referenceDispersion = 0.323;
-        Duration referenceTime = Duration.ofMinutes(10);
+    public void defaultMutagenPerformanceSGD() throws Exception {
+        double referenceDispersion = 0.6109891807533523;
+        Duration referenceTime = Duration.ofMinutes(9);
 
         Settings settings = Settings.forSlowTest();
+        settings.seed = 0;
         settings.setOptimizer(Settings.OptimizerSet.SGD);
+        settings.initLearningRate = 0.3;
+
+        settings.resultsRecalculationEpochae = 10;
+        settings.trainValidationPercentage = 1.0;
+
+        settings.plotProgress = 10;
+
+        settings.isoValueCompression = true;
+        settings.chainPruning = true;
         settings.maxCumEpochCount = 1000;
 
-        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset), settings);
+        Pair<Pipeline, ?> results = Main.main(args, settings);
         Benchmarking.assertDispersionAndTime(WorkflowUtils.getDisperionAndTime(results), referenceDispersion, referenceTime);
+    }
+
+    /**
+     * For fast and superior result we need to increase learning rate for ADAM (e.g. to 0.01) to beat SGD with 0.3
+     * @throws Exception
+     */
+    @TestAnnotations.Slow
+    public void defaultMutagenPerformanceADAM() throws Exception {
+        double referenceDispersion = 0.7510077938552104;
+        Duration referenceTime = Duration.ofMinutes(9);
+
+        Settings settings = Settings.forSlowTest();
+        settings.seed = 0;
+        settings.setOptimizer(Settings.OptimizerSet.ADAM);
+        settings.initLearningRate = 0.01;
+
+        settings.resultsRecalculationEpochae = 10;
+        settings.trainValidationPercentage = 1.0;
+
+        settings.plotProgress = 10;
+
+        settings.isoValueCompression = true;
+        settings.chainPruning = true;
+        settings.maxCumEpochCount = 1000;
+
+        Pair<Pipeline, ?> results = Main.main(args, settings);
+        Benchmarking.assertDispersionAndTime(WorkflowUtils.getDisperionAndTime(results), referenceDispersion, referenceTime);
+    }
+
+
+    /**
+     * For mutagenesis better keep lr=0.3 for backward compatibility
+     * @throws Exception
+     */
+    @TestAnnotations.Fast
+    public void mutagenImportTemplate() throws Exception {
+
+        Settings settings = Settings.forFastTest();
+
+        Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/mutagenesis", "-t /home/gusta/googledrive/Github/NeuraLogic/Resources/datasets/relational/molecules/mutagenesis/templates/import/templateI.txt"), settings);
     }
 }

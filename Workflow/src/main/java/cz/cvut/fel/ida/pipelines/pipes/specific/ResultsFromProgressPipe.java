@@ -15,6 +15,9 @@ public class ResultsFromProgressPipe extends Pipe<Progress, Results> {
 
     @Override
     public Results apply(Progress progress) {
-        return progress.getLastTrueResults().training;
+        if (progress.bestResults.validation != null && !progress.bestResults.validation.isEmpty())
+            return progress.bestResults.validation;
+        else
+            return progress.bestResults.training;
     }
 }
