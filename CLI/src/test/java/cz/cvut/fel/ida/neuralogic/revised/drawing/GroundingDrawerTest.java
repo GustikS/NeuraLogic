@@ -17,4 +17,13 @@ public class GroundingDrawerTest {
         GroundingDebugger groundingDebugger = new GroundingDebugger(sources, settings);
         groundingDebugger.executeDebug();
     }
+
+
+    @TestAnnotations.Interactive
+    public void ecoli() throws Exception {
+        Settings settings = Settings.forInteractiveTest();
+        Sources sources = Runner.getSources(getDatasetArgs("relational/molecules/e_coli/mini"), settings);
+        GroundingDebugger groundingDebugger = new GroundingDebugger(sources, settings);
+        groundingDebugger.executeDebug();
+    }
 }

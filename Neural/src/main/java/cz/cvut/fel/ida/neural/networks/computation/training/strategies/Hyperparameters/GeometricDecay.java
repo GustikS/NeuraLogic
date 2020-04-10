@@ -9,11 +9,12 @@ public class GeometricDecay extends LearnRateDecayStrategy {
     private static final Logger LOG = Logger.getLogger(GeometricDecay.class.getName());
 
     Double ratio;
-    int everyNepocha = 100;
+    int everyNepocha;
 
     public GeometricDecay(Settings settings, ScalarValue initialLearningRate) {
         super(settings, initialLearningRate);
         this.ratio = settings.learnRateDecay;
+        this.everyNepocha = settings.decaySteps;
     }
 
     @Override

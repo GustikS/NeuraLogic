@@ -84,6 +84,9 @@ public class CommandLineHandler {
         options.addOption(new Option("ts", "trainingSteps", true, "cumulative number of epochae in neural training (" + settings.maxCumEpochCount + ")"));
 
         options.addOption(new Option("decay", "learnRateDecay", true, "learning rate decay geometric coefficient (-1=off) (" + settings.learnRateDecay + ")"));
+        options.addOption(new Option("decays", "decaySteps", true, "learning rate decays every N steps (" + settings.decaySteps + ")"));
+
+        options.addOption(new Option("preft", "preferTraining", true, "turn on to force best training model selection as opposed to (default) selecting best validation error model (" + settings.preferBestTrainingNotvalidation + ")"));
 
         //functions
         options.addOption(new Option("atomf", "atomFunction", true, "activation function for atom neurons (" + settings.atomNeuronActivation.name().toLowerCase() + ")"));

@@ -397,7 +397,7 @@ class ProgressObserver(FileObserver):
 
         fontP = FontProperties()
         fontP.set_size('small')
-        plt.title(self.fullfilename)
+        plt.title(self.fullfilename, fontdict={'fontsize': 8, 'fontweight': 'medium'})
         plt.xlim((0, len(xs)))
         plt.legend(loc="upper center", bbox_to_anchor=(0.5, -0.1),
                    fancybox=True, shadow=True, ncol=2, prop=fontP)
@@ -549,7 +549,7 @@ class Plotter:
         self.dataframe = dataframe
 
     def plot_all(self, row=None, cols=None, xlabel="", ylabel="", legend="", cont_colors=False, plot_filter_pos="",
-                 plot_filter_neg=""):
+                 plot_filter_neg="", save=False):
         figr = plt.figure()
         if row is None:
             row = self.x
@@ -579,6 +579,8 @@ class Plotter:
                 if is_numeric_dtype(self.dataframe[col]) or "+-" in self.dataframe[col][0]:
                     continue
                 text_cols.append(col)
+
+        self.dataframe = self.dataframe.sort_values(by=text_cols, ascending=False)
 
         sidex = sidey = int(np.sqrt(len(good_cols) + 1))
         while sidex * sidey < len(good_cols) + 1:
@@ -613,7 +615,9 @@ class Plotter:
 
         leg = self.global_legend(text_cols, fig, axes[len(good_cols)])
         plt.gcf().tight_layout()
-        fig.savefig('./img/samplefigure', bbox_extra_artists=[leg], bbox_inches='tight')
+
+        if save:
+            fig.savefig('./img/samplefigure', bbox_extra_artists=[leg], bbox_inches='tight')
 
         plt.show()
 
@@ -635,7 +639,7 @@ class Plotter:
             # mlines.Line2D([], [], color='blue', marker='*', linestyle='None', markersize=10, label='Blue stars')
 
         fontP = FontProperties()
-        fontP.set_size('small')
+        fontP.set_size(8)
 
         # box = plt.gca().get_position()
         # plt.gca().set_position([box.x0, box.y0, box.width * 0.5, box.height])
@@ -651,7 +655,8 @@ class Plotter:
                          loc='center',  # bbox_to_anchor=(0.5, 0.5),
                          # loc=9, bbox_to_anchor=(0.5, -0.02),
                          prop=fontP,
-                         # fancybox=True, shadow=True, ncol=1
+                         # fancybox=True, shadow=True,
+                         ncol=1
                          )
 
     def normal_plot(self, y, x=None, axes=None, color=None, xlabel="", ylabel="", legend="", style='-', title=None,
@@ -672,6 +677,7 @@ class Plotter:
 
         axes.set_xlabel(xlabel)
         axes.set_ylabel(ylabel)
+
         axes.set_title(title)
         # axes.legend()
         axes.grid()

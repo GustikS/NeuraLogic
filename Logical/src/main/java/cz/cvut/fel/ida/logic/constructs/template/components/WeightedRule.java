@@ -1,5 +1,6 @@
 package cz.cvut.fel.ida.logic.constructs.template.components;
 
+import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.logic.constructs.template.metadata.RuleMetadata;
 import cz.cvut.fel.ida.algebra.functions.Activation;
 import cz.cvut.fel.ida.logic.Clause;
@@ -30,7 +31,7 @@ public class WeightedRule  implements Exportable {
     private HeadAtom head;
     private List<BodyAtom> body;
 
-    private Activation aggregationFcn;
+    private Aggregation aggregationFcn;
     private Activation activationFcn;
 
     private RuleMetadata metadata;
@@ -201,11 +202,11 @@ public class WeightedRule  implements Exportable {
         this.body = body;
     }
 
-    public Activation getAggregationFcn() {
+    public Aggregation getAggregationFcn() {
         return aggregationFcn;
     }
 
-    public void setAggregationFcn(Activation aggregationFcn) {
+    public void setAggregationFcn(Aggregation aggregationFcn) {
         this.aggregationFcn = aggregationFcn;
     }
 

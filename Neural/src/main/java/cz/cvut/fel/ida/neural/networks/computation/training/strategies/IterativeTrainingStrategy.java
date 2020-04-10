@@ -227,7 +227,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     }
 
     private void saveIfBest(Progress.TrainVal trainVal) {
-        if (progress.bestResults == null || trainVal.betterThan(progress.bestResults)) {
+        if (progress.bestResults == null || trainVal.betterThan(progress.bestResults, settings.preferBestTrainingNotvalidation)) {
             LOG.fine("Improvement of best results stored so far...");
             bestModel = currentModel.cloneWeights();
             if (settings.calculateBestThreshold && trainVal.training instanceof DetailedClassificationResults) {

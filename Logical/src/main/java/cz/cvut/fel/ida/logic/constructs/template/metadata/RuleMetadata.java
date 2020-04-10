@@ -1,13 +1,13 @@
 package cz.cvut.fel.ida.logic.constructs.template.metadata;
 
-import cz.cvut.fel.ida.logic.constructs.template.components.WeightedRule;
 import cz.cvut.fel.ida.algebra.functions.Activation;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.functions.CrossProduct;
-import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.algebra.utils.metadata.Metadata;
 import cz.cvut.fel.ida.algebra.utils.metadata.Parameter;
 import cz.cvut.fel.ida.algebra.utils.metadata.ParameterValue;
+import cz.cvut.fel.ida.logic.constructs.template.components.WeightedRule;
+import cz.cvut.fel.ida.setup.Settings;
 
 import java.util.Map;
 import java.util.logging.Logger;
@@ -38,6 +38,12 @@ public class RuleMetadata extends Metadata<WeightedRule> {
                 valid = true;
                 parameterValue.value = aggregation;
             }
+        } else if (parameter.type == Parameter.Type.AGGREGATION && parameterValue.type == ParameterValue.Type.STRING) {
+            Aggregation aggregation = Aggregation.parseFrom(parameterValue.stringValue);
+            if (aggregation != null) {
+                valid = true;
+                parameterValue.value = aggregation;
+            }
             //todo rest
         }
 
@@ -51,12 +57,15 @@ public class RuleMetadata extends Metadata<WeightedRule> {
         metadata.forEach((param, value) -> apply(object, param, value));
     }
 
-    private void apply(WeightedRule object, Parameter param, ParameterValue value) {
+    private void apply(WeightedRule rule, Parameter param, ParameterValue value) {
         if (param.type == Parameter.Type.ACTIVATION) {
             if (value.value instanceof CrossProduct) {
-                object.setActivationFcn(object.getActivationFcn() != null ? new CrossProduct(object.getActivationFcn()) : new CrossProduct(Activation.getActivationFunction(settings.ruleNeuronActivation)));
+                rule.setActivationFcn(rule.getActivationFcn() != null ? new CrossProduct(rule.getActivationFcn()) : new CrossProduct(Activation.getActivationFunction(settings.ruleNeuronActivation)));
             }
-            object.setActivationFcn((Activation) value.value);
+            rule.setActivationFcn((Activation) value.value);
+        }
+        if (param.type == Parameter.Type.AGGREGATION) {
+            rule.setAggregationFcn((Aggregation) value.value);
         }
     }
 }

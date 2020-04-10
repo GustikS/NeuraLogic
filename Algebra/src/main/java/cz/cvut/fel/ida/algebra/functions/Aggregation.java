@@ -23,7 +23,7 @@ public abstract class Aggregation implements Exportable {
     /**
      * Simply name of the activation function (used for external mapping into DL frameworks)
      */
-    public String getName(){
+    public String getName() {
         return this.getClass().getSimpleName();
     }
 
@@ -59,17 +59,33 @@ public abstract class Aggregation implements Exportable {
         }
     }
 
+    public static Aggregation parseFrom(String agg) {
+        switch (agg) {
+            case "avg":
+                return Singletons.average;
+            case "max":
+                return Singletons.maximum;
+            case "sum":
+                return Singletons.sum;
+            default:
+                LOG.severe("Unimplemented aggregation function");
+                return null;
+        }
+    }
+
     /**
      * Return 2 values, lower bound and upper bound, beyond which the function is almost saturated
+     *
      * @return
      */
-    public Pair<Double, Double> getSaturationRange(){
+    public Pair<Double, Double> getSaturationRange() {
         return null;    // by default there is no saturation (for Max, Avg, Identity, etc.)
     }
 
     /**
      * The inputs can be permuted without affecting the result?
      * This may cause some neurons to be equivalent and thus be effectively pruned as such.
+     *
      * @return
      */
     public abstract boolean isInputSymmetric();

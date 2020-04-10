@@ -411,11 +411,11 @@ public class Settings implements Serializable {
     /**
      * Remove unnecessary parts from the networks (e.g. linear chains)
      */
-    public boolean chainPruning = false;    //todo why worse?
+    public boolean chainPruning = true;
     /**
      * Bottom-up value based sub-graph isomorphism collapsing (merging)
      */
-    public boolean isoValueCompression = false;     //todo why worse?
+    public boolean isoValueCompression = true;
     /**
      * If the isoValueCompression is performed, check whether the merged neurons are truly equivalent.
      * This is mostly for theoretical purposes and not typically needed in practice where we don't care about the true equivalence
@@ -579,7 +579,15 @@ public class Settings implements Serializable {
      */
     public boolean islearnRateDecay = false;    //todo next
 
-    public double learnRateDecay = 0.5;
+    /**
+     * Apply the setup decay ever N steps
+     */
+    public int decaySteps = 100;
+
+    /**
+     * Learning rate decay coefficient
+     */
+    public double learnRateDecay = 0.9;
 
     /**
      * Form of learning rate decay progression
@@ -682,7 +690,7 @@ public class Settings implements Serializable {
 
     public ActivationFcn atomNeuronActivation = ActivationFcn.SIGMOID;
     public AggregationFcn aggNeuronActivation = AggregationFcn.AVG;
-    public ActivationFcn ruleNeuronActivation = ActivationFcn.SIGMOID;
+    public ActivationFcn ruleNeuronActivation = ActivationFcn.TANH;
     public ActivationFcn negation = ActivationFcn.REVERSE;
 
     public enum ActivationFcn {
@@ -713,6 +721,11 @@ public class Settings implements Serializable {
      * should we return the state of all the parameters (Weights) back to the state before training?
      */
     public boolean undoWeightTrainingChanges;
+
+    /**
+     * When measuring both training and validation error, choose the model with the best TRAINING error (off = default = choose the best VALIDATION error)
+     */
+    public boolean preferBestTrainingNotvalidation = false;
 
     //-----------------Structure Learning
     public boolean allowStructureLearning = false;
@@ -972,7 +985,14 @@ public class Settings implements Serializable {
             settings.learnRateDecay = Double.parseDouble(_decay);
             if (settings.learnRateDecay > 0){
                 settings.islearnRateDecay = true;
+            } else {
+                settings.islearnRateDecay = false;
             }
+        }
+
+        if (cmd.hasOption("decaySteps")) {
+            String _decay = cmd.getOptionValue("decaySteps");
+            settings.decaySteps = Integer.parseInt(_decay);
         }
 
         if (cmd.hasOption("trainingSteps")) {

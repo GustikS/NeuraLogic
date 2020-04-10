@@ -85,7 +85,7 @@ public class NeuronFactory {
 
     public AggregationNeuron createAggNeuron(GroundHeadRule groundHeadRule) {
         WeightedRule weightedRule = groundHeadRule.weightedRule;
-        Aggregation aggregation = weightedRule.getAggregationFcn() != null ? weightedRule.getActivationFcn() : Aggregation.getAggregation(settings.aggNeuronActivation);
+        Aggregation aggregation = weightedRule.getAggregationFcn() != null ? weightedRule.getAggregationFcn() : Aggregation.getAggregation(settings.aggNeuronActivation);
         State.Neural.Computation state = State.createBaseState(settings, aggregation);
         AggregationNeuron<State.Neural.Computation> aggregationNeuron = new AggregationNeuron<>(settings.fullAggNeuronStrings ? groundHeadRule.toFullString() : weightedRule.getOriginalString(), counter++, state);
         neuronMaps.aggNeurons.put(groundHeadRule, aggregationNeuron);

@@ -84,8 +84,8 @@ public class Progress implements Exportable<Progress> {
          * @param other
          * @return
          */
-        public boolean betterThan(TrainVal other) {
-            if (other.validation.evaluations != null && !other.validation.evaluations.isEmpty()) {
+        public boolean betterThan(TrainVal other, boolean preferBestTrainingNotvalidation) {
+            if (other.validation.evaluations != null && !other.validation.evaluations.isEmpty() && !preferBestTrainingNotvalidation) {
                 return validation.betterThan(other.validation);
             } else {
                 return training.betterThan(other.training);
