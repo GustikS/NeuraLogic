@@ -37,7 +37,7 @@ public class TestingBuilder extends AbstractPipelineBuilder<Sources, Results> {
     }
 
 
-    public Pipeline<Sources, Results> buildPipeline(Sources sources) {
+    public Pipeline<Sources, Results> buildPipeline(Sources sources) {  //todo now now prepsat na nacitani nauceneho modelu
         Pipeline<Sources, Results> pipeline = new Pipeline<>("TestingPipeline", this);
         DuplicateBranch<Sources> duplicateSources = pipeline.registerStart(new DuplicateBranch<>());
         Pipe<Sources, Source> getTestSourcePipe = pipeline.register(new Pipe<Sources, Source>("getTestSourcePipe") {

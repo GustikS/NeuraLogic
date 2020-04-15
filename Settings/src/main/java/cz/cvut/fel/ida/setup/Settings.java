@@ -56,7 +56,8 @@ public class Settings implements Serializable {
         LINUX, MACOSX, WINDOWS
     }
 
-    private static String inputFilesSuffix = ".txt";
+    public static String inputFilesSuffix = ".txt";
+//private static String inputFilesSuffix = "";
 
     public static OS getOs() {
         String osName = System.getProperty("os.name").replaceAll("\\s", "");
@@ -587,7 +588,7 @@ public class Settings implements Serializable {
     /**
      * Learning rate decay coefficient
      */
-    public double learnRateDecay = 0.9;
+    public double learnRateDecay = 0.95;
 
     /**
      * Form of learning rate decay progression
@@ -664,7 +665,7 @@ public class Settings implements Serializable {
                 initLearningRate = 0.1;
                 break;
             case ADAM:
-                initLearningRate = 0.001;
+                initLearningRate = 0.0001;
                 break;
         }
         this.optimizer = iOptimizer;
@@ -688,7 +689,7 @@ public class Settings implements Serializable {
 
     public AggregationFcn errorAggregationFcn = AggregationFcn.AVG;
 
-    public ActivationFcn atomNeuronActivation = ActivationFcn.SIGMOID;
+    public ActivationFcn atomNeuronActivation = ActivationFcn.TANH;
     public AggregationFcn aggNeuronActivation = AggregationFcn.AVG;
     public ActivationFcn ruleNeuronActivation = ActivationFcn.TANH;
     public ActivationFcn negation = ActivationFcn.REVERSE;
@@ -720,12 +721,20 @@ public class Settings implements Serializable {
      * After neural training, i.e. finding the best set of parameters and error values,
      * should we return the state of all the parameters (Weights) back to the state before training?
      */
-    public boolean undoWeightTrainingChanges;
+    public boolean undoWeightTrainingChanges = false;
 
     /**
      * When measuring both training and validation error, choose the model with the best TRAINING error (off = default = choose the best VALIDATION error)
      */
     public boolean preferBestTrainingNotvalidation = false;
+
+    public enum ModelSelection {
+        ERROR, ACCURACY, DISPERSION, AUCroc, AUCpr
+    }
+
+    public ModelSelection modelSelection = ModelSelection.ERROR;
+
+    public boolean exportTrainedModel = true;
 
     //-----------------Structure Learning
     public boolean allowStructureLearning = false;
@@ -1114,6 +1123,11 @@ public class Settings implements Serializable {
             } else {
                 settings.chainPruning = false;
             }
+        }
+
+        if (cmd.hasOption("preferTraining")){
+            String _sel = cmd.getOptionValue("preferTraining");
+            settings.preferBestTrainingNotvalidation = Double.parseDouble(_sel) > 0;
         }
 
         //todo fill all the most useful settings

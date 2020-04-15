@@ -31,30 +31,43 @@ public class DetailedClassificationResults extends ClassificationResults {  //to
     }
 
     @Override
+    public boolean betterThan(Results results, Settings.ModelSelection criterion) {
+        DetailedClassificationResults other = (DetailedClassificationResults) results;
+        switch (criterion) {
+            case AUCpr:
+                return this.AUCpr > other.AUCpr;
+            case AUCroc:
+                return this.AUCroc > other.AUCroc;
+            case ACCURACY:
+                return this.bestAccuracy > other.bestAccuracy;
+            case DISPERSION:
+                return this.dispersion > other.dispersion;
+        }
+        return super.betterThan(other, criterion);
+    }
+
+    @Override
     public boolean recalculate() {
         super.recalculate();
-        if (settings.forceDetailedResults){
-            computeDetailedAccuracy(evaluations);
+        if (settings.forceDetailedResults) {
+            computeDetailedStats(evaluations);
         }
         return true;
     }
 
-    public void computeDetailedAccuracy(List<Result> evaluations) {
+    public void computeDetailedStats(List<Result> evaluations) {
 
         if (settings.alternativeAUC)
             AUCrocEmpirical = calculateAUCsmaller(evaluations);
 
         try {
             setFullAUC(evaluations);
-        } catch (Exception e){
+        } catch (Exception e) {
             LOG.warning("Could not calculate AUC stats");
         }
-
-        computeBestAccuracyThreshold(evaluations);
-        computeDetailedAccuracy(evaluations, bestThreshold);
     }
 
-    public Double computeDetailedAccuracy(List<Result> evaluations, Value trainedThreshold) {
+    public Double computeBestAccuracy(List<Result> evaluations, Value trainedThreshold) {
         int TP = 0;
         int TN = 0;
         for (Result evaluation : evaluations) {
@@ -69,7 +82,7 @@ public class DetailedClassificationResults extends ClassificationResults {  //to
         return bestAccuracy;
     }
 
-    public void computeBestAccuracyThreshold(List<Result> evaluations) {
+    public Value computeBestAccuracyThreshold(List<Result> evaluations) {
         Collections.sort(evaluations);
 
         double allCount = evaluations.size();
@@ -109,7 +122,8 @@ public class DetailedClassificationResults extends ClassificationResults {  //to
         if (bestIndex - 1 >= 0) {
             bestThreshold = (bestThreshold.plus(evaluations.get(bestIndex - 1).getOutput())).times(oneHalf);
         }
-        bestAccuracy = 1 - bestCumErr;
+        this.bestAccuracy = 1 - bestCumErr;
+        return bestThreshold;
     }
 
     public double calculateAUCsmaller(List<Result> evaluations) {

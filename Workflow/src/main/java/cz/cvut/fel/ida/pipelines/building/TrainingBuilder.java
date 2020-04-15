@@ -19,6 +19,7 @@ import cz.cvut.fel.ida.pipelines.pipes.specific.TemplateToNeuralPipe;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.setup.Source;
 import cz.cvut.fel.ida.setup.Sources;
+import cz.cvut.fel.ida.utils.exporting.Exporter;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.logging.Logger;
@@ -27,6 +28,8 @@ import java.util.stream.Stream;
 public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<Template, NeuralModel>, Progress>> {
     private static final Logger LOG = Logger.getLogger(TrainingBuilder.class.getName());
     Sources sources;
+
+    private static int exportNumber = 0;
 
     public TrainingBuilder(Settings settings, Sources sources) {
         super(settings);
@@ -77,6 +80,8 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
         return pipeline;
     }
 
+
+
     /**
      * todo - in case that some of the samples did not ground successfully, hack the pipeline and start StructureLearning in the current context
      */
@@ -105,10 +110,14 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
 
             Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Progress>> trainingPipeline = pipeline.register(new NeuralLearningBuilder(settings).buildPipeline());
 
-            Merge<Template, Pair<NeuralModel, Progress>, Pair<Pair<Template, NeuralModel>, Progress>> finalMerge = pipeline.registerEnd(new Merge<Template, Pair<NeuralModel, Progress>, Pair<Pair<Template, NeuralModel>, Progress>>("ModelMerge") {
+            Merge<Template, Pair<NeuralModel, Progress>, Pair<Pair<Template, NeuralModel>, Progress>> finalMerge = pipeline.registerEnd(new Merge<Template, Pair<NeuralModel, Progress>, Pair<Pair<Template, NeuralModel>, Progress>>("ModelMerge", settings) {
                 @Override
-                protected Pair<Pair<Template, NeuralModel>, Progress> merge(Template input1, Pair<NeuralModel, Progress> input2) {
-                    return new Pair<>(new Pair<>(input1, input2.r), input2.s);
+                protected Pair<Pair<Template, NeuralModel>, Progress> merge(Template template, Pair<NeuralModel, Progress> training) {
+                    if (settings.exportTrainedModel){   //the weights are the same objects, so no need to transfer their trained values
+                        Exporter exporter = Exporter.getExporter(settings.exportDir, "trainedTemplate" + exportNumber++, "JAVA");
+                        exporter.export(template);
+                    }
+                    return new Pair<>(new Pair<>(template, training.r), training.s);
                 }
             });
 

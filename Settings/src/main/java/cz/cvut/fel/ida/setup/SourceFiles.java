@@ -141,9 +141,14 @@ public class SourceFiles extends Sources {
             } else {
                 template_ = getTemplate(settings, cmd, foldDir, templatePath);
             }
-            setupTemplate(template_, foldDir);
 
-            recognizeFileType(this.template.getAbsolutePath(), template_, settings);
+            String fileType = recognizeFileType(template_.toString(), template_, settings);
+
+            if (fileType.equals("text/x-java")){
+                binaryTemplateFile = new FileInputStream(template_.toString());
+            } else {
+                setupTemplate(template_, foldDir);
+            }
 
         } catch (IOException e) {
             LOG.info("There is no learning template");
@@ -347,8 +352,9 @@ public class SourceFiles extends Sources {
         return template_;
     }
 
-    private void recognizeFileType(String path, File sourceType, Settings settings) {
-        switch (identifyFileTypeUsingFilesProbeContentType(path)) {
+    private String recognizeFileType(String path, File sourceType, Settings settings) {
+        String contentType = identifyFileTypeUsingFilesProbeContentType(path);
+        switch (contentType) {
             case "text/plain":
                 settings.plaintextInput = true;
                 LOG.fine("Input " + sourceType + " file type identified as plain text");
@@ -363,9 +369,13 @@ public class SourceFiles extends Sources {
             case "application/json":
                 LOG.fine("Input " + sourceType + " file type identified as json");
                 break;
+            case "text/x-java":
+                LOG.fine("Input " + sourceType + " file type identified as binary/java");
+                break;
             default:
                 LOG.warning("File type of input " + sourceType + " not recognized!");
         }
+        return contentType;
     }
 
     public boolean checkForSubstring(File file, String substring, int numberOfLines) {

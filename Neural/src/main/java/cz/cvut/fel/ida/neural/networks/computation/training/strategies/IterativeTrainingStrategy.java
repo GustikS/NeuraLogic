@@ -199,8 +199,8 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         Results trainingResults = resultsFactory.createFrom(trueEvaluations.training);
         Results validationResults = resultsFactory.createFrom(trueEvaluations.validation);
         if (settings.calculateBestThreshold && validationResults instanceof DetailedClassificationResults) {   // pass the best threshold from training to validation set
-            ((DetailedClassificationResults) trainingResults).computeDetailedAccuracy(trainingResults.evaluations);
-            ((DetailedClassificationResults) validationResults).computeDetailedAccuracy(validationResults.evaluations, ((DetailedClassificationResults) trainingResults).bestThreshold);
+            Value threshold = ((DetailedClassificationResults) trainingResults).computeBestAccuracyThreshold(trainingResults.evaluations);
+            ((DetailedClassificationResults) validationResults).computeBestAccuracy(validationResults.evaluations, threshold);
         }
         progress.addTrueResults(trainingResults, validationResults);
 
@@ -227,8 +227,8 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     }
 
     private void saveIfBest(Progress.TrainVal trainVal) {
-        if (progress.bestResults == null || trainVal.betterThan(progress.bestResults, settings.preferBestTrainingNotvalidation)) {
-            LOG.fine("Improvement of best results stored so far...");
+        if (progress.bestResults == null || trainVal.betterThan(progress.bestResults, settings.preferBestTrainingNotvalidation, settings.modelSelection)) {
+            LOG.fine("Improvement of best " + (settings.preferBestTrainingNotvalidation || settings.trainValidationPercentage == 1.0 ? "training " : "validation ") + settings.modelSelection.name() + " stored so far...");
             bestModel = currentModel.cloneWeights();
             if (settings.calculateBestThreshold && trainVal.training instanceof DetailedClassificationResults) {
                 bestModel.threshold = ((DetailedClassificationResults) trainVal.training).bestThreshold;

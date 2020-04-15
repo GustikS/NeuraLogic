@@ -16,6 +16,15 @@ public abstract class Block {
     public Exporter exporter;
     public Settings settings;
 
+    protected Block(String id, Settings settings) {
+        this.settings = settings;
+        this.ID = id;
+        this.exporter = createExporter(id, settings);
+    }
+
+    protected Block() {
+    }
+
     public Pipeline getRoot() {
         Pipeline par = parent;
         while (par.parent != null) {

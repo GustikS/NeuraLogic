@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import org.apache.commons.cli.CommandLine;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.io.FileInputStream;
 import java.io.Reader;
 import java.util.List;
 import java.util.logging.Logger;
@@ -35,6 +36,8 @@ public class Sources {
 
     //----------------INFERRED SETTINGS
     public boolean templateProvided;
+    public transient FileInputStream binaryTemplateFile;
+
     public boolean foldFiles;   //i.e. external x-val files
 
     //-----------------Learning modes
@@ -89,7 +92,7 @@ public class Sources {
             foldFiles = false;
         }
 
-        if (templateReader == null) {
+        if (templateReader == null && binaryTemplateFile == null) {
             templateProvided = false;
             settings.structureLearning = true;
         } else {

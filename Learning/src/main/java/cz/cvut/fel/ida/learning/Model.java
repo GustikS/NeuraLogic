@@ -7,7 +7,7 @@ import cz.cvut.fel.ida.algebra.weights.Weight;
 import java.util.List;
 
 public interface Model<T extends Query>  {
-    String getId();
+    String getName();
 
     Value evaluate(T query);
     List<Weight> getAllWeights();

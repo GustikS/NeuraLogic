@@ -27,7 +27,7 @@ public class Template implements Model<QueryAtom>, Exportable {
 
     static int counter = 0;
 
-    protected String id;
+    protected String name;
 
     public LinkedHashSet<WeightedRule> rules;
 
@@ -35,16 +35,16 @@ public class Template implements Model<QueryAtom>, Exportable {
     public LinkedHashSet<Conjunction> constraints;  //todo how to handle these?
 
     @Nullable
-    Set<Literal> inferredLiterals;
+    transient Set<Literal> inferredLiterals;
 
     /**
      * This is merely for computational reuse (it can be computed any time from the rules).
      */
     @Nullable
-    public Map<HornClause, List<WeightedRule>> hornClauses;
+    transient public Map<HornClause, List<WeightedRule>> hornClauses;
 
     public Template() {
-        this.id = "template" + counter++;
+        this.name = "template" + counter++;
         this.rules = new LinkedHashSet<>();
         this.facts = new LinkedHashSet<>();
         this.constraints = new LinkedHashSet<>();
@@ -67,8 +67,8 @@ public class Template implements Model<QueryAtom>, Exportable {
     }
 
     @Override
-    public String getId() {
-        return id;
+    public String getName() {
+        return name;
     }
 
     @Override
@@ -166,6 +166,6 @@ public class Template implements Model<QueryAtom>, Exportable {
 
     @Override
     public String toString() {
-        return id + ", rules: " + rules.size() + ", facts: " + facts.size() + ", constraints: " + constraints.size();
+        return name + ", rules: " + rules.size() + ", facts: " + facts.size() + ", constraints: " + constraints.size();
     }
 }

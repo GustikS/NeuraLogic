@@ -123,7 +123,7 @@ public class NeuralModel implements Model<QueryNeuron> {
     }
 
     @Override
-    public String getId() {
+    public String getName() {
         return null;
     }
 

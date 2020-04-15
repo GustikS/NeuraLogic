@@ -15,7 +15,7 @@ public class TrainingResultTemplateMerge extends Merge<Template, Pair<NeuralMode
     private static final Logger LOG = Logger.getLogger(TrainingResultTemplateMerge.class.getName());
 
     public TrainingResultTemplateMerge() {
-        super("TrainingResultTemplateMerge");
+        super("TrainingResultTemplateMerge", null);
     }
 
     protected Pair<Pair<Template, NeuralModel>, Progress> merge(Template input1, Pair<NeuralModel, Progress> input2) {

@@ -210,7 +210,7 @@ public class Neuralizer implements Exportable {
         LOG.fine("Neurons created: " + neuralNetBuilder.getNeuronMaps());
         neuralNetBuilder.connectAllNeurons(createdNeurons);
         LOG.fine("All neurons connected.");
-        DetailedNetwork neuralNetwork = neuralNetBuilder.finalizeStoredNetwork(groundTemplate.getId(), createdNeurons, queryMatchingLiterals);
+        DetailedNetwork neuralNetwork = neuralNetBuilder.finalizeStoredNetwork(groundTemplate.getName(), createdNeurons, queryMatchingLiterals);
         LOG.fine("Final neural network created: " + neuralNetwork);
         return neuralNetwork;
     }

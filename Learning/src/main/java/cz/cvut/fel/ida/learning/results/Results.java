@@ -54,7 +54,7 @@ public abstract class Results implements Exportable<Results> {
 
     public abstract boolean recalculate();
 
-    public abstract boolean betterThan(Results other);
+    public abstract boolean betterThan(Results other, Settings.ModelSelection criterion);
 
     protected Results(Value meanError){
         this.error = meanError;

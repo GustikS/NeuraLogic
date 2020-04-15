@@ -391,7 +391,7 @@ public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Pai
     }
 
     protected <T extends Model, S extends LearningSample> Merge<List<T>, Crossvalidation<S>, List<Pair<T, Pair<Stream<S>, Stream<S>>>>> emitModelsFolds(Class<T> t, Class<S> s, int foldsCount) {
-        return new Merge<List<T>, Crossvalidation<S>, List<Pair<T, Pair<Stream<S>, Stream<S>>>>>("EmitFoldsWithModels") {
+        return new Merge<List<T>, Crossvalidation<S>, List<Pair<T, Pair<Stream<S>, Stream<S>>>>>("EmitFoldsWithModels", settings) {
             @Override
             protected List<Pair<T, Pair<Stream<S>, Stream<S>>>> merge(List<T> templates, Crossvalidation<S> cv) {
                 List<Pair<T, Pair<Stream<S>, Stream<S>>>> folds = new ArrayList<>(templates.size());

@@ -2,7 +2,6 @@ package cz.cvut.fel.ida.pipelines.building;
 
 import cz.cvut.fel.ida.logic.constructs.building.TemplateBuilder;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
-import cz.cvut.fel.ida.pipelines.debugging.TemplateDebugger;
 import cz.cvut.fel.ida.logic.constructs.template.transforming.MetadataProcessor;
 import cz.cvut.fel.ida.logic.constructs.template.transforming.TemplateReducing;
 import cz.cvut.fel.ida.logic.constructs.template.types.GraphTemplate;
@@ -10,9 +9,12 @@ import cz.cvut.fel.ida.logic.constructs.template.types.ParsedTemplate;
 import cz.cvut.fel.ida.pipelines.Pipe;
 import cz.cvut.fel.ida.pipelines.Pipeline;
 import cz.cvut.fel.ida.pipelines.bulding.AbstractPipelineBuilder;
+import cz.cvut.fel.ida.pipelines.debugging.TemplateDebugger;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.setup.Sources;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.logging.Logger;
 
 public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, Template> {
@@ -33,7 +35,18 @@ public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, 
     @Override
     public Pipeline<Sources, Template> buildPipeline() {
         Pipeline<Sources, Template> pipeline = new Pipeline<>("TemplateProcessingPipeline", this);
-        if (sources.templateProvided) {
+
+        if (sources.binaryTemplateFile != null) {
+            Pipe<Sources, Template> pipe = pipeline.registerStart(new Pipe<Sources, Template>("LoadingBinaryTemplatePipe") {
+                @Override
+                public Template apply(Sources sources) throws IOException, ClassNotFoundException {
+                    ObjectInputStream in = new ObjectInputStream(sources.binaryTemplateFile);
+                    Template tmp = (Template) in.readObject();
+                    return tmp;
+                }
+            });
+            pipeline.registerEnd(pipe);
+        } else if (sources.templateProvided) {
             Pipe<Sources, ParsedTemplate> sourcesTemplatePipe = pipeline.registerStart(extractTemplate(sources));
             Pipe<ParsedTemplate, Template> nextPipe;
             if (settings.processMetadata) {
@@ -61,14 +74,14 @@ public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, 
                 nextPipe1.connectAfter(inferencePipe);
                 nextPipe1 = inferencePipe;
             }
-            if (settings.debugTemplate){
+            if (settings.debugTemplate) {
                 new TemplateDebugger(settings).addDebugElement(pipeline);
             }
-            return pipeline;
         } else {
             LOG.warning("Template extraction from sources requested but no template provided.");
             return null;
         }
+        return pipeline;
     }
 
     protected Pipe<Template, Template> inferFacts() {

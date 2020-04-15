@@ -33,8 +33,8 @@ public class RegressionResults extends Results {
     }
 
     @Override
-    public boolean betterThan(Results other) {
-        return other.error.greaterThan(error);      //now fail sooner than here if no entailed examples! :) -> done, expections throwing propagation
+    public boolean betterThan(Results other, Settings.ModelSelection criterion) {
+        return other.error.greaterThan(error);
     }
 
     public static MeanStdResults aggregateRegressions(List<RegressionResults> resultsList) {

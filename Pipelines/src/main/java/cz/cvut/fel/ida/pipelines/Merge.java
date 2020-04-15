@@ -1,5 +1,7 @@
 package cz.cvut.fel.ida.pipelines;
 
+import cz.cvut.fel.ida.setup.Settings;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -24,8 +26,8 @@ public abstract class Merge<I1, I2, O> extends Block implements ConnectAfter<O> 
      */
     O outputReady;
 
-    public Merge(String id) {
-        ID = id;
+    public Merge(String id, Settings settings) {
+        super(id,settings);
         input1 = new Pipe<I1, I1>(id + "-Input1") {
             @Override
             public I1 apply(I1 i1) throws Exception {
@@ -128,7 +130,7 @@ public abstract class Merge<I1, I2, O> extends Block implements ConnectAfter<O> 
     public List<Merge<I1, I2, O>> parallel(int count) {
         List<Merge<I1, I2, O>> copies = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
-            copies.add(new Merge<I1, I2, O>(this.ID + i) {
+            copies.add(new Merge<I1, I2, O>(ID + i, settings) {
                 @Override
                 protected O merge(I1 input1, I2 input2) {
                     return Merge.this.merge(input1, input2);

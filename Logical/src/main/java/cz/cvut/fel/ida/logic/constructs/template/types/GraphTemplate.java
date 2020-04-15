@@ -22,15 +22,15 @@ public class GraphTemplate extends Template {
     /**
      * Maps any literal from the template to a list of rules with a compatible (subsumable) head
      */
-    public Map<Literal, Set<WeightedRule>> atom2rules;
+    transient public Map<Literal, Set<WeightedRule>> atom2rules;
     /**
      * Set of literals that are simple facts inferred directly from the template
      */
-    Set<Literal> closedAtoms;
+    transient Set<Literal> closedAtoms;
     /**
      * Set of literals that certainly need to be derived from an example (cannot be inferred from the template))
      */
-    Set<Literal> openAtoms;
+    transient Set<Literal> openAtoms;
 
     public GraphTemplate() {
         atom2rules = new HashMap<>();

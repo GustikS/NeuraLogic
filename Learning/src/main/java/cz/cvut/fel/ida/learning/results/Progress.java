@@ -1,5 +1,6 @@
 package cz.cvut.fel.ida.learning.results;
 
+import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 import java.util.LinkedList;
@@ -84,11 +85,11 @@ public class Progress implements Exportable<Progress> {
          * @param other
          * @return
          */
-        public boolean betterThan(TrainVal other, boolean preferBestTrainingNotvalidation) {
+        public boolean betterThan(TrainVal other, boolean preferBestTrainingNotvalidation, Settings.ModelSelection criterion) {
             if (other.validation.evaluations != null && !other.validation.evaluations.isEmpty() && !preferBestTrainingNotvalidation) {
-                return validation.betterThan(other.validation);
+                return validation.betterThan(other.validation, criterion);
             } else {
-                return training.betterThan(other.training);
+                return training.betterThan(other.training, criterion);
             }
         }
     }

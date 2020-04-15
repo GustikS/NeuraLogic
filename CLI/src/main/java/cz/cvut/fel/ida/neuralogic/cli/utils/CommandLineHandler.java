@@ -64,7 +64,7 @@ public class CommandLineHandler {
         OptionGroup evalGroup = new OptionGroup();
         // with test files given
         evalGroup.addOption(new Option("tq", "testQueries", true, "file with test queries (" + settings.testQueriesFile + ")"));
-        evalGroup.addOption(new Option("te", "testExamples", true, "file with test examples (" + settings.testExamplesFile + ")"));
+        options.addOption("te", "testExamples", true, "file with test examples (" + settings.testExamplesFile + ")");
         // with crossvalidation folds given
         evalGroup.addOption(Option.builder("folds").optionalArg(true).longOpt("foldPrefix").numberOfArgs(1).desc("folds folder names prefix (" + settings.foldsPrefix + ")").build());
         // with single file to xval split given

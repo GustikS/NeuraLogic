@@ -43,7 +43,7 @@ public class GroundTemplate extends GraphTemplate implements Example {
 //    public NeuronMaps neuronMaps;   //now move to grounding.GroundingSample for clarity   -> moved
 
     public GroundTemplate() {
-        this.id = "g" + counter++;
+        this.name = "g" + counter++;
     }
 
     public GroundTemplate(LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> groundRules, Map<Literal, ValuedFact> groundFacts) {
@@ -63,8 +63,13 @@ public class GroundTemplate extends GraphTemplate implements Example {
     }
 
     @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
     public String getId() {
-        return id;
+        return getName();
     }
 
     @Override

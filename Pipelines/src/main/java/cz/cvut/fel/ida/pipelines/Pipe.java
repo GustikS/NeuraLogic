@@ -17,15 +17,12 @@ import java.util.logging.Logger;
 public abstract class Pipe<I, O> extends Block implements CheckedFunction<I, O>, ConnectBefore<I>, ConnectAfter<O> {
     private static final Logger LOG = Logger.getLogger(Pipe.class.getName());
 
-
-    protected Pipe(String id) {
-        this(id, null);
+    public Pipe(String id, Settings settings) {
+        super(id, settings);
     }
 
-    protected Pipe(String id, Settings settings) {
-        this.settings = settings;
-        this.ID = id;
-        this.exporter = createExporter(id, settings);
+    protected Pipe(String id) {
+        super(id, null);
     }
 
     /**

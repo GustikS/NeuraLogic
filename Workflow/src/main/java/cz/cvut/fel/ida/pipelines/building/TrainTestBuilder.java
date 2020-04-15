@@ -42,7 +42,7 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
         trainingBuilder = new TrainingBuilder(settings, sources);
         testingBuilder = new TestingBuilder(settings, sources);
 
-        resultsMerge = new Merge<Progress, Results, TrainTestResults>("TrainTestResultsMerge") {
+        resultsMerge = new Merge<Progress, Results, TrainTestResults>("TrainTestResultsMerge", settings) {
             @Override
             protected TrainTestResults merge(Progress train, Results test) {
                 return new TrainTestResults(train, test);
