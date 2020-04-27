@@ -73,6 +73,36 @@ public class Mutagenesis {
         Benchmarking.assertDispersionAndTime(WorkflowUtils.getDisperionAndTime(results), referenceDispersion, referenceTime);
     }
 
+    @TestAnnotations.Slow
+    public void defaultMutagenPerformanceADAM_unifiedTemplate() throws Exception {
+        double referenceDispersion = 0.7510077938552104;
+        Duration referenceTime = Duration.ofMinutes(9);
+
+        Settings settings = Settings.forSlowTest();
+        settings.seed = 0;
+        settings.setOptimizer(Settings.OptimizerSet.ADAM);
+        settings.initLearningRate = 0.00015;
+
+        settings.modelSelection = Settings.ModelSelection.ERROR;
+
+        settings.atomNeuronActivation = Settings.ActivationFcn.TANH;
+        settings.ruleNeuronActivation = Settings.ActivationFcn.TANH;
+
+        settings.resultsRecalculationEpochae = 10;
+//        settings.trainValidationPercentage = 1.0;
+
+        settings.plotProgress = 10;
+
+        settings.crossvalidation = true;
+
+        settings.isoValueCompression = true;
+        settings.chainPruning = true;
+        settings.maxCumEpochCount = 1000;
+
+        Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/mutagenesis", "-t ./templates/template_gnnW10.txt"), settings);
+        Benchmarking.assertDispersionAndTime(WorkflowUtils.getDisperionAndTime(results), referenceDispersion, referenceTime);
+    }
+
 
     /**
      * For mutagenesis better keep lr=0.3 for backward compatibility

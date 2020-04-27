@@ -7,6 +7,8 @@ import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -56,14 +58,32 @@ public abstract class Results implements Exportable<Results> {
 
     public abstract boolean betterThan(Results other, Settings.ModelSelection criterion);
 
-    protected Results(Value meanError){
+    protected Results(Value meanError) {
         this.error = meanError;
     }
 
-    public void printOutputs() {
-        for (Result evaluation : evaluations) {
-            LOG.finer(evaluation.sampleId + " : target: " + evaluation.getTarget() + " output: " + evaluation.getOutput().toDetailedString());
+    public StringBuilder printOutputs(boolean sortByIndex) {
+        if (sortByIndex) {
+            evaluations.sort(new Comparator<Result>() {
+                @Override
+                public int compare(Result o1, Result o2) {
+                    return Integer.compare(o1.position, o2.position);
+                }
+            });
+        } else {
+            Collections.sort(evaluations);  //sort by output (default comparator)
         }
+
+        StringBuilder sb = new StringBuilder();
+        for (Result evaluation : evaluations) {
+            sb.append(evaluation.sampleId);
+            sb.append(" , output: " + evaluation.getOutput().toDetailedString());
+            if (evaluation.getTarget() != null) {
+                sb.append(" , target: " + evaluation.getTarget());
+            }
+            sb.append("\n");
+        }
+        return sb;
     }
 
     private static Aggregation getAggregation(Settings settings) {
@@ -101,6 +121,19 @@ public abstract class Results implements Exportable<Results> {
         }
 
         public abstract Results createFrom(List<Result> outputs);
+    }
+
+    private static class VoidFactory extends Factory {
+
+        public VoidFactory(Settings settings) {
+            super(settings);
+        }
+
+        @Override
+        public Results createFrom(List<Result> outputs) {
+            VoidResults regressionResults = new VoidResults(outputs, settings);
+            return regressionResults;
+        }
     }
 
     private static class RegressionFactory extends Factory {

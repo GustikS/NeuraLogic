@@ -18,6 +18,9 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * A single pass through the dataset only
+ */
 public class StreamTrainingStrategy extends TrainingStrategy {
     private static final Logger LOG = Logger.getLogger(StreamTrainingStrategy.class.getName());
 

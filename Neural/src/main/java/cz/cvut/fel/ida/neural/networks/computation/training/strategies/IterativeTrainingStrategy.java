@@ -4,6 +4,7 @@ import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
 import cz.cvut.fel.ida.algebra.weights.Weight;
+import cz.cvut.fel.ida.learning.LearningSample;
 import cz.cvut.fel.ida.learning.crossvalidation.splitting.Splitter;
 import cz.cvut.fel.ida.learning.results.DetailedClassificationResults;
 import cz.cvut.fel.ida.learning.results.Progress;
@@ -23,16 +24,20 @@ import cz.cvut.fel.ida.neural.networks.computation.training.strategies.trainers.
 import cz.cvut.fel.ida.neural.networks.computation.training.strategies.trainers.SequentialTrainer;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
+import cz.cvut.fel.ida.utils.exporting.TextExporter;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
- *
+ * Classical iterative optimization/learning
  */
 public class IterativeTrainingStrategy extends TrainingStrategy {
     private static final Logger LOG = Logger.getLogger(IterativeTrainingStrategy.class.getName());
@@ -73,6 +78,14 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     }
 
     private Pair<List<NeuralSample>, List<NeuralSample>> trainingValidationSplit(List<NeuralSample> sampleList) {
+        List<NeuralSample> extraValidation = sampleList.stream().filter(s -> s.type == LearningSample.Split.VALIDATION).collect(Collectors.toList());
+        if (!extraValidation.isEmpty()) {
+            LOG.fine("Splitting back the train-validation dataset according to the given input splits");
+            List<NeuralSample> trainOnly = new ArrayList<>(sampleList);
+            trainOnly.removeAll(extraValidation);
+            LOG.fine("Train-set size=" + trainOnly.size() + ", Validation-set size=" + extraValidation.size());
+            return new Pair<>(trainOnly, extraValidation);
+        }
         LOG.info("Preparing the train-validation dataset split with percentage: " + settings.trainValidationPercentage);
         Splitter<NeuralSample> sampleSplitter = Splitter.getSplitter(settings);
         Pair<List<NeuralSample>, List<NeuralSample>> partition = sampleSplitter.partition(sampleList, settings.trainValidationPercentage);
@@ -172,13 +185,12 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         exporter.delimitEnd();
         exporter.finish();
         restartingStrategy.nextRestart();
-        if (LOG.isLoggable(Level.FINER)) {
-            logSampleOutputs();
-        }
     }
 
     protected Pair<NeuralModel, Progress> finish() {
         evaluateModel(bestModel);
+        logSampleOutputs();
+
         super.endTrainingStrategy();    //e.g. restore the world state
         return new Pair<>(bestModel, progress);
     }
@@ -239,10 +251,13 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     private void logSampleOutputs() {
         LOG.finer("Training outputs");
-        progress.getLastTrueResults().training.printOutputs();
+        LOG.finer(progress.getLastTrueResults().training.printOutputs(false).toString());
+        TextExporter.exportString(progress.getLastTrueResults().training.printOutputs(true).toString(), Paths.get(settings.exportDir, "outputs/train" + counter + ".txt"));
+
         if (!progress.getLastTrueResults().validation.isEmpty()) {
             LOG.finer("Validation outputs:");
-            progress.getLastTrueResults().validation.printOutputs();
+            LOG.finer(progress.getLastTrueResults().validation.printOutputs(false).toString());
+            TextExporter.exportString(progress.getLastTrueResults().validation.printOutputs(true).toString(), Paths.get(settings.exportDir, "outputs/val" + counter + ".txt"));
         }
     }
 

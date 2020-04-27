@@ -17,11 +17,11 @@ class DetailedClassificationResultsTest {
         List<Result> resultList = new ArrayList<>();
 
         Result.Factory factory = new Result.Factory(new Settings());
-        resultList.add(factory.create("s1", new ScalarValue(1), new ScalarValue(0.8)));
-        resultList.add(factory.create("s2", new ScalarValue(0), new ScalarValue(0.6)));
-        resultList.add(factory.create("s3", new ScalarValue(1), new ScalarValue(0.7)));
-        resultList.add(factory.create("s4", new ScalarValue(1), new ScalarValue(0.4)));
-        resultList.add(factory.create("s5", new ScalarValue(0), new ScalarValue(0.9)));
+        resultList.add(factory.create("s1",1, new ScalarValue(1), new ScalarValue(0.8)));
+        resultList.add(factory.create("s2",2, new ScalarValue(0), new ScalarValue(0.6)));
+        resultList.add(factory.create("s3",3, new ScalarValue(1), new ScalarValue(0.7)));
+        resultList.add(factory.create("s4",4, new ScalarValue(1), new ScalarValue(0.4)));
+        resultList.add(factory.create("s5",5, new ScalarValue(0), new ScalarValue(0.9)));
         return resultList;
     }
 

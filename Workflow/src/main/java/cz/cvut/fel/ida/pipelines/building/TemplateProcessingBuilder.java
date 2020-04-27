@@ -36,11 +36,11 @@ public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, 
     public Pipeline<Sources, Template> buildPipeline() {
         Pipeline<Sources, Template> pipeline = new Pipeline<>("TemplateProcessingPipeline", this);
 
-        if (sources.binaryTemplateFile != null) {
+        if (sources.binaryTemplateStream != null) {
             Pipe<Sources, Template> pipe = pipeline.registerStart(new Pipe<Sources, Template>("LoadingBinaryTemplatePipe") {
                 @Override
                 public Template apply(Sources sources) throws IOException, ClassNotFoundException {
-                    ObjectInputStream in = new ObjectInputStream(sources.binaryTemplateFile);
+                    ObjectInputStream in = new ObjectInputStream(sources.binaryTemplateStream);
                     Template tmp = (Template) in.readObject();
                     return tmp;
                 }

@@ -57,7 +57,7 @@ public class Settings implements Serializable {
     }
 
     public static String inputFilesSuffix = ".txt";
-//private static String inputFilesSuffix = "";
+//public static String inputFilesSuffix = "";
 
     public static OS getOs() {
         String osName = System.getProperty("os.name").replaceAll("\\s", "");
@@ -198,7 +198,7 @@ public class Settings implements Serializable {
             "NeuralTrainingPipe",       //exports stats from {@link TrainingStrategy} (through ExportingPipe!, default would be Pair<NeuralModel, Progress>)
             "GroundingPipeline",        //exports stats from {@link Grounder} (through ExportingPipe!, default output would be Stream<GroundingSample>)
             "NeuralizationPipeline",    //exports stats from {@link Neuralizer} (through ExportingPipe!, default output would be Stream<NeuralSample>)
-            "LearningPipeline",         //exports Pair<Pair<Template, NeuralModel>, Progress> (default output)  todo this is too big, create TemplateExporter
+//            "LearningPipeline",         //exports Pair<Pair<Template, NeuralModel>, Progress> (default output)  -> replaced with an explicit TemplateExporter
             "LearningSchemePipeline"    //exports PipelineTiming<Results> (default output = Results + Timing due to Pipeline default functionality)
     };
 
@@ -777,6 +777,8 @@ public class Settings implements Serializable {
      */
     public String trainExamplesFile2 = "examples" + inputFilesSuffix;
 
+    public String valExamplesFile = "valExamples" + inputFilesSuffix;
+
     public String testExamplesFile = "testExamples" + inputFilesSuffix;
 
     public String trainQueriesFile = "trainQueries" + inputFilesSuffix;
@@ -784,6 +786,8 @@ public class Settings implements Serializable {
      * Alternative file name
      */
     public String trainQueriesFile2 = "queries" + inputFilesSuffix;
+
+    public String valQueriesFile = "valQueries" + inputFilesSuffix;
 
     public String testQueriesFile = "testQueries" + inputFilesSuffix;
 
@@ -992,7 +996,7 @@ public class Settings implements Serializable {
         if (cmd.hasOption("learnRateDecay")) {
             String _decay = cmd.getOptionValue("learnRateDecay");
             settings.learnRateDecay = Double.parseDouble(_decay);
-            if (settings.learnRateDecay > 0){
+            if (settings.learnRateDecay > 0) {
                 settings.islearnRateDecay = true;
             } else {
                 settings.islearnRateDecay = false;
@@ -1125,7 +1129,7 @@ public class Settings implements Serializable {
             }
         }
 
-        if (cmd.hasOption("preferTraining")){
+        if (cmd.hasOption("preferTraining")) {
             String _sel = cmd.getOptionValue("preferTraining");
             settings.preferBestTrainingNotvalidation = Double.parseDouble(_sel) > 0;
         }

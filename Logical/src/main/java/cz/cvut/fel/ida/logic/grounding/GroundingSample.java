@@ -17,6 +17,8 @@ public class GroundingSample extends LogicSample {
 
     public GroundingSample(LogicSample sample, Template template) {
         super(sample.target, sample.query);
+        this.type = sample.type;
+        this.position = sample.position;
         this.template = template;
         groundingWrap = new Wrap(sample.query.evidence);
     }

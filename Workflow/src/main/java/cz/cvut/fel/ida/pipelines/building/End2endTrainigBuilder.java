@@ -102,7 +102,6 @@ public class End2endTrainigBuilder extends AbstractPipelineBuilder<Sources, Pair
             super(End2endTrainigBuilder.this.settings);
         }
 
-
         @Override
         public Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> buildPipeline() {
             Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> pipeline = new Pipeline<>("End2EndNNbuilding", this);

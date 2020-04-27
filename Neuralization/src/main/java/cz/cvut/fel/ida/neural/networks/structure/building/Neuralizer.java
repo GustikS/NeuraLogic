@@ -110,7 +110,7 @@ public class Neuralizer implements Exportable {
             }
             QueryNeuron queryNeuron = new QueryNeuron(queryAtom.ID, queryAtom.position, queryAtom.importance, atomNeuron, neuralNetwork);
 
-            NeuralProcessingSample neuralProcessingSample = new NeuralProcessingSample(logicSample.target, queryNeuron);
+            NeuralProcessingSample neuralProcessingSample = new NeuralProcessingSample(logicSample.target, queryNeuron, logicSample.type);
             neuralSamples.add(neuralProcessingSample);
         }
 
@@ -151,7 +151,7 @@ public class Neuralizer implements Exportable {
 //        groundingSample.cache = neuralNetBuilder.getNeuronMaps(); //storing the context back again
 
         List<NeuralProcessingSample> samples = queryNeurons.stream()
-                .map(queryNeuron -> new NeuralProcessingSample(groundingSample.target, queryNeuron))
+                .map(queryNeuron -> new NeuralProcessingSample(groundingSample.target, queryNeuron, groundingSample.type))
                 .collect(Collectors.toList());
 
         neuronCounts = createdNeurons.getCounts();

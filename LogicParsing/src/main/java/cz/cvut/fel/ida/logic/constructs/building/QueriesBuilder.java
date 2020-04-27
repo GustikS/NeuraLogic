@@ -1,10 +1,10 @@
 package cz.cvut.fel.ida.logic.constructs.building;
 
+import cz.cvut.fel.ida.algebra.values.ScalarValue;
+import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.logic.constructs.Conjunction;
 import cz.cvut.fel.ida.logic.constructs.example.LogicSample;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
-import cz.cvut.fel.ida.algebra.values.ScalarValue;
-import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.logic.parsing.antlr.NeuralogicParser;
 import cz.cvut.fel.ida.logic.parsing.grammarParsing.PlainGrammarVisitor;
 import cz.cvut.fel.ida.logic.parsing.queries.PlainQueriesParseTree;
@@ -64,19 +64,19 @@ public class QueriesBuilder extends SamplesBuilder<PlainQueriesParseTree, Pair<V
             if (pair.r.getValue() != null) { // has importance set
                 if (pair.r.getValue() instanceof ScalarValue) {
                     final double importance = ((ScalarValue) pair.r.getValue()).value;
-                    return queries.map(f -> new LogicSample(f.getValue(), createQueryAtom(id, importance, f)));
+                    return queries.map(f -> new LogicSample(f.getValue(), createQueryAtom(id, importance, f), true));
                 } else {
                     if (pair.r.getValue() != Value.ONE)
                         LOG.warning("Query with non-scalar target value not supported (yet)");
-                    return queries.map(f -> new LogicSample(f.getValue(), createQueryAtom(id, f)));
+                    return queries.map(f -> new LogicSample(f.getValue(), createQueryAtom(id, f), true));
                 }
             } else {
-                return queries.map(f -> new LogicSample(f.getValue(), createQueryAtom(id, f)));
+                return queries.map(f -> new LogicSample(f.getValue(), createQueryAtom(id, f), true));
             }
         }
 
         String minibatch = String.valueOf(queryCounter);
-        return queries.map(f -> new LogicSample(f.getValue(), createQueryAtom(minibatch, f)));
+        return queries.map(f -> new LogicSample(f.getValue(), createQueryAtom(minibatch, f), true));
     }
 
     private void inferInputFormatSettings(NeuralogicParser.QueriesFileContext queriesFileContext) {

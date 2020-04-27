@@ -26,7 +26,7 @@ public class EColi {
 
         settings.crossvalidation = true;
 
-        settings.maxCumEpochCount = 100000;
+        settings.maxCumEpochCount = 1000;
         settings.plotProgress = 10;
 
         settings.trainValidationPercentage = 0.9;
@@ -65,18 +65,21 @@ public class EColi {
     public void defaultEcoliPerformanceGNN() throws Exception {
         Settings settings = Settings.forSlowTest();
 
-        settings.seed = 1;
-
-        settings.plotProgress = 60;
+        settings.plotProgress = 10;
         settings.setOptimizer(Settings.OptimizerSet.ADAM);
-        settings.maxCumEpochCount = 10000;
+        settings.initLearningRate = 0.0001;
+        settings.maxCumEpochCount = 200;
 
-        settings.appLimitSamples = 10000;
-        settings.isoValueCompression = false;
+        settings.atomNeuronActivation = Settings.ActivationFcn.TANH;
+        settings.ruleNeuronActivation = Settings.ActivationFcn.TANH;
+
+        settings.trainValidationPercentage = 1.0;
+
+        settings.isoValueCompression = true;
         settings.chainPruning = false;
         settings.processMetadata = true;
 
-        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./templates/template_gnnW.txt"), settings);
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./templates/template_gnnW10.txt"), settings);
     }
 
 
@@ -116,5 +119,23 @@ public class EColi {
         settings.appLimitSamples = 10;
 
         Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t " + template), settings);
+    }
+
+    @TestAnnotations.Slow
+    public void trainValTest() throws Exception {
+        Settings settings = Settings.forSlowTest();
+
+        settings.seed = 1;
+        settings.drawing = true;
+        settings.debugPipeline = true;
+        settings.storeNotShow = true;
+        settings.isoValueCompression = false;
+
+//        settings.appLimitSamples = 100;
+
+        settings.maxCumEpochCount = 10;
+        settings.plotProgress = 10;
+
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./templates/template_gnnW10.txt -te ./valExamples.txt -tq ./valQueriesNoTarget.txt"), settings);
     }
 }

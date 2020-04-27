@@ -1,9 +1,9 @@
 package cz.cvut.fel.ida.pipelines.building;
 
+import cz.cvut.fel.ida.learning.results.Progress;
 import cz.cvut.fel.ida.logic.constructs.example.LogicSample;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
 import cz.cvut.fel.ida.logic.grounding.GroundingSample;
-import cz.cvut.fel.ida.learning.results.Progress;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
 import cz.cvut.fel.ida.pipelines.Merge;
@@ -13,6 +13,7 @@ import cz.cvut.fel.ida.pipelines.RecurrentPipe;
 import cz.cvut.fel.ida.pipelines.bulding.AbstractPipelineBuilder;
 import cz.cvut.fel.ida.pipelines.pipes.generic.DuplicateBranch;
 import cz.cvut.fel.ida.pipelines.pipes.generic.FirstFromPairExtractionBranch;
+import cz.cvut.fel.ida.pipelines.pipes.generic.LambdaPipe;
 import cz.cvut.fel.ida.pipelines.pipes.generic.PairMerge;
 import cz.cvut.fel.ida.pipelines.pipes.specific.NeuralTrainingPipe;
 import cz.cvut.fel.ida.pipelines.pipes.specific.TemplateToNeuralPipe;
@@ -44,34 +45,19 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
     public Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> buildPipeline(Sources sources) {
         Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> pipeline = new Pipeline<>("TrainingPipeline", this);
 
-        Pipe<Sources, Source> getTrainSource = pipeline.register(new Pipe<Sources, Source>("getTrainSourcePipe") {
-            @Override
-            public Source apply(Sources sources) {
-                return sources.train;
-            }
-        });
-
-        SamplesProcessingBuilder trainingSamplesProcessor = new SamplesProcessingBuilder(settings, sources.train);
-        Pipeline<Source, Stream<LogicSample>> getLogicSampleStream = pipeline.register(trainingSamplesProcessor.buildPipeline());
-        getTrainSource.connectAfter(getLogicSampleStream);
-
         if (sources.templateProvided) {
-            DuplicateBranch<Sources> duplicateBranch = pipeline.registerStart(new DuplicateBranch<>("TemplateSamplesBranch"));
-            duplicateBranch.connectAfterL(getTrainSource);
-
-            TemplateProcessingBuilder templateProcessor = new TemplateProcessingBuilder(settings, sources);
-            Pipeline<Sources, Template> sourcesTemplatePipeline = pipeline.register(templateProcessor.buildPipeline());
-
-            PairMerge<Template, Stream<LogicSample>> pairMerge = pipeline.register(new PairMerge<>("TemplateSamplesMerge"));
             LogicLearningBuilder logicTrainingBuilder = new LogicLearningBuilder(settings);
             Pipeline<Pair<Template, Stream<LogicSample>>, Pair<Pair<Template, NeuralModel>, Progress>> trainingPipeline = pipeline.registerEnd(logicTrainingBuilder.buildPipeline());
 
-            duplicateBranch.connectAfterR(sourcesTemplatePipeline);
-            pairMerge.connectBeforeL(sourcesTemplatePipeline);
-            pairMerge.connectBeforeR(getLogicSampleStream);
-            pairMerge.connectAfter(trainingPipeline);
+            TemplateSamplesBuilder templateSamplesBuilder = new TemplateSamplesBuilder(sources, settings);
+            Pipeline<Sources, Pair<Template, Stream<LogicSample>>> templateSourcesPipeline = pipeline.registerStart(templateSamplesBuilder.buildPipeline());
+            templateSourcesPipeline.connectAfter(trainingPipeline);
 
         } else { //Structure Learning
+            Pipe<Sources, Source> getTrainSource = pipeline.register(new LambdaPipe<Sources, Source>("getTrainSourcePipe", srcs -> srcs.train, settings));
+            SamplesProcessingBuilder trainingSamplesProcessor = new SamplesProcessingBuilder(settings, sources.train);
+            Pipeline<Source, Stream<LogicSample>> getLogicSampleStream = pipeline.register(trainingSamplesProcessor.buildPipeline());
+            getTrainSource.connectAfter(getLogicSampleStream);
             pipeline.registerStart(getTrainSource);
             Pipeline<Stream<LogicSample>, Pair<Pair<Template, NeuralModel>, Progress>> trainingPipeline = pipeline.registerEnd(new StructureLearningBuilder(settings).buildPipeline());
             getLogicSampleStream.connectAfter(trainingPipeline);
@@ -79,7 +65,6 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
 
         return pipeline;
     }
-
 
 
     /**
@@ -113,7 +98,7 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
             Merge<Template, Pair<NeuralModel, Progress>, Pair<Pair<Template, NeuralModel>, Progress>> finalMerge = pipeline.registerEnd(new Merge<Template, Pair<NeuralModel, Progress>, Pair<Pair<Template, NeuralModel>, Progress>>("ModelMerge", settings) {
                 @Override
                 protected Pair<Pair<Template, NeuralModel>, Progress> merge(Template template, Pair<NeuralModel, Progress> training) {
-                    if (settings.exportTrainedModel){   //the weights are the same objects, so no need to transfer their trained values
+                    if (settings.exportTrainedModel) {   //the weights are the same objects, so no need to transfer their trained values
                         Exporter exporter = Exporter.getExporter(settings.exportDir, "trainedTemplate" + exportNumber++, "JAVA");
                         exporter.export(template);
                     }

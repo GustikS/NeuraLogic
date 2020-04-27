@@ -13,9 +13,19 @@ import java.util.logging.Logger;
 public class LogicSample extends LearningSample<QueryAtom, Object> implements Exportable {
     private static final Logger LOG = Logger.getLogger(LogicSample.class.getName());
 
+    public boolean isQueryOnly;
+
     public LogicSample(Value v, QueryAtom q) {
         this.query = q;
         this.target = v;
+        this.position = q.position;
+    }
+
+    public LogicSample(Value v, QueryAtom q, boolean isQueryOnly) {
+        this.query = q;
+        this.target = v;
+        this.position = q.position;
+        this.isQueryOnly = isQueryOnly;
     }
 
     public static int compare(LogicSample o1, LogicSample o2) {

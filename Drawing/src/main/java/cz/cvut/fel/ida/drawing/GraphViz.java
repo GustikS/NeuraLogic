@@ -216,6 +216,7 @@ public class GraphViz {
         ArrayList<String> args = new ArrayList<>();
         args.add(executable);
         args.add("-T" + imgtype);
+        args.add("-K" + algorithm);
         args.add("-Gdpi=" + dpiSizes[this.currentDpiPos]);
         if (fix2ScreenSize)
             args.add("-Gsize=" + width / dpiSizes[this.currentDpiPos] + "," + height / dpiSizes[this.currentDpiPos] + "\\!");
@@ -332,7 +333,7 @@ public class GraphViz {
             // representation type with -K argument by Olivier Duplouy
             String[] args = {executable, "-T" + type, "-K" + representationType, "-Gdpi=" + dpiSizes[this.currentDpiPos], dot.getAbsolutePath(), "-o", img.getAbsolutePath()};
 
-            Process p = rt.exec(args);  //this is plain dangerous in multithread programs and repeated runs...
+            Process p = rt.exec(args);  //this is plain dangerous in multithreaded programs and repeated runs...
             int i = p.waitFor();
             if (i > 0) {
                 System.err.println(i);

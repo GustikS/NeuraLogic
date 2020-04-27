@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * Container for data sources of train/test Examples, train/test Queries and Template
+ * Container for data sources of train/val/test Examples, train/val/test Queries and Template
  * <p>
  * Created by gusta on 26.3.17.
  */
@@ -30,13 +30,14 @@ public class Sources {
     protected Sources parent;
 
     public Source train;
+    public Source val;
     public Source test;
 
     public transient Reader templateReader;
 
     //----------------INFERRED SETTINGS
     public boolean templateProvided;
-    public transient FileInputStream binaryTemplateFile;
+    public transient FileInputStream binaryTemplateStream;
 
     public boolean foldFiles;   //i.e. external x-val files
 
@@ -81,6 +82,7 @@ public class Sources {
     public Sources(Settings settings) {
         this.settings = settings;
         train = new Source();
+        val = new Source();
         test = new Source();
     }
 
@@ -92,7 +94,7 @@ public class Sources {
             foldFiles = false;
         }
 
-        if (templateReader == null && binaryTemplateFile == null) {
+        if (templateReader == null && binaryTemplateStream == null) {
             templateProvided = false;
             settings.structureLearning = true;
         } else {
@@ -100,6 +102,7 @@ public class Sources {
         }
 
         train.infer(settings);
+        val.infer(settings);
         test.infer(settings);
 
         /*

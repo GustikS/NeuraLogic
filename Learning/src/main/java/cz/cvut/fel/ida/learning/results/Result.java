@@ -21,13 +21,15 @@ public class Result implements Comparable<Result> {
     ErrorFcn errorFcn;
 
     String sampleId;
+    int position;
 
     private Value output;
     private Value target;
 
-    private Result(ErrorFcn errorFcn, String sampleId, Value target, Value output) {
+    private Result(ErrorFcn errorFcn, String sampleId, int position, Value target, Value output) {
         this.errorFcn = errorFcn;
         this.sampleId = sampleId;
+        this.position = position;
         this.setTarget(target);
         this.setOutput(output);
     }
@@ -69,8 +71,8 @@ public class Result implements Comparable<Result> {
             errorFcn = getErrFcn(settings);
         }
 
-        public Result create(String sampleId, Value target, Value output) {
-            Result result = new Result(errorFcn, sampleId, target, output);
+        public Result create(String sampleId, int index, Value target, Value output) {
+            Result result = new Result(errorFcn, sampleId, index, target, output);
             return result;
         }
 

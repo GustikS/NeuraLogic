@@ -9,9 +9,11 @@ import cz.cvut.fel.ida.neural.networks.structure.components.neurons.QueryNeuron;
  */
 public class NeuralSample extends LearningSample<QueryNeuron, Object> {
 
-    public NeuralSample(Value v, QueryNeuron q) {
+    public NeuralSample(Value v, QueryNeuron q, Split type) {
         this.query = q;
         this.target = v;
+        this.type = type;
+        this.position = q.position;
     }
 }
 

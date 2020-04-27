@@ -22,29 +22,28 @@ public class DecayingRate {
 
         settings.setOptimizer(Settings.OptimizerSet.ADAM);
 
-        settings.initializer = Settings.InitSet.GLOROT;
-        settings.initLearningRate = 0.0001;
+        settings.initLearningRate = 0.00001;
 
         settings.islearnRateDecay = false;
         settings.decaySet = Settings.DecaySet.GEOMETRIC;
         settings.decaySteps = 10;
         settings.learnRateDecay = 0.9;
 
-        settings.maxCumEpochCount = 10000;
+        settings.maxCumEpochCount = 1000;
 
         settings.isoValueCompression = true;
         settings.chainPruning = true;
 
 
         settings.ruleNeuronActivation = Settings.ActivationFcn.TANH;
-        settings.atomNeuronActivation = Settings.ActivationFcn.TANH;
+        settings.atomNeuronActivation = Settings.ActivationFcn.SIGMOID;
 
 
-        settings.plotProgress = 5;
+        settings.plotProgress = 15;
         settings.trainValidationPercentage = 0.9;
 
-        settings.appLimitSamples = 200;
+//        settings.appLimitSamples = 200;
 
-        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./templates/gnns/layers/template_gnnW10_l3.txt"), settings);
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./templates/gnns/template_gnnW10_l3.txt"), settings);
     }
 }

@@ -21,13 +21,14 @@ public class SourceFiles extends Sources {
 
     public File template;
     public File trainExamples;
+    public File valExamples;
     public File testExamples;
     public File trainQueries;
+    public File valQueries;
     public File testQueries;
 
     transient private List<Path> subTemplates;
     transient Path mergedTemplatePath;
-
 
     public SourceFiles(String foldId, Settings settings) {
         super(foldId, settings);
@@ -55,11 +56,14 @@ public class SourceFiles extends Sources {
             LOG.info("Queries within train examples file detected via separator " + settings.queryExampleSeparator);
             this.train.QueriesProvided = true;
         }
+        if (checkForSubstring(valExamples, settings.queryExampleSeparator, 2)) {
+            LOG.info("Queries within validation examples file detected via separator " + settings.queryExampleSeparator);
+            this.val.QueriesProvided = true;
+        }
         if (checkForSubstring(testExamples, settings.queryExampleSeparator, 2)) {
             LOG.info("Queries within test examples file detected via separator " + settings.queryExampleSeparator);
             this.test.QueriesProvided = true;
         }
-
 
         super.infer(settings);
     }
@@ -145,7 +149,7 @@ public class SourceFiles extends Sources {
             String fileType = recognizeFileType(template_.toString(), template_, settings);
 
             if (fileType.equals("text/x-java")){
-                binaryTemplateFile = new FileInputStream(template_.toString());
+                binaryTemplateStream = new FileInputStream(template_.toString());
             } else {
                 setupTemplate(template_, foldDir);
             }
@@ -176,6 +180,25 @@ public class SourceFiles extends Sources {
 
         } catch (FileNotFoundException e) {
             LOG.info("There are no train examples");
+        }
+
+        try {
+            if (this.valExamples != null) {
+                settings.valExamplesFile = valExamples.getPath();
+            }
+            String valExamplesPath = cmd.getOptionValue("valExamples", settings.valExamplesFile);
+            File valExamples_ = null;
+            if (valExamplesPath.startsWith("\\.") || settings.sourcePathProvided) {
+                valExamples_ = Paths.get(foldDir.toString(), valExamplesPath).toFile();
+            } else {
+                valExamples_ = Paths.get(valExamplesPath).toFile();
+            }
+            this.val.ExamplesReader = new FileReader(valExamples_);
+            this.valExamples = valExamples_;
+            recognizeFileType(this.valExamples.getAbsolutePath(), valExamples_, settings);
+
+        } catch (FileNotFoundException e) {
+            LOG.info("There are no separate validation examples found.");
         }
 
         try {
@@ -223,6 +246,25 @@ public class SourceFiles extends Sources {
         }
 
         try {
+            if (this.valQueries != null) {
+                settings.valQueriesFile = valQueries.getPath();
+            }
+            String valQueriesPath = cmd.getOptionValue("valQueries", settings.valQueriesFile);
+            File valQueries_;
+            if (valQueriesPath.startsWith("\\.") || settings.sourcePathProvided) {
+                valQueries_ = Paths.get(foldDir.toString(), valQueriesPath).toFile();
+            } else {
+                valQueries_ = Paths.get(valQueriesPath).toFile();
+            }
+            this.val.QueriesReader = new FileReader(valQueries_);
+            this.valQueries = valQueries_;
+            recognizeFileType(this.valQueries.getAbsolutePath(), valQueries_, settings);
+
+        } catch (FileNotFoundException e) {
+            LOG.info("There are no separate validation queries found.");
+        }
+
+        try {
             if (this.testQueries != null) {
                 settings.testQueriesFile = testQueries.getPath();
             }
@@ -263,7 +305,7 @@ public class SourceFiles extends Sources {
 
     private String checkTemplate4Imports(Path toImport, AtomicBoolean changed, File foldDir) throws FileNotFoundException {
         try {
-            if (toImport.startsWith(".")) { //todo next repair relative path finding if subtemplate with import statement came from different folder
+            if (toImport.toString().startsWith(".")) { //todo next repair relative path finding if subtemplate with import statement came from different folder
                 toImport = Paths.get(foldDir + "/" + toImport);
             }
             List<String> strings = Files.readAllLines(toImport);

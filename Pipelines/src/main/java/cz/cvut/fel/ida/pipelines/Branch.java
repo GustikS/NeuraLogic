@@ -70,8 +70,6 @@ public abstract class Branch<I, O1, O2> extends Block implements ConnectBefore<I
         return copies;
     }
 
-    ;
-
     public static <T, A extends Branch<?, T, ?>, B extends ConnectBefore<T>> void connectAfterL(List<A> branches, List<B> next) {
         if (branches.size() != next.size()) {
             LOG.severe("The 2 Lists of branches and pipes provided cannot be connected with different sizes!");

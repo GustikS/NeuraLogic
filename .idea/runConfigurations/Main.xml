@@ -2,7 +2,7 @@
   <configuration default="false" name="Main" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="cz.cvut.fel.ida.neuralogic.cli.Main" />
     <module name="CLI" />
-    <option name="PROGRAM_PARAMETERS" value="-sd ./Resources/datasets/relational/molecules/mutagenesis -iso -1 -prune -1 -ts 500 -opt sgd -lr 0.3" />
+    <option name="PROGRAM_PARAMETERS" value="-sd $PROJECT_DIR$/../../../../souregus/neuralogic/datasets/molecules/e_coli/features -t $PROJECT_DIR$/../../../../souregus/neuralogic/templates/molecules/e_coli/features/gnn/template_gnnW10_l5_separe.txt -ts 10000 -xval 10 -atomf tanh -rulef tanh -lr 0.0001 -out $PROJECT_DIR$/../../../../souregus/neuralogic/experiments/covid/gnn_features/results/molecules/e_coli/features/molecules_e_coli_features_gnn_template_gnnW10_l5_separe.txt/_-ts_10000_-xval_10_-atomf_tanh_-rulef_tanh_-lr_0.0001" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="cz.cvut.fel.ida.neuralogic.cli.dummy.TestBenchmark" />

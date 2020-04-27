@@ -12,8 +12,8 @@ public class NeuralProcessingSample extends NeuralSample {
 
     public DetailedNetwork detailedNetwork;
 
-    public NeuralProcessingSample(Value v, QueryNeuron q) {
-        super(v, q);
+    public NeuralProcessingSample(Value v, QueryNeuron q, Split type) {
+        super(v, q, type);
         try {
             detailedNetwork = (DetailedNetwork) q.evidence;     //todo remove this class cast by refactoring inside grounder
         } catch (ClassCastException e) {

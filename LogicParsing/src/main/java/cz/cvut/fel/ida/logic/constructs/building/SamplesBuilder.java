@@ -124,7 +124,7 @@ public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRu
      */
     private static LogicSample merge2samples(LogicSample q1, LogicSample q2) {
         LogicSample example = q1.query.evidence != null ? q1 : q2;
-        LogicSample query = q1.target != null ? q1 : q2;
+        LogicSample query = q1.isQueryOnly ? q1 : q2;
 
         if (query == example) {
             LOG.severe("Example-Query merging inconsistency: " + q1 + " + " + q2);
