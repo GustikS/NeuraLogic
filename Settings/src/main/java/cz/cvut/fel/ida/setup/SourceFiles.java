@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
@@ -40,13 +41,6 @@ public class SourceFiles extends Sources {
 
     public Boolean validate(Settings settings, StringBuilder problems) {
         Boolean valid = isValid(settings, problems);
-        String msg = "";
-        if (folds != null)
-            for (Sources fold : folds) {
-                Boolean validate = fold.validate(settings, problems);
-                valid &= validate;
-//                problems.append("due to fold: " + foldpair);
-            }
         return valid;
     }
 
@@ -83,34 +77,43 @@ public class SourceFiles extends Sources {
             loadFromJson(sources_);
         }
 
-        if (cmd.hasOption("folds")) {
-
+        if (cmd.hasOption("foldPrefix")) {
             String foldPrefix = cmd.getOptionValue("foldPrefix", settings.foldsPrefix);
-
             if (foldPrefix.contains(File.separator)) {
                 LOG.severe("Invalid folds prefix name, it must not contain file separators: " + foldPrefix);
                 throw new IllegalArgumentException(foldPrefix);
             }
-            setupFromDir(settings, cmd, Paths.get(sourcePath).toAbsolutePath().toFile());
+        }
 
-            crawlFolds(settings, cmd, settings.sourcePath, foldPrefix);
+        File[] foldSubdirs = getFoldSubdirs(settings, cmd, sourcePath);
+        if (foldSubdirs.length > 0) {
+            setupFromDir(settings, cmd, Paths.get(sourcePath).toAbsolutePath().toFile());
+            crawlFolds(settings, cmd, sourcePath);
         } else {
             setupFromDir(settings, cmd, Paths.get(sourcePath).toAbsolutePath().toFile());
         }
     }
 
-    private void crawlFolds(Settings settings, CommandLine cmd, String path, String prefix) {
-        File dir = new File(path);
-        File[] foldDirs = dir.listFiles((dir1, name) -> name.startsWith(prefix));
+    private File[] getFoldSubdirs(Settings settings, CommandLine cmd, String sourcePath) {
+        File dir = new File(sourcePath);
+        File[] foldDirs = dir.listFiles((dir1, name) -> name.startsWith(cmd.getOptionValue("foldPrefix", settings.foldsPrefix)));
+        return foldDirs;
+    }
+
+    private void crawlFolds(Settings settings, CommandLine cmd, String path) {
+        File[] foldDirs = getFoldSubdirs(settings, cmd, path);
         this.folds = new ArrayList<>();
         int i = 0;
-        for (File foldDir : foldDirs) {
-            SourceFiles sFold = new SourceFiles("fold" + i++, settings);
-            sFold.parent = this;
-            sFold.setupFromDir(settings, cmd, foldDir);
-            this.folds.add(sFold);
-            // recursive setup call on this fold sources object
-            sFold.crawlFolds(settings, cmd, Paths.get(path, foldDir.toString()).toString(), prefix);
+        if (foldDirs != null) {
+            Arrays.sort(foldDirs);
+            for (File foldDir : foldDirs) {
+                SourceFiles sFold = new SourceFiles(foldDir.getName(), settings);
+                sFold.parent = this;
+                sFold.setupFromDir(settings, cmd, foldDir);
+                this.folds.add(sFold);
+                // recursive setup call on this fold sources object
+                sFold.crawlFolds(settings, cmd, Paths.get(path, foldDir.toString()).toString());
+            }
         }
     }
 
@@ -132,7 +135,7 @@ public class SourceFiles extends Sources {
             File template_;
 
             File templ = sanitizePath(settings, cmd, foldDir, sanitizeTempl(templatePath));
-            mergedTemplatePath = Paths.get( templ + settings.mergedTemplatesSuffix + this.foldId);
+            mergedTemplatePath = Paths.get(templ + settings.mergedTemplatesSuffix + this.foldId);
 
             if (templatePath.contains(",")) {
                 LOG.warning("There are multiple templates, will try to merge them first");
@@ -146,12 +149,14 @@ public class SourceFiles extends Sources {
                 template_ = getTemplate(settings, cmd, foldDir, templatePath);
             }
 
-            String fileType = recognizeFileType(template_.toString(), template_, settings);
+            if (template_ != null) {
+                String fileType = recognizeFileType(template_.toString(), template_, settings);
 
-            if (fileType.equals("text/x-java")){
-                binaryTemplateStream = new FileInputStream(template_.toString());
-            } else {
-                setupTemplate(template_, foldDir);
+                if (fileType.equals("text/x-java")) {
+                    binaryTemplateStream = new FileInputStream(template_.toString());
+                } else {
+                    setupTemplate(template_, foldDir);
+                }
             }
 
         } catch (IOException e) {
@@ -299,7 +304,7 @@ public class SourceFiles extends Sources {
             Files.write(mergedTemplatePath, content.getBytes());
             template_ = mergedTemplatePath.toFile();
         }
-        this.templateReader = new FileReader(template_);
+        this.setTemplateReader(new FileReader(template_));
         this.template = template_;
     }
 
@@ -362,14 +367,15 @@ public class SourceFiles extends Sources {
         File template_ = sanitizePath(settings, cmd, foldDir, templatePath);
 
         if (template_.exists()) {
-            if (parent != null && parent.templateReader != null) {
+            if (parent != null && parent.getTemplateReader() != null) {
                 LOG.warning("Inconsistent setting - there are templates both in parent folder and fold folder (don't know which one to use)");
             }
             return template_;
         } else {
             // if no template is provided in current folder, take the one from the parent folder
             if (parent != null) {
-                this.templateReader = parent.templateReader;
+                this.setTemplateReader(parent.getTemplateReader());
+                this.template = ((SourceFiles) parent).template;
                 return null;
             } else {
                 LOG.finer("Could not find template file in " + template_ + ", will try to use " + foldDir.toString() + "/" + settings.templateFile2 + " file for the same purpose");
@@ -498,4 +504,19 @@ public class SourceFiles extends Sources {
         return fileType;
     }
 
+    @Override
+    public Reader getTemplateReader() {
+        try {
+            if (!super.getTemplateReader().ready()) {
+                this.setTemplateReader(new FileReader(template));
+            }
+        } catch (IOException e) {
+            try {
+                this.setTemplateReader(new FileReader(template));
+            } catch (FileNotFoundException e1) {
+                e1.printStackTrace();
+            }
+        }
+        return super.getTemplateReader();
+    }
 }

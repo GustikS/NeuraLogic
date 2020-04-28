@@ -11,6 +11,7 @@ import cz.cvut.fel.ida.pipelines.Pipeline;
 import cz.cvut.fel.ida.pipelines.bulding.AbstractPipelineBuilder;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.setup.Source;
+import cz.cvut.fel.ida.setup.Sources;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,17 +21,29 @@ import java.util.stream.Stream;
 
 public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, Stream<LogicSample>> {
     private static final Logger LOG = Logger.getLogger(SamplesProcessingBuilder.class.getName());
+
     private Source source;
+
+    private Sources sources;
+
+    int counter = 0;
 
     public SamplesProcessingBuilder(Settings settings, Source source) {
         super(settings);
         this.source = source;
     }
 
+    public SamplesProcessingBuilder(Settings settings, Sources sources) {
+        super(settings);
+        this.sources = sources;
+    }
 
     @Override
     public Pipeline<Source, Stream<LogicSample>> buildPipeline() {
-        return buildPipeline(this.source);
+        if (sources != null) {
+            return buildPipeline(sources.folds.get(counter++).getTrainOrTest());
+        } else
+            return buildPipeline(this.source);
     }
 
     public Pipeline<Source, Stream<LogicSample>> buildPipeline(Source source) {

@@ -146,6 +146,7 @@ public abstract class Pipe<I, O> extends Block implements CheckedFunction<I, O>,
                     return Pipe.this.apply(i);  //TODO check if working correctly
                 }
             };
+            copies.add(clone);
         }
         return copies;
     }

@@ -13,9 +13,9 @@ jarname = "NeuraLogic.jar"
 # %% experiment-specific setup = single file
 class ExperimentSetup():
 
-    def __init__(self, experiment_id, params="", template="template_vector_cross",
-                 dataset="jair/mutagenesis", memory_max="32g", walltime="48:00:00", template_per_dataset=True,
-                 user="souregus"):
+    def __init__(self, experiment_id, params="", template="",
+                 dataset="jair/mutagenesis", memory_max="32g", walltime="48:00:00", template_per_dataset=False,
+                 user="kuzelon2", python=False, python_env="pytorch14", python_script="run_experiment.py"):
 
         self.user = user
         self.experiment_id = experiment_id
@@ -23,9 +23,14 @@ class ExperimentSetup():
         self.dataset = dataset
         self.dataset_id = dataset.replace("/", "_").replace(" ", "")
 
+        self.python = python
+        self.python_env = python_env
+        self.python_script = python_script
+
         # template setup
         self.template = template
-        self.template_id = template.replace("/", "_").replace(" ", "")
+        if template:
+            self.template_id = template.replace("/", "_").replace(" ", "")
         self.template_per_dataset = template_per_dataset
 
         # neuralogic params
@@ -65,7 +70,7 @@ class ExperimentSetup():
         self.remote_path = self.server + "/home/" + self.user + "/neuralogic/"
         self.dataset_path_remote = self.remote_path + "datasets/" + self.dataset
         # self.jarpath_remote = self.remote_path + "experiments/" + self.experiment_id + "/artifacts/"
-        self.jarpath_remote = self.remote_path
+        self.root_path_remote = self.remote_path
 
         if self.template_per_dataset:
             self.template_path_remote = os.path.join(self.remote_path, "templates", self.dataset, self.template)
@@ -77,11 +82,20 @@ class ExperimentSetup():
 
     def finish_script(self):
 
-        decreased_memory = str(int(self.memory_max[0:self.memory_max.find("g")]) - 2) + "g"
-        self.script_code += "java -XX:+UseSerialGC -XX:-BackgroundCompilation -XX:NewSize=2000m -Xms" + self.memory_min + " -Xmx" + decreased_memory + \
-                            " -jar " + self.jarpath_remote + jarname + " -sd " + self.dataset_path_remote + " -t " + self.template_path_remote + \
-                            self.params + \
-                            " -out " + self.export_path
+        self.script_code += "cd " + self.root_path_remote + "\n"
+
+        if self.python:
+            self.script_code += "ml Anaconda3" + "\n"
+            self.script_code += "source /mnt/appl/software/Anaconda3/2019.07/etc/profile.d/conda.sh" + "\n"    # this is because default use conda conda throws error in subshells
+            self.script_code += "conda activate " + self.python_env + "\n"
+            self.script_code += "python3 " + self.python_script + " -sd " + self.dataset_path_remote + self.params + " -out " + self.export_path
+        else:
+            decreased_memory = str(
+                int(self.memory_max[0:self.memory_max.find("g")]) - 1) + "g"
+            self.script_code += "java -XX:+UseSerialGC -XX:-BackgroundCompilation -XX:NewSize=2000m -Xms" + self.memory_min + " -Xmx" + decreased_memory + \
+                                " -jar " + self.root_path_remote + jarname + " -sd " + self.dataset_path_remote + " -t " + self.template_path_remote + \
+                                self.params + \
+                                " -out " + self.export_path
 
 
 class MetacentrumExperimentSetup(ExperimentSetup):
@@ -95,9 +109,9 @@ class MetacentrumExperimentSetup(ExperimentSetup):
         self.script_code += "#PBS -l walltime=" + self.walltime + "\n\n"
         # self.script_code += "#PBS -q global@cerit-pbs.cerit-sc.cz\n\n"
 
-        self.script_code += "cd " + self.jarpath_remote + "\n"
-        self.script_code += "module add jdk-8\n"
-        self.script_code += "sleep 30\n"
+        if not self.python:
+            self.script_code += "module add jdk-8\n"
+            self.script_code += "sleep 30\n"
 
         self.finish_script()
 
@@ -120,8 +134,8 @@ class RciExperimentSetup(ExperimentSetup):
         self.script_code += "#SBATCH --cpus-per-task=" + self.cpus + "\n"
         self.script_code += "#SBATCH --mem=" + self.memory_max + "\n"
 
-        self.script_code += "cd " + self.jarpath_remote + "\n"
-        self.script_code += "ml Java/1.8.0_202 \n"
+        if not self.python:
+            self.script_code += "ml Java/1.8.0_202 \n"
 
         self.finish_script()
 
@@ -134,17 +148,25 @@ class GridSetup():
     local_templates_path = "/home/gusta/data/templates/"
     local_output_path = "/home/gusta/data/experiments/"
 
-    def __init__(self, experiment_id, param_ranges={}, datasets="jair", templates=["template_vector_cross"],
-                 memory_max="32g", walltime="48:00:00", rci=False, template_per_dataset=True, user="souregus"):
+    def __init__(self, experiment_id, param_ranges={}, datasets="jair", templates=[],
+                 memory_max="32g", walltime="48:00:00", rci=False, template_per_dataset=True, user="souregus",
+                 python=False, python_env="pytorch14", python_script="run_experiment.py"):
 
         self.user = user
         self.experiment_id = experiment_id
         self.output_path = self.local_output_path + self.experiment_id
 
+        self.python = python
+        self.python_env = "/home/" + user + "/neuralogic/anaconda/" + python_env
+        self.python_script = python_script
+
         self.datasets, self.local_dataset_paths = self.load_datasets(datasets)
         self.template_per_dataset = template_per_dataset  # each dataset has own template?
 
-        self.templates = self.load_templates(templates)
+        if templates:
+            self.templates = self.load_templates(templates)
+        else:
+            self.templates = ["Default"]
 
         self.walltime = walltime
         self.memory_max = memory_max
@@ -175,7 +197,8 @@ class GridSetup():
             return datasets, [os.path.join(self.local_datasets_path, dataset) for dataset in datasets]
         dataset_list = []
         for dataset in listdir(os.path.join(self.local_datasets_path, datasets)):
-            dataset_list.append(os.path.join(datasets, dataset))
+            if not dataset.startswith("_"):
+                dataset_list.append(os.path.join(datasets, dataset))
         return dataset_list, [os.path.join(self.local_datasets_path, dataset) for dataset in dataset_list]
 
     def generate_grid(self, param_ranges: {}, current_list, param_lists):
@@ -213,13 +236,19 @@ class GridSetup():
                                       template, dataset,
                                       self.memory_max, self.walltime,
                                       self.template_per_dataset,
-                                      self.user)
+                                      self.user,
+                                      self.python,
+                                      self.python_env,
+                                      self.python_script)
         else:
             return MetacentrumExperimentSetup(self.experiment_id, param_list,
                                               template, dataset,
                                               self.memory_max, self.walltime,
                                               self.template_per_dataset,
-                                              self.user)
+                                              self.user,
+                                              self.python,
+                                              self.python_env,
+                                              self.python_script)
 
     def export_experiments(self, experiments: [ExperimentSetup]):
         script_files = []
@@ -236,8 +265,9 @@ class GridSetup():
             with open(script_path, 'w') as f:
                 f.write(experiment.script_code)
 
-            script_files.append(os.path.join(experiment.remote_path, "experiments", experiment.experiment_id, "scripts",
-                                             experiment.dataset_id + "_" + experiment.template_id + "_" + experiment.params_id + ".sh"))
+            script_files.append(
+                os.path.join(experiment.remote_path, "experiments", experiment.experiment_id, "scripts",
+                             experiment.dataset_id + "_" + experiment.template_id + "_" + experiment.params_id + ".sh"))
 
         if self.rci:
             cmd = "sbatch "

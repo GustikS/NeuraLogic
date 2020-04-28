@@ -27,13 +27,14 @@ public class Sources {
      * TODO - test this behavior
      */
     public List<Sources> folds;
-    protected Sources parent;
+    transient protected Sources parent;
 
     public Source train;
     public Source val;
     public Source test;
 
-    public transient Reader templateReader;
+    private transient Reader templateReader;
+    public boolean commonTemplate;
 
     //----------------INFERRED SETTINGS
     public boolean templateProvided;
@@ -87,18 +88,25 @@ public class Sources {
     }
 
     public void infer(Settings settings) {
-        if (folds != null) {
+        if (folds != null && !folds.isEmpty()) {
             foldFiles = true;
             crossvalidation = true;
+            settings.foldsCount = folds.size();
+            for (Sources fold : folds) {
+                fold.infer(settings);
+            }
         } else {
             foldFiles = false;
         }
 
-        if (templateReader == null && binaryTemplateStream == null) {
+        if (getTemplateReader() == null && binaryTemplateStream == null) {
             templateProvided = false;
             settings.structureLearning = true;
         } else {
             templateProvided = true;
+            if (folds != null && !folds.isEmpty()) {
+                commonTemplate = true;
+            }
         }
 
         train.infer(settings);
@@ -153,18 +161,18 @@ public class Sources {
         infer(settings);
         String msg;
 
-        if (!settings.allowStructureLearning && !templateProvided){
+        if (!settings.allowStructureLearning && !templateProvided) {
             LOG.severe(msg = "Structure learning is forbidden (not implemented) but no template provided\n");
             problems.append(msg);
             valid = false;
         }
 
-        if (!train.QueriesProvided && !test.QueriesProvided && folds == null) {
-            LOG.severe(msg = "Invalid learning setup - no training queries nor testing queries provided\n");
+        if (!train.QueriesProvided && !test.QueriesProvided && (folds == null || folds.isEmpty())) {
+            LOG.severe(msg = "Invalid learning setup - no training queries nor testing queries provided " + this.foldId + " \n");
             problems.append(msg);
             valid = false;
         }
-        if (templateReader == null && train.QueriesReader == null && test.QueriesReader == null) {
+        if (getTemplateReader() == null && train.QueriesReader == null && test.QueriesReader == null) {
             LOG.severe(msg = "Invalid learning setup - no template nor queries provided\n");
             problems.append(msg);
             valid = false;
@@ -195,7 +203,17 @@ public class Sources {
      */
     private boolean checkJointConsistency(List<Sources> folds, StringBuilder problems) {
         //1) all folds have different templates is OK, but some have and some not is not ok, none have is ok, only superfold has template is ok
-        return true;
+        boolean valid = true;
+        for (int i = 1; i < folds.size(); i++) {
+            if (folds.get(i).templateProvided != folds.get(i - 1).templateProvided) {
+                problems.append("Some folds provide a template while others do not - this is ambiguous.");
+                valid = false;
+            }
+        }
+        for (Sources fold : folds) {
+            valid &= fold.validate(settings, problems);
+        }
+        return valid;
     }
 
 
@@ -230,5 +248,23 @@ public class Sources {
                 .create();
         String json = gson.toJson(this);
         return json;
+    }
+
+    public Reader getTemplateReader() {
+        return templateReader;
+    }
+
+    public void setTemplateReader(Reader templateReader) {
+        this.templateReader = templateReader;
+    }
+
+    public Source getTrainOrTest() {
+        if (testOnly) {
+            return test;
+        } else if (trainOnly) {
+            return train;
+        } else {
+            throw new RuntimeException("Invalid setup of files in folds (ambiguous train vs. test)");
+        }
     }
 }

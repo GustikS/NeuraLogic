@@ -99,7 +99,7 @@ public class TrainingBuilder extends AbstractPipelineBuilder<Sources, Pair<Pair<
                 @Override
                 protected Pair<Pair<Template, NeuralModel>, Progress> merge(Template template, Pair<NeuralModel, Progress> training) {
                     if (settings.exportTrainedModel) {   //the weights are the same objects, so no need to transfer their trained values
-                        Exporter exporter = Exporter.getExporter(settings.exportDir, "trainedTemplate" + exportNumber++, "JAVA");
+                        Exporter exporter = Exporter.getExporter(settings.exportDir, "/models/trainedTemplate" + exportNumber++, "JAVA");
                         exporter.export(template);
                     }
                     return new Pair<>(new Pair<>(template, training.r), training.s);

@@ -74,19 +74,19 @@ public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Pai
                 foldsBranch.connectAfter(trainTestPipelines);
                 resultsMultiMerge.connectBefore(trainTestPipelines);
 
-            } else if (sources.folds.stream().allMatch(fold -> fold.testOnly)) { //train-test folds need to be assembled first from provided test-sets
+            } else if (sources.folds.stream().allMatch(fold -> (fold.testOnly || fold.trainOnly))) { //train-test folds need to be assembled first from provided test-sets
 
-                List<Pipe<Sources, Source>> testFoldPipes = new Pipe<Sources, Source>("GetTestFold") {
+                List<Pipe<Sources, Source>> singleFoldPipes = new Pipe<Sources, Source>("GetSingleSplit") {
                     @Override
                     public Source apply(Sources sources) {
-                        return sources.test;
+                        return sources.getTrainOrTest();
                     }
                 }.parallel(sources.folds.size());
-                testFoldPipes.forEach(pipeline::register);
+                singleFoldPipes.forEach(pipeline::register);
 
-                List<Pipeline<Source, Stream<LogicSample>>> samplesExtract = new SamplesProcessingBuilder(settings, sources.folds.get(0).test).buildPipelines(sources.folds.size());
+                List<Pipeline<Source, Stream<LogicSample>>> samplesExtract = new SamplesProcessingBuilder(settings, sources).buildPipelines(sources.folds.size());
                 samplesExtract.forEach(pipeline::register);
-                Pipe.connect(testFoldPipes, samplesExtract);
+                Pipe.connect(singleFoldPipes, samplesExtract);
 
                 if (sources.templateProvided) { //standard learning with a provided template - prepare for template processing
 
@@ -96,13 +96,13 @@ public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Pai
                     Pipeline<Sources, Template> sourcesTemplatePipeline = null;
                     List<Pipeline<Sources, Template>> sourcesTemplatePipelines = null;
 
-                    if (settings.commonTemplate) { //there is a single template common to all the provided folds - process it
+                    if (sources.commonTemplate) { //there is a single template common to all the provided folds - process it
 
                         sourcesTemplatePipeline = pipeline.register(templateProcessor.buildPipeline());
 
                         duplicateOrigin.connectAfterL(sourcesTemplatePipeline);
                         duplicateOrigin.connectAfterR(foldsBranch);
-                        foldsBranch.connectAfter(testFoldPipes);
+                        foldsBranch.connectAfter(singleFoldPipes);
 
                     } else { //there are possibly different templates provided separately for each of the folds - process them in parallel together with the corresponding test-sets
 
@@ -114,7 +114,7 @@ public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Pai
                         pipeline.registerStart(foldsBranch);
 
                         foldsBranch.connectAfter(parallelSourcesDuplicates);
-                        Branch.connectAfterL(parallelSourcesDuplicates, testFoldPipes);
+                        Branch.connectAfterL(parallelSourcesDuplicates, singleFoldPipes);
                         Branch.connectAfterR(parallelSourcesDuplicates, sourcesTemplatePipelines);
                     }
 
@@ -127,7 +127,7 @@ public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Pai
                         MultiMerge<Stream<LogicSample>, Crossvalidation<LogicSample>> logicCrossvalidation = pipeline.register(assembleCV(LogicSample.class, sources.folds.size()));
                         logicCrossvalidation.connectBefore(samplesExtract);
 
-                        if (settings.commonTemplate) { //common template for all folds - no need to copy here since there's no grounding or preprocessing into neural
+                        if (sources.commonTemplate) { //common template for all folds - no need to copy here since there's no grounding or preprocessing into neural
 
                             PairMerge<Template, Crossvalidation<LogicSample>> templateCVmerge = pipeline.register(new PairMerge<>());
                             templateCVmerge.connectBeforeL(sourcesTemplatePipeline);
@@ -148,7 +148,6 @@ public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Pai
                             ListBranch<Pair<Template, Pair<Stream<LogicSample>, Stream<LogicSample>>>> modelsFoldsBranch = pipeline.register(new ListBranch<>(sources.folds.size(), settings));
                             mergeCVtemplates.connectAfter(modelsFoldsBranch);
                             modelsFoldsBranch.connectAfter(logicTrainTestPipelines);
-
                         }
 
                     } else { //ground all test-sets independently, then assemble CV folds <- most efficient mode (no repeated grounding of the same sample). Explicit grounding and transforming to Neural representation here
@@ -175,7 +174,7 @@ public class CrossvalidationBuilder extends AbstractPipelineBuilder<Sources, Pai
                         Pipe.connect(templateSamplesMerges, groundingPipelines);
 
 
-                        if (settings.commonTemplate) { //process the single template to neural model and duplicate it to each of the folds, merge into crossval
+                        if (sources.commonTemplate) { //process the single template to neural model and duplicate it to each of the folds, merge into crossval
 
                             DuplicateBranch<Template> duplicateTemplate = pipeline.register(new DuplicateBranch<>());
                             TemplateToNeuralPipe templateToNeuralPipe = pipeline.register(new TemplateToNeuralPipe(settings));

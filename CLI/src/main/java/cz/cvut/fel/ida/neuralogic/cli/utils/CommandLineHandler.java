@@ -46,6 +46,9 @@ public class CommandLineHandler {
         options.addOption("q", "trainQueries", true, "trainQueries file containing labeled queries (" + settings.trainQueriesFile + ")");
         options.addOption("e", "trainExamples", true, "trainExamples file containing, possibly labeled, input facts (" + settings.trainExamplesFile + ")");
 
+        options.addOption("vq", "valQueries", true, "valQueries file containing labeled queries (" + settings.valQueriesFile + ")");
+        options.addOption("ve", "valExamples", true, "valExamples file containing, possibly labeled, input facts (" + settings.valExamplesFile + ")");
+
         //-----------settings
 
         options.addOption("set", "settingsFile", true, "path to json file with all the settings (" + settings.settingsFile + ")");
@@ -66,7 +69,7 @@ public class CommandLineHandler {
         evalGroup.addOption(new Option("tq", "testQueries", true, "file with test queries (" + settings.testQueriesFile + ")"));
         options.addOption("te", "testExamples", true, "file with test examples (" + settings.testExamplesFile + ")");
         // with crossvalidation folds given
-        evalGroup.addOption(Option.builder("folds").optionalArg(true).longOpt("foldPrefix").numberOfArgs(1).desc("folds folder names prefix (" + settings.foldsPrefix + ")").build());
+        evalGroup.addOption(Option.builder("fp").optionalArg(true).longOpt("foldPrefix").numberOfArgs(1).desc("folds folder names prefix (" + settings.foldsPrefix + ")").build());
         // with single file to xval split given
         evalGroup.addOption(new Option("xval", "crossvalidation", true, "number of folds to split for crossvalidation (" + settings.foldsCount + ")"));
         options.addOptionGroup(evalGroup);

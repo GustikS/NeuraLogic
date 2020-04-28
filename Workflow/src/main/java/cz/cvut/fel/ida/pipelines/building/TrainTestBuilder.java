@@ -1,11 +1,10 @@
 package cz.cvut.fel.ida.pipelines.building;
 
-import cz.cvut.fel.ida.logic.constructs.example.LogicSample;
-import cz.cvut.fel.ida.logic.constructs.template.Template;
-import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.learning.crossvalidation.TrainTestResults;
 import cz.cvut.fel.ida.learning.results.Progress;
 import cz.cvut.fel.ida.learning.results.Results;
+import cz.cvut.fel.ida.logic.constructs.example.LogicSample;
+import cz.cvut.fel.ida.logic.constructs.template.Template;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
 import cz.cvut.fel.ida.pipelines.Merge;
@@ -18,6 +17,7 @@ import cz.cvut.fel.ida.pipelines.pipes.generic.PairMerge;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.setup.Source;
 import cz.cvut.fel.ida.setup.Sources;
+import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -30,17 +30,14 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
     private static final Logger LOG = Logger.getLogger(TrainTestBuilder.class.getName());
     private final Sources sources;
 
-    TrainingBuilder trainingBuilder;
-    TestingBuilder testingBuilder;
-
     Merge<Progress, Results, TrainTestResults> resultsMerge;
+
+    int counter = 0;
 
     public TrainTestBuilder(Settings settings, Sources sources) {
         super(settings);
         this.sources = sources;
 
-        trainingBuilder = new TrainingBuilder(settings, sources);
-        testingBuilder = new TestingBuilder(settings, sources);
 
         resultsMerge = new Merge<Progress, Results, TrainTestResults>("TrainTestResultsMerge", settings) {
             @Override
@@ -52,7 +49,10 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
 
     @Override
     public Pipeline<Sources, TrainTestResults> buildPipeline() {
-        return buildPipeline(sources);
+        if (sources.folds != null) {
+            return buildPipeline(sources.folds.get(counter++));
+        } else
+            return buildPipeline(sources);
     }
 
     public Pipeline<Sources, TrainTestResults> buildPipeline(Sources sources) {
@@ -65,6 +65,11 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
                 return sources.test;
             }
         });
+
+
+        TrainingBuilder trainingBuilder = new TrainingBuilder(settings, sources);
+        TestingBuilder testingBuilder = new TestingBuilder(settings, sources);
+
 
         Pipeline<Sources, Pair<Pair<Template, NeuralModel>, Progress>> trainingPipeline = pipeline.register(trainingBuilder.buildPipeline());
         PairBranch<Pair<Template, NeuralModel>, Progress> pairBranch1 = pipeline.register(new PairBranch<>());
@@ -113,6 +118,9 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
             PairMerge<Pair<Template, NeuralModel>, Stream<LogicSample>> testMerge = pipeline.register(new PairMerge<>());
             PairBranch<Pair<Template, NeuralModel>, Progress> trainResultsBranch = pipeline.register(new PairBranch<>());
 
+            TrainingBuilder trainingBuilder = new TrainingBuilder(settings, sources);
+            TestingBuilder testingBuilder = new TestingBuilder(settings, sources);
+
             Pipeline<Pair<Template, Stream<LogicSample>>, Pair<Pair<Template, NeuralModel>, Progress>> trainingPipeline = pipeline.register(trainingBuilder.new LogicLearningBuilder(settings).buildPipeline());
 
             Pipeline<Pair<Pair<Template, NeuralModel>, Stream<LogicSample>>, Results> testingPipeline = pipeline.register(testingBuilder.new LogicTestingBuilder(settings).buildPipeline());
@@ -154,6 +162,8 @@ public class TrainTestBuilder extends AbstractPipelineBuilder<Sources, TrainTest
 
             PairBranch<Stream<LogicSample>, Stream<LogicSample>> trainTestBranch = pipeline.registerStart(new PairBranch<>());
             Pipeline<Stream<LogicSample>, Pair<Pair<Template, NeuralModel>, Progress>> trainingPipeline = pipeline.register(new TrainingBuilder.StructureLearningBuilder(settings).buildPipeline());
+
+            TestingBuilder testingBuilder = new TestingBuilder(settings, sources);
 
             Pipeline<Pair<Pair<Template, NeuralModel>, Stream<LogicSample>>, Results> testingPipeline = pipeline.register(testingBuilder.new LogicTestingBuilder(settings).buildPipeline());
 

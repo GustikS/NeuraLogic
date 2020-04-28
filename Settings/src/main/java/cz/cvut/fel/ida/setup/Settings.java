@@ -791,7 +791,7 @@ public class Settings implements Serializable {
 
     public String testQueriesFile = "testQueries" + inputFilesSuffix;
 
-    public String foldsPrefix = "fold";
+    public String foldsPrefix = "fold_";
 
     public String queryExampleSeparator = ":-";
 
@@ -819,11 +819,6 @@ public class Settings implements Serializable {
      * If so, then many operations (e.g. grounding) will be unnecessarily repeated for these common subsets.
      */
     public boolean trainFoldsIsolation = false;
-
-    /**
-     * Same template provided for all folds?
-     */
-    public boolean commonTemplate;
 
     //----------------Template Transformations
 

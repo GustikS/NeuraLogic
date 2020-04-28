@@ -25,6 +25,7 @@ from pandas.core.dtypes.common import is_numeric_dtype
 convert = {
     "train": [
         ["NeuralTrainingPipe", "progress", "bestResults", "training", "bestAccuracy"],
+        ["NeuralTrainingPipe", "progress", "bestResults", "training", "accuracy"],
         ["NeuralTrainingPipe", "progress", "bestResults", "training", "dispersion"],
         ["NeuralTrainingPipe", "progress", "bestResults", "training", "AUCroc"],
         ["NeuralTrainingPipe", "progress", "bestResults", "training", "AUCpr"]
@@ -38,6 +39,7 @@ convert = {
     # ],
 
     "val": [["NeuralTrainingPipe", "progress", "bestResults", "validation", "bestAccuracy"],
+            ["NeuralTrainingPipe", "progress", "bestResults", "validation", "accuracy"],
             ["NeuralTrainingPipe", "progress", "bestResults", "validation", "dispersion"],
             ["NeuralTrainingPipe", "progress", "bestResults", "validation", "AUCroc"],
             ["NeuralTrainingPipe", "progress", "bestResults", "validation", "AUCpr"],
@@ -51,6 +53,7 @@ convert = {
 
     "test": [
         ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "bestAccuracy"],
+        ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "accuracy"],
         ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "dispersion"],
         ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "AUCroc"],
         ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "AUCpr"]
@@ -153,7 +156,7 @@ class Loader:
     def check_path(self, results_path):
         if "sftp://" in results_path:
             split = results_path.split("/")
-            user = split[4]
+            user = split[2].split("@")[0]
             host = split[2].split("@")[1]
             self.setup_sftp(host, user)
             results_path = results_path[results_path.find(".cz") + 3:]
@@ -574,13 +577,16 @@ class Plotter:
 
         for col in cols:
             if (col not in good_cols):
-                if isinstance(self.dataframe[col][0], list) and None in self.dataframe[col][0]:
-                    continue
-                if is_numeric_dtype(self.dataframe[col]) or "+-" in self.dataframe[col][0]:
-                    continue
-                text_cols.append(col)
+                try:
+                    if isinstance(self.dataframe[col][0], list) and None in self.dataframe[col][0]:
+                        continue
+                    if is_numeric_dtype(self.dataframe[col]) or "+-" in self.dataframe[col][0]:
+                        continue
+                    text_cols.append(col)
+                except:
+                    pass
 
-        self.dataframe = self.dataframe.sort_values(by=text_cols, ascending=False)
+        self.dataframe = self.dataframe.sort_values(by=text_cols, ascending=True)
 
         sidex = sidey = int(np.sqrt(len(good_cols) + 1))
         while sidex * sidey < len(good_cols) + 1:
@@ -693,8 +699,8 @@ class Plotter:
         if x is None:
             x = self.x
         if "+-" in plusminus.values[0]:
-            tuples = [res.split("+-") for res in plusminus]
-            means = np.array([float(tuple[0]) for tuple in tuples])
+            tuples = [(res.split("+-") if type(res)==str else [res, 0]) for res in plusminus]
+            means = np.array([(float(tuple[0]) if tuple[0] else 0) for tuple in tuples])
             stds = np.array([float(tuple[1]) for tuple in tuples])
         elif isinstance(plusminus.values[0], list):
             # unprocessed folds
