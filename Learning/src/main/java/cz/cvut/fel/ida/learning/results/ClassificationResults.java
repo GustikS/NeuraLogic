@@ -62,6 +62,10 @@ public class ClassificationResults extends RegressionResults {
 
     public static MeanStdResults aggregateClassifications(List<ClassificationResults> resultsList) {
         List<Value> errors = resultsList.stream().map(res -> res.error).collect(Collectors.toList());
+        if (errors.isEmpty() || errors.get(0) == null){
+            return null;
+        }
+
         Value meanError = MathUtils.getMeanValue(errors);
         Value stdError = MathUtils.getStd(errors, meanError);
 

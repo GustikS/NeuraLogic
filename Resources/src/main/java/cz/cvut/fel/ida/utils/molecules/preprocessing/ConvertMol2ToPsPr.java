@@ -40,6 +40,9 @@ public class ConvertMol2ToPsPr {
 
     public static int embeddingDim = 3;
 
+    static String atomName = "a";
+    static String bondName = "b";
+
     /**
      * decimal dots vs commas....
      *
@@ -95,7 +98,7 @@ public class ConvertMol2ToPsPr {
         exportLRNNembeddings(dirPath);
     }
 
-    private static PrintWriter getWriter(File path) throws IOException {
+    protected static PrintWriter getWriter(File path) throws IOException {
         File examplesFile = path;
         examplesFile.getParentFile().mkdirs();
         examplesFile.createNewFile();
@@ -158,9 +161,6 @@ public class ConvertMol2ToPsPr {
     }
 
     public static Clause moleculeToLRNNClause(Molecule molecule) {
-
-        String atomName = "a";
-        String bondName = "b";
 
         Set<Literal> literals = new HashSet<Literal>();
         for (Atom atom : molecule.atoms()) {

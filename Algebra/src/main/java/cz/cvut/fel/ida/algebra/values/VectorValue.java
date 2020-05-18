@@ -201,7 +201,7 @@ public class VectorValue extends Value {
             }
             return result;
         } else {
-            LOG.severe("Incompatible dimensions for vector multiplication: " + Arrays.toString(value.size()) + " x " + Arrays.toString(size()) + " (try transposition)");
+            LOG.severe("Incompatible dimensions for vector multiplication: " + Arrays.toString(value.size()) + " vs " + Arrays.toString(size()) + " (try transposition)");
             throw new NumberFormatException(); // todo measure if any cost of this
 //            return null;
         }
@@ -218,8 +218,9 @@ public class VectorValue extends Value {
     @Override
     protected VectorValue times(MatrixValue value) {
         if (value.cols != values.length) {
-            LOG.severe("Matrix row length mismatch with vector length for multiplication");
-            throw new ArithmeticException("Matrix row length mismatch with vector length for multiplication");
+            String err = "Matrix row length mismatch with vector length for multiplication: " + value.cols + " vs." + values.length;
+            LOG.severe(err);
+            throw new ArithmeticException(err);
         }
         if (value.cols > 1 && rowOrientation) {
             LOG.severe("Multiplying matrix with a row-oriented vector!");
@@ -255,7 +256,9 @@ public class VectorValue extends Value {
     @Override
     protected Value elementTimes(VectorValue value) {
         if (value.values.length != values.length) {
-            LOG.severe("Vector element-wise multiplication dimension mismatch");
+            String err = "Vector elementTimes dimension mismatch: " + value.values.length + " vs." + values.length;
+            LOG.severe(err);
+            throw new ArithmeticException(err);
         }
         VectorValue result = value.getForm();
         double[] resultValues = result.values;
@@ -270,7 +273,9 @@ public class VectorValue extends Value {
     protected Value elementTimes(MatrixValue value) {
         LOG.warning("Calculation matrix element-wise product with vector...");
         if (value.cols != values.length) {
-            LOG.severe("Matrix row length mismatch with vector length for multiplication");
+            String err = "Matrix elementTimes vector broadcast dimension mismatch: " + value.cols + " vs." + values.length;
+            LOG.severe(err);
+            throw new ArithmeticException(err);
         }
         MatrixValue result = new MatrixValue(value.rows, value.cols);
         double[][] resultValues = result.values;
@@ -308,7 +313,9 @@ public class VectorValue extends Value {
     @Override
     protected VectorValue plus(VectorValue value) {
         if (value.values.length != values.length) {
-            LOG.severe("Vector element-wise addition dimension mismatch");
+            String err = "Vector element plus dimension mismatch: " + value.values.length + " vs." + values.length;
+            LOG.severe(err);
+            throw new ArithmeticException(err);
         }
         VectorValue result = value.getForm();
         double[] resultValues = result.values;
@@ -356,7 +363,9 @@ public class VectorValue extends Value {
     @Override
     protected Value minus(VectorValue value) {
         if (value.values.length != values.length) {
-            LOG.severe("Vector element-wise addition dimension mismatch");
+            String err = "Vector minus dimension mismatch: " + value.values.length + " vs." + values.length;
+            LOG.severe(err);
+            throw new ArithmeticException(err);
         }
         VectorValue result = value.getForm();
         double[] resultValues = result.values;
@@ -401,7 +410,9 @@ public class VectorValue extends Value {
     @Override
     protected void incrementBy(VectorValue value) {
         if (value.values.length != values.length) {
-            LOG.severe("Vector element-wise increment dimension mismatch");
+            String err = "Vector incrementBy dimension mismatch: " + value.values.length + " vs." + values.length;
+            LOG.severe(err);
+            throw new ArithmeticException(err);
         }
         double[] otherValues = value.values;
         for (int i = 0; i < otherValues.length; i++) {
@@ -444,7 +455,9 @@ public class VectorValue extends Value {
     @Override
     protected boolean greaterThan(VectorValue maxValue) {
         if (maxValue.values.length != values.length) {
-            LOG.severe("Vector element-wise comparison dimension mismatch");
+            String err = "Vector greaterThan dimension mismatch: " + maxValue.values.length + " vs." + values.length;
+            LOG.severe(err);
+            throw new ArithmeticException(err);
         }
         int greater = 0;
         for (int i = 0; i < values.length; i++) {

@@ -34,7 +34,7 @@ public class MutaFeatures {
         Settings settings = Settings.forSlowTest();
         settings.seed = 0;
 
-        settings.plotProgress = 10;
+//        settings.plotProgress = 10;
         settings.maxCumEpochCount = 100;
 
         Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/mutag_188/folds", " -t /home/gusta/googledrive/Github/NeuraLogic/Resources/datasets/relational/molecules/mutag_188/folds/template.txt"), settings);

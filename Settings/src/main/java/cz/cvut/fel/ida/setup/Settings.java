@@ -190,6 +190,7 @@ public class Settings implements Serializable {
      * Outputs of these blocks will be exported into respective files
      */
     public String[] exportBlocks = {
+            "TrainTestPipeline",        //exports TrainTestResults (default output)
             "NeuralTrainTestPipeline",  //exports TrainTestResults (default output)
             "NeuralEvaluationPipe",     //exports Results (default output)
             "CrossvalidationPipeline",  //exports (aggregated) TrainTestResults (default output)
@@ -199,7 +200,8 @@ public class Settings implements Serializable {
             "GroundingPipeline",        //exports stats from {@link Grounder} (through ExportingPipe!, default output would be Stream<GroundingSample>)
             "NeuralizationPipeline",    //exports stats from {@link Neuralizer} (through ExportingPipe!, default output would be Stream<NeuralSample>)
 //            "LearningPipeline",         //exports Pair<Pair<Template, NeuralModel>, Progress> (default output)  -> replaced with an explicit TemplateExporter
-            "LearningSchemePipeline"    //exports PipelineTiming<Results> (default output = Results + Timing due to Pipeline default functionality)
+            "LearningSchemePipeline",    //exports PipelineTiming<Results> (default output = Results + Timing due to Pipeline default functionality)
+            "NeuralEvaluationPipe"
     };
 
     //------------------Drawing/Debugging
@@ -715,7 +717,7 @@ public class Settings implements Serializable {
     /**
      * Percentage of samples from train-set used for training, 1 = empty validation set
      */
-    public double trainValidationPercentage = 0.9;
+    public double trainValidationPercentage = 1;
 
     /**
      * After neural training, i.e. finding the best set of parameters and error values,

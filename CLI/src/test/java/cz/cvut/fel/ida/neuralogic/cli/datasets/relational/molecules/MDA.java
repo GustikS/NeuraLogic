@@ -67,4 +67,42 @@ public class MDA {
         Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/MDA_MB_231_ATCC/features", "-t ./templates/template_gnnl3W10.txt"), settings);
     }
 
+    @TestAnnotations.Slow
+    public void fold0() throws Exception {
+
+        Settings settings = Settings.forSlowTest();
+        settings.seed = 1;
+
+        settings.setOptimizer(Settings.OptimizerSet.ADAM);
+        settings.initLearningRate = 0.000015;
+
+        settings.initializer = Settings.InitSet.GLOROT;
+        settings.isoValueCompression = true;
+        settings.chainPruning = true;
+
+        settings.errorFunction = Settings.ErrorFcn.CROSSENTROPY;
+
+        settings.plotProgress = 10;
+
+        Pair<Pipeline, ?> results = Main.main(Utilities.splitArgs("-sd /home/gusta/googledrive/Github/NeuraLogic/Resources/datasets/relational/molecules/MDA_MB_231_ATCC/fold0 -t ./gcn.txt"), settings);
+    }
+
+    @TestAnnotations.Slow
+    public void folds() throws Exception {
+
+        Settings settings = Settings.forSlowTest();
+        settings.seed = 0;
+
+        settings.setOptimizer(Settings.OptimizerSet.ADAM);
+        settings.initLearningRate = 0.000015;
+
+
+        settings.plotProgress = 10;
+
+        settings.appLimitSamples = 10;
+        settings.maxCumEpochCount = 10;
+
+        Pair<Pipeline, ?> results = Main.main(Utilities.splitArgs("-sd /home/gusta/data/datasets/jair/first10/mol2types/gnnlrnn/MDA_MB_231_ATCC -fp fold -t /home/gusta/googledrive/Github/NeuraLogic/Resources/datasets/relational/molecules/DMS_114/fold0/template.txt"), settings);
+    }
+
 }

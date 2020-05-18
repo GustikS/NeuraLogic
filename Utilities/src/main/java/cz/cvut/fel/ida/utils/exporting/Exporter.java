@@ -44,7 +44,7 @@ public abstract class Exporter {
 //        if (settings == null)
 //            return null;
         for (String exportPipeline : exportBlocks) {
-            if (id.equals(exportPipeline)) {
+            if (id.startsWith(exportPipeline) && id.length() < exportPipeline.length() + 2) {
                 return getExporter(exportDir, id, type);
             }
         }

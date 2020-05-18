@@ -204,8 +204,8 @@ public class MatrixValue extends Value {
     @Override
     protected VectorValue times(VectorValue value) {
         if (rows != value.values.length) {
-            LOG.severe("Matrix row length mismatch with vector length for multiplication");
-            throw new ArithmeticException("Matrix row length mismatch with vector length for multiplication");
+            LOG.severe("Matrix row length mismatch with vector length for multiplication: " + rows + " vs." + value.values.length);
+            throw new ArithmeticException("Matrix row length mismatch with vector length for multiplication" + rows + " vs." + value.values.length);
         }
         VectorValue result = new VectorValue(cols);
         double[] resultValues = result.values;
@@ -233,8 +233,9 @@ public class MatrixValue extends Value {
     @Override
     protected MatrixValue times(MatrixValue value) {
         if (value.cols != rows) {
-            LOG.severe("Matrix to matrix dimension mismatch for multiplication");
-            throw new ArithmeticException();
+            String err = "Matrix to matrix dimension mismatch for multiplication" + value.cols + " != " + rows;
+            LOG.severe(err);
+            throw new ArithmeticException(err);
         }
         MatrixValue result = new MatrixValue(value.rows, this.cols);
         double[][] lhs = value.values;
@@ -271,8 +272,9 @@ public class MatrixValue extends Value {
     protected Value elementTimes(VectorValue value) {
         LOG.warning("Calculation vector element-wise product with matrix...");
         if (rows != value.values.length) {
-            LOG.severe("Matrix row length mismatch with vector length for multiplication");
-            throw new ArithmeticException("Matrix row length mismatch with vector length for multiplication");
+            String err = "Matrix row length mismatch with vector length for multiplication" + rows + " vs." + value.values.length;
+            LOG.severe(err);
+            throw new ArithmeticException(err);
         }
         MatrixValue result = new MatrixValue(rows, cols);
         double[][] resultValues = result.values;
@@ -287,7 +289,9 @@ public class MatrixValue extends Value {
     @Override
     protected Value elementTimes(MatrixValue value) {
         if (value.cols != cols || value.rows != rows) {
-            LOG.severe("Matrix to matrix dimension mismatch for element-wise multiplication");
+            String err = "Matrix elementTimes dimension mismatch: " + Arrays.toString(this.size()) + " vs." + Arrays.toString(value.size());
+            LOG.severe(err);
+            throw new ArithmeticException(err);
         }
         MatrixValue result = value.clone();
         double[][] lhs = result.values;
@@ -331,7 +335,9 @@ public class MatrixValue extends Value {
     @Override
     protected Value plus(MatrixValue value) {
         if (rows != value.rows || cols != value.cols) {
-            LOG.severe("Incompatible summation of matrix plus matrix ");
+            String err = "Matrix plus dimension mismatch: " + Arrays.toString(this.size()) + " vs." + Arrays.toString(value.size());
+            LOG.severe(err);
+            throw new ArithmeticException(err);
         }
         MatrixValue result = new MatrixValue(rows, cols);
         double[][] resultValues = result.values;
@@ -377,7 +383,9 @@ public class MatrixValue extends Value {
     @Override
     protected Value minus(MatrixValue value) {
         if (rows != value.rows || cols != value.cols) {
-            LOG.severe("Incompatible subtracting of matrix minus matrix ");
+            String err = "Matrix minus dimension mismatch: " + Arrays.toString(this.size()) + " vs." + Arrays.toString(value.size());
+            LOG.severe(err);
+            throw new ArithmeticException(err);
         }
         MatrixValue result = new MatrixValue(rows, cols);
         double[][] resultValues = result.values;
@@ -428,7 +436,9 @@ public class MatrixValue extends Value {
     @Override
     protected void incrementBy(MatrixValue value) {
         if (rows != value.rows || cols != value.cols) {
-            LOG.severe("Incompatible incrementing of matrix with matrix ");
+            String err = "Matrix incrementBy dimension mismatch: " + Arrays.toString(this.size()) + " vs." + Arrays.toString(value.size());
+            LOG.severe(err);
+            throw new ArithmeticException(err);
         }
         double[][] otherValues = value.values;
         for (int i = 0; i < rows; i++) {
@@ -471,7 +481,9 @@ public class MatrixValue extends Value {
     @Override
     protected boolean greaterThan(MatrixValue maxValue) {
         if (rows != maxValue.rows || cols != maxValue.cols) {
-            LOG.severe("Matrix element-wise comparison dimension mismatch");
+            String err = "Matrix greaterThan dimension mismatch: " + Arrays.toString(this.size()) + " vs." + Arrays.toString(maxValue.size());
+            LOG.severe(err);
+            throw new ArithmeticException(err);
         }
         int greater = 0;
         for (int i = 0; i < rows; i++) {
