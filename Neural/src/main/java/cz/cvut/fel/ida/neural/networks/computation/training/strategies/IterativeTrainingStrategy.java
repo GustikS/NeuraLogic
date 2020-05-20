@@ -181,6 +181,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     }
 
     protected void endRestart() {
+        LOG.info("Finished restart, recalculating last true results.");
         recalculateResults();
         exporter.delimitEnd();
         exporter.finish();
@@ -188,6 +189,7 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     }
 
     protected Pair<NeuralModel, Progress> finish() {
+        LOG.info("Finished training, loading best model so far.");
         evaluateModel(bestModel);
         logSampleOutputs();
 
@@ -195,9 +197,9 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         return new Pair<>(bestModel, progress);
     }
 
-    private TrainVal evaluateModel(NeuralModel neuralModel) {
+    private void evaluateModel(NeuralModel neuralModel) {
         currentModel.loadWeightValues(neuralModel);
-        return evaluateModel();
+        recalculateResults();
     }
 
     private TrainVal evaluateModel() {

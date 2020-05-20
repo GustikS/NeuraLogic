@@ -68,7 +68,9 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
     public Pipe<Source, Stream<LogicSample>> extractSamplesPipe(Source source, Pipeline<Source, Stream<LogicSample>> samplesProcessingPipeline) {
 
         if (source.ExamplesReader == null && source.QueriesReader == null) {
-            LOG.severe("No sources found to assemble Samples at construction");
+            String err = "No sources found to assemble Samples at construction";
+            LOG.severe(err);
+            throw new RuntimeException(err);
         }
 
         Pipe<Source, Stream<LogicSample>> sampleExtractionPipe = null;

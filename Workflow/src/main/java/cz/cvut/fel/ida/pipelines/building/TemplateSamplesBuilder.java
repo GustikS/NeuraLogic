@@ -64,11 +64,10 @@ public class TemplateSamplesBuilder extends AbstractPipelineBuilder<Sources, Pai
         duplicateBranch.connectAfterR(sourcesTemplatePipeline);
         pairMerge.connectBeforeL(sourcesTemplatePipeline);
 
-        if (sources.val != null) {  //merge the training samples with validation samples while marking the validation samples as ValidationOnly
+        if (sources.val != null && (sources.val.QueriesProvided || sources.val.ExamplesProvided)) {  //merge the training samples with validation samples while marking the validation samples as ValidationOnly
             DuplicateBranch<Sources> trainValSamplesBranch = pipeline.register(new DuplicateBranch<>("TrainValSamplesBranch"));
             duplicateBranch.connectAfterL(trainValSamplesBranch);
             trainValSamplesBranch.connectAfterL(getSource);
-
 
             Pipe<Sources, Source> getVal = pipeline.register(new LambdaPipe<Sources, Source>("getValSourcePipe", sources -> sources.val, settings));
             SamplesProcessingBuilder valSamplesProcessor = new SamplesProcessingBuilder(settings, sources.val);

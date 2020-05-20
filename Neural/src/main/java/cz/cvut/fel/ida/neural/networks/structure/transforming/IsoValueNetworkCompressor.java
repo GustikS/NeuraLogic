@@ -3,8 +3,7 @@ package cz.cvut.fel.ida.neural.networks.structure.transforming;
 import cz.cvut.fel.ida.algebra.functions.Activation;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
-import cz.cvut.fel.ida.utils.generic.Pair;
-import cz.cvut.fel.ida.utils.generic.Timing;
+import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.Evaluation;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.IndependentNeuronProcessing;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.neurons.Invalidator;
@@ -17,8 +16,9 @@ import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.States;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.AtomNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.types.DetailedNetwork;
-import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.generic.Pair;
+import cz.cvut.fel.ida.utils.generic.Timing;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -67,6 +67,8 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
         Map<Neurons, ValueList> isoValues = new LinkedHashMap<>();
         List<Weight> allWeights = inet.getAllWeights();
 
+        Map<Weight, Value> originalValues = allWeights.stream().collect(Collectors.toMap(w -> w, w -> w.value.clone()));    //remember the original values of weights before reinits!
+
         QueryNeuron queryNeuron;
         if (outputs.size() > 1) {
             States.ComputationStateStandard dummyState = new States.ComputationStateStandard(Activation.Singletons.identity);
@@ -100,6 +102,10 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
         } else if (etalons.size() < inet.allNeuronsTopologic.size()) {
             LOG.warning("There are more neurons than iso-values (some neurons have not been pruned despite having the same value) = prevented by isomorphism check");
         }
+
+        allWeights.forEach(weight -> {
+            weight.value = originalValues.get(weight);  //load back the original value (i.e. so that the iso compression does not change the network weights!)
+        });
 
         timing.toc();
         return inet;
@@ -185,7 +191,7 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
         }
     }
 
-    public boolean  equivalent(DetailedNetwork<State.Structure> inet, Neurons<Neurons, State.Neural> a, Neurons<Neurons, State.Neural> b) {
+    public boolean equivalent(DetailedNetwork<State.Structure> inet, Neurons<Neurons, State.Neural> a, Neurons<Neurons, State.Neural> b) {
 
         if (a.equals(b)) {
             return true;
@@ -253,9 +259,10 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
         }
     }
 
+
     private void isoIteration(DetailedNetwork<State.Structure> inet, List<Weight> allWeights, QueryNeuron queryNeuron, Map<Neurons, ValueList> isoValues) {
         for (int i = 0; i < repetitions; i++) {
-            for (Weight weight : allWeights) {
+            for (Weight weight : allWeights) {  //todo next it would be much more efficient to do the re-initialization jointly over all the networks! (which would require the template as input)
                 weight.init(valueInitializer);
             }
             inet.initializeStatesCache(-1);    //here we can transfer information from Structure to Computation

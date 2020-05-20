@@ -506,11 +506,14 @@ public class SourceFiles extends Sources {
 
     @Override
     public Reader getTemplateReader() {
+        if (template == null){
+            return null;
+        }
         try {
-            if (!super.getTemplateReader().ready()) {
+            if (super.getTemplateReader() == null || !super.getTemplateReader().ready()) {
                 this.setTemplateReader(new FileReader(template));
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             try {
                 this.setTemplateReader(new FileReader(template));
             } catch (FileNotFoundException e1) {

@@ -72,7 +72,7 @@ public class NeuralNetBuilder {
                 if (!head.equals(liftedRule.getValue().iterator().next().groundHead)) {
                     LOG.severe("Ground heads corresponding to the same atom neuron are different!");
                 }
-                if (liftedRule.getKey().weightedRule.getWeight() != Weight.unitWeight) {
+                if (!liftedRule.getKey().weightedRule.getWeight().equals(Weight.unitWeight)) {   // index < 0 means unit or zero weight = effectively unweighted
                     weightedAtomNeuron = true;
                 }
             }

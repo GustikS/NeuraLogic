@@ -15,6 +15,8 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class ModelLoading {
     private static final Logger LOG = Logger.getLogger(ModelLoading.class.getName());
 
@@ -35,7 +37,7 @@ public class ModelLoading {
         settings.atomNeuronActivation = Settings.ActivationFcn.TANH;
 
         settings.initLearningRate = 0.001;
-        settings.maxCumEpochCount = 200;
+        settings.maxCumEpochCount = 90;
         settings.isoValueCompression = false;
         settings.chainPruning = true;
         String args = "-e " + dataset + "/trainExamples.txt -q " + dataset + "/trainQueries.txt -t " + dataset + "/templates/template_gnn_simple.txt";
@@ -67,7 +69,7 @@ public class ModelLoading {
     void createLoadTestModel() throws Exception {
         Settings settings = Settings.forSlowTest();
 
-//        settings.appLimitSamples = 500;
+//        settings.appLimitSamples = 10;
 
         settings.plotProgress = 10;
 
@@ -79,19 +81,24 @@ public class ModelLoading {
         settings.atomNeuronActivation = Settings.ActivationFcn.TANH;
 
         settings.initLearningRate = 0.001;
-        settings.maxCumEpochCount = 500;
-        settings.isoValueCompression = false;
+        settings.maxCumEpochCount = 100;
+        settings.isoValueCompression = true;
         settings.chainPruning = true;
+        settings.stratification = false;
+
+        settings.drawing = true;
+
         String args = "-e " + dataset + "/trainExamples.txt -q " + dataset + "/trainQueries.txt -t " + dataset + "/templates/template_gnn_simple.txt";
         args += " -te " + dataset + "/trainExamples.txt -tq " + dataset + "/trainQueries.txt";
         Pair<Pipeline, ?> results = Main.main(Utilities.splitArgs(args), settings);
 
-        Path exportedModel = Paths.get(Settings.logFile, "export/trainedTemplate0.java");
+        Path exportedModel = Paths.get(Settings.logFile, "export/models/trainedTemplate0.java");
 
         String args2 = "-te " + dataset + "/trainExamples.txt -tq " + dataset + "/trainQueries.txt -t " + exportedModel;
         Pair<Pipeline, ?> results2 = Main.main(Utilities.splitArgs(args2), settings);
 
         LOG.warning(results.toString());
         LOG.warning(results2.toString());
+        assertEquals(results,results2);
     }
 }
