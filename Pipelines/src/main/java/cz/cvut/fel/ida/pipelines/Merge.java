@@ -47,9 +47,11 @@ public abstract class Merge<I1, I2, O> extends Block implements ConnectAfter<O> 
     }
 
     @Override
-    public O get() {
+    public O get() throws Exception {
         if (outputReady == null) {
-            LOG.severe("The result of this Merge " + ID + " is requested but not yet calculated (backtracking in the execution graph).");
+            String err = "The result of this Merge " + ID + " is requested but not yet calculated (backtracking in the execution graph).";
+            LOG.severe(err);
+            throw new Exception(err);
         }
 
         return outputReady;

@@ -45,6 +45,7 @@ public class StreamTrainingStrategy extends TrainingStrategy {
     public Pair<NeuralModel, Progress> train() {
         Stream<Result> resultStream = trainer.learnEpoch(currentModel, samplesStream);
         List<Result> resultList = resultStream.collect(Collectors.toList());
+        resultStream.close();
         Progress progress = new Progress();
         Results results = resultsFactory.createFrom(resultList);
         progress.addOnlineResults(results);

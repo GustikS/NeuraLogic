@@ -11,10 +11,10 @@ import java.util.logging.Logger;
  * This block may be non-terminating - it is possible to return merging of streams as a stream,
  * hence the return value is open - it can be a Stream, List, or any Object
  */
-public abstract class MultiMerge<I, O> extends Block implements ConnectAfter<O>{
+public abstract class MultiMerge<I, O> extends Block implements ConnectAfter<O> {
     private static final Logger LOG = Logger.getLogger(MultiMerge.class.getName());
 
-    public List<Pipe<I,I>> inputs;
+    public List<Pipe<I, I>> inputs;
     public ConnectBefore<O> output;
 
     private ConcurrentLinkedQueue<I> inputsReady;
@@ -40,18 +40,19 @@ public abstract class MultiMerge<I, O> extends Block implements ConnectAfter<O>{
 
     private void accept(I i) throws Exception {
         inputsReady.add(i);
-        if (inputsReady.size() == inputs.size()){
+        if (inputsReady.size() == inputs.size()) {
             LOG.finer("Entering: " + ID);
             accept(new ArrayList<>(inputsReady));
         }
     }
 
     @Override
-    public O get() {
+    public O get() throws Exception {
         if (outputReady == null) {
-            LOG.severe("The result of this MultiMerge " + ID + " is requested but not yet calculated");
+            String err = "The result of this MultiMerge " + ID + " is requested but not yet calculated";
+            LOG.severe(err);
             LOG.severe("Pipeline is broken");
-            System.exit(3);
+            throw new Exception(err);
         }
         return outputReady;
     }
@@ -80,8 +81,8 @@ public abstract class MultiMerge<I, O> extends Block implements ConnectAfter<O>{
         output = prev;
     }
 
-    public <T extends ConnectAfter<I>> List<T> connectBefore(List<T> prev){
-        if (prev.size() != inputs.size()){
+    public <T extends ConnectAfter<I>> List<T> connectBefore(List<T> prev) {
+        if (prev.size() != inputs.size()) {
             LOG.severe("MultiMerge input dimension mismatches with preceding providers!");
         }
         for (int i = 0; i < inputs.size(); i++) {

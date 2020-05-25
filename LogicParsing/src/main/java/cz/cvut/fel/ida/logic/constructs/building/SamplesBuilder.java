@@ -1,15 +1,15 @@
 package cz.cvut.fel.ida.logic.constructs.building;
 
+import cz.cvut.fel.ida.learning.LearningSample;
 import cz.cvut.fel.ida.logic.constructs.example.LiftedExample;
 import cz.cvut.fel.ida.logic.constructs.example.LogicSample;
 import cz.cvut.fel.ida.logic.constructs.example.QueryAtom;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
 import cz.cvut.fel.ida.logic.constructs.template.components.HeadAtom;
-import cz.cvut.fel.ida.utils.generic.Pair;
-import cz.cvut.fel.ida.utils.generic.Utilities;
-import cz.cvut.fel.ida.learning.LearningSample;
 import cz.cvut.fel.ida.logic.parsing.grammarParsing.PlainParseTree;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.generic.Pair;
+import cz.cvut.fel.ida.utils.generic.Utilities;
 import org.antlr.v4.runtime.ParserRuleContext;
 
 import java.util.ArrayList;
@@ -62,12 +62,16 @@ public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRu
         if (queries.isParallel() || examples.isParallel()) {
             if (settings.oneQueryPerExample && settings.groundingMode != Settings.GroundingMode.GLOBAL) {
                 ConcurrentMap<String, LogicSample> sampleMap = Stream.concat(queries, examples).collect(Collectors.toConcurrentMap(LearningSample::getId, q -> q, SamplesBuilder::merge2samples));
+                examples.close();
+                queries.close();
                 return getSortedLogicSampleStream(sampleMap);
             }
             map = new ConcurrentHashMap<>();
         } else {
             if (settings.oneQueryPerExample && settings.groundingMode != Settings.GroundingMode.GLOBAL) {
                 Map<String, LogicSample> sampleMap = Stream.concat(queries, examples).collect(Collectors.toMap(LearningSample::getId, q -> q, SamplesBuilder::merge2samples));
+                examples.close();
+                queries.close();
                 return getSortedLogicSampleStream(sampleMap);
             }
             map = new HashMap<>();
@@ -98,6 +102,9 @@ public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRu
                 LOG.fine("Extracted Sample: " + ls);
             });
         }
+
+        examples.close();
+        queries.close();
 
         return map.values().stream().map(pair -> pair.s.stream()).flatMap(f -> f);
     }

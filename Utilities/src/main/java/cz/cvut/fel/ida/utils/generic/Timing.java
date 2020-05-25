@@ -16,6 +16,7 @@ public class Timing implements Exportable {
     double totalMinutes;
 
     long allocatedMemory;
+    static long maxMemory = 0;
 
     public Timing() {
         setTimeTaken(Duration.ofMillis(0));
@@ -35,6 +36,9 @@ public class Timing implements Exportable {
     public void checkMemory() {
         Utilities.logMemory();
         allocatedMemory = Utilities.allocatedMemory / Utilities.mb;
+        if (allocatedMemory > maxMemory){
+            maxMemory = allocatedMemory;
+        }
     }
 
     public void finish() {

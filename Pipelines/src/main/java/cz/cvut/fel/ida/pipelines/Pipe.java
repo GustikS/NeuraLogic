@@ -54,7 +54,9 @@ public abstract class Pipe<I, O> extends Block implements CheckedFunction<I, O>,
         if (outputReady == null) {
             LOG.finer("Backtracking pipe " + ID);
         }
-        return outputReady;
+        O tmp = outputReady;
+//        outputReady = null; //free memory
+        return tmp;
     }
 
     /**

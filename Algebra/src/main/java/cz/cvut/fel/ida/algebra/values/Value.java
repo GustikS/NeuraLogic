@@ -442,7 +442,7 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
 
         @Override
         public Value clone() {
-            LOG.warning("Cloning a constant ZERO");
+            LOG.fine("Cloning a constant ZERO");
             return this;
         }
 

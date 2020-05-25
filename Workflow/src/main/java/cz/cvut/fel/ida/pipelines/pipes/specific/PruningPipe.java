@@ -70,6 +70,7 @@ public class PruningPipe extends Pipe<Stream<NeuralProcessingSample>, Stream<Neu
 //        if (this.exporter == null && this.parent != null) {
 //            this.exporter = Exporter.getFrom(this.ID, parent.settings);
 //        }
+        LOG.info("Pruning stats export");
         if (exporter != null) {
             reducer.finish();
             this.exporter.export(reducer);

@@ -20,6 +20,7 @@ public class PlainExamplesParseTreeExtractor extends ExamplesParseTreeExtractor<
 
     @Override
     public Stream<LiftedExample> getUnlabeledExamples(@NotNull NeuralogicParser.ExamplesFileContext ctx) {
+        LOG.info("Parsing examples...");
         PlainGrammarVisitor.LiftedExampleVisitor liftedExampleVisitor = visitor.new LiftedExampleVisitor();
         if (ctx.liftedExample() != null) {
             Stream<LiftedExample> listStream = ctx.liftedExample().stream().map(rule -> rule.accept(liftedExampleVisitor));

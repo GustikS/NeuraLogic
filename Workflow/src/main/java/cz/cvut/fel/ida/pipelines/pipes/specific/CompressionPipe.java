@@ -1,6 +1,5 @@
 package cz.cvut.fel.ida.pipelines.pipes.specific;
 
-import cz.cvut.fel.ida.utils.generic.Utilities;
 import cz.cvut.fel.ida.neural.networks.structure.building.NeuralProcessingSample;
 import cz.cvut.fel.ida.neural.networks.structure.components.NeuralNetwork;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.QueryNeuron;
@@ -11,8 +10,9 @@ import cz.cvut.fel.ida.setup.Settings;
 
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static cz.cvut.fel.ida.utils.generic.Utilities.terminateSampleStream;
 
 /**
  *
@@ -31,9 +31,9 @@ public class CompressionPipe extends Pipe<Stream<NeuralProcessingSample>, Stream
     public Stream<NeuralProcessingSample> apply(Stream<NeuralProcessingSample> neuralProcessingSampleStream) {
 
         if (settings.groundingMode == Settings.GroundingMode.GLOBAL) {
-            List<NeuralProcessingSample> neuralProcessingSamples = Utilities.terminateSampleStream(neuralProcessingSampleStream);
+            List<NeuralProcessingSample> neuralProcessingSamples = terminateSampleStream(neuralProcessingSampleStream);
             DetailedNetwork detailedNetwork = neuralProcessingSamples.get(0).detailedNetwork;
-            List<QueryNeuron> queryNeurons = neuralProcessingSamples.stream().map(s -> s.query).collect(Collectors.toList());
+            List<QueryNeuron> queryNeurons = terminateSampleStream(neuralProcessingSamples.stream().map(s -> s.query));
             NeuralNetwork reducedNetwork = compressor.reduce(detailedNetwork, queryNeurons);
             trueExport();
             return neuralProcessingSamples.stream().map(s -> {
@@ -72,6 +72,7 @@ public class CompressionPipe extends Pipe<Stream<NeuralProcessingSample>, Stream
 //        if (this.exporter == null && this.parent != null) {
 //            this.exporter = Exporter.getFrom(this.ID, parent.settings);
 //        }
+        LOG.info("Compression stats export");
         if (exporter != null) {
             compressor.finish();
             this.exporter.export(compressor);

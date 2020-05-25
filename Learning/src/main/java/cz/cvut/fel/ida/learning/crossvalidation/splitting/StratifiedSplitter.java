@@ -24,6 +24,7 @@ public class StratifiedSplitter<T extends LearningSample> implements Splitter<T>
     @Override
     public List<Stream<T>> partition(Stream<T> samples, int foldCount) {
         List<T> collect = samples.collect(Collectors.toList());
+        samples.close();
         if (settings.shuffleBeforeFoldSplit) {
             Collections.shuffle(collect, settings.random);
         }

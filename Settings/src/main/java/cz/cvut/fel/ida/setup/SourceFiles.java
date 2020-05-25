@@ -86,7 +86,7 @@ public class SourceFiles extends Sources {
         }
 
         File[] foldSubdirs = getFoldSubdirs(settings, cmd, sourcePath);
-        if (foldSubdirs.length > 0) {
+        if (foldSubdirs != null && foldSubdirs.length > 0) {
             setupFromDir(settings, cmd, Paths.get(sourcePath).toAbsolutePath().toFile());
             crawlFolds(settings, cmd, sourcePath);
         } else {

@@ -21,8 +21,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static cz.cvut.fel.ida.utils.generic.Utilities.terminateSampleStream;
 
 public class NeuralEvaluationPipe extends Pipe<Pair<NeuralModel, Stream<NeuralSample>>, Results> {
     private static final Logger LOG = Logger.getLogger(NeuralEvaluationPipe.class.getName());
@@ -44,7 +45,7 @@ public class NeuralEvaluationPipe extends Pipe<Pair<NeuralModel, Stream<NeuralSa
     public Results apply(Pair<NeuralModel, Stream<NeuralSample>> neuralModelStreamPair) {
         IndependentNeuronProcessing invalidation = new IndependentNeuronProcessing(settings, new Invalidator(-1));  //todo now the index should be passed from the testing pipeline! This will not work in parallel...
         Evaluation evaluation = new Evaluation(settings);
-        List<NeuralSample> collect = neuralModelStreamPair.s.collect(Collectors.toList());
+        List<NeuralSample> collect = terminateSampleStream(neuralModelStreamPair.s);
 
         List<Result> resultList = new ArrayList<>();
         for (NeuralSample neuralSample : collect) {

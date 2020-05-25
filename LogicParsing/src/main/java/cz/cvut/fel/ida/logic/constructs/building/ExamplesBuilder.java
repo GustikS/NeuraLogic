@@ -45,10 +45,15 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
     @Override
     public Stream<Pair<Conjunction, LiftedExample>> buildFrom(PlainExamplesParseTree parseTree) {
         PlainGrammarVisitor plainGrammarVisitor = new PlainGrammarVisitor(this);
+        LOG.info("Creating a parse tree from input examples file...");
         PlainExamplesParseTreeExtractor examplesParseTreeExtractor = new PlainExamplesParseTreeExtractor(plainGrammarVisitor);
         NeuralogicParser.ExamplesFileContext examplesFileContext = parseTree.getRoot();
         inferInputFormatSettings(examplesFileContext);
-        return examplesParseTreeExtractor.getLabeledExamples(examplesFileContext);
+        Stream<Pair<Conjunction, LiftedExample>> labeledExamples = examplesParseTreeExtractor.getLabeledExamples(examplesFileContext);
+        labeledExamples.onClose(() -> {
+            LOG.info("Closing input example parsing stream");
+        });
+        return labeledExamples;
     }
 
     @Override

@@ -16,8 +16,9 @@ import cz.cvut.fel.ida.setup.Sources;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static cz.cvut.fel.ida.utils.generic.Utilities.terminateSampleStream;
 
 public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, Stream<LogicSample>> {
     private static final Logger LOG = Logger.getLogger(SamplesProcessingBuilder.class.getName());
@@ -133,7 +134,7 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
                     LOG.warning("Limiting the learning samples to the first: " + settings.appLimitSamples);
                     if (settings.stratification) {
                         LOG.warning("Stratified subset requested, will need to consume the stream of LogicSamples first...");
-                        List<LogicSample> collect = logicSampleStream.collect(Collectors.toList());
+                        List<LogicSample> collect = terminateSampleStream(logicSampleStream);
                         Collections.shuffle(collect, settings.random);
                         StratifiedSplitter<LogicSample> stratifiedSplitter = new StratifiedSplitter<>(settings);
                         List<LogicSample> stratifiedSubset = stratifiedSplitter.getStratifiedSubset(collect, settings.appLimitSamples);

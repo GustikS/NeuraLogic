@@ -2,10 +2,10 @@ package cz.cvut.fel.ida.pipelines.pipes.specific;
 
 import cz.cvut.fel.ida.logic.constructs.example.LogicSample;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
-import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.logic.grounding.GroundingSample;
 import cz.cvut.fel.ida.pipelines.Pipe;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -29,8 +29,9 @@ public class GroundingSampleWrappingPipe extends Pipe<Pair<Template, Stream<Logi
         final GroundingSample.Wrap lastGroundingWrap = new GroundingSample.Wrap(null);
         Stream<GroundingSample> groundingSampleStream = templateStreamPair.s.map(sample -> {
             if (sample.query.evidence == null) {
-                LOG.severe("Query-Example mismatch: No example evidence was matched for this query: #" + sample.query.position + ":" + sample.query);
-                System.exit(6);
+                String err = "Query-Example mismatch: No example evidence was matched for this query: #" + sample.query.position + ":" + sample.query;
+                LOG.severe(err);
+                throw new RuntimeException(err);
             }
             GroundingSample groundingSample = new GroundingSample(sample, templateStreamPair.r);
             if (settings.groundingMode == Settings.GroundingMode.GLOBAL || settings.groundingMode == Settings.GroundingMode.SEQUENTIAL) {

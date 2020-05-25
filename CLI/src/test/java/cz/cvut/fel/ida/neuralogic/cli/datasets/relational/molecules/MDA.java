@@ -82,7 +82,9 @@ public class MDA {
 
         settings.errorFunction = Settings.ErrorFcn.CROSSENTROPY;
 
-        settings.plotProgress = 10;
+//        settings.appLimitSamples = 10;
+        settings.maxCumEpochCount = 1000000;
+//        settings.plotProgress = 10;
 
         Pair<Pipeline, ?> results = Main.main(Utilities.splitArgs("-sd /home/gusta/googledrive/Github/NeuraLogic/Resources/datasets/relational/molecules/MDA_MB_231_ATCC/fold0 -t ./gcn.txt"), settings);
     }
@@ -96,13 +98,12 @@ public class MDA {
         settings.setOptimizer(Settings.OptimizerSet.ADAM);
         settings.initLearningRate = 0.000015;
 
+        settings.plotProgress = -1;
 
-        settings.plotProgress = 10;
-
-        settings.appLimitSamples = 10;
+//        settings.appLimitSamples = 10;
         settings.maxCumEpochCount = 10;
 
-        Pair<Pipeline, ?> results = Main.main(Utilities.splitArgs("-sd /home/gusta/data/datasets/jair/first10/mol2types/gnnlrnn/MDA_MB_231_ATCC -fp fold -t /home/gusta/googledrive/Github/NeuraLogic/Resources/datasets/relational/molecules/DMS_114/fold0/template.txt"), settings);
+        Pair<Pipeline, ?> results = Main.main(Utilities.splitArgs("-sd /home/gusta/data/datasets/jair/first10/mol2types/MDA_MB_231_ATCC -fp fold -t /home/gusta/data/templates/molecules/gnns/gcn.txt"), settings);
     }
 
 }

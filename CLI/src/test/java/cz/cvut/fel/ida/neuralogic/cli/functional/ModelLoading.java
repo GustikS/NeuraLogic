@@ -1,5 +1,6 @@
 package cz.cvut.fel.ida.neuralogic.cli.functional;
 
+import cz.cvut.fel.ida.learning.results.ClassificationResults;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
 import cz.cvut.fel.ida.neuralogic.cli.Main;
 import cz.cvut.fel.ida.pipelines.Pipeline;
@@ -73,7 +74,7 @@ public class ModelLoading {
 
         settings.plotProgress = 10;
 
-        settings.seed=1;
+        settings.seed = 1;
 
         settings.trainValidationPercentage = 1.0;
 
@@ -99,6 +100,6 @@ public class ModelLoading {
 
         LOG.warning(results.toString());
         LOG.warning(results2.toString());
-        assertEquals(results,results2);
+        assertEquals((ClassificationResults) results.s, (ClassificationResults) results2.s);
     }
 }
