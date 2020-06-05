@@ -96,4 +96,18 @@ public class CLITests {
         );
         assertThat(thrown.getMessage(), containsString("no template provided"));
     }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "-sd .family/",
+            "-sd .family/ -fp fold -t ./templates/gc.txt"
+    })
+    public void wrongSD(String argString){
+        Exception thrown = assertThrows(
+                Exception.class,
+                () -> Main.mainExc(splitArgs(argString)),
+                "Expected Main.mainExc() to throw Exception, but it didn't"
+        );
+        assertThat(thrown.getMessage(), containsString("no template provided"));
+    }
 }

@@ -1,13 +1,13 @@
 package cz.cvut.fel.ida.logic.constructs.template.components;
 
-import cz.cvut.fel.ida.algebra.functions.Aggregation;
-import cz.cvut.fel.ida.logic.constructs.template.metadata.RuleMetadata;
 import cz.cvut.fel.ida.algebra.functions.Activation;
+import cz.cvut.fel.ida.algebra.functions.Aggregation;
+import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.logic.Clause;
 import cz.cvut.fel.ida.logic.HornClause;
 import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.logic.Term;
-import cz.cvut.fel.ida.algebra.weights.Weight;
+import cz.cvut.fel.ida.logic.constructs.template.metadata.RuleMetadata;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 import java.util.ArrayList;
@@ -38,8 +38,6 @@ public class WeightedRule  implements Exportable {
     private String originalString;
 
     private int hashCode = -1;
-
-    private boolean crossProduct;
 
     public WeightedRule() {
 
@@ -232,16 +230,5 @@ public class WeightedRule  implements Exportable {
 
     public void setOriginalString(String originalString) {
         this.originalString = originalString;
-    }
-
-    /**
-     * Apply {@link cz.cvut.fel.ida.algebra.functions.CrossProduct} activation on the inputs of the rule?
-     */
-    public boolean isCrossProduct() {
-        return crossProduct;
-    }
-
-    public void setCrossProduct(boolean crossProduct) {
-        this.crossProduct = crossProduct;
     }
 }

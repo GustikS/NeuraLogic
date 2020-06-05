@@ -4,7 +4,6 @@ import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.Backpropaga
 import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.Evaluation;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.modes.Topologic;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.neurons.NeuronVisitor;
-import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.neurons.StandardNeuronVisitors;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.StateVisiting;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.neurons.Backproper;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.neurons.Evaluator;
@@ -33,7 +32,6 @@ import java.util.logging.Logger;
  *
  * During the iteration, we are visiting individual elements (e.g. {@link BaseNeuron}) with their neighbors and performing
  * actions the logic of which is carried by various {@link NeuronVisitor NeuronVisitors}
- *     - e.g. {@link StandardNeuronVisitors}
  *
  * Each neuron-visitor operates on the local structure of the network (neuron + neighbors), and it further carries
  * a {@link StateVisiting state-visitor} which then performs actions solely on the individual neuron level by updating

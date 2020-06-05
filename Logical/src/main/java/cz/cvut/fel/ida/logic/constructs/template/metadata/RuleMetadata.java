@@ -2,7 +2,6 @@ package cz.cvut.fel.ida.logic.constructs.template.metadata;
 
 import cz.cvut.fel.ida.algebra.functions.Activation;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
-import cz.cvut.fel.ida.algebra.functions.CrossProduct;
 import cz.cvut.fel.ida.algebra.utils.metadata.Metadata;
 import cz.cvut.fel.ida.algebra.utils.metadata.Parameter;
 import cz.cvut.fel.ida.algebra.utils.metadata.ParameterValue;
@@ -59,9 +58,6 @@ public class RuleMetadata extends Metadata<WeightedRule> {
 
     private void apply(WeightedRule rule, Parameter param, ParameterValue value) {
         if (param.type == Parameter.Type.ACTIVATION) {
-            if (value.value instanceof CrossProduct) {
-                rule.setActivationFcn(rule.getActivationFcn() != null ? new CrossProduct(rule.getActivationFcn()) : new CrossProduct(Activation.getActivationFunction(settings.ruleNeuronActivation)));
-            }
             rule.setActivationFcn((Activation) value.value);
         }
         if (param.type == Parameter.Type.AGGREGATION) {

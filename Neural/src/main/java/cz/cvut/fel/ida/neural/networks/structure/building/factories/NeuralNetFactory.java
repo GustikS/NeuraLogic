@@ -42,7 +42,7 @@ public class NeuralNetFactory {
         TopologicNetwork<S> topologicNetwork = new TopologicNetwork<>(network.getId(), network.allNeuronsTopologic, true);
         topologicNetwork.hasSharedNeurons = network.hasSharedNeurons;
         topologicNetwork.containsInputMasking = network.containsInputMasking;
-        topologicNetwork.containsCrossProducts = network.containsCrossProducts;
+        topologicNetwork.containsComplexActivations = network.containsComplexActivations;
         topologicNetwork.neuronStates = network.neuronStates;
         return topologicNetwork;
     }

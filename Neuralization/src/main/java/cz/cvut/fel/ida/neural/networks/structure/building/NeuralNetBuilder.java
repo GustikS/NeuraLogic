@@ -1,6 +1,8 @@
 package cz.cvut.fel.ida.neural.networks.structure.building;
 
 import com.sun.istack.internal.NotNull;
+import cz.cvut.fel.ida.algebra.functions.Activation;
+import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
@@ -10,8 +12,8 @@ import cz.cvut.fel.ida.logic.constructs.template.components.GroundRule;
 import cz.cvut.fel.ida.neural.networks.structure.building.builders.StatesBuilder;
 import cz.cvut.fel.ida.neural.networks.structure.components.NeuralSets;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.BaseNeuron;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.WeightedNeuron;
-import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.AggregationState;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.*;
 import cz.cvut.fel.ida.neural.networks.structure.components.types.DetailedNetwork;
@@ -83,8 +85,8 @@ public class NeuralNetBuilder {
                 headAtomNeuron = neuralBuilder.neuronFactory.createUnweightedAtomNeuron(liftedRule.getKey().weightedRule.getHead(), head);
                 createdNeurons.atomNeurons.add((AtomNeuron) headAtomNeuron);
             }
-            if (headAtomNeuron.getComputationView(0).getAggregationState() instanceof AggregationState.CrossProducState) {   //the neuron will require complex input propagation
-                neuronMaps.containsCrossproduct = true;
+            if (hasComplexActivation(headAtomNeuron)) {   //the neuron will require complex input propagation
+                neuronMaps.containsComplexActivations = true;
             }
         } else {
             headAtomNeuron.setShared(true);
@@ -158,8 +160,8 @@ public class NeuralNetBuilder {
                         ruleNeuron = neuralBuilder.neuronFactory.createRuleNeuron(grounding);
                         createdNeurons.ruleNeurons.add((RuleNeuron) ruleNeuron);
                     }
-                    if (ruleNeuron.getComputationView(0).getAggregationState() instanceof AggregationState.CrossProducState) {   //the neuron will require complex input propagation
-                        neuronMaps.containsCrossproduct = true;
+                    if (hasComplexActivation(ruleNeuron)) {   //the neuron will require complex input propagation
+                        neuronMaps.containsComplexActivations = true;
                     }
                 } else {
                     //ruleNeuron.isShared = true;
@@ -174,6 +176,14 @@ public class NeuralNetBuilder {
                 }
             }
         }
+    }
+
+    public static boolean hasComplexActivation(Neurons neuron) {
+        Aggregation aggregation = neuron.getComputationView(0).getAggregationState().getAggregation();
+        if (aggregation.getClass() != Activation.class) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -254,7 +264,7 @@ public class NeuralNetBuilder {
             queryNeurons = new ArrayList<>();
             for (Literal queryMatchingLiteral : queryMatchingLiterals) {
                 AtomNeurons qn = neuralBuilder.neuronFactory.neuronMaps.atomNeurons.get(queryMatchingLiteral);
-                if (qn == null){
+                if (qn == null) {
                     String err = "Query: " + queryMatchingLiteral + " was not matched anywhere in the ground network - Cannot calculate its output!";
                     LOG.severe(err);
                     LOG.warning(" -> This most likely means that the template is wrong as there is no proof-path from the example to the query");
@@ -289,8 +299,8 @@ public class NeuralNetBuilder {
             statesBuilder.setupDropoutStates(neuralNetwork);  //setup individual dropout rates for each neuron
         }
 
-        if (getNeuronMaps().containsCrossproduct) {
-            neuralNetwork.containsCrossProducts = true;
+        if (getNeuronMaps().containsComplexActivations) {
+            neuralNetwork.containsComplexActivations = true;
         }
         if (getNeuronMaps().containsMasking) {
             neuralNetwork.containsInputMasking = true;

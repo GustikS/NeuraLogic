@@ -68,8 +68,7 @@ public abstract class Aggregation implements Exportable {
             case "sum":
                 return Singletons.sum;
             default:
-                LOG.severe("Unimplemented aggregation function");
-                return null;
+                throw new RuntimeException("Unable to parse activation function: " + agg);
         }
     }
 

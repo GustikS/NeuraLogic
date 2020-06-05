@@ -39,11 +39,31 @@ public class VectorValue extends Value {
         initialize(valueInitializer);
     }
 
-    private VectorValue(double[] values, boolean rowOrientation) {
+    public VectorValue(double[] values, boolean rowOrientation) {
         this.values = values;
         this.rowOrientation = rowOrientation;
     }
 
+    public VectorValue(int size, boolean rowOrientation) {
+        values = new double[size];
+        this.rowOrientation = rowOrientation;
+    }
+
+    protected int rows() {
+        if (rowOrientation) {
+            return 1;
+        } else {
+            return values.length;
+        }
+    }
+
+    protected int cols() {
+        if (!rowOrientation) {
+            return 1;
+        } else {
+            return values.length;
+        }
+    }
 
     @NotNull
     @Override
@@ -201,8 +221,9 @@ public class VectorValue extends Value {
             }
             return result;
         } else {
-            LOG.severe("Incompatible dimensions for vector multiplication: " + Arrays.toString(value.size()) + " vs " + Arrays.toString(size()) + " (try transposition)");
-            throw new NumberFormatException(); // todo measure if any cost of this
+            String err = "Incompatible dimensions for vector multiplication: " + Arrays.toString(value.size()) + " vs " + Arrays.toString(size()) + " (try transposition)";
+            LOG.severe(err);
+            throw new ArithmeticException(err); // todo measure if any cost of this
 //            return null;
         }
     }
@@ -235,6 +256,11 @@ public class VectorValue extends Value {
             }
         }
         return result;
+    }
+
+    @Override
+    protected Value times(TensorValue value) {
+        throw new ArithmeticException("Algebbraic operation between Tensor and Vector are not implemented yet");
     }
 
     @Override
@@ -288,6 +314,153 @@ public class VectorValue extends Value {
         return result;
     }
 
+    @Override
+    protected Value elementTimes(TensorValue value) {
+        throw new ArithmeticException("Algebbraic operation between Tensor and Vector are not implemented yet");
+    }
+
+    @Override
+    public Value kroneckerTimes(Value value) {
+        return value.kroneckerTimes(this);
+    }
+
+    @Override
+    protected Value kroneckerTimes(ScalarValue value) {
+        VectorValue result = this.getForm();
+        double[] resultValues = result.values;
+        double otherValue = value.value;
+        for (int i = 0; i < values.length; i++) {
+            resultValues[i] = values[i] * otherValue;
+        }
+        return result;
+    }
+
+    @Override
+    protected Value kroneckerTimes(VectorValue value) {
+        int rows = rows() * value.rows();
+        int cols = cols() * value.cols();
+
+        if (rows == 1 || cols == 1) {
+            VectorValue result = new VectorValue(rows*cols, rows == 1);
+            double[] resultValues = result.values;
+            double[] otherValues = value.values;
+            for (int i = 0; i < otherValues.length; i++) {
+                for (int j = 0; j < values.length; j++) {
+                    resultValues[i * values.length + j] = otherValues[i] * values[j];
+                }
+            }
+            return result;
+        } else {
+            MatrixValue result = new MatrixValue(rows, cols);
+            double[][] resultValues = result.values;
+            double[] otherValues = value.values;
+            if (rowOrientation) {
+                for (int i = 0; i < otherValues.length; i++) {
+                    for (int j = 0; j < values.length; j++) {
+                        resultValues[i][j] = otherValues[i] * values[j];
+                    }
+                }
+            } else {
+                for (int i = 0; i < otherValues.length; i++) {
+                    for (int j = 0; j < values.length; j++) {
+                        resultValues[j][i] = otherValues[i] * values[j];
+                    }
+                }
+            }
+            return result;
+        }
+    }
+
+    @Override
+    protected Value kroneckerTimes(MatrixValue matrix) {
+        int rows = rows() * matrix.rows;
+        int cols = cols() * matrix.cols;
+
+        MatrixValue result = new MatrixValue(rows, cols);
+        double[][] resultValues = result.values;
+        double[][] otherValues = matrix.values;
+        if (rowOrientation) {
+            for (int r1 = 0; r1 < matrix.rows; r1++) {
+                for (int c1 = 0; c1 < matrix.cols; c1++) {
+                    for (int k = 0; k < values.length; k++) {
+                        resultValues[r1][c1*values.length + k] = otherValues[r1][c1] * values[k];
+                    }
+                }
+            }
+        } else {
+            for (int r1 = 0; r1 < matrix.rows; r1++) {
+                for (int c1 = 0; c1 < matrix.cols; c1++) {
+                    for (int k = 0; k < values.length; k++) {
+                        resultValues[r1*values.length + k][c1] = otherValues[r1][c1] * values[k];
+                    }
+                }
+            }
+        }
+        return result;
+
+    }
+
+    @Override
+    protected Value kroneckerTimes(TensorValue value) {
+        throw new ArithmeticException("Algebbraic operation between Tensor and Vector are not implemented yet");
+    }
+
+    @Override
+    public Value elementDivideBy(Value value) {
+        return value.elementDivideBy(this);
+    }
+
+    @Override
+    protected Value elementDivideBy(ScalarValue value) {
+        VectorValue result = this.getForm();
+        double[] resultValues = result.values;
+        double otherValue = value.value;
+        for (int i = 0; i < values.length; i++) {
+            resultValues[i] = otherValue / values[i];
+        }
+        return result;
+    }
+
+    @Override
+    protected Value elementDivideBy(VectorValue value) {
+        if (value.values.length != values.length) {
+            String err = "Vector elementTimes dimension mismatch: " + value.values.length + " vs." + values.length;
+            LOG.severe(err);
+            throw new ArithmeticException(err);
+        }
+        VectorValue result = value.getForm();
+        double[] resultValues = result.values;
+        double[] otherValues = value.values;
+        for (int i = 0; i < values.length; i++) {
+            resultValues[i] = otherValues[i] / values[i];
+        }
+        return result;
+    }
+
+    @Override
+    protected Value elementDivideBy(MatrixValue value) {
+        LOG.warning("Calculation matrix element-wise product with vector...");
+        if (value.cols != values.length) {
+            String err = "Matrix elementTimes vector broadcast dimension mismatch: " + value.cols + " vs." + values.length;
+            LOG.severe(err);
+            throw new ArithmeticException(err);
+        }
+        MatrixValue result = new MatrixValue(value.rows, value.cols);
+        double[][] resultValues = result.values;
+        double[][] matrixValues = value.values;
+        for (int i = 0; i < value.rows; i++) {
+            for (int j = 0; j < value.cols; j++) {
+                resultValues[i][j] = matrixValues[i][j] / values[j];
+            }
+        }
+        return result;
+    }
+
+    @Override
+    protected Value elementDivideBy(TensorValue value) {
+        throw new ArithmeticException("Algebbraic operation between Tensor and Vector are not implemented yet");
+    }
+
     /**
      * Default double dispatch
      *
@@ -338,6 +511,11 @@ public class VectorValue extends Value {
         return null;
     }
 
+    @Override
+    protected Value plus(TensorValue value) {
+        throw new ArithmeticException("Algebbraic operation between Tensor and Vector are not implemented yet");
+    }
+
     /**
      * Default Double Dispatch
      *
@@ -380,6 +558,11 @@ public class VectorValue extends Value {
     protected Value minus(MatrixValue value) {
         LOG.severe("Incompatible dimensions of algebraic operation - matrix minus vector");
         return null;
+    }
+
+    @Override
+    protected Value minus(TensorValue value) {
+        throw new ArithmeticException("Algebbraic operation between Tensor and Vector are not implemented yet");
     }
 
     /**
@@ -427,7 +610,52 @@ public class VectorValue extends Value {
      */
     @Override
     protected void incrementBy(MatrixValue value) {
-        LOG.severe("Incompatible dimensions of algebraic operation - matrix increment by vector");
+        String err = "Incompatible dimensions of algebraic operation - matrix increment by vector";
+        LOG.severe(err);
+        throw new ArithmeticException(err);
+
+    }
+
+    @Override
+    protected void incrementBy(TensorValue value) {
+        throw new ArithmeticException("Algebraic operation between Tensor and Vector are not implemented yet");
+    }
+
+    @Override
+    public void elementMultiplyBy(Value value) {
+        value.elementMultiplyBy(this);
+    }
+
+    @Override
+    protected void elementMultiplyBy(ScalarValue value) {
+        String err = "Incompatible dimensions of algebraic operation - scalar multiplyBy by vector";
+        LOG.severe(err);
+        throw new ArithmeticException(err);
+    }
+
+    @Override
+    protected void elementMultiplyBy(VectorValue value) {
+        if (value.values.length != values.length) {
+            String err = "Vector multiplyBy dimension mismatch: " + value.values.length + " vs." + values.length;
+            LOG.severe(err);
+            throw new ArithmeticException(err);
+        }
+        double[] otherValues = value.values;
+        for (int i = 0; i < otherValues.length; i++) {
+            otherValues[i] *= values[i];
+        }
+    }
+
+    @Override
+    protected void elementMultiplyBy(MatrixValue value) {
+        String err = "Incompatible dimensions of algebraic operation - matrix multiplyBy by vector";
+        LOG.severe(err);
+        throw new ArithmeticException(err);
+    }
+
+    @Override
+    protected void elementMultiplyBy(TensorValue value) {
+        throw new ArithmeticException("Algebbraic operation between Tensor and Vector are not implemented yet");
     }
 
     /**
@@ -472,6 +700,11 @@ public class VectorValue extends Value {
     protected boolean greaterThan(MatrixValue maxValue) {
         LOG.severe("Incompatible dimensions of algebraic operation - matrix greaterThan vector");
         return false;
+    }
+
+    @Override
+    protected boolean greaterThan(TensorValue maxValue) {
+        throw new ArithmeticException("Algebbraic operation between Tensor and Vector are not implemented yet");
     }
 
     @Override

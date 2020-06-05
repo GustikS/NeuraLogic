@@ -5,52 +5,45 @@ import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
 
 import java.util.Iterator;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 /**
- * This is just an ad-hoc helper class for cases where it might make sense to pass a string through the values.
- *
- * Obviously no algebra implemented here.
- *
- * Created by gusta on 8.3.17.
+ * A constant abstract 0 to make some operations faster
  */
-public class StringValue extends Value {
+class Zero extends Value {
 
-    String value;
+    private static final Logger LOG = Logger.getLogger(Zero.class.getName());
 
-    public StringValue(String valueText) {
-        this.value = valueText;
-    }
+    private final ScalarValue zero = new ScalarValue(0);
 
     @Override
     public void initialize(ValueInitializer valueInitializer) {
-
+        //void
     }
-
-
 
     @Override
     public Value zero() {
-        return null;
+        return zero;
     }
 
     @Override
     public Value clone() {
-        return null;
+        LOG.fine("Cloning a constant ZERO");
+        return this;
     }
 
     @Override
     public Value getForm() {
-        return null;
+        return this;
     }
 
     @Override
     public void transpose() {
-
     }
 
     @Override
     public Value transposedView() {
-        return null;
+        return this;
     }
 
     @Override
@@ -60,260 +53,267 @@ public class StringValue extends Value {
 
     @Override
     public Value apply(Function<Double, Double> function) {
-        return null;
+        throw new ArithmeticException("Trying to modify value of constant ONE");
     }
 
     @Override
     public double get(int i) {
-        return 0;
+        if (i != 0) {
+            LOG.severe("Scalar value: asking for i-th element!");
+        }
+        return zero.value;
     }
 
     @Override
     public void set(int i, double value) {
-
+        if (i != 0) {
+            LOG.severe("Scalar value: asking for i-th element!");
+        }
+        LOG.warning("Trying to set value i constant ONE");
     }
 
     @Override
     public void increment(int i, double value) {
-
+        if (i != 0) {
+            LOG.severe("Scalar value: asking for i-th element!");
+        }
+        LOG.warning("Trying to increment value i constant ONE");
     }
 
     @Override
     public String toString() {
-        return value;
+        return "0";
     }
 
     @Override
     public Value times(Value value) {
-        return null;
+        return value.getForm();
     }
 
     @Override
     public Value times(ScalarValue value) {
-        return null;
+        return value.getForm();
     }
 
     @Override
     public Value times(VectorValue value) {
-        return null;
+        return value.getForm();
     }
 
     @Override
     public Value times(MatrixValue value) {
-        return null;
+        return value.getForm();
     }
 
     @Override
     protected Value times(TensorValue value) {
-        return null;
+        return value.getForm();
     }
 
     @Override
     public Value elementTimes(Value value) {
-        return null;
+        return value.getForm();
     }
 
     @Override
     protected Value elementTimes(ScalarValue value) {
-        return null;
+        return value.getForm();
     }
 
     @Override
     protected Value elementTimes(VectorValue value) {
-        return null;
+        return value.getForm();
     }
 
     @Override
     protected Value elementTimes(MatrixValue value) {
-        return null;
+        return value.getForm();
     }
 
     @Override
     protected Value elementTimes(TensorValue value) {
-        return null;
+        return value.getForm();
     }
 
     @Override
     public Value kroneckerTimes(Value value) {
-        return null;
+        return value.getForm();
     }
 
     @Override
     protected Value kroneckerTimes(ScalarValue value) {
-        return null;
+        return value.getForm();
     }
 
     @Override
     protected Value kroneckerTimes(VectorValue value) {
-        return null;
+        return value.getForm();
     }
 
     @Override
     protected Value kroneckerTimes(MatrixValue value) {
-        return null;
+        return value.getForm();
     }
 
     @Override
     protected Value kroneckerTimes(TensorValue value) {
-        return null;
+        return value.getForm();
     }
 
     @Override
     public Value elementDivideBy(Value value) {
-        return null;
+        return zero;
     }
 
     @Override
     protected Value elementDivideBy(ScalarValue value) {
-        return null;
+        throw new ArithmeticException("Division by zero");
     }
 
     @Override
     protected Value elementDivideBy(VectorValue value) {
-        return null;
+        throw new ArithmeticException("Division by zero");
     }
 
     @Override
     protected Value elementDivideBy(MatrixValue value) {
-        return null;
+        throw new ArithmeticException("Division by zero");
     }
 
     @Override
     protected Value elementDivideBy(TensorValue value) {
-        return null;
+        throw new ArithmeticException("Division by zero");
     }
 
     @Override
     public Value plus(Value value) {
-        return null;
+        return value;
     }
 
     @Override
     public Value plus(ScalarValue value) {
-        return null;
+        return value;
     }
 
     @Override
     public Value plus(VectorValue value) {
-        return null;
+        return value;
     }
 
     @Override
     public Value plus(MatrixValue value) {
-        return null;
+        return value;
     }
 
     @Override
     protected Value plus(TensorValue value) {
-        return null;
+        return value;
     }
 
     @Override
     public Value minus(Value value) {
-        return null;
+        return value;
     }
 
     @Override
     public Value minus(ScalarValue value) {
-        return null;
+        return value;
     }
 
     @Override
     public Value minus(VectorValue value) {
-        return null;
+        return value;
     }
 
     @Override
     public Value minus(MatrixValue value) {
-        return null;
+        return value;
     }
 
     @Override
     protected Value minus(TensorValue value) {
-        return null;
+        return value;
     }
 
     @Override
     public void incrementBy(Value value) {
-
+        LOG.warning("Trying to increment a constant ZERO");
     }
 
     @Override
     public void incrementBy(ScalarValue value) {
-
+        //increment by zero = no increment
     }
 
     @Override
     public void incrementBy(VectorValue value) {
-
+        //increment by zero = no increment
     }
 
     @Override
     public void incrementBy(MatrixValue value) {
-
+        //increment by zero = no increment
     }
 
     @Override
     protected void incrementBy(TensorValue value) {
-
+        //increment by zero = no increment
     }
 
     @Override
     public void elementMultiplyBy(Value value) {
-
+        LOG.warning("Trying to increment a constant ZERO");
     }
 
     @Override
     protected void elementMultiplyBy(ScalarValue value) {
-
+        value.zero();
     }
 
     @Override
     protected void elementMultiplyBy(VectorValue value) {
-
+        value.zero();
     }
 
     @Override
     protected void elementMultiplyBy(MatrixValue value) {
-
+        value.zero();
     }
 
     @Override
     protected void elementMultiplyBy(TensorValue value) {
-
+        value.zero();
     }
 
     @Override
     public boolean greaterThan(Value maxValue) {
-        return false;
+        return maxValue.greaterThan(zero);
     }
 
     @Override
     public boolean greaterThan(ScalarValue maxValue) {
-        return false;
+        return zero.greaterThan(maxValue);
     }
 
     @Override
     public boolean greaterThan(VectorValue maxValue) {
-        return false;
+        return zero.greaterThan(maxValue);
     }
 
     @Override
     public boolean greaterThan(MatrixValue maxValue) {
-        return false;
+        return zero.greaterThan(maxValue);
     }
 
     @Override
     protected boolean greaterThan(TensorValue maxValue) {
-        return false;
+        return zero.greaterThan(maxValue);
     }
 
     @Override
     public boolean equals(Value obj) {
-        if (obj instanceof StringValue){
-            if (value.equals(((StringValue) obj).value)){
-                return true;
-            }
+        if (obj instanceof Zero) {
+            return true;
         }
         return false;
     }
@@ -321,6 +321,6 @@ public class StringValue extends Value {
     @NotNull
     @Override
     public Iterator<Double> iterator() {
-        return null;
+        return zero.iterator();
     }
 }

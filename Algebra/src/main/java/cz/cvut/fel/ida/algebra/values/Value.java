@@ -1,10 +1,8 @@
 package cz.cvut.fel.ida.algebra.values;
 
-import com.sun.istack.internal.NotNull;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
 
 import java.io.Serializable;
-import java.util.Iterator;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -128,8 +126,11 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
 
     protected abstract Value times(MatrixValue value);
 
+    protected abstract Value times(TensorValue value);
+
+
     /**
-     * ELEMENT-wise product
+     * ELEMENT-wise product - CONSTRUCTIVE
      *
      * @param value
      * @return
@@ -141,6 +142,40 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
     protected abstract Value elementTimes(VectorValue value);
 
     protected abstract Value elementTimes(MatrixValue value);
+
+    protected abstract Value elementTimes(TensorValue value);
+
+    /**
+     * KRONECKER product - CONSTRUCTIVE
+     *
+     * @param value
+     * @return
+     */
+    public abstract Value kroneckerTimes(Value value);
+
+    protected abstract Value kroneckerTimes(ScalarValue value);
+
+    protected abstract Value kroneckerTimes(VectorValue value);
+
+    protected abstract Value kroneckerTimes(MatrixValue value);
+
+    protected abstract Value kroneckerTimes(TensorValue value);
+
+
+    /**
+     * ELEMENT-wise division - CONSTRUCTIVE
+     * @param value
+     * @return
+     */
+    public abstract Value elementDivideBy(Value value);
+
+    protected abstract Value elementDivideBy(ScalarValue value);
+
+    protected abstract Value elementDivideBy(VectorValue value);
+
+    protected abstract Value elementDivideBy(MatrixValue value);
+
+    protected abstract Value elementDivideBy(TensorValue value);
 
     /**
      * CONSTRUCTIVE adding - will create a new Value.
@@ -156,6 +191,8 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
 
     protected abstract Value plus(MatrixValue value);
 
+    protected abstract Value plus(TensorValue value);
+
     /**
      * CONSTRUCTIVE subtracting - will create a new Value.
      *
@@ -169,6 +206,8 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
     protected abstract Value minus(VectorValue value);
 
     protected abstract Value minus(MatrixValue value);
+
+    protected abstract Value minus(TensorValue value);
 
     /**
      * DESTRUCTIVE adding - changes the INPUT Value.
@@ -185,6 +224,26 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
 
     protected abstract void incrementBy(MatrixValue value);
 
+    protected abstract void incrementBy(TensorValue value);
+
+
+    /**
+     * DESTRUCTIVE multiplication - changes the INPUT Value.
+     * - faster as there is no need to create new Value Object.
+     *
+     * @param value -THIS ONE WILL GET INCREMENTED BY THE CALLER!!
+     * @return
+     */
+    public abstract void elementMultiplyBy(Value value);
+
+    protected abstract void elementMultiplyBy(ScalarValue value);
+
+    protected abstract void elementMultiplyBy(VectorValue value);
+
+    protected abstract void elementMultiplyBy(MatrixValue value);
+
+    protected abstract void elementMultiplyBy(TensorValue value);
+
 
     /**
      * Comparison with ad-hoc semantics (based on majority) for Values of different dimensions.
@@ -200,6 +259,7 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
 
     protected abstract boolean greaterThan(MatrixValue maxValue);
 
+    protected abstract boolean greaterThan(TensorValue maxValue);
 
     public abstract boolean equals(Value obj);
 
@@ -219,418 +279,4 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
     public static final Value ZERO = new Zero();
     public static final Value ONE = new One();
 
-    private static class One extends Value {
-
-        private ScalarValue one = new ScalarValue(1);
-
-        @Override
-        public void initialize(ValueInitializer valueInitializer) {
-            //void
-        }
-
-        @Override
-        public Value zero() {
-            LOG.warning("Constant One cannot be zeroed!");
-            return null;
-        }
-
-        @Override
-        public Value clone() {
-            return new ScalarValue(1);
-        }
-
-        @Override
-        public Value getForm() {
-            return new ScalarValue(0);
-        }
-
-        @Override
-        public void transpose() {
-
-        }
-
-        @Override
-        public Value transposedView() {
-            return this;
-        }
-
-        @Override
-        public int[] size() {
-            return new int[0];
-        }
-
-        @Override
-        public Value apply(Function<Double, Double> function) {
-            return one.apply(function);
-        }
-
-        @Override
-        public double get(int i) {
-            if (i != 0) {
-                LOG.severe("Scalar value: asking for i-th element!");
-            }
-            return one.value;
-        }
-
-        @Override
-        public void set(int i, double value) {
-            if (i != 0) {
-                LOG.severe("Scalar value: asking for i-th element!");
-            }
-            LOG.warning("Trying to set value i constant ONE");
-        }
-
-        @Override
-        public void increment(int i, double value) {
-            LOG.warning("Trying to increment value i constant ONE");
-        }
-
-        @Override
-        public String toString() {
-            return "1";
-        }
-
-        @Override
-        public Value times(Value value) {
-            return value;
-        }
-
-        @Override
-        public Value times(ScalarValue value) {
-            return value;
-        }
-
-        @Override
-        public Value times(VectorValue value) {
-            return value;
-        }
-
-        @Override
-        public Value times(MatrixValue value) {
-            return value;
-        }
-
-        @Override
-        public Value elementTimes(Value value) {
-            return value;
-        }
-
-        @Override
-        protected Value elementTimes(ScalarValue value) {
-            return value;
-        }
-
-        @Override
-        protected Value elementTimes(VectorValue value) {
-            return value;
-        }
-
-        @Override
-        protected Value elementTimes(MatrixValue value) {
-            return value;
-        }
-
-        @Override
-        public Value plus(Value value) {
-            return value.plus(one);
-        }
-
-        @Override
-        public Value plus(ScalarValue value) {
-            return value.plus(one);
-        }
-
-        @Override
-        public Value plus(VectorValue value) {
-            return value.plus(one);
-        }
-
-        @Override
-        public Value plus(MatrixValue value) {
-            return value.plus(one);
-        }
-
-        @Override
-        public Value minus(Value value) {
-            return value.minus(one);
-        }
-
-        @Override
-        public Value minus(ScalarValue value) {
-            return one.minus(value);
-        }
-
-        @Override
-        public Value minus(VectorValue value) {
-            return one.minus(value);
-        }
-
-        @Override
-        public Value minus(MatrixValue value) {
-            return one.minus(value);
-        }
-
-        @Override
-        public void incrementBy(Value value) {
-            LOG.warning("Trying to increment a constant ONE");
-        }
-
-        @Override
-        public void incrementBy(ScalarValue value) {
-            one.incrementBy(value);
-        }
-
-        @Override
-        public void incrementBy(VectorValue value) {
-            one.incrementBy(value);
-        }
-
-        @Override
-        public void incrementBy(MatrixValue value) {
-            one.incrementBy(value);
-        }
-
-        @Override
-        public boolean greaterThan(Value maxValue) {
-            return maxValue.greaterThan(one);
-        }
-
-        @Override
-        public boolean greaterThan(ScalarValue maxValue) {
-            return one.greaterThan(maxValue);
-        }
-
-        @Override
-        public boolean greaterThan(VectorValue maxValue) {
-            return one.greaterThan(maxValue);
-        }
-
-        @Override
-        public boolean greaterThan(MatrixValue maxValue) {
-            return one.greaterThan(maxValue);
-        }
-
-        @Override
-        public boolean equals(Value obj) {
-            if (obj instanceof One) {
-                return true;
-            }
-            return false;
-        }
-
-        @NotNull
-        @Override
-        public Iterator<Double> iterator() {
-            return one.iterator();
-        }
-    }
-
-    @Deprecated
-    private static class Zero extends Value {
-
-        private ScalarValue zero = new ScalarValue(0);
-
-        @Override
-        public void initialize(ValueInitializer valueInitializer) {
-            //void
-        }
-
-        @Override
-        public Value zero() {
-            return zero;
-        }
-
-        @Override
-        public Value clone() {
-            LOG.fine("Cloning a constant ZERO");
-            return this;
-        }
-
-        @Override
-        public Value getForm() {
-            return this;
-        }
-
-        @Override
-        public void transpose() {
-        }
-
-        @Override
-        public Value transposedView() {
-            return this;
-        }
-
-        @Override
-        public int[] size() {
-            return new int[0];
-        }
-
-        @Override
-        public Value apply(Function<Double, Double> function) {
-            return zero.apply(function);
-        }
-
-        @Override
-        public double get(int i) {
-            if (i != 0) {
-                LOG.severe("Scalar value: asking for i-th element!");
-            }
-            return zero.value;
-        }
-
-        @Override
-        public void set(int i, double value) {
-            if (i != 0) {
-                LOG.severe("Scalar value: asking for i-th element!");
-            }
-            LOG.warning("Trying to set value i constant ONE");
-        }
-
-        @Override
-        public void increment(int i, double value) {
-            if (i != 0) {
-                LOG.severe("Scalar value: asking for i-th element!");
-            }
-            LOG.warning("Trying to increment value i constant ONE");
-        }
-
-        @Override
-        public String toString() {
-            return "0";
-        }
-
-        @Override
-        public Value times(Value value) {
-            return zero;
-        }
-
-        @Override
-        public Value times(ScalarValue value) {
-            return zero;
-        }
-
-        @Override
-        public Value times(VectorValue value) {
-            return zero;
-        }
-
-        @Override
-        public Value times(MatrixValue value) {
-            return zero;
-        }
-
-        @Override
-        public Value elementTimes(Value value) {
-            return zero;
-        }
-
-        @Override
-        protected Value elementTimes(ScalarValue value) {
-            return zero;
-        }
-
-        @Override
-        protected Value elementTimes(VectorValue value) {
-            return zero;
-        }
-
-        @Override
-        protected Value elementTimes(MatrixValue value) {
-            return zero;
-        }
-
-        @Override
-        public Value plus(Value value) {
-            return value;
-        }
-
-        @Override
-        public Value plus(ScalarValue value) {
-            return value;
-        }
-
-        @Override
-        public Value plus(VectorValue value) {
-            return value;
-        }
-
-        @Override
-        public Value plus(MatrixValue value) {
-            return value;
-        }
-
-        @Override
-        public Value minus(Value value) {
-            return value;
-        }
-
-        @Override
-        public Value minus(ScalarValue value) {
-            return value;
-        }
-
-        @Override
-        public Value minus(VectorValue value) {
-            return value;
-        }
-
-        @Override
-        public Value minus(MatrixValue value) {
-            return value;
-        }
-
-        @Override
-        public void incrementBy(Value value) {
-            LOG.warning("Trying to increment a constant ZERO");
-        }
-
-        @Override
-        public void incrementBy(ScalarValue value) {
-            //increment by zero = no increment
-        }
-
-        @Override
-        public void incrementBy(VectorValue value) {
-            //increment by zero = no increment
-        }
-
-        @Override
-        public void incrementBy(MatrixValue value) {
-            //increment by zero = no increment
-        }
-
-        @Override
-        public boolean greaterThan(Value maxValue) {
-            return maxValue.greaterThan(zero);
-        }
-
-        @Override
-        public boolean greaterThan(ScalarValue maxValue) {
-            return zero.greaterThan(maxValue);
-        }
-
-        @Override
-        public boolean greaterThan(VectorValue maxValue) {
-            return zero.greaterThan(maxValue);
-        }
-
-        @Override
-        public boolean greaterThan(MatrixValue maxValue) {
-            return zero.greaterThan(maxValue);
-        }
-
-        @Override
-        public boolean equals(Value obj) {
-            if (obj instanceof Zero) {
-                return true;
-            }
-            return false;
-        }
-
-        @NotNull
-        @Override
-        public Iterator<Double> iterator() {
-            return zero.iterator();
-        }
-    }
 }

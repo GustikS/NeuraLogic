@@ -105,7 +105,7 @@ public class Settings implements Serializable {
         setting.maxCumEpochCount = 2;
         setting.mainMode = MainMode.COMPLETE;
         setting.neuralNetsPostProcessing = false;
-        setting.chainPruning = false;
+        setting.chainPruning = true;
 
         setting.outDir = Settings.logFile;
         setting.infer();

@@ -6,7 +6,7 @@ import cz.cvut.fel.ida.neural.networks.computation.iteration.BottomUp;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.modes.DFSrecursion;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.modes.DFSstack;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.modes.Topologic;
-import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.neurons.StandardNeuronVisitors;
+import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.neurons.Up;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.neurons.Evaluator;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
 import cz.cvut.fel.ida.neural.networks.structure.components.NeuralNetwork;
@@ -51,7 +51,7 @@ public class Evaluation {
      * @return
      */
     private BottomUp<Value> getBottomUpIterationStrategy(Settings settings, NeuralNetwork<State.Neural.Structure> network, Neurons outputNeuron, Evaluator evaluator) {
-        StandardNeuronVisitors.Up up = new StandardNeuronVisitors.Up(network, evaluator);
+        Up up = new Up(network, evaluator);
         if (network instanceof TopologicNetwork) {
             return new Topologic((TopologicNetwork<State.Neural.Structure>) network).new BUpVisitor(outputNeuron, up);
         } else if (settings.iterationMode == Settings.IterationMode.DFS_RECURSIVE) {

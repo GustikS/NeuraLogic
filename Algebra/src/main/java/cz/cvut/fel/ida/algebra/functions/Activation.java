@@ -96,15 +96,21 @@ public abstract class Activation extends Aggregation {
                 return Activation.Singletons.identity;
             case "lukasiewicz":
                 return Activation.Singletons.lukasiewiczSigmoid;
-            case "crossproduct":
-                return new CrossProduct(Singletons.lukasiewiczSigmoid);
             default:
-                if (agg.startsWith("crossproduct-")) {
-                    String inner = agg.substring(agg.indexOf("-")+1, agg.length());
+                if (agg.startsWith("crosssum-")) {
+                    String inner = agg.substring(agg.indexOf("-") + 1);
                     Aggregation innerActivation = parseActivation(inner);
-                    return new CrossProduct((Activation) innerActivation);
+                    return new CrossSum((Activation) innerActivation);
+                } else if (agg.startsWith("elementproduct-")) {
+                    String inner = agg.substring(agg.indexOf("-") + 1);
+                    Aggregation innerActivation = parseActivation(inner);
+                    return new ElementProduct((Activation) innerActivation);
+                } else if (agg.startsWith("product-")) {
+                    String inner = agg.substring(agg.indexOf("-") + 1);
+                    Aggregation innerActivation = parseActivation(inner);
+                    return new Product((Activation) innerActivation);
                 }
-                return null;
+                throw new RuntimeException("Unable to parse activation function: " + agg);
         }
     }
 

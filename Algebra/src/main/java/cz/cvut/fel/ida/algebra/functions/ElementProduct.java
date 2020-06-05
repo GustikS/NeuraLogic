@@ -6,22 +6,18 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * Element-wise dimension-aligned (all inputs must have equal dimensions) application of (sum-based) activation.
- * Essentially this is just a summation aggregation when properly dimensioned inputs are provided.
+ * Element-wise product of all the values with some activation function applied on top
  */
-public class ElementProduct extends Activation {
+public class ElementProduct extends Product {
     private static final Logger LOG = Logger.getLogger(ElementProduct.class.getName());
+
+    public ElementProduct(Activation activation) {
+        super(activation);
+    }
 
     @Override
     public String getName() {
-        return "DotProduct";
-    }
-
-    Activation activation;
-
-    public ElementProduct(Activation activation) {
-        super(activation.evaluation, activation.gradient);
-        this.activation = activation;
+        return "ElementProduct";
     }
 
     @Override
@@ -30,19 +26,7 @@ public class ElementProduct extends Activation {
         return null;
     }
 
-    @Override
-    public Value evaluate(List<Value> inputs) {
-        Value sum = sumInputs(inputs);
-        return activation.evaluate(sum);
-    }
-
-    @Override
-    public Value differentiate(List<Value> inputs) {
-        Value sum = sumInputs(inputs);
-        return activation.differentiate(sum);
-    }
-
-    private Value sumInputs(List<Value> inputs){
+    protected Value multiplyInputs(List<Value> inputs){
         int[] size = inputs.get(0).size();
         /*
         for (int i = 0; i < inputs.size(); i++) {
@@ -52,11 +36,10 @@ public class ElementProduct extends Activation {
             }
         }
         */
-        Value sum = inputs.get(0).getForm();
-        for (Value input : inputs) {
-            //"Scalar" element-wise aligned summation
-            sum.incrementBy(input);
+        Value mult = inputs.get(0).clone();
+        for (int i = 1; i < inputs.size(); i++) {
+            mult.elementMultiplyBy(inputs.get(i));
         }
-        return sum;
+        return mult;
     }
 }

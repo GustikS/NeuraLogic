@@ -103,7 +103,7 @@ public class MDA {
 //        settings.appLimitSamples = 10;
         settings.maxCumEpochCount = 10;
 
-        Pair<Pipeline, ?> results = Main.main(Utilities.splitArgs("-sd /home/gusta/data/datasets/jair/first10/mol2types/MDA_MB_231_ATCC -fp fold -t /home/gusta/data/templates/molecules/gnns/gcn.txt"), settings);
+        Pair<Pipeline, ?> results = Main.main(Utilities.splitArgs("-sd /home/gusta/data/datasets/jair/first10/mol2types/MDA_MB_231_ATCC -fp fold -t ./templates/gcn.txt"), settings);
     }
 
 }

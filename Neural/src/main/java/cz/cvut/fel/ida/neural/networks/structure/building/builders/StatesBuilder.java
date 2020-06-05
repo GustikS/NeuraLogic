@@ -1,14 +1,12 @@
 package cz.cvut.fel.ida.neural.networks.structure.building.builders;
 
-import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.StateVisiting;
-import cz.cvut.fel.ida.algebra.functions.Activation;
-import cz.cvut.fel.ida.algebra.functions.Aggregation;
-import cz.cvut.fel.ida.algebra.functions.CrossProduct;
-import cz.cvut.fel.ida.algebra.functions.ElementProduct;
+import cz.cvut.fel.ida.algebra.functions.*;
 import cz.cvut.fel.ida.algebra.functions.specific.Average;
 import cz.cvut.fel.ida.algebra.functions.specific.Maximum;
 import cz.cvut.fel.ida.algebra.functions.specific.Sum;
 import cz.cvut.fel.ida.algebra.values.Value;
+import cz.cvut.fel.ida.algebra.weights.Weight;
+import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.StateVisiting;
 import cz.cvut.fel.ida.neural.networks.computation.training.strategies.Hyperparameters.DropoutRateStrategy;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.BaseNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
@@ -19,7 +17,6 @@ import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.StatesCache;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.FactNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.types.DetailedNetwork;
-import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.NeuronMapping;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 import cz.cvut.fel.ida.setup.Settings;
@@ -61,7 +58,7 @@ public class StatesBuilder {
 
     /**
      * Infer correct dimensions of all the value tensors within this network and create respective {@link Value} objects.
-     *
+     * todo now now this must respect the actual functions
      * @param detailedNetwork
      */
     public void inferValues(DetailedNetwork<State.Structure> detailedNetwork) {
@@ -124,7 +121,7 @@ public class StatesBuilder {
                 if (increment == null) {
                     LOG.severe("Weight-Value dimension mismatch at neuron:" + neuron);
                 } else {
-                    if (neuron.getAggregation() instanceof CrossProduct) {
+                    if (neuron.getAggregation() instanceof CrossSum) {
                         inputValues.add(increment);
                     } else {
                         Value plus = sum.plus(increment);
@@ -138,9 +135,9 @@ public class StatesBuilder {
             }
         }
 
-        if (neuron.getAggregation() instanceof CrossProduct) {
+        if (neuron.getAggregation() instanceof CrossSum) {
             sum = neuron.getAggregation().evaluate(inputValues);
-            AggregationState.CrossProducState crossProducState = (AggregationState.CrossProducState) neuron.getComputationView(0).getAggregationState();
+            AggregationState.CrossSumState crossProducState = (AggregationState.CrossSumState) neuron.getComputationView(0).getAggregationState();
             crossProducState.initMapping(inputValues);
         }
         neuron.getComputationView(0).setupValueDimensions(sum);
@@ -163,8 +160,15 @@ public class StatesBuilder {
             if (result == null) {
                 LOG.severe("Value dimension cannot be inferred!" + neuron);
             } else {
-                if (neuron.getAggregation() instanceof CrossProduct) {
+                if (neuron.getAggregation() instanceof CrossSum) {
                     inputValues.add(result);
+                } else if (neuron.getAggregation().getClass() == Product.class) {
+                    Value increment = sum.times(result);
+                    if (increment == null) {
+                        LOG.severe("Input Values dimension mismatch at neuron:" + neuron);
+                    } else {
+                        sum = increment;
+                    }
                 } else {
                     Value increment = sum.plus(result);
                     if (increment == null) {
@@ -175,9 +179,9 @@ public class StatesBuilder {
                 }
             }
         }
-        if (neuron.getAggregation() instanceof CrossProduct) {
+        if (neuron.getAggregation() instanceof CrossSum) {
             sum = neuron.getAggregation().evaluate(inputValues);
-            AggregationState.CrossProducState crossProducState = (AggregationState.CrossProducState) neuron.getComputationView(0).getAggregationState();
+            AggregationState.CrossSumState crossProducState = (AggregationState.CrossSumState) neuron.getComputationView(0).getAggregationState();
             crossProducState.initMapping(inputValues);
         }
         neuron.getComputationView(0).setupValueDimensions(sum);
@@ -354,10 +358,12 @@ public class StatesBuilder {
     }
 
     public static AggregationState getAggregationState(Aggregation aggregation) {
-        if (aggregation instanceof CrossProduct) {
-            return new AggregationState.CrossProducState(aggregation);
+        if (aggregation instanceof CrossSum) {
+            return new AggregationState.CrossSumState(aggregation);
         } else if (aggregation instanceof ElementProduct) {
-            return new AggregationState.CumulationState(aggregation);
+            return new AggregationState.ElementProductState((Activation) aggregation);
+        } else if (aggregation instanceof Product) {
+            return new AggregationState.ProductState((Activation) aggregation);
         } else if (aggregation instanceof Average) {
             return new AggregationState.Pooling.Avg(aggregation);
         } else if (aggregation instanceof Maximum) {

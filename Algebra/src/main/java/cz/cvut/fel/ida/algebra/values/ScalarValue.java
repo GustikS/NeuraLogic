@@ -95,7 +95,7 @@ public class ScalarValue extends Value {
 
     @Override
     public double get(int i) {
-        if (i != 0){
+        if (i != 0) {
             LOG.severe("Scalar value: asking for i-th element!");
         }
         return value;
@@ -103,7 +103,7 @@ public class ScalarValue extends Value {
 
     @Override
     public void set(int i, double value) {
-        if (i != 0){
+        if (i != 0) {
             LOG.severe("Scalar value: asking for i-th element!");
         }
         this.value = value;
@@ -111,7 +111,7 @@ public class ScalarValue extends Value {
 
     @Override
     public void increment(int i, double value) {
-        if (i != 0){
+        if (i != 0) {
             LOG.severe("Scalar value: asking for i-th element!");
         }
         this.value += value;
@@ -164,6 +164,15 @@ public class ScalarValue extends Value {
     }
 
     @Override
+    protected Value times(TensorValue value) {
+        TensorValue clone = value.clone();
+        for (int i = 0; i < clone.tensor.values.length; i++) {
+            clone.tensor.values[i] *= this.value;
+        }
+        return clone;
+    }
+
+    @Override
     public Value elementTimes(Value value) {
         return value.elementTimes(this);
     }
@@ -189,6 +198,93 @@ public class ScalarValue extends Value {
             for (int j = 0; j < clone.cols; j++) {
                 clone.values[i][j] *= this.value;
             }
+        }
+        return clone;
+    }
+
+    @Override
+    protected Value elementTimes(TensorValue value) {
+        TensorValue clone = value.clone();
+        for (int i = 0; i < clone.tensor.values.length; i++) {
+            clone.tensor.values[i] *= this.value;
+        }
+        return clone;
+    }
+
+    @Override
+    public Value kroneckerTimes(Value value) {
+        return value.elementTimes(this);
+    }
+
+    @Override
+    protected Value kroneckerTimes(ScalarValue value) {
+        return new ScalarValue(this.value * value.value);
+    }
+
+    @Override
+    protected Value kroneckerTimes(VectorValue value) {
+        VectorValue clone = value.clone();
+        for (int i = 0; i < value.values.length; i++) {
+            clone.values[i] *= this.value;
+        }
+        return clone;
+    }
+
+    @Override
+    protected Value kroneckerTimes(MatrixValue value) {
+        MatrixValue clone = value.clone();
+        for (int i = 0; i < clone.rows; i++) {
+            for (int j = 0; j < clone.cols; j++) {
+                clone.values[i][j] *= this.value;
+            }
+        }
+        return clone;
+    }
+
+    @Override
+    protected Value kroneckerTimes(TensorValue value) {
+        TensorValue clone = value.clone();
+        for (int i = 0; i < clone.tensor.values.length; i++) {
+            clone.tensor.values[i] *= this.value;
+        }
+        return clone;
+    }
+
+    @Override
+    public Value elementDivideBy(Value value) {
+        return value.elementDivideBy(this);
+    }
+
+    @Override
+    protected ScalarValue elementDivideBy(ScalarValue value) {
+        return new ScalarValue(value.value / this.value);
+    }
+
+    @Override
+    protected Value elementDivideBy(VectorValue vector) {
+        VectorValue clone = vector.clone();
+        for (int i = 0; i < vector.values.length; i++) {
+            clone.values[i] /= this.value;
+        }
+        return clone;
+    }
+
+    @Override
+    protected Value elementDivideBy(MatrixValue value) {
+        MatrixValue clone = value.clone();
+        for (int i = 0; i < clone.rows; i++) {
+            for (int j = 0; j < clone.cols; j++) {
+                clone.values[i][j] /= this.value;
+            }
+        }
+        return clone;
+    }
+
+    @Override
+    protected Value elementDivideBy(TensorValue value) {
+        TensorValue clone = value.clone();
+        for (int i = 0; i < clone.tensor.values.length; i++) {
+            clone.tensor.values[i] /= this.value;
         }
         return clone;
     }
@@ -225,6 +321,15 @@ public class ScalarValue extends Value {
             for (int j = 0; j < clone.cols; j++) {
                 clone.values[i][j] += this.value;
             }
+        }
+        return clone;
+    }
+
+    @Override
+    protected Value plus(TensorValue value) {
+        TensorValue clone = value.clone();
+        for (int i = 0; i < clone.tensor.values.length; i++) {
+            clone.tensor.values[i] += this.value;
         }
         return clone;
     }
@@ -283,6 +388,15 @@ public class ScalarValue extends Value {
         return clone;
     }
 
+    @Override
+    protected Value minus(TensorValue value) {
+        TensorValue clone = value.clone();
+        for (int i = 0; i < clone.tensor.values.length; i++) {
+            clone.tensor.values[i] -= this.value;
+        }
+        return clone;
+    }
+
     /**
      * Default Double Dispatch
      *
@@ -326,6 +440,46 @@ public class ScalarValue extends Value {
             for (int j = 0; j < value.cols; j++) {
                 value.values[i][j] += this.value;
             }
+        }
+    }
+
+    @Override
+    protected void incrementBy(TensorValue value) {
+        for (int i = 0; i < value.tensor.values.length; i++) {
+            value.tensor.values[i] += this.value;
+        }
+    }
+
+    @Override
+    public void elementMultiplyBy(Value value) {
+        value.elementMultiplyBy(this);
+    }
+
+    @Override
+    protected void elementMultiplyBy(ScalarValue value) {
+        value.value *= this.value;
+    }
+
+    @Override
+    protected void elementMultiplyBy(VectorValue value) {
+        for (int i = 0; i < value.values.length; i++) {
+            value.values[i] *= this.value;
+        }
+    }
+
+    @Override
+    protected void elementMultiplyBy(MatrixValue value) {
+        for (int i = 0; i < value.rows; i++) {
+            for (int j = 0; j < value.cols; j++) {
+                value.values[i][j] *= this.value;
+            }
+        }
+    }
+
+    @Override
+    protected void elementMultiplyBy(TensorValue value) {
+        for (int i = 0; i < value.tensor.values.length; i++) {
+            value.tensor.values[i] *= this.value;
         }
     }
 
@@ -376,9 +530,20 @@ public class ScalarValue extends Value {
     }
 
     @Override
+    protected boolean greaterThan(TensorValue maxValue) {
+        int greater = 0;
+        for (int i = 0; i < maxValue.tensor.values.length; i++) {
+            if (maxValue.tensor.values[i] > this.value) {
+                greater++;
+            }
+        }
+        return greater > maxValue.tensor.values.length / 2;
+    }
+
+    @Override
     public boolean equals(Value obj) {
-        if (obj instanceof ScalarValue){
-            if (value == ((ScalarValue) obj).value){
+        if (obj instanceof ScalarValue) {
+            if (value == ((ScalarValue) obj).value) {
                 return true;
             }
         }

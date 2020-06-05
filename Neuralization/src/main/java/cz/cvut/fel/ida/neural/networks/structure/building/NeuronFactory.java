@@ -2,7 +2,6 @@ package cz.cvut.fel.ida.neural.networks.structure.building;
 
 import cz.cvut.fel.ida.algebra.functions.Activation;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
-import cz.cvut.fel.ida.algebra.functions.CrossProduct;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
@@ -96,9 +95,6 @@ public class NeuronFactory {
     public RuleNeuron createRuleNeuron(GroundRule groundRule) {
         WeightedRule weightedRule = groundRule.weightedRule;
         Activation activation = weightedRule.getActivationFcn() != null ? weightedRule.getActivationFcn() : Activation.getActivationFunction(settings.ruleNeuronActivation);
-        if (weightedRule.isCrossProduct()) {
-            activation = new CrossProduct(activation);
-        }
         State.Neural.Computation state = State.createBaseState(settings, activation);
         RuleNeuron<State.Neural.Computation> ruleNeuron = new RuleNeuron<>(settings.fullRuleNeuronStrings ? groundRule.toFullString() : weightedRule.getOriginalString(), counter++, state);
         neuronMaps.ruleNeurons.put(groundRule, ruleNeuron);
@@ -109,9 +105,6 @@ public class NeuronFactory {
     public WeightedRuleNeuron createWeightedRuleNeuron(GroundRule groundRule) {
         WeightedRule weightedRule = groundRule.weightedRule;
         Activation activation = weightedRule.getActivationFcn() != null ? weightedRule.getActivationFcn() : Activation.getActivationFunction(settings.ruleNeuronActivation);
-        if (weightedRule.isCrossProduct()) {
-            activation = new CrossProduct(activation);
-        }
         Weight offset = weightedRule.getOffset();
         if (offset == null) {
             if (settings.defaultRuleOffsetsLearnable) {

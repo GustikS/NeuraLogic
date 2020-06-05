@@ -8,15 +8,14 @@ import java.util.logging.Logger;
 
 import static cz.cvut.fel.ida.utils.generic.Utilities.getDatasetArgs;
 
-public class Kinships {
-    private static final Logger LOG = Logger.getLogger(Kinships.class.getName());
+public class UMLS {
+    private static final Logger LOG = Logger.getLogger(UMLS.class.getName());
 
-    static String dataset = "relational/kbs/kinships";
+    static String dataset = "relational/kbs/umls";
 
     @TestAnnotations.Slow
     public void basic() throws Exception {
-        Settings settings = Settings.forFastTest();
-        settings.appLimitSamples = -1;
-        Main.main(getDatasetArgs(dataset), settings);
+        Settings settings = Settings.forSlowTest();
+        Main.main(getDatasetArgs(dataset,"-t ./templates/template.txt"), settings);
     }
 }

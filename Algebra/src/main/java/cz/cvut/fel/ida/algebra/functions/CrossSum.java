@@ -9,27 +9,27 @@ import java.util.logging.Logger;
 
 /**
  * Takes all combinations of dimensions of all inputs -> sum into a long vector -> activation
- * This is a possible rule neuron's activation function! todo test this
+ * This is a possible rule neuron's activation function!
  *
  * todo if too slow in evaluation, precalculate the final vector via pointers to the underyling values via special aggregationState?
  */
-public class CrossProduct extends Activation {
-    private static final Logger LOG = Logger.getLogger(CrossProduct.class.getName());
+public class CrossSum extends Activation {
+    private static final Logger LOG = Logger.getLogger(CrossSum.class.getName());
 
     @Override
     public String getName() {
-        return "CrossProduct";
+        return "CrossSum";
     }
 
     Activation activation;
 
     @Override
     public Aggregation replaceWithSingleton() {
-        LOG.severe("CrossProduct cannot be singleton");
+        LOG.severe("CrossSum cannot be singleton (may have different Activations)");
         return null;
     }
 
-    public CrossProduct(Activation activation) {
+    public CrossSum(Activation activation) {
         super(activation.evaluation, activation.gradient);
         this.activation = activation;
     }

@@ -75,6 +75,58 @@ public abstract class AggregationState implements Aggregation.State {
     }
 
     /**
+     * Same as ActivationState, but multiplies the inputs instead
+     * todo now Could be a subclass, but test if not causing a slowdown
+     */
+    public static class ElementProductState extends AggregationState {
+        Activation activation;
+        Value multipliedInputs;
+
+        public ElementProductState(Activation activation) {
+            this.activation = activation;
+        }
+
+        public ElementProductState(Activation activation, Value valueStore) {
+            this.activation = activation;
+            this.multipliedInputs = valueStore;
+        }
+
+        @Override
+        public void cumulate(Value value) {
+            multipliedInputs.elementMultiplyBy(value);
+        }
+
+        @Override
+        public void invalidate() {
+            multipliedInputs.zero().incrementBy(Value.ONE);
+        }
+
+        public int[] getInputMask() {
+            return null;
+        }
+
+        @Override
+        public Value gradient() {
+            return activation.differentiate(multipliedInputs);
+        }
+
+        @Override
+        public Value evaluate() {
+            return activation.evaluate(multipliedInputs);
+        }
+
+        @Override
+        public Activation getAggregation() {
+            return activation;
+        }
+
+        @Override
+        public void setupValueDimensions(Value value) {
+            this.multipliedInputs = value.getForm();
+        }
+    }
+
+    /**
      * State for aggregations based on pooling, e.g. Max or Avg. These require remembering different values for intermediate results.
      */
     public static abstract class Pooling extends AggregationState {
@@ -322,14 +374,84 @@ public abstract class AggregationState implements Aggregation.State {
         }
     }
 
-    public static class CrossProducState extends CumulationState {
+    public static class ProductState extends CumulationState {
+
+        Value multipliedInputs;
+        Activation activation;
+
+        public ProductState(Activation activation) {
+            super(activation);
+            this.activation = activation;
+        }
+
+        @Override
+        public Value evaluate() {
+            if (multipliedInputs == null) {
+                multipliedInputs = accumulatedInputs.get(0).clone();
+                for (int i = 1; i < accumulatedInputs.size(); i++) {
+                    multipliedInputs = multipliedInputs.times(accumulatedInputs.get(i));
+                }
+            }
+            return activation.evaluate(multipliedInputs);
+        }
+
+        @Override
+        public Value gradient() {
+            return activation.differentiate(multipliedInputs);
+        }
+
+        @Override
+        public void invalidate() {
+            super.invalidate();
+            multipliedInputs = null;
+        }
+
+        public Value derivativeFrom(int index, Value topGradient) {
+            int size = accumulatedInputs.size();
+
+            Value left = null;
+            Value right = null;
+
+            for (int i = 0; i < size; i++) {
+                if (i == index) {
+                    continue;
+                } else if (i < index) {
+                    if (left == null) {
+                        left = accumulatedInputs.get(i);
+                    } else {
+                        left = left.times(accumulatedInputs.get(i));
+                    }
+                } else {
+                    if (right == null) {
+                        right = accumulatedInputs.get(i);
+                    } else {
+                        right = right.times(accumulatedInputs.get(i));
+                    }
+                }
+            }
+            if (left == null) {
+                Value transposedRight = right.transposedView();
+                return topGradient.times(transposedRight);
+            } else if (right == null) {
+                return topGradient.transposedView().times(left);
+            } else {
+                Value times = topGradient.transposedView().times(left);
+                Value kronecker = right.transposedView().kroneckerTimes(times);   //todo test this!!
+                return kronecker;
+            }
+
+
+        }
+    }
+
+    public static class CrossSumState extends CumulationState {
 
         private static Map<Mapping, Mapping> cache = new HashMap<>();
 
         public int[][] mapping;
         int cross = 0;
 
-        public CrossProducState(Aggregation aggregation) {
+        public CrossSumState(Aggregation aggregation) {
             super(aggregation);
         }
 
