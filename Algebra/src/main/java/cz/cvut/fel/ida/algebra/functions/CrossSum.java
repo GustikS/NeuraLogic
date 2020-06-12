@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 /**
  * Takes all combinations of dimensions of all inputs -> sum into a long vector -> activation
  * This is a possible rule neuron's activation function!
- *
+ * <p>
  * todo if too slow in evaluation, precalculate the final vector via pointers to the underyling values via special aggregationState?
  */
 public class CrossSum extends Activation {
@@ -32,6 +32,11 @@ public class CrossSum extends Activation {
     public CrossSum(Activation activation) {
         super(activation.evaluation, activation.gradient);
         this.activation = activation;
+    }
+
+    @Override
+    public boolean isComplex() {
+        return true;
     }
 
     @Override
@@ -59,6 +64,7 @@ public class CrossSum extends Activation {
 
     /**
      * All combinations of dimensions of all inputs -> long vector
+     *
      * @param output
      * @param sum
      * @param values

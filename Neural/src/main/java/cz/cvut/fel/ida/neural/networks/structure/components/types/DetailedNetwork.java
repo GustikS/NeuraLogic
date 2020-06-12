@@ -207,9 +207,11 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
         copy.neuralSets = this.neuralSets;
         copy.outputMapping = this.outputMapping;
         copy.extraInputMapping = this.extraInputMapping;
+        copy.containsComplexActivations = this.containsComplexActivations;
         copy.containsInputMasking = this.containsInputMasking;
         copy.neuronStates = this.neuronStates;
         copy.metadata = this.metadata;
+
         return copy;
     }
 }

@@ -469,8 +469,7 @@ public class MatrixValue extends Value {
 
     @Override
     protected Value plus(VectorValue value) {
-        LOG.severe("Incompatible summation of matrix plus vector ");
-        return null;
+        throw new ArithmeticException("Incompatible summation of matrix plus vector ");
     }
 
     @Override

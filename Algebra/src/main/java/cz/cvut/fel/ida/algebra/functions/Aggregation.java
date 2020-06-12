@@ -89,6 +89,10 @@ public abstract class Aggregation implements Exportable {
      */
     public abstract boolean isInputSymmetric();
 
+    public boolean isComplex(){
+        return false;
+    }
+
     public static class Singletons {
         public static Average average = new Average();
         public static Maximum maximum = new Maximum();

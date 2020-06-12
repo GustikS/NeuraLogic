@@ -1,7 +1,6 @@
 package cz.cvut.fel.ida.neural.networks.structure.building;
 
 import com.sun.istack.internal.NotNull;
-import cz.cvut.fel.ida.algebra.functions.Activation;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.logic.Literal;
@@ -180,10 +179,7 @@ public class NeuralNetBuilder {
 
     public static boolean hasComplexActivation(Neurons neuron) {
         Aggregation aggregation = neuron.getComputationView(0).getAggregationState().getAggregation();
-        if (aggregation.getClass() != Activation.class) {
-            return true;
-        }
-        return false;
+        return aggregation.isComplex();
     }
 
     /**

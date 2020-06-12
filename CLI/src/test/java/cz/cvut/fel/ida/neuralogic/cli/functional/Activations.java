@@ -64,6 +64,6 @@ public class Activations {
 
         Settings settings = Settings.forFastTest();
 
-        Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/mutagenesis", "-t ./templates/product.txt"), settings);
+        Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/mutagenesis", "-t ./templates/muta_product.txt"), settings);
     }
 }

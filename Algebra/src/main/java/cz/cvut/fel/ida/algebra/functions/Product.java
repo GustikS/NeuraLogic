@@ -21,6 +21,11 @@ public class Product extends Activation {
     }
 
     @Override
+    public boolean isComplex() {
+        return true;
+    }
+
+    @Override
     public Aggregation replaceWithSingleton() {
         LOG.severe("Product cannot be singleton.");
         return null;

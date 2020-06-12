@@ -507,8 +507,7 @@ public class VectorValue extends Value {
      */
     @Override
     protected Value plus(MatrixValue value) {
-        LOG.severe("Incompatible summation of matrix plus vector ");
-        return null;
+        throw new ArithmeticException("Incompatible summation of matrix plus vector ");
     }
 
     @Override
@@ -556,8 +555,7 @@ public class VectorValue extends Value {
 
     @Override
     protected Value minus(MatrixValue value) {
-        LOG.severe("Incompatible dimensions of algebraic operation - matrix minus vector");
-        return null;
+        throw new ArithmeticException("Incompatible dimensions of algebraic operation - matrix minus vector");
     }
 
     @Override
@@ -582,7 +580,7 @@ public class VectorValue extends Value {
      */
     @Override
     protected void incrementBy(ScalarValue value) {
-        LOG.severe("Incompatible dimensions of algebraic operation - scalar increment by vector");
+        throw new ArithmeticException("Incompatible dimensions of algebraic operation - scalar increment by vector");
     }
 
     /**

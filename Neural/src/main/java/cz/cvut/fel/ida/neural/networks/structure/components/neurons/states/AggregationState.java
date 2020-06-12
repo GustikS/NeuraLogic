@@ -2,6 +2,7 @@ package cz.cvut.fel.ida.neural.networks.structure.components.neurons.states;
 
 import cz.cvut.fel.ida.algebra.functions.Activation;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
+import cz.cvut.fel.ida.algebra.functions.Concatenation;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 
@@ -371,6 +372,28 @@ public abstract class AggregationState implements Aggregation.State {
         @Override
         public Value evaluate() {
             return aggregation.evaluate(accumulatedInputs);
+        }
+    }
+
+    public static class ConcatState extends CumulationState{
+
+        Value concatInputs;
+        Activation activation;
+
+        public ConcatState(Activation aggregation) {
+            super(aggregation);
+            this.activation = aggregation;
+        }
+
+        @Override
+        public Value gradient() {
+            return activation.differentiate(concatInputs);
+        }
+
+        @Override
+        public Value evaluate() {
+            concatInputs = Concatenation.concatenate(accumulatedInputs);
+            return activation.evaluate(concatInputs);
         }
     }
 

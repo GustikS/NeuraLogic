@@ -59,6 +59,7 @@ public class StatesBuilder {
     /**
      * Infer correct dimensions of all the value tensors within this network and create respective {@link Value} objects.
      * todo now now this must respect the actual functions
+     *
      * @param detailedNetwork
      */
     public void inferValues(DetailedNetwork<State.Structure> detailedNetwork) {
@@ -110,7 +111,7 @@ public class StatesBuilder {
         if (sum == null) {
             LOG.severe("Weight-Value dimension mismatch at neuron:" + neuron);
         }
-        inputValues.add(value);
+        inputValues.add(sum);
         while (neuronIterator.hasNext()) {
             value = neuronIterator.next().getComputationView(0).getValue();
             weight = weightIterator.next().value;
@@ -121,7 +122,7 @@ public class StatesBuilder {
                 if (increment == null) {
                     LOG.severe("Weight-Value dimension mismatch at neuron:" + neuron);
                 } else {
-                    if (neuron.getAggregation() instanceof CrossSum) {
+                    if (neuron.getAggregation() instanceof CrossSum || neuron.getAggregation() instanceof Concatenation) {
                         inputValues.add(increment);
                     } else {
                         Value plus = sum.plus(increment);
@@ -135,10 +136,12 @@ public class StatesBuilder {
             }
         }
 
-        if (neuron.getAggregation() instanceof CrossSum) {
+        if (neuron.getAggregation() instanceof CrossSum || neuron.getAggregation() instanceof Concatenation) {
             sum = neuron.getAggregation().evaluate(inputValues);
-            AggregationState.CrossSumState crossProducState = (AggregationState.CrossSumState) neuron.getComputationView(0).getAggregationState();
-            crossProducState.initMapping(inputValues);
+            if (neuron.getAggregation() instanceof CrossSum) {
+                AggregationState.CrossSumState crossProducState = (AggregationState.CrossSumState) neuron.getComputationView(0).getAggregationState();
+                crossProducState.initMapping(inputValues);
+            }
         }
         neuron.getComputationView(0).setupValueDimensions(sum);
     }
@@ -160,7 +163,7 @@ public class StatesBuilder {
             if (result == null) {
                 LOG.severe("Value dimension cannot be inferred!" + neuron);
             } else {
-                if (neuron.getAggregation() instanceof CrossSum) {
+                if (neuron.getAggregation() instanceof CrossSum || neuron.getAggregation() instanceof Concatenation) {
                     inputValues.add(result);
                 } else if (neuron.getAggregation().getClass() == Product.class) {
                     Value increment = sum.times(result);
@@ -179,10 +182,12 @@ public class StatesBuilder {
                 }
             }
         }
-        if (neuron.getAggregation() instanceof CrossSum) {
+        if (neuron.getAggregation() instanceof CrossSum || neuron.getAggregation() instanceof Concatenation) {
             sum = neuron.getAggregation().evaluate(inputValues);
-            AggregationState.CrossSumState crossProducState = (AggregationState.CrossSumState) neuron.getComputationView(0).getAggregationState();
-            crossProducState.initMapping(inputValues);
+            if (neuron.getAggregation() instanceof CrossSum) {
+                AggregationState.CrossSumState crossProducState = (AggregationState.CrossSumState) neuron.getComputationView(0).getAggregationState();
+                crossProducState.initMapping(inputValues);
+            }
         }
         neuron.getComputationView(0).setupValueDimensions(sum);
     }
@@ -364,6 +369,8 @@ public class StatesBuilder {
             return new AggregationState.ElementProductState((Activation) aggregation);
         } else if (aggregation instanceof Product) {
             return new AggregationState.ProductState((Activation) aggregation);
+        } else if (aggregation instanceof Concatenation) {
+            return new AggregationState.ConcatState((Activation) aggregation);
         } else if (aggregation instanceof Average) {
             return new AggregationState.Pooling.Avg(aggregation);
         } else if (aggregation instanceof Maximum) {

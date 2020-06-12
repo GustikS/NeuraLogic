@@ -243,11 +243,11 @@ public class Utilities {
     public static <T> List<T> terminateSampleStream(Stream<T> stream) {
         Timing timing = new Timing();
         timing.tic();
-        LOG.fine("--------------------- PROCESSING SAMPLES (= terminating stream) ------------------------------");
+//        LOG.fine("--------------------- PROCESSING SAMPLES (= terminating stream) ------------------------------");
         List<T> list = stream.collect(Collectors.toList());
         stream.close(); //THE IMPORTANT PART
         timing.toc();
-        LOG.fine("--------------------- SAMPLES PROCESSED into list of " + list.get(0).getClass().getSimpleName() + " (in " + timing.getTimeTaken() + ") -----------------------");
+        LOG.fine("--------------------- SAMPLE STREAM TERMINATED into list of " + list.get(0).getClass().getSimpleName() + " (in " + timing.getTimeTaken() + ") -----------------------");
         logMemory();
         return list;
     }

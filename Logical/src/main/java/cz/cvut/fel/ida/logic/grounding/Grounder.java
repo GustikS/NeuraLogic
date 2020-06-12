@@ -127,6 +127,7 @@ public abstract class Grounder implements Exportable {
      * @returnst
      */
     private List<WeightedRule> merge2rules(List<WeightedRule> a, List<WeightedRule> b) {
+        LOG.severe("Two rules with the same logical signature! Check the template for duplicites...");
         a.addAll(b);
         return a;
     }

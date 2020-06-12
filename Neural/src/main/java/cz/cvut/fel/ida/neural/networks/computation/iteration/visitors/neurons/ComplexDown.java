@@ -1,9 +1,6 @@
 package cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.neurons;
 
-import cz.cvut.fel.ida.algebra.functions.Aggregation;
-import cz.cvut.fel.ida.algebra.functions.CrossSum;
-import cz.cvut.fel.ida.algebra.functions.ElementProduct;
-import cz.cvut.fel.ida.algebra.functions.Product;
+import cz.cvut.fel.ida.algebra.functions.*;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.StateVisiting;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.weights.WeightUpdater;
 import cz.cvut.fel.ida.neural.networks.structure.components.NeuralNetwork;
@@ -21,6 +18,7 @@ public class ComplexDown extends NeuronVisitor.Weighted {
     private Weighted crossDown;
     private Weighted elementDown;
     private Weighted productDown;
+    private Weighted concatDown;
 
 
     public ComplexDown(NeuralNetwork<State.Structure> network, StateVisiting.Computation computationVisitor, WeightUpdater weightUpdater) {
@@ -33,24 +31,20 @@ public class ComplexDown extends NeuronVisitor.Weighted {
         crossDown = new CrossSumDown(down.network, down.stateVisitor, down.weightUpdater);
         elementDown = new ElementProductDown(down.network, down.stateVisitor, down.weightUpdater);
         productDown = new ProductDown(down.network, down.stateVisitor, down.weightUpdater);
+        concatDown = new ConcatDown(down.network, down.stateVisitor, down.weightUpdater);
     }
 
     @Override
     public <T extends Neurons, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
-        Aggregation aggregation = neuron.getAggregation();
-        if (aggregation instanceof CrossSum) {
-            crossDown.visit(neuron);
-        } else if (aggregation instanceof ElementProduct) {
-            elementDown.visit(neuron);
-        } else if (aggregation instanceof Product) {
-            productDown.visit(neuron);
-        } else {
-            classicDown.visit(neuron);
-        }
+        switchDown(neuron);
     }
 
     @Override
     public <T extends Neurons, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron) {
+        switchDown(neuron);
+    }
+
+    private <T extends Neurons, S extends State.Neural> void switchDown(BaseNeuron<T, S> neuron) {
         Aggregation aggregation = neuron.getAggregation();
         if (aggregation instanceof CrossSum) {
             crossDown.visit(neuron);
@@ -58,6 +52,8 @@ public class ComplexDown extends NeuronVisitor.Weighted {
             elementDown.visit(neuron);
         } else if (aggregation instanceof Product) {
             productDown.visit(neuron);
+        } else if (aggregation instanceof Concatenation) {
+            concatDown.visit(neuron);
         } else {
             classicDown.visit(neuron);
         }

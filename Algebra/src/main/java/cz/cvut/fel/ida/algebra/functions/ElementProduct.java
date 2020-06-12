@@ -16,6 +16,11 @@ public class ElementProduct extends Product {
     }
 
     @Override
+    public boolean isComplex() {
+        return true;
+    }
+
+    @Override
     public String getName() {
         return "ElementProduct";
     }
@@ -26,7 +31,7 @@ public class ElementProduct extends Product {
         return null;
     }
 
-    protected Value multiplyInputs(List<Value> inputs){
+    protected Value multiplyInputs(List<Value> inputs) {
         int[] size = inputs.get(0).size();
         /*
         for (int i = 0; i < inputs.size(); i++) {

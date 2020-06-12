@@ -109,6 +109,10 @@ public abstract class Activation extends Aggregation {
                     String inner = agg.substring(agg.indexOf("-") + 1);
                     Aggregation innerActivation = parseActivation(inner);
                     return new Product((Activation) innerActivation);
+                } else if (agg.startsWith("concat-")) {
+                    String inner = agg.substring(agg.indexOf("-") + 1);
+                    Aggregation innerActivation = parseActivation(inner);
+                    return new Concatenation((Activation) innerActivation);
                 }
                 throw new RuntimeException("Unable to parse activation function: " + agg);
         }

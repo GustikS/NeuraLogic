@@ -18,4 +18,16 @@ public class UMLS {
         Settings settings = Settings.forSlowTest();
         Main.main(getDatasetArgs(dataset,"-t ./templates/template.txt"), settings);
     }
+
+    @TestAnnotations.Slow
+    public void distmult() throws Exception {
+        Settings settings = Settings.forSlowTest();
+        Main.main(getDatasetArgs(dataset,"-t ./templates/distmult.txt"), settings);
+    }
+
+    @TestAnnotations.Slow
+    public void concat() throws Exception {
+        Settings settings = Settings.forSlowTest();
+        Main.main(getDatasetArgs(dataset,"-t ./templates/concat.txt"), settings);
+    }
 }
