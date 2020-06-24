@@ -39,6 +39,10 @@ public class VectorValue extends Value {
         initialize(valueInitializer);
     }
 
+    public VectorValue(double[] values) {
+        this.values = values;
+    }
+
     public VectorValue(double[] values, boolean rowOrientation) {
         this.values = values;
         this.rowOrientation = rowOrientation;
@@ -48,6 +52,7 @@ public class VectorValue extends Value {
         values = new double[size];
         this.rowOrientation = rowOrientation;
     }
+
 
     protected int rows() {
         if (rowOrientation) {
@@ -341,7 +346,7 @@ public class VectorValue extends Value {
         int cols = cols() * value.cols();
 
         if (rows == 1 || cols == 1) {
-            VectorValue result = new VectorValue(rows*cols, rows == 1);
+            VectorValue result = new VectorValue(rows * cols, rows == 1);
             double[] resultValues = result.values;
             double[] otherValues = value.values;
             for (int i = 0; i < otherValues.length; i++) {
@@ -383,7 +388,7 @@ public class VectorValue extends Value {
             for (int r1 = 0; r1 < matrix.rows; r1++) {
                 for (int c1 = 0; c1 < matrix.cols; c1++) {
                     for (int k = 0; k < values.length; k++) {
-                        resultValues[r1][c1*values.length + k] = otherValues[r1][c1] * values[k];
+                        resultValues[r1][c1 * values.length + k] = otherValues[r1][c1] * values[k];
                     }
                 }
             }
@@ -391,7 +396,7 @@ public class VectorValue extends Value {
             for (int r1 = 0; r1 < matrix.rows; r1++) {
                 for (int c1 = 0; c1 < matrix.cols; c1++) {
                     for (int k = 0; k < values.length; k++) {
-                        resultValues[r1*values.length + k][c1] = otherValues[r1][c1] * values[k];
+                        resultValues[r1 * values.length + k][c1] = otherValues[r1][c1] * values[k];
                     }
                 }
             }

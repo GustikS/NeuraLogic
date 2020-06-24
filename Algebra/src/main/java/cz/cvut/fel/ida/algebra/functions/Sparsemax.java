@@ -1,0 +1,105 @@
+package cz.cvut.fel.ida.algebra.functions;
+
+import cz.cvut.fel.ida.algebra.values.ScalarValue;
+import cz.cvut.fel.ida.algebra.values.Value;
+import cz.cvut.fel.ida.algebra.values.VectorValue;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Logger;
+
+public class Sparsemax extends Softmax {
+    private static final Logger LOG = Logger.getLogger(Sparsemax.class.getName());
+
+    public Sparsemax() {
+    }
+
+    @Override
+    public Aggregation replaceWithSingleton() {
+        return Singletons.sparsemax;
+    }
+
+    @Override
+    public Value evaluate(List<Value> inputs) {
+        double[] exps = getProbabilities(inputs);
+        VectorValue output = new VectorValue(exps);
+        return output;
+    }
+
+    @Override
+    public Value differentiate(List<Value> inputs) {
+        double[] exps = getProbabilities(inputs);
+        double[] diffs = getGradient(exps);
+        VectorValue output = new VectorValue(diffs);
+        return output;
+    }
+
+
+    public double[] getProbabilities(List<Value> inputs) {
+        double[] z_values = new double[inputs.size()];
+        for (int i = 0; i < inputs.size(); i++) {
+            double exp = ((ScalarValue) inputs.get(i)).value;
+            z_values[i] = exp;
+        }
+        double[] z_sorted = Arrays.copyOf(z_values, z_values.length);
+        Arrays.sort(z_sorted);
+        int length = z_sorted.length;
+        double[] bound = new double[length];
+        for (int i = 0; i < length; i++) {
+            bound[i] = z_sorted[length - 1 - i] * (i + 1) + 1;
+        }
+        double sum = 0;
+        double[] cumsum = new double[length];
+        for (int i = 0; i < length; i++) {
+            sum += z_sorted[z_sorted.length - 1 - i];
+            cumsum[i] = sum;
+        }
+        int k = -1;
+        double sparse_sum = 0;
+        for (int i = 0; i < length; i++) {
+            if (bound[i] > cumsum[i]) {
+                k = i + 1;
+                sparse_sum += z_sorted[length - 1 - i];
+            }
+        }
+
+        double threshold = (sparse_sum - 1) / k;
+        double[] out = new double[length];
+        for (int i = 0; i < length; i++) {
+            double val = z_values[i] - threshold;
+            out[i] = val > 0 ? val : 0;
+        }
+        return out;
+    }
+
+    public double[] getGradient(double[] exps) {
+        int support = 0;
+        for (int i = 0; i < exps.length; i++) {
+            if (exps[i] > 0) support++;
+        }
+        double[] diffs = new double[exps.length];
+        for (int i = 0; i < exps.length; i++) {
+            if (exps[i] == 0) continue;
+            for (int j = 0; j < diffs.length; j++) {
+                if (exps[j] == 0) continue;
+
+                if (i == j) {
+                    diffs[j] += 1 - 1.0 / support;
+                } else {
+                    diffs[j] -= 1.0 / support;
+                }
+            }
+        }
+        return diffs;
+    }
+
+    @Override
+    public boolean isInputSymmetric() {
+        return false;
+    }
+
+    @Override
+    public boolean isComplex() {
+        return true;
+    }
+}

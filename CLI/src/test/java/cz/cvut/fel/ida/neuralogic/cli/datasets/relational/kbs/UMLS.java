@@ -30,4 +30,16 @@ public class UMLS {
         Settings settings = Settings.forSlowTest();
         Main.main(getDatasetArgs(dataset,"-t ./templates/concat.txt"), settings);
     }
+
+    @TestAnnotations.Slow
+    public void softmax() throws Exception {
+        Settings settings = Settings.forSlowTest();
+        Main.main(getDatasetArgs(dataset,"-t ./templates/softmax.txt"), settings);
+    }
+
+    @TestAnnotations.Slow
+    public void sparsemax() throws Exception {
+        Settings settings = Settings.forSlowTest();
+        Main.main(getDatasetArgs(dataset,"-t ./templates/sparsemax.txt"), settings);
+    }
 }

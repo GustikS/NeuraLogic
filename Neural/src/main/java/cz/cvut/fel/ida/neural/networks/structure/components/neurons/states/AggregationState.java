@@ -3,8 +3,10 @@ package cz.cvut.fel.ida.neural.networks.structure.components.neurons.states;
 import cz.cvut.fel.ida.algebra.functions.Activation;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.functions.Concatenation;
+import cz.cvut.fel.ida.algebra.functions.XMax;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
+import cz.cvut.fel.ida.algebra.values.VectorValue;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -375,7 +377,7 @@ public abstract class AggregationState implements Aggregation.State {
         }
     }
 
-    public static class ConcatState extends CumulationState{
+    public static class ConcatState extends CumulationState {
 
         Value concatInputs;
         Activation activation;
@@ -386,14 +388,53 @@ public abstract class AggregationState implements Aggregation.State {
         }
 
         @Override
-        public Value gradient() {
-            return activation.differentiate(concatInputs);
+        public void invalidate() {
+            super.invalidate();
+            concatInputs = null;
         }
 
         @Override
         public Value evaluate() {
-            concatInputs = Concatenation.concatenate(accumulatedInputs);
+            if (concatInputs == null) {
+                concatInputs = Concatenation.concatenate(accumulatedInputs);
+            }
             return activation.evaluate(concatInputs);
+        }
+
+        @Override
+        public Value gradient() {
+            return activation.differentiate(concatInputs);
+        }
+    }
+
+    public static class SoftmaxState extends CumulationState {
+
+        double[] probabilities;
+        XMax xmax;
+
+        public SoftmaxState(Aggregation aggregation) {
+            super(aggregation);
+            xmax = (XMax) aggregation;
+        }
+
+        @Override
+        public void invalidate() {
+            super.invalidate();
+            probabilities = null;
+        }
+
+        @Override
+        public Value evaluate() {
+            if (probabilities == null) {
+                probabilities = xmax.getProbabilities(accumulatedInputs);
+            }
+            return new VectorValue(probabilities);
+        }
+
+        @Override
+        public Value gradient() {
+            double[] gradient = xmax.getGradient(probabilities);
+            return new VectorValue(gradient);
         }
     }
 
@@ -540,4 +581,5 @@ public abstract class AggregationState implements Aggregation.State {
             }
         }
     }
+
 }

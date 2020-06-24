@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 public class SquaredDiff implements ErrorFcn {
     private static final Logger LOG = Logger.getLogger(SquaredDiff.class.getName());
 
-    Value oneHalf = new ScalarValue(0.5);
+    static Value oneHalf = new ScalarValue(0.5);
 
     static SquaredDiff singleton = new SquaredDiff();
 

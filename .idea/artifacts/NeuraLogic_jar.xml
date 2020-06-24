@@ -16,7 +16,7 @@
       <element id="module-output" name="Algebra" />
       <element id="module-output" name="Logic" />
       <element id="module-output" name="Learning" />
-      <element id="module-output" name="LogicParsing" />
+      <element id="module-output" name="Parsing" />
       <element id="module-output" name="Neural" />
       <element id="module-output" name="Neuralization" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/antlr/antlr4-runtime/4.8-1/antlr4-runtime-4.8-1.jar" path-in-jar="/" />

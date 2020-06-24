@@ -16,11 +16,6 @@ import java.util.logging.Logger;
 public class CrossSum extends Activation {
     private static final Logger LOG = Logger.getLogger(CrossSum.class.getName());
 
-    @Override
-    public String getName() {
-        return "CrossSum";
-    }
-
     Activation activation;
 
     @Override

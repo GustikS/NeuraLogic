@@ -17,13 +17,12 @@
         <module>Logging</module>
         <module>Logic</module>
         <module>Logical</module>
-        <module>LogicParsing</module>
         <module>Neural</module>
         <module>Neuralization</module>
+        <module>Parsing</module>
         <module>Pipelines</module>
         <module>Utilities</module>
         <module>Workflow</module>
-        <module>Pipelines</module>
         <module>Resources</module>
     </modules>
 

@@ -83,8 +83,6 @@ public class ConcatDown extends NeuronVisitor.Weighted {
         for (Double aDouble : gradient) {
             elementGradients.add(new ScalarValue(aDouble));
         }
-
-
         return elementGradients.iterator();
     }
 }

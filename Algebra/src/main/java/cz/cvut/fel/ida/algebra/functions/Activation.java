@@ -12,6 +12,17 @@ import java.util.logging.Logger;
  * Class representing activation functions, i.e. those that firstly accumulate input values via summation and then apply some non-linearity on top.
  * The non-linearity is provided via FunctionalInterface Function separately for evaluation and derivative/gradient.
  * <p>
+ * Steps for adding new activation/aggregation:
+ * 1) add definition of the function (evaluation+differentiation) by overriding {@link Activation} or {@link Aggregation} class
+ * 2) create a static singleton in {@link Activation} or {@link Aggregation} for reuse, if possible
+ * 3) update {@link Activation#parseActivation(String)} and {@link Activation#getActivationFunction(Settings.ActivationFcn)} with the new option
+ * 4) if beneficial/required, create new computation state in {cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.AggregationState} for the function
+ * 5) if the function requires special backprop treatment, create new Visitors.Down propagator and update ComplexDown with the option
+ * 6) assign a specific State corresponding to the function in {cz.cvut.fel.ida.neural.networks.structure.building.builders.StatesBuilder#getAggregationState}
+ * 7) update dimensionality inference in {cz.cvut.fel.ida.neural.networks.structure.building.builders.StatesBuilder} if necessary
+ *
+ *
+ * <p>
  * Created by gusta on 8.3.17.
  */
 public abstract class Activation extends Aggregation {
@@ -76,6 +87,10 @@ public abstract class Activation extends Aggregation {
                 return Singletons.relu;
             case LUKASIEWICZ:
                 return Singletons.lukasiewiczSigmoid;
+            case SOFTMAX:
+                return Singletons.softmax;
+            case SPARSEMAX:
+                return Singletons.sparsemax;
             default:
                 LOG.severe("Unimplemented activation function");
                 return null;
@@ -96,6 +111,10 @@ public abstract class Activation extends Aggregation {
                 return Activation.Singletons.identity;
             case "lukasiewicz":
                 return Activation.Singletons.lukasiewiczSigmoid;
+            case "softmax":
+                return Activation.Singletons.softmax;
+            case "sparsemax":
+                return Activation.Singletons.sparsemax;
             default:
                 if (agg.startsWith("crosssum-")) {
                     String inner = agg.substring(agg.indexOf("-") + 1);
@@ -125,5 +144,7 @@ public abstract class Activation extends Aggregation {
         public static ReLu relu = new ReLu();
         public static Identity identity = new Identity();
         public static Tanh tanh = new Tanh();
+        public static Softmax softmax = new Softmax();
+        public static Sparsemax sparsemax = new Sparsemax();
     }
 }

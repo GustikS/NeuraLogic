@@ -21,11 +21,6 @@ public class ElementProduct extends Product {
     }
 
     @Override
-    public String getName() {
-        return "ElementProduct";
-    }
-
-    @Override
     public Aggregation replaceWithSingleton() {
         LOG.severe("ElementProduct cannot be singleton.");
         return null;

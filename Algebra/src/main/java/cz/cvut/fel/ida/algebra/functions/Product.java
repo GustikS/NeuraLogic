@@ -8,11 +8,6 @@ import java.util.logging.Logger;
 public class Product extends Activation {
     private static final Logger LOG = Logger.getLogger(Product.class.getName());
 
-    @Override
-    public String getName() {
-        return "Product";
-    }
-
     Activation activation;
 
     public Product(Activation activation) {

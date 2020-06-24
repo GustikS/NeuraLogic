@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.neural.networks.structure.building.builders;
 import cz.cvut.fel.ida.algebra.functions.*;
 import cz.cvut.fel.ida.algebra.functions.specific.Average;
 import cz.cvut.fel.ida.algebra.functions.specific.Maximum;
+import cz.cvut.fel.ida.algebra.functions.Softmax;
 import cz.cvut.fel.ida.algebra.functions.specific.Sum;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
@@ -122,7 +123,7 @@ public class StatesBuilder {
                 if (increment == null) {
                     LOG.severe("Weight-Value dimension mismatch at neuron:" + neuron);
                 } else {
-                    if (neuron.getAggregation() instanceof CrossSum || neuron.getAggregation() instanceof Concatenation) {
+                    if (changesDimensions(neuron)) {
                         inputValues.add(increment);
                     } else {
                         Value plus = sum.plus(increment);
@@ -136,7 +137,7 @@ public class StatesBuilder {
             }
         }
 
-        if (neuron.getAggregation() instanceof CrossSum || neuron.getAggregation() instanceof Concatenation) {
+        if (changesDimensions(neuron)) {
             sum = neuron.getAggregation().evaluate(inputValues);
             if (neuron.getAggregation() instanceof CrossSum) {
                 AggregationState.CrossSumState crossProducState = (AggregationState.CrossSumState) neuron.getComputationView(0).getAggregationState();
@@ -163,7 +164,7 @@ public class StatesBuilder {
             if (result == null) {
                 LOG.severe("Value dimension cannot be inferred!" + neuron);
             } else {
-                if (neuron.getAggregation() instanceof CrossSum || neuron.getAggregation() instanceof Concatenation) {
+                if (changesDimensions(neuron)) {
                     inputValues.add(result);
                 } else if (neuron.getAggregation().getClass() == Product.class) {
                     Value increment = sum.times(result);
@@ -182,7 +183,7 @@ public class StatesBuilder {
                 }
             }
         }
-        if (neuron.getAggregation() instanceof CrossSum || neuron.getAggregation() instanceof Concatenation) {
+        if (changesDimensions(neuron)) {
             sum = neuron.getAggregation().evaluate(inputValues);
             if (neuron.getAggregation() instanceof CrossSum) {
                 AggregationState.CrossSumState crossProducState = (AggregationState.CrossSumState) neuron.getComputationView(0).getAggregationState();
@@ -190,6 +191,15 @@ public class StatesBuilder {
             }
         }
         neuron.getComputationView(0).setupValueDimensions(sum);
+    }
+
+    /**
+     * Check whether this activaiton needs to be treated specially
+     * @param neuron
+     * @return
+     */
+    private boolean changesDimensions(BaseNeuron<Neurons, State.Neural> neuron) {
+        return neuron.getAggregation() instanceof CrossSum || neuron.getAggregation() instanceof Concatenation || neuron.getAggregation() instanceof Softmax;
     }
 
     /**
@@ -377,6 +387,8 @@ public class StatesBuilder {
             return new AggregationState.Pooling.Max(aggregation);
         } else if (aggregation instanceof Sum) {
             return new AggregationState.Pooling.Sum(aggregation);
+        } else if (aggregation instanceof Softmax) {
+            return new AggregationState.SoftmaxState(aggregation);
         } else if (aggregation instanceof Activation) {
             return new AggregationState.ActivationState((Activation) aggregation);
         } else {

@@ -14,9 +14,9 @@
         <module name="Logging" />
         <module name="Logic" />
         <module name="Logical" />
-        <module name="LogicParsing" />
         <module name="Neural" />
         <module name="Neuralization" />
+        <module name="Parsing" />
         <module name="Pipelines" />
         <module name="Resources" />
         <module name="Settings" />
