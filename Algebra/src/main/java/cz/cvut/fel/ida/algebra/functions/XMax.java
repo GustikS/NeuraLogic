@@ -9,6 +9,8 @@ import java.util.List;
  */
 public interface XMax {
 
+    double[] getProbabilities(double[] input);
+
     double[] getProbabilities(List<Value> inputs);
 
     double[] getGradient(double[] exps);

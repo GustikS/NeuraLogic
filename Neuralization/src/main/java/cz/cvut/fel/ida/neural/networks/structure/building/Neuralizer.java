@@ -3,22 +3,22 @@ package cz.cvut.fel.ida.neural.networks.structure.building;
 import com.sun.istack.internal.NotNull;
 import cz.cvut.fel.ida.logic.Clause;
 import cz.cvut.fel.ida.logic.Literal;
-import cz.cvut.fel.ida.logic.subsumption.Matching;
 import cz.cvut.fel.ida.logic.constructs.building.factories.WeightFactory;
 import cz.cvut.fel.ida.logic.constructs.example.LogicSample;
 import cz.cvut.fel.ida.logic.constructs.example.QueryAtom;
 import cz.cvut.fel.ida.logic.constructs.template.components.GroundHeadRule;
 import cz.cvut.fel.ida.logic.constructs.template.components.GroundRule;
-import cz.cvut.fel.ida.utils.exporting.Exportable;
-import cz.cvut.fel.ida.utils.generic.Timing;
 import cz.cvut.fel.ida.logic.grounding.GroundTemplate;
 import cz.cvut.fel.ida.logic.grounding.GroundingSample;
+import cz.cvut.fel.ida.logic.subsumption.Matching;
 import cz.cvut.fel.ida.neural.networks.structure.components.NeuralNetwork;
 import cz.cvut.fel.ida.neural.networks.structure.components.NeuralSets;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.QueryNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.AtomNeurons;
 import cz.cvut.fel.ida.neural.networks.structure.components.types.DetailedNetwork;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
+import cz.cvut.fel.ida.utils.generic.Timing;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -71,7 +71,7 @@ public class Neuralizer implements Exportable {
         GroundingSample groundingSample = samples.get(0);
         NeuronMaps neuronMaps = (NeuronMaps) groundingSample.groundingWrap.getNeuronMaps();  //neuronmaps should be same for all samples
         if (neuronMaps == null) {
-            neuronMaps = new NeuronMaps(groundingSample.groundingWrap.getGroundTemplate().groundRules,groundingSample.groundingWrap.getGroundTemplate().groundFacts);
+            neuronMaps = new NeuronMaps(groundingSample.groundingWrap.getGroundTemplate().groundRules, groundingSample.groundingWrap.getGroundTemplate().groundFacts);
             NeuronMaps finalNeuronMaps = neuronMaps;
             samples.forEach(s -> s.groundingWrap.setNeuronMaps(finalNeuronMaps));
         }
@@ -108,7 +108,7 @@ public class Neuralizer implements Exportable {
             if (atomNeuron == null) {
                 LOG.severe("No inference network created for " + queryAtom);
             }
-            QueryNeuron queryNeuron = new QueryNeuron(queryAtom.ID, queryAtom.position, queryAtom.importance, atomNeuron, neuralNetwork);
+            QueryNeuron queryNeuron = new QueryNeuron(queryAtom.ID + ":" + queryAtom.headAtom.toString(), queryAtom.position, queryAtom.importance, atomNeuron, neuralNetwork);
 
             NeuralProcessingSample neuralProcessingSample = new NeuralProcessingSample(logicSample.target, queryNeuron, logicSample.type);
             neuralSamples.add(neuralProcessingSample);
@@ -135,8 +135,8 @@ public class Neuralizer implements Exportable {
         networksCreated++;
 
         NeuronMaps neuronMaps = (NeuronMaps) groundingSample.groundingWrap.getNeuronMaps();
-        if (neuronMaps == null){
-            neuronMaps = new NeuronMaps(groundingSample.groundingWrap.getGroundTemplate().groundRules,groundingSample.groundingWrap.getGroundTemplate().groundFacts);
+        if (neuronMaps == null) {
+            neuronMaps = new NeuronMaps(groundingSample.groundingWrap.getGroundTemplate().groundRules, groundingSample.groundingWrap.getGroundTemplate().groundFacts);
             groundingSample.groundingWrap.setNeuronMaps(neuronMaps);
         }
         neuralNetBuilder.setNeuronMaps(neuronMaps); //loading stored context from previous neural nets building
@@ -170,8 +170,9 @@ public class Neuralizer implements Exportable {
 
         List<Literal> queryMatchingLiterals = getQueryMatchingLiterals(queryAtom, groundTemplate.groundRules);
         if (queryMatchingLiterals.isEmpty()) {
-            LOG.severe("Query not matched anywhere in the template:" + queryAtom);
-            System.exit(5);
+            String err = "Query not matched anywhere in the template:" + queryAtom;
+            LOG.severe(err);
+            throw new RuntimeException(err);
         }
         LOG.finer("Obtained QueryMatchingLiterals: " + queryMatchingLiterals);
 
@@ -284,7 +285,7 @@ public class Neuralizer implements Exportable {
                 LOG.severe("Query not matched!");
             }
 
-            QueryNeuron queryNeuron = new QueryNeuron(queryAtom.ID, queryAtom.position, queryAtom.importance, atomNeuron, neuralNetwork);
+            QueryNeuron queryNeuron = new QueryNeuron(queryAtom.ID + ":" + queryAtom.headAtom.toString(), queryAtom.position, queryAtom.importance, atomNeuron, neuralNetwork);
             queryNeurons.add(queryNeuron);
         }
         return queryNeurons;

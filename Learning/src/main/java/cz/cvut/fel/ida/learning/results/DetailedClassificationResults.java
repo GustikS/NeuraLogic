@@ -49,14 +49,10 @@ public class DetailedClassificationResults extends ClassificationResults {  //to
     @Override
     public boolean recalculate() {
         super.recalculate();
-        if (settings.forceDetailedResults) {
-            computeDetailedStats(evaluations);
-        }
-        return true;
+        return computeDetailedStats(evaluations);
     }
 
-    public void computeDetailedStats(List<Result> evaluations) {
-
+    public boolean computeDetailedStats(List<Result> evaluations) {
         if (settings.alternativeAUC)
             AUCrocEmpirical = calculateAUCsmaller(evaluations);
 
@@ -64,7 +60,9 @@ public class DetailedClassificationResults extends ClassificationResults {  //to
             setFullAUC(evaluations);
         } catch (Exception e) {
             LOG.warning("Could not calculate AUC stats");
+            return false;
         }
+        return true;
     }
 
     public Double computeBestAccuracy(List<Result> evaluations, Value trainedThreshold) {

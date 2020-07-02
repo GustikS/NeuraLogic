@@ -1,7 +1,6 @@
 package cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.neurons;
 
 import cz.cvut.fel.ida.algebra.functions.*;
-import cz.cvut.fel.ida.algebra.functions.Softmax;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.StateVisiting;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.weights.WeightUpdater;
 import cz.cvut.fel.ida.neural.networks.structure.components.NeuralNetwork;
@@ -53,8 +52,12 @@ public class ComplexDown extends NeuronVisitor.Weighted {
             elementDown.visit(neuron);
         } else if (aggregation instanceof Product) {
             productDown.visit(neuron);
-        } else if (aggregation instanceof Concatenation || aggregation instanceof Softmax) {
+        } else if (aggregation instanceof Concatenation) {
             concatDown.visit(neuron);
+        } else if (aggregation instanceof Softmax) {
+            if (neuron.inputCount() > 1) {
+                concatDown.visit(neuron);
+            }
         } else {
             classicDown.visit(neuron);
         }

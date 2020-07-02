@@ -92,7 +92,6 @@ public class Mutagenesis {
         settings.setOptimizer(Settings.OptimizerSet.SGD);
         settings.initLearningRate = 0.3;
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
-        settings.detailedResults = true;
 
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = false;
@@ -131,7 +130,6 @@ public class Mutagenesis {
         settings.setOptimizer(Settings.OptimizerSet.SGD);
         settings.initLearningRate = 0.3;
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
-        settings.detailedResults = true;
 
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = false;
@@ -172,7 +170,6 @@ public class Mutagenesis {
         settings.setOptimizer(Settings.OptimizerSet.SGD);
         settings.initLearningRate = 0.3;
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
-        settings.detailedResults = true;
 
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = false;
@@ -213,7 +210,6 @@ public class Mutagenesis {
         settings.setOptimizer(Settings.OptimizerSet.SGD);
         settings.initLearningRate = 0.3;
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
-        settings.detailedResults = true;
 
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = false;

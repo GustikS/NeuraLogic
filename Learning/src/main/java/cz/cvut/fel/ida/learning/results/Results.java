@@ -4,12 +4,11 @@ import com.sun.istack.internal.NotNull;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.functions.specific.Average;
 import cz.cvut.fel.ida.algebra.values.Value;
+import cz.cvut.fel.ida.learning.results.metrics.HITS;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -33,7 +32,7 @@ public abstract class Results implements Exportable<Results> {
     Aggregation aggregationFcn;
 
     /**
-     * The error fcn value as measured by the respective aggregationFcn over individual sample errorFcns
+     * The error fcn value as measured by the respective settingsFcn over individual sample errorFcns
      */
     public Value error;
 
@@ -101,7 +100,7 @@ public abstract class Results implements Exportable<Results> {
         return evaluations.isEmpty();
     }
 
-    public static abstract class Factory {
+    public static abstract class Factory<R extends Results> {
 
         Settings settings;
 
@@ -109,21 +108,34 @@ public abstract class Results implements Exportable<Results> {
             this.settings = settings;
         }
 
-        public static Factory getFrom(Settings settings) {
-            if (settings.regression) {
-                return new RegressionFactory(settings);
-            } else {
-                if (settings.detailedResults)
-                    return new DetailedClassificationFactory(settings);
-                else
+        public static Factory getFrom(Settings.ResultsType type, Settings settings) {
+            switch (type) {
+                case KBC:
+                    return new KBCFactory(settings);
+                case REGRESSION:
+                    return new RegressionFactory(settings);
+                case CLASSIFICATION:
                     return new ClassificationFactory(settings);
+                case DETAILEDCLASSIFICATION:
+                    return new DetailedClassificationFactory(settings);
+                default:
+                    throw new RuntimeException("Unknown ResultsType required");
             }
         }
 
-        public abstract Results createFrom(List<Result> outputs);
+        public abstract R createFrom(List<Result> outputs);
+
+        /**
+         * Possibly store some precalculated structures from the results
+         *
+         * @param trainingResults
+         */
+        public void cacheForReuse(R trainingResults) {
+
+        }
     }
 
-    private static class VoidFactory extends Factory {
+    private static class VoidFactory extends Factory<Results> {
 
         public VoidFactory(Settings settings) {
             super(settings);
@@ -131,47 +143,74 @@ public abstract class Results implements Exportable<Results> {
 
         @Override
         public Results createFrom(List<Result> outputs) {
-            VoidResults regressionResults = new VoidResults(outputs, settings);
-            return regressionResults;
+            return new VoidResults(outputs, settings);
         }
     }
 
-    private static class RegressionFactory extends Factory {
+    private static class RegressionFactory extends Factory<RegressionResults> {
 
-        public RegressionFactory(Settings aggregation) {
-            super(aggregation);
+        public RegressionFactory(Settings settings) {
+            super(settings);
         }
 
         @Override
-        public Results createFrom(List<Result> outputs) {
-            RegressionResults regressionResults = new RegressionResults(outputs, settings);
-            return regressionResults;
+        public RegressionResults createFrom(List<Result> outputs) {
+            return new RegressionResults(outputs, settings);
         }
     }
 
-    private static class DetailedClassificationFactory extends Factory {
+    private static class ClassificationFactory extends Factory<ClassificationResults> {
 
-        public DetailedClassificationFactory(Settings aggregation) {
-            super(aggregation);
+        public ClassificationFactory(Settings settings) {
+            super(settings);
         }
 
         @Override
-        public Results createFrom(List<Result> outputs) {
-            DetailedClassificationResults detailedClassificationResults = new DetailedClassificationResults(outputs, settings);
-            return detailedClassificationResults;
+        public ClassificationResults createFrom(List<Result> outputs) {
+            return new ClassificationResults(outputs, settings);
         }
     }
 
-    private static class ClassificationFactory extends Factory {
+    private static class DetailedClassificationFactory extends Factory<DetailedClassificationResults> {
 
-        public ClassificationFactory(Settings aggregation) {
-            super(aggregation);
+        public DetailedClassificationFactory(Settings settings) {
+            super(settings);
         }
 
         @Override
-        public Results createFrom(List<Result> outputs) {
-            ClassificationResults classificationResults = new ClassificationResults(outputs, settings);
-            return classificationResults;
+        public DetailedClassificationResults createFrom(List<Result> outputs) {
+            return new DetailedClassificationResults(outputs, settings);
+        }
+    }
+
+    private static class KBCFactory extends Factory<KBCResults> {
+
+        HITS hits;
+        private Set<HITS> consumed;
+
+        public KBCFactory(Settings settings) {
+            super(settings);
+            consumed = new HashSet<>();
+        }
+
+        @Override
+        public KBCResults createFrom(List<Result> outputs) {
+            KBCResults kbcResults = new KBCResults(outputs, settings, hits);
+            cacheForReuse(kbcResults);
+            return kbcResults;
+        }
+
+        @Override
+        public void cacheForReuse(KBCResults results) {
+            if (hits == null) {
+                hits = results.hits;
+                consumed.add(results.hits);
+            } else {
+                if (hits != results.hits && !consumed.contains(results.hits)) {
+                    hits.mergeWith(results.hits);
+                    consumed.add(results.hits);
+                }
+            }
         }
     }
 }

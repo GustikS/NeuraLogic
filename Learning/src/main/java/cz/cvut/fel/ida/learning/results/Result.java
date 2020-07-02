@@ -20,7 +20,7 @@ public class Result implements Comparable<Result> {
      */
     ErrorFcn errorFcn;
 
-    String sampleId;
+    public String sampleId;
     int position;
 
     private Value output;

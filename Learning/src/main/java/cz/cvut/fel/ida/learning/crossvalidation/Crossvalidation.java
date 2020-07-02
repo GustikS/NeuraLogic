@@ -85,7 +85,7 @@ public class Crossvalidation<T extends LearningSample> {
             }
         }
 
-        Results.Factory factory = Results.Factory.getFrom(settings);
+        Results.Factory factory = Results.Factory.getFrom(settings.testResultsType, settings);
         Results allTrainResults = factory.createFrom(allTrain);
         Results allValidationResults = factory.createFrom(allValidation);
         Results allTestResults = factory.createFrom(allTest);

@@ -34,14 +34,9 @@ public class Sparsemax extends Softmax {
         return output;
     }
 
-
-    public double[] getProbabilities(List<Value> inputs) {
-        double[] z_values = new double[inputs.size()];
-        for (int i = 0; i < inputs.size(); i++) {
-            double exp = ((ScalarValue) inputs.get(i)).value;
-            z_values[i] = exp;
-        }
-        double[] z_sorted = Arrays.copyOf(z_values, z_values.length);
+    @Override
+    public double[] getProbabilities(double[] input) {
+        double[] z_sorted = Arrays.copyOf(input, input.length);
         Arrays.sort(z_sorted);
         int length = z_sorted.length;
         double[] bound = new double[length];
@@ -66,10 +61,23 @@ public class Sparsemax extends Softmax {
         double threshold = (sparse_sum - 1) / k;
         double[] out = new double[length];
         for (int i = 0; i < length; i++) {
-            double val = z_values[i] - threshold;
+            double val = input[i] - threshold;
             out[i] = val > 0 ? val : 0;
         }
         return out;
+    }
+
+    public double[] getProbabilities(List<Value> inputs) {
+        if (inputs.size()==1 && inputs.get(0) instanceof VectorValue){
+            return getProbabilities(((VectorValue) inputs.get(0)).values);
+        }
+
+        double[] z_values = new double[inputs.size()];
+        for (int i = 0; i < inputs.size(); i++) {
+            double val = ((ScalarValue) inputs.get(i)).value;
+            z_values[i] = val;
+        }
+        return getProbabilities(z_values);
     }
 
     public double[] getGradient(double[] exps) {

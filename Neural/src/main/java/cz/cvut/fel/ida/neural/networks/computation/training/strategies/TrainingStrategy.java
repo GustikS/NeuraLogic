@@ -37,7 +37,9 @@ public abstract class TrainingStrategy implements Exportable {
 
     ScalarValue learningRate;
 
-    transient Results.Factory resultsFactory;
+    transient Results.Factory trainOnlineResultsFactory;
+    transient Results.Factory trainRecalculationResultsFactory;
+    transient Results.Factory validationResultsFactory;
 
     Timing timing;
 
@@ -54,7 +56,9 @@ public abstract class TrainingStrategy implements Exportable {
         this.learningRate = new ScalarValue(settings.initLearningRate);
         this.currentModel = model;
         storeParametersState(model);
-        this.resultsFactory = Results.Factory.getFrom(settings);
+        this.trainOnlineResultsFactory = Results.Factory.getFrom(settings.trainOnlineResultsType, settings);
+        trainRecalculationResultsFactory = Results.Factory.getFrom(settings.trainRecalculationResultsType, settings);
+        this.validationResultsFactory = Results.Factory.getFrom(settings.validationResultsType, settings);
         this.timing = new Timing();
         this.trainingDebugCallback = model.templateDebugCallback;
     }

@@ -167,16 +167,17 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
     }
 
     protected void endEpoch(int count, List<Result> onlineEvaluations) {
-        Results onlineResults = resultsFactory.createFrom(onlineEvaluations);
-        progress.addOnlineResults(onlineResults);
-        exportProgress(onlineResults);
-        LOG.info("epoch: " + count + " : online results : " + onlineResults.toString(settings));
         if (count % settings.resultsRecalculationEpochae == 0) {
             recalculateResults();
             if (settings.debugTemplateTraining && trainingDebugCallback != null) {
                 Map<Integer, Weight> integerWeightMap = currentModel.mapWeightsToIds();
                 trainingDebugCallback.accept(integerWeightMap);
             }
+        } else {
+            Results onlineResults = trainOnlineResultsFactory.createFrom(onlineEvaluations);
+            progress.addOnlineResults(onlineResults);
+            exportProgress(onlineResults);
+            LOG.info("epoch: " + count + " : online results : " + onlineResults.toString(settings));
         }
     }
 
@@ -210,18 +211,22 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
 
     private void recalculateResults() {
         TrainVal trueEvaluations = evaluateModel();
-        Results trainingResults = resultsFactory.createFrom(trueEvaluations.training);
-        Results validationResults = resultsFactory.createFrom(trueEvaluations.validation);
+        Results trainingResults = trainRecalculationResultsFactory.createFrom(trueEvaluations.training);
+        Results validationResults = validationResultsFactory.createFrom(trueEvaluations.validation);
         if (settings.calculateBestThreshold && validationResults instanceof DetailedClassificationResults) {   // pass the best threshold from training to validation set
             Value threshold = ((DetailedClassificationResults) trainingResults).computeBestAccuracyThreshold(trainingResults.evaluations);
             ((DetailedClassificationResults) validationResults).computeBestAccuracy(validationResults.evaluations, threshold);
         }
+        if (settings.passResultsCache) {
+            validationResultsFactory.cacheForReuse(trainingResults);
+        }
+
         progress.addTrueResults(trainingResults, validationResults);
 
         if (LOG.isLoggable(Level.FINE)) {
             String msg = "true results :- train: " + trainingResults.toString(settings);
             if (!validationResults.isEmpty()) {
-                msg += ", val: " + validationResults.toString(settings);
+                msg += ",\n val: " + validationResults.toString(settings);
             }
             LOG.fine(msg);
         }

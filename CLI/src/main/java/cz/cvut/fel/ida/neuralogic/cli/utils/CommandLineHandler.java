@@ -98,7 +98,7 @@ public class CommandLineHandler {
 
 
         //evaluation
-        options.addOption(new Option("em", "evaluationMode", true, "evaluation is either [regression, classification] (" + "classification" + ")"));
+        options.addOption(new Option("em", "evaluationMode", true, "evaluation is either [regression, classification, kbc] (" + "classification" + ")"));
         options.addOption(new Option("ef", "errorFunction", true, "type of error function [MSE, XEnt] (" + settings.errorAggregationFcn.name() + settings.errorFunction.name() + ")"));
 
         //compression

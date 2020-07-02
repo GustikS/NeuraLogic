@@ -495,20 +495,18 @@ public class Settings implements Serializable {
      * Calling external tool to periodically each N seconds plot training progress in a window (-1 == off)
      */
     public int plotProgress = -1;
-    /**
-     * Evaluation mode: Regression vs. Classification
-     */
-    public boolean regression = false;
 
-    /**
-     * Include also AUC ROC and AUC PR etc. in results calculations (might be demanding if recalculated too often) in RECALCULATION
-     */
-    public boolean detailedResults = true;
+    public ResultsType trainOnlineResultsType = ResultsType.CLASSIFICATION;
+    public ResultsType trainRecalculationResultsType = ResultsType.DETAILEDCLASSIFICATION;
+    public ResultsType validationResultsType = ResultsType.DETAILEDCLASSIFICATION;
+    public ResultsType testResultsType = ResultsType.DETAILEDCLASSIFICATION;
 
-    /**
-     * Include also AUC ROC and AUC PR etc. in results calculations (might be demanding if recalculated too often) in EACH EPOCH
-     */
-    public boolean forceDetailedResults = true;
+    public enum ResultsType {
+        REGRESSION,     // most basic type - only the actual errorFunction Value is calculated
+        CLASSIFICATION,     // adds metrics such as Accuracy, precision etc.
+        DETAILEDCLASSIFICATION,     // Include also AUC ROC and AUC PR etc. in results calculations (might be demanding if recalculated too often) in RECALCULATION
+        KBC // Calculate also the HITs/MRR metric etc. in KBC mode
+    }
 
     /**
      * Alternative calculation from Wilcoxon
@@ -688,6 +686,54 @@ public class Settings implements Serializable {
     public boolean calculateBestThreshold = true;
 
     public ErrorFcn errorFunction = ErrorFcn.SQUARED_DIFF;
+
+    /**
+     * Include also the actual LRNN Query predicate as input to the corruptions
+     */
+    public boolean hitsReifyPredicate = false;
+
+    /**
+     * Definition of the corrupted tuples
+     */
+    public HitsCorruption hitsCorruption = HitsCorruption.ONE_DIFF;
+
+    public enum HitsCorruption {
+        ONE_SAME,    // = arbitrary change from the etalon with at least 1 common element
+        ONE_DIFF,   // = exactly 1 element differs
+        ALL_DIFF;   // = each query is compared against all corruptions
+    }
+
+    /**
+     * Store precalculated corrupted tuples for each valid query for speedup - this might require a lot of memory!
+     */
+    public boolean storeHitsCorruptions = true;
+
+    /**
+     * Whether to keep some term/predicate should be preserved w.r.t. corruptions
+     */
+    public HitsPreservation hitsPreservation = HitsPreservation.NONE;
+
+    public enum HitsPreservation {
+        NONE,
+        FIRST_STAYS,    // = first element must be same, rest arbitrary
+        MIDDLE_STAYS,   // = exactly 3 elements, middle one stays
+    }
+
+    /**
+     * How to solve ordering of queries in the case of the same predicted values
+     */
+    public HitsClashes hitsClashes = HitsClashes.AVG;
+
+    public enum HitsClashes {
+        AVG, NONE, RANDOM;
+    }
+
+    /**
+     * Merge stored cache from trainResults into ValidationResults and then to TestResults
+     * Use e.g. to pass corrupted (and valid) queries from train set to validation set for HITs in KBC
+     */
+    public boolean passResultsCache = false;
+
 
     public AggregationFcn errorAggregationFcn = AggregationFcn.AVG;
 
@@ -1014,11 +1060,22 @@ public class Settings implements Serializable {
             String _evaluationMode = cmd.getOptionValue("evaluationMode", "classification");
             switch (_evaluationMode) {
                 case "classification":
-                    settings.regression = false;
+                    settings.trainOnlineResultsType = ResultsType.CLASSIFICATION;
+                    settings.trainRecalculationResultsType = ResultsType.DETAILEDCLASSIFICATION;
+                    settings.validationResultsType = ResultsType.DETAILEDCLASSIFICATION;
+                    settings.testResultsType = ResultsType.DETAILEDCLASSIFICATION;
                     break;
                 case "regression":
-                    settings.regression = true;
+                    settings.trainOnlineResultsType = ResultsType.REGRESSION;
+                    settings.trainRecalculationResultsType = ResultsType.REGRESSION;
+                    settings.validationResultsType = ResultsType.REGRESSION;
+                    settings.testResultsType = ResultsType.REGRESSION;
                     break;
+                case "kbc":
+                    settings.trainOnlineResultsType = ResultsType.CLASSIFICATION;
+                    settings.trainRecalculationResultsType = ResultsType.KBC;
+                    settings.validationResultsType = ResultsType.KBC;
+                    settings.testResultsType = ResultsType.KBC;
             }
         }
 
@@ -1182,7 +1239,7 @@ public class Settings implements Serializable {
                 valid = false;
         }
 
-        if (stratification && regression) {
+        if (stratification && trainRecalculationResultsType == ResultsType.REGRESSION) {
             message.append("stratification not possible with regression");
             valid = false;
         }
@@ -1236,7 +1293,7 @@ public class Settings implements Serializable {
 //            initLearningRate = 0.3;
 //        }
 
-        if (detailedResults) {
+        if (validationResultsType == ResultsType.DETAILEDCLASSIFICATION || validationResultsType == ResultsType.KBC) {
             calculateBestThreshold = true;  //it does not cost more then
         }
 

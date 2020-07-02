@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 /**
  * todo This is somewhere between activation and Aggregation...
  */
-public class Softmax extends Activation  implements XMax{
+public class Softmax extends Activation implements XMax {
     private static final Logger LOG = Logger.getLogger(Softmax.class.getName());
 
     public Softmax() {
@@ -51,7 +51,26 @@ public class Softmax extends Activation  implements XMax{
         return diffs;
     }
 
+    @Override
+    public double[] getProbabilities(double[] input) {
+        double expsum = 0;
+        double[] exps = new double[input.length];
+        for (int i = 0; i < input.length; i++) {
+            double exp = Math.exp(input[i]);
+            exps[i] = exp;
+            expsum += exp;
+        }
+        for (int i = 0; i < exps.length; i++) {
+            exps[i] /= expsum;
+        }
+        return exps;
+    }
+
     public double[] getProbabilities(List<Value> inputs) {
+        if (inputs.size()==1 && inputs.get(0) instanceof VectorValue){
+            return getProbabilities(((VectorValue) inputs.get(0)).values);
+        }
+
         double expsum = 0;
         double[] exps = new double[inputs.size()];
         for (int i = 0; i < inputs.size(); i++) {

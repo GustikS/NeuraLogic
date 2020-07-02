@@ -47,7 +47,7 @@ public class StreamTrainingStrategy extends TrainingStrategy {
         List<Result> resultList = resultStream.collect(Collectors.toList());
         resultStream.close();
         Progress progress = new Progress();
-        Results results = resultsFactory.createFrom(resultList);
+        Results results = trainRecalculationResultsFactory.createFrom(resultList);
         progress.addOnlineResults(results);
         return new Pair<>(currentModel, progress);
     }

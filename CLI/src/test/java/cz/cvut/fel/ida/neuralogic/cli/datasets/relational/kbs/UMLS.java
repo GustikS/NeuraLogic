@@ -14,9 +14,15 @@ public class UMLS {
     static String dataset = "relational/kbs/umls";
 
     @TestAnnotations.Slow
-    public void basic() throws Exception {
+    public void basicKBC() throws Exception {
         Settings settings = Settings.forSlowTest();
-        Main.main(getDatasetArgs(dataset,"-t ./templates/template.txt"), settings);
+        settings.hitsCorruption = Settings.HitsCorruption.ONE_DIFF;
+        settings.hitsPreservation = Settings.HitsPreservation.MIDDLE_STAYS;
+        settings.passResultsCache = true;
+        settings.resultsRecalculationEpochae = 10;
+        settings.maxCumEpochCount = 100;
+        settings.trainValidationPercentage = 0.8;
+        Main.main(getDatasetArgs(dataset,"-em kbc -t ./templates/template.txt"), settings);
     }
 
     @TestAnnotations.Slow
