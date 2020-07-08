@@ -132,10 +132,9 @@ public class SourceFiles extends Sources {
                 settings.templateFile = this.template.getPath();
             }
             String templatePath = cmd.getOptionValue("template", settings.templateFile);
-            File template_;
 
-            File templ = sanitizePath(settings, cmd, foldDir, sanitizeTempl(templatePath));
-            mergedTemplatePath = Paths.get(templ + settings.mergedTemplatesSuffix + this.foldId);
+            File template_ = sanitizePath(settings, cmd, foldDir, sanitizeTempl(templatePath));
+            mergedTemplatePath = Paths.get(template_ + settings.mergedTemplatesSuffix + this.foldId);
 
             if (templatePath.contains(",")) {
                 LOG.warning("There are multiple templates, will try to merge them first");
@@ -308,12 +307,12 @@ public class SourceFiles extends Sources {
         this.template = template_;
     }
 
-    private String checkTemplate4Imports(Path toImport, AtomicBoolean changed, File foldDir) throws FileNotFoundException {
+    private String checkTemplate4Imports(Path path, AtomicBoolean changed, File foldDir) throws FileNotFoundException {
         try {
-            if (toImport.toString().startsWith(".")) { //todo next repair relative path finding if subtemplate with import statement came from different folder
-                toImport = Paths.get(foldDir + "/" + toImport);
+            if (path.toString().startsWith(".")) { //todo next repair relative path finding if subtemplate with import statement came from different folder
+                path = Paths.get(foldDir + "/" + path);
             }
-            List<String> strings = Files.readAllLines(toImport);
+            List<String> strings = Files.readAllLines(path);
             for (int i = 0; i < strings.size(); i++) {
                 String line = strings.get(i);
                 if (line.startsWith("import ")) {
@@ -335,7 +334,7 @@ public class SourceFiles extends Sources {
             }
             return String.join("\n", strings);
         } catch (IOException e) {
-            LOG.severe("There is no subtemplate found at the specified path! : " + toImport);
+            LOG.severe("There is no subtemplate found at the specified path! : " + path);
             throw new FileNotFoundException();
         }
     }
@@ -392,8 +391,10 @@ public class SourceFiles extends Sources {
 
     private File sanitizePath(Settings settings, CommandLine cmd, File foldDir, String templatePath) {
         File template_;
-        if (templatePath.startsWith(".") || (settings.sourcePathProvided && !cmd.hasOption("template"))) {
+        if (!cmd.hasOption("foldPrefix") && (templatePath.startsWith(".")) || (settings.sourcePathProvided && !cmd.hasOption("template"))) {
             template_ = Paths.get(foldDir.toString(), templatePath).toFile();
+        } else if (templatePath.startsWith(".")) {
+            template_ = Paths.get(System.getProperty("user.dir"), templatePath).toFile();
         } else {
             template_ = Paths.get(templatePath).toFile();
         }
@@ -506,7 +507,7 @@ public class SourceFiles extends Sources {
 
     @Override
     public Reader getTemplateReader() {
-        if (template == null){
+        if (template == null) {
             return null;
         }
         try {

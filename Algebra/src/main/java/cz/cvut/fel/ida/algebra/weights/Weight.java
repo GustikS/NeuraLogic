@@ -1,10 +1,10 @@
 package cz.cvut.fel.ida.algebra.weights;
 
-import com.sun.istack.internal.Nullable;
 import cz.cvut.fel.ida.algebra.utils.metadata.WeightMetadata;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Created by gusta on 8.3.17.

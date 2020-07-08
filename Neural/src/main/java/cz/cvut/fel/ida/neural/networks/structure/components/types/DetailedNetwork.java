@@ -1,20 +1,20 @@
 package cz.cvut.fel.ida.neural.networks.structure.components.types;
 
-import com.sun.istack.internal.Nullable;
+import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.neural.networks.structure.components.NeuralNetwork;
 import cz.cvut.fel.ida.neural.networks.structure.components.NeuralSets;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.BaseNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.WeightedNeuron;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.StatesCache;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.AtomNeurons;
-import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.NetworkMetadata;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.LinkedMapping;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.NeuronMapping;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.WeightedNeuronMapping;
-import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
 import cz.cvut.fel.ida.utils.generic.Pair;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.logging.Logger;

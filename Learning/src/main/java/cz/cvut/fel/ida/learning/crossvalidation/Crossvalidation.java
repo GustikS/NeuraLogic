@@ -1,11 +1,11 @@
 package cz.cvut.fel.ida.learning.crossvalidation;
 
-import com.sun.istack.internal.Nullable;
 import cz.cvut.fel.ida.learning.LearningSample;
 import cz.cvut.fel.ida.learning.crossvalidation.splitting.Splitter;
 import cz.cvut.fel.ida.learning.results.*;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.generic.Pair;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;

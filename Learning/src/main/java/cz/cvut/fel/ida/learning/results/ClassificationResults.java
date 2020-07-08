@@ -19,7 +19,7 @@ public class ClassificationResults extends RegressionResults {
 
     static Value oneHalf = new ScalarValue(0.5);       //CAREFUL FOR THE SWITCH OF SIDES WITH DD (must be declared as generic Value)
 
-    private Double accuracy;
+    public Double accuracy;
     public Double majorityErr;
     public Double dispersion;
 

@@ -1,14 +1,14 @@
 package cz.cvut.fel.ida.neural.networks.structure.building;
 
-import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
+import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
 import cz.cvut.fel.ida.logic.constructs.template.components.GroundHeadRule;
 import cz.cvut.fel.ida.logic.constructs.template.components.GroundRule;
-import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.*;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.LinkedMapping;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 

@@ -1,9 +1,9 @@
 package cz.cvut.fel.ida.learning;
 
-import com.sun.istack.internal.Nullable;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Query is like an output (Y) in supervised learning. It connects to a particular example, just like we're given data in normal learning (Y<-X).

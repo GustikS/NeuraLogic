@@ -1,11 +1,11 @@
 package cz.cvut.fel.ida.neural.networks.structure.components.neurons;
 
-import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.NeuronVisiting;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.logging.Logger;

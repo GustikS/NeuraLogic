@@ -1,9 +1,6 @@
 package cz.cvut.fel.ida.neural.networks.structure.components;
 
-import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
 import cz.cvut.fel.ida.algebra.weights.Weight;
-import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.learning.Example;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.NeuronIterating;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.modes.DFSstack;
@@ -17,6 +14,9 @@ import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.StatesCache;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.NeuronMapping;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.WeightedNeuronMapping;
+import cz.cvut.fel.ida.utils.generic.Pair;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Iterator;

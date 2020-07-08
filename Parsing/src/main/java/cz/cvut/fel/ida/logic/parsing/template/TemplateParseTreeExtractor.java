@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.logic.parsing.template;
 
-import com.sun.istack.internal.NotNull;
+import org.jetbrains.annotations.NotNull;
 import cz.cvut.fel.ida.logic.constructs.Conjunction;
 import cz.cvut.fel.ida.logic.constructs.WeightedPredicate;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;

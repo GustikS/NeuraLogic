@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings;
 
-import com.sun.istack.internal.NotNull;
+import org.jetbrains.annotations.NotNull;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.BaseNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
 

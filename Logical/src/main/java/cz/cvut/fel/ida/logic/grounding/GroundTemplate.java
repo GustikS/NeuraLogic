@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.logic.grounding;
 
-import com.sun.istack.internal.NotNull;
+import org.jetbrains.annotations.NotNull;
 import cz.cvut.fel.ida.logic.Clause;
 import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.logic.subsumption.Matching;

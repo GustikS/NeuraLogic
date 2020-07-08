@@ -54,6 +54,12 @@ public abstract class End2EndDebugger<S extends Exportable> extends AbstractPipe
 
     public End2EndDebugger(Settings settings) {
         super(settings);
+        this.drawing = settings.drawing;
+        this.exporting = settings.debugExporting;
+        this.intermediateDebug = settings.intermediateDebug;
+        if (exporting) {
+            startExport();
+        }
     }
 
     public End2EndDebugger(Sources sources, Settings settings) {
@@ -68,9 +74,6 @@ public abstract class End2EndDebugger<S extends Exportable> extends AbstractPipe
             startExport();
         }
         this.drawing = settings.drawing;
-        if (drawing && drawer == null) {
-            LOG.warning("There is no Drawer to use!");
-        }
     }
 
     public Pair<String, Stream<S>> executeDebug() throws Exception {

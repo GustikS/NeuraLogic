@@ -1,7 +1,7 @@
 package cz.cvut.fel.ida.learning.crossvalidation;
 
-import com.sun.istack.internal.Nullable;
 import cz.cvut.fel.ida.learning.LearningSample;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.logging.Logger;

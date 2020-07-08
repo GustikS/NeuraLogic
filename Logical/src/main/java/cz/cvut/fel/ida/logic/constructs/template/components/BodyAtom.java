@@ -1,11 +1,11 @@
 package cz.cvut.fel.ida.logic.constructs.template.components;
 
-import com.sun.istack.internal.Nullable;
+import cz.cvut.fel.ida.algebra.functions.Activation;
+import cz.cvut.fel.ida.algebra.weights.Weight;
+import cz.cvut.fel.ida.logic.Term;
 import cz.cvut.fel.ida.logic.constructs.Atom;
 import cz.cvut.fel.ida.logic.constructs.WeightedPredicate;
-import cz.cvut.fel.ida.algebra.functions.Activation;
-import cz.cvut.fel.ida.logic.Term;
-import cz.cvut.fel.ida.algebra.weights.Weight;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 

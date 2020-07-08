@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.logic.parsing.grammarParsing;
 
-import com.sun.istack.internal.NotNull;
+import org.jetbrains.annotations.NotNull;
 import cz.cvut.fel.ida.algebra.utils.metadata.Parameter;
 import cz.cvut.fel.ida.algebra.utils.metadata.ParameterValue;
 import cz.cvut.fel.ida.algebra.values.*;

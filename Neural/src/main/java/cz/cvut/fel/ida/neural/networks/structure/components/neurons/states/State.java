@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.neural.networks.structure.components.neurons.states;
 
-import com.sun.istack.internal.NotNull;
+import org.jetbrains.annotations.NotNull;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.modes.DFSstack;

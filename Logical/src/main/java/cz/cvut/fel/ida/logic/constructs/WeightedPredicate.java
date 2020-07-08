@@ -1,10 +1,10 @@
 package cz.cvut.fel.ida.logic.constructs;
 
-import com.sun.istack.internal.Nullable;
 import cz.cvut.fel.ida.algebra.functions.Activation;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.logic.Predicate;
 import cz.cvut.fel.ida.logic.constructs.template.metadata.PredicateMetadata;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.logging.Logger;

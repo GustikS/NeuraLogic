@@ -25,12 +25,6 @@
         </dependency>
         <dependency>
             <groupId>cz.cvut.fel.ida</groupId>
-            <artifactId>LogicParsing</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>cz.cvut.fel.ida</groupId>
             <artifactId>Neural</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>

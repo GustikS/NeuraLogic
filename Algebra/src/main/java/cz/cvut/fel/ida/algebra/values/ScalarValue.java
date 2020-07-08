@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.algebra.values;
 
-import com.sun.istack.internal.NotNull;
+import org.jetbrains.annotations.NotNull;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
 import cz.cvut.fel.ida.setup.Settings;
 

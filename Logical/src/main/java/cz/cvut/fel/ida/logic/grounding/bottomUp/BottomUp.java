@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.logic.grounding.bottomUp;
 
-import com.sun.istack.internal.NotNull;
+import org.jetbrains.annotations.NotNull;
 import cz.cvut.fel.ida.logic.constructs.example.LiftedExample;
 import cz.cvut.fel.ida.logic.grounding.GroundTemplate;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;

@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.neurons;
 
-import com.sun.istack.internal.Nullable;
+import org.jetbrains.annotations.Nullable;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.IterationStrategy;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.StateVisiting;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.weights.WeightUpdater;

@@ -207,7 +207,7 @@ public class Settings implements Serializable {
     //------------------Drawing/Debugging
 
     /**
-     * This will prevent from searching for graphviz executable
+     * Making this false will prevent from searching for graphviz executable
      */
     public boolean drawing = false;
 
@@ -931,6 +931,11 @@ public class Settings implements Serializable {
     public Settings setupFromCommandline(CommandLine cmd) {
         Settings settings = this;
 
+        if (cmd.hasOption("logColors")) {
+            String logColors = cmd.getOptionValue("logColors");
+            settings.customLogColors = Integer.parseInt(logColors) > 0;
+        }
+
         if (cmd.hasOption("settingsFile")) {
             String _settingsPath = cmd.getOptionValue("settings");
             settings = updateFromJson(Paths.get(_settingsPath));
@@ -1056,6 +1061,11 @@ public class Settings implements Serializable {
             settings.maxCumEpochCount = Integer.parseInt(_trainingSteps);
         }
 
+        if (cmd.hasOption("recalculationEpocha")) {
+            String _limit = cmd.getOptionValue("recalculationEpocha");
+            settings.resultsRecalculationEpochae = Integer.parseInt(_limit);
+        }
+
         if (cmd.hasOption("evaluationMode")) {
             String _evaluationMode = cmd.getOptionValue("evaluationMode", "classification");
             switch (_evaluationMode) {
@@ -1127,7 +1137,19 @@ public class Settings implements Serializable {
 
         if (cmd.hasOption("debug")) {
             String _debug = cmd.getOptionValue("debug");
+            settings.drawing = true;
+            settings.mainMode = MainMode.DEBUGGING;
             switch (_debug) {
+                case "all":
+                    settings.maxCumEpochCount = 3;
+                    settings.resultsRecalculationEpochae = 3;
+                    settings.intermediateDebug = true;
+                    settings.debugPipeline = true;
+                    settings.debugTemplate = true;
+                    settings.debugGrounding = true;
+                    settings.debugNeuralization = true;
+                    settings.debugSampleTraining = true;
+                    settings.debugTemplateTraining = true;
                 case "template":
                     settings.debugTemplate = true;
                     break;
@@ -1145,6 +1167,7 @@ public class Settings implements Serializable {
                     break;
             }
         }
+
 
         if (cmd.hasOption("limitExamples")) {
             String _limit = cmd.getOptionValue("limitExamples");

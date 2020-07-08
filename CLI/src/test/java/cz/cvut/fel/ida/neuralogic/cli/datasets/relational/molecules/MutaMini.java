@@ -1,7 +1,9 @@
 package cz.cvut.fel.ida.neuralogic.cli.datasets.relational.molecules;
 
 import cz.cvut.fel.ida.neuralogic.cli.Main;
+import cz.cvut.fel.ida.pipelines.Pipeline;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.utils.generic.TestAnnotations;
 
 import java.util.logging.Logger;
@@ -18,5 +20,15 @@ public class MutaMini {
     public void basic() throws Exception {
         Settings settings = Settings.forFastTest();
         Main.main(dataset, settings);
+    }
+
+    @TestAnnotations.Slow
+    public void drawing() throws Exception {
+        Settings settings = Settings.forInteractiveTest();
+        settings.maxCumEpochCount = 5;
+        settings.isoValueCompression = false;
+        settings.chainPruning = false;
+        settings.resultsRecalculationEpochae = 5;
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs("relational/molecules/muta_mini"," -t ./embeddings,./template.txt", "-debug all"), settings);
     }
 }
