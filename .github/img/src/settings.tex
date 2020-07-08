@@ -1,0 +1,38 @@
+\tikzstyle{atom}  =  [circle, scale=1.7, circle, shading=ball]
+\newcommand\atoms{0}
+
+\tikzset{anchor/.append code=\let\tikz@auto@anchor\relax}
+\tikzset{my label/.style args={#1:#2}{
+  append after command={
+    (\tikzlastnode.center) node [#1] {#2}
+    }
+  }
+}
+% define template's weights (the drawings themselves are lifted 8-) )
+\newcommand{\wog}{\color{blue} $w_{o_1}$}	% kappa clustering weights
+\newcommand{\wogg}{\color{orange} $w_{o_2}$}
+\newcommand{\whg}{\color{red} $w_{h_2}$}
+\newcommand{\whgg}{$w_{h_1}$}
+\newcommand{\wng}{$w_{n_1}$}
+\newcommand{\wngg}{$w_{n_2}$}
+\newcommand{\ide}{$1$} % identity for lambda clauses
+
+%\newcommand{\fname}{$toxic$} % feature name
+\newcommand{\fweight}{\color{cyan} $w_{f_1}$} % identity for lambda clauses
+
+\tikzstyle{edgenode}  =  [thin, draw=black, align=center,fill=white,font=\small]
+\tikzstyle{edgeweight}  =  [near start, above, sloped,outer sep=3pt, inner sep=1pt ,fill=white,font=\large]
+\tikzstyle{gredge}  =  [sloped,outer sep=2pt, inner sep=1pt ,fill=white]
+\tikzstyle{gredge1}  =  [outer sep=2pt, inner sep=1pt ,fill=white]
+
+\tikzstyle{kappa} = [
+  draw, scale = 1.5,  minimum size=1cm, circle, rounded corners,shading=radial,inner color=white,
+  minimum height=1cm,
+  align=center
+  ]
+  
+\tikzstyle{lambda} = [
+  draw, scale = 1.5,  minimum size=1cm, circle, rounded corners,shading=radial,inner color=white,
+  minimum height=1cm,
+  align=center
+  ]

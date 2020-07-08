@@ -1,0 +1,203 @@
+\resizebox{0.7\textwidth}{!}{
+	\begin{tikzpicture}
+[node distance=2.0cm and 0cm,
+ar/.style={->,>=latex},
+mynode/.style={
+  draw, scale = 1.0,  minimum size=1cm, rounded corners,left color=white,
+  minimum height=1cm,
+  align=center
+  }
+]
+[node distance=2.5cm and 0.5cm,
+mynode/.style={
+  draw, scale = 1.4,  minimum size=1cm, circle, rounded corners,shading=radial,outer color=gray!30,inner color=white,
+  minimum height=1cm,
+  align=center
+  },
+myfact/.style={
+  draw, scale = 1.7,  minimum size=1cm, rounded corners,left color=white,
+  minimum height=1cm,
+  align=center
+  }
+]
+
+\newcommand{\fname}{$toxic_2$} % feature name
+
+\tikzstyle{grbond}  =  [mynode,my label={font = \small, black,below=0.1cm:$\vee$}, right color=black!30!white]
+\tikzstyle{gratom}  =  [mynode]
+\tikzstyle{grgroup} =  [mynode,my label={font = \small, black,below=0.1cm:$\vee$}, right color=brown!30!white]
+\tikzstyle{grexpl}  =  [mynode,my label={font = \small, black,below=0.1cm:$\wedge$}, right color=violet!30!white]
+\tikzstyle{grexplagg}  =  [mynode,my label={black,below=0.1cm:$*$}, right color=violet!30!white]
+\tikzstyle{grexpldisj}  =  [mynode,my label={font = \small, black,below=0.1cm:$\vee$}, right color=violet!30!white]
+\tikzstyle{edgenode}  =  [thin, draw=black, align=center,fill=white,font=\small]
+
+
+\tikzstyle{factN}  =  [mynode]
+\tikzstyle{atomN}  =  [mynode,my label={font = \small, black,below=0.1cm:$\vee$}]
+\tikzstyle{ruleN}  =  [mynode,my label={font = \small, black,below=0.1cm:$\wedge$}]
+\tikzstyle{aggN}  =  [mynode,my label={black,below=0.1cm:$*$}]
+
+% %grounding
+\newcommand\ground{15};
+\coordinate (beg) at (5,5);
+
+
+% % % %maly grounding
+\begin{scope}[xshift=0cm,yshift=-1.0cm]
+
+%fact neurons
+\begin{scope}[xshift=0cm]
+
+\node[factN, right color=blue!30!white] (gh1) {$H(h^1_2)$};
+
+\node[factN, right color=black!30!white] (bondo1h1) [below of=gh1] {$b(o^1_2,h^1_2)$};
+\node[factN, right color=black!30!white] (bondh1o1) [below = 0.1 of bondo1h1] {$b(h^1_2,o^1_2)$};
+
+\node[factN, right color=red!30!white] (go1) [below of=bondh1o1] {$O(o^1_2)$};
+
+\node[factN, right color=black!30!white] (bondo1h2) [below of=go1] {$b(o^1_2,h^2_2)$};
+\node[factN, right color=black!30!white] (bondh2o1) [below = 0.1 of bondo1h2] {$b(h^2_2,o^1_2)$};
+
+\node[factN, right color=blue!30!white] (gh2) [below of=bondh2o1] {$H(h^2_2)$};
+
+\end{scope}
+
+%atom neurons
+\begin{scope}[xshift=0cm]
+
+\node[atomN, right color=blue!30!white] (gh1_2) [right of=gh1] {$H(h^1_2)$};
+
+
+\node[atomN, right color=black!30!white] (bondh1o1_2) [right of=bondh1o1] {$b(h^1_2,o^1_2)$};
+\node[atomN, right color=black!30!white] (bondo1h1_2) [right of=bondo1h1] {$b(o^1_2,h^1_2)$};
+
+\node[atomN, right color=red!30!white] (go1_2) [right of=go1] {$O(o^1_2)$};
+
+\node[atomN, right color=black!30!white] (bondh2o1_2) [right of=bondh2o1] {$b(h^2_2,o^1_2)$};
+\node[atomN, right color=black!30!white] (bondo1h2_2) [right of=bondo1h2] {$b(o^1_2,h^2_2)$};
+
+
+\node[atomN, right color=blue!30!white] (gh2_2) [right of=gh2] {$H(h^2_2)$};
+
+\end{scope}
+
+%rule neurons + linear chains
+\begin{scope}[xshift=0cm]
+
+\node[ruleN, right color=brown!30!white] (gr2h1) [above right=0.5 and 1 of gh1_2] {$gr_2(h^1_2)$};
+\node[aggN, right color=brown!30!white] (gr2h1_2) [right=0.2 of gr2h1] {$gr_2(h^1_2)$};
+\node[atomN, right color=brown!30!white] (gr2h1_3) [right=1 of gr2h1_2] {$gr_2(h^1_2)$};
+
+\node[ruleN, right color=brown!30!white] (gr1h1) [below of=gr2h1] {$gr_1(h^1_2)$};
+\node[aggN, right color=brown!30!white] (gr1h1_2) [right=0.2 of gr1h1] {$gr_1(h^1_2)$};
+\node[atomN, right color=brown!30!white] (gr1h1_3) [right=1 of gr1h1_2] {$gr_1(h^1_2)$};
+
+\node[ruleN, right color=brown!30!white] (gr1o1) [below right=0.0 and 0.8 of bondh1o1_2] {$gr_1(o^1_2)$};
+\node[aggN, right color=brown!30!white] (gr1o1_2) [right=0.2 of gr1o1] {$gr_1(o^1_2)$};
+\node[atomN, right color=brown!30!white] (gr1o1_3) [right=1 of gr1o1_2] {$gr_1(o^1_2)$};
+
+\node[ruleN, right color=brown!30!white] (gr2o1) [below of=gr1o1] {$gr_2(o^1_2)$};
+\node[aggN, right color=brown!30!white] (gr2o1_2) [right=0.2 of gr2o1] {$gr_2(o^1_2)$};
+\node[atomN, right color=brown!30!white] (gr2o1_3) [right=1 of gr2o1_2] {$gr_2(o^1_2)$};
+
+
+\node[ruleN, right color=brown!30!white] (gr2h2) [above right=-0.5cm and 1cm of gh2_2] {$gr_2(h^2_2)$};
+\node[aggN, right color=brown!30!white] (gr2h2_2) [right=0.2 of gr2h2] {$gr_2(h^2_2)$};
+\node[atomN, right color=brown!30!white] (gr2h2_3) [right=1 of gr2h2_2] {$gr_2(h^2_2)$};
+
+\node[ruleN, right color=brown!30!white] (gr1h2) [below of=gr2h2] {$gr_1(h^2_2)$};
+\node[aggN, right color=brown!30!white] (gr1h2_2) [right=0.2 of gr1h2] {$gr_1(h^2_2)$};
+\node[atomN, right color=brown!30!white] (gr1h2_3) [right=1 of gr1h2_2] {$gr_1(h^2_2)$};
+
+\end{scope}
+
+%rule toxic
+\begin{scope}[xshift = 0cm]
+\node[ruleN, right color=violet!30!white] (explosive2)  [above right=-0.3 and 0.8cm of gr1o1_3] {\fname};
+\node[ruleN, right color=violet!30!white] (explosive1)  [above of = explosive2] {\fname};
+
+\node[ruleN, right color=violet!30!white] (explosive3)  [below right=-0.3 and 0.8cm of gr2o1_3] {\fname};
+\node[ruleN, right color=violet!30!white] (explosive4)  [below of=explosive3] {\fname};
+\end{scope}
+
+%aggreagation
+\node[aggN, right color=violet!30!white] (explagg) [below right=0.75 and 0.5 of explosive2] {\fname};
+
+\node[atomN, right color=violet!30!white] (expl) [right=0.8cm of explagg] {\fname};
+
+
+%----edges
+%1
+\draw[ar] (gh1) -- node[gredge, above] {} (gh1_2);
+\draw[ar] (gh2) -- node[gredge, above] {} (gh2_2);
+\draw[ar] (go1) -- node[gredge, above] {} (go1_2);
+
+\draw[ar] (bondo1h1) -- node[gredge, above] {} (bondo1h1_2);
+\draw[ar] (bondo1h2) -- node[gredge, above] {} (bondo1h2_2);
+
+\draw[ar] (bondh1o1) -- node[gredge, above] {} (bondh1o1_2);
+\draw[ar] (bondh2o1) -- node[gredge, above] {} (bondh2o1_2);
+%2
+\draw[ar] (gh1_2) -- node[gredge, above] {} (gr1h1);
+\draw[ar] (gh1_2) to[] node[gredge, above] {} (gr2h1);
+
+\draw[ar] (go1_2) -- node[gredge, above] {} (gr1o1);
+\draw[ar] (go1_2) to[] node[gredge, above] {} (gr2o1);
+
+\draw[ar] (gh2_2) -- node[gredge, below] {} (gr1h2);
+\draw[ar] (gh2_2) to[] node[gredge, below] {} (gr2h2);
+%3 - linear chains
+\draw[ar] (gr1h1) to[] node[gredge1, above] {} (gr1h1_2);
+\draw[ar] (gr1h1_2) to[] node[gredge1, above] {\whgg} (gr1h1_3);
+
+\draw[ar] (gr1h2) to[] node[gredge1, above] {} (gr1h2_2);
+\draw[ar] (gr1h2_2) to[] node[gredge1, above] {\whgg} (gr1h2_3);
+
+\draw[ar] (gr1o1) to[] node[gredge1, above] {} (gr1o1_2);
+\draw[ar] (gr1o1_2) to[] node[gredge1, above] {\wog} (gr1o1_3);
+
+\draw[ar] (gr2o1) to[] node[gredge1, above] {} (gr2o1_2);
+\draw[ar] (gr2o1_2) to[] node[gredge1, above] {\wogg} (gr2o1_3);
+
+\draw[ar] (gr2h1) to[] node[gredge1, above] {} (gr2h1_2);
+\draw[ar] (gr2h1_2) to[] node[gredge1, above] {\whg} (gr2h1_3);
+
+\draw[ar] (gr2h2) to[] node[gredge1, above] {} (gr2h2_2);
+\draw[ar] (gr2h2_2) to[] node[gredge1, above] {\whg} (gr2h2_3);
+
+%4 rules toxic
+%\draw[ar] (gr1h1) to[out=50,in=130] node[gredge1,above] {\ide} (explosive1);
+\draw[ar] (gr2h1_3) to[] node[gredge1,below] {} (explosive1);
+\draw[ar] (gr1o1_3) to[] node[gredge1,right] {} (explosive1);
+%\draw[ar] (gr2o1) to[out=30,in=-130] node[gredge1,above] {\ide} (explosive1);
+\draw[ar] (bondo1h1_2) to[] node[gredge1,above] {} (explosive1);
+%h1o1
+\draw[ar] (gr1h1_3) to[] node[gredge1,above] {} (explosive2);
+%\draw[ar] (gr2h1) to[out=-50,in=130] node[gredge1,above] {\ide} (explosive2);
+%\draw[ar] (gr1o1) to[out=30,in=-170] node[gredge1,above] {\ide} (explosive2);
+\draw[ar] (gr2o1_3) to[] node[gredge1,above] {} (explosive2);
+\draw[ar] (bondh1o1_2) to[] node[gredge1,above] {} (explosive2);
+%o1h2
+%\draw[ar] (gr1h2) to[out=30,in=-140] node[gredge1,below] {\ide} (explosive3);
+\draw[ar] (gr2h2_3) to[] node[gredge1,above] {} (explosive3);
+\draw[ar] (gr1o1_3) to[] node[gredge1,below] {} (explosive3);
+%\draw[ar] (gr2o1) to[out=-10,in=140] node[gredge1,below] {\ide} (explosive3);
+\draw[ar] (bondo1h2_2) to[] node[gredge1,below] {} (explosive3);
+%h2o1
+\draw[ar] (gr1h2_3) to[] node[gredge1,below] {} (explosive4);
+%\draw[ar] (gr2h2) to[out=-10,in=-140] node[gredge1,above] {\ide} (explosive4);
+%\draw[ar] (gr1o1) to[out=-20,in=140] node[gredge1,above] {\ide} (explosive4);
+\draw[ar] (gr2o1_3) to[] node[gredge1,below] {} (explosive4);
+\draw[ar] (bondh2o1_2) to[] node[gredge1,below] {} (explosive4);
+
+%agg finale
+\draw[ar] (explosive1) to[] node[gredge1,left] {} (explagg);
+\draw[ar] (explosive2) to node[gredge1,below] {} (explagg);
+\draw[ar] (explosive3) to node[gredge1,above] {} (explagg);
+\draw[ar] (explosive4) to[] node[gredge1,left] {} (explagg);
+
+\draw[ar] (explagg) to node[gredge,above] {\fweight} (expl);
+
+\end{scope}
+	\end{tikzpicture}
+}

@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="Encoding" addBOMForNewFiles="with NO BOM" />
+  <component name="Encoding" addBOMForNewFiles="with NO BOM">
+    <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Algebra" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/CLI" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Drawing" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Learning" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Logging" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Logic" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Logical" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Neural" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Neuralization" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Parsing" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Pipelines" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Settings" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Utilities" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Workflow" charset="UTF-8" />
+  </component>
 </project>

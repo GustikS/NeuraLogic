@@ -1,0 +1,263 @@
+\begin{tikzpicture}
+[node distance=2.5cm and 0.5cm,
+mynode/.style={
+  draw, scale = 1.4,  minimum size=1cm, circle, rounded corners,shading=radial,outer color=gray!30,inner color=white,
+  minimum height=1cm,
+  align=center
+  },
+myfact/.style={
+  draw, scale = 1.7,  minimum size=1cm, rounded corners,left color=white,
+  minimum height=1cm,
+  align=center
+  }
+]
+
+
+\begin{scope}[xshift=-3.3cm]
+
+\node[scale=1.3] (hydro) at (-5.4,-1.2){\input{img/water}};
+
+\node[scale=1.5] (hydro) at (-5.2,3){\large sample 1:};
+\node[scale=1.5] (hydro) at (-5,7){\large template:};
+
+\begin{scope}[xshift=8cm, yshift=7cm]
+%rules
+\node[myfact, color=white, scale = 1.5] (bond) {\textcolor{red}{$\alpha_1$ :} \textcolor{violet}{\textbf{W$_{h1}$}} \textcolor{red}{::} h(X) $\impl$ \textcolor{magenta}{\textbf{W$_a$}} \textcolor{red}{:} a(Y) $\conj$ \textcolor{orange}{\textbf{W$_b$}} \textcolor{red}{:} b(X,Y) \textcolor{red}{.}};
+% \node[mynode, inner sep=-5pt, scale = 0.9, outer color=white] (conj1) [right=0.5cm of bond]{\LARGE $\wedge$};
+% \node[mynode, outer color=black!30!white] (atom) [right=0.5cm of conj1]{a(Y)};
+% \node[mynode, inner sep=-5pt, scale = 0.9, outer color=white] (imp1) [right=0.5cm of atom]{\LARGE $=>$};
+% \node[mynode, outer color=violet!30!white] (embed) [right=0.5cm of imp1] {h(X)};
+
+
+\node[myfact, color=white, scale = 1.5] (embed2) [right=1cm of bond]{\textcolor{blue}{$\alpha_2$ :} \textcolor{teal}{\textbf{W$_q$}} \textcolor{red}{::} q $\impl$ \textcolor{cyan}{\textbf{W$_{h2}$}} \textcolor{red}{:} h(X) \textcolor{red}{.}};
+% \node[mynode, inner sep=-5pt, scale = 0.9, outer color=white] (imp2) [right=0.5cm of embed2]{\LARGE $=>$};
+% \node[mynode, outer color=blue!30!white] (q) [right=0.5cm of imp2] {q};
+\end{scope}
+
+\node [draw=red!30, inner sep=5pt, fit={(bond)}] (rec1) {};
+%\node (lab1) [left of=fha] {rr1}
+\node [draw=blue!30, inner sep=5pt, fit={(embed2)}] (rec2) {};
+
+%edges
+
+\end{scope}
+
+%------grounded
+\begin{scope}[yshift=1.3cm, xshift=0cm]
+
+\begin{scope}[xshift=0cm, yshift=2cm, node distance=1.3cm and 0cm]
+%fact neurons
+\node[myfact, label={[xshift=-1.6cm, yshift=0.4cm]{\LARGE Fact nodes}}, right color=brown!40!white] (f1) {$b(h_1,o_1)$};
+\node[myfact, right color=brown!40!white] (f7) [left=0.9cm of f1] {$b(o_1,h_1)$};
+\node[myfact, right color=black!40!white] (f2) [below left=0.5 and -0.4cm of f1] {$a(h_1)$};
+\node[myfact, right color=black!40!white] (f3) [below of=f2] {$a(o_1)$};
+\node[myfact, right color=black!40!white] (f4) [below of=f3] {$a(h_2)$};
+\node[myfact, right color=brown!40!white] (f5) [below right=0.5 and -0.4cm of f4] {$b(h_2,o_1)$};
+\node[myfact, right color=brown!40!white] (f6) [left=0.9cm of f5] {$b(o_1,h_2)$};
+
+\end{scope}
+
+\begin{scope}[xshift=6cm, yshift=1cm, node distance=1.3cm and 0cm]
+%rule neurons
+\node[myfact, label={[xshift=0cm, yshift=0.4cm]{\LARGE Rule nodes}}, right color=red!20!white, my label={font = \Large, black,below=0.3cm:$\wedge$}] (r1) {R$_{\alpha{_1}\theta_1}^{h(h_1)}[X/h_1,Y/o_1]$};
+\node[myfact, right color=red!20!white, my label={font = \Large, black,below=0.3cm:$\wedge$}] (r2) [below of=r1] {R$_{\alpha{_1}\theta_2}^{h(o_1)}[X/o_1,Y/h_1]$};
+\node[myfact, right color=red!20!white, my label={font = \Large, black,below=0.3cm:$\wedge$}] (r3) [below of=r2] {R$_{\alpha{_1}\theta_3}^{h(o_1)}[X/o_1,Y/h_2]$};
+\node[myfact, right color=red!20!white, my label={font = \Large, black,below=0.3cm:$\wedge$}] (r4) [below of=r3]{R$_{\alpha{_1}\theta_4}^{h(h_2)}[X/h_2,Y/o_1]$};
+\end{scope}
+
+\begin{scope}[xshift=12cm, yshift=0cm, node distance=1.3cm and 0cm]
+%aggregation
+\node[myfact, label={[xshift=0.1cm, yshift=0.4cm]{\LARGE {Aggregation nodes}}},  right color=red!30!white, my label={font = \LARGE, black,below=0.3cm:$*$}] (g1) {G$_{\alpha_1}^{h(h_1)}[X/h_1]$};
+\node[myfact, right color=red!30!white, my label={font = \LARGE, black,below=0.3cm:$*$}] (g2) [below of=g1] {G$_{\alpha_1}^{h(o_1)}[X/o_1]$};
+\node[myfact, right color=red!30!white, my label={font = \LARGE, black,below=0.3cm:$*$}] (g3) [below of=g2] {G$_{\alpha_1}^{h(h_2)}[X/h_2]$};
+\end{scope}
+
+\begin{scope}[xshift=16.5cm, yshift=0cm, node distance=1.3cm and 0cm]
+%atom
+\node[myfact, label={[xshift=0.1cm, yshift=0.5cm]{\LARGE {Atom nodes}}},  right color=red!40!white, my label={font = \LARGE, black,below=0.3cm:$\vee$}] (a1) {A$_{h(h1)}$};
+\node[myfact,  right color=red!40!white, my label={font = \LARGE, black,below=0.3cm:$\vee$}] (a2) [below of=a1] {A$_{h(o1)}$};
+\node[myfact,  right color=red!40!white, my label={font = \LARGE, black,below=0.3cm:$\vee$}] (a3) [below of=a2] {A$_{h(h2)}$};
+\end{scope}
+
+\begin{scope}[xshift=21cm, yshift=0cm, node distance=1.3cm and 0cm]
+%rule
+\node[myfact, label={[xshift=0.1cm, yshift=0.4cm]{\LARGE {Rule nodes}}},  right color=blue!20!white, my label={font = \LARGE, black,below=0.3cm:$\wedge$}] (rr1) {R$_{\alpha{_2}\theta_5}^{q}[X/h_1]$};
+\node[myfact,  right color=blue!20!white, my label={font = \LARGE, black,below=0.3cm:$\wedge$}] (rr2) [below of=rr1] {R$_{\alpha{_2}\theta_6}^{q}[X/o_1]$};
+\node[myfact,  right color=blue!20!white, my label={font = \LARGE, black,below=0.3cm:$\wedge$}] (rr3) [below of=rr2] {R$_{\alpha{_2}\theta_7}^{q}[X/h_2]$};
+\end{scope}
+
+\begin{scope}[xshift=25.8cm, yshift=-2cm, node distance=1.3cm and 0cm]
+%aggregation
+\node[myfact, label={[xshift=0.1cm, yshift=0.4cm]{\LARGE {Aggregation nodes}}},  right color=blue!30!white, my label={font = \LARGE, black,below=0.3cm:$*$}] (gg1) {G$_{\alpha_2}^{q}[\varnothing]$};
+\end{scope}
+
+\begin{scope}[xshift=30cm, yshift=-2cm, node distance=1.3cm and 0cm]
+%query
+\node[myfact, label={[xshift=0.1cm, yshift=0.4cm]{\LARGE {Atom nodes}}},  right color=blue!40!white, my label={font = \LARGE, black,below=0.3cm:$\vee$}] (q1) {A$_q$};
+\end{scope}
+
+\node [draw=red!30, inner sep=12pt, fit={(f7) (f6) (a1) (a3)}] (rec11) {};
+%\node (lab1) [left of=fha] {rr1}
+%\node [right of = r2] {r2}
+\node [draw=blue!30, inner sep=12pt, fit={(a1) (a3) (q1)}] (rec21) {};
+
+
+%edges
+
+%F->R
+\draw [dashed,red!30,->] (rec1) edge node[gredge, above] {} (rec11);
+\draw [dashed,blue!30,->] (rec2) edge node[gredge, above] {} (rec21);
+
+
+\draw [orange,->] (f1) edge node[gredge, below] {\textcolor{orange}{$W_b$}} (r1);
+% \draw [blue,->] (f2) edge node[gredge, below] {$W_1$} (r1);
+\draw [magenta,->] (f3) edge node[gredge, below] {$W_a$} (r1);
+
+\draw [orange,->] (f7) to[out=-25,in=160] node[gredge, below] {\textcolor{orange}{$W_b$}} (r2);
+\draw [magenta,->] (f2) edge node[gredge, below] {$W_a$} (r2);
+% \draw [blue,->] (f3) edge node[gredge, below] {$W_1$} (r2);
+
+\draw [orange,->] (f6) to[out=25,in=-160] node[gredge, below] {\textcolor{orange}{$W_b$}} (r3);
+% \draw [blue,->] (f3) edge node[gredge, below] {$W_1$} (r3);
+\draw [magenta,->] (f4) edge node[gredge, below] {$W_a$} (r3);
+
+\draw [orange,->] (f5) edge node[gredge, below] {\textcolor{orange}{$W_b$}} (r4);
+\draw [magenta,->] (f3) edge node[gredge, below] {$W_a$} (r4);
+% \draw [blue,->] (f4) edge node[gredge, below] {$W_1$} (r4);
+
+% R->G
+\draw [gray,->] (r1) edge node[gredge, below] {} (g1);
+\draw [gray,->] (r2) edge node[gredge, below] {} (g2);
+\draw [gray,->] (r3) edge node[gredge, below] {} (g2);
+\draw [gray,->] (r4) edge node[gredge, below] {} (g3);
+
+%G->A
+\draw [violet,->] (g1) edge node[gredge, below] {$W_{h1}$} (a1);
+\draw [violet,->] (g2) edge node[gredge, below] {$W_{h1}$} (a2);
+\draw [violet,->] (g3) edge node[gredge, below] {$W_{h1}$} (a3);
+
+%A->R
+\draw [cyan,->] (a1) edge node[gredge, below] {$W_{h2}$} (rr1);
+\draw [cyan,->] (a2) edge node[gredge, below] {$W_{h2}$} (rr2);
+\draw [cyan,->] (a3) edge node[gredge, below] {$W_{h2}$} (rr3);
+
+%R->G
+\draw [gray,->] (rr1) edge node[gredge, below] {} (gg1);
+\draw [gray,->] (rr2) edge node[gredge, below] {} (gg1);
+\draw [gray,->] (rr3) edge node[gredge, below] {} (gg1);
+
+\draw [teal,->] (gg1) edge node[gredge, below] {$W_q$} (q1);
+
+\end{scope}
+
+
+
+%% HYDROGEN -----------------------------------------------------------
+
+\node[scale=1.3] (hydro) at (-8.4,-12){\input{img/hydrogen}};
+
+\node[scale=1.5] (hydro) at (-8.4,-8.8){\large sample 2:};
+
+%------grounded
+\begin{scope}[yshift=-11cm, xshift=0cm]
+
+\begin{scope}[xshift=-2cm, yshift=2.2cm, node distance=1.3cm and 0cm]
+%fact neurons
+\node[myfact, label={[xshift=0cm, yshift=0.4cm]{\LARGE Fact nodes}}, right color=brown!40!white] (f1) {$b(h_1,h_2)$};
+% \node[myfact, right color=brown!40!white] (f7) [left=0.9cm of f1] {$b(o_1,h_1)$};
+\node[myfact, right color=black!40!white] (f2) [below  of= f1] {$a(h_2)$};
+% \node[myfact, right color=black!40!white] (f3) [below of=f2] {$a(o_1)$};
+\node[myfact, right color=black!40!white] (f3) [below of=f2] {$a(h_1)$};
+\node[myfact, right color=brown!40!white] (f4) [below  of= f3] {$b(h_2,h_1)$};
+% \node[myfact, right color=brown!40!white] (f6) [left=0.9cm of f5] {$b(o_1,h_2)$};
+
+\end{scope}
+
+\begin{scope}[xshift=6cm, yshift=0cm, node distance=1.3cm and 0cm]
+%rule neurons
+\node[myfact, label={[xshift=0cm, yshift=0.4cm]{\LARGE Rule nodes}}, right color=red!20!white, my label={font = \Large, black,below=0.3cm:$\wedge$}] (r1) {R$_{\alpha{_1}\theta_1}^{h(h_1)}[X/h_1,Y/h_2]$};
+% \node[myfact, right color=red!20!white, my label={font = \Large, black,below=0.3cm:$\wedge$}] (r2) [below of=r1] {R$_{\alpha{_1}\theta_2}^{h(o_1)}[X/o_1,Y/h_1]$};
+% \node[myfact, right color=red!20!white, my label={font = \Large, black,below=0.3cm:$\wedge$}] (r3) [below of=r2] {R$_{\alpha{_1}\theta_3}^{h(o_1)}[X/o_1,Y/h_2]$};
+\node[myfact, right color=red!20!white, my label={font = \Large, black,below=0.3cm:$\wedge$}] (r2) [below of=r1]{R$_{\alpha{_1}\theta_2}^{h(h_2)}[X/h_2,Y/h_1]$};
+\end{scope}
+
+\begin{scope}[xshift=12cm, yshift=0cm, node distance=1.3cm and 0cm]
+
+%aggregation
+\node[myfact, label={[xshift=0.1cm, yshift=0.4cm]{\LARGE {Aggregation nodes}}},  right color=red!30!white, my label={font = \LARGE, black,below=0.3cm:$*$}] (g1) {G$_{\alpha_1}^{h(h_1)}[X/h_1]$};
+\node[myfact, right color=red!30!white, my label={font = \LARGE, black,below=0.3cm:$*$}] (g2) [below of=g1] {G$_{\alpha_1}^{h(h_2)}[X/h_2]$};
+% \node[myfact, right color=red!30!white, my label={font = \LARGE, black,below=0.3cm:$*$}] (g3) [below of=g2] {G$_{\alpha_1}^{h(h_2)}[X/h_2]$};
+\end{scope}
+
+\begin{scope}[xshift=16.5cm, yshift=0cm, node distance=1.3cm and 0cm]
+%atom
+\node[myfact, label={[xshift=0.1cm, yshift=0.5cm]{\LARGE {Atom nodes}}},  right color=red!40!white, my label={font = \LARGE, black,below=0.3cm:$\vee$}] (a1) {A$_{h(h_1)}$};
+\node[myfact,  right color=red!40!white, my label={font = \LARGE, black,below=0.3cm:$\vee$}] (a2) [below of=a1] {A$_{h(h_2)}$};
+% \node[myfact,  right color=red!40!white, my label={font = \LARGE, black,below=0.3cm:$\vee$}] (a3) [below of=a2] {A$_{h(h2)}$};
+\end{scope}
+
+\begin{scope}[xshift=21cm, yshift=0cm, node distance=1.3cm and 0cm]
+%rule
+\node[myfact, label={[xshift=0.1cm, yshift=0.4cm]{\LARGE {Rule nodes}}},  right color=blue!20!white, my label={font = \LARGE, black,below=0.3cm:$\wedge$}] (rr1) {R$_{\alpha{_2}\theta_3}^{q}[X/h_1]$};
+\node[myfact,  right color=blue!20!white, my label={font = \LARGE, black,below=0.3cm:$\wedge$}] (rr2) [below of=rr1] {R$_{\alpha{_2}\theta_4}^{q}[X/h_2]$};
+% \node[myfact,  right color=blue!20!white, my label={font = \LARGE, black,below=0.3cm:$\wedge$}] (rr3) [below of=rr2] {R$_{\alpha{_2}\theta_7}^{h(h_1)}[X/h_2]$};
+\end{scope}
+
+\begin{scope}[xshift=25.8cm, yshift=-1cm, node distance=1.3cm and 0cm]
+%aggregation
+\node[myfact, label={[xshift=0.1cm, yshift=0.4cm]{\LARGE {Aggregation nodes}}},  right color=blue!30!white, my label={font = \LARGE, black,below=0.3cm:$*$}] (gg1) {G$_{\alpha_2}^{q}[\varnothing]$};
+\end{scope}
+
+\begin{scope}[xshift=30cm, yshift=-1cm, node distance=1.3cm and 0cm]
+%query
+\node[myfact, label={[xshift=0.1cm, yshift=0.5cm]{\LARGE {Atom nodes}}},  right color=blue!40!white, my label={font = \LARGE, black,below=0.3cm:$\vee$}] (q2) {A$_q$};
+\end{scope}
+
+\node [draw=red!30, inner sep=12pt, fit={(f1) (f4) (a1) (a2)}] (rc11) {};
+%\node (lab1) [left of=fha] {rr1}
+%\node [right of = r2] {r2}
+\node [draw=blue!30, inner sep=12pt, fit={(a1) (a2) (q2)}] (rc21) {};
+
+
+%edges
+
+%F->R
+\draw [dashed,red!30,->] (rec11) edge node[gredge, above] {} (rc11);
+\draw [dashed,blue!30,->] (rec21) edge node[gredge, above] {} (rc21);
+
+
+\draw [orange,->] (f1) edge node[gredge, below] {{$W_b$}} (r1);
+% \draw [blue,->] (f2) edge node[gredge, below] {$W_1$} (r1);
+\draw [magenta,->] (f2) edge node[gredge, below] {$W_a$} (r1);
+
+\draw [orange,->] (f4) edge node[gredge, below] {{$W_b$}} (r2);
+\draw [magenta,->] (f3) edge node[gredge, below] {$W_a$} (r2);
+% \draw [blue,->] (f3) edge node[gredge, below] {$W_1$} (r2);
+
+
+% R->G
+\draw [gray,->] (r1) edge node[gredge, below] {} (g1);
+\draw [gray,->] (r2) edge node[gredge, below] {} (g2);
+% \draw [gray,->] (r3) edge node[gredge, below] {} (g2);
+% \draw [gray,->] (r4) edge node[gredge, below] {} (g3);
+
+%G->A
+\draw [violet,->] (g1) edge node[gredge, below] {$W_{h1}$} (a1);
+\draw [violet,->] (g2) edge node[gredge, below] {$W_{h1}$} (a2);
+% \draw [violet,->] (g3) edge node[gredge, below] {$W_{h1}$} (a3);
+
+%A->R
+\draw [cyan,->] (a1) edge node[gredge, below] {$W_{h2}$} (rr1);
+\draw [cyan,->] (a2) edge node[gredge, below] {$W_{h2}$} (rr2);
+% \draw [cyan,->] (a3) edge node[gredge, below] {$W_{h2}$} (rr3);
+
+%R->G
+\draw [gray,->] (rr1) edge node[gredge, below] {} (gg1);
+\draw [gray,->] (rr2) edge node[gredge, below] {} (gg1);
+% \draw [gray,->] (rr3) edge node[gredge, below] {} (gg1);
+
+\draw [teal,->] (gg1) edge node[gredge, below] {$W_q$} (q2);
+
+\end{scope}
+
+\end{tikzpicture}

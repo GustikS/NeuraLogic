@@ -1,0 +1,129 @@
+\begin{tikzpicture}
+[node distance=2.5cm and 0.5cm,
+mynode/.style={
+  draw, scale = 1.4,  minimum size=1cm, circle, rounded corners,shading=radial,outer color=gray!30,inner color=white,
+  minimum height=1cm,
+  align=center
+  },
+myfact/.style={
+  draw, scale = 1.7,  minimum size=1cm, rounded corners,left color=white,
+  minimum height=1cm,
+  align=center
+  }
+]
+
+
+\begin{scope}[xshift=-2cm]
+
+\begin{scope}[xshift=0cm, yshift=-1.5cm]
+%rules
+\node[mynode, outer color=red!30!white] (mother) {parent(A,B)};
+\node[mynode, inner sep=-5pt, scale = 0.9, outer color=white] (conj1) [right=0.1cm of mother]{\LARGE $\wedge$};
+\node[mynode, outer color=black!30!white] (horse1) [right=0.1cm of conj1]{horse(B)};
+\node[mynode, inner sep=-5pt, scale = 0.9, outer color=white] (imp1) [right=0.1cm of horse1]{\LARGE $\implies$};
+\node[mynode, outer color=violet!30!white] (foal1) [right=0.1cm of imp1] {foal(A)};
+
+\node[mynode, outer color=blue!30!white] (father) [below=1cm of mother] {sibling(A,B)}; 
+\node[mynode, inner sep=-5pt, scale = 0.9, outer color=white] (conj2) [right=0.1cm of father]{\LARGE $\wedge$};
+\node[mynode, outer color=black!30!white] (horse2) [right=0.1cm of conj2]{horse(B)};
+\node[mynode, inner sep=-5pt, scale = 0.9, outer color=white] (imp1) [right=0.1cm of horse2]{\LARGE $\implies$};
+\node[mynode, outer color=violet!30!white] (foal2) [right=0.1cm of imp1] {foal(A)};
+\end{scope}
+
+\node [draw=red!30, inner sep=10pt, fit={(mother) (foal1)}] (r1) {};
+%\node (lab1) [left of=fha] {rr1}
+\node [draw=blue!30, inner sep=10pt, fit={(father) (foal2)}] (r2) {};
+
+%edges
+
+\end{scope}
+
+%------grounded
+\begin{scope}[yshift=1.3cm, xshift=14cm]
+
+\begin{scope}[xshift=-1cm,node distance=1.3cm and 0cm]
+%fact neurons
+\node[myfact, label={[xshift=0.0cm, yshift=0.4cm]{\LARGE Fact neurons}}, right color=red!10!white] (fpsa) {parent(star,aida)};
+
+\node[myfact, right color=black!20!white] (fha) [below of=fpsa] {horse(aida)};
+
+\node[myfact, right color=red!10!white] (ffsc) [below of=fha] {parent(star,cheyenne)};
+\node[myfact, right color=black!20!white] (fhc) [below of=ffsc] {horse(cheyenne)};
+
+\node[myfact, right color=blue!10!white] (fssd) [below of=fhc] {sibling(star,dakotta)};
+\node[myfact, right color=black!20!white] (fhd) [below of=fssd] {horse(dakotta)};
+
+\end{scope}
+
+\begin{scope}[xshift=6.5cm,node distance=1.3cm and 0cm]
+%atom neurons
+\node[myfact, label={[xshift=0.0cm, yshift=0.4cm]{\LARGE Atoms neurons}}, my label={font = \Large, black,below=0.3cm:$\vee$}, right color=red!10!white] (apsa) {parent(star,aida)};
+
+\node[myfact, my label={font = \Large, black,below=0.3cm:$\vee$}, right color=black!20!white] (aha) [below of=apsa] {horse(aida)};
+
+\node[myfact, my label={font = \Large, black,below=0.3cm:$\vee$}, right color=red!10!white] (afsc) [below of=aha] {parent(star,cheyenne)};
+\node[myfact, my label={font = \Large, black,below=0.3cm:$\vee$}, right color=black!20!white] (ahc) [below of=afsc] {horse(cheyenne)};
+
+\node[myfact, my label={font = \Large, black,below=0.3cm:$\vee$}, right color=blue!10!white] (assd) [below of=ahc] {sibling(star,dakotta)};
+\node[myfact, my label={font = \Large, black,below=0.3cm:$\vee$}, right color=black!20!white] (ahd) [below of=assd] {horse(dakotta)};
+
+\end{scope}
+
+\begin{scope}[yshift=-1.5cm, xshift=12.5cm, node distance=2.3cm and 0cm]
+%rule neurons
+\node[myfact, label={[xshift=0.0cm, yshift=0.4cm]{\LARGE Rule neurons}}, right color=violet!30!white, my label={font = \Large, black,below=0.3cm:$\wedge$}] (mother) {foal(star)};
+\node[myfact, right color=violet!30!white, my label={font = \Large, black,below=0.3cm:$\wedge$}] (father) [below of=mother] {foal(star)};
+\node[myfact, right color=violet!30!white, my label={font = \Large, black,below=0.3cm:$\wedge$}] (sibling) [below of=father] {foal(star)};
+\end{scope}
+
+
+gratom\node [draw=red!30, inner sep=4pt, fit={(fha) (fpsa) (mother)}] (r11) {};
+%\node (lab1) [left of=fha] {rr1}
+\node [draw=red!30, inner sep=4pt, fit={(ffsc) (fhc) (father)}] (r12) {};
+%\node [right of = r2] {r2}
+\node [draw=blue!30, inner sep=4pt, fit={(fssd) (ahd) (sibling)}] (r21) {};
+
+\begin{scope}[xshift=16.8cm, yshift=-2.8cm]
+%aggregation
+\node[myfact, label={[xshift=0.1cm, yshift=0.4cm]{\LARGE {Aggregation neurons}}},  right color=violet!30!white, my label={font = \LARGE, black,below=0.3cm:$*$}] (aggr1) {foal(star)};
+\node[myfact, right color=violet!30!white, my label={font = \LARGE, black,below=0.3cm:$*$}] (aggr2) [below of=aggr1] {foal(star)}; {foal(star)};
+
+\node[myfact, label={[xshift=0.0cm, yshift=0.4cm]{\LARGE Atom neuron}}, right color=violet!30!white, my label={font = \Large, black,below=0.3cm:$\vee$}] (final) [below right=0cm and 1.1cm of aggr1] {foal(star)};
+\end{scope}
+
+
+%edges
+
+\draw [dashed,red!30,->] (r1) edge node[gredge, above,sloped] {} (r11);
+\draw [dashed,red!30,->] (r1) edge node[gredge, above,sloped] {} (r12);
+\draw [dashed,blue!30,->] (r2) edge node[gredge, above,sloped] {} (r21);
+
+
+\draw [thick,->] (fhd) edge node[gredge, above,sloped] {\LARGE $w_1$} (ahd);
+\draw [thick,->] (fpsa) edge node[gredge, above,sloped] {\LARGE $w_4$} (apsa);
+\draw [thick,->] (fhc) edge node[gredge, above,sloped] {\LARGE $w_2$} (ahc);
+\draw [thick,->] (ffsc) edge node[gredge, above,sloped] {\LARGE $w_5$} (afsc);
+\draw [thick,->] (fssd) edge node[gredge, above,sloped] {\LARGE $w_6$} (assd);
+\draw [thick,->] (fha) edge node[gredge, above,sloped] {\LARGE $w_3$} (aha);
+
+\draw [thick,->] (apsa) edge node[gredge, above,sloped] {} (mother);
+\draw [thick,->] (aha) edge node[gredge, above,sloped] {} (mother);
+
+\draw [thick,->] (ahc) edge node[gredge, below, sloped] {} (father);
+\draw [thick,->] (afsc) edge node[gredge, above,sloped] {} (father);
+
+\draw [thick,->] (assd) edge node[gredge, below,sloped] {} (sibling);
+\draw [thick,->] (ahd) to[out=10,in=-150] node[outer sep=2pt, inner sep=1pt ,fill=white, below right] {} (sibling);
+%\draw [thick,->] (ahd)  edge node[gredge, below,sloped] {1} (sibling);
+
+\draw [thick,->] (mother) edge node[gredge, above,sloped] {} (aggr1);
+\draw [thick,->] (father) edge node[gredge, above,sloped] {} (aggr1);
+
+\draw [thick,->] (sibling) edge node[gredge, above,sloped] {} (aggr2);
+
+\draw [thick,->] (aggr1) edge node[gredge, above,sloped] {\LARGE $w_m$} (final);
+\draw [thick,->] (aggr2) edge node[gredge, above,sloped] {\LARGE $w_n$} (final);
+
+\end{scope}
+
+\end{tikzpicture}

@@ -1,0 +1,134 @@
+\begin{tikzpicture}
+[transform shape,rotate=0, node distance=2.0cm and 2.0cm,
+ar/.style={->,>=latex},
+mynode/.style={
+  draw, scale = 1.0,  minimum size=1cm, rounded corners,left color=white,
+  minimum height=1cm,
+  align=center
+  }
+]
+
+\tikzstyle{neuron}  =  [rectangle, draw, scale = 1.0,  minimum size=1cm]
+\tikzstyle{treenode}  =  [mynode, right color=black!30!white]
+\tikzstyle{recnode}  =  [mynode, right color=red!30!white]
+\tikzstyle{recnode2}  =  [mynode, right color=magenta!20!white]
+\tikzstyle{aggnode}  =  [mynode, right color=blue!30!white]
+\tikzstyle{qnode}  =  [mynode, right color=blue!40!white]
+
+\tikzstyle{grbond}  =  [mynode, right color=black!30!white]
+\tikzstyle{gratom}  =  [mynode]
+\tikzstyle{grgroup} =  [mynode, right color=brown!30!white]
+\tikzstyle{grexpl}  =  [mynode, right color=violet!30!white]
+\tikzstyle{edgenode}  =  [thin, draw=black, align=center,fill=white,font=\small]
+
+\node[treenode] (g1) {F$_{n_1}$};
+\node[treenode] (g2) [below left = 0.5 and 0.5cm of g1] {F$_{n_2}$};
+\node[treenode] (g3) [below right = 1.5 and 0.1cm of g1] {F$_{n_3}$};
+\node[treenode] (g4) [above left = 0.5 and 0.5cm of g1]{F$_{n_4}$};
+
+
+\draw[black,-] (g1) -> (g2);
+\draw[black,-] (g1) -> (g3);
+\draw[black,-] (g2) -> (g3);
+\draw[black,-] (g1) -> (g4);
+
+\node[recnode] (h1) [right = 6.5cm of g1] {A$_{h(n_1)}^{(1)}$};
+\node[recnode] (h2) [below left = 0.5 and 0.5cm of h1] {A$_{h(n_2)}^{(1)}$};
+\node[recnode] (h3) [below right = 1.5 and 0.1cm of h1] {A$_{h(n_3)}^{(1)}$};
+\node[recnode] (h4) [above left = 0.5 and 0.5cm of h1] {A$_{h(n_4)}^{(1)}$};
+
+%RULE NODES
+\node[recnode,scale=0.5] (r1) [below right=-1.2 and 4cm of g4] {R$^4_1$};
+
+\node[recnode,scale=0.5] (r2) [below right=-1.7 and 3.5cm of g1] {R$^1_4$};
+\node[recnode,scale=0.5] (r3) [below right=-1.1 and 3.5cm of g1] {R$^1_2$};
+\node[recnode,scale=0.5] (r4) [below right=-0.5 and 3.5cm of g1] {R$^1_3$};
+
+\node[recnode,scale=0.5] (r5) [below right=-1 and 4.2cm of g2] {R$^2_1$};
+\node[recnode,scale=0.5] (r6) [below right=-0.4 and 4.2cm of g2] {R$^2_3$};
+
+\node[recnode,scale=0.5] (r7) [below right=-0.3 and 4.2cm of g3] {R$^3_1$};
+\node[recnode,scale=0.5] (r8) [below right=0.3 and   4.2cm of g3] {R$^3_2$};
+
+\node[recnode,scale=0.5] (rh1) [below left = -1.2cm and 0.5cm of h1] {G1};
+\node[recnode,scale=0.5] (rh2) [below left = -0.8cm and 0.5cm of h2] {G2};
+\node[recnode,scale=0.5] (rh3) [below left = -0.2cm and 0.5cm of h3] {G3};
+\node[recnode,scale=0.5] (rh4) [below left = -1.2cm and 0.5cm of h4] {G4};
+
+%agg edges
+\draw[gray,->] (r1) -> (rh4);
+\draw[gray,->] (rh4) -> (h4);
+
+\draw[gray,->] (r7) -> (rh3);
+\draw[gray,->] (r8) -> (rh3);
+\draw[gray,->] (rh3) -> (h3);
+
+\draw[gray,->] (r2) -> (rh1);
+\draw[gray,->] (r3) -> (rh1);
+\draw[gray,->] (r4) -> (rh1);
+\draw[gray,->] (rh1) -> (h1);
+
+\draw[gray,->] (r5) -> (rh2);
+\draw[gray,->] (r6) -> (rh2);
+\draw[gray,->] (rh2) -> (h2);
+
+\draw[black,loosely dotted] (h1) -> (h2);
+\draw[black,loosely dotted] (h1) -> (h3);
+\draw[black,loosely dotted] (h2) -> (h3);
+\draw[black,loosely dotted] (h1) -> (h4);
+
+\draw[violet,->] (g1) to[out=0,in=-150] node[ above, near end] {$W_2$} (h1);
+\draw[violet,->] (g2) to[out=0,in=-150] node[ above] {$W_2$} (h2);
+\draw[violet,->] (g3) -> node[ below] {$W_2$} (h3);
+\draw[violet,->] (g4) -> node[ above, near start] {$W_2$} (h4);
+
+\draw[orange,->] (g1) -> node[below] {$W_1$} (r1);
+
+\draw[orange,->] (g4) -> node[below, near end] {$W_1$} (r2);
+\draw[orange,->] (g2) -> node[ below] {$W_1$} (r3);
+\draw[orange,->] (g3) to[out=70,in=190] node[below] {$W_1$} (r4);
+
+\draw[orange,->] (g1) -> node[ below] {} (r5);
+\draw[orange,->] (g3) -> node[ below] {$W_1$} (r6);
+
+\draw[orange,->] (g1) to[out=-30,in=-170] node[above, near end] {$W_1$} (r7);
+\draw[orange,->] (g2) to[out=-49,in=170] node[above] {$W_1$} (r8);
+
+%2nd layer
+\node[recnode2] (hh1) [right = 4.5cm of h1] {A$_{h(n_1)}^{(n)}$};
+\node[recnode2] (hh2) [below left = 0.5 and 0.5cm of hh1] {A$_{h(n_2)}^{(n)}$};
+\node[recnode2] (hh3) [below right = 1.5 and 0.1cm of hh1] {A$_{h(n_3)}^{(n)}$};
+\node[recnode2] (hh4) [above left = 0.5 and 0.5cm of hh1] {A$_{h(n_4)}^{(n)}$};
+
+\draw[black,loosely dotted] (hh1) -> (hh2);
+\draw[black,loosely dotted] (hh1) -> (hh3);
+\draw[black,loosely dotted] (hh2) -> (hh3);
+\draw[black,loosely dotted] (hh1) -> (hh4);
+
+\draw[cyan,dashed,->] (h1) -> node[color=black, draw=white, fill=white] {\Large$\dots$} (hh1);
+\draw[cyan,dashed,->] (h2) -> node[color=black, draw=white, fill=white] {\Large$\dots$} (hh2);
+\draw[cyan,dashed,->] (h3) -> node[color=black, draw=white, fill=white] {\Large$\dots$} (hh3);
+\draw[cyan,dashed,->] (h4) -> node[color=black, draw=white, fill=white] {\Large$\dots$} (hh4);
+
+\draw[teal,dashed,->] (h1) -> node[color=black, draw=white, fill=white] {\Large$\dots$} (hh4);
+\draw[teal,dashed,->] (h4) -> node[color=black, draw=white, fill=white] {\Large$\dots$} (hh1);
+\draw[teal,dashed,->] (h2) -> node[color=black, draw=white, fill=white] {\Large$\dots$} (hh1);
+\draw[teal,dashed,->] (h3) to[out=40,in=-170] node[color=black, draw=white, fill=white] {\Large$\dots$} (hh1);
+
+\draw[teal,dashed,->] (h1) -> node[color=black, draw=white, fill=white] {\Large$\dots$} (hh2);
+\draw[teal,dashed,->] (h3) -> node[color=black, draw=white, fill=white] {\Large$\dots$} (hh2);
+
+\draw[teal,dashed,->] (h1) to[out=-30,in=-170] node[color=black, draw=white, fill=white] {}(hh3);
+\draw[teal,dashed,->] (h2) -> node[color=black, draw=white, fill=white] {\Large$\dots$} (hh3);
+
+
+\node[aggnode] (agg) [right = 2cm of hh1] {G$_{\alpha_n}^q$};
+\draw[gray,->] (hh1) -> (agg);
+\draw[gray,->] (hh2) -> (agg);
+\draw[gray,->] (hh3) -> (agg);
+\draw[gray,->] (hh4) -> (agg);
+
+\node[qnode] (q) [right = 1.5cm of agg] {A$_q$};
+\draw[blue,->] (agg) -> node[blue, below] {$W^{(n)}$} (q);
+
+\end{tikzpicture}

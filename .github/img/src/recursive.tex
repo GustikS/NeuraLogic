@@ -1,0 +1,55 @@
+\begin{tikzpicture}
+[transform shape,rotate=0, node distance=2.0cm and 2.0cm,
+ar/.style={->,>=latex},
+mynode/.style={
+  draw, scale = 1.0,  minimum size=1cm, rounded corners,left color=white,
+  minimum height=1cm,
+  align=center
+  }
+]
+
+\tikzstyle{neuron}  =  [rectangle, draw, scale = 1.0,  minimum size=1cm]
+\tikzstyle{treenode}  =  [mynode, right color=red!30!white]
+\tikzstyle{grbond}  =  [mynode, right color=black!30!white]
+\tikzstyle{gratom}  =  [mynode]
+\tikzstyle{grgroup} =  [mynode, right color=brown!30!white]
+\tikzstyle{grexpl}  =  [mynode, right color=violet!30!white]
+\tikzstyle{edgenode}  =  [thin, draw=black, align=center,fill=white,font=\small]
+
+
+\node[grbond] (gh1) {F$_{n(1)}^{(0)}$};
+\node[grbond] (gh2) [below=0.5cm of gh1] {F$_{n(2)}^{(0)}$};
+\node[grbond] (gh3) [below=0.5cm of gh2] {F$_{n(3)}^{(0)}$};
+
+\node[mynode, draw=white] (void) [above=0.2cm of gh1] {$\dots$};
+\node[mynode, draw=white] (void) [below=0.2cm of gh3] {$\dots$};
+
+\node[treenode] (l11) [right=3.5cm of gh1] {R$_{\alpha_1}^{{n(i)}^{(d-1)}}$};
+\node[treenode] (l12) [right of=gh2] {R$_{\alpha_1}^{{n(j)}^{(1)}}$};
+\node[treenode] (l13) [right=3.5cm of gh3] {R$_{\alpha_1}^{{n(k)}^{(d-1)}}$};
+
+\node[treenode] (l22) [right=4cm of l12] {R$_{\alpha_1}^{{n(j)}^{(d)}}$};
+
+
+%edges
+
+\draw[orange,->] (gh1) -> node[ below] {$\mathbf{W_1}$} (l12);
+\draw[cyan,->] (gh2) -> node[below] {$\mathbf{W_2}$} (l12);
+\draw[violet,->] (gh3) -> node[below] {$\mathbf{W_3}$} (l12);
+
+\draw[orange,dashed,->] (3,1) -> (l11);
+\draw[cyan,dashed,->] (3,0) -> (l11);
+\draw[violet,dashed,->] (3,-1) -> (l11);
+
+\draw[orange,dashed,->] (3,-2) -> (l13);
+\draw[cyan,dashed,->] (3,-3) -> (l13);
+\draw[violet,dashed,->] (3,-4) -> (l13);
+
+\draw[orange,->] (l11) -> node[ below] {$\mathbf{W_1}$} (l22);
+\draw[cyan,dashed,->] (l12) -> node[below,near end] {$\mathbf{W_2}$} (l22);
+\draw[violet,->] (l13) -> node[below] {$\mathbf{W_3}$} (l22);
+
+\node[mynode, draw=white] (void) [right=1.5cm of l12] {$\dots$};
+
+
+\end{tikzpicture}

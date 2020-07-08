@@ -1,0 +1,154 @@
+\resizebox{0.7\textwidth}{!}{
+\begin{tikzpicture}
+[node distance=2.0cm and 0cm,
+ar/.style={->,>=latex},
+mynode/.style={
+  draw, scale = 1.0,  minimum size=1cm, rounded corners,left color=white,
+  minimum height=1cm,
+  align=center
+  }
+]
+[node distance=2.5cm and 0.5cm,
+mynode/.style={
+  draw, scale = 1.4,  minimum size=1cm, circle, rounded corners,shading=radial,outer color=gray!30,inner color=white,
+  minimum height=1cm,
+  align=center
+  },
+myfact/.style={
+  draw, scale = 1.7,  minimum size=1cm, rounded corners,left color=white,
+  minimum height=1cm,
+  align=center
+  }
+]
+
+\newcommand{\fname}{$toxic_1$} % feature name
+
+\tikzstyle{grbond}  =  [mynode,my label={font = \small, black,below=0.1cm:$\vee$}, right color=black!30!white]
+\tikzstyle{gratom}  =  [mynode]
+\tikzstyle{grgroup} =  [mynode,my label={font = \small, black,below=0.1cm:$\vee$}, right color=brown!30!white]
+\tikzstyle{grexpl}  =  [mynode,my label={font = \small, black,below=0.1cm:$\wedge$}, right color=violet!30!white]
+\tikzstyle{grexplagg}  =  [mynode,my label={black,below=0.1cm:$*$}, right color=violet!30!white]
+\tikzstyle{grexpldisj}  =  [mynode,my label={font = \small, black,below=0.1cm:$\vee$}, right color=violet!30!white]
+\tikzstyle{edgenode}  =  [thin, draw=black, align=center,fill=white,font=\small]
+
+
+\tikzstyle{factN}  =  [mynode]
+\tikzstyle{atomN}  =  [mynode,my label={font = \small, black,below=0.1cm:$\vee$}]
+\tikzstyle{ruleN}  =  [mynode,my label={font = \small, black,below=0.1cm:$\wedge$}]
+\tikzstyle{aggN}  =  [mynode,my label={black,below=0.1cm:$*$}]
+
+% %grounding
+\newcommand\ground{15};
+\coordinate (beg) at (5,5);
+
+
+% % % %maly grounding
+\begin{scope}[xshift=0cm,yshift=-1.0cm]
+
+%fact neurons
+\begin{scope}[xshift=0cm]
+
+\node[factN, right color=blue!30!white] (gh1) {$H(h^1_1)$};
+
+
+\node[factN, right color=black!30!white] (bondh1h2) [below of=gh1] {$b(h^1_1,h^2_1)$};
+\node[factN, right color=black!30!white] (bondh2h1) [below = 0.1 of bondh1h2] {$b(h^2_1,h^1_1)$};
+
+\node[factN, right color=blue!30!white] (gh2) [below of=bondh2h1] {$H(h^2_1)$};
+
+\end{scope}
+
+%atom neurons
+\begin{scope}[xshift=0cm]
+
+\node[atomN, right color=blue!30!white] (gh1_2) [right of=gh1] {$H(h^1_1)$};
+
+
+\node[atomN, right color=black!30!white] (bondh1h2_2) [below of=gh1_2] {$b(h^1_1,h^2_1)$};
+\node[atomN, right color=black!30!white] (bondh2h1_2) [below = 0.1 of bondh1h2_2] {$b(h^2_1,h^1_1)$};
+
+\node[atomN, right color=blue!30!white] (gh2_2) [below of=bondh2h1_2] {$H(h^2_1)$};
+
+\end{scope}
+
+%rule neurons + linear chains
+\begin{scope}[xshift=0cm]
+
+\node[ruleN, right color=brown!30!white] (gr1h1) [above right=0.5 and 1 of gh1_2] {$gr_1(h^1_1)$};
+\node[aggN, right color=brown!30!white] (gr1h1_2) [right=0.2 of gr1h1] {$gr_1(h^1_1)$};
+\node[atomN, right color=brown!30!white] (gr1h1_3) [right=1 of gr1h1_2] {$gr_1(h^1_1)$};
+
+
+\node[ruleN, right color=brown!30!white] (gr2h1) [below of=gr1h1] {$gr_2(h^1_1)$};
+\node[aggN, right color=brown!30!white] (gr2h1_2) [right=0.2 of gr2h1] {$gr_2(h^1_1)$};
+\node[atomN, right color=brown!30!white] (gr2h1_3) [right=1 of gr2h1_2] {$gr_2(h^1_1)$};
+
+\node[ruleN, right color=brown!30!white] (gr2h2) [above right=-0.5cm and 1cm of gh2_2] {$gr_2(h^2_1)$};
+\node[aggN, right color=brown!30!white] (gr2h2_2) [right=0.2 of gr2h2] {$gr_2(h^2_1)$};
+\node[atomN, right color=brown!30!white] (gr2h2_3) [right=1 of gr2h2_2] {$gr_2(h^2_1)$};
+
+\node[ruleN, right color=brown!30!white] (gr1h2) [below of=gr2h2] {$gr_1(h^2_1)$};
+\node[aggN, right color=brown!30!white] (gr1h2_2) [right=0.2 of gr1h2] {$gr_1(h^2_1)$};
+\node[atomN, right color=brown!30!white] (gr1h2_3) [right=1 of gr1h2_2] {$gr_1(h^2_1)$};
+
+\end{scope}
+
+%rule toxic
+\begin{scope}[xshift = 0cm]
+\node[ruleN, right color=violet!30!white] (explosive1)  [below right=0.4 and 0.8cm of gr2h1_3] {\fname};
+\node[ruleN, right color=violet!30!white] (explosive2)  [above right=0.4 and 0.8cm of gr2h2_3] {\fname};
+\end{scope}
+
+%aggreagation
+\node[aggN, right color=violet!30!white] (explagg) [below right=-0.4 and 0.5 of explosive1] {\fname};
+
+\node[atomN, right color=violet!30!white] (expl) [right=0.8cm of explagg] {\fname};
+
+
+%----edges
+%1
+\draw[ar] (gh1) -- node[gredge, above] {} (gh1_2);
+\draw[ar] (gh2) -- node[gredge, above] {} (gh2_2);
+\draw[ar] (bondh1h2) -- node[gredge, above] {} (bondh1h2_2);
+\draw[ar] (bondh2h1) -- node[gredge, above] {} (bondh2h1_2);
+%2
+\draw[ar] (gh1_2) -- node[gredge, above] {} (gr1h1);
+\draw[ar] (gh1_2) to[] node[gredge, above] {} (gr2h1);
+
+\draw[ar] (gh2_2) -- node[gredge, below] {} (gr1h2);
+\draw[ar] (gh2_2) to[] node[gredge, below] {} (gr2h2);
+%3 - linear chains
+\draw[ar] (gr1h1) to[] node[gredge1, above] {} (gr1h1_2);
+\draw[ar] (gr1h1_2) to[] node[gredge1, above] {\whgg} (gr1h1_3);
+
+\draw[ar] (gr1h2) to[] node[gredge1, above] {} (gr1h2_2);
+\draw[ar] (gr1h2_2) to[] node[gredge1, above] {\whgg} (gr1h2_3);
+
+\draw[ar] (gr2h1) to[] node[gredge1, above] {} (gr2h1_2);
+\draw[ar] (gr2h1_2) to[] node[gredge1, above] {\whg} (gr2h1_3);
+
+\draw[ar] (gr2h2) to[] node[gredge1, above] {} (gr2h2_2);
+\draw[ar] (gr2h2_2) to[] node[gredge1, above] {\whg} (gr2h2_3);
+
+%h1h2
+\draw[ar] (gr1h1_3) to[] node[gredge1, above] {} (explosive1);
+%\draw[ar] (gr2h1) to[out=50,in=100] node[gredge1, above] {\ide} (explosive1);
+%\draw[ar] (gr1h2) to[out=20,in=-120] node[gredge1, below] {\ide} (explosive1);
+\draw[ar] (gr2h2_3) to[] node[gredge1, above] {} (explosive1);
+\draw[ar] (bondh1h2_2) to[] node[gredge1, below] {} (explosive1);
+%h2h1
+%\draw[ar] (gr1h1) to[out=-50,in=90] node[gredge1, above] {\ide} (explosive2);
+\draw[ar] (gr2h1_3) to[] node[gredge1, above] {} (explosive2);
+\draw[ar] (gr1h2_3) to[] node[gredge1, below] {} (explosive2);
+%\draw[ar] (gr2h2) to[out=-50,in=-100] node[gredge1, above] {\ide} (explosive2);
+\draw[ar] (bondh2h1_2) to[] node[gredge1, below] {} (explosive2);
+%finale
+\draw[ar] (explosive1) to[] node[gredge1, left] {} (explagg);
+\draw[ar] (explosive2) to[] node[gredge1, left] {} (explagg);
+
+\draw[ar] (explagg) to node[gredge, above] {\fweight} (expl);
+
+\end{scope}
+
+	\end{tikzpicture}
+}

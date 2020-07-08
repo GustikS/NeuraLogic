@@ -1,0 +1,46 @@
+\begin{tikzpicture}
+[transform shape,rotate=0, node distance=2.0cm and 2.0cm,
+ar/.style={->,>=latex},
+mynode/.style={
+  draw, scale = 1.0,  minimum size=1cm, rounded corners,left color=white,
+  minimum height=1cm,
+  align=center
+  }
+]
+
+\tikzstyle{neuron}  =  [rectangle, draw, scale = 1.0,  minimum size=1cm]
+\tikzstyle{treenode}  =  [mynode, right color=black!30!white]
+\tikzstyle{recnode}  =  [mynode, right color=red!30!white]
+\tikzstyle{grbond}  =  [mynode, right color=black!30!white]
+\tikzstyle{gratom}  =  [mynode]
+\tikzstyle{grgroup} =  [mynode, right color=brown!30!white]
+\tikzstyle{grexpl}  =  [mynode, right color=violet!30!white]
+\tikzstyle{edgenode}  =  [thin, draw=black, align=center,fill=white,font=\small]
+
+
+\node[treenode] (l1) {F$_{f(1)}$};
+\node[treenode] (l2) [right of=l1] {F$_{f(2)}$};
+\node[treenode] (l3) [right=2cm of l2] {F$_{f(k)}$};
+
+
+\node[recnode] (h1) [below of=l1] {R$_{\alpha_1}^{h(1)}$};
+\node[mynode,draw=black] (h0) [left of=h1] {A$_{h(0)}$};
+\node[recnode] (h2) [below of=l2] {R$_{\alpha_1}^{h(2)}$};
+
+\node[recnode] (h3) [below of=l3] {R$_{\alpha_1}^{h(k)}$};
+
+%edges
+
+\draw[orange,->] (l1) -> node[ left] {$\mathbf{W_f}$} (h1);
+\draw[orange,->] (l2) -> node[ left] {$\mathbf{W_f}$} (h2);
+\draw[orange,->] (l3) -> node[ left] {$\mathbf{W_f}$} (h3);
+
+\draw[cyan,->] (h0) -> node[below] {$\mathbf{W_h}$} (h1);
+\draw[cyan,->] (h1) -> node[below] {$\mathbf{W_h}$} (h2);
+\draw[cyan,->, dashed] (h2) -> node[below] {$\mathbf{W_h}$} (h3);
+
+\node[mynode, draw=white] (void) [right=0.5cm of h2] {$\dots$};
+\node[mynode, draw=white] (void0) [right=0.5cm of l2] {$\dots$};
+
+
+\end{tikzpicture}

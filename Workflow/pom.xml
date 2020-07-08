@@ -5,7 +5,7 @@
     <parent>
         <artifactId>NeuraLogic</artifactId>
         <groupId>cz.cvut.fel.ida</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.2.1-alpha</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -14,37 +14,37 @@
         <dependency>
             <groupId>cz.cvut.fel.ida</groupId>
             <artifactId>Logical</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>0.2.1-alpha</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>cz.cvut.fel.ida</groupId>
             <artifactId>Pipelines</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>0.2.1-alpha</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>cz.cvut.fel.ida</groupId>
             <artifactId>Neural</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>0.2.1-alpha</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>cz.cvut.fel.ida</groupId>
             <artifactId>Neuralization</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>0.2.1-alpha</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>cz.cvut.fel.ida</groupId>
             <artifactId>Resources</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>0.2.1-alpha</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>cz.cvut.fel.ida</groupId>
             <artifactId>Parsing</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>0.2.1-alpha</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
