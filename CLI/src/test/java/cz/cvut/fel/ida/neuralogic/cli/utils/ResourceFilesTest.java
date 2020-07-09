@@ -4,6 +4,7 @@ import cz.cvut.fel.ida.utils.generic.TestAnnotations;
 import cz.cvut.fel.ida.utils.generic.Utilities;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +29,7 @@ class ResourceFilesTest {
     }
 
     @TestAnnotations.Fast
+    @Disabled
     void checkResourceFile() {
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource("relational").getFile());
@@ -35,12 +37,14 @@ class ResourceFilesTest {
     }
 
     @TestAnnotations.Fast
+    @Disabled
     void getResource() {
         String tmp2 = Utilities.readResourceFile("dummy.txt");
         LOG.fine(tmp2);
     }
 
     @TestAnnotations.Fast
+    @Disabled
     public void listAvailableResources() {
         boolean available = false;
         Enumeration<URL> e = null;

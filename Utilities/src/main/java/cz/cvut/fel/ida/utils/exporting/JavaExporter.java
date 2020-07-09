@@ -34,7 +34,7 @@ public class JavaExporter extends Exporter {
             out.writeObject(iExportable);
             out.flush();
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

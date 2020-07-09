@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -58,10 +57,11 @@ public class Utilities {
     }
 
     public static String getResourcePath(String filename) {
-        URL resource = Thread.currentThread().getContextClassLoader().getResource(filename);
-        String path = resource.getPath();
+//        URL resource = Thread.currentThread().getContextClassLoader().getResource(filename);
+//        String path = resource.getPath();
+        String path = "../Resources/datasets/" + filename;
         if (path.startsWith("/C:")) {
-            path = path.substring(1, path.length());
+            path = path.substring(1);
         }
         return path;
     }

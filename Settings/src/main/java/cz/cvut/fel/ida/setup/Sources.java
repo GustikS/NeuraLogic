@@ -3,7 +3,6 @@ package cz.cvut.fel.ida.setup;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.cli.CommandLine;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.FileInputStream;
 import java.io.Reader;
@@ -222,8 +221,7 @@ public class Sources {
         if (settings.sourceFiles) {
             sources = new SourceFiles(settings, cmd);
         } else {
-            LOG.severe("Input streams other than from source files not implemented yet");
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException("Input streams other than from source files not implemented yet");
         }
 
         if (cmd.hasOption("xval") || settings.crossvalidation) {

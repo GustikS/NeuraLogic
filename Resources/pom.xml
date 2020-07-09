@@ -13,6 +13,13 @@
     <dependencies>
         <dependency>
             <groupId>cz.cvut.fel.ida</groupId>
+            <artifactId>Logic</artifactId>
+            <version>0.2.1-alpha</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>cz.cvut.fel.ida</groupId>
             <artifactId>Logging</artifactId>
             <version>0.2.1-alpha</version>
             <scope>compile</scope>
@@ -26,18 +33,19 @@
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>5.6.0</version>
-            <scope>compile</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.junit.jupiter</groupId>-->
+            <!--<artifactId>junit-jupiter-api</artifactId>-->
+            <!--<version>5.6.1</version>-->
+            <!--<scope>compile</scope>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>5.6.0</version>
+            <version>5.6.1</version>
             <scope>compile</scope>
         </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.hamcrest/hamcrest -->
         <dependency>
             <groupId>org.hamcrest</groupId>
@@ -52,18 +60,8 @@
             <version>1.23</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>org.openjdk.jmh</groupId>
-            <artifactId>jmh-generator-annprocess</artifactId>
-            <version>1.23</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>cz.cvut.fel.ida</groupId>
-            <artifactId>Logic</artifactId>
-            <version>0.2.1-alpha</version>
-            <scope>compile</scope>
-        </dependency>
+
 
     </dependencies>
+
 </project>

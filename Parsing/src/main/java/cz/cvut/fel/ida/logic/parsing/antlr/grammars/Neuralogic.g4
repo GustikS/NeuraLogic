@@ -46,10 +46,7 @@ predicateMetadata: predicate metadataList;
 weightMetadata: DOLLAR ATOMIC_NAME metadataList;
 templateMetadata: metadataList;
 
-//weight: fixed_weight | SEPARATOR (INT | FLOAT) SEPARATOR;
-//SEPARATOR: (' ' | BOL | EOF);
-
-// weights may have identifiers for sharing
+// weights may have identifiers for explicit sharing
 weight: (DOLLAR ATOMIC_NAME ASSIGN)? (fixedValue | value);
 fixedValue: LANGLE value RANGLE;
 offset: weight;

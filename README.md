@@ -1,26 +1,27 @@
 # NeuraLogic 
-
-![Generic badge](https://img.shields.io/badge/Release-0.2.1-blue.svg)
-![Generic badge](https://img.shields.io/badge/Licence-MIT-green.svg)
-![Generic badge](https://img.shields.io/badge/Java-1.8-orange.svg)
+![Java CI with Maven](https://github.com/GustikS/NeuraLogic/workflows/Maven%20CI/badge.svg)
+![GitHub licence](https://img.shields.io/github/license/gustiks/neuralogic)
+![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/gustiks/neuralogic?include_prereleases)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/gustiks/neuralogic)
+![GitHub top language](https://img.shields.io/github/languages/top/gustiks/neuralogic)
 
 
 _NeuraLogic is a framework for combining **relational** and **deep** learning through a form of **differentiable logic programming**. It is an official implementation of the **[Lifted Relational Neural Networks](#papers)** concept._
 
 
 ---
-At the core there is a custom language you can use to write differentiable programs encoding your learning scenarios, similarly to classic Deep Learning (DL) frameworks (e.g. TensorFlow). However, the language follows a [logic programming](https://en.wikipedia.org/wiki/Logic_programming) paradigm and is **declarative** in nature (it's similar to [Datalog](https://en.wikipedia.org/wiki/Datalog)). This means that instead of directly encoding the computation graph, you just declare:
+At the core there is a custom [language](./Parsing/src/main/java/cz/cvut/fel/ida/logic/parsing/antlr/grammars/Neuralogic.g4) you can use to write differentiable programs encoding your learning scenarios, similarly to classic Deep Learning (DL) frameworks (e.g. TensorFlow). However, the language follows a [logic programming](https://en.wikipedia.org/wiki/Logic_programming) paradigm and is **declarative** in nature (it's similar to [Datalog](https://en.wikipedia.org/wiki/Datalog)). This means that instead of directly encoding the computation graph, you just declare:
 
 1. the inputs (and their numeric values, if any)
     - i.e. the observed facts/data = objects, structures, knowledge graphs, relational databases, ...
-    - e.g. `atom(oxygen_1)`, `0.3 stable(oxygen)`, `8 protons(oxygen)`, `1.7 energy(oxygen,leve2)`, `[1.2,0,-1] features(oxygen)`, `[[0,2.1],[1.7,-1]] bond(oxygen_1,hydrogen_2)`
+    - e.g. `atom(oxygen_1)`, `0.3 stable(oxygen)`, `8 protons(oxygen)`, `1.7 energy(oxygen,leve2)`, `[1.2,0,-1] features(oxygen)`, `[[0,2.1],[1.7,-1]] bond(oxygen_1,hydrogen_2,covalent_1)`
 1. the outputs (and their expected values - for supervised learning)
     - i.e. the queries = classification labels, regression targets, ...
     - e.g. `1 class`, `4.7 target(molecule_3)`, `0 relation(carbon,xenon,fluor)`
-1. a set of rules applicable in your domain (and their learnable parameters)
+1. a set of rules applicable in your domain (and their learnable parameters `W`)
     - i.e. the generic knowledge/bias which you want to use. It does not have to be explicit.
         - this is how you can encode diverse deep learning models, but also relational background knowledge and other constructs.
-    - e.g. `0.99: covalent(B) :- oxygen(X), hydrogen(Y), bond(X,Y,B).` or just `embed(X) :- W_1 embed(Y), bond(X,Y,_).`
+    - e.g. `0.99 covalent(B) :- oxygen(X), hydrogen(Y), bond(X,Y,B).` or just `embed(X) :- W_1 embed(Y), bond(X,Y,_).`
 
 ### Example
 Consider a simple program for learning with molecular data<sup>[1](#myfootnote1)</sup>, encoding a generic idea that some hidden representation (predicate `h(.)`) of any chemical atom (variable `X`) is somewhat dependent on the other atoms (`a(Y)`) adjacent to it (`b(X,Y)`), with a parameterized rule as:
@@ -66,7 +67,7 @@ The framework is mostly optimized for quick, high-level prototyping of learning 
     - and generic [latent logic programs](https://link.springer.com/chapter/10.1007/978-3-319-78090-0_10)
 
 
-<a name="myfootnote2">2</a>: _if you come from deep learning background, you may have heard terms such as "geometric deep learning" or "graph representation learning". Note also that this framework is not designed/limited to graphs only._
+<a name="myfootnote2">2</a>: _if you come from deep learning background, you may be familiar with similar terms such as "geometric deep learning" or "graph representation learning". Note also that this framework is not designed/limited to graphs only._
 
 ### Getting started
 
@@ -81,7 +82,7 @@ The framework is mostly optimized for quick, high-level prototyping of learning 
 #### Running examples
 
 1. download a [release](https://github.com/GustikS/NeuraLogic/releases) into some directory `DIR`
-    - or build from source with [Maven](https://maven.apache.org/) or [IntelliJ IDEA](https://www.jetbrains.com/idea/)
+    - or [build from source](https://github.com/GustikS/NeuraLogic/actions) with [Maven](https://maven.apache.org/) or [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 1. clone this repository (or just download the Resources/datasets directory) within `DIR`
     - `git clone https://github.com/GustikS/NeuraLogic`
 1. try some trivial examples from terminal in `DIR`
@@ -175,7 +176,7 @@ The project follows the standard [Maven structure](https://maven.apache.org/guid
     - a more user friendly frontend
     - plus integration to popular DL libraries
 - Lambda calculus support in the language
-- Structure learning module from the previous version
+- Migrating structure learning module from the previous version
 
 ### Disclaimer
 This is a second generation of the framework<sup>[3](#myfootnote2)</sup>, but it is still work in progress.
