@@ -1,5 +1,5 @@
-# NeuraLogic 
-![.github/workflows/maven.yml](https://github.com/GustikS/NeuraLogic/workflows/.github/workflows/maven.yml/badge.svg)
+# NeuraLogic
+![Maven CI](https://github.com/GustikS/NeuraLogic/workflows/Maven%20CI/badge.svg?branch=master)
 ![GitHub licence](https://img.shields.io/github/license/gustiks/neuralogic)
 ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/gustiks/neuralogic?include_prereleases)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/gustiks/neuralogic)
@@ -73,8 +73,9 @@ The framework is mostly optimized for quick, high-level prototyping of learning 
 
 ##### Requirements
 
-- Java >= 1.8 
-    - tested with both OpenJDK (v1.8.0_222) and Oracle JDK (v1.8.0_151)
+- Java ≥ 1.8 
+    - [continuously tested](https://github.com/GustikS/NeuraLogic/actions/runs/163881867) with JDK 1.8 on latest Ubuntu, Windows and MacOS
+        - both OpenJDK (v1.8.0_222) and Oracle JDK (v1.8.0_151) should do
     - if you don't have Java in your system already, it is enough to get the runtime environment (JRE). 
         - Get it either from [Oracle](https://www.oracle.com/java/technologies/javase-jre8-downloads.html) or [OpenJDK](https://adoptopenjdk.net/index.html?variant=openjdk8&jvmVariant=hotspot)
 - for developers - you can clone and open this project directly in [IntelliJ IDEA](https://www.jetbrains.com/idea/)
