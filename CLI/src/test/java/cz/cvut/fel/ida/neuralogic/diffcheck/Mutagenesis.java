@@ -29,7 +29,7 @@ public class Mutagenesis {
      */
     @TestAnnotations.Medium
     public void mutagen_diffcheck2examplesEXACT() throws Exception {
-        Logging logging = Logging.initLogging();
+        Logging logging = Logging.initLogging(new Settings());
 
         Settings settings = new Settings();
 

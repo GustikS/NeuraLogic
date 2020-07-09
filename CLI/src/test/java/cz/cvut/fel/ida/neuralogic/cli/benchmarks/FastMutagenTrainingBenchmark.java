@@ -63,7 +63,7 @@ public class FastMutagenTrainingBenchmark {
 
         @Setup(Level.Trial)
         public void initialize() throws Exception {
-            Logging.initLogging();
+            Logging.initLogging(settings);
             LOG.warning("Initializing state!");
             Settings settings = Settings.forSlowTest();
             settings.appLimitSamples = -1;

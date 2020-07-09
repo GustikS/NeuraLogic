@@ -26,12 +26,14 @@ public class Runner {
     }
 
     public static Pair<Pipeline, ?> main(String[] args, Settings settings) throws Exception {
-        Logging logging = Logging.initLogging();
+        Logging logging = Logging.initLogging(settings);
 
         if (settings == null) {
             settings = new Settings();
         }
         Sources sources = getSources(args, settings);
+
+        logging.initialize(settings.loggingLevel, settings.supressLogFileOutput, settings.customLogColors);
 
         Pipeline<Sources, ?> pipeline = LearningSchemeBuilder.getPipeline(settings, sources);
 //        settings.root = pipeline;
@@ -77,6 +79,7 @@ public class Runner {
 
     /**
      * Compatible with Python experiment loading afterwards
+     *
      * @param settings
      * @param sources
      * @return
@@ -84,7 +87,7 @@ public class Runner {
     private static String makeCompatibleExportDir(Settings settings, Sources sources) {
         SourceFiles sourceFiles = (SourceFiles) sources;
         StringBuilder sb = new StringBuilder();
-        String template = sourceFiles.template.getName().replace(".txt","");
+        String template = sourceFiles.template.getName().replace(".txt", "");
         String dataset = sourceFiles.trainExamples.getParentFile().getName();
         String params = settings.getChangesFromReference();
         sb.append(dataset).append("/").append(template).append("/").append(params);

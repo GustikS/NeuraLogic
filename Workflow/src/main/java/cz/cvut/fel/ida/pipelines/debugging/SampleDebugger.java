@@ -27,7 +27,7 @@ public class SampleDebugger extends End2EndDebugger<LogicSample> {
 
     @Override
     public void debug(LogicSample obj) {
-        LOG.fine(obj.toString());
+        LOG.info("debugging a learning sample:" + obj.toString());
     }
 
     /**

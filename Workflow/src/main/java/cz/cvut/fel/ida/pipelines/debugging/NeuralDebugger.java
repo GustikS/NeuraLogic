@@ -32,7 +32,7 @@ public class NeuralDebugger extends End2EndDebugger<NeuralSample> implements Neu
 
     @Override
     public void debug(NeuralSample neuralSample) {
-        LOG.fine(neuralSample.toString());
+        LOG.info("Drawing a neural sample: " + neuralSample.toString());
         if (settings.drawing)
             drawer.draw(neuralSample);
     }

@@ -31,7 +31,7 @@ public class GroundingDebugger extends End2EndDebugger<GroundingSample> {
 
     @Override
     public void debug(GroundingSample sample) {
-        LOG.fine(sample.toString());
+        LOG.info("Drawing a ground logical sample: " + sample.toString());
         if (drawing)
             drawer.draw(sample);
     }

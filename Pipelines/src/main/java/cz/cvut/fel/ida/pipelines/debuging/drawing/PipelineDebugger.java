@@ -18,6 +18,7 @@ public class PipelineDebugger {
 
     public void debug(Pipeline pipeline) {
         //todo more debugging/checking
+        LOG.info("Drawing the current workflow diagram...");
         pipelineDrawer.draw(pipeline);
     }
 }

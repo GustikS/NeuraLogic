@@ -37,7 +37,7 @@ public class CommandLineHandler {
         Options options = new Options();
 
 
-        options.addOption(Option.builder("lc").longOpt("logColors").argName("INT").numberOfArgs(1).optionalArg(true).desc("colored output on console {0,INT} (default: " + (settings.customLogColors ? 1 : 0) + ")").build());
+        options.addOption(Option.builder("lc").longOpt("logColors").argName("INT").numberOfArgs(1).optionalArg(true).desc("colored output on console, best on white background {0,INT} (default: " + (settings.customLogColors ? 1 : 0) + ")").build());
 
         //-----------source files
         options.addOption(Option.builder("sf").longOpt("sourcesFile").argName("FILE").numberOfArgs(1).optionalArg(true).desc("path to json Sources specification file (default: " + settings.sourcesFile + ")").build());

@@ -25,13 +25,13 @@ public class Logging {
     private FileHandler loggingFile;
 
     Formatter fileFormatter;
-    Formatter consoleFormatter;
+    static Formatter consoleFormatter;
 
     long startupTime = System.currentTimeMillis();
 
-    public static Logging initLogging() throws Exception {
+    public static Logging initLogging(Settings settings) throws Exception {
         Locale.setDefault(Locale.US);  //to prevent various problems (like decimal commas e.g.)
-        return initLogging(Settings.loggingLevel, Settings.supressLogFileOutput);
+        return initLogging(settings.loggingLevel, settings.supressLogFileOutput, settings.customLogColors);
     }
 
     public static Logging initTestLogging(String testName) throws Exception {
@@ -39,13 +39,13 @@ public class Logging {
         Settings.logFile = "./testlog/" + testName + "_" + calcDateTime(System.currentTimeMillis());
         Logging.logFile = new File(Settings.logFile);
         Settings.htmlLogging = false;
-        return initLogging(Settings.loggingLevel, false);
+        return initLogging(Settings.loggingLevel, false, true);
     }
 
-    public static Logging initLogging(Level loggingLevel, boolean noLogFile) throws Exception {
+    public static Logging initLogging(Level loggingLevel, boolean noLogFile, boolean colors) throws Exception {
         Logging logging = new Logging();
         try {
-            logging.initialize(loggingLevel, noLogFile);
+            logging.initialize(loggingLevel, noLogFile, colors);
             LOG.info("Launched NeuraLogic from location " + System.getProperty("user.dir"));
         } catch (IOException ex) {
             throw new Exception("Could not initialize Logging.\n" + ex.getMessage());
@@ -54,7 +54,7 @@ public class Logging {
         return logging;
     }
 
-    public void initialize(Level loggingLevel, boolean noLogFile) throws IOException {
+    public void initialize(Level loggingLevel, boolean noLogFile, boolean colors) throws IOException {
         System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tF %1$tT [%4$s] (%2$s) : %5$s%6$s%n");
         System.setProperty("java.util.logging.ConsoleHandler.level", "FINEST");
 
@@ -67,10 +67,10 @@ public class Logging {
         // remove the default logging output to the console - it outputs everything to standard error output - not nice
         Handler[] handlers = rootLogger.getHandlers();
         Handler defaultConsoleHandler = handlers[0];
-        if (defaultConsoleHandler instanceof ConsoleHandler) {
+        if (defaultConsoleHandler instanceof ConsoleHandler || defaultConsoleHandler instanceof FlushStreamHandler) {
             rootLogger.removeHandler(defaultConsoleHandler);
             if (!Settings.supressConsoleOutput) {
-                if (Settings.customLogColors) {
+                if (colors) {
                     consoleFormatter = new ColoredFormatter();
                 } else {
                     consoleFormatter = new NormalFormatter();

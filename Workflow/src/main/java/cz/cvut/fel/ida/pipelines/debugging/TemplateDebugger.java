@@ -31,7 +31,7 @@ public class TemplateDebugger extends End2EndDebugger<Template> {
 
     @Override
     public void debug(Template obj) {
-        LOG.fine(obj.toString());
+        LOG.info("drawing a template:" + obj.toString());
         if (settings.drawing)
             drawer.draw(obj);
     }

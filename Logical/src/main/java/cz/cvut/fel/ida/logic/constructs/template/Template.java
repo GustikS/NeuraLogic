@@ -51,6 +51,7 @@ public class Template implements Model<QueryAtom>, Exportable {
     }
 
     public Template(Template other) {
+        this.name = "template" + counter++;
         this.rules = other.rules;
         this.facts = other.facts;
         this.constraints = other.constraints;
@@ -166,6 +167,6 @@ public class Template implements Model<QueryAtom>, Exportable {
 
     @Override
     public String toString() {
-        return name + ", rules: " + rules.size() + ", facts: " + facts.size() + ", constraints: " + constraints.size();
+        return name + ":= rules: " + rules.size() + ", facts: " + facts.size() + ", constraints: " + constraints.size();
     }
 }

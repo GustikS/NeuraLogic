@@ -6,13 +6,11 @@ import cz.cvut.fel.ida.pipelines.debugging.TrainingDebugger;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.generic.TestAnnotations;
 
-import java.util.logging.Level;
-
 public class TrainingDebuggerTest {
 
     @TestAnnotations.AdHoc
     public void family() throws Exception {
-        Logging logging = Logging.initLogging();
+        Logging logging = Logging.initLogging(new Settings());
         String[] args = "-path ./resources/datasets/simple/family".split(" ");
         Settings settings = new Settings();
         settings.maxCumEpochCount = 2;
@@ -24,7 +22,7 @@ public class TrainingDebuggerTest {
 
     @TestAnnotations.AdHoc
     public void mutaMini() throws Exception {
-        Logging logging = Logging.initLogging(Level.FINEST, false);
+        Logging logging = Logging.initLogging(new Settings());
         String[] args = "-e ./resources/datasets/relational/molecules/muta_mini/examples -t ./resources/datasets/relational/molecules/muta_mini/template_old_init".split(" ");
 
         Settings settings = new Settings();
@@ -45,7 +43,7 @@ public class TrainingDebuggerTest {
 
     @TestAnnotations.AdHoc
     public void mutagen_zero_init() throws Exception {
-        Logging logging = Logging.initLogging();
+        Logging logging = Logging.initLogging(new Settings());
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/trainExamples.txt " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/trainQueries.txt " +
                 "-t ./resources/datasets/relational/molecules/mutagenesis/template_old.txt").split(" ");
@@ -76,7 +74,7 @@ public class TrainingDebuggerTest {
      */
     @TestAnnotations.AdHoc
     public final void mutagen_sgd_very_slow() throws Exception {
-        Logging logging = Logging.initLogging();
+        Logging logging = Logging.initLogging(new Settings());
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/trainExamples.txt " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/trainQueries.txt " +
                 "-t ./resources/datasets/relational/molecules/mutagenesis/template_new_fast.txt").split(" ");
@@ -108,7 +106,7 @@ public class TrainingDebuggerTest {
 
     @TestAnnotations.AdHoc
     public void mutagen_fast() throws Exception {
-        Logging logging = Logging.initLogging();
+        Logging logging = Logging.initLogging(new Settings());
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/trainExamples.txt " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/trainQueries.txt " +
                 "-t ./resources/datasets/relational/molecules/mutagenesis/template_fastest.txt").split(" ");
@@ -143,7 +141,7 @@ public class TrainingDebuggerTest {
 
     @TestAnnotations.AdHoc
     public void mutagen_diffcheck() throws Exception {
-        Logging logging = Logging.initLogging();
+        Logging logging = Logging.initLogging(new Settings());
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples3 " +
 //                "-q ./resources/datasets/relational/molecules/mutagenesis/trainQueries.txt " +
                 "-t ./resources/datasets/relational/molecules/mutagenesis/template_new.txt").split(" ");
@@ -179,7 +177,7 @@ public class TrainingDebuggerTest {
 
     @TestAnnotations.AdHoc
     public void mutagen_diffcheck_mods() throws Exception {
-        Logging logging = Logging.initLogging();
+        Logging logging = Logging.initLogging(new Settings());
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/queries " +
 //                "-t ./resources/datasets/relational/molecules/mutagenesis/template_new.txt").split(" ");
@@ -217,7 +215,7 @@ public class TrainingDebuggerTest {
 
     @TestAnnotations.AdHoc
     public void mutagen_diffcheck_uniform() throws Exception {
-        Logging logging = Logging.initLogging();
+        Logging logging = Logging.initLogging(new Settings());
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/queries " +
 //                "-t ./resources/datasets/relational/molecules/mutagenesis/template_new.txt").split(" ");
@@ -255,7 +253,7 @@ public class TrainingDebuggerTest {
 
     @TestAnnotations.AdHoc
     public void mutagen_standard() throws Exception {
-        Logging logging = Logging.initLogging();
+        Logging logging = Logging.initLogging(new Settings());
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples.txt " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/queries.txt " +
                 "-t ./resources/datasets/relational/molecules/mutagenesis/template_new.txt" +
@@ -295,7 +293,7 @@ public class TrainingDebuggerTest {
 
     @TestAnnotations.AdHoc
     public void mutagen_vector_element() throws Exception {
-        Logging logging = Logging.initLogging();
+        Logging logging = Logging.initLogging(new Settings());
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples.txt " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/queries.txt " +
                 "-t ./resources/datasets/relational/molecules/mutagenesis/template_vector_element" +
@@ -329,7 +327,7 @@ public class TrainingDebuggerTest {
 
     @TestAnnotations.AdHoc
     public void mutagen_vector_cross() throws Exception {
-        Logging logging = Logging.initLogging();
+        Logging logging = Logging.initLogging(new Settings());
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples.txt " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/queries.txt " +
                 "-t ./resources/datasets/relational/molecules/mutagenesis/template_vector_cross.txt" +
@@ -371,7 +369,7 @@ public class TrainingDebuggerTest {
 
     @TestAnnotations.AdHoc
     public void mutagen_gnns() throws Exception {
-        Logging logging = Logging.initLogging();
+        Logging logging = Logging.initLogging(new Settings());
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/queries " +
                 "-t ./resources/datasets/relational/molecules/mutagenesis/template_unified_gnn2" +
@@ -410,7 +408,7 @@ public class TrainingDebuggerTest {
 
     @TestAnnotations.AdHoc
     public void jair_mda_dataset() throws Exception {
-        Logging logging = Logging.initLogging();
+        Logging logging = Logging.initLogging(new Settings());
         String[] args = ("-e ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/examples " +
                 "-q ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/queries " +
                 "-t ./resources/datasets/relational/molecules/template_unified_bad -isoinits 1" +
@@ -445,7 +443,7 @@ public class TrainingDebuggerTest {
     }
 
     public void param_mda_dataset(Settings settings, String outputFolder) throws Exception {
-        Logging logging = Logging.initLogging();
+        Logging logging = Logging.initLogging(new Settings());
         String[] args = ("-e ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/examples " +
                 "-q ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/queries " +
                 "-t ./resources/datasets/relational/molecules/template_unified_bad" +
@@ -471,7 +469,7 @@ public class TrainingDebuggerTest {
 
     @TestAnnotations.AdHoc
     public void nations() throws Exception {
-        Logging logging = Logging.initLogging();
+        Logging logging = Logging.initLogging(new Settings());
         String[] args = ("-q ./resources/datasets/relational/kbs/nations/queries " +
                 "-e ./resources/datasets/relational/kbs/nations/examples " +
                 "-t ./resources/datasets/relational/kbs/nations/template_embeddings2" +
@@ -490,7 +488,7 @@ public class TrainingDebuggerTest {
 
     @TestAnnotations.AdHoc
     public void kinships() throws Exception {
-        Logging logging = Logging.initLogging();
+        Logging logging = Logging.initLogging(new Settings());
         String[] args = ("-q ./resources/datasets/relational/kbs/kinships/queries " +
                 "-e ./resources/datasets/relational/kbs/kinships/examples " +
                 "-t ./resources/datasets/relational/kbs/kinships/template_embeddings2" +
@@ -511,7 +509,7 @@ public class TrainingDebuggerTest {
 
     @TestAnnotations.AdHoc
     public void umls() throws Exception {
-        Logging logging = Logging.initLogging();
+        Logging logging = Logging.initLogging(new Settings());
         String[] args = ("-q ./resources/datasets/relational/kbs/umls/queries " +
                 "-e ./resources/datasets/relational/kbs/umls/examples " +
                 "-t ./resources/datasets/relational/kbs/umls/template_embeddings2" +

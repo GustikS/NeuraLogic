@@ -63,6 +63,7 @@ public class TrainingDebugger extends TemplateDebugger {
     }
 
     public void debugWeights(Map<Integer, Weight> weightMap) {
+        LOG.info("drawing a trained template with updated weights...");
         templateRedrawCallback.accept(weightMap);
     }
 }

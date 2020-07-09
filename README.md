@@ -91,12 +91,12 @@ The framework is mostly optimized for quick, high-level prototyping of learning 
     1. a simple relational problem (Example 2 from [this paper](https://www.jair.org/index.php/jair/article/view/11203))
         - `java -jar NeuraLogic.jar -sd ./NeuraLogic/Resources/datasets/simple/family`
     1. molecule classification problem (mutagenesis)
-        - `java -jar NeuraLogic.jar -sd ./NeuraLogic/Resources/datasets/relational/molecules/mutagenesis`
+        - `java -jar NeuraLogic.jar -sd ./NeuraLogic/Resources/datasets/relational/molecules/mutagenesis -ts 100`
     1. knowledge-base completion problem
-        - `java -jar NeuraLogic.jar -sd ./NeuraLogic/Resources/datasets/relational/kbs/nations`
+        - `java -jar NeuraLogic.jar -sd ./NeuraLogic/Resources/datasets/relational/kbs/nations -ts 20`
 1. you can check various exported settings and results in `DIR/target`
     1. if you have [Graphviz](https://graphviz.org/) installed (`which dot`), you can use it to observe the internal computation structures in debug mode:
-        - `java -jar NeuraLogic.jar -sd ./NeuraLogic/Resources/datasets/neural/xor/naive -debug all`
+        - `java -jar NeuraLogic.jar -sd ./NeuraLogic/Resources/datasets/neural/xor/naive -iso -1 -prune -1 -debug all`
             - this should show a graph of the 1) worflow, 2) template, 3) inference graphs, 4) neural networks + weight updates, and 5) final learned template
         - `java -jar NeuraLogic.jar -sd ./NeuraLogic/Resources/datasets/simple/family -iso -1 -prune -1 -debug all`
             - note we turn off network pruning and compression here so that you can observe direct correspondence to the original example  
@@ -106,7 +106,7 @@ The framework is mostly optimized for quick, high-level prototyping of learning 
 ```
 usage: java -jar NeuraLogic.jar 
 
- -lc,--logColors <INT>                   colored output on console {0,INT} (default: 1)
+ -lc,--logColors <INT>                   colored output on console, best on white background {0,INT} (default: 1)
  -sf,--sourcesFile <FILE>                path to json Sources specification file (default: sources.json)
  -sd,--sourcesDir <DIR>                  path to directory with all the standardly-named Source files for learning (default: .)
  -t,--template <FILE>                    Template file containing weighted rules for leaning (default: template.txt)

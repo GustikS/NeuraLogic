@@ -56,7 +56,7 @@ public class DefaultMutagenTrainingBenchmark {
 
         @Setup(Level.Trial)
         public void initialize() throws Exception {
-            Logging.initLogging();
+            Logging.initLogging(new Settings());
             LOG.warning("Initializing state!");
             Settings settings = Settings.forSlowTest();
             settings.appLimitSamples = -1;

@@ -933,7 +933,7 @@ public class Settings implements Serializable {
 
         if (cmd.hasOption("logColors")) {
             String logColors = cmd.getOptionValue("logColors");
-            settings.customLogColors = Integer.parseInt(logColors) > 0;
+            Settings.customLogColors = Integer.parseInt(logColors) > 0;
         }
 
         if (cmd.hasOption("settingsFile")) {
@@ -1141,8 +1141,8 @@ public class Settings implements Serializable {
             settings.mainMode = MainMode.DEBUGGING;
             switch (_debug) {
                 case "all":
-                    settings.maxCumEpochCount = 3;
-                    settings.resultsRecalculationEpochae = 3;
+                    settings.maxCumEpochCount = 2;
+                    settings.resultsRecalculationEpochae = 2;
                     settings.intermediateDebug = true;
                     settings.debugPipeline = true;
                     settings.debugTemplate = true;

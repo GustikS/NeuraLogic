@@ -302,7 +302,7 @@ public class MainTest {
 
     @TestAnnotations.AdHoc
     public void kinships() throws Exception {
-        Logging logging = Logging.initLogging();
+        Logging logging = Logging.initLogging(new Settings());
         String[] args = ("-q ./resources/datasets/relational/kbs/kinships/queries " +
                 "-e ./resources/datasets/relational/kbs/kinships/examples " +
                 "-t ./resources/datasets/relational/kbs/kinships/template_embeddings"+

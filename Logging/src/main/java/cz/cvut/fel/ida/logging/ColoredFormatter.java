@@ -9,7 +9,7 @@ public class ColoredFormatter extends Formatter {
     private static final Logger LOG = Logger.getLogger(ColoredFormatter.class.getName());
     // ANSI escape code
     public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_BLACK = "\u001B[30m";
+    public static final String ANSI_BLACK = "\u001b[0m";
     public static final String ANSI_RED = "\u001B[31m";
     public static final String ANSI_GREEN = "\u001B[32m";
     public static final String ANSI_YELLOW = "\u001B[33m";
@@ -37,6 +37,8 @@ public class ColoredFormatter extends Formatter {
         long clock = record.getMillis();
         long delta = 0;
 
+//        builder.append("\033[107m\033[30m");    //white background
+
         switch (level.getName()){
             case "FINEST":
                 delta = clock - finestTimer;
@@ -56,7 +58,7 @@ public class ColoredFormatter extends Formatter {
             case "INFO":
                 delta = clock - infoTimer;
                 infoTimer = clock;
-                builder.append(ANSI_BLACK);
+//                builder.append(ANSI_BLACK);
                 break;
             case "WARNING":
                 delta = clock - warningTimer;
