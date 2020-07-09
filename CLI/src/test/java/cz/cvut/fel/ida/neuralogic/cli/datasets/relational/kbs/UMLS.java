@@ -20,7 +20,7 @@ public class UMLS {
         settings.hitsPreservation = Settings.HitsPreservation.MIDDLE_STAYS;
         settings.passResultsCache = true;
         settings.resultsRecalculationEpochae = 10;
-        settings.maxCumEpochCount = 100;
+        settings.maxCumEpochCount = 20;
         settings.trainValidationPercentage = 0.8;
         Main.main(getDatasetArgs(dataset,"-em kbc -t ./templates/template.txt"), settings);
     }
@@ -28,24 +28,28 @@ public class UMLS {
     @TestAnnotations.Slow
     public void distmult() throws Exception {
         Settings settings = Settings.forSlowTest();
+        settings.maxCumEpochCount = 20;
         Main.main(getDatasetArgs(dataset,"-t ./templates/distmult.txt"), settings);
     }
 
     @TestAnnotations.Slow
     public void concat() throws Exception {
         Settings settings = Settings.forSlowTest();
+        settings.maxCumEpochCount = 20;
         Main.main(getDatasetArgs(dataset,"-t ./templates/concat.txt"), settings);
     }
 
     @TestAnnotations.Slow
     public void softmax() throws Exception {
         Settings settings = Settings.forSlowTest();
+        settings.maxCumEpochCount = 20;
         Main.main(getDatasetArgs(dataset,"-t ./templates/softmax.txt"), settings);
     }
 
     @TestAnnotations.Slow
     public void sparsemax() throws Exception {
         Settings settings = Settings.forSlowTest();
+        settings.maxCumEpochCount = 20;
         Main.main(getDatasetArgs(dataset,"-t ./templates/sparsemax.txt"), settings);
     }
 }

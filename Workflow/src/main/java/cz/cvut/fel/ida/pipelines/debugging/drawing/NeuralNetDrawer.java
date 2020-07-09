@@ -5,7 +5,6 @@ import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.drawing.Drawer;
 import cz.cvut.fel.ida.drawing.GraphViz;
-import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.modes.Topologic;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.neurons.Evaluator;
@@ -18,6 +17,7 @@ import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.*;
 import cz.cvut.fel.ida.neural.networks.structure.components.types.TopologicNetwork;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -75,7 +75,11 @@ public class NeuralNetDrawer extends Drawer<NeuralSample> {
             if (stateGradient != null)
                 gradient = stateGradient.toString();
             String dimensions = Arrays.toString(state.getValue().size());
-            Aggregation neuronAggregation = neuron.getAggregation();
+            Aggregation neuronAggregation;
+            if (neuron instanceof FactNeuron)
+                neuronAggregation = null;
+            else
+                neuronAggregation = neuron.getAggregation();
             String aggregation = "";
             if (neuronAggregation != null)
                 aggregation = neuron.getAggregation().getName();

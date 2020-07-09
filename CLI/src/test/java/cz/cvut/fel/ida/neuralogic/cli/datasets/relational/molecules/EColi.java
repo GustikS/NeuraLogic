@@ -15,7 +15,7 @@ public class EColi {
     private static final Logger LOG = Logger.getLogger(EColi.class.getName());
     static String dataset = "relational/molecules/e_coli";
 
-    @TestAnnotations.Slow
+    @TestAnnotations.AdHoc
     public void defaultEcoliPerformance() throws Exception {
         Settings settings = Settings.forSlowTest();
 
@@ -39,7 +39,7 @@ public class EColi {
         Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./templates/gnns/templateW10.txt"), settings);
     }
 
-    @TestAnnotations.Slow
+    @TestAnnotations.AdHoc
     public void defaultEcoliPerformanceCross() throws Exception {
         Settings settings = Settings.forSlowTest();
 
@@ -61,7 +61,7 @@ public class EColi {
 
 
 
-    @TestAnnotations.Slow
+    @TestAnnotations.AdHoc
     public void defaultEcoliPerformanceGNN() throws Exception {
         Settings settings = Settings.forSlowTest();
 
@@ -83,7 +83,7 @@ public class EColi {
     }
 
 
-    @TestAnnotations.Slow
+    @TestAnnotations.AdHoc
     public void defaultEcoliPerformanceCross_08AUC() throws Exception {
         Settings settings = Settings.forSlowTest();
 
@@ -104,6 +104,7 @@ public class EColi {
         Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./templates/template_cross.txt"), settings);
     }
 
+    @TestAnnotations.AdHoc
     @TestAnnotations.Parameterized
     @ValueSource(strings = {
             "./templates/gnns/templateW10.txt",
@@ -121,7 +122,7 @@ public class EColi {
         Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t " + template), settings);
     }
 
-    @TestAnnotations.Slow
+    @TestAnnotations.AdHoc
     public void trainValTest() throws Exception {
         Settings settings = Settings.forSlowTest();
 

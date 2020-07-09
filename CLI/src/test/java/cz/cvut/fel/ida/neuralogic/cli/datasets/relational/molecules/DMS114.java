@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 public class DMS114 {
     private static final Logger LOG = Logger.getLogger(DMS114.class.getName());
 
-    @TestAnnotations.Slow
+    @TestAnnotations.AdHoc
     public void defaultMutagenPerformanceADAM_unifiedTemplate() throws Exception {
 
         Settings settings = Settings.forSlowTest();
@@ -28,7 +28,7 @@ public class DMS114 {
         Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/DMS_114", " -t ./templates/template_gnnW10.txt"), settings);
     }
 
-    @TestAnnotations.Slow
+    @TestAnnotations.AdHoc
     public void valsplitEmbeddings() throws Exception {
 
         Settings settings = Settings.forSlowTest();

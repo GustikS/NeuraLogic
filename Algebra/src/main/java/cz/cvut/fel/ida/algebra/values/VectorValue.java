@@ -265,7 +265,7 @@ public class VectorValue extends Value {
 
     @Override
     protected Value times(TensorValue value) {
-        throw new ArithmeticException("Algebbraic operation between Tensor and Vector are not implemented yet");
+        throw new ArithmeticException("Algebraic operation between Tensor and Vector are not implemented yet");
     }
 
     @Override

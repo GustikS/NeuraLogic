@@ -36,7 +36,7 @@ public class Mutagenesis {
         settings.initDistribution = Settings.InitDistribution.CONSTANT;
 
         // the seed 3 matches the old version with seed 1 with disp value = 0.0014794164025840328
-        settings.seed = 0;  //the seed matters only from 15th decimal place further and there are only 2-3 variants (probably orderings in summations)
+        settings.seed = 3;  //the seed matters only from 15th decimal place further and there are only 2-3 variants (probably orderings in summations)
         settings.shuffleBeforeFoldSplit = false;
         settings.shuffleBeforeTraining = false;
         settings.shuffleEachEpoch = false;
@@ -45,6 +45,9 @@ public class Mutagenesis {
 
         settings.maxCumEpochCount = 100;
         settings.resultsRecalculationEpochae = 1;
+
+        settings.atomNeuronActivation = Settings.ActivationFcn.SIGMOID;
+        settings.ruleNeuronActivation = Settings.ActivationFcn.SIGMOID;
 
         settings.calculateBestThreshold = true;
 //        settings.appLimitSamples = 100;
@@ -84,6 +87,10 @@ public class Mutagenesis {
         settings.seed = 0;
         settings.maxCumEpochCount = 1000;
         settings.resultsRecalculationEpochae = 10;
+
+        settings.atomNeuronActivation = Settings.ActivationFcn.SIGMOID;
+        settings.ruleNeuronActivation = Settings.ActivationFcn.SIGMOID;
+
         settings.shuffleEachEpoch = true;
         settings.debugSampleOutputs = false;
         settings.calculateBestThreshold = true;

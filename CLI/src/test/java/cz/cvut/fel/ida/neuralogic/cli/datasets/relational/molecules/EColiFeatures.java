@@ -5,6 +5,7 @@ import cz.cvut.fel.ida.pipelines.Pipeline;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.utils.generic.TestAnnotations;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.logging.Logger;
@@ -16,7 +17,7 @@ public class EColiFeatures {
 
     static String dataset = "relational/molecules/e_coli/features";
 
-    @TestAnnotations.Slow
+    @TestAnnotations.AdHoc
     public void defaultEcoliPerformance() throws Exception {
         Settings settings = Settings.forSlowTest();
 
@@ -35,6 +36,7 @@ public class EColiFeatures {
         Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./templates/template.txt"), settings);
     }
 
+    @TestAnnotations.AdHoc
     @TestAnnotations.Parameterized
     @ValueSource(strings = {
             "./templates/template.txt",
@@ -52,6 +54,7 @@ public class EColiFeatures {
             "./templates/templateW10.txt",
             "./templates/templateW100.txt"
     })
+    @Disabled
     public void testTemplates(String template) throws Exception {
         Settings settings = Settings.forSlowTest();
 

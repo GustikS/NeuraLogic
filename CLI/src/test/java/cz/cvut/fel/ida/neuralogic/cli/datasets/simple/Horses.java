@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class Horses {
     private static final Logger LOG = Logger.getLogger(Horses.class.getName());
 
-    @TestAnnotations.Slow
+    @TestAnnotations.Fast
     public void horsesSetting() throws Exception {
         Settings settings = Settings.forSlowTest();
         settings.maxCumEpochCount = 500;
@@ -27,11 +27,11 @@ public class Horses {
         assertEquals(bestAccuracy, 1.0);
         Duration timeTaken = results.r.timing.getTimeTaken();
         LOG.warning("time taken: "  + timeTaken);
-        Duration limit = Duration.ofSeconds(3);
+        Duration limit = Duration.ofMillis(2800);
         assertTrue(timeTaken.compareTo(limit) < 0);
     }
 
-    @TestAnnotations.Slow
+    @TestAnnotations.Interactive
     public void horsesDrawing() throws Exception {
         Settings settings = Settings.forInteractiveTest();
         settings.maxCumEpochCount = 5;

@@ -8,6 +8,7 @@ import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.JavaExporter;
 import cz.cvut.fel.ida.utils.generic.TestAnnotations;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.logging.Logger;
@@ -20,7 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class GroundingDebuggerTest {
     private static final Logger LOG = Logger.getLogger(GroundingDebuggerTest.class.getName());
 
-    @TestAnnotations.Slow
+
+    @TestAnnotations.Fast
     public void family() throws Exception {
         Settings settings = Settings.forSlowTest();
         settings.intermediateDebug = false;
@@ -28,12 +30,14 @@ public class GroundingDebuggerTest {
         settings.debugExporting = true;
         GroundingDebugger groundingDebugger = new GroundingDebugger(Runner.getSources(getDatasetArgs("simple/family"), settings), settings);
         groundingDebugger.executeDebug();
-        assertTrue(Paths.get(Logging.logFile.toString(), "export", "debug", GroundingDebugger.class.getSimpleName() + ".java").toFile().exists());
+        Path path = Paths.get(Logging.logFile.toString(), "export", "debug", GroundingDebugger.class.getSimpleName() + ".java");
+        assertTrue(path.toFile().exists());
     }
 
     @TestAnnotations.Slow
     public void loadGroundSamples() throws Exception {
-        List<GroundingSample> groundingSamples = new JavaExporter().importListFrom(Paths.get("../Resources/datasets/simple/family/mock/" + GroundingDebugger.class.getSimpleName() + ".java"), GroundingSample.class);
+        family();
+        List<GroundingSample> groundingSamples = new JavaExporter().importListFrom(Paths.get(Logging.logFile.toString(), "export", "debug", GroundingDebugger.class.getSimpleName() + ".java"), GroundingSample.class);
         for (GroundingSample groundingSample : groundingSamples) {
             LOG.fine(groundingSample.exportToJson());
             assertNotNull(groundingSample.groundingWrap.getGroundTemplate());

@@ -12,10 +12,10 @@ import static cz.cvut.fel.ida.utils.generic.Utilities.getDatasetArgs;
 
 public class DecayingRate {
     private static final Logger LOG = Logger.getLogger(DecayingRate.class.getName());
-    static String dataset = "relational/molecules/e_coli";
+    static String dataset = "relational/molecules/mutagenesis";
 
     @TestAnnotations.Slow
-    public void defaultEcoliPerformance() throws Exception {
+    public void decayingRate() throws Exception {
         Settings settings = Settings.forSlowTest();
 
         settings.seed = 1;
@@ -29,7 +29,7 @@ public class DecayingRate {
         settings.decaySteps = 10;
         settings.learnRateDecay = 0.9;
 
-        settings.maxCumEpochCount = 1000;
+        settings.maxCumEpochCount = 100;
 
         settings.isoValueCompression = true;
         settings.chainPruning = true;
@@ -44,6 +44,6 @@ public class DecayingRate {
 
 //        settings.appLimitSamples = 200;
 
-        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./templates/gnns/template_gnnW10_l3.txt"), settings);
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset), settings);
     }
 }

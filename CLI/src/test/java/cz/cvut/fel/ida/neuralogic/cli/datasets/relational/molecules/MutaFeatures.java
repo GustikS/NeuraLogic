@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 public class MutaFeatures {
     private static final Logger LOG = Logger.getLogger(MutaFeatures.class.getName());
 
-    @TestAnnotations.Slow
+    @TestAnnotations.AdHoc
     public void defaultMutagenFeatures() throws Exception {
 
         Settings settings = Settings.forSlowTest();
@@ -28,7 +28,7 @@ public class MutaFeatures {
         Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/mutag_188", " -t ./template_mixed.txt"), settings);
     }
 
-    @TestAnnotations.Slow
+    @TestAnnotations.AdHoc
     public void crossvalExternal() throws Exception {
 
         Settings settings = Settings.forSlowTest();

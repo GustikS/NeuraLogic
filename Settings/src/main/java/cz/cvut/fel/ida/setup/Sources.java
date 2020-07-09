@@ -172,7 +172,7 @@ public class Sources {
             problems.append(msg);
             valid = false;
         }
-        if (getTemplateReader() == null && train.QueriesReader == null && test.QueriesReader == null) {
+        if ((getTemplateReader() == null && binaryTemplateStream == null) && train.QueriesReader == null && test.QueriesReader == null) {
             LOG.severe(msg = "Invalid learning setup - no template nor queries provided\n");
             problems.append(msg);
             valid = false;

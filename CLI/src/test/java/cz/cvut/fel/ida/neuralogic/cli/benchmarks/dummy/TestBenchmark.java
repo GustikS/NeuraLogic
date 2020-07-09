@@ -1,6 +1,6 @@
-package cz.cvut.fel.ida.neuralogic.cli.dummy;
+package cz.cvut.fel.ida.neuralogic.cli.benchmarks.dummy;
 
-import org.junit.jupiter.api.Test;
+import cz.cvut.fel.ida.utils.generic.TestAnnotations;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.results.RunResult;
@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 public class TestBenchmark {
 
-    @Test
+    @TestAnnotations.AdHoc
     public void launchBenchmark() throws Exception {
 
         Options opt = new OptionsBuilder()

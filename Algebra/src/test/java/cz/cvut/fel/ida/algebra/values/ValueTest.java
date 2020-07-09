@@ -9,6 +9,43 @@ import static org.junit.jupiter.api.Assertions.*;
 class ValueTest {
 
     @TestAnnotations.Fast
+    public void wrongTransposition() {
+        Value v1 = new VectorValue(Arrays.asList(1.0, 2.0, 3.0));
+        VectorValue v2 = new VectorValue(Arrays.asList(1.0, 2.0, 3.0));
+        assertThrows(ArithmeticException.class, () -> v1.times(v2));
+    }
+
+    @TestAnnotations.Fast
+    public void correctDimensions() {
+        Value v1 = new VectorValue(Arrays.asList(1.0, 2.0, 3.0));
+        double contents[][] = {{1.0, 2.0, 3.0}};
+        Value m1 = new MatrixValue(contents);
+        assertNotNull(m1.times(v1));
+    }
+
+    /**
+     * It calls the correct default method of {@link MatrixValue#times(Value)}
+     */
+    @TestAnnotations.Fast
+    public void correctDoubleDispatch() {
+        Value v1 = new VectorValue(Arrays.asList(1.0, 2.0, 3.0));
+        double contents[][] = {{1.0, 2.0, 3.0}};
+        MatrixValue m1 = new MatrixValue(contents);
+        assertNotNull(m1.times(v1));
+    }
+
+    /**
+     * It calls wrong method without DD {link MatrixValue#times(VectorValue)}
+     */
+    @TestAnnotations.Fast
+    public void dynamicDispatchTrap() {
+        VectorValue v1 = new VectorValue(Arrays.asList(1.0, 2.0, 3.0));
+        double contents[][] = {{1.0, 2.0, 3.0}};
+        Value m1 = new MatrixValue(contents);
+        assertThrows(ArithmeticException.class, () -> m1.times(v1));
+    }
+
+    @TestAnnotations.Fast
     public void compareTo() {
         Value small = new ScalarValue(-3);
         ScalarValue big = new ScalarValue(10);

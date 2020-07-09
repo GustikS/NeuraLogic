@@ -21,7 +21,7 @@ public class End2EndBuilderTest {
 
     private static final Logger LOG = Logger.getLogger(End2EndBuilderTest.class.getName());
 
-    @TestAnnotations.Slow
+    @TestAnnotations.Fast
     public void simple() throws Exception {
         Settings settings = Settings.forSlowTest();
         settings.intermediateDebug = false;

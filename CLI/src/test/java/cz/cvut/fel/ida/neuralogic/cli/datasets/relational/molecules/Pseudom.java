@@ -15,7 +15,7 @@ public class Pseudom {
 
     static String dataset = "relational/molecules/pseudomon";
 
-    @TestAnnotations.Slow
+    @TestAnnotations.AdHoc
     public void trainValTestCrossval() throws Exception {
         Settings settings = Settings.forSlowTest();
 

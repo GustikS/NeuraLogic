@@ -21,7 +21,7 @@ public class NeuralDebuggerTest {
 
     private static final java.util.logging.Logger LOG = Logger.getLogger(NeuralDebuggerTest.class.getName());
 
-    @TestAnnotations.Slow
+    @TestAnnotations.Fast
     public void family() throws Exception {
         Settings settings = Settings.forSlowTest();
         settings.intermediateDebug = false;
@@ -32,9 +32,10 @@ public class NeuralDebuggerTest {
         assertTrue(Paths.get(Logging.logFile.toString(), "export", "debug", NeuralDebugger.class.getSimpleName() + ".java").toFile().exists());
     }
 
-    @TestAnnotations.Slow
+    @TestAnnotations.Fast
     public void loadGroundSamples() throws Exception {
-        List<NeuralSample> neuralSamples = new JavaExporter().importListFrom(Paths.get("../Resources/datasets/simple/family/mock/" + NeuralDebugger.class.getSimpleName() + ".java"), NeuralSample.class);
+        family();
+        List<NeuralSample> neuralSamples = new JavaExporter().importListFrom(Paths.get(Logging.logFile.toString(), "export", "debug", NeuralDebugger.class.getSimpleName() + ".java"), NeuralSample.class);
         for (NeuralSample neuralSample : neuralSamples) {
             LOG.fine(neuralSample.exportToJson());
             assertNotNull(neuralSample.query.evidence);

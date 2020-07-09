@@ -44,7 +44,7 @@ public class Benchmarking {
         assertEquals(coeff,baselinePerformanceCoeff,0.001);
     }
 
-    @TestAnnotations.Fast
+    @TestAnnotations.Slow
     public void testBaseline() {
         double baselinePerformanceCoeff = getBaselinePerformanceCoeff();
         System.out.println(baselinePerformanceCoeff);

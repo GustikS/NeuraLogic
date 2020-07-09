@@ -44,7 +44,12 @@ public class CLITests {
         @Test
         @DisplayName("Test empty commandline help message printing")
         public void emptyArgsMsg() throws Exception {
-            Main.mainExc(splitArgs(""));
+            Exception thrown = assertThrows(
+                    Exception.class,
+                    () -> Main.mainExc(splitArgs("")),
+                    "No arguments provided. You need to specify input data/model for learning."
+            );
+            System.out.println(outContent);
             assertThat(outContent.toString(), containsString("Lifted Relational Neural Network"));
         }
 
@@ -69,7 +74,6 @@ public class CLITests {
         @ValueSource(strings = {
                 "-a 2",
                 "-xxx",
-                "-t",
                 "-source"
         })
         void wrongArgs(String argString) {

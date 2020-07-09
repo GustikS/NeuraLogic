@@ -4,13 +4,13 @@ import cz.cvut.fel.ida.logging.Logging;
 import cz.cvut.fel.ida.neuralogic.cli.utils.Runner;
 import cz.cvut.fel.ida.pipelines.debugging.TrainingDebugger;
 import cz.cvut.fel.ida.setup.Settings;
-import org.junit.jupiter.api.Test;
+import cz.cvut.fel.ida.utils.generic.TestAnnotations;
 
 import java.util.logging.Level;
 
 public class TrainingDebuggerTest {
 
-    @Test
+    @TestAnnotations.AdHoc
     public void family() throws Exception {
         Logging logging = Logging.initLogging();
         String[] args = "-path ./resources/datasets/simple/family".split(" ");
@@ -22,7 +22,7 @@ public class TrainingDebuggerTest {
         trainingDebugger.executeDebug();
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void mutaMini() throws Exception {
         Logging logging = Logging.initLogging(Level.FINEST, false);
         String[] args = "-e ./resources/datasets/relational/molecules/muta_mini/examples -t ./resources/datasets/relational/molecules/muta_mini/template_old_init".split(" ");
@@ -43,7 +43,7 @@ public class TrainingDebuggerTest {
         trainingDebugger.executeDebug();
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void mutagen_zero_init() throws Exception {
         Logging logging = Logging.initLogging();
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/trainExamples.txt " +
@@ -74,7 +74,7 @@ public class TrainingDebuggerTest {
     /**
      * This setting works successfuly on template with no offsets with SGD after 10000 steps
      */
-    @Test
+    @TestAnnotations.AdHoc
     public final void mutagen_sgd_very_slow() throws Exception {
         Logging logging = Logging.initLogging();
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/trainExamples.txt " +
@@ -106,7 +106,7 @@ public class TrainingDebuggerTest {
         trainingDebugger.executeDebug();
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void mutagen_fast() throws Exception {
         Logging logging = Logging.initLogging();
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/trainExamples.txt " +
@@ -141,7 +141,7 @@ public class TrainingDebuggerTest {
         trainingDebugger.executeDebug();
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void mutagen_diffcheck() throws Exception {
         Logging logging = Logging.initLogging();
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples3 " +
@@ -177,7 +177,7 @@ public class TrainingDebuggerTest {
         trainingDebugger.executeDebug();
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void mutagen_diffcheck_mods() throws Exception {
         Logging logging = Logging.initLogging();
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples " +
@@ -215,7 +215,7 @@ public class TrainingDebuggerTest {
         trainingDebugger.executeDebug();
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void mutagen_diffcheck_uniform() throws Exception {
         Logging logging = Logging.initLogging();
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples " +
@@ -253,7 +253,7 @@ public class TrainingDebuggerTest {
         trainingDebugger.executeDebug();
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void mutagen_standard() throws Exception {
         Logging logging = Logging.initLogging();
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples.txt " +
@@ -293,7 +293,7 @@ public class TrainingDebuggerTest {
         trainingDebugger.executeDebug();
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void mutagen_vector_element() throws Exception {
         Logging logging = Logging.initLogging();
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples.txt " +
@@ -327,7 +327,7 @@ public class TrainingDebuggerTest {
         trainingDebugger.executeDebug();
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void mutagen_vector_cross() throws Exception {
         Logging logging = Logging.initLogging();
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples.txt " +
@@ -369,7 +369,7 @@ public class TrainingDebuggerTest {
         trainingDebugger.executeDebug();
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void mutagen_gnns() throws Exception {
         Logging logging = Logging.initLogging();
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples " +
@@ -408,7 +408,7 @@ public class TrainingDebuggerTest {
         trainingDebugger.executeDebug();
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void jair_mda_dataset() throws Exception {
         Logging logging = Logging.initLogging();
         String[] args = ("-e ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/examples " +
@@ -455,7 +455,7 @@ public class TrainingDebuggerTest {
         trainingDebugger.executeDebug();
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void param_mda_dataset() throws Exception {
         Settings settings = new Settings();
         settings.maxCumEpochCount = 10;
@@ -469,7 +469,7 @@ public class TrainingDebuggerTest {
     }
 
 
-    @Test
+    @TestAnnotations.AdHoc
     public void nations() throws Exception {
         Logging logging = Logging.initLogging();
         String[] args = ("-q ./resources/datasets/relational/kbs/nations/queries " +
@@ -488,7 +488,7 @@ public class TrainingDebuggerTest {
         trainingDebugger.executeDebug();
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void kinships() throws Exception {
         Logging logging = Logging.initLogging();
         String[] args = ("-q ./resources/datasets/relational/kbs/kinships/queries " +
@@ -509,7 +509,7 @@ public class TrainingDebuggerTest {
         trainingDebugger.executeDebug();
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void umls() throws Exception {
         Logging logging = Logging.initLogging();
         String[] args = ("-q ./resources/datasets/relational/kbs/umls/queries " +

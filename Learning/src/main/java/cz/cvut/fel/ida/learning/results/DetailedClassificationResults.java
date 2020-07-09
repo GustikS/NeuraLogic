@@ -53,8 +53,9 @@ public class DetailedClassificationResults extends ClassificationResults {  //to
     }
 
     public boolean computeDetailedStats(List<Result> evaluations) {
-        if (settings.alternativeAUC)
+        if (settings.alternativeAUC) {
             AUCrocEmpirical = calculateAUCsmaller(evaluations);
+        }
 
         try {
             setFullAUC(evaluations);

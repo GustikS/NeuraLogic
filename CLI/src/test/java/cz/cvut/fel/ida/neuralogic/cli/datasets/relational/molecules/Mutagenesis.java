@@ -113,6 +113,6 @@ public class Mutagenesis {
 
         Settings settings = Settings.forFastTest();
 
-        Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/mutagenesis", "-t /home/gusta/googledrive/Github/NeuraLogic/Resources/datasets/relational/molecules/mutagenesis/templates/import/templateI.txt"), settings);
+        Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/mutagenesis", "-t ./templates/template_gnn.txt"), settings);
     }
 }

@@ -3,19 +3,19 @@ package cz.cvut.fel.ida.old_tests;
 import cz.cvut.fel.ida.logging.Logging;
 import cz.cvut.fel.ida.neuralogic.cli.Main;
 import cz.cvut.fel.ida.setup.Settings;
-import org.junit.jupiter.api.Test;
+import cz.cvut.fel.ida.utils.generic.TestAnnotations;
 
 import java.util.logging.Level;
 
 public class MainTest {
 
-    @Test
+    @TestAnnotations.AdHoc
     public void parsing() throws Exception {
         String[] args = new String("-t ./resources/parsing/test_template -q ./resources/parsing/queries").split(" ");
         Main.main(args);
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void xor_vectorized() throws Exception {
         String[] args = new String("-path ./resources/datasets/neural/xor/vectorized").split(" ");
         Settings settings = new Settings();
@@ -32,7 +32,7 @@ public class MainTest {
     }
 
 
-    @Test
+    @TestAnnotations.AdHoc
     public void xor_basic() throws Exception {
         String[] args = new String("-path ./resources/datasets/neural/xor/naive").split(" ");
         Settings settings = new Settings();
@@ -46,7 +46,7 @@ public class MainTest {
         Main.main(args, settings);
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void xor_solution() throws Exception {
         String[] args = new String("-path ./resources/datasets/neural/xor/solution").split(" ");
         Settings settings = new Settings();
@@ -55,7 +55,7 @@ public class MainTest {
         Main.main(args, settings);
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void family() throws Exception {
         String[] args = new String("-e ./resources/datasets/family/examples -t ./resources/datasets/family/template -q ./resources/datasets/family/queries").split(" ");
         Settings settings = new Settings();
@@ -66,7 +66,7 @@ public class MainTest {
         Main.main(args, settings);
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void mutagenesis() throws Exception {
         String[] args = new String("-e ./resources/datasets/mutagenesis/examples -t ./resources/datasets/mutagenesis/template_old -q ./resources/datasets/mutagenesis/queries").split(" ");
 
@@ -82,7 +82,7 @@ public class MainTest {
         Main.main(args, settings);
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void mutamini() throws Exception {
         String[] args = new String("-e ./resources/datasets/muta_mini/examples -t ./resources/datasets/muta_mini/template_new").split(" ");
 
@@ -101,7 +101,7 @@ public class MainTest {
         Main.main(args, settings);
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void mutanokappa() throws Exception {
         String[] args = new String("-e ./resources/datasets/mutagenesis/examples -t ./resources/datasets/mutagenesis/template_new -q ./resources/datasets/mutagenesis/queries").split(" ");
 
@@ -115,7 +115,7 @@ public class MainTest {
         Main.main(args, settings);
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void p388() throws Exception {
         String[] args = new String("-e ./resources/datasets/p388/examples -t ./resources/datasets/p388/normalFully").split(" ");
 
@@ -129,7 +129,7 @@ public class MainTest {
         Main.main(args, settings);
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void jair_revived() throws Exception {
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/queries " +
@@ -164,7 +164,7 @@ public class MainTest {
         Main.main(args, settings);
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void muta_traintest() throws Exception {
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/split/train " +
                 "-te ./resources/datasets/relational/molecules/mutagenesis/split/test " +
@@ -199,7 +199,7 @@ public class MainTest {
         Main.main(args, settings);
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void muta_gnn() throws Exception {
         String[] args = ("-e ./resources/datasets/relational/molecules/mutagenesis/examples " +
                 "-q ./resources/datasets/relational/molecules/mutagenesis/queries " +
@@ -242,7 +242,7 @@ public class MainTest {
         Main.main(args, settings);
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void mda() throws Exception {
         String[] args = ("-e ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/examples " +
                 "-q ./resources/datasets/relational/molecules/MDA_MB_231_ATCC/queries " +
@@ -253,7 +253,7 @@ public class MainTest {
         Main.main(args);
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void loadFromConsole() throws Exception {
         String[] args = ("-path ./resources/datasets/relational/molecules/mutagenesis" +
                 " -settings ./resources/settings/settings.json" +
@@ -263,7 +263,7 @@ public class MainTest {
     }
 
 
-    @Test
+    @TestAnnotations.AdHoc
     public void loadFromFiles() throws Exception {
         String[] args = (
                 " -settings ./resources/settings/settings.json" +
@@ -273,7 +273,7 @@ public class MainTest {
         Main.main(args);
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void compression() throws Exception {
         String[] args = ("-sourcesDir ./resources/datasets/relational/molecules/mutagenesis " +
                 "-opt sgd -lr 0.3 -iso 10 -xval 5 -out ./out/compress").split(" ");
@@ -290,7 +290,7 @@ public class MainTest {
         Main.main(args);
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void rciTest() throws Exception {
         String[] args = ("-t ./template.txt" +
                 " -path ./resources/datasets/relational/molecules/mutagenesis" +
@@ -300,7 +300,7 @@ public class MainTest {
         Main.main(args);
     }
 
-    @Test
+    @TestAnnotations.AdHoc
     public void kinships() throws Exception {
         Logging logging = Logging.initLogging();
         String[] args = ("-q ./resources/datasets/relational/kbs/kinships/queries " +

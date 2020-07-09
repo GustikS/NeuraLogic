@@ -1,10 +1,11 @@
-# NeuraLogic
+# NeuraLogic 
 
 ![Generic badge](https://img.shields.io/badge/Release-0.2.1-blue.svg)
 ![Generic badge](https://img.shields.io/badge/Licence-MIT-green.svg)
 ![Generic badge](https://img.shields.io/badge/Java-1.8-orange.svg)
 
-_NeuraLogic is a framework for combining **relational** and **deep** learning through a form of **differentiable logic programming**._
+
+_NeuraLogic is a framework for combining **relational** and **deep** learning through a form of **differentiable logic programming**. It is an official implementation of the **[Lifted Relational Neural Networks](#papers)** concept._
 
 
 ---
@@ -19,16 +20,16 @@ At the core there is a custom language you can use to write differentiable progr
 1. a set of rules applicable in your domain (and their learnable parameters)
     - i.e. the generic knowledge/bias which you want to use. It does not have to be explicit.
         - this is how you can encode diverse deep learning models, but also relational background knowledge and other constructs.
-    - e.g. `0.99: covalent(B) :- oxygen(X), hydrogen(Y), bond(X,Y,B).` or just `embed(X) :- W_1: embed(Y), bond(X,Y,_).`
+    - e.g. `0.99: covalent(B) :- oxygen(X), hydrogen(Y), bond(X,Y,B).` or just `embed(X) :- W_1 embed(Y), bond(X,Y,_).`
 
 ### Example
 Consider a simple program for learning with molecular data<sup>[1](#myfootnote1)</sup>, encoding a generic idea that some hidden representation (predicate `h(.)`) of any chemical atom (variable `X`) is somewhat dependent on the other atoms (`a(Y)`) adjacent to it (`b(X,Y)`), with a parameterized rule as:
 `````prolog
-W_h1:: h(X) :- W_a: a(Y), W_b: b(X,Y).
+W_h1 h(X) :- W_a a(Y), W_b b(X,Y).
 `````
 Additionally, let's assume that representation of a molecule (`q`) follows from representations of all the contained atoms (`h(X)`), i.e.:
-```latex
-W_q:: q :- W_h2: h(X).
+```prolog
+W_q q :- W_h2 h(X).
 ```
 These 2 rules, parameterized with the tensors `W_*`'s, then form a learning program, which can be directly used to classify molecules. Actually, it directly encodes a popular idea known as [Graph Neural Networks](https://arxiv.org/pdf/1901.00596.pdf).
 Execution of this program (or "template") for 2 input molecule samples will generate 2 parameterized differentiable computation graphs as follows:
@@ -102,7 +103,7 @@ The framework is mostly optimized for quick, high-level prototyping of learning 
 
 
 ### Usage
-```python
+```
 usage: java -jar NeuraLogic.jar 
 
  -lc,--logColors <INT>                   colored output on console {0,INT} (default: 1)
@@ -176,30 +177,30 @@ The project follows the standard [Maven structure](https://maven.apache.org/guid
 - Lambda calculus support in the language
 - Structure learning module from the previous version
 
-###Disclaimer
+### Disclaimer
 This is a second generation of the framework<sup>[3](#myfootnote2)</sup>, but it is still work in progress.
 The framework is meant for academic purposes, developed at [Intelligent Data Analysis lab](https://ida.fel.cvut.cz/) at Czech Technical University in Prague.
 In case of any questions or anything interesting, feel free to contact me at *souregus@gmail.com*, but please do not expect any sort of professional software support. If you are looking for something more conservative and user friendly, consider [PyG](https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html) or [DGL](https://www.dgl.ai/pages/start.html) for the graph-based learning use cases.
 
 <a name="myfootnote3">3</a>: _for reference, you can find previous implementation (2014-2018) in [this repository](https://github.com/GustikS/Neurologic)_
 
-####Related work
-######Repositories
+#### Related work
+###### Repositories
 
 For experiments from the paper "Beyond GNNs with LRNNs", please see a separate repository: https://github.com/GustikS/GNNwLRNNs
 
-######Papers
+###### Papers
 
 googling "**Lifted Relational Neural Networks**" should give you a [short paper](http://ceur-ws.org/Vol-1583/CoCoNIPS_2015_paper_7.pdf) from a NIPS workshop on cognitive computation 2015,
 or [long version](https://www.jair.org/index.php/jair/article/view/11203)  in Journal of Artificial Intelligence Research, 2018. 
 
 Further, you can find applications and extensions, including declarative [learning scenarios](https://link.springer.com/chapter/10.1007/978-3-319-63342-8_9) and inductive [structure learning](https://link.springer.com/chapter/10.1007/978-3-319-78090-0_10) of the programs.
 
-######Videos
+###### Videos
 [NIPS CoCo workshop 2015](https://www.bilibili.com/video/av66440677/)
 
-[Prague Machine learning meetups](https://www.youtube.com/watch?v=LHj8M8SV1zA)
+[Prague Machine learning meetups 2017](https://www.youtube.com/watch?v=LHj8M8SV1zA)
 
-######Presentations
+###### Presentations
 
-[Prague Automated Reasoning Seminar](http://arg.ciirc.cvut.cz/slides/2016-Sourek-LRNN.pdf)
+[Prague Automated Reasoning Seminar 2016](http://arg.ciirc.cvut.cz/slides/2016-Sourek-LRNN.pdf)

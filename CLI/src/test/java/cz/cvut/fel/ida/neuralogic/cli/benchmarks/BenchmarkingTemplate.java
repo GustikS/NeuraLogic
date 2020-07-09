@@ -18,7 +18,7 @@ import static cz.cvut.fel.ida.utils.generic.Benchmarking.benchmarkFast;
 public class BenchmarkingTemplate {
     private static final Logger LOG = Logger.getLogger(BenchmarkingTemplate.class.getName());
 
-    @TestAnnotations.Slow
+    @TestAnnotations.AdHoc
     public void dummyBenchTest() throws RunnerException {
         Duration referenceTime = Duration.ofNanos(100000);
         double maxDeviation = 0.5;

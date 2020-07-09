@@ -291,7 +291,7 @@ public class SourceFiles extends Sources {
     }
 
     public static String sanitizeTempl(String name) {
-        String sane = name.replaceAll("[,:;'\\[\\]]", "_");
+        String sane = name.replaceAll("[,:;'\\[\\]/]", "_");
         return sane;
     }
 
@@ -309,7 +309,7 @@ public class SourceFiles extends Sources {
 
     private String checkTemplate4Imports(Path path, AtomicBoolean changed, File foldDir) throws FileNotFoundException {
         try {
-            if (path.toString().startsWith(".")) { //todo next repair relative path finding if subtemplate with import statement came from different folder
+            if (path.toString().startsWith(".")) {
                 path = Paths.get(foldDir + "/" + path);
             }
             List<String> strings = Files.readAllLines(path);
@@ -323,11 +323,15 @@ public class SourceFiles extends Sources {
                         String[] split = line.split(",");
                         StringBuilder sb = new StringBuilder();
                         for (String templ : split) {
-                            sb.append(checkTemplate4Imports(Paths.get(templ), changed, foldDir));
+                            Path importPath = importPath(path, templ, foldDir);
+                            LOG.fine("importing: " + importPath.toString());
+                            sb.append(checkTemplate4Imports(importPath, changed, foldDir));
                         }
                         strings.set(i, sb.toString());
                     } else {
-                        String imported = checkTemplate4Imports(Paths.get(line), changed, foldDir);
+                        Path importPath = importPath(path, line, foldDir);
+                        LOG.fine("importing: " + importPath.toString());
+                        String imported = checkTemplate4Imports(importPath, changed, foldDir);
                         strings.set(i, imported);
                     }
                 }
@@ -398,7 +402,22 @@ public class SourceFiles extends Sources {
         } else {
             template_ = Paths.get(templatePath).toFile();
         }
+        if (template_.toString().contains(",")) {
+            return new File(template_.toString().substring(0, template_.toString().indexOf(",")));
+        }
         return template_;
+    }
+
+    private Path importPath(Path current, String toImport, File workDir) {
+        if (toImport.startsWith("./")) {
+            return Paths.get(current.getParent().toString(), toImport);
+        } else if (toImport.startsWith("~/")) {
+            return Paths.get(workDir.getPath(), toImport);
+        } else if (toImport.startsWith("/")) {
+            return Paths.get(toImport);
+        } else {
+            return Paths.get(current.getParent().toString(), toImport);
+        }
     }
 
     private String recognizeFileType(String path, File sourceType, Settings settings) {

@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TemplateDebuggerTest {
 
-    @TestAnnotations.Slow
+    @TestAnnotations.Fast
     public void family() throws Exception {
         Settings settings = Settings.forSlowTest();
         settings.intermediateDebug = false;

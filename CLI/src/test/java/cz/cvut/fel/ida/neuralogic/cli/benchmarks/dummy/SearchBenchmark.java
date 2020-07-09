@@ -1,4 +1,4 @@
-package cz.cvut.fel.ida.neuralogic.cli.dummy;
+package cz.cvut.fel.ida.neuralogic.cli.benchmarks.dummy;
 
 import org.openjdk.jmh.annotations.*;
 

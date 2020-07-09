@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class SampleDebuggerTest {
     private static final Logger LOG = Logger.getLogger(SampleDebuggerTest.class.getName());
 
-    @TestAnnotations.Slow
+    @TestAnnotations.Fast
     public void family() throws Exception {
         Settings settings = Settings.forSlowTest();
         settings.intermediateDebug = false;
@@ -31,9 +31,10 @@ public class SampleDebuggerTest {
         assertTrue(Paths.get(Logging.logFile.toString(), "export", "debug", SampleDebugger.class.getSimpleName() + ".java").toFile().exists());
     }
 
-    @TestAnnotations.Slow
+    @TestAnnotations.Fast
     public void loadGroundSamples() throws Exception {
-        List<LogicSample> logicSamples = new JavaExporter().importListFrom(Paths.get("../Resources/datasets/simple/family/mock/" + SampleDebugger.class.getSimpleName() + ".java"), LogicSample.class);
+        family();
+        List<LogicSample> logicSamples = new JavaExporter().importListFrom(Paths.get(Logging.logFile.toString(), "export", "debug", SampleDebugger.class.getSimpleName() + ".java"), LogicSample.class);
         for (LogicSample logicSample : logicSamples) {
             LOG.fine(logicSample.exportToJson());
             assertNotNull(logicSample.query.evidence);

@@ -10,10 +10,9 @@ public class SourceFilesTest {
 
     @TestAnnotations.Fast
     public void multipleTemplates() throws Exception {
-        Settings settings = new Settings();
-        String[] args = Utilities.getDatasetArgs("relational/molecules/muta_mini", "-t ./embeddings,./template.txt");
+        Settings settings = Settings.forFastTest();
+        String[] args = Utilities.getDatasetArgs("relational/molecules/mutagenesis", "-t ./templates/embeddings.txt,./templates/template_partial.txt");
         TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
-
 }

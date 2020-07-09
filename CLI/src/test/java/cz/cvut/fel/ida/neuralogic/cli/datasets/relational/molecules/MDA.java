@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 public class MDA {
     private static final Logger LOG = Logger.getLogger(MDA.class.getName());
 
-    @TestAnnotations.Slow
+    @TestAnnotations.AdHoc
     public void defalutPerformance() throws Exception {
 
         Settings.inputFilesSuffix = "";
@@ -30,7 +30,7 @@ public class MDA {
         Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/MDA_MB_231_ATCC", "-t ./templates/template_gnnW_l3w3_bonds.txt"), settings);
     }
 
-    @TestAnnotations.Slow
+    @TestAnnotations.AdHoc
     public void alternativePerformance() throws Exception {
 
 //        Settings.inputFilesSuffix = "";
@@ -48,7 +48,7 @@ public class MDA {
         Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/MDA_MB_231_ATCC/alternative"), settings);
     }
 
-    @TestAnnotations.Slow
+    @TestAnnotations.AdHoc
     public void featuresPerformance() throws Exception {
 
         Settings settings = Settings.forSlowTest();
@@ -67,7 +67,7 @@ public class MDA {
         Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/MDA_MB_231_ATCC/features", "-t ./templates/template_gnnl3W10.txt"), settings);
     }
 
-    @TestAnnotations.Slow
+    @TestAnnotations.AdHoc
     public void fold0() throws Exception {
 
         Settings settings = Settings.forSlowTest();
@@ -89,7 +89,7 @@ public class MDA {
         Pair<Pipeline, ?> results = Main.main(Utilities.splitArgs("-sd /home/gusta/googledrive/Github/NeuraLogic/Resources/datasets/relational/molecules/MDA_MB_231_ATCC/fold0 -t ./gcn.txt"), settings);
     }
 
-    @TestAnnotations.Slow
+    @TestAnnotations.AdHoc
     public void folds() throws Exception {
 
         Settings settings = Settings.forSlowTest();
