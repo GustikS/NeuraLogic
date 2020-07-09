@@ -1,5 +1,5 @@
 # NeuraLogic 
-![Java CI with Maven](https://github.com/GustikS/NeuraLogic/workflows/Maven%20CI/badge.svg)
+![.github/workflows/maven.yml](https://github.com/GustikS/NeuraLogic/workflows/.github/workflows/maven.yml/badge.svg)
 ![GitHub licence](https://img.shields.io/github/license/gustiks/neuralogic)
 ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/gustiks/neuralogic?include_prereleases)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/gustiks/neuralogic)
