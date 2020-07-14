@@ -1,10 +1,9 @@
 # NeuraLogic
-![Maven CI](https://github.com/GustikS/NeuraLogic/workflows/Maven%20CI/badge.svg?branch=master)
-![GitHub licence](https://img.shields.io/github/license/gustiks/neuralogic)
-![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/gustiks/neuralogic?include_prereleases)
+[![Maven CI](https://github.com/GustikS/NeuraLogic/workflows/Maven%20CI/badge.svg?branch=master)](https://github.com/GustikS/NeuraLogic/actions)
+[![GitHub licence](https://img.shields.io/github/license/gustiks/neuralogic)](https://github.com/GustikS/NeuraLogic/blob/master/LICENSE)
+[![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/gustiks/neuralogic?include_prereleases)](https://github.com/GustikS/NeuraLogic/releases)
+[![GitHub top language](https://img.shields.io/github/languages/top/gustiks/neuralogic)](https://adoptopenjdk.net/index.html?variant=openjdk8&jvmVariant=hotspot)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/gustiks/neuralogic)
-![GitHub top language](https://img.shields.io/github/languages/top/gustiks/neuralogic)
-
 
 _NeuraLogic is a framework for combining **relational** and **deep** learning through a form of **differentiable logic programming**. It is an official implementation of the **[Lifted Relational Neural Networks](#papers)** concept._
 
@@ -52,7 +51,7 @@ That is why we exploit the declarative language with first-order expressiveness,
 
 The framework is mostly optimized for quick, high-level prototyping of learning scenarios with sparse, irregular, relational data and complex, dynamically structured models. Particularly, you may find it beneficial for encoding various:
   - Graph neural networks
-    - where you can use it to go well [beyond the existing models](todo)
+    - where you can use it to go well [beyond the existing models](https://arxiv.org/abs/2007.06286)
   - Knowledge base completions
     - with [complex models](https://link.springer.com/chapter/10.1007/978-3-319-63342-8_9) requiring e.g. chained inference
   - learning with Relational background knowledge/bias
@@ -61,7 +60,7 @@ The framework is mostly optimized for quick, high-level prototyping of learning 
     - for combining (fuzzy) [logic inference with neural networks](http://arg.ciirc.cvut.cz/slides/2016-Sourek-LRNN.pdf)
   - and other more crazy ideas, such as learning with
     - hypergraphs and ontologies
-        - see [example constructs](todo)
+        - see [example constructs](https://arxiv.org/abs/2007.06286)
     - recursion
         - e.g. for [latent type hierarchies](https://link.springer.com/chapter/10.1007/978-3-319-63342-8_9)
     - and generic [latent logic programs](https://link.springer.com/chapter/10.1007/978-3-319-78090-0_10)
@@ -74,30 +73,30 @@ The framework is mostly optimized for quick, high-level prototyping of learning 
 ##### Requirements
 
 - Java ≥ 1.8 
-    - [continuously tested](https://github.com/GustikS/NeuraLogic/actions/runs/163881867) with JDK 1.8 on latest Ubuntu, Windows and MacOS
-        - both OpenJDK (v1.8.0_222) and Oracle JDK (v1.8.0_151) should do
-    - if you don't have Java in your system already, it is enough to get the runtime environment (JRE). 
-        - Get it either from [Oracle](https://www.oracle.com/java/technologies/javase-jre8-downloads.html) or [OpenJDK](https://adoptopenjdk.net/index.html?variant=openjdk8&jvmVariant=hotspot)
+    - [continuously tested](https://github.com/GustikS/NeuraLogic/actions/runs/163881867) with JDK 1.8 on the latest Ubuntu, Windows and macOS
+    - if you don't have Java in your system already, get it either from [Oracle](https://www.oracle.com/java/technologies/javase-jre8-downloads.html) or [OpenJDK](https://adoptopenjdk.net/index.html?variant=openjdk8&jvmVariant=hotspot)
+        - both OpenJDK (v1.8.0_222) and Oracle JDK (v1.8.0_151) will do
+            - for usage, it is enough to get the runtime environment (JRE)
 - for developers - you can clone and open this project directly in [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 
 #### Running examples
 
 1. download a [release](https://github.com/GustikS/NeuraLogic/releases) into some directory `DIR`
-    - or [build from source](https://github.com/GustikS/NeuraLogic/actions) with [Maven](https://maven.apache.org/) or [IntelliJ IDEA](https://www.jetbrains.com/idea/)
+    - or [build from source](https://github.com/GustikS/NeuraLogic/blob/master/.github/workflows/maven.yml) with [Maven](https://maven.apache.org/) or [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 1. clone this repository (or just download the Resources/datasets directory) within `DIR`
     - `git clone https://github.com/GustikS/NeuraLogic`
 1. try some trivial examples from terminal in `DIR`
-    1. a simple XOR problem
+    1. a simple familiar XOR problem
         - scalar: `java -jar NeuraLogic.jar -sd ./NeuraLogic/Resources/datasets/neural/xor/naive`
         - vectorized: `java -jar NeuraLogic.jar -sd ./NeuraLogic/Resources/datasets/neural/xor/vectorized`
     1. a simple relational problem (Example 2 from [this paper](https://www.jair.org/index.php/jair/article/view/11203))
         - `java -jar NeuraLogic.jar -sd ./NeuraLogic/Resources/datasets/simple/family`
-    1. molecule classification problem (mutagenesis)
+    1. molecule classification problem ([mutagenesis](https://www.doc.ic.ac.uk/~shm/mutagenesis.html))
         - `java -jar NeuraLogic.jar -sd ./NeuraLogic/Resources/datasets/relational/molecules/mutagenesis -ts 100`
-    1. knowledge-base completion problem
+    1. knowledge-base completion problem ([countries](https://www.aaai.org/ocs/index.php/SSS/SSS15/paper/viewPaper/10257))
         - `java -jar NeuraLogic.jar -sd ./NeuraLogic/Resources/datasets/relational/kbs/nations -ts 20`
 1. you can check various exported settings and results in `DIR/target`
-    1. if you have [Graphviz](https://graphviz.org/) installed (`which dot`), you can use it to observe the internal computation structures in debug mode:
+    1. if you have [Graphviz](https://graphviz.org/download/) installed (`which dot`), you can observe the internal computation structures in debug mode:
         - `java -jar NeuraLogic.jar -sd ./NeuraLogic/Resources/datasets/neural/xor/naive -iso -1 -prune -1 -debug all`
             - this should show a graph of the 1) worflow, 2) template, 3) inference graphs, 4) neural networks + weight updates, and 5) final learned template
         - `java -jar NeuraLogic.jar -sd ./NeuraLogic/Resources/datasets/simple/family -iso -1 -prune -1 -debug all`
@@ -180,23 +179,25 @@ The project follows the standard [Maven structure](https://maven.apache.org/guid
 - Migrating structure learning module from the previous version
 
 ### Disclaimer
-This is a second generation of the framework<sup>[3](#myfootnote2)</sup>, but it is still work in progress.
+This is a second generation of the framework<sup>[3](#myfootnote2)</sup>, but it is still work in (very slow) progress.
 The framework is meant for academic purposes, developed at [Intelligent Data Analysis lab](https://ida.fel.cvut.cz/) at Czech Technical University in Prague.
 In case of any questions or anything interesting, feel free to contact me at *souregus@gmail.com*, but please do not expect any sort of professional software support. If you are looking for something more conservative and user friendly, consider [PyG](https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html) or [DGL](https://www.dgl.ai/pages/start.html) for the graph-based learning use cases.
 
 <a name="myfootnote3">3</a>: _for reference, you can find previous implementation (2014-2018) in [this repository](https://github.com/GustikS/Neurologic)_
 
-#### Related work
-###### Repositories
+### Related work
+##### Repositories
 
-For experiments from the paper "Beyond GNNs with LRNNs", please see a separate repository: https://github.com/GustikS/GNNwLRNNs
+For experiments from the paper "Beyond GNNs with LRNNs" (2020), please see a [GNNwLRNNs repository](https://github.com/GustikS/GNNwLRNNs).
 
-###### Papers
+For experiments from the paper "Lossless Compression of Structured Convolutional Models via Lifting" (2020), please see a [NeuraLifting repository](https://github.com/GustikS/NeuraLifting).
+
+#### Papers
 
 googling "**Lifted Relational Neural Networks**" should give you a [short paper](http://ceur-ws.org/Vol-1583/CoCoNIPS_2015_paper_7.pdf) from a NIPS workshop on cognitive computation 2015,
 or [long version](https://www.jair.org/index.php/jair/article/view/11203)  in Journal of Artificial Intelligence Research, 2018. 
 
-Further, you can find applications and extensions, including declarative [learning scenarios](https://link.springer.com/chapter/10.1007/978-3-319-63342-8_9) and inductive [structure learning](https://link.springer.com/chapter/10.1007/978-3-319-78090-0_10) of the programs.
+Further, you can find applications and extensions, including declarative [learning scenarios](https://link.springer.com/chapter/10.1007/978-3-319-63342-8_9) (ILP 2016) and inductive [structure learning](https://link.springer.com/chapter/10.1007/978-3-319-78090-0_10) (ILP 2017) of the programs.
 
 ###### Videos
 [NIPS CoCo workshop 2015](https://www.bilibili.com/video/av66440677/)
