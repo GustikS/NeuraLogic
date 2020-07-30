@@ -47,7 +47,7 @@ public class ElementProductDown extends NeuronVisitor.Weighted {
     public <T extends Neurons, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron) {
         State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
         Value gradient = stateVisitor.visit(state);
-        Value activationValue = state.getValue().transposedView();
+//        Value transpActivationValue = state.getValue().transposedView();
 
         Pair<Iterator<T>, Iterator<Weight>> inputs = network.getInputs(neuron);
 
@@ -63,11 +63,11 @@ public class ElementProductDown extends NeuronVisitor.Weighted {
             weight = inputWeights.next();
             State.Neural.Computation inputComputationView = input.getComputationView(stateVisitor.stateIndex);
 
-            Value inputValue = inputComputationView.getValue().transposedView();
-            Value grad = activationValue.elementDivideBy(weight.value.times(inputValue));
+            Value transpInputValue = inputComputationView.getValue().transposedView();
+            Value grad = state.getValue().elementDivideBy(weight.value.times(inputComputationView.getValue()));
             grad.elementMultiplyBy(gradient);
 
-            weightUpdater.visit(weight, grad.times(inputValue));
+            weightUpdater.visit(weight, grad.times(transpInputValue));
 
             inputComputationView.storeGradient(grad.transposedView().times(weight.value));
         }

@@ -129,11 +129,21 @@ public abstract class BaseNeuron<T extends Neurons, S extends State.Neural> impl
     }
 
     public void visit(NeuronVisitor.Weighted visitor) {
-        visitor.visit(this);
+        try {
+            visitor.visit(this);
+        } catch (ArithmeticException ex) {
+            LOG.severe("ArithmeticException at neuron: " + this.toString());
+            throw ex;
+        }
     }
 
     public void visit(NeuronVisiting.Weighted visitor) {
-        visitor.visit(this);
+        try {
+            visitor.visit(this);
+        } catch (ArithmeticException ex) {
+            LOG.severe("ArithmeticException at neuron: " + this.toString());
+            throw ex;
+        }
     }
 
     /**

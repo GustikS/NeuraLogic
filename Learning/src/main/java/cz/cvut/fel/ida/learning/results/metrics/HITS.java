@@ -206,7 +206,7 @@ public class HITS {
             case ALL_DIFF:
                 return corruptAnything(etalon);
             default:
-                throw new RuntimeException("Uknown HITS corruption definition");
+                throw new RuntimeException("Unknown HITS corruption definition");
         }
     }
 

@@ -3,7 +3,6 @@ package cz.cvut.fel.ida.neural.networks.structure.building.builders;
 import cz.cvut.fel.ida.algebra.functions.*;
 import cz.cvut.fel.ida.algebra.functions.specific.Average;
 import cz.cvut.fel.ida.algebra.functions.specific.Maximum;
-import cz.cvut.fel.ida.algebra.functions.Softmax;
 import cz.cvut.fel.ida.algebra.functions.specific.Sum;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
@@ -68,10 +67,16 @@ public class StatesBuilder {
             BaseNeuron<Neurons, State.Neural> neuron = detailedNetwork.allNeuronsTopologic.get(i);
             if (neuron.getComputationView(0).getValue() != null)
                 continue;   // already initialized
-            if (neuron instanceof WeightedNeuron) {
-                inferWeightedDimension(detailedNetwork, neuron);
-            } else {
-                inferUnweightedDimension(detailedNetwork, neuron);
+
+            try {
+                if (neuron instanceof WeightedNeuron) {
+                    inferWeightedDimension(detailedNetwork, neuron);
+                } else {
+                    inferUnweightedDimension(detailedNetwork, neuron);
+                }
+            } catch (ArithmeticException ex) {
+                LOG.severe("algebraic exception at neuron: " + neuron.toString());
+                throw ex;
             }
         }
     }
@@ -195,6 +200,7 @@ public class StatesBuilder {
 
     /**
      * Check whether this activaiton needs to be treated specially
+     *
      * @param neuron
      * @return
      */

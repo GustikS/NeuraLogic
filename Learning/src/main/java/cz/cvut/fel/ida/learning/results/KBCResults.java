@@ -19,10 +19,12 @@ public class KBCResults extends DetailedClassificationResults {
 
     @Override
     public boolean recalculate() {
+        LOG.info("(P)recalculation of HITs database + statistics...");
         super.recalculate();
         if (hits == null)
             hits = new HITS(evaluations, settings);
         stats = hits.getStats(evaluations);
+        LOG.info("...HITs calculated.");
         return true;
     }
 
