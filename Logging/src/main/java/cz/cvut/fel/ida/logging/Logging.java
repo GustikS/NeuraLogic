@@ -36,7 +36,7 @@ public class Logging {
 
     public static Logging initTestLogging(String testName) throws Exception {
 //        Settings.loggingLevel = Level.FINEST;
-        Settings.logFile = "./testlog/" + testName + "_" + calcDateTime(System.currentTimeMillis());
+        Settings.logFile = "./testlog/" + testName.replaceAll("\\(","").replaceAll("\\)","") + "_" + calcDateTime(System.currentTimeMillis());
         Logging.logFile = new File(Settings.logFile);
         Settings.htmlLogging = false;
         return initLogging(Settings.loggingLevel, false, true);

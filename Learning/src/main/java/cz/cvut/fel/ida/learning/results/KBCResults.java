@@ -10,7 +10,7 @@ public class KBCResults extends DetailedClassificationResults {
     private static final Logger LOG = Logger.getLogger(KBCResults.class.getName());
 
     HITS hits;
-    HITS.Stats stats;
+    HITS.Stats kbc;
 
     public KBCResults(List<Result> outputs, Settings aggregationFcn, HITS hits) {
         super(outputs, aggregationFcn);
@@ -23,7 +23,7 @@ public class KBCResults extends DetailedClassificationResults {
         super.recalculate();
         if (hits == null)
             hits = new HITS(evaluations, settings);
-        stats = hits.getStats(evaluations);
+        kbc = hits.getStats(evaluations);
         LOG.info("...HITs calculated.");
         return true;
     }
@@ -32,8 +32,8 @@ public class KBCResults extends DetailedClassificationResults {
     public String toString(Settings settings) {
         String s = super.toString(settings);
         StringBuilder sb = new StringBuilder(s);
-        if (stats != null) {
-            sb.append(", ").append(stats.toString());
+        if (kbc != null) {
+            sb.append(", ").append(kbc.toString());
         }
         return sb.toString();
     }

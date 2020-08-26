@@ -4,6 +4,7 @@ import statistics
 import sys
 import time
 from datetime import timedelta
+from json import JSONDecoder
 
 import isodate as isodate
 import numpy as np
@@ -28,7 +29,11 @@ convert = {
         ["NeuralTrainingPipe", "progress", "bestResults", "training", "accuracy"],
         ["NeuralTrainingPipe", "progress", "bestResults", "training", "dispersion"],
         ["NeuralTrainingPipe", "progress", "bestResults", "training", "AUCroc"],
-        ["NeuralTrainingPipe", "progress", "bestResults", "training", "AUCpr"]
+        ["NeuralTrainingPipe", "progress", "bestResults", "training", "AUCpr"],
+        ["NeuralTrainingPipe", "progress", "bestResults", "training", "kbc", "MRR"],
+        ["NeuralTrainingPipe", "progress", "bestResults", "training", "kbc", "AVGrank"],
+        ["NeuralTrainingPipe", "progress", "bestResults", "training", "error", "value"],
+        ["NeuralTrainingPipe", "timing", "timeTaken", "seconds"],
     ],
 
     # "train2": [
@@ -43,6 +48,9 @@ convert = {
             ["NeuralTrainingPipe", "progress", "bestResults", "validation", "dispersion"],
             ["NeuralTrainingPipe", "progress", "bestResults", "validation", "AUCroc"],
             ["NeuralTrainingPipe", "progress", "bestResults", "validation", "AUCpr"],
+            ["NeuralTrainingPipe", "progress", "bestResults", "validation", "kbc", "MRR"],
+            ["NeuralTrainingPipe", "progress", "bestResults", "validation", "kbc", "AVGrank"],
+            ["NeuralTrainingPipe", "progress", "bestResults", "validation", "error", "value"]
             ],
 
     # "val2": [["NeuralTrainTestPipeline", "pipelineOutput", "training", "bestResults", "validation", "bestAccuracy"],
@@ -51,30 +59,41 @@ convert = {
     #          ["NeuralTrainTestPipeline", "pipelineOutput", "training", "bestResults", "validation", "AUCpr"]
     #          ],
 
+    # "test1": [
+    #     ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "bestAccuracy"],
+    #     ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "accuracy"],
+    #     ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "dispersion"],
+    #     ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "AUCroc"],
+    #     ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "AUCpr"],
+    #     ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "error", "value"]
+    #
+    # ],
+
     "test": [
-        ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "bestAccuracy"],
-        ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "accuracy"],
-        ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "dispersion"],
-        ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "AUCroc"],
-        ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "AUCpr"]
+        ["TrainTestPipeline", "pipelineOutput", "testing", "bestAccuracy"],
+        ["TrainTestPipeline", "pipelineOutput", "testing", "accuracy"],
+        ["TrainTestPipeline", "pipelineOutput", "testing", "dispersion"],
+        ["TrainTestPipeline", "pipelineOutput", "testing", "AUCroc"],
+        ["TrainTestPipeline", "pipelineOutput", "testing", "AUCpr"],
+        ["TrainTestPipeline", "pipelineOutput", "testing", "error", "value"]
 
     ],
 
-    # "test2": [
-    #     ["LearningSchemePipeline", "pipelineOutput", "bestAccuracy"],
-    #     ["LearningSchemePipeline", "pipelineOutput", "dispersion"],
-    #     ["LearningSchemePipeline", "pipelineOutput", "AUCroc"],
-    #     ["LearningSchemePipeline", "pipelineOutput", "AUCpr"],
-    # ],
+    "test2": [
+        ["LearningSchemePipeline", "pipelineOutput", "bestAccuracy"],
+        ["LearningSchemePipeline", "pipelineOutput", "dispersion"],
+        ["LearningSchemePipeline", "pipelineOutput", "AUCroc"],
+        ["LearningSchemePipeline", "pipelineOutput", "AUCpr"],
+    ],
 
-    # "xval_train": [["CrossvalidationPipeline", "pipelineOutput", "r", "train", "mean", "accuracy"],
-    #                ["CrossvalidationPipeline", "pipelineOutput", "r", "train", "mean", "dispersion"]],
-    #
-    # "xval_val": [["CrossvalidationPipeline", "pipelineOutput", "r", "val", "mean", "accuracy"],
-    #              ["CrossvalidationPipeline", "pipelineOutput", "r", "val", "mean", "dispersion"]],
-    #
-    # "xval_test": [["CrossvalidationPipeline", "pipelineOutput", "r", "test", "mean", "accuracy"],
-    #               ["CrossvalidationPipeline", "pipelineOutput", "r", "test", "mean", "dispersion"]],
+    "xval_train": [["CrossvalidationPipeline", "pipelineOutput", "r", "train", "mean", "accuracy"],
+                   ["CrossvalidationPipeline", "pipelineOutput", "r", "train", "mean", "dispersion"]],
+
+    "xval_val": [["CrossvalidationPipeline", "pipelineOutput", "r", "val", "mean", "accuracy"],
+                 ["CrossvalidationPipeline", "pipelineOutput", "r", "val", "mean", "dispersion"]],
+
+    "xval_test": [["CrossvalidationPipeline", "pipelineOutput", "r", "test", "mean", "accuracy"],
+                  ["CrossvalidationPipeline", "pipelineOutput", "r", "test", "mean", "dispersion"]],
 
     # "compression": [["CompressionPipe", "allNeuronCount"],
     #                 ["CompressionPipe", "compressedNeuronCount"],
@@ -100,10 +119,41 @@ convert = {
         ["validation", "accuracy"],
         ["validation", "majorityErr"],
         ["validation", "dispersion"],
-        ["validation", "bestAccuracy"],
+        # ["validation", "bestAccuracy"],
         ["validation", "error", "value"],
         ["validation", "AUCroc"],
-        ["validation", "AUCpr"]
+        ["validation", "AUCpr"],
+        ["validation", "kbc", "MRR"],
+        ["validation", "kbc", "AVGrank"]
+    ],
+
+    "python": [
+        [
+            ["crossval", "train_acc_mean"],
+            ["crossval", "val_acc_mean"],
+            ["crossval", "test_acc_mean"],
+            ["crossval", "train_acc_std"],
+            ["crossval", "val_acc_std"],
+            ["crossval", "test_acc_std"],
+            ["crossval", "time_per_step"]
+        ],
+        [
+            ["crossval", "train_loss_mean"],
+            ["crossval", "val_loss_mean"],
+            ["crossval", "test_loss_mean"],
+            ["crossval", "train_loss_std"],
+            ["crossval", "val_loss_std"],
+            ["crossval", "test_loss_std"]
+        ],
+        [
+            ["train", "folds"]
+        ],
+        [
+            ["train", "times"]
+        ],
+        [
+            ["test", "folds"]
+        ]
     ]
 }
 
@@ -321,6 +371,7 @@ class ProgressObserver(FileObserver):
         buffer = "["
         i = 0
         while True:
+            print("observing...")
             lines = self.read_increment()
             i += 1
             if lines:
@@ -329,16 +380,22 @@ class ProgressObserver(FileObserver):
                 try:
                     next = json.loads(buffer[:-3] + "]")
                     buffer = "["
-                except:
+                    print(next, flush=True)
+                except Exception as e:
+                    print(e)
                     continue
                 for field in self.filter.fields:
+                    if extracted[tuple(field)] is None:
+                        extracted[tuple(field)] = []
                     extracted[tuple(field)] += self.filter.extract(field, next)
+                print(extracted, flush=True)
                 self.plot(extracted)
+
             else:
                 time.sleep(self.seconds)
 
     def plot_file(self, file):
-        print("plotting " + file)
+        print("plotting " + file, flush=True)
         if "dummy" in file:
             return
         self.file = self.open(file, "r")
@@ -346,7 +403,7 @@ class ProgressObserver(FileObserver):
         self.fullfilename = file
 
         lines = self.file.read()
-        while not lines and self.seconds > 0:
+        while (not lines or len(lines) < 4) and self.seconds > 0:
             time.sleep(self.seconds)
             lines = self.file.read()
 
@@ -354,15 +411,31 @@ class ProgressObserver(FileObserver):
             lines = lines.decode("utf-8")
 
         try:
-            progress = json.loads(lines)
-        except:
-            lines = lines[:-2] + "]"
-            progress = json.loads(lines)
+            progress = json.loads(lines)  # valid file
+        except Exception as e:
+            # print(e)
+            # # print("-------------\n")
+            # print("\n\n" + lines + "\n\n")
+            try:
+                progress = json.loads(lines[:-3] + "]")  # unclosed list
+                print("unclosed list json decoding...", flush=True)
+            except Exception as e:  # this is some bug in json.decode (like really, there is some stateful leak that makes this behave differently when called twice)
+                print(e)
+                raw = JSONDecoder(object_hook=None,
+                                  object_pairs_hook=None)  # solution is to just skip the check for length in the decoding which seems erroneous
+                progress = raw.raw_decode(lines[:-3] + "]")
+                print("raw json decoding...", flush=True)
+
+        print(progress, flush=True)
         extracted = {}
         for field in self.filter.fields:
             extracted[tuple(field)] = self.filter.extract(field, progress)
+
+        print(extracted, flush=True)
         self.plot(extracted)
+
         plt.show()
+        print("Initial plot should be displayed....")
         return extracted
 
     def plot(self, progress: {}):
@@ -374,6 +447,9 @@ class ProgressObserver(FileObserver):
             # s1mask = np.isfinite(series1)
             # if not s1mask.any():
             #     continue
+            if series is None:
+                series = [None]
+
             series = series[1:]
 
             series1 = np.array(series).astype(float)
@@ -393,7 +469,8 @@ class ProgressObserver(FileObserver):
                 if not restarted_colors:
                     restarted_colors = True
                     plt.gca().set_prop_cycle(plt.rcParams['axes.prop_cycle'])
-                pltr.normal_plot(out, xs, style="--", legend=metric[0] + "-" + metric[1], bars=False)
+                leg_name = "-".join(metric)
+                pltr.normal_plot(out, xs, style="--", legend=leg_name, bars=False)
 
             plt.annotate('%0.5f' % out[-1], xy=(1, out[-1]), xytext=(8, 0),
                          xycoords=('axes fraction', 'data'), textcoords='offset points')
@@ -433,14 +510,19 @@ class Filter:
 
         for metric in metrics:
             conv = convert[metric]
-            flatten = []
-            if isinstance(conv[0], list):
-                for sslist in conv:
+            self.flat_metrics(conv, metric)
+
+    def flat_metrics(self, metrics, name, flatten=[]):
+        if isinstance(metrics, list) and isinstance(metrics[0], list):
+            for sslist in metrics:
+                if not isinstance(sslist[0], list):
                     self.fields.append(sslist)
-                    self.metrics_udpated.append(metric + "_" + sslist[-1])
-            else:
-                self.fields.append(conv)
-                self.metrics_udpated.append(metric)
+                    if name == "python":
+                        self.metrics_udpated.append("python" + "_".join(sslist))
+                    else:
+                        self.metrics_udpated.append(name + "_" + sslist[-1])
+                else:
+                    self.flat_metrics(sslist, name)
 
     def filter(self, experiments):
         results = {}
@@ -501,41 +583,76 @@ class Filter:
     def postprocess(self, results, processed):
         for k, v in results.items():
             if isinstance(v, list):
-                agg_v = self.aggregate(v)
-                if self.split_std:
-                    try:
-                        split = agg_v.split("+-")
-                    except:
-                        split = [0, 0]
-                    processed[k + "_mean"] = split[0]
-                    processed[k + "_std"] = split[1]
+                if k.startswith("python"):
+                    agg_v = self.process_python_folds(k[6:], v)
                 else:
-                    processed[k] = agg_v
+                    agg_v = {k: self.aggregate(v)}
+
+                self.check_agg(processed, agg_v)
+                processed.update(agg_v)
+
             elif isinstance(v, dict):
                 processed[k] = {}
                 self.postprocess(v, processed[k])
             else:
                 processed[k] = v
 
+    def check_agg(self, processed, agg_v):
+        if self.split_std:
+            for k, v in agg_v.items():
+                try:
+                    split = v.split("+-")
+                except:
+                    split = [0, 0]
+                processed[k + "_mean"] = split[0]
+                processed[k + "_std"] = split[1]
+
+    def process_python_folds(self, prefix, folds):
+        if prefix == "train_times":
+            try:
+                times = self.agg_stats(folds)
+                return {prefix: times}
+            except:
+                return {prefix: folds[0]}
+
+        losses = []
+        accs = []
+        for fold in folds:
+            fold = fold.replace("\n", "").replace("{", "").replace("}", "").split(",")
+            loss = float(fold[0].split(":")[1])
+            acc = float(fold[1].split(":")[1])
+            losses.append(loss)
+            accs.append(acc)
+
+        try:
+            dic = {prefix + "_loss": self.agg_stats(losses), prefix + "_acc": self.agg_stats(accs)}
+        except:
+            dic = {prefix + "_loss": loss, prefix + "_acc": acc}
+
+        return dic
+
     def aggregate(self, folds):
         try:
-            avg, std = self.agg_stats(folds)
+            stats = self.agg_stats(folds)
         except:
             try:
                 folds = [isodate.parse_duration(fold).total_seconds() for fold in folds]
-                avg, std = self.agg_stats(folds)
+                stats = self.agg_stats(folds)
                 # avg = str(timedelta(seconds=avg))
                 # std = str(timedelta(seconds=std))
-                return f'{avg:9.2f} +- {std:f}'
+                return stats
             except:
                 pass
             return folds
-        return f'{avg:9.2f} +- {std:f}'
+        return stats
 
     def agg_stats(self, folds):
         avg = statistics.mean(folds)
-        std = statistics.stdev(folds)
-        return avg, std
+        try:
+            std = statistics.stdev(folds)
+        except:
+            std = 0
+        return f'{avg:f} +- {std:f}'
 
 
 class Plotter:
@@ -699,7 +816,7 @@ class Plotter:
         if x is None:
             x = self.x
         if "+-" in plusminus.values[0]:
-            tuples = [(res.split("+-") if type(res)==str else [res, 0]) for res in plusminus]
+            tuples = [(res.split("+-") if type(res) == str else [res, 0]) for res in plusminus]
             means = np.array([(float(tuple[0]) if tuple[0] else 0) for tuple in tuples])
             stds = np.array([float(tuple[1]) for tuple in tuples])
         elif isinstance(plusminus.values[0], list):
@@ -755,12 +872,14 @@ def observe(mypath, seconds=1):
     po.observe_progress()
 
 
-def analyse(mypath, plot_progress=True, neg_pref="", pos_pref=""):
-    loader = Loader("", mypath)
-    data = loader.load_dataframe()
+def analyse(mypath, plot=True, plot_progress=False, metrics=convert.keys(), neg_pref="", pos_pref="", split_std=False):
+    loader = Loader("", mypath, split_std=split_std)
+    data = loader.load_dataframe(metrics=metrics)
     print(data.to_string())
-    pltr = Plotter(data)
-    pltr.plot_all(plot_filter_neg=neg_pref, plot_filter_pos=pos_pref)
+
+    if plot:
+        pltr = Plotter(data)
+        pltr.plot_all(plot_filter_neg=neg_pref, plot_filter_pos=pos_pref)
 
     if plot_progress:
         show_progresses(mypath)

@@ -33,12 +33,10 @@ public class HerbrandModel {
         herbrand = init;
     }
 
-
     public HerbrandModel(Collection<Literal> facts) {
         herbrand = new HerbrandMap();
         populateHerbrand(facts);
     }
-
 
     /**
      * @param clauses - may contain facts and rules
@@ -48,7 +46,6 @@ public class HerbrandModel {
         Pair<List<HornClause>, List<Literal>> rulesAndFacts = rulesAndFacts(clauses);
         return inferModel(rulesAndFacts.r, rulesAndFacts.s);
     }
-
 
     public Collection<Literal> inferLiterals(Collection<HornClause> irules, Collection<Literal> facts) {
         HerbrandMap herbrandMap = inferModel(irules, facts);

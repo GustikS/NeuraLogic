@@ -14,7 +14,9 @@ import cz.cvut.fel.ida.utils.exporting.Exporter;
 import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.utils.generic.Timing;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -69,9 +71,13 @@ public abstract class TrainingStrategy implements Exportable {
 
         if (settings.plotProgress > 0) {
             LOG.fine("Will try to call the Python progress plotter...");
-            ProcessBuilder processBuilder = new ProcessBuilder(settings.pythonPath, settings.progressPlotterPath, settings.exportDir, "" + settings.plotProgress);
+            List<String> cmd = Arrays.asList(settings.pythonPath, settings.progressPlotterPath, settings.exportDir, "" + settings.plotProgress);
+            ProcessBuilder processBuilder = new ProcessBuilder(cmd);
+            processBuilder.redirectOutput(new File(settings.exportDir + "/progress/plotter_output.txt"));
+            processBuilder.redirectError(new File(settings.exportDir + "/progress/plotter_output.txt"));
             try {
                 progressPlotter = processBuilder.start();
+                LOG.fine("Successfully called command: " + String.join(" ", cmd));
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -20,9 +20,11 @@ public class UMLS {
         settings.hitsPreservation = Settings.HitsPreservation.MIDDLE_STAYS;
         settings.passResultsCache = true;
         settings.resultsRecalculationEpochae = 10;
-        settings.maxCumEpochCount = 20;
+        settings.maxCumEpochCount = 30;
         settings.trainValidationPercentage = 0.8;
+        settings.plotProgress = 5;  //display the training progress with refresh every 5 sec
         Main.main(getDatasetArgs(dataset,"-em kbc -t ./templates/template.txt"), settings);
+//        Main.main(getDatasetArgs(dataset,"-t ./templates/template.txt"), settings);
     }
 
     @TestAnnotations.Slow
