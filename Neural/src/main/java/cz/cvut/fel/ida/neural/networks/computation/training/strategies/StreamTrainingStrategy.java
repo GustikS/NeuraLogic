@@ -38,7 +38,7 @@ public class StreamTrainingStrategy extends TrainingStrategy {
         if (settings.minibatchSize > 1) {
             return new MiniBatchTrainer(settings, Optimizer.getFrom(settings, learningRate), currentModel, settings.minibatchSize).new MinibatchStreamTrainer();
         } else {
-            return new SequentialTrainer(settings, Optimizer.getFrom(settings, learningRate),currentModel).new SequentialStreamTrainer();
+            return new SequentialTrainer(settings, Optimizer.getFrom(settings, learningRate), currentModel).new SequentialStreamTrainer();
         }
     }
 
@@ -48,7 +48,9 @@ public class StreamTrainingStrategy extends TrainingStrategy {
         resultStream.close();
         Progress progress = new Progress();
         Results results = trainRecalculationResultsFactory.createFrom(resultList);
+        progress.nextRestart();
         progress.addOnlineResults(results);
+        progress.bestResults = new Progress.TrainVal(results, null);
         return new Pair<>(currentModel, progress);
     }
 
