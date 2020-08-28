@@ -110,10 +110,12 @@ convert = {
         ["accuracy"],
         ["majorityErr"],
         ["dispersion"],
-        ["bestAccuracy"],
+        # ["bestAccuracy"],
         ["error", "value"],
-        ["AUCroc"],
-        ["AUCpr"]
+        ["training", "AUCroc"],
+        ["training", "AUCpr"],
+        ["training", "kbc", "MRR"],
+        ["training", "kbc", "AVGrank"]
     ],
     "progress_val": [
         ["validation", "accuracy"],
@@ -463,13 +465,13 @@ class ProgressObserver(FileObserver):
             np.maximum.accumulate(idx, axis=0, out=idx)
             out = series1[idx]
 
+            leg_name = "-".join(metric)
             if not metric[0].startswith("val"):
-                pltr.normal_plot(out, xs, legend=metric[0], bars=False)
+                pltr.normal_plot(out, xs, legend=leg_name, bars=False)
             else:
                 if not restarted_colors:
                     restarted_colors = True
                     plt.gca().set_prop_cycle(plt.rcParams['axes.prop_cycle'])
-                leg_name = "-".join(metric)
                 pltr.normal_plot(out, xs, style="--", legend=leg_name, bars=False)
 
             plt.annotate('%0.5f' % out[-1], xy=(1, out[-1]), xytext=(8, 0),
