@@ -1086,6 +1086,7 @@ public class Settings implements Serializable {
                     settings.trainRecalculationResultsType = ResultsType.KBC;
                     settings.validationResultsType = ResultsType.KBC;
                     settings.testResultsType = ResultsType.KBC;
+                    settings.groundingMode = GroundingMode.GLOBAL;
             }
         }
 

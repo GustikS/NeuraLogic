@@ -29,7 +29,6 @@ public class CompressionPipe extends Pipe<Stream<NeuralProcessingSample>, Stream
 
     @Override
     public Stream<NeuralProcessingSample> apply(Stream<NeuralProcessingSample> neuralProcessingSampleStream) {
-
         if (settings.groundingMode == Settings.GroundingMode.GLOBAL) {
             List<NeuralProcessingSample> neuralProcessingSamples = terminateSampleStream(neuralProcessingSampleStream);
             DetailedNetwork detailedNetwork = neuralProcessingSamples.get(0).detailedNetwork;

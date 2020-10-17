@@ -23,6 +23,7 @@ public class UMLS {
         settings.maxCumEpochCount = 100;
         settings.trainValidationPercentage = 0.8;
         settings.plotProgress = 2;  //display the training progress with refresh every 5 sec
+        settings.neuralStreaming = true;
         Main.main(getDatasetArgs(dataset,"-em kbc -t ./templates/template.txt"), settings);
 //        Main.main(getDatasetArgs(dataset,"-t ./templates/template.txt"), settings);
     }
@@ -53,5 +54,24 @@ public class UMLS {
         Settings settings = Settings.forSlowTest();
         settings.maxCumEpochCount = 20;
         Main.main(getDatasetArgs(dataset,"-t ./templates/sparsemax.txt"), settings);
+    }
+
+    @TestAnnotations.AdHoc
+    public void debugCompression() throws Exception {
+        Settings settings = Settings.forSlowTest();
+        settings.hitsCorruption = Settings.HitsCorruption.ONE_DIFF;
+        settings.hitsPreservation = Settings.HitsPreservation.MIDDLE_STAYS;
+        settings.groundingMode = Settings.GroundingMode.GLOBAL;
+        settings.passResultsCache = true;
+        settings.resultsRecalculationEpochae = 5;
+        settings.maxCumEpochCount = 200;
+//        settings.trainValidationPercentage = 0.8;
+        settings.plotProgress = 10;
+
+//        settings.isoValueCompression = false;
+//        settings.chainPruning = false;
+
+        dataset = dataset + "/umlsScbDebug";
+        Main.main(getDatasetArgs(dataset, " -em kbc -t ./templates/dismult"), settings);
     }
 }

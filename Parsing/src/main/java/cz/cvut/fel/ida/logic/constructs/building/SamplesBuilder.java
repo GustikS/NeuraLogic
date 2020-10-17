@@ -91,7 +91,7 @@ public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRu
                 ls.query.evidence = pair.r;
                 List<LogicSample> qs = pair.s;
                 qs.add(ls);
-                LOG.fine("Extracted Sample: " + ls);
+                LOG.finest("Extracted Sample: " + ls);  //in KBC mode,  there are too many samples and all exacly the same, excet the query, so the report is not interesting, only clutters the console output
             });
         } else {
             LOG.info("Multiple examples created. Will try to match them against the provided queries");

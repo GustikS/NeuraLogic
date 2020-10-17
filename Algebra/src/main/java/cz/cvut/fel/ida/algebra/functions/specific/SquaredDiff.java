@@ -15,6 +15,9 @@ public class SquaredDiff implements ErrorFcn {
 
     @Override
     public Value evaluate(Value output, Value target) {
+        if (output.getClass() != target.getClass()){
+            LOG.severe("Prediction output and target label are of different algebraic types! (e.g. scalar vs vector)");
+        }
         Value diff = output.minus(target);
         Value times = diff.times(diff);
 //        return times.times(oneHalf);  //this is technically correct, but less interpretable

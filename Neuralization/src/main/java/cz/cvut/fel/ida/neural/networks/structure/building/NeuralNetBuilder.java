@@ -1,6 +1,5 @@
 package cz.cvut.fel.ida.neural.networks.structure.building;
 
-import org.jetbrains.annotations.NotNull;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.logic.Literal;
@@ -21,6 +20,7 @@ import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.LinkedMa
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.NeuronMapping;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 import cz.cvut.fel.ida.setup.Settings;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.logging.Logger;

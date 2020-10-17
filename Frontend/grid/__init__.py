@@ -86,7 +86,7 @@ class ExperimentSetup():
 
         if self.python:
             self.script_code += "ml Anaconda3" + "\n"
-            self.script_code += "source /mnt/appl/software/Anaconda3/2019.07/etc/profile.d/conda.sh" + "\n"    # this is because default use conda conda throws error in subshells
+            self.script_code += "source /mnt/appl/software/Anaconda3/2019.07/etc/profile.d/conda.sh" + "\n"  # this is because default use conda conda throws error in subshells
             self.script_code += "conda activate " + self.python_env + "\n"
             self.script_code += "python3 " + self.python_script + " -sd " + self.dataset_path_remote + self.params + " -out " + self.export_path
         else:
@@ -120,10 +120,14 @@ class RciExperimentSetup(ExperimentSetup):
 
     def setup(self):
         self.server = ""
-        if "-" in self.walltime or self.walltime > "24:00:00":
-            self.partition = "longjobs"
-        else:
+        if "-" in self.walltime or self.walltime > "72:00:00":
+            self.partition = "cpuextralong"
+        elif "-" in self.walltime or self.walltime > "24:00:00":
+            self.partition = "cpulong"
+        elif self.walltime > "04:00:00":
             self.partition = "cpu"
+        else:
+            self.partition = "cpufast"
 
     def script(self):
         self.script_code = "#!/bin/bash\n"

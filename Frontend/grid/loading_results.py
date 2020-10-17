@@ -34,6 +34,7 @@ convert = {
         ["NeuralTrainingPipe", "progress", "bestResults", "training", "kbc", "AVGrank"],
         ["NeuralTrainingPipe", "progress", "bestResults", "training", "error", "value"],
         ["NeuralTrainingPipe", "timing", "timeTaken", "seconds"],
+        # ["GroundingPipeline", "timing", "timeTaken", "seconds"],
     ],
 
     # "train2": [
@@ -59,25 +60,25 @@ convert = {
     #          ["NeuralTrainTestPipeline", "pipelineOutput", "training", "bestResults", "validation", "AUCpr"]
     #          ],
 
-    # "test1": [
-    #     ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "bestAccuracy"],
-    #     ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "accuracy"],
-    #     ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "dispersion"],
-    #     ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "AUCroc"],
-    #     ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "AUCpr"],
-    #     ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "error", "value"]
-    #
-    # ],
-
-    "test": [
-        ["TrainTestPipeline", "pipelineOutput", "testing", "bestAccuracy"],
-        ["TrainTestPipeline", "pipelineOutput", "testing", "accuracy"],
-        ["TrainTestPipeline", "pipelineOutput", "testing", "dispersion"],
-        ["TrainTestPipeline", "pipelineOutput", "testing", "AUCroc"],
-        ["TrainTestPipeline", "pipelineOutput", "testing", "AUCpr"],
-        ["TrainTestPipeline", "pipelineOutput", "testing", "error", "value"]
+    "test1": [
+        ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "bestAccuracy"],
+        ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "accuracy"],
+        ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "dispersion"],
+        ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "AUCroc"],
+        ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "AUCpr"],
+        ["NeuralTrainTestPipeline", "pipelineOutput", "testing", "error", "value"]
 
     ],
+
+    # "test": [
+    #     ["TrainTestPipeline", "pipelineOutput", "testing", "bestAccuracy"],
+    #     ["TrainTestPipeline", "pipelineOutput", "testing", "accuracy"],
+    #     ["TrainTestPipeline", "pipelineOutput", "testing", "dispersion"],
+    #     ["TrainTestPipeline", "pipelineOutput", "testing", "AUCroc"],
+    #     ["TrainTestPipeline", "pipelineOutput", "testing", "AUCpr"],
+    #     ["TrainTestPipeline", "pipelineOutput", "testing", "error", "value"]
+    #
+    # ],
 
     "test2": [
         ["LearningSchemePipeline", "pipelineOutput", "bestAccuracy"],

@@ -44,6 +44,7 @@ public class Sources {
     //-----------------Learning modes
     public boolean crossvalidation = false;
     public boolean trainTest = false;
+    public boolean trainValTest = false;
     public boolean trainOnly = false;
     public boolean testOnly = false;
 
@@ -122,6 +123,9 @@ public class Sources {
         if (!crossvalidation) {
             if (train.QueriesProvided && test.QueriesProvided) {
                 trainTest = true;
+                if (val.QueriesProvided) {
+                    trainValTest = true;
+                }
             } else if (train.QueriesProvided) {
                 trainOnly = true;
             } else if (test.QueriesProvided) {

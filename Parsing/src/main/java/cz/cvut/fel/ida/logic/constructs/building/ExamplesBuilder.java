@@ -90,6 +90,7 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
             LOG.info("Detecting exactly 1 (big) example in the examples source (file), switching to knowledge-base mode.");
             if (settings.groundingMode != Settings.GroundingMode.GLOBAL) {
                 settings.groundingMode = Settings.GroundingMode.GLOBAL;
+                settings.infer();
                 LOG.warning("Settings were set to a different grounding mode than detected! Will perform online rebuild of the grounding pipeline to the GLOBAL mode!");
                 rebuildCallback.apply("GroundingPipeline");
             }
@@ -98,6 +99,7 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
             settings.queriesAlignedWithExamples = true;
             if (settings.groundingMode != Settings.GroundingMode.INDEPENDENT) {
                 settings.groundingMode = Settings.GroundingMode.INDEPENDENT;
+                settings.infer();
                 LOG.warning("Settings were set to a different grounding mode than detected! Will perform online rebuild of the grounding pipeline to the STANDARD mode!");
                 rebuildCallback.apply("GroundingPipeline");
             }

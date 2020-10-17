@@ -103,7 +103,10 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
             pipe.connectAfter(pipeline.registerEnd(getTestResultsPipe()));
 
         } else if (sources.trainTest) { //returns only test results in this case
-            LOG.fine("Learning scheme inferred as : ---TRAIN-TEST---");
+            if (sources.trainValTest)
+                LOG.fine("Learning scheme inferred as : ---TRAIN-VAL-TEST---");
+            else
+                LOG.fine("Learning scheme inferred as : ---TRAIN-TEST---");
             TrainTestBuilder trainTestBuilder = new TrainTestBuilder(settings, sources);
             Pipeline<Sources, TrainTestResults> trainTestPipeline = pipeline.registerStart(trainTestBuilder.buildPipeline());
             trainTestPipeline.connectAfter(pipeline.registerEnd(getTestResultsPipe()));
