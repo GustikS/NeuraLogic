@@ -40,4 +40,21 @@ public class MutaFeatures {
         Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/mutag_188/folds", " -t /home/gusta/googledrive/Github/NeuraLogic/Resources/datasets/relational/molecules/mutag_188/folds/template.txt"), settings);
     }
 
+    @TestAnnotations.AdHoc
+    public void mutagenRings() throws Exception {
+
+        Settings settings = Settings.forSlowTest();
+        settings.seed = 0;
+
+        settings.setOptimizer(Settings.OptimizerSet.ADAM);
+        settings.initLearningRate = 0.0001;
+
+        settings.islearnRateDecay = false;
+
+        settings.plotProgress = 10;
+
+        Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/MDA_MB_231_ATCC", " -t /home/gusta/data/templates/molecules/rings/template_rings_bondemb.txt"), settings);
+    }
+
+
 }

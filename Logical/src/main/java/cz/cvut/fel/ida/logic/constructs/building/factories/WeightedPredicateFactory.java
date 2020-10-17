@@ -32,10 +32,10 @@ public class WeightedPredicateFactory {
         pred2pred = preds.stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
     }
 
-    public WeightedPredicate construct(String from, int arity, Boolean special) {
+    public WeightedPredicate construct(String from, int arity, Boolean special, Boolean hidden) {
         WeightedPredicate result = str2pred.get(from + "/" + arity);
         if (result == null) {
-            result = WeightedPredicate.construct(from, arity, special);
+            result = WeightedPredicate.construct(from, arity, special, hidden);
             str2pred.put(from + "/" + arity, result);
             pred2pred.put(result, result);
         }
@@ -62,6 +62,6 @@ public class WeightedPredicateFactory {
     }
 
     public WeightedPredicate construct(String name, int arity) {
-        return construct(name, arity, null);
+        return construct(name, arity, name.startsWith("@"), name.startsWith("_"));
     }
 }

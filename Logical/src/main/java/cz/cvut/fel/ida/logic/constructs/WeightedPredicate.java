@@ -39,8 +39,8 @@ public class WeightedPredicate implements Serializable {
         this.weight = weight;
     }
 
-    public static WeightedPredicate construct(String name, int arity, Boolean special) {
-        Predicate predicate = Predicate.construct(name, arity, special);
+    public static WeightedPredicate construct(String name, int arity, Boolean special, Boolean hidden) {
+        Predicate predicate = Predicate.construct(name, arity, special, hidden);
         return new WeightedPredicate(predicate, null);
     }
 

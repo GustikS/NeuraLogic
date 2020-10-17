@@ -1,6 +1,5 @@
 package cz.cvut.fel.ida.logic.parsing.grammarParsing;
 
-import org.jetbrains.annotations.NotNull;
 import cz.cvut.fel.ida.algebra.utils.metadata.Parameter;
 import cz.cvut.fel.ida.algebra.utils.metadata.ParameterValue;
 import cz.cvut.fel.ida.algebra.values.*;
@@ -19,6 +18,7 @@ import cz.cvut.fel.ida.logic.constructs.template.metadata.RuleMetadata;
 import cz.cvut.fel.ida.logic.parsing.antlr.NeuralogicBaseVisitor;
 import cz.cvut.fel.ida.logic.parsing.antlr.NeuralogicParser;
 import cz.cvut.fel.ida.utils.generic.Pair;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -187,7 +187,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
     public class FactVisitor extends NeuralogicBaseVisitor<ValuedFact> {
         public VariableFactory variableFactory;
 
-        public FactVisitor(){
+        public FactVisitor() {
             variableFactory = new VariableFactory();
         }
 
@@ -243,7 +243,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
                     LOG.severe("Cannot parse arity of a predicate from " + ctx.getText());
                 }
             }
-            WeightedPredicate predicate = builder.predicateFactory.construct(ctx.ATOMIC_NAME().getText(), arity, ctx.SPECIAL() != null);
+            WeightedPredicate predicate = builder.predicateFactory.construct(ctx.ATOMIC_NAME().getText(), arity, ctx.SPECIAL() != null, ctx.PRIVATE() != null);
 
             return predicate;
         }
@@ -347,7 +347,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             } catch (Exception ex) {
                 LOG.severe("Cannot parse arity of a predicate from " + ctx.getText());
             }
-            WeightedPredicate predicate = builder.predicateFactory.construct(ctx.predicate().ATOMIC_NAME().getText(), arity, ctx.predicate().SPECIAL() != null);
+            WeightedPredicate predicate = builder.predicateFactory.construct(ctx.predicate().ATOMIC_NAME().getText(), arity, ctx.predicate().SPECIAL() != null, ctx.predicate().PRIVATE() != null);
             Map<String, Object> metadata = ctx.metadataList().accept(new MetadataListVisitor());
             return new Pair(predicate, metadata);
         }
@@ -371,7 +371,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             } catch (Exception ex) {
                 LOG.severe("Cannot parse arity of a predicate from " + ctx.getText());
             }
-            WeightedPredicate predicate = builder.predicateFactory.construct(ctx.predicate().ATOMIC_NAME().getText(), arity, ctx.predicate().SPECIAL() != null);
+            WeightedPredicate predicate = builder.predicateFactory.construct(ctx.predicate().ATOMIC_NAME().getText(), arity, ctx.predicate().SPECIAL() != null, ctx.predicate().PRIVATE() != null);
             Weight offset = ctx.weight().accept(new WeightVisitor());
             predicate.weight = offset;
             return new Pair(predicate, offset);

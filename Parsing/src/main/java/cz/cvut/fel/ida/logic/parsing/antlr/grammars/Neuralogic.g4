@@ -32,7 +32,7 @@ term: constant | variable;
 variable: VARIABLE;
 constant: ATOMIC_NAME | INT | FLOAT;
 // on the level of the syntactic parser, predicates are indistinguishible from constants
-predicate: SPECIAL? ATOMIC_NAME (SLASH INT)?; //predicates also begin with lower-case letter!
+predicate: PRIVATE? SPECIAL? ATOMIC_NAME (SLASH INT)?; //predicates also begin with lower-case letter!
 
 conjunction: atom (COMMA atom)*;
 
@@ -87,6 +87,7 @@ TRUE: 'true';
 DOLLAR: '$';
 NEGATION: '~';
 SPECIAL: '@';
+PRIVATE: '*';
 
 fragment ALPHANUMERIC: ALPHA | DIGIT ;
 fragment ALPHA: '_' | '-' | LCASE_LETTER | UCASE_LETTER ;

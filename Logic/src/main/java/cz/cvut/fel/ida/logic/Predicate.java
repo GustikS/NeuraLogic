@@ -12,7 +12,9 @@ public class Predicate implements Serializable {
     public String name;
     public int arity;
     public boolean special;
+    public boolean hidden;
     private static CharSequence specialSign = "@";
+    private static CharSequence hiddenSign = "*";
 
     public Predicate() {
     }
@@ -41,12 +43,19 @@ public class Predicate implements Serializable {
         this.arity = literal.arity();
     }
 
-    public static Predicate construct(String name, int arity, Boolean special) {
+    public static Predicate construct(String name, int arity, Boolean special, Boolean hidden) {
         //TODO factory method with weak cache
         Predicate predicate = new Predicate();
         predicate.name = name.intern();
         predicate.arity = arity;
         predicate.special = special != null ? special : false;
+        predicate.hidden = hidden != null ? hidden : false;
+        if (predicate.special) {
+            predicate.name = specialSign + predicate.name;
+        }
+        if (predicate.hidden) {
+            predicate.name = hiddenSign + predicate.name;
+        }
         return predicate;
     }
 
@@ -68,7 +77,7 @@ public class Predicate implements Serializable {
     }
 
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return name.hashCode() * arity;
     }
 }

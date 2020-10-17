@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * Created by Gusta on 04.10.2016.
  * <p>
  */
-public class WeightedRule  implements Exportable {
+public class WeightedRule implements Exportable {
 
     /**
      * changable by structure learning?
@@ -77,13 +77,18 @@ public class WeightedRule  implements Exportable {
         Literal groundHead = head.literal.subsCopy(terms);
 
         int size = getBody().size();
-        Literal[] groundBody = new Literal[size];
+        List<Literal> groundBody = new ArrayList<>(size);
 
-        for (int i = 0; i < size; i++) {
-            groundBody[i] = getBody().get(i).literal.subsCopy(terms);
+        for (BodyAtom atom : getBody()) {
+            Literal literal = atom.literal;
+            if (!literal.predicate().special && !literal.predicate().hidden) {     //remove special and purely logical (hidden) predicates from the grounded bodies!
+                groundBody.add(literal.subsCopy(terms));
+            } else {
+//                System.out.println();
+            }
         }
 
-        GroundRule groundRule = new GroundRule(this, groundHead, groundBody);
+        GroundRule groundRule = new GroundRule(this, groundHead, groundBody.toArray(new Literal[groundBody.size()]));
 
         return groundRule;
     }
