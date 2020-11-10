@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.neural.networks.computation.iteration.modes;
 
 import cz.cvut.fel.ida.algebra.values.Value;
+import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.BottomUp;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.NeuronIterating;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.NeuronVisiting;
@@ -12,7 +13,6 @@ import cz.cvut.fel.ida.neural.networks.structure.components.NeuralNetwork;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.BaseNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.WeightedNeuron;
-import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
@@ -45,7 +45,8 @@ public class DFSstack {
                 BaseNeuron<Neurons, State.Neural> pop = (BaseNeuron<Neurons, State.Neural>) stack.pop();
                 if (pop.getComputationView(neuronVisitor.stateVisitor.stateIndex).ready4expansion(neuronVisitor.stateVisitor)) {  //we must check the parent here (i.e. this is correct) - it would not put the state on Stack when it should with the last call if checking the children forward instead
                     Iterator<Neurons> inputs = network.getInputs(pop);
-                    for (Neurons next; (next = inputs.next()) != null; ) {
+                    while (inputs.hasNext()) {
+                        Neurons next = inputs.next();
                         stack.add(next);
                     }
                     return pop;
@@ -82,7 +83,8 @@ public class DFSstack {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             Value value = stateVisitor.visit(state);
             Iterator<T> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());
-            for (T input; (input = inputs.next()) != null; ) {
+            while (inputs.hasNext()) {
+                T input = inputs.next();
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
                 computationView.storeGradient(value);
                 if (computationView.ready4expansion(stateVisitor)) {    //we can check the children in advance here since we expanded them already ourselves
@@ -103,11 +105,14 @@ public class DFSstack {
             Iterator<Weight> inputWeights = inputs.s;
             T input;
             Weight weight;
-            while ((input = inputNeurons.next()) != null && (weight = inputWeights.next()) != null) {
+            while (inputNeurons.hasNext() && inputWeights.hasNext()) {
+                input = inputNeurons.next();
+                weight = inputWeights.next();
+
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
 
-                weightUpdater.visit(weight, gradient.times(computationView.getValue()));
-                computationView.storeGradient(gradient.times(weight.value));
+                weightUpdater.visit(weight, gradient.times(computationView.getValue().transposedView()));
+                computationView.storeGradient(gradient.transposedView().times(weight.value));
 
                 if (computationView.ready4expansion(stateVisitor)) {
                     stack.push(input);
@@ -148,13 +153,14 @@ public class DFSstack {
 
         public BaseNeuron<Neurons, State.Neural> next() {
             while (!postStack.isEmpty()) {
-                Pair<Boolean, Neurons<Neurons, State.Neural>> current =  postStack.poll();
+                Pair<Boolean, Neurons<Neurons, State.Neural>> current = postStack.poll();
                 if (current.r) { //post-order = ready 4 processing
                     return (BaseNeuron<Neurons, State.Neural>) current.s; // will perform mark as visited
                 }
                 postStack.push(new Pair<>(true, current.s));
                 Iterator<Neurons> inputs = network.getInputs((BaseNeuron<Neurons, State.Neural>) current.s);
-                for (Neurons input; (input = inputs.next()) != null; ) {
+                while (inputs.hasNext()) {
+                    Neurons input = inputs.next();
                     if (!input.getComputationView(stateVisitor.stateIndex).ready4expansion(stateVisitor))   // if not yet calculated (stateVisitor = Evaluator)
                         postStack.push(new Pair<>(false, input));
                 }

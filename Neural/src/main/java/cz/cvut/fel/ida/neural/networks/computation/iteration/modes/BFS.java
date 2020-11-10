@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.neural.networks.computation.iteration.modes;
 
 import cz.cvut.fel.ida.algebra.values.Value;
+import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.NeuronIterating;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.NeuronVisiting;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.TopDown;
@@ -11,7 +12,6 @@ import cz.cvut.fel.ida.neural.networks.structure.components.NeuralNetwork;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.BaseNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.WeightedNeuron;
-import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
@@ -84,11 +84,12 @@ public class BFS {
         @Override
         public <T extends Neurons, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
-            Value value = stateVisitor.visit(state);
+            Value gradient = stateVisitor.visit(state);
             Iterator<T> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());
-            for (T input; (input = inputs.next()) != null; ) {
+            while (inputs.hasNext()) {
+                T input = inputs.next();
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
-                computationView.storeGradient(value);
+                computationView.storeGradient(gradient);
                 if (computationView.ready4expansion(stateVisitor)) {    //we can check the children in advance here since we expanded them already ourselves
                     queue.add(input);
                 }
@@ -107,13 +108,18 @@ public class BFS {
             Iterator<Weight> inputWeights = inputs.s;
             T input;
             Weight weight;
-            while ((input = inputNeurons.next()) != null && (weight = inputWeights.next()) != null) {
-                State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
+            while (inputNeurons.hasNext() && inputWeights.hasNext()) {
+                input = inputNeurons.next();
+                weight = inputWeights.next();
 
-                weightUpdater.visit(weight, gradient.times(computationView.getValue()));
-                computationView.storeGradient(gradient.times(weight.value));
+                State.Neural.Computation inputComputationView = input.getComputationView(stateVisitor.stateIndex);
 
-                if (computationView.ready4expansion(stateVisitor)) {
+                Value transpInputValue = inputComputationView.getValue().transposedView();
+
+                weightUpdater.visit(weight, gradient.times(transpInputValue));
+                inputComputationView.storeGradient(gradient.transposedView().times(weight.value));
+
+                if (inputComputationView.ready4expansion(stateVisitor)) {
                     queue.add(input);
                 }
             }

@@ -130,6 +130,10 @@ public class NeuralNetwork<N extends State.Neural.Structure> implements Example 
     }
 
     public <T extends Neurons, S extends State.Neural> Pair<Iterator<T>, Iterator<Weight>> getInputs(WeightedNeuron<T, S> neuron, int[] inputMask) {
+        if (inputMask == null){
+            return getInputs(neuron);
+        }
+
         ArrayList<T> inputs;
         ArrayList<Weight> weights;
 
@@ -159,6 +163,10 @@ public class NeuralNetwork<N extends State.Neural.Structure> implements Example 
     }
 
     public <T extends Neurons, S extends State.Neural> Iterator<T> getInputs(BaseNeuron<T, S> neuron, int[] inputMask) {
+        if (inputMask == null){
+            return getInputs(neuron);
+        }
+
         ArrayList<T> inputs;
 
         if (neuron.isShared) {

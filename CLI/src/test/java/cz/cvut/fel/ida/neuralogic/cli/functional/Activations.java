@@ -38,4 +38,18 @@ public class Activations {
 
         Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/mutagenesis", "-t ./templates/template_product.txt"), settings);
     }
+
+    @TestAnnotations.Medium
+    public void max() throws Exception {
+
+        Settings settings = Settings.forSlowTest();
+
+        settings.aggNeuronActivation = Settings.AggregationFcn.MAX;
+
+//        settings.iterationMode = Settings.IterationMode.BFS;
+//        settings.iterationMode = Settings.IterationMode.DFS_STACK;
+//        settings.iterationMode = Settings.IterationMode.DFS_RECURSIVE;
+
+        Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/mutagenesis", "-t ./templates/template_gnn.txt"), settings);
+    }
 }
