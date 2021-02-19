@@ -142,7 +142,6 @@ public class End2endTrainigBuilder extends AbstractPipelineBuilder<Sources, Pair
             return serializationPipe.get();
         }
 
-
         public ConnectAfter<Template> getTemplate() {
             return templateDuplicateBranch.output2;
         }

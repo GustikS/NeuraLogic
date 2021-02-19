@@ -3,7 +3,6 @@ package cz.cvut.fel.ida.neuralogic.cli.datasets.relational.kbs;
 import cz.cvut.fel.ida.neuralogic.cli.Main;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.generic.TestAnnotations;
-import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.RunnerException;
 
@@ -33,7 +32,7 @@ public class Nations {
         assertSmallRuntimeDeviation(runResults, referenceTime, maxDeviation);
     }
 
-    @Benchmark
+//    @Benchmark
     public void basicKBC() throws Exception {
         Settings settings = Settings.forSlowTest();
         settings.resultsRecalculationEpochae = 10;

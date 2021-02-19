@@ -31,7 +31,7 @@ public class UMLS {
     @TestAnnotations.Slow
     public void distmult() throws Exception {
         Settings settings = Settings.forSlowTest();
-        settings.maxCumEpochCount = 20;
+        settings.maxCumEpochCount = 50;
         Main.main(getDatasetArgs(dataset,"-t ./templates/distmult.txt"), settings);
     }
 

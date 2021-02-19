@@ -53,9 +53,9 @@ public class Predicate implements Serializable {
         if (predicate.special) {
             predicate.name = specialSign + predicate.name;
         }
-        if (predicate.hidden) {
-            predicate.name = hiddenSign + predicate.name;
-        }
+//        if (predicate.hidden) {
+//            predicate.name = hiddenSign + predicate.name; // wrong! the grounder understands specialSign but not hiddenSign!
+//        }
         return predicate;
     }
 

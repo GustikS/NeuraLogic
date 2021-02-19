@@ -12,6 +12,8 @@ import cz.cvut.fel.ida.utils.generic.Utilities;
 import java.time.Duration;
 import java.util.logging.Logger;
 
+import static cz.cvut.fel.ida.utils.generic.Utilities.splitArgs;
+
 public class Mutagenesis {
     private static final Logger LOG = Logger.getLogger(Mutagenesis.class.getName());
 
@@ -114,5 +116,18 @@ public class Mutagenesis {
         Settings settings = Settings.forFastTest();
 
         Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/mutagenesis", "-t ./templates/template_gnn.txt"), settings);
+    }
+
+    @TestAnnotations.AdHoc
+    public void mergedExamples() throws Exception {
+        Settings settings = Settings.forSlowTest();
+        Pair<Pipeline, ?> results = Main.main(splitArgs("-e ../Resources/datasets/relational/molecules/mutagenesis/examples_merged.txt -q ../Resources/datasets/relational/molecules/mutagenesis/query_merged.txt  -t ../Resources/datasets/relational/molecules/mutagenesis/templates/template_gnn.txt"), settings);
+    }
+
+    @TestAnnotations.AdHoc
+    public void noBonds() throws Exception {
+        Settings settings = Settings.forSlowTest();
+//        settings.isoValueCompression = false;
+        Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/mutagenesis", "-t ./templates/template_nobonds.txt"), settings);
     }
 }

@@ -39,4 +39,11 @@ public class Kinships {
         settings.appLimitSamples = -1;
         Main.main(getDatasetArgs(dataset), settings);
     }
+
+    @TestAnnotations.Slow
+    public void defaultRun() throws Exception {
+        Settings settings = Settings.forSlowTest();
+        settings.maxCumEpochCount = 50;
+        Main.main(getDatasetArgs(dataset,"-t ./templates/template.txt"), settings);
+    }
 }
