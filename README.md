@@ -5,7 +5,7 @@
 [![GitHub top language](https://img.shields.io/github/languages/top/gustiks/neuralogic)](https://adoptopenjdk.net/index.html?variant=openjdk8&jvmVariant=hotspot)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/gustiks/neuralogic)
 
-_NeuraLogic is a framework for combining **relational** and **deep** learning through a form of **differentiable logic programming**. It is an official implementation of the **[Lifted Relational Neural Networks](#papers)** concept._
+_NeuraLogic is a framework for combining **relational** and **deep** learning through a form of **differentiable logic programming**. It is an official implementation of the **[Lifted Relational Neural Networks](https://jair.org/index.php/jair/article/view/11203)** concept._
 
 
 ---
@@ -20,15 +20,16 @@ At the core there is a custom [language](./Parsing/src/main/java/cz/cvut/fel/ida
 1. a set of rules applicable in your domain (and their learnable parameters `W`)
     - i.e. the generic knowledge/bias which you want to use. It does not have to be explicit.
         - this is how you can encode diverse deep learning models, but also relational background knowledge and other constructs.
+        - these rules will be used to (automatically) link the inputs to the outputs
     - e.g. `0.99 covalent(B) :- oxygen(X), hydrogen(Y), bond(X,Y,B).` or just `embed(X) :- W_1 embed(Y), bond(X,Y,_).`
 
 ### Example
 Consider a simple program for learning with molecular data<sup>[1](#myfootnote1)</sup>, encoding a generic idea that some hidden representation (predicate `h(.)`) of any chemical atom (variable `X`) is somewhat dependent on the other atoms (`a(Y)`) adjacent to it (`b(X,Y)`), with a parameterized rule as:
-`````prolog
+`````
 W_h1 h(X) :- W_a a(Y), W_b b(X,Y).
 `````
 Additionally, let's assume that representation of a molecule (`q`) follows from representations of all the contained atoms (`h(X)`), i.e.:
-```prolog
+```
 W_q q :- W_h2 h(X).
 ```
 These 2 rules, parameterized with the tensors `W_*`'s, then form a learning program, which can be directly used to classify molecules. Actually, it directly encodes a popular idea known as [Graph Neural Networks](https://arxiv.org/pdf/1901.00596.pdf).
