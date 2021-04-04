@@ -90,6 +90,9 @@ public class End2endTrainigBuilder extends AbstractPipelineBuilder<Sources, Pair
         return new TrainingResultTemplateMerge();
     }
 
+    public End2endNNBuilder getEnd2endNNBuilder() {
+        return new End2endNNBuilder();
+    }
 
     /**
      * Helper class to delegate NN building
