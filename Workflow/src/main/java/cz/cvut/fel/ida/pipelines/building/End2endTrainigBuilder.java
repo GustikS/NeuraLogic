@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.pipelines.building;
 import cz.cvut.fel.ida.logic.constructs.building.factories.WeightFactory;
 import cz.cvut.fel.ida.logic.constructs.example.LogicSample;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
+import cz.cvut.fel.ida.pipelines.pipes.generic.LambdaPipe;
 import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.logic.grounding.GroundingSample;
 import cz.cvut.fel.ida.learning.results.Progress;
@@ -103,6 +104,41 @@ public class End2endTrainigBuilder extends AbstractPipelineBuilder<Sources, Pair
 
         public End2endNNBuilder() {
             super(End2endTrainigBuilder.this.settings);
+        }
+
+        public Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> buildPipeline(Template template, Stream<LogicSample> logicSamples) {
+            Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> pipeline = new Pipeline<>("End2EndNNbuilding", this);
+
+            //simple pipes
+            FirstFromPairExtractionBranch<Template, Stream<LogicSample>> templateSamplesBranch = pipeline.register(new FirstFromPairExtractionBranch<>());
+            templateDuplicateBranch = pipeline.register(new DuplicateBranch<>());
+
+            //to transfer parameters from groundings to neural nets
+            WeightFactory weightFactory = new WeightFactory();
+
+            //pipelines
+            LambdaPipe<Sources, Pair<Template, Stream<LogicSample>>> templateIdentityPipe = pipeline.registerStart(
+                    new LambdaPipe<>("TemplateIdentityPipe", s -> new Pair<>(template, logicSamples), settings)
+            );
+
+            Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> groundingPipeline = pipeline.register(buildGrounding(settings, weightFactory));
+            Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> neuralizationPipeline = pipeline.register(buildNeuralNets(settings, weightFactory));
+
+            //connecting the execution graph
+            templateIdentityPipe.connectAfter(templateSamplesBranch);
+            templateSamplesBranch.connectAfterL(groundingPipeline).connectAfter(neuralizationPipeline);
+            templateSamplesBranch.connectAfterR(templateDuplicateBranch);
+
+            PairMerge<NeuralModel, Stream<NeuralSample>> neuralMerge = pipeline.registerEnd(new PairMerge<>());
+
+            //prepare for training
+            Pipe<Template, NeuralModel> template2NeuralModelPipe = pipeline.register(convertModel());
+            templateDuplicateBranch.connectAfterL(template2NeuralModelPipe);
+
+            neuralMerge.connectBeforeL(template2NeuralModelPipe);
+            neuralMerge.connectBeforeR(neuralizationPipeline);
+
+            return pipeline;
         }
 
         @Override
