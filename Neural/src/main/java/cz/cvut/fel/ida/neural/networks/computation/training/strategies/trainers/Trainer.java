@@ -66,11 +66,11 @@ public class Trainer implements Exportable {
         invalidation.process(neuralSample.query.evidence, neuralSample.query.neuron);
     }
 
-    Result evaluateSample(Evaluation evaluation, NeuralSample neuralSample) {
+    public Result evaluateSample(Evaluation evaluation, NeuralSample neuralSample) {
         return evaluation.evaluate(neuralSample);
     }
 
-    WeightUpdater backpropSample(Backpropagation backpropagation, Result evaluatedResult, NeuralSample neuralSample) {
+    public WeightUpdater backpropSample(Backpropagation backpropagation, Result evaluatedResult, NeuralSample neuralSample) {
         return backpropagation.backpropagate(neuralSample, evaluatedResult);
     }
 
@@ -80,7 +80,7 @@ public class Trainer implements Exportable {
      * @param model
      * @param weightUpdater
      */
-    synchronized void updateWeights(NeuralModel model, WeightUpdater weightUpdater) {
+    synchronized public void updateWeights(NeuralModel model, WeightUpdater weightUpdater) {
         optimizer.performGradientStep(model, weightUpdater, ++iterationNumber);
     }
 

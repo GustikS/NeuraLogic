@@ -46,6 +46,22 @@ public class SequentialTrainer extends Trainer {
     protected SequentialTrainer() {
     }
 
+    public IndependentNeuronProcessing getDropout() {
+        return dropout;
+    }
+
+    public IndependentNeuronProcessing getInvalidation() {
+        return invalidation;
+    }
+
+    public Evaluation getEvaluation() {
+        return evaluation;
+    }
+
+    public Backpropagation getBackpropagation() {
+        return backpropagation;
+    }
+
     public class SequentialListTrainer implements ListTrainer {
 
         @Override
