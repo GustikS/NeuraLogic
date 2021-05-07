@@ -106,41 +106,6 @@ public class End2endTrainigBuilder extends AbstractPipelineBuilder<Sources, Pair
             super(End2endTrainigBuilder.this.settings);
         }
 
-        public Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> buildPipeline(Template template, Stream<LogicSample> logicSamples) {
-            Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> pipeline = new Pipeline<>("End2EndNNbuilding", this);
-
-            //simple pipes
-            FirstFromPairExtractionBranch<Template, Stream<LogicSample>> templateSamplesBranch = pipeline.register(new FirstFromPairExtractionBranch<>());
-            templateDuplicateBranch = pipeline.register(new DuplicateBranch<>());
-
-            //to transfer parameters from groundings to neural nets
-            WeightFactory weightFactory = new WeightFactory();
-
-            //pipelines
-            LambdaPipe<Sources, Pair<Template, Stream<LogicSample>>> templateIdentityPipe = pipeline.registerStart(
-                    new LambdaPipe<>("TemplateIdentityPipe", s -> new Pair<>(template, logicSamples), settings)
-            );
-
-            Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> groundingPipeline = pipeline.register(buildGrounding(settings, weightFactory));
-            Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> neuralizationPipeline = pipeline.register(buildNeuralNets(settings, weightFactory));
-
-            //connecting the execution graph
-            templateIdentityPipe.connectAfter(templateSamplesBranch);
-            templateSamplesBranch.connectAfterL(groundingPipeline).connectAfter(neuralizationPipeline);
-            templateSamplesBranch.connectAfterR(templateDuplicateBranch);
-
-            PairMerge<NeuralModel, Stream<NeuralSample>> neuralMerge = pipeline.registerEnd(new PairMerge<>());
-
-            //prepare for training
-            Pipe<Template, NeuralModel> template2NeuralModelPipe = pipeline.register(convertModel());
-            templateDuplicateBranch.connectAfterL(template2NeuralModelPipe);
-
-            neuralMerge.connectBeforeL(template2NeuralModelPipe);
-            neuralMerge.connectBeforeR(neuralizationPipeline);
-
-            return pipeline;
-        }
-
         @Override
         public Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> buildPipeline() {
             Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> pipeline = new Pipeline<>("End2EndNNbuilding", this);

@@ -23,10 +23,16 @@ import java.util.stream.Stream;
 public class TemplateSamplesBuilder extends AbstractPipelineBuilder<Sources, Pair<Template, Stream<LogicSample>>> {
     private static final Logger LOG = Logger.getLogger(TemplateSamplesBuilder.class.getName());
     private Sources sources;
+    private Template template;
 
     public TemplateSamplesBuilder(Sources sources, Settings settings) {
         super(settings);
         this.sources = sources;
+    }
+
+    public TemplateSamplesBuilder(Sources sources, Settings settings, Template template) {
+        this(sources, settings);
+        this.template = template;
     }
 
     public Pipeline<Sources, Pair<Template, Stream<LogicSample>>> buildPipeline() {
@@ -57,12 +63,19 @@ public class TemplateSamplesBuilder extends AbstractPipelineBuilder<Sources, Pai
 
         DuplicateBranch<Sources> duplicateBranch = pipeline.registerStart(new DuplicateBranch<>("DuplicateSourcesBranch"));
 
-        Pipeline<Sources, Template> sourcesTemplatePipeline = pipeline.register(getSourcesTemplatePipeline(sources, settings));
-
         PairMerge<Template, Stream<LogicSample>> pairMerge = pipeline.registerEnd(new PairMerge<>("TemplateSamplesMerge"));
 
-        duplicateBranch.connectAfterR(sourcesTemplatePipeline);
-        pairMerge.connectBeforeL(sourcesTemplatePipeline);
+        if (this.template == null) {
+            Pipeline<Sources, Template> sourcesTemplatePipeline = pipeline.register(getSourcesTemplatePipeline(sources, settings));
+            duplicateBranch.connectAfterR(sourcesTemplatePipeline);
+            pairMerge.connectBeforeL(sourcesTemplatePipeline);
+        } else {
+            LambdaPipe<Sources, Template> sourcesTemplatePipeline = pipeline.register(
+                    new LambdaPipe<>("TemplateIdentityPipe", s -> this.template, settings)
+            );
+            duplicateBranch.connectAfterR(sourcesTemplatePipeline);
+            pairMerge.connectBeforeL(sourcesTemplatePipeline);
+        }
 
         if (sources.val != null && (sources.val.QueriesProvided || sources.val.ExamplesProvided)) {  //merge the training samples with validation samples while marking the validation samples as ValidationOnly
             DuplicateBranch<Sources> trainValSamplesBranch = pipeline.register(new DuplicateBranch<>("TrainValSamplesBranch"));
