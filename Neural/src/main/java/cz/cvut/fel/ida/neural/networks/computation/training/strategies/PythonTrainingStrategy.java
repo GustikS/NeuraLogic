@@ -5,6 +5,9 @@ import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
 import cz.cvut.fel.ida.learning.results.Progress;
 import cz.cvut.fel.ida.learning.results.Result;
+import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.Evaluation;
+import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.PythonEvaluation;
+import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.PythonHookHandler;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.weights.WeightUpdater;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
@@ -16,9 +19,11 @@ import cz.cvut.fel.ida.utils.exporting.Exporter;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.List;
+import java.util.Set;
 
 
 public class PythonTrainingStrategy extends TrainingStrategy {
+
     transient List<NeuralSample> samplesSet;
 
     transient SequentialTrainer trainer;
@@ -27,12 +32,22 @@ public class PythonTrainingStrategy extends TrainingStrategy {
 
     ValueInitializer valueInitializer;
 
+    PythonEvaluation evaluation;
+
     public PythonTrainingStrategy(Settings settings, NeuralModel model) {
         super(settings, model);
 
         this.trainer = new SequentialTrainer(settings, Optimizer.getFrom(settings, learningRate), currentModel);
         this.listTrainer = this.trainer.new SequentialListTrainer();
         this.valueInitializer = ValueInitializer.getInitializer(settings);
+
+        evaluation = new PythonEvaluation(settings, -1);
+        this.trainer.setEvaluation(evaluation);
+    }
+
+    public void setHooks(Set<String> hooks, PythonHookHandler callback) {
+        evaluation.hooks = hooks;
+        evaluation.hookHandler = callback;
     }
 
     public void setSamples(List<NeuralSample> samples) {

@@ -58,6 +58,10 @@ public class SequentialTrainer extends Trainer {
         return evaluation;
     }
 
+    public void setEvaluation(Evaluation evaluation) {
+        this.evaluation = evaluation;
+    }
+
     public Backpropagation getBackpropagation() {
         return backpropagation;
     }
