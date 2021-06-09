@@ -76,7 +76,17 @@ public abstract class Drawer<S> {   //todo next replace hashcodes (which collide
         }
     }
 
-    public byte[] drawForPython(S obj, String path) throws IOException, InterruptedException {
+    public byte[] drawIntoFile(S obj, String path) {
+        byte[] image = this.drawIntoBytes(obj);
+
+        File file = new File(path);
+        file.getParentFile().mkdirs();
+        graphviz.writeImageToFile(image, file);
+
+        return null;
+    }
+
+    public byte[] drawIntoBytes(S obj) {
         if (this.graphviz == null) {
             this.graphviz = new GraphViz(this.settings);
         }
@@ -84,18 +94,18 @@ public abstract class Drawer<S> {   //todo next replace hashcodes (which collide
         this.graphviz.clearGraph();
         loadGraph(obj);
 
-        byte[] image = graphviz.getGraphUsingTemporaryFile(graphviz.getDotSource(), graphviz.imgtype, graphviz.algorithm);
-        if (path == null) {
-            return image;
+        return graphviz.getGraphUsingTemporaryFile(graphviz.getDotSource(), graphviz.imgtype, graphviz.algorithm);
+    }
+
+    public String getGraphSource(S obj) {
+        if (this.graphviz == null) {
+            this.graphviz = new GraphViz(this.settings);
         }
 
-        File file = new File(path);
-        file.getParentFile().mkdirs();
+        this.graphviz.clearGraph();
+        loadGraph(obj);
 
-        graphviz.writeImageToFile(image, file);
-
-        LOG.info("Graph stored into file named: " + path);
-        return null;
+        return this.graphviz.getDotSource();
     }
 
     public abstract void loadGraph(S obj);  //todo add indentation into the dot file
