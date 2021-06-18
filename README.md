@@ -74,7 +74,7 @@ The framework is mostly optimized for quick, high-level prototyping of learning 
 ##### Requirements
 
 - Java ≥ 1.8 
-    - [continuously tested](https://github.com/GustikS/NeuraLogic/actions/runs/163881867) with JDK 1.8 on the latest Ubuntu, Windows and macOS
+    - [continuously tested](https://github.com/GustikS/NeuraLogic/actions) with JDK 1.8 on the latest Ubuntu, Windows and macOS
     - if you don't have Java in your system already, get it either from [Oracle](https://www.oracle.com/java/technologies/javase-jre8-downloads.html) or [OpenJDK](https://adoptopenjdk.net/index.html?variant=openjdk8&jvmVariant=hotspot)
         - both OpenJDK (v1.8.0_222) and Oracle JDK (v1.8.0_151) will do
             - for usage, it is enough to get the runtime environment (JRE)
@@ -180,7 +180,7 @@ The project follows the standard [Maven structure](https://maven.apache.org/guid
 - Migrating structure learning module from the previous version
 
 ### Disclaimer
-This is a second generation of the framework<sup>[3](#myfootnote2)</sup>, but it is still work in (very slow) progress.
+This is a second generation of the framework<sup>[3](#myfootnote3)</sup>, but it is still work in (very slow) progress.
 The framework is meant for academic purposes, developed at [Intelligent Data Analysis lab](https://ida.fel.cvut.cz/) at Czech Technical University in Prague.
 In case of any questions or anything interesting, feel free to contact me at *souregus@gmail.com*, but please do not expect any sort of professional software support. If you are looking for something more conservative and user friendly, consider [PyG](https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html) or [DGL](https://www.dgl.ai/pages/start.html) for the graph-based learning use cases.
 
