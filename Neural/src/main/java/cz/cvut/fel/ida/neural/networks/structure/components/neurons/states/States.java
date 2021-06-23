@@ -50,6 +50,11 @@ public abstract class States implements State {
             return aggregation;
         }
 
+        @Override
+        public void setAggregation(Aggregation aggregation) {
+            this.aggregation = aggregation;
+        }
+
         public Value accept(StateVisiting.Computation visitor) {
             return states[visitor.stateIndex].accept(visitor);
         }
@@ -89,6 +94,11 @@ public abstract class States implements State {
         @Override
         public Aggregation getAggregation() {
             return aggregationState.getAggregation();
+        }
+
+        @Override
+        public void setAggregation(Aggregation aggregation) {
+            this.aggregationState.setAggregation(aggregation);
         }
 
         @Override
@@ -410,6 +420,11 @@ public abstract class States implements State {
         public Aggregation getAggregation() {
             LOG.warning("FactNeurons have no aggregation.");
             return null;
+        }
+
+        @Override
+        public void setAggregation(Aggregation aggregation) {
+            LOG.warning("FactNeurons have no aggregation.");
         }
     }
 

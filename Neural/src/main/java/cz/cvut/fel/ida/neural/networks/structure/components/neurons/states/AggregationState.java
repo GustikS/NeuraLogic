@@ -24,6 +24,8 @@ public abstract class AggregationState implements Aggregation.State {
 
     public abstract Aggregation getAggregation();
 
+    public abstract void setAggregation(Aggregation act);
+
     public abstract void setupValueDimensions(Value value);
 
     /**
@@ -69,6 +71,11 @@ public abstract class AggregationState implements Aggregation.State {
         @Override
         public Activation getAggregation() {
             return activation;
+        }
+
+        @Override
+        public void setAggregation(Aggregation act) {
+            this.activation = (Activation) act;
         }
 
         @Override
@@ -124,6 +131,11 @@ public abstract class AggregationState implements Aggregation.State {
         }
 
         @Override
+        public void setAggregation(Aggregation act) {
+            this.activation = (Activation) act;
+        }
+
+        @Override
         public void setupValueDimensions(Value value) {
             this.multipliedInputs = value.getForm();
         }
@@ -142,6 +154,11 @@ public abstract class AggregationState implements Aggregation.State {
         @Override
         public Aggregation getAggregation() {
             return aggregation;
+        }
+
+        @Override
+        public void setAggregation(Aggregation act) {
+            this.aggregation = act;
         }
 
         public static class Max extends Pooling {
@@ -344,6 +361,11 @@ public abstract class AggregationState implements Aggregation.State {
         @Override
         public Aggregation getAggregation() {
             return aggregation;
+        }
+
+        @Override
+        public void setAggregation(Aggregation act) {
+            this.aggregation = act;
         }
 
         @Override

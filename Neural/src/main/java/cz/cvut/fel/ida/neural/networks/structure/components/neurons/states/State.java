@@ -85,6 +85,8 @@ public interface State<V> extends Exportable {
         @NotNull
         Aggregation getAggregation();
 
+        void setAggregation(Aggregation aggregation);
+
         /**
          * Stateful values held by a Neuron for use during neural computation, i.e. Evaluation and Backpropagation
          */

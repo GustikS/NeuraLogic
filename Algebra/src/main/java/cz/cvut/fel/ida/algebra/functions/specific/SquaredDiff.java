@@ -11,7 +11,7 @@ public class SquaredDiff implements ErrorFcn {
 
     static Value oneHalf = new ScalarValue(0.5);
 
-    static SquaredDiff singleton = new SquaredDiff();
+    public static SquaredDiff singleton = new SquaredDiff();
 
     @Override
     public Value evaluate(Value output, Value target) {
