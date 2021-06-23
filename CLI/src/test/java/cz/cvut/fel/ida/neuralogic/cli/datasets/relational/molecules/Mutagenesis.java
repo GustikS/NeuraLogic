@@ -128,6 +128,6 @@ public class Mutagenesis {
     public void noBonds() throws Exception {
         Settings settings = Settings.forSlowTest();
 //        settings.isoValueCompression = false;
-        Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/mutagenesis", "-t ./templates/template_nobonds.txt"), settings);
+        Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/mutagenesis", "-t ./templates/template_nobonds"), settings);
     }
 }
