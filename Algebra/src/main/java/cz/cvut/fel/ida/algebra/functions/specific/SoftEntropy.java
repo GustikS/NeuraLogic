@@ -10,6 +10,9 @@ import java.util.logging.Logger;
 /**
  * A merge of Softmax + Crossentropy functions
  * - has better numerical properties (and is faster)
+ * todo now add LogSumExp trick here for numeric stability
+ * <p>
+ * https://peterroelants.github.io/posts/cross-entropy-softmax/
  */
 public class SoftEntropy implements ErrorFcn {
     private static final Logger LOG = Logger.getLogger(SoftEntropy.class.getName());
@@ -22,6 +25,7 @@ public class SoftEntropy implements ErrorFcn {
 
     @Override
     public Value evaluate(Value logit, Value target) {
+        //softmax
         if (logit instanceof ScalarValue) {    // binary case
             double logitVal = ((ScalarValue) logit).value;
             double z;
@@ -35,17 +39,10 @@ public class SoftEntropy implements ErrorFcn {
             double[] logitV = ((VectorValue) logit).values;
             double[] targetV = ((VectorValue) target).values;
 
-            double expsum = 0;
-            double[] exps = new double[logitV.length];      //todo now add LogSumExp trick here for numeric stability
-            for (int i = 0; i < logitV.length; i++) {
-                double exp = Math.exp(logitV[i]);
-                exps[i] = exp;
-                expsum += exp;
-            }
-            for (int i = 0; i < exps.length; i++) {
-                exps[i] /= expsum;
-            }
+            double[] exps = softmax(logitV);
+
             double err = 0;
+            //xent
             for (int i = 0; i < targetV.length; i++) {
                 err -= targetV[i] * Math.log(exps[i]);
             }
@@ -54,25 +51,35 @@ public class SoftEntropy implements ErrorFcn {
     }
 
     @Override
-    public Value differentiate(Value logit, Value target) {    //assuming 0/1 target!
+    public Value differentiate(Value logit, Value target) {    //assuming 0/1 encoded targets!
         if (target instanceof ScalarValue) {    // binary crossentropy
-            double logitVal = ((ScalarValue) logit).value;
-            double diff;
-            if (target.greaterThan(oneHalf)) {
-                diff = 1 - logitVal;
-            } else {
-                diff = -logitVal;
-            }
-            return new ScalarValue(diff);
+            return target.minus(logit.apply(Sigmoid.logist));
         } else {
             VectorValue outputV = (VectorValue) logit;
             VectorValue targetV = (VectorValue) target;
+
+            double[] exps = softmax(outputV.values);
+
             double[] grad = new double[outputV.values.length];
             for (int i = 0; i < outputV.values.length; i++) {
-                grad[i] = targetV.values[i] - outputV.values[i];   // nice simplification w.r.t. separate softmax+Xent
+                grad[i] = targetV.values[i] - exps[i];   // nice simplification w.r.t. separate softmax+Xent
             }
             return new VectorValue(grad);
         }
+    }
+
+    private double[] softmax(double[] input) {
+        double expsum = 0;
+        double[] exps = new double[input.length];
+        for (int i = 0; i < input.length; i++) {
+            double exp = Math.exp(input[i]);
+            exps[i] = exp;
+            expsum += exp;
+        }
+        for (int i = 0; i < exps.length; i++) {
+            exps[i] /= expsum;
+        }
+        return exps;
     }
 
     @Override

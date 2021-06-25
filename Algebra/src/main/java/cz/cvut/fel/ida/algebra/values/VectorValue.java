@@ -528,7 +528,7 @@ public class VectorValue extends Value {
      */
     @Override
     public Value minus(Value value) {
-        return null;
+        return value.minus(this);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package cz.cvut.fel.ida.algebra.functions;
 
+import cz.cvut.fel.ida.algebra.values.MatrixValue;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.VectorValue;
@@ -29,8 +30,8 @@ public class Sparsemax extends Softmax {
     @Override
     public Value differentiate(List<Value> inputs) {
         double[] exps = getProbabilities(inputs);
-        double[] diffs = getGradient(exps);
-        VectorValue output = new VectorValue(diffs);
+        double[][] diffs = getGradient(exps);
+        MatrixValue output = new MatrixValue(diffs);
         return output;
     }
 
@@ -68,7 +69,7 @@ public class Sparsemax extends Softmax {
     }
 
     public double[] getProbabilities(List<Value> inputs) {
-        if (inputs.size()==1 && inputs.get(0) instanceof VectorValue){
+        if (inputs.size() == 1 && inputs.get(0) instanceof VectorValue) {
             return getProbabilities(((VectorValue) inputs.get(0)).values);
         }
 
@@ -80,21 +81,27 @@ public class Sparsemax extends Softmax {
         return getProbabilities(z_values);
     }
 
-    public double[] getGradient(double[] exps) {
+    /**
+     * todo test this actually (untested)
+     *
+     * @param exps
+     * @return
+     */
+    public double[][] getGradient(double[] exps) {
         int support = 0;
         for (int i = 0; i < exps.length; i++) {
             if (exps[i] > 0) support++;
         }
-        double[] diffs = new double[exps.length];
+        double[][] diffs = new double[exps.length][exps.length];
         for (int i = 0; i < exps.length; i++) {
             if (exps[i] == 0) continue;
             for (int j = 0; j < diffs.length; j++) {
                 if (exps[j] == 0) continue;
 
                 if (i == j) {
-                    diffs[j] += 1 - 1.0 / support;
+                    diffs[i][j] = 1 - 1.0 / support;
                 } else {
-                    diffs[j] -= 1.0 / support;
+                    diffs[i][j] = -1.0 / support;
                 }
             }
         }

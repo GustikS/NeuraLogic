@@ -19,6 +19,15 @@ public class NeuralProcessingSample extends NeuralSample {
     public NeuralProcessingSample(Value v, QueryNeuron q, Split type, Settings settings) {
         super(v, q, type);
 
+        // if a non-scalar target value is detected, switch the whole evaluation to basic (non-binary) classification results
+        if (!(v instanceof ScalarValue)) {
+            if (settings.trainOnlineResultsType == Settings.ResultsType.CLASSIFICATION) {
+                settings.trainRecalculationResultsType = Settings.ResultsType.CLASSIFICATION;
+                settings.validationResultsType = Settings.ResultsType.CLASSIFICATION;
+                settings.testResultsType = Settings.ResultsType.CLASSIFICATION;
+            }
+        }
+
         if (settings.inferOutputNeuronFcn) {
             if (settings.trainOnlineResultsType == Settings.ResultsType.CLASSIFICATION) {
                 if (!settings.squishLastLayer) {
@@ -27,6 +36,7 @@ public class NeuralProcessingSample extends NeuralSample {
                     } else if (v instanceof ScalarValue) {
                         q.neuron.getRawState().setAggregation(Activation.Singletons.sigmoid);
                     }
+                    settings.errorFunction = Settings.ErrorFcn.CROSSENTROPY;
                 } else {
                     if (v instanceof VectorValue) {
                         q.neuron.getRawState().setAggregation(Activation.Singletons.identity);

@@ -74,6 +74,7 @@ public abstract class Results implements Exportable<Results> {
         }
 
         StringBuilder sb = new StringBuilder();
+        sb.append("\n");
         for (Result evaluation : evaluations) {
             sb.append(evaluation.sampleId);
             sb.append(" , output: " + evaluation.getOutput().toDetailedString());

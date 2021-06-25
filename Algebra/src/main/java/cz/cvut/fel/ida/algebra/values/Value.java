@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.algebra.values;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -164,6 +165,7 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
 
     /**
      * ELEMENT-wise division - CONSTRUCTIVE
+     *
      * @param value
      * @return
      */
@@ -272,6 +274,22 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
         } else {
             return 0;   // this also covers mixed cases such as ScalarValue <=all=> values in VectorValue
         }
+    }
+
+    public int getMaxInd() {
+        Iterator<Double> iterator = iterator();
+        double max = Double.NEGATIVE_INFINITY;
+        int maxInd = -1;
+        int i = 0;
+        while (iterator.hasNext()) {
+            Double next = iterator.next();
+            if (next > max) {
+                maxInd = i; //get the index of the target class (assuming one-hot encoding)
+                max = next;
+            }
+            i++;
+        }
+        return maxInd;
     }
 
     //----------todo consider replacing these constant classes with simple ScalarValue(0/1), the speedup might be small.

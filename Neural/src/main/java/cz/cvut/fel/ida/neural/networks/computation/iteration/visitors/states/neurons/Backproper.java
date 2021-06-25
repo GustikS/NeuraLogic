@@ -49,11 +49,16 @@ public class Backproper extends StateVisiting.Computation {
     @Override
     public Value visit(State.Neural.Computation state) {
         Value acumGradient = state.getGradient(); //top-down accumulation //todo test add check if non-zero and cut otherwise?
-        Value inputDerivative = state.getAggregationState().gradient(); //bottom-up accumulation
+        Value inputFcnDerivative = state.getAggregationState().gradient(); //bottom-up accumulation
 
-        Value currentLevelDerivative = acumGradient.elementTimes(inputDerivative);  //elementTimes here!
+        Value currentLevelDerivative;
+        if (acumGradient.getClass().equals(inputFcnDerivative.getClass())) {
+            currentLevelDerivative = acumGradient.elementTimes(inputFcnDerivative);  //elementTimes here - since the fcn to be differentiated was applied element-wise on a vector
+        } else {
+            currentLevelDerivative = acumGradient.transposedView().times(inputFcnDerivative);  //times here - since the fcn was a complex vector function (e.g. softmax) and has a matrix derivative (Jacobian)
+        }
+
         //there is no setting (remembering) of the calculated gradient (as opposed to output, which is reused), it is just returned
         return currentLevelDerivative;
     }
-
 }

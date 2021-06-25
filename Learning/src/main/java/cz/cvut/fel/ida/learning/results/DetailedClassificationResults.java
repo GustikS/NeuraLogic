@@ -53,6 +53,11 @@ public class DetailedClassificationResults extends ClassificationResults {  //to
     }
 
     public boolean computeDetailedStats(List<Result> evaluations) {
+        if (!(evaluations.get(0).getTarget() instanceof ScalarValue)) {
+            LOG.finer("Cannot compute AUC for multiclass problems.");
+            return false;
+        }
+
         if (settings.alternativeAUC) {
             AUCrocEmpirical = calculateAUCsmaller(evaluations);
         }
@@ -183,7 +188,7 @@ public class DetailedClassificationResults extends ClassificationResults {  //to
         if (bestAccuracy != null) {
             sb.append(", (best thresh acc: " + Settings.shortNumberFormat.format(bestAccuracy * 100) + "%)");
         }
-        sb.append(" (maj. " + Settings.shortNumberFormat.format(majorityErr * 100) + "%)");
+        sb.append(" (maj. " + Settings.shortNumberFormat.format(majorityAcc * 100) + "%)");
         if (AUCroc != null) {
             sb.append(", (AUC-ROC: " + Settings.detailedNumberFormat.format(AUCroc) + ")");
         }

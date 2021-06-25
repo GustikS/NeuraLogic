@@ -688,7 +688,7 @@ public class Settings implements Serializable {
     public ErrorFcn errorFunction = ErrorFcn.SQUARED_DIFF;
 
     /**
-     * If set to true, it will automatically infer (override) output neuron's activation and error fcn based on the learning setting
+     * If set to true, it will automatically infer (override) output neuron's activation AND error fcn based on the learning setting
      * - i.e. evaluationMode (classification/regression/KBC)
      * - e.g. it will set softmax+crossentropy if multinomial classification is detected (and sigmoid for binary)
      */

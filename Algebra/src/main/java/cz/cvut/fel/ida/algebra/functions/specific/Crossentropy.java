@@ -43,12 +43,16 @@ public class Crossentropy implements ErrorFcn {
             } else {
                 return output.apply(x -> -1 / (1 - x));
             }
-        } else {
+        } else {    // general crossentropy
             VectorValue outputV = (VectorValue) output;
             VectorValue targetV = (VectorValue) target;
             double[] grad = new double[outputV.values.length];
             for (int i = 0; i < outputV.values.length; i++) {
-                grad[i] = -targetV.values[i] / outputV.values[i];
+                if (targetV.values[i] > 0.5) {
+                    grad[i] = 1 / outputV.values[i];
+                } else {
+                    grad[i] = -1 / (1 - outputV.values[i]);
+                }
             }
             return new VectorValue(grad);
         }

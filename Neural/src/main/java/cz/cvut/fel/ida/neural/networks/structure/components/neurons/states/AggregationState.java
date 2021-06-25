@@ -4,6 +4,7 @@ import cz.cvut.fel.ida.algebra.functions.Activation;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.functions.Concatenation;
 import cz.cvut.fel.ida.algebra.functions.XMax;
+import cz.cvut.fel.ida.algebra.values.MatrixValue;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.VectorValue;
@@ -455,8 +456,8 @@ public abstract class AggregationState implements Aggregation.State {
 
         @Override
         public Value gradient() {
-            double[] gradient = xmax.getGradient(probabilities);
-            return new VectorValue(gradient);
+            double[][] gradient = xmax.getGradient(probabilities);
+            return new MatrixValue(gradient);
         }
     }
 

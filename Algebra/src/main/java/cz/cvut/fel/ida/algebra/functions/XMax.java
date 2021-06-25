@@ -13,6 +13,6 @@ public interface XMax {
 
     double[] getProbabilities(List<Value> inputs);
 
-    double[] getGradient(double[] exps);
+    double[][] getGradient(double[] exps);
 
 }
