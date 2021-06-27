@@ -282,6 +282,16 @@ public class PlainGrammarVisitor extends GrammarVisitor {
                 List<Double> vector = ctx.vector().number().stream().map(num -> Double.parseDouble(num.getText())).collect(Collectors.toList());
                 value = new VectorValue(vector);
 //                ((VectorValue) value).rowOrientation = true;    //we treat vector in the template as row vectors (i.e. as 1xN matrices) so that they can be multiplied with normal (column) vectors   -WRONG! this is confusing, just keep the default column orientation everywhere....
+            } else if (ctx.sparseVector() != null) {
+                int length = Integer.parseInt(ctx.sparseVector().INT().getText());
+                double[] sparseVector = new double[length];
+                for (NeuralogicParser.ElementContext context : ctx.sparseVector().element()) {
+                    int i = Integer.parseInt(context.INT().getText());
+                    double v = Double.parseDouble(context.number().getText());
+                    sparseVector[i] = v;
+                }
+                value = new VectorValue(sparseVector);
+//                ((VectorValue) value).rowOrientation = true;    //we treat vector in the template as row vectors (i.e. as 1xN matrices) so that they can be multiplied with normal (column) vectors   -WRONG! this is confusing, just keep the default column orientation everywhere....
             } else if (ctx.matrix() != null) {
                 List<List<Double>> vectors = new ArrayList<>();
                 for (NeuralogicParser.VectorContext vectorContext : ctx.matrix().vector()) {
@@ -289,6 +299,17 @@ public class PlainGrammarVisitor extends GrammarVisitor {
                     vectors.add(vector);
                 }
                 value = new MatrixValue(vectors);
+            } else if (ctx.sparseMatrix() != null) {
+                int dim1 = Integer.parseInt(ctx.sparseMatrix().INT().get(0).getText());
+                int dim2 = Integer.parseInt(ctx.sparseMatrix().INT().get(1).getText());
+                double[][] sparseMatrix = new double[dim1][dim2];
+                for (NeuralogicParser.Element2dContext context : ctx.sparseMatrix().element2d()) {
+                    int i = Integer.parseInt(context.INT().get(0).getText());
+                    int j = Integer.parseInt(context.INT().get(1).getText());
+                    double v = Double.parseDouble(context.number().getText());
+                    sparseMatrix[i][j] = v;
+                }
+                value = new MatrixValue(sparseMatrix);
             } else if (ctx.dimensions() != null) {
                 isInitialized = false;
                 List<Integer> dims = ctx.dimensions().number().stream().map(num -> Integer.parseInt(num.getText())).collect(Collectors.toList());

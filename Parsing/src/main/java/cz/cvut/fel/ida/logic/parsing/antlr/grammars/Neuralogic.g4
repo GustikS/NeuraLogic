@@ -51,12 +51,17 @@ weight: (DOLLAR ATOMIC_NAME ASSIGN)? (fixedValue | value);
 fixedValue: LANGLE value RANGLE;
 offset: weight;
 
-value: number | vector | matrix | dimensions;
+value: number | sparseVector | vector | sparseMatrix| matrix | dimensions;
 
 number: INT | FLOAT;
 vector: LBRACKET number (COMMA number)* RBRACKET;
+sparseVector: LBRACKET INT PIPE ( | element (COMMA element)*) RBRACKET;
 matrix: LBRACKET vector+ RBRACKET;
+sparseMatrix: LBRACKET INT COMMA INT PIPE ( | element2d (COMMA element2d)*)  RBRACKET;
 dimensions: LCURL number (COMMA number)* RCURL;
+
+element: INT ':' number | LPAREN INT ':' number RPAREN;
+element2d: INT COMMA INT ':' number | LPAREN INT COMMA INT ':' number RPAREN;
 
 negation: NEGATION;
 
@@ -88,6 +93,7 @@ DOLLAR: '$';
 NEGATION: '~';
 SPECIAL: '@';
 PRIVATE: '*';
+PIPE: '|';
 
 fragment ALPHANUMERIC: ALPHA | DIGIT ;
 fragment ALPHA: '_' | '-' | LCASE_LETTER | UCASE_LETTER ;

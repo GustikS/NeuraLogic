@@ -340,6 +340,18 @@ public class NeuralogicBaseListener implements NeuralogicListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterSparseVector(NeuralogicParser.SparseVectorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSparseVector(NeuralogicParser.SparseVectorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterMatrix(NeuralogicParser.MatrixContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -352,6 +364,18 @@ public class NeuralogicBaseListener implements NeuralogicListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterSparseMatrix(NeuralogicParser.SparseMatrixContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSparseMatrix(NeuralogicParser.SparseMatrixContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterDimensions(NeuralogicParser.DimensionsContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -359,6 +383,30 @@ public class NeuralogicBaseListener implements NeuralogicListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitDimensions(NeuralogicParser.DimensionsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterElement(NeuralogicParser.ElementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitElement(NeuralogicParser.ElementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterElement2d(NeuralogicParser.Element2dContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitElement2d(NeuralogicParser.Element2dContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
