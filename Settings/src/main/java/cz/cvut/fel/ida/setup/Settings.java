@@ -30,10 +30,7 @@ public class Settings implements Serializable {
     //todo - uncompressed lambda template for experiments
     //todo - how to handle non-entailed examples
     //todo - dynamic restarting + learning rate progression
-    //todo - various exporting
-    //todo - alldiff
-    //todo - learning factNeuron offsets
-    //todo - special predicates
+    //todo - learning factNeuron offsets?
 
     private transient static final Logger LOG = Logger.getLogger(Settings.class.getName());
 
