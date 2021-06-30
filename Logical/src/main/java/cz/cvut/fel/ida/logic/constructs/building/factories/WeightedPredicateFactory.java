@@ -38,6 +38,13 @@ public class WeightedPredicateFactory {
             result = WeightedPredicate.construct(from, arity, special, hidden);
             str2pred.put(from + "/" + arity, result);
             pred2pred.put(result, result);
+        } else {
+            if (special && !result.predicate.special){  // a correction if a user states the predicate as special only in some places -> the predicate is made globally special
+                result.predicate.special = true;
+            }
+            if (hidden && !result.predicate.hidden){
+                result.predicate.hidden = true;
+            }
         }
         return result;
     }

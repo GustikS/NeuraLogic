@@ -14,6 +14,11 @@ public class SaturationChecker extends StateVisiting.Computation {
     @Override
     public Value visit(State.Neural.Computation state) {
         Value value = state.getValue();
+
+        if (state.getAggregation() == null) {
+            return Value.ZERO;
+        }
+
         Pair<Double, Double> range = state.getAggregation().getSaturationRange();
         if (range == null) {
             return Value.ZERO;

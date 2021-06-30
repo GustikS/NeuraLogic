@@ -1,20 +1,23 @@
 package cz.cvut.fel.ida.logic.grounding.bottomUp;
 
-import org.jetbrains.annotations.NotNull;
+import cz.cvut.fel.ida.algebra.weights.Weight;
+import cz.cvut.fel.ida.logic.Clause;
+import cz.cvut.fel.ida.logic.HornClause;
+import cz.cvut.fel.ida.logic.Literal;
+import cz.cvut.fel.ida.logic.Term;
 import cz.cvut.fel.ida.logic.constructs.example.LiftedExample;
-import cz.cvut.fel.ida.logic.grounding.GroundTemplate;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
 import cz.cvut.fel.ida.logic.constructs.template.components.GroundHeadRule;
 import cz.cvut.fel.ida.logic.constructs.template.components.GroundRule;
+import cz.cvut.fel.ida.logic.constructs.template.components.HeadAtom;
 import cz.cvut.fel.ida.logic.constructs.template.components.WeightedRule;
+import cz.cvut.fel.ida.logic.grounding.GroundTemplate;
 import cz.cvut.fel.ida.logic.grounding.Grounder;
-import cz.cvut.fel.ida.logic.HornClause;
-import cz.cvut.fel.ida.logic.Literal;
-import cz.cvut.fel.ida.logic.Term;
 import cz.cvut.fel.ida.logic.subsumption.HerbrandModel;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.generic.Pair;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -74,6 +77,14 @@ public class BottomUp extends Grounder {
         LOG.fine("Grounding of " + ruleMap.size() + " rules...");
         totalRules += ruleMap.size();
         for (Map.Entry<HornClause, List<WeightedRule>> ruleEntry : ruleMap.entrySet()) {
+
+            Map<Literal, ValuedFact> embeddings = checkIfEmbedding(ruleEntry, herbrandModel);  //if the rule is merely an embedding
+            if (embeddings != null) {
+                groundFacts.putAll(embeddings); // add the ground embedding facts (from the head atom)
+                template.facts.addAll(embeddings.values());
+                continue;
+            }
+
             Pair<Term[], List<Term[]>> groundingSubstitutions = herbrandModel.groundingSubstitutions(ruleEntry.getKey());
             for (WeightedRule weightedRule : ruleEntry.getValue()) {
                 List<GroundRule> groundings = groundRules(weightedRule, groundingSubstitutions);
@@ -128,6 +139,43 @@ public class BottomUp extends Grounder {
 
     public List<GroundRule> groundRules(HerbrandModel herbrandModel, WeightedRule liftedRule) {
         return groundRules(herbrandModel, liftedRule, liftedRule.toHornClause());
+    }
+
+    private Map<Literal, ValuedFact> checkIfEmbedding(Map.Entry<HornClause, List<WeightedRule>> clauseListEntry, HerbrandModel herbrandModel) {
+        WeightedRule weightedRule = clauseListEntry.getValue().get(0);
+        HeadAtom head = weightedRule.getHead();
+        Map<Literal, ValuedFact> embeddings = null;
+        if (head.getPredicate().special) {
+            if (head.getPredicate().name.startsWith("@embed")) {
+
+                if (clauseListEntry.getValue().size() > 1) {
+                    LOG.severe("There is more than one definition of the same embedding logic in the template...");
+                }
+
+                //1) get the groundings
+                Clause query = new Clause(head.literal);    //query only the head atom (the embedding predicate)
+                cz.cvut.fel.ida.utils.generic.tuples.Pair<Term[], List<Term[]>> listPair = herbrandModel.matching.allSubstitutions(query, 0, Integer.MAX_VALUE);
+
+                Term[] variables = listPair.r;
+                for (int i = 0; i < variables.length; i++) {
+                    variables[i].setIndexWithinSubstitution(i);
+                }
+                Pair<Term[], List<Term[]>> substitutions = new Pair<>(variables, listPair.s);
+
+
+                //2) create an embedding for each
+                embeddings = new HashMap<>();
+
+                for (int i = 0; i < substitutions.s.size(); i++) {   //for all ground embeddings
+                    Term[] terms = substitutions.s.get(i);
+                    Literal groundHead = head.literal.subsCopy(terms);
+                    Weight weight = weightFactory.construct("embed_" + weightedRule.getWeight().name + "-" + i, weightedRule.getWeight().value.getForm(), false, false);
+                    ValuedFact embedding = new ValuedFact(head.offsettedPredicate, groundHead.termList(), false, weight);
+                    embeddings.put(groundHead, embedding);
+                }
+            }
+        }
+        return embeddings;
     }
 
     /**

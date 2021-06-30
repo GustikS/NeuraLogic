@@ -23,7 +23,7 @@ public class HerbrandModel {
     /**
      * Using the subsumption engine wrapper
      */
-    Matching matching;
+    public Matching matching;
 
     public HerbrandModel() {
         herbrand = new HerbrandMap();

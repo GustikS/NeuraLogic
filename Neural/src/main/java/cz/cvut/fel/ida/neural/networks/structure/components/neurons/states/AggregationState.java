@@ -86,6 +86,59 @@ public abstract class AggregationState implements Aggregation.State {
     }
 
     /**
+     * A dummy state for fact neurons (e.g. embeddings)
+     * - no computation here, only (updatable) Value storage
+     */
+    public static class SimpleValueState extends AggregationState {
+        Value value;
+
+        public SimpleValueState() {
+        }
+
+        public SimpleValueState(Value valueStore) {
+            this.value = valueStore;
+        }
+
+        @Override
+        public void cumulate(Value value) {
+            // no such thing here
+        }
+
+        @Override
+        public void invalidate() {
+//            value.zero(); //No, this is a value storage - the value can get initialized
+        }
+
+        public int[] getInputMask() {
+            return null;
+        }
+
+        @Override
+        public Value gradient() {
+            return Value.ONE;   //i.e. the invariant element for multiplication
+        }
+
+        @Override
+        public Value evaluate() {
+            return value;
+        }
+
+        @Override
+        public Activation getAggregation() {
+            return null;
+        }
+
+        @Override
+        public void setAggregation(Aggregation act) {
+        }
+
+        @Override
+        public void setupValueDimensions(Value value) {
+            this.value = value.getForm();
+        }
+    }
+
+    /**
      * Same as ActivationState, but multiplies the inputs instead
      * todo now Could be a subclass, but test if not causing a slowdown
      */

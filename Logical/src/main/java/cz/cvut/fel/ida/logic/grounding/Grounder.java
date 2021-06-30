@@ -33,7 +33,7 @@ public abstract class Grounder implements Exportable {
     public Timing timing;
 
     public Grounder(Settings settings) {
-        this(settings, new WeightFactory());
+        this(settings, new WeightFactory(settings.inferred.maxWeightCount));
     }
 
     public Grounder(Settings settings, WeightFactory weightFactory) {
@@ -153,17 +153,16 @@ public abstract class Grounder implements Exportable {
      */
     public List<GroundingSample> globalGroundingSample(List<GroundingSample> sampleList) {
         LOG.info("Global grounding for " + sampleList.size() + " samples.");
-        Template template = new Template();
+        Template template = new Template(sampleList.get(0).template);   //just get the template from the 1st sample - it should be the same for all samples
         LiftedExample liftedExample = new LiftedExample();
 
-        template.addAllFrom(sampleList.get(0).template);
         for (int i = 1; i < sampleList.size(); i++) {
-            if (sampleList.get(i).template != sampleList.get(i - 1).template)
+            if (sampleList.get(i).template != sampleList.get(i - 1).template)   //if the template differs across the samples, merge them all into one
                 template.addAllFrom(sampleList.get(i).template);
         }
         liftedExample.addAllFrom(sampleList.get(0).query.evidence);
         for (int i = 1; i < sampleList.size(); i++) {
-            if (sampleList.get(i).query.evidence != sampleList.get(i - 1).query.evidence)
+            if (sampleList.get(i).query.evidence != sampleList.get(i - 1).query.evidence)   //also marge all the example data (should be the same in most cases, however)
                 liftedExample.addAllFrom(sampleList.get(i).query.evidence);
         }
 

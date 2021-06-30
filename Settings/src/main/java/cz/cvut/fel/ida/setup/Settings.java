@@ -16,6 +16,7 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -918,15 +919,27 @@ public class Settings implements Serializable {
 
 
     /**
+     * Stores dynamically inferred settings and values
+     */
+    public Inferred inferred = new Inferred();
+
+    /**
      * Stores dynamically inferred settings
      */
     public class Inferred {
         //todo store dynamically inferred settings here
 
+        /**
+         * The maximal index of any weight created during the process
+         * - inferred after template/sample processing (incl. grounding)
+         */
+        public AtomicInteger maxWeightCount = new AtomicInteger(0);
+
     }
 
     /**
-     * TODO Setup globally default settings here
+     * Setup globally default settings here -> it is initialized right in the fields
+     * and inferred and validated later
      */
     public Settings() {
     }

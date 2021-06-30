@@ -102,6 +102,11 @@ public class Template implements Model<QueryAtom>, Exportable {
                     weightList.add(bodyAtom.getConjunctWeight());
             }
         }
+        for (ValuedFact fact : facts) {
+            if (fact.weight != null){
+                weightList.add(fact.weight);
+            }
+        }
         List<Weight> uniqueWeights = filterUnique(weightList);
         return uniqueWeights;
     }

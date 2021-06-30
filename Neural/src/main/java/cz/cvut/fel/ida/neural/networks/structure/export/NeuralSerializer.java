@@ -118,7 +118,7 @@ public class NeuralSerializer {
             if (this.inputs.isEmpty()) {    //fact neuron
                 this.value = neuron.getRawState().getComputationView(0).getValue().toString();
             }
-            if (neuron.offset.index > 0)
+            if (neuron.offset.index >= 0)
                 offset = neuron.offset.index;
         }
     }

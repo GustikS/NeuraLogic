@@ -111,7 +111,6 @@ public class SubsumptionEngineJ2 {
         for (String specialVarargPredicate : SpecialVarargPredicates.SPECIAL_PREDICATES){
             this.specialPredicateIds.add(this.predicatesToIntegers.valueToIndex(specialVarargPredicate));
         }
-
     }
 
     /**

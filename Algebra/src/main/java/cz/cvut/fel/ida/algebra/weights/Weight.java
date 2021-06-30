@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 public class Weight implements Exportable {
 
     /**
-     * Weights should be created via factory => this is a unique identifier, but can be reindexed
+     * Weights should be created via factory => this is a unique identifier (for learnable weights), but can be reindexed
      */
     public final int index;
 
@@ -44,7 +44,7 @@ public class Weight implements Exportable {
     public WeightMetadata metadata;
 
     public static Weight unitWeight = new Weight(-1, "unitWeight", Value.ONE, true, true);
-    public static Weight zeroWeight = new Weight(-1, "zeroWeight", Value.ZERO, true, true);
+    public static Weight zeroWeight = new Weight(-2, "zeroWeight", Value.ZERO, true, true);
 
     public Weight(int index, String name, Value value, boolean fixed, boolean isInitialized) {
         this.index = index;

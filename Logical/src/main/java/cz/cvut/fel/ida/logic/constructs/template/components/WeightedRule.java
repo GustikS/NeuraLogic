@@ -81,7 +81,7 @@ public class WeightedRule implements Exportable {
 
         for (BodyAtom atom : getBody()) {
             Literal literal = atom.literal;
-            if (!literal.predicate().special && !literal.predicate().hidden) {     //remove special and purely logical (hidden) predicates from the grounded bodies!
+            if (!literal.predicate().hidden) {     //remove special and purely logical (hidden) predicates from the grounded bodies!
                 groundBody.add(literal.subsCopy(terms));
             } else {
 //                System.out.println();

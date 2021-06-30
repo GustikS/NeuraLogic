@@ -17,7 +17,7 @@ public class Sigmoid extends Activation {
         return "Sigmoid";
     }
 
-    static final Function<Double, Double> logist = in -> in > 100 ? 1 : (in < -100 ? 0 : 1 / (1 + Math.exp(-in)));
+    public static final Function<Double, Double> logist = in -> in > 100 ? 1 : (in < -100 ? 0 : 1 / (1 + Math.exp(-in)));
 
     private static final Function<Double, Double> diffLogist = in -> {
         if (in > 100 || in < -100)

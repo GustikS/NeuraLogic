@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -16,11 +17,10 @@ import java.util.stream.Collectors;
 /**
  * Created by gusta on 5.3.18.
  */
-public class
-WeightFactory implements Exportable {
+public class WeightFactory implements Exportable {
     private static final Logger LOG = Logger.getLogger(WeightFactory.class.getName());
 
-    private int index = 0;
+    private AtomicInteger index;
 
     /**
      * Prefix for an unknown weight
@@ -30,7 +30,8 @@ WeightFactory implements Exportable {
     private Map<String, Weight> str2weight;
     private Map<Weight, Weight> weight2weight;
 
-    public WeightFactory() {
+    public WeightFactory(AtomicInteger index) {
+        this.index = index;
         str2weight = new HashMap<>();
         weight2weight = new HashMap<>();
     }
@@ -43,7 +44,7 @@ WeightFactory implements Exportable {
     public Weight construct(String from) {
         Weight result = str2weight.get(from);
         if (result == null) {
-            result = new Weight(index++, from, null, false, false);
+            result = new Weight(index.getAndIncrement(), from, null, false, false);
             str2weight.put(from, result);
             weight2weight.put(result, result);
         }
@@ -65,7 +66,7 @@ WeightFactory implements Exportable {
         }
         Weight result = str2weight.get(name);
         if (result == null) {
-            result = new Weight(index++, name, value, fixed, isInitialized);
+            result = new Weight(index.getAndIncrement(), name, value, fixed, isInitialized);
             str2weight.put(name, result);
             weight2weight.put(result, result);
         }
@@ -83,7 +84,7 @@ WeightFactory implements Exportable {
         if (value == null) {
             return null;
         }
-        Weight result = new Weight(index, genericName + index++, value, fixed, isInitialized);
+        Weight result = new Weight(index.get(), genericName + index.getAndIncrement(), value, fixed, isInitialized);
         //str2weight.put(genericName, result);
         //weight2weight.put(result, result);
 
@@ -94,6 +95,10 @@ WeightFactory implements Exportable {
         if ((a.isShared || b.isShared) && !a.equals(b)) {
             LOG.severe("Trying to merge two different shared weights" + a + " != " + b);
         }
-        return new Weight(index++, a.name + b.name, aggregationFcn.evaluate(Arrays.asList(a.value, b.value)), a.isFixed && b.isFixed, false);
+        return new Weight(index.getAndIncrement(), a.name + b.name, aggregationFcn.evaluate(Arrays.asList(a.value, b.value)), a.isFixed && b.isFixed, false);
+    }
+
+    public AtomicInteger getIndex() {
+        return index;
     }
 }

@@ -1,5 +1,6 @@
 package cz.cvut.fel.ida.learning.results;
 
+import cz.cvut.fel.ida.algebra.functions.Activation;
 import cz.cvut.fel.ida.algebra.utils.MathUtils;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
@@ -119,6 +120,11 @@ public class ClassificationResults extends RegressionResults {
             loadMulticlassMetrics(evaluations);
             return;
         }
+        if (settings.squishLastLayer){  //this means that the outputs are not normalized!
+            for (Result evaluation : evaluations) {
+                evaluation.setOutput(Activation.Singletons.sigmoid.evaluate(evaluation.getOutput()));
+            }
+        }
 
         goodCount = 0;
 
@@ -151,6 +157,11 @@ public class ClassificationResults extends RegressionResults {
         HashMap<VectorValue, VectorValue> classAcums = new HashMap<>();
         HashMap<VectorValue, Integer> classCounts = new HashMap<>();
 
+        if (settings.squishLastLayer){  //this means that the outputs are not normalized between 0-1!
+            for (Result evaluation : evaluations) {
+                evaluation.setOutput(Activation.Singletons.softmax.evaluate(evaluation.getOutput()));
+            }
+        }
 
         for (Result evaluation : evaluations) {
             VectorValue value = null;

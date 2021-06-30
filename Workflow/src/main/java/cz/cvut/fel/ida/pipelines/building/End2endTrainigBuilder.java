@@ -114,7 +114,7 @@ public class End2endTrainigBuilder extends AbstractPipelineBuilder<Sources, Pair
             templateDuplicateBranch = pipeline.register(new DuplicateBranch<>());
 
             //to transfer parameters from groundings to neural nets
-            WeightFactory weightFactory = new WeightFactory();
+            WeightFactory weightFactory = new WeightFactory(settings.inferred.maxWeightCount);
 
             //pipelines
             Pipeline<Sources, Pair<Template, Stream<LogicSample>>> sourcesPairPipeline = pipeline.registerStart(buildFromSources(sources, settings));

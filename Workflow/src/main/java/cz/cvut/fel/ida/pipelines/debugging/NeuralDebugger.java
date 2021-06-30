@@ -41,7 +41,7 @@ public class NeuralDebugger extends End2EndDebugger<NeuralSample> implements Neu
     public Pipeline<Sources, Stream<NeuralSample>> buildPipeline() {
         Pipeline<Sources, Pair<Template, Stream<LogicSample>>> sourcesPipeline = pipeline.registerStart(this.end2endTrainigBuilder.buildFromSources(sources, settings));
         //to transfer parameters from groundings to neural nets
-        WeightFactory weightFactory = new WeightFactory();
+        WeightFactory weightFactory = new WeightFactory(settings.inferred.maxWeightCount);
 
         Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> groundingPipeline = pipeline.register(this.end2endTrainigBuilder.buildGrounding(settings, weightFactory));
         Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> neuralPipeline = pipeline.registerEnd(this.end2endTrainigBuilder.buildNeuralNets(settings, weightFactory));

@@ -51,6 +51,11 @@ public class Predicate implements Serializable {
         predicate.special = special != null ? special : false;
         predicate.hidden = hidden != null ? hidden : false;
         if (predicate.special) {
+            if (name.startsWith("embed")){
+                predicate.hidden = false;   // embedding predicates are NOT to be removed from the neural nets!
+            } else {
+                predicate.hidden = true;    // other special predicates like alldiff etc. are to be removed from neural computations
+            }
             predicate.name = specialSign + predicate.name;
         }
 //        if (predicate.hidden) {

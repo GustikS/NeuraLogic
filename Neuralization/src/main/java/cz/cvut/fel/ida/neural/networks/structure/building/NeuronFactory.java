@@ -43,9 +43,9 @@ public class NeuronFactory {
     public NeuronFactory(WeightFactory weightFactory, Settings settings) {
         this.weightFactory = weightFactory;
         this.settings = settings;
-        atomOffset = weightFactory.construct("fixedAtomOffset", new ScalarValue(settings.defaultAtomNeuronOffset), true, true);
-        ruleOffset = weightFactory.construct("fixedRuleOffset", new ScalarValue(settings.defaultRuleNeuronOffset), true, true);
-        if (settings.defaultFactValue != 1){
+        atomOffset = new Weight(-10, "fixedAtomOffset", new ScalarValue(settings.defaultAtomNeuronOffset), true, true);
+        ruleOffset = new Weight(-9, "fixedRuleOffset", new ScalarValue(settings.defaultRuleNeuronOffset), true, true);
+        if (settings.defaultFactValue != 1) {
             defaultFactValue = new ScalarValue(settings.defaultFactValue);
         }
     }
@@ -130,7 +130,10 @@ public class NeuronFactory {
         FactNeuron result = neuronMaps.factNeurons.get(fact.literal);
         if (result == null) {    //fact neuron might have been created already and for them it is ok
             States.SimpleValue simpleValue = new States.SimpleValue(fact.getValue() == null ? this.defaultFactValue : fact.getValue());
-            FactNeuron factNeuron = new FactNeuron(fact.toString(), fact.getOffset(), counter++, simpleValue);
+            FactNeuron factNeuron = new FactNeuron(fact.toString(), fact.weight, counter++, simpleValue);
+            if (fact.weight != null && fact.weight.isLearnable()) {
+                factNeuron.hasLearnableValue = true;
+            }
             neuronMaps.factNeurons.put(fact.literal, factNeuron);
             LOG.finest(() -> "Created fact neuron: " + factNeuron);
             return factNeuron;

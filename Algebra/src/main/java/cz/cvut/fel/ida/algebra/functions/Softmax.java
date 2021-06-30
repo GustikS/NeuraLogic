@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * todo This is somewhere between activation and Aggregation...
+ * This is somewhere between activation and Aggregation...
+ * todo test softmax as an aggregation fcn
  */
 public class Softmax extends Activation implements XMax {
     private static final Logger LOG = Logger.getLogger(Softmax.class.getName());
@@ -97,7 +98,7 @@ public class Softmax extends Activation implements XMax {
         double expsum = 0;
         double[] exps = new double[inputs.size()];
         for (int i = 0; i < inputs.size(); i++) {
-            double exp = Math.exp(((ScalarValue) inputs.get(i)).value);
+            double exp = Math.exp(((ScalarValue) inputs.get(i)).value); //assuming softmax over scalars!
             exps[i] = exp;
             expsum += exp;
         }

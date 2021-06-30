@@ -4,18 +4,19 @@ import cz.cvut.fel.ida.algebra.utils.metadata.WeightMetadata;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.logic.constructs.Conjunction;
 import cz.cvut.fel.ida.logic.constructs.WeightedPredicate;
+import cz.cvut.fel.ida.logic.constructs.building.factories.WeightFactory;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
 import cz.cvut.fel.ida.logic.constructs.template.components.WeightedRule;
 import cz.cvut.fel.ida.logic.constructs.template.metadata.PredicateMetadata;
 import cz.cvut.fel.ida.logic.constructs.template.metadata.TemplateMetadata;
 import cz.cvut.fel.ida.logic.constructs.template.types.ParsedTemplate;
-import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.logic.parsing.antlr.NeuralogicParser;
 import cz.cvut.fel.ida.logic.parsing.grammarParsing.PlainGrammarVisitor;
 import cz.cvut.fel.ida.logic.parsing.template.PlainTemplateParseTree;
 import cz.cvut.fel.ida.logic.parsing.template.PlainTemplateParseTreeExtractor;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -31,6 +32,7 @@ public class TemplateBuilder extends LogicSourceBuilder<PlainTemplateParseTree, 
     private static final Logger LOG = Logger.getLogger(TemplateBuilder.class.getName());
 
     public TemplateBuilder(Settings settings) {
+        super(settings, new WeightFactory(settings.inferred.maxWeightCount));   // this weightfactory is the common one to be used later in the process
         this.settings = settings;
     }
 
@@ -86,6 +88,8 @@ public class TemplateBuilder extends LogicSourceBuilder<PlainTemplateParseTree, 
             template.templateMetadata = new TemplateMetadata(settings, templateMetadata);
         template.predicatesMetadata = predicatesMetadata.stream().map(pair -> new Pair<>(pair.r, new PredicateMetadata(settings, pair.s))).collect(Collectors.toList());
         template.weightsMetadata = weightsMetadata.stream().map(pair -> new Pair<>(pair.r, new WeightMetadata(settings, pair.s))).collect(Collectors.toList());
+
+//        settings.inferred.maxWeightCount = weightFactory.getIndex();    //remember the max weight index (to possibly add more valid weights later in the process)
 
         LOG.fine("Template has been built : " + template);
         return template;
