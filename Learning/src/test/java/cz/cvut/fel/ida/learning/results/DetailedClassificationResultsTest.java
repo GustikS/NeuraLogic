@@ -15,10 +15,14 @@ class DetailedClassificationResultsTest {
 
     static List<Result> resultList = setup();
 
+    static Settings settings;
+
     private static List<Result> setup() {
         List<Result> resultList = new ArrayList<>();
+        settings = new Settings();
+        settings.squishLastLayer = false;
 
-        Result.Factory factory = new Result.Factory(new Settings());
+        Result.Factory factory = new Result.Factory(settings);
         resultList.add(factory.create("s1", 1, new ScalarValue(1), new ScalarValue(0.8)));
         resultList.add(factory.create("s2", 2, new ScalarValue(0), new ScalarValue(0.6)));
         resultList.add(factory.create("s3", 3, new ScalarValue(1), new ScalarValue(0.7)));
@@ -42,7 +46,7 @@ class DetailedClassificationResultsTest {
 
     @TestAnnotations.Fast
     void calculateAUC() {
-        DetailedClassificationResults detailedClassificationResults = new DetailedClassificationResults(resultList, new Settings());
+        DetailedClassificationResults detailedClassificationResults = new DetailedClassificationResults(resultList, settings);
         double auc = detailedClassificationResults.calculateAUCsmaller(resultList);
         LOG.fine("empirical auc=" + auc);
         assertEquals(0.33333333, auc, 0.00000001);
@@ -50,7 +54,7 @@ class DetailedClassificationResultsTest {
 
     @TestAnnotations.Fast
     void interpolatedAUC() {
-        DetailedClassificationResults detailedClassificationResults = new DetailedClassificationResults(resultList, new Settings());
+        DetailedClassificationResults detailedClassificationResults = new DetailedClassificationResults(resultList, settings);
         detailedClassificationResults.setFullAUC(resultList);
         LOG.fine("interpolated AUC=" + detailedClassificationResults.AUCroc);
         assertEquals(0.416666666666, detailedClassificationResults.AUCroc, 0.00000001);
