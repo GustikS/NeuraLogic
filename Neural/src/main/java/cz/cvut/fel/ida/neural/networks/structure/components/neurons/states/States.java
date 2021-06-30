@@ -358,13 +358,14 @@ public abstract class States implements State {
     }
 
     /**
-     * A simple Value. E.g. for Fact Neurons.
+     * A simple Value. E.g. for Fact Neurons. May be learnable (e.g. an embedding)
      */
     public static class SimpleValue implements Neural.Computation {
 
         public Value outputValue;
         public Value acumGradient;
         public AggregationState aggregationState;
+        public boolean isLearnable = false;
 
         public SimpleValue(Value factValue) {
             outputValue = factValue;
@@ -422,7 +423,9 @@ public abstract class States implements State {
 
         @Override
         public void storeGradient(Value gradient) {
-            acumGradient.incrementBy(gradient);
+            if (isLearnable) {
+                acumGradient.incrementBy(gradient);
+            }
         }
 
         @Override

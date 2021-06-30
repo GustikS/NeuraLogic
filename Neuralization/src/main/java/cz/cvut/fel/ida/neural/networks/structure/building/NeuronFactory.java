@@ -133,6 +133,7 @@ public class NeuronFactory {
             FactNeuron factNeuron = new FactNeuron(fact.toString(), fact.weight, counter++, simpleValue);
             if (fact.weight != null && fact.weight.isLearnable()) {
                 factNeuron.hasLearnableValue = true;
+                simpleValue.isLearnable = true;
             }
             neuronMaps.factNeurons.put(fact.literal, factNeuron);
             LOG.finest(() -> "Created fact neuron: " + factNeuron);
