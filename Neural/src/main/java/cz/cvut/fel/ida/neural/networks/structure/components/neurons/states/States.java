@@ -362,15 +362,15 @@ public abstract class States implements State {
      */
     public static class SimpleValue implements Neural.Computation {
 
-        public Value outputValue;
-        public Value acumGradient;
-        public AggregationState aggregationState;
+        Value outputValue;  // the Value is stored right here
+        Value acumGradient; // also the gradient
+        AggregationState aggregationState;  // this state is just dummy (no computation there)
         public boolean isLearnable = false;
 
         public SimpleValue(Value factValue) {
             outputValue = factValue;
             acumGradient = factValue.getForm();
-            aggregationState = new AggregationState.SimpleValueState(factValue);
+            aggregationState = new AggregationState.SimpleValueState();
         }
 
         @Override

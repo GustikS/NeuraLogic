@@ -146,7 +146,7 @@ public class BottomUp extends Grounder {
         HeadAtom head = weightedRule.getHead();
         Map<Literal, ValuedFact> embeddings = null;
         if (head.getPredicate().special) {
-            if (head.getPredicate().name.startsWith("@embed")) {
+            if (head.getPredicate().name.startsWith("embed")) {
 
                 if (clauseListEntry.getValue().size() > 1) {
                     LOG.severe("There is more than one definition of the same embedding logic in the template...");

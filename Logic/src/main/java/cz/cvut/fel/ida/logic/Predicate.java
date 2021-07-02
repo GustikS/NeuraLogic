@@ -55,8 +55,8 @@ public class Predicate implements Serializable {
                 predicate.hidden = false;   // embedding predicates are NOT to be removed from the neural nets!
             } else {
                 predicate.hidden = true;    // other special predicates like alldiff etc. are to be removed from neural computations
+                predicate.name = specialSign + predicate.name;
             }
-            predicate.name = specialSign + predicate.name;
         }
 //        if (predicate.hidden) {
 //            predicate.name = hiddenSign + predicate.name; // wrong! the grounder understands specialSign but not hiddenSign!
