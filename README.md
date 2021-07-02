@@ -1,5 +1,5 @@
 # NeuraLogic
-[![Maven CI](https://github.com/GustikS/NeuraLogic/workflows/Maven%20CI/badge.svg?branch=master)](https://github.com/GustikS/NeuraLogic/actions)
+[![Maven CI](https://github.com/GustikS/NeuraLogic/actions/workflows/maven.yml/badge.svg)](https://github.com/GustikS/NeuraLogic/actions/workflows/maven.yml)
 [![GitHub licence](https://img.shields.io/github/license/gustiks/neuralogic)](https://github.com/GustikS/NeuraLogic/blob/master/LICENSE)
 [![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/gustiks/neuralogic?include_prereleases)](https://github.com/GustikS/NeuraLogic/releases)
 [![GitHub top language](https://img.shields.io/github/languages/top/gustiks/neuralogic)](https://adoptopenjdk.net/index.html?variant=openjdk8&jvmVariant=hotspot)
