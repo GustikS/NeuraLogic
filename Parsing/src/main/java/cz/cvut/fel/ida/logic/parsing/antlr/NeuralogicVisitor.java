@@ -173,17 +173,41 @@ public interface NeuralogicVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitVector(NeuralogicParser.VectorContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link NeuralogicParser#sparseVector}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSparseVector(NeuralogicParser.SparseVectorContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link NeuralogicParser#matrix}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitMatrix(NeuralogicParser.MatrixContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link NeuralogicParser#sparseMatrix}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSparseMatrix(NeuralogicParser.SparseMatrixContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link NeuralogicParser#dimensions}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitDimensions(NeuralogicParser.DimensionsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link NeuralogicParser#element}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitElement(NeuralogicParser.ElementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link NeuralogicParser#element2d}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitElement2d(NeuralogicParser.Element2dContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link NeuralogicParser#negation}.
 	 * @param ctx the parse tree

@@ -6,6 +6,7 @@ import com.google.gson.InstanceCreator;
 import org.apache.commons.cli.CommandLine;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -118,7 +119,8 @@ public class SourceFiles extends Sources {
     }
 
     /**
-     * TODO do not create the parse trees here, process them separately later in the respective builders (load only Readers)
+     * A conveniecne function to load everything given just a path to a directory with all the necessary source files
+     * - i.e. assumes standard naming convention of the files (defined in Settings)
      *
      * @param settings
      * @param cmd
@@ -127,6 +129,8 @@ public class SourceFiles extends Sources {
      */
     private SourceFiles setupFromDir(Settings settings, CommandLine cmd, File foldDir) {
         LOG.info("Setting up input sourceFiles from directory: " + foldDir);
+
+        //1st load the template file
         try {
             if (this.template != null) {
                 settings.templateFile = this.template.getPath();
@@ -149,7 +153,7 @@ public class SourceFiles extends Sources {
             }
 
             if (template_ != null) {
-                String fileType = recognizeFileType(template_.toString(), template_, settings);
+                String fileType = recognizeFileType(template_.toString(), "template", settings);
 
                 if (fileType.equals("text/x-java")) {
                     binaryTemplateStream = new FileInputStream(template_.toString());
@@ -157,137 +161,82 @@ public class SourceFiles extends Sources {
                     setupTemplate(template_, foldDir);
                 }
             }
-
         } catch (IOException e) {
             LOG.info("There is no learning template");
         }
 
-        try {
-            if (this.trainExamples != null) {
-                settings.trainExamplesFile = trainExamples.getPath();
-            }
-            String trainExamplesPath = cmd.getOptionValue("trainExamples", settings.trainExamplesFile);
-            File trainExamples_ = null;
-            if (trainExamplesPath.startsWith("\\.") || settings.sourcePathProvided) {
-                trainExamples_ = Paths.get(foldDir.toString(), trainExamplesPath).toFile();
-            } else {
-                trainExamples_ = Paths.get(trainExamplesPath).toFile();
-            }
-            if (!trainExamples_.exists()) {
-                LOG.finer("Could not find trainExamples file in " + trainExamples_ + ", will try to use " + Paths.get(foldDir.toString(), settings.trainExamplesFile2) + " file for the same purpose");
-                trainExamples_ = Paths.get(foldDir.toString(), settings.trainExamplesFile2).toFile();
-            }
+        //2nd load all the possible data
+        this.train.ExamplesReader = loadFile("trainExamples", settings, cmd, foldDir);
 
-            this.train.ExamplesReader = new FileReader(trainExamples_);
-            this.trainExamples = trainExamples_;
-            recognizeFileType(this.trainExamples.getAbsolutePath(), trainExamples_, settings);
+        this.val.ExamplesReader = loadFile("valExamples", settings, cmd, foldDir);
 
-        } catch (FileNotFoundException e) {
-            LOG.info("There are no train examples");
-        }
+        this.test.ExamplesReader = loadFile("testExamples", settings, cmd, foldDir);
 
-        try {
-            if (this.valExamples != null) {
-                settings.valExamplesFile = valExamples.getPath();
-            }
-            String valExamplesPath = cmd.getOptionValue("valExamples", settings.valExamplesFile);
-            File valExamples_ = null;
-            if (valExamplesPath.startsWith("\\.") || settings.sourcePathProvided) {
-                valExamples_ = Paths.get(foldDir.toString(), valExamplesPath).toFile();
-            } else {
-                valExamples_ = Paths.get(valExamplesPath).toFile();
-            }
-            this.val.ExamplesReader = new FileReader(valExamples_);
-            this.valExamples = valExamples_;
-            recognizeFileType(this.valExamples.getAbsolutePath(), valExamples_, settings);
+        this.train.QueriesReader = loadFile("trainQueries", settings, cmd, foldDir);
 
-        } catch (FileNotFoundException e) {
-            LOG.info("There are no separate validation examples found.");
-        }
+        this.val.QueriesReader = loadFile("valQueries", settings, cmd, foldDir);
 
-        try {
-            if (this.testExamples != null) {
-                settings.testExamplesFile = testExamples.getPath();
-            }
-            String testExamplesPath = cmd.getOptionValue("testExamples", settings.testExamplesFile);
-            File testExamples_ = null;
-            if (testExamplesPath.startsWith("\\.") || settings.sourcePathProvided) {
-                testExamples_ = Paths.get(foldDir.toString(), testExamplesPath).toFile();
-            } else {
-                testExamples_ = Paths.get(testExamplesPath).toFile();
-            }
-            this.test.ExamplesReader = new FileReader(testExamples_);
-            this.testExamples = testExamples_;
-            recognizeFileType(this.testExamples.getAbsolutePath(), testExamples_, settings);
-
-        } catch (FileNotFoundException e) {
-            LOG.info("There are no separate test examples found.");
-        }
-
-        try {
-            if (this.trainQueries != null) {
-                settings.trainQueriesFile = trainQueries.getPath();
-            }
-            String trainQueriesPath = cmd.getOptionValue("trainQueries", settings.trainQueriesFile);
-            File trainQueries_ = null;
-            if (trainQueriesPath.startsWith("\\.") || settings.sourcePathProvided) {
-                trainQueries_ = Paths.get(foldDir.toString(), trainQueriesPath).toFile();
-            } else {
-                trainQueries_ = Paths.get(trainQueriesPath).toFile();
-            }
-            if (!trainQueries_.exists()) {
-                LOG.finer("Could not find trainQueries file in " + trainQueries_ + ", will try to use " + Paths.get(foldDir.toString(), settings.trainQueriesFile2) + " file for the same purpose");
-                trainQueries_ = Paths.get(foldDir.toString(), settings.trainQueriesFile2).toFile();
-            }
-
-            this.train.QueriesReader = new FileReader(trainQueries_);
-            this.trainQueries = trainQueries_;
-
-            recognizeFileType(this.trainQueries.getAbsolutePath(), trainQueries_, settings);
-
-        } catch (FileNotFoundException e) {
-            LOG.info("There are no separate train queries found.");
-        }
-
-        try {
-            if (this.valQueries != null) {
-                settings.valQueriesFile = valQueries.getPath();
-            }
-            String valQueriesPath = cmd.getOptionValue("valQueries", settings.valQueriesFile);
-            File valQueries_;
-            if (valQueriesPath.startsWith("\\.") || settings.sourcePathProvided) {
-                valQueries_ = Paths.get(foldDir.toString(), valQueriesPath).toFile();
-            } else {
-                valQueries_ = Paths.get(valQueriesPath).toFile();
-            }
-            this.val.QueriesReader = new FileReader(valQueries_);
-            this.valQueries = valQueries_;
-            recognizeFileType(this.valQueries.getAbsolutePath(), valQueries_, settings);
-
-        } catch (FileNotFoundException e) {
-            LOG.info("There are no separate validation queries found.");
-        }
-
-        try {
-            if (this.testQueries != null) {
-                settings.testQueriesFile = testQueries.getPath();
-            }
-            String testQueriesPath = cmd.getOptionValue("testQueries", settings.testQueriesFile);
-            File testQueries_;
-            if (testQueriesPath.startsWith("\\.") || settings.sourcePathProvided) {
-                testQueries_ = Paths.get(foldDir.toString(), testQueriesPath).toFile();
-            } else {
-                testQueries_ = Paths.get(testQueriesPath).toFile();
-            }
-            this.test.QueriesReader = new FileReader(testQueries_);
-            this.testQueries = testQueries_;
-            recognizeFileType(this.testQueries.getAbsolutePath(), testQueries_, settings);
-
-        } catch (FileNotFoundException e) {
-            LOG.info("There are no separate test queries found.");
-        }
+        this.test.QueriesReader = loadFile("testQueries", settings, cmd, foldDir);
 
         return this;
+    }
+
+    /**
+     * A generic file loader/field setter
+     * based on reflection unfortunately (ugly, I know...) - exploits the naming patterns in the variables
+     * - do not change them!
+     *
+     * @param name
+     * @param settings
+     * @param cmd
+     * @param foldDir
+     * @return
+     */
+    private FileReader loadFile(String name, Settings settings, CommandLine cmd, File foldDir) {
+        try {
+            Field localFileField = this.getClass().getField(name);  //e.g. this.trainExamples
+            File localFile = (File) this.getClass().getField(name).get(this);  //e.g. this.trainExamples
+            Field settingsFileField = settings.getClass().getField(name + "File");
+
+
+            if (localFile != null) {
+                settingsFileField.set(settings, localFile.getPath());
+            }
+
+            String filePath = cmd.getOptionValue(name, (String) settingsFileField.get(settings));
+            File file_ = null;
+            if (filePath.startsWith("\\.") || settings.sourcePathProvided) {
+                file_ = Paths.get(foldDir.toString(), filePath).toFile();
+            } else {
+                file_ = Paths.get(filePath).toFile();
+            }
+            if (!file_.exists()) {
+                LOG.finer("Could not find " + name + " file in " + file_ + ", will try to add suffix: " + Settings.inputFilesSuffix);
+                file_ = Paths.get(foldDir.toString(), filePath + Settings.inputFilesSuffix).toFile();
+                if (!file_.exists()) {
+                    String settingsFile2 = null;
+                    try {
+                        settingsFile2 = (String) settings.getClass().getField(name + "File2").get(settings);
+                        LOG.finer("Could not find " + name + " in " + file_ + ", will try to use " + Paths.get(foldDir.toString(), settingsFile2) + " file for the same purpose");
+                        file_ = Paths.get(foldDir.toString(), settingsFile2).toFile();
+                    } catch (NoSuchFieldException e) {
+                        //this is ok, only some files have alternative names
+                    }
+                }
+            }
+            FileReader fileReader = new FileReader(file_);
+            localFileField.set(this, file_);
+            recognizeFileType(((File) localFileField.get(this)).getAbsolutePath(), name, settings);
+            return fileReader;
+
+        } catch (FileNotFoundException e) {
+            LOG.info("There are no " + name + " found");
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static String sanitizeTempl(String name) {
@@ -381,6 +330,12 @@ public class SourceFiles extends Sources {
                 this.template = ((SourceFiles) parent).template;
                 return null;
             } else {
+                LOG.finer("Could not find template file in " + template_ + ", will try to add suffix: " + Settings.inputFilesSuffix);
+                template_ = sanitizePath(settings, cmd, foldDir, templatePath + Settings.inputFilesSuffix);
+                if (template_.exists()) {
+                    return template_;
+                }
+
                 LOG.finer("Could not find template file in " + template_ + ", will try to use " + foldDir.toString() + "/" + settings.templateFile2 + " file for the same purpose");
                 template_ = Paths.get(foldDir.toString(), settings.templateFile2).toFile();
                 if (template_.exists()) {
@@ -420,8 +375,9 @@ public class SourceFiles extends Sources {
         }
     }
 
-    private String recognizeFileType(String path, File sourceType, Settings settings) {
+    private String recognizeFileType(String path, String sourceType, Settings settings) {
         String contentType = identifyFileTypeUsingFilesProbeContentType(path);
+        LOG.finer("Probing content type of: " + path);
         switch (contentType) {
             case "text/plain":
                 settings.plaintextInput = true;

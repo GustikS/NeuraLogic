@@ -101,6 +101,8 @@ public abstract class Activation extends Aggregation {
         switch (agg) {
             case "sigmoid":
                 return Activation.Singletons.sigmoid;
+            case "sigm":
+                return Activation.Singletons.sigmoid;
             case "tanh":
                 return Activation.Singletons.tanh;
             case "signum":

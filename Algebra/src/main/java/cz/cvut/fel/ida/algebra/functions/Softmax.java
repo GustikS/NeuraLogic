@@ -1,5 +1,6 @@
 package cz.cvut.fel.ida.algebra.functions;
 
+import cz.cvut.fel.ida.algebra.values.MatrixValue;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.VectorValue;
@@ -8,7 +9,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * todo This is somewhere between activation and Aggregation...
+ * This is somewhere between activation and Aggregation...
+ * todo test softmax as an aggregation fcn
  */
 public class Softmax extends Activation implements XMax {
     private static final Logger LOG = Logger.getLogger(Softmax.class.getName());
@@ -22,6 +24,27 @@ public class Softmax extends Activation implements XMax {
         return Singletons.softmax;
     }
 
+    public Value evaluate(Value summedInputs) {
+        if (summedInputs instanceof VectorValue) {
+            VectorValue inputVector = (VectorValue) summedInputs;
+            double[] probabilities = getProbabilities(inputVector.values);
+            return new VectorValue(probabilities);
+        } else {
+            throw new ClassCastException("Trying to apply softmax on something else than a Vector...");
+        }
+    }
+
+    public Value differentiate(Value summedInputs) {
+        if (summedInputs instanceof VectorValue) {
+            VectorValue inputVector = (VectorValue) summedInputs;
+            double[] exps = getProbabilities(inputVector.values);
+            double[][] diffs = getGradient(exps);
+            return new MatrixValue(diffs);
+        } else {
+            throw new ClassCastException("Trying to differentiate softmax on something else than a Vector...");
+        }
+    }
+
     @Override
     public Value evaluate(List<Value> inputs) {
         double[] exps = getProbabilities(inputs);
@@ -32,22 +55,23 @@ public class Softmax extends Activation implements XMax {
     @Override
     public Value differentiate(List<Value> inputs) {
         double[] exps = getProbabilities(inputs);
-        double[] diffs = getGradient(exps);
-        VectorValue output = new VectorValue(diffs);
+        double[][] diffs = getGradient(exps);
+        MatrixValue output = new MatrixValue(diffs);
         return output;
     }
 
-    public double[] getGradient(double[] exps) {
-        double[] diffs = new double[exps.length];
+    public double[][] getGradient(double[] exps) {
+        double[][] diffs = new double[exps.length][exps.length];
         for (int i = 0; i < exps.length; i++) {
-            for (int j = 0; j < diffs.length; j++) {
+            for (int j = 0; j < exps.length; j++) {
                 if (i == j) {
-                    diffs[j] += exps[i] * (1 - exps[j]);
+                    diffs[i][j] = exps[i] * (1 - exps[j]);
                 } else {
-                    diffs[j] -= exps[i] * exps[j];
+                    diffs[i][j] = -exps[i] * exps[j];
                 }
             }
         }
+
         return diffs;
     }
 
@@ -67,14 +91,14 @@ public class Softmax extends Activation implements XMax {
     }
 
     public double[] getProbabilities(List<Value> inputs) {
-        if (inputs.size()==1 && inputs.get(0) instanceof VectorValue){
+        if (inputs.size() == 1 && inputs.get(0) instanceof VectorValue) {
             return getProbabilities(((VectorValue) inputs.get(0)).values);
         }
 
         double expsum = 0;
         double[] exps = new double[inputs.size()];
         for (int i = 0; i < inputs.size(); i++) {
-            double exp = Math.exp(((ScalarValue) inputs.get(i)).value);
+            double exp = Math.exp(((ScalarValue) inputs.get(i)).value); //assuming softmax over scalars!
             exps[i] = exp;
             expsum += exp;
         }

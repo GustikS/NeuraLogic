@@ -1,8 +1,8 @@
 package cz.cvut.fel.ida.neural.networks.structure.components.neurons.states;
 
-import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.Backpropagation;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.values.Value;
+import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.Backpropagation;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.StateVisiting;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.networks.ParentsTransfer;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.neurons.Backproper;
@@ -50,6 +50,11 @@ public abstract class States implements State {
             return aggregation;
         }
 
+        @Override
+        public void setAggregation(Aggregation aggregation) {
+            this.aggregation = aggregation;
+        }
+
         public Value accept(StateVisiting.Computation visitor) {
             return states[visitor.stateIndex].accept(visitor);
         }
@@ -89,6 +94,11 @@ public abstract class States implements State {
         @Override
         public Aggregation getAggregation() {
             return aggregationState.getAggregation();
+        }
+
+        @Override
+        public void setAggregation(Aggregation aggregation) {
+            this.aggregationState.setAggregation(aggregation);
         }
 
         @Override
@@ -132,13 +142,17 @@ public abstract class States implements State {
             return acumGradient;
         }
 
-
         public void storeValue(Value value) {
             aggregationState.cumulate(value);
         }
 
         public void storeGradient(Value value) {
             acumGradient.incrementBy(value);
+        }
+
+        @Override
+        public Value evaluate() {
+            return aggregationState.evaluate();
         }
     }
 
@@ -344,72 +358,90 @@ public abstract class States implements State {
     }
 
     /**
-     * Nothing but a Value. E.g. for Fact Neurons.
+     * A simple Value. E.g. for Fact Neurons. May be learnable (e.g. an embedding)
      */
     public static class SimpleValue implements Neural.Computation {
 
-        Value value;
+        Value outputValue;  // the Value is stored right here
+        Value acumGradient; // also the gradient
+        AggregationState aggregationState;  // this state is just dummy (no computation there)
+        public boolean isLearnable = false;
 
         public SimpleValue(Value factValue) {
-            this.value = factValue;
+            outputValue = factValue;
+            acumGradient = factValue.getForm();
+            aggregationState = new AggregationState.SimpleValueState();
         }
 
         @Override
         public void invalidate() {
-            //void
+//            outputValue.zero();   // NO - this is not some intermediate result value, but a stored value (or weight to be continuously learned...)
+            acumGradient.zero();
         }
 
         @Override
         public Computation clone() {
-            return new SimpleValue(value.clone());
+            return new SimpleValue(outputValue.clone());
         }
 
         @Override
         public void setupValueDimensions(Value value) {
-            this.value = value.getForm();
+            outputValue = value.getForm();
+            acumGradient = value.getForm();
         }
 
         @Override
         public AggregationState getAggregationState() {
-            LOG.severe("Fact neurons cannot be evaluated, you can only obtain the value via getResult!");
-            return null;
+//            LOG.severe("Fact neurons cannot be evaluated, you can only obtain the value via getResult!");
+            return aggregationState;
         }
 
         @Override
         public Value getValue() {
-            return value;
+            return outputValue;
         }
 
         @Override
         public Value getGradient() {
-//            LOG.warning("FactNeurons stored no gradient.");
-            return null;
+            return acumGradient;
         }
 
         @Override
         public void setValue(Value value) {
-            //void
+            outputValue = value;
         }
 
         @Override
         public void setGradient(Value gradient) {
-            //void
+            acumGradient = gradient;
         }
 
         @Override
         public void storeValue(Value value) {
-            //void
+            outputValue = value;    //there is no accumulation of values here (from inputs) as there are no inputs
         }
 
         @Override
         public void storeGradient(Value gradient) {
-            //void
+            if (isLearnable) {
+                acumGradient.incrementBy(gradient);
+            }
+        }
+
+        @Override
+        public Value evaluate() {
+            return outputValue;
         }
 
         @Override
         public Aggregation getAggregation() {
-            LOG.warning("FactNeurons have no aggregation.");
+//            LOG.warning("FactNeurons have no aggregation.");
             return null;
+        }
+
+        @Override
+        public void setAggregation(Aggregation aggregation) {
+            LOG.warning("FactNeurons have no aggregation.");
         }
     }
 

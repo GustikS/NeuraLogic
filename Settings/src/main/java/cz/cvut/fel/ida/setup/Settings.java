@@ -16,6 +16,7 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,10 +31,7 @@ public class Settings implements Serializable {
     //todo - uncompressed lambda template for experiments
     //todo - how to handle non-entailed examples
     //todo - dynamic restarting + learning rate progression
-    //todo - various exporting
-    //todo - alldiff
-    //todo - learning factNeuron offsets
-    //todo - special predicates
+    //todo - learning factNeuron offsets?
 
     private transient static final Logger LOG = Logger.getLogger(Settings.class.getName());
 
@@ -688,6 +686,19 @@ public class Settings implements Serializable {
     public ErrorFcn errorFunction = ErrorFcn.SQUARED_DIFF;
 
     /**
+     * If set to true, it will automatically infer (override) output neuron's activation AND error fcn based on the learning setting
+     * - i.e. evaluationMode (classification/regression/KBC)
+     * - e.g. it will set softmax+crossentropy if multinomial classification is detected (and sigmoid for binary)
+     */
+    public boolean inferOutputNeuronFcn = true;
+
+    /**
+     * Merge the last activation fcn and the errorFcn into a single function
+     * - e.g. squish softmax + crossentropy into softentropy for optimization and numerical stability
+     */
+    public boolean squishLastLayer = true;
+
+    /**
      * Include also the actual LRNN Query predicate as input to the corruptions
      */
     public boolean hitsReifyPredicate = false;
@@ -747,7 +758,7 @@ public class Settings implements Serializable {
     }
 
     public enum ErrorFcn {
-        SQUARED_DIFF, ABS_DIFF, CROSSENTROPY;
+        SQUARED_DIFF, ABS_DIFF, CROSSENTROPY, SOFTENTROPY;
     }
 
     public enum AggregationFcn {
@@ -908,15 +919,27 @@ public class Settings implements Serializable {
 
 
     /**
+     * Stores dynamically inferred settings and values
+     */
+    public Inferred inferred = new Inferred();
+
+    /**
      * Stores dynamically inferred settings
      */
     public class Inferred {
         //todo store dynamically inferred settings here
 
+        /**
+         * The maximal index of any weight created during the process
+         * - inferred after template/sample processing (incl. grounding)
+         */
+        public AtomicInteger maxWeightCount = new AtomicInteger(0);
+
     }
 
     /**
-     * TODO Setup globally default settings here
+     * Setup globally default settings here -> it is initialized right in the fields
+     * and inferred and validated later
      */
     public Settings() {
     }

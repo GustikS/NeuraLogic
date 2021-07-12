@@ -14,7 +14,7 @@ public class NeuralBuilder {
     public NeuralBuilder(Settings settings) {
         this.settings = settings;
         statesBuilder = new StatesBuilder(settings);
-        weightFactory = new WeightFactory();
+        weightFactory = new WeightFactory(settings.inferred.maxWeightCount);
         neuronFactory = new NeuronFactory(weightFactory, settings);
         networkFactory = new NeuralNetFactory(settings);
     }

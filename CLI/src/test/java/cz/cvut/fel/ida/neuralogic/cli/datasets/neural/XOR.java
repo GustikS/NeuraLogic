@@ -29,7 +29,7 @@ public class XOR {
         Double bestAccuracy = classificationResults.bestAccuracy;
         assertEquals(bestAccuracy, 1.0);
         Duration timeTaken = results.r.timing.getTimeTaken();
-        LOG.warning("time taken: "  + timeTaken);
+        LOG.warning("time taken: " + timeTaken);
         Duration limit = Duration.ofSeconds(4);
         assertTrue(timeTaken.compareTo(limit) < 0);
     }
@@ -41,12 +41,13 @@ public class XOR {
         Settings settings = Settings.forFastTest();
         settings.appLimitSamples = -1;
         settings.maxCumEpochCount = 1000;
+
         Pair<Pipeline, ?> results = Main.main(dataset, settings);
         DetailedClassificationResults classificationResults = (DetailedClassificationResults) results.s;
         Double bestAccuracy = classificationResults.bestAccuracy;
         assertEquals(bestAccuracy, 1.0);
         Duration timeTaken = results.r.timing.getTimeTaken();
-        LOG.warning("time taken: "  + timeTaken);
+        LOG.warning("time taken: " + timeTaken);
         Duration limit = Duration.ofSeconds(4);
         assertTrue(timeTaken.compareTo(limit) < 0);
     }
@@ -62,7 +63,7 @@ public class XOR {
         Double bestAccuracy = classificationResults.accuracy;
         assertEquals(bestAccuracy, 1.0);
         Duration timeTaken = results.r.timing.getTimeTaken();
-        LOG.warning("time taken: "  + timeTaken);
+        LOG.warning("time taken: " + timeTaken);
         Duration limit = Duration.ofMillis(1500);
         assertTrue(timeTaken.compareTo(limit) < 0);
     }

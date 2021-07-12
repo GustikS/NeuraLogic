@@ -24,6 +24,7 @@ public class Mutagenesis {
 
     /**
      * DO NOT TOUCH THIS!!
+     * - this test is also a bit numerically unstable
      *
      * @throws Exception
      */
@@ -36,6 +37,7 @@ public class Mutagenesis {
         settings.initDistribution = Settings.InitDistribution.CONSTANT;
 
         // the seed 3 matches the old version with seed 1 with disp value = 0.0014794164025840328
+        // - try to change seed to 0 back and forth few times if it doesnt work (also, no debug mode!)
         settings.seed = 3;  //the seed matters only from 15th decimal place further and there are only 2-3 variants (probably orderings in summations)
         settings.shuffleBeforeFoldSplit = false;
         settings.shuffleBeforeTraining = false;
@@ -48,6 +50,12 @@ public class Mutagenesis {
 
         settings.atomNeuronActivation = Settings.ActivationFcn.SIGMOID;
         settings.ruleNeuronActivation = Settings.ActivationFcn.SIGMOID;
+
+        settings.errorAggregationFcn = Settings.AggregationFcn.AVG;
+        settings.errorFunction = Settings.ErrorFcn.SQUARED_DIFF;
+
+        settings.inferOutputNeuronFcn = false;
+        settings.squishLastLayer = false;
 
         settings.calculateBestThreshold = true;
 //        settings.appLimitSamples = 100;
@@ -66,7 +74,7 @@ public class Mutagenesis {
 
         Pair<Pipeline, ?> main = Main.main(args2ex, settings);
         ClassificationResults results = (ClassificationResults) main.s;
-        assertEquals(0.0014794164025840328, results.dispersion, 0.0000000000000001);
+        assertEquals(0.0014794164025840328, results.dispersion, 0.000000000000001);
     }
 
     /**

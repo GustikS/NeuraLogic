@@ -26,7 +26,12 @@ public abstract class LogicSourceBuilder<I extends PlainParseTree<? extends Pars
     // Predicates are shared over the whole logic source
     public WeightedPredicateFactory predicateFactory = new WeightedPredicateFactory();
     // Weights are shared over the whole logic source
-    public WeightFactory weightFactory = new WeightFactory();
+    public WeightFactory weightFactory;
+
+    public LogicSourceBuilder(Settings settings, WeightFactory weightFactory) {
+        this.settings = settings;
+        this.weightFactory  = weightFactory;
+    }
 
     //variable factories are typically just used locally (variables shared only within clauses)
 

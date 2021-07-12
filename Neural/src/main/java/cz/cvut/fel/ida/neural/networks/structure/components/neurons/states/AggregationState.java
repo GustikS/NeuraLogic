@@ -4,6 +4,7 @@ import cz.cvut.fel.ida.algebra.functions.Activation;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.functions.Concatenation;
 import cz.cvut.fel.ida.algebra.functions.XMax;
+import cz.cvut.fel.ida.algebra.values.MatrixValue;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.VectorValue;
@@ -23,6 +24,8 @@ public abstract class AggregationState implements Aggregation.State {
     private static final Logger LOG = Logger.getLogger(AggregationState.class.getName());
 
     public abstract Aggregation getAggregation();
+
+    public abstract void setAggregation(Aggregation act);
 
     public abstract void setupValueDimensions(Value value);
 
@@ -72,8 +75,62 @@ public abstract class AggregationState implements Aggregation.State {
         }
 
         @Override
+        public void setAggregation(Aggregation act) {
+            this.activation = (Activation) act;
+        }
+
+        @Override
         public void setupValueDimensions(Value value) {
             this.summedInputs = value.getForm();
+        }
+    }
+
+    /**
+     * A dummy state for fact neurons (e.g. embeddings)
+     * - no value here, the value is stored straight in the States.SimpleValue state
+     */
+    public static class SimpleValueState extends AggregationState {
+
+        public SimpleValueState() {
+        }
+
+
+        @Override
+        public void cumulate(Value value) {
+            // no such thing here
+        }
+
+        @Override
+        public void invalidate() {
+//            value.zero(); //No, this is a value storage - the value can get initialized
+        }
+
+        public int[] getInputMask() {
+            return null;
+        }
+
+        @Override
+        public Value gradient() {
+            return Value.ONE;   //i.e. the invariant element for multiplication
+        }
+
+        @Override
+        public Value evaluate() {
+            return null;
+        }
+
+        @Override
+        public Activation getAggregation() {
+            return null;
+        }
+
+        @Override
+        public void setAggregation(Aggregation act) {
+        }
+
+        @Override
+        public void setupValueDimensions(Value value) {
+
         }
     }
 
@@ -124,6 +181,11 @@ public abstract class AggregationState implements Aggregation.State {
         }
 
         @Override
+        public void setAggregation(Aggregation act) {
+            this.activation = (Activation) act;
+        }
+
+        @Override
         public void setupValueDimensions(Value value) {
             this.multipliedInputs = value.getForm();
         }
@@ -142,6 +204,11 @@ public abstract class AggregationState implements Aggregation.State {
         @Override
         public Aggregation getAggregation() {
             return aggregation;
+        }
+
+        @Override
+        public void setAggregation(Aggregation act) {
+            this.aggregation = act;
         }
 
         public static class Max extends Pooling {
@@ -347,6 +414,11 @@ public abstract class AggregationState implements Aggregation.State {
         }
 
         @Override
+        public void setAggregation(Aggregation act) {
+            this.aggregation = act;
+        }
+
+        @Override
         public void setupValueDimensions(Value value) {
 
         }
@@ -433,8 +505,8 @@ public abstract class AggregationState implements Aggregation.State {
 
         @Override
         public Value gradient() {
-            double[] gradient = xmax.getGradient(probabilities);
-            return new VectorValue(gradient);
+            double[][] gradient = xmax.getGradient(probabilities);
+            return new MatrixValue(gradient);
         }
     }
 

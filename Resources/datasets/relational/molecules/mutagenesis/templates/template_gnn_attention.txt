@@ -1,0 +1,11 @@
+import ./embeddings.txt
+
+% get the attention coefficient for each neighboring pair of nodes (each edge)
+{1,3} attention(X,Y) :- {3,3} atom_embed(X), {3,3} atom_embed(Y), *bond(X,Y,_).
+
+% aggregate the neighbors Y multiplied by the corresponding coefficients of importance w.r.t. X
+{3,3} embed_l1(X) :- atom_embed(Y), attention(X,Y). [activation = product-tanh]
+
+{1,3} predict :- embed_l1(X).
+
+attention/2 [activation=sigm]

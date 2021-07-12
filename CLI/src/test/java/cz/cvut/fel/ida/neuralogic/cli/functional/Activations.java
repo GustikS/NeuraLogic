@@ -52,4 +52,14 @@ public class Activations {
 
         Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/mutagenesis", "-t ./templates/template_gnn.txt"), settings);
     }
+
+    @TestAnnotations.Medium
+    public void attention() throws Exception {
+
+        Settings settings = Settings.forFastTest();
+        settings.appLimitSamples = -1;
+        settings.maxCumEpochCount = 1000;
+
+        Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/mutagenesis", "-t ./templates/template_gnn_attention.txt"), settings);
+    }
 }

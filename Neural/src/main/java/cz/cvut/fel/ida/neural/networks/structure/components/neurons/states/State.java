@@ -1,6 +1,5 @@
 package cz.cvut.fel.ida.neural.networks.structure.components.neurons.states;
 
-import org.jetbrains.annotations.NotNull;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.modes.DFSstack;
@@ -82,8 +81,9 @@ public interface State<V> extends Exportable {
          */
         Computation getComputationView(int index);
 
-        @NotNull
         Aggregation getAggregation();
+
+        void setAggregation(Aggregation aggregation);
 
         /**
          * Stateful values held by a Neuron for use during neural computation, i.e. Evaluation and Backpropagation
@@ -131,6 +131,8 @@ public interface State<V> extends Exportable {
             default boolean ready4expansion(StateVisiting visitor) {
                 return true;
             }
+
+            Value evaluate();
 
             interface HasParents {
 

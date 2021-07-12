@@ -1,6 +1,5 @@
 package cz.cvut.fel.ida.neural.networks.structure.building;
 
-import org.jetbrains.annotations.NotNull;
 import cz.cvut.fel.ida.logic.Clause;
 import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.logic.constructs.building.factories.WeightFactory;
@@ -19,6 +18,7 @@ import cz.cvut.fel.ida.neural.networks.structure.components.types.DetailedNetwor
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 import cz.cvut.fel.ida.utils.generic.Timing;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -110,7 +110,7 @@ public class Neuralizer implements Exportable {
             }
             QueryNeuron queryNeuron = new QueryNeuron(queryAtom.ID + ":" + queryAtom.headAtom.toString(), queryAtom.position, queryAtom.importance, atomNeuron, neuralNetwork);
 
-            NeuralProcessingSample neuralProcessingSample = new NeuralProcessingSample(logicSample.target, queryNeuron, logicSample.type);
+            NeuralProcessingSample neuralProcessingSample = new NeuralProcessingSample(logicSample.target, queryNeuron, logicSample.type, settings);
             neuralSamples.add(neuralProcessingSample);
         }
 
@@ -151,7 +151,7 @@ public class Neuralizer implements Exportable {
 //        groundingSample.cache = neuralNetBuilder.getNeuronMaps(); //storing the context back again
 
         List<NeuralProcessingSample> samples = queryNeurons.stream()
-                .map(queryNeuron -> new NeuralProcessingSample(groundingSample.target, queryNeuron, groundingSample.type))
+                .map(queryNeuron -> new NeuralProcessingSample(groundingSample.target, queryNeuron, groundingSample.type, settings))
                 .collect(Collectors.toList());
 
         neuronCounts = createdNeurons.getCounts();

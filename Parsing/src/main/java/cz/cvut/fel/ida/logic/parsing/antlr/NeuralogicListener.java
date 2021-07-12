@@ -278,6 +278,16 @@ public interface NeuralogicListener extends ParseTreeListener {
 	 */
 	void exitVector(NeuralogicParser.VectorContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link NeuralogicParser#sparseVector}.
+	 * @param ctx the parse tree
+	 */
+	void enterSparseVector(NeuralogicParser.SparseVectorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link NeuralogicParser#sparseVector}.
+	 * @param ctx the parse tree
+	 */
+	void exitSparseVector(NeuralogicParser.SparseVectorContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link NeuralogicParser#matrix}.
 	 * @param ctx the parse tree
 	 */
@@ -288,6 +298,16 @@ public interface NeuralogicListener extends ParseTreeListener {
 	 */
 	void exitMatrix(NeuralogicParser.MatrixContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link NeuralogicParser#sparseMatrix}.
+	 * @param ctx the parse tree
+	 */
+	void enterSparseMatrix(NeuralogicParser.SparseMatrixContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link NeuralogicParser#sparseMatrix}.
+	 * @param ctx the parse tree
+	 */
+	void exitSparseMatrix(NeuralogicParser.SparseMatrixContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link NeuralogicParser#dimensions}.
 	 * @param ctx the parse tree
 	 */
@@ -297,6 +317,26 @@ public interface NeuralogicListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitDimensions(NeuralogicParser.DimensionsContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link NeuralogicParser#element}.
+	 * @param ctx the parse tree
+	 */
+	void enterElement(NeuralogicParser.ElementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link NeuralogicParser#element}.
+	 * @param ctx the parse tree
+	 */
+	void exitElement(NeuralogicParser.ElementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link NeuralogicParser#element2d}.
+	 * @param ctx the parse tree
+	 */
+	void enterElement2d(NeuralogicParser.Element2dContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link NeuralogicParser#element2d}.
+	 * @param ctx the parse tree
+	 */
+	void exitElement2d(NeuralogicParser.Element2dContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link NeuralogicParser#negation}.
 	 * @param ctx the parse tree

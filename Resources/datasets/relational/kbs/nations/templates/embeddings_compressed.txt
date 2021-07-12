@@ -1,0 +1,3 @@
+{3} @embed_nation(X) :- nation(X).
+{3} @embed_att(X) :- att(X).
+{3} @embed_rel(X) :- rel(X).

@@ -23,7 +23,7 @@ public class Nations {
      * 1 training step = app. 1.5s
      * @throws RunnerException
      */
-    @TestAnnotations.Slow
+    @TestAnnotations.AdHoc
     public void benchmarkBasic() throws RunnerException {
         Duration referenceTime = Duration.ofSeconds(35);
         double maxDeviation = 0.2;
@@ -32,11 +32,12 @@ public class Nations {
         assertSmallRuntimeDeviation(runResults, referenceTime, maxDeviation);
     }
 
-//    @Benchmark
+    @TestAnnotations.Slow
     public void basicKBC() throws Exception {
         Settings settings = Settings.forSlowTest();
         settings.resultsRecalculationEpochae = 10;
-        settings.maxCumEpochCount = 20;
+        settings.maxCumEpochCount = 100;
+        settings.isoValueCompression = true;
         Main.main(getDatasetArgs(dataset,"-t ./templates/template.txt"), settings);
     }
 

@@ -2,6 +2,7 @@ package cz.cvut.fel.ida.learning.results;
 
 import cz.cvut.fel.ida.algebra.functions.ErrorFcn;
 import cz.cvut.fel.ida.algebra.functions.specific.Crossentropy;
+import cz.cvut.fel.ida.algebra.functions.specific.SoftEntropy;
 import cz.cvut.fel.ida.algebra.functions.specific.SquaredDiff;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
@@ -32,6 +33,9 @@ public class Result implements Comparable<Result> {
         this.position = position;
         this.setTarget(target);
         this.setOutput(output);
+        if (!target.getClass().equals(output.getClass())) {
+            throw new ArithmeticException("Output and Target Value dimensions do not match!");
+        }
     }
 
     public Value errorValue() {
@@ -78,11 +82,14 @@ public class Result implements Comparable<Result> {
 
         private ErrorFcn getErrFcn(Settings settings) {
             if (settings.errorFunction == Settings.ErrorFcn.SQUARED_DIFF)
-                return new SquaredDiff();
-            else if (settings.errorFunction == Settings.ErrorFcn.CROSSENTROPY){
-                return new Crossentropy();
-            }
-            else return null; //todo move all getters for the enum types into Settings?
+                return SquaredDiff.singleton;
+            else if (settings.errorFunction == Settings.ErrorFcn.CROSSENTROPY) {
+                return Crossentropy.singleton;
+            } else if (settings.errorFunction == Settings.ErrorFcn.SOFTENTROPY) {
+                return SoftEntropy.singleton;
+            } else return null;
+            // move all getters for the enum types into Settings?
+            // -> no, that would introduce unwanted dependencies in the Setting class
         }
     }
 
