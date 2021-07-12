@@ -98,9 +98,6 @@ public class PythonBuilder extends AbstractPipelineBuilder<Sources, Pair<NeuralM
         FirstFromPairExtractionBranch<Template, Stream<LogicSample>> templateSamplesBranch = pipeline.register(new FirstFromPairExtractionBranch<>());
         templateDuplicateBranch = pipeline.register(new DuplicateBranch<>());
 
-        //to transfer parameters from groundings to neural nets
-        WeightFactory weightFactory = new WeightFactory();
-
         //pipelines
         Pipeline<Sources, Pair<Template, Stream<LogicSample>>> sourcesPairPipeline = pipeline.registerStart(buildFromSources(template, sources, settings));
         Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> groundingPipeline = pipeline.register(buildGrounding(settings, weightFactory));
