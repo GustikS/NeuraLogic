@@ -21,6 +21,7 @@ import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.setup.Sources;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 
@@ -31,7 +32,7 @@ public class PythonBuilder extends AbstractPipelineBuilder<Sources, Pair<NeuralM
 
     public PythonBuilder(Settings settings) {
         super(settings);
-        this.weightFactory = new WeightFactory();
+        this.weightFactory = new WeightFactory(new AtomicInteger(0));
     }
 
     public Pipe<Template, NeuralModel> convertModel() {
