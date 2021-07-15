@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.pipelines.building;
 import cz.cvut.fel.ida.logic.constructs.building.factories.WeightFactory;
 import cz.cvut.fel.ida.logic.constructs.example.LogicSample;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
+import cz.cvut.fel.ida.pipelines.pipes.generic.LambdaPipe;
 import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.logic.grounding.GroundingSample;
 import cz.cvut.fel.ida.learning.results.Progress;
