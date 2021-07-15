@@ -64,8 +64,10 @@ public class BottomUp extends Grounder {
         // add already inferred facts as a hack to speedup the Herbrand model calculation
         if (settings.inferTemplateFacts) {
             Set<Literal> templateAllFacts = template.getAllFacts();
-            if (templateAllFacts != null)
+            if (templateAllFacts != null) {
+                facts = new HashSet<>(facts);
                 facts.addAll(templateAllFacts);
+            }
         }
 
         LOG.fine("Infering Herbrand model...");
@@ -82,6 +84,7 @@ public class BottomUp extends Grounder {
             if (embeddings != null) {
                 groundFacts.putAll(embeddings); // add the ground embedding facts (from the head atom)
                 template.facts.addAll(embeddings.values());
+                template.getAllFacts().addAll(embeddings.keySet());
                 continue;
             }
 

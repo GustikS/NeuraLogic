@@ -1,0 +1,12 @@
+import ./embeddings.txt
+
+{1} carriage(Y) :- shape(Y, X), embed_shape(X). 
+{1} carriage(Y) :- length(Y, X), embed_length(X).
+{1} carriage(Y) :- sides(Y, X), embed_sides(X).
+{1} carriage(Y) :- roof(Y, X), embed_wheels(X).
+{1} carriage(Y) :- wheels(Y, X), embed_loadnum(X).
+{1} carriage(Y) :- loadnum(Y, X), embed_loadshape(X).
+{1} carriage(Y) :- loadshape(Y, X), embed_roof(X).
+
+{1} train :- {1} carriage(Y).
+{1} direction :- train.

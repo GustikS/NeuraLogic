@@ -1,0 +1,31 @@
+{1} embed_length(long).
+{1} embed_length(short).
+
+{1} embed_sides(double).
+{1} embed_sides(not_double).
+
+{1} embed_roof(none).
+{1} embed_roof(flat).
+{1} embed_roof(peaked).
+{1} embed_roof(jagged).
+{1} embed_roof(arc).
+
+{1} embed_shape(ellipse).
+{1} embed_shape(hexagon).
+{1} embed_shape(bucket).
+{1} embed_shape(rectangle).
+{1} embed_shape(u_shaped).
+
+{1} embed_loadshape(diamond).
+{1} embed_loadshape(triangle).
+{1} embed_loadshape(rectangle).
+{1} embed_loadshape(hexagon).
+{1} embed_loadshape(circle).
+
+{1} embed_loadnum(0).
+{1} embed_loadnum(1).
+{1} embed_loadnum(2).
+{1} embed_loadnum(3).
+
+{1} embed_wheels(2).
+{1} embed_wheels(3).
