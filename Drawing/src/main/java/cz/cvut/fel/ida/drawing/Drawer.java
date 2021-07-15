@@ -4,6 +4,7 @@ package cz.cvut.fel.ida.drawing;
 import cz.cvut.fel.ida.setup.Settings;
 
 import javax.swing.*;
+import java.io.File;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.logging.Level;
@@ -73,6 +74,38 @@ public abstract class Drawer<S> {   //todo next replace hashcodes (which collide
         } catch (IOException | InterruptedException e) {
             LOG.severe(e.getMessage());
         }
+    }
+
+    public byte[] drawIntoFile(S obj, String path) {
+        byte[] image = this.drawIntoBytes(obj);
+
+        File file = new File(path);
+        file.getParentFile().mkdirs();
+        graphviz.writeImageToFile(image, file);
+
+        return null;
+    }
+
+    public byte[] drawIntoBytes(S obj) {
+        if (this.graphviz == null) {
+            this.graphviz = new GraphViz(this.settings);
+        }
+
+        this.graphviz.clearGraph();
+        loadGraph(obj);
+
+        return graphviz.getGraphUsingTemporaryFile(graphviz.getDotSource(), graphviz.imgtype, graphviz.algorithm);
+    }
+
+    public String getGraphSource(S obj) {
+        if (this.graphviz == null) {
+            this.graphviz = new GraphViz(this.settings);
+        }
+
+        this.graphviz.clearGraph();
+        loadGraph(obj);
+
+        return this.graphviz.getDotSource();
     }
 
     public abstract void loadGraph(S obj);  //todo add indentation into the dot file
