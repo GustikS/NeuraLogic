@@ -6,6 +6,7 @@
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/gustiks/neuralogic)
 
 _NeuraLogic is a framework for combining **relational** and **deep** learning through a form of **differentiable logic programming**. It is an official implementation of the **[Lifted Relational Neural Networks](https://jair.org/index.php/jair/article/view/11203)** concept._
+There is also a Python fronted [PyNeuralogic](https://github.com/LukasZahradnik/PyNeuraLogic) now.
 
 
 ---
