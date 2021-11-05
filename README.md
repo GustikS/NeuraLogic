@@ -203,6 +203,8 @@ or [long version](https://www.jair.org/index.php/jair/article/view/11203)  in Jo
 Further, you can find applications and extensions, including declarative [learning scenarios](https://link.springer.com/chapter/10.1007/978-3-319-63342-8_9) (ILP 2016) and inductive [structure learning](https://link.springer.com/chapter/10.1007/978-3-319-78090-0_10) (ILP 2017) of the programs.
 
 ###### Videos
+[IJCLR 2021 joint session](https://www.youtube.com/watch?v=-5h-h0ukXk0&list=PL18_rB75vx1PkjXnkX1jiqNeNnVCbNGIh&index=39)
+
 [NIPS CoCo workshop 2015](https://www.bilibili.com/video/av66440677/)
 
 [Prague Machine learning meetups 2017](https://www.youtube.com/watch?v=LHj8M8SV1zA)
