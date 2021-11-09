@@ -205,6 +205,8 @@ Further, you can find applications and extensions, including declarative [learni
 ###### Videos
 [IJCLR 2021 joint session](https://www.youtube.com/watch?v=-5h-h0ukXk0&list=PL18_rB75vx1PkjXnkX1jiqNeNnVCbNGIh&index=39)
 
+[ICLR 2021](https://slideslive.com/38954203/lossless-compression-of-structured-convolutional-models-gnns-via-lifting)
+
 [NIPS CoCo workshop 2015](https://www.bilibili.com/video/av66440677/)
 
 [Prague Machine learning meetups 2017](https://www.youtube.com/watch?v=LHj8M8SV1zA)
