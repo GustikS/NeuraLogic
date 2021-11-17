@@ -34,7 +34,7 @@ Additionally, let's assume that representation of a molecule (`q`) follows from 
 ```
 W_q q :- W_h2 h(X).
 ```
-These 2 rules, parameterized with the tensors `W_*`'s, then form a learning program, which can be directly used to classify molecules. Actually, it directly encodes a popular idea known as [Graph Neural Networks](https://arxiv.org/pdf/1901.00596.pdf).
+These 2 rules, parameterized with the tensors `W_*`'s, then form a learning program, which can be directly used to classify molecules. Actually, it directly encodes a popular idea known as [Graph Neural Networks](https://distill.pub/2021/gnn-intro).
 Execution of this program (or "template") for 2 input molecule samples will generate 2 parameterized differentiable computation graphs as follows:
 
 ![Template2Neural Grounding](.github/img/example_template.png)
@@ -42,7 +42,7 @@ Execution of this program (or "template") for 2 input molecule samples will gene
 Each computation node in the graphs is associated with some (differentiable) activation function defined by a user (or settings). 
 The parameters `W_*` in the program are then automatically optimized to reflect the expected output values (`A_q`) through gradient descent.
 
-For detailed syntax and semantics, please see [papers](#papers) on "**Lifted Relational Neural Networks**".
+For detailed syntax and semantics, please check the concept of "[*Lifted Relational Neural Networks*](https://arxiv.org/abs/2007.06286)". For a deep dive into the principles in full (scientific) context, please see my [dissertation thesis](https://gustiks.github.io/files/dissertation.pdf).
 
 
 <a name="myfootnote1">1</a>: _Note that NeuraLogic is by no means designed or limited to learning with chemical data/models/knowledge, but we use it as an example domain here for consistency._
@@ -197,10 +197,10 @@ For experiments from the paper "Lossless Compression of Structured Convolutional
 
 #### Papers
 
-googling "**Lifted Relational Neural Networks**" should give you a [short paper](http://ceur-ws.org/Vol-1583/CoCoNIPS_2015_paper_7.pdf) from a NIPS workshop on cognitive computation 2015,
-or [long version](https://www.jair.org/index.php/jair/article/view/11203)  in Journal of Artificial Intelligence Research, 2018. 
+Googling "**Lifted Relational Neural Networks**" should give you a [short paper](http://ceur-ws.org/Vol-1583/CoCoNIPS_2015_paper_7.pdf) from a NIPS workshop on cognitive computation 2015,
+and its [long version](https://www.jair.org/index.php/jair/article/view/11203) from Journal of Artificial Intelligence Research, 2018. The most up-to-date description of the framework then views it as a [generalization of Graph Neural Networks](https://arxiv.org/abs/2007.06286).
 
-Further, you can find applications and extensions, including declarative [learning scenarios](https://link.springer.com/chapter/10.1007/978-3-319-63342-8_9) (ILP 2016) and inductive [structure learning](https://link.springer.com/chapter/10.1007/978-3-319-78090-0_10) (ILP 2017) of the programs.
+Further, you can find applications and extensions, including declarative [learning scenarios](https://link.springer.com/chapter/10.1007/978-3-319-63342-8_9) (ILP 2016) and inductive [structure learning](https://link.springer.com/chapter/10.1007/978-3-319-78090-0_10) (ILP 2017) of the learning programs. The most complete description of the work in its full context can then be found in my [dissertation thesis](https://gustiks.github.io/files/dissertation.pdf).
 
 ###### Videos
 [IJCLR 2021 joint session](https://www.youtube.com/watch?v=-5h-h0ukXk0&list=PL18_rB75vx1PkjXnkX1jiqNeNnVCbNGIh&index=39)
