@@ -52,7 +52,7 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
     public Map<Neurons, List<State.Neural.Structure>> cumulativeStates;
 
     /**
-     * Number of shared neuron only AT THE TIME OF CREATION, i.e. if later some of them become shared, this needs to be recounted.
+     * Number of shared neurons only AT THE TIME OF CREATION, i.e. if later some of them become shared, this needs to be recounted.
      */
     public int sharedNeuronsCount;
 

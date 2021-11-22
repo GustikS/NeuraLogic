@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -34,7 +33,7 @@ public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRu
     int queryCounter = 0;
 
     public SamplesBuilder(Settings settings) {
-        super(settings, new WeightFactory(new AtomicInteger(0)));   //weights in samples are just constants - using separate (dummy) weighfactory starting rom index zero
+        super(settings, new WeightFactory(settings.inferred.maxWeightCount));   //Weights in samples can also be learnable now -> continuing from the last weight index
         this.prefix = settings.sampleIdPrefix;
     }
 

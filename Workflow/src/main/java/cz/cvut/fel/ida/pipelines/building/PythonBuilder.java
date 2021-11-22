@@ -3,25 +3,24 @@ package cz.cvut.fel.ida.pipelines.building;
 import cz.cvut.fel.ida.logic.constructs.building.factories.WeightFactory;
 import cz.cvut.fel.ida.logic.constructs.example.LogicSample;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
-import cz.cvut.fel.ida.pipelines.pipes.generic.LambdaPipe;
-import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.logic.grounding.GroundingSample;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
 import cz.cvut.fel.ida.neural.networks.structure.export.NeuralSerializer;
-import cz.cvut.fel.ida.pipelines.pipes.specific.NeuralSerializerPipe;
-import cz.cvut.fel.ida.pipelines.pipes.specific.TemplateToNeuralPipe;
 import cz.cvut.fel.ida.pipelines.Pipe;
 import cz.cvut.fel.ida.pipelines.Pipeline;
 import cz.cvut.fel.ida.pipelines.bulding.AbstractPipelineBuilder;
 import cz.cvut.fel.ida.pipelines.pipes.generic.DuplicateBranch;
 import cz.cvut.fel.ida.pipelines.pipes.generic.FirstFromPairExtractionBranch;
+import cz.cvut.fel.ida.pipelines.pipes.generic.LambdaPipe;
 import cz.cvut.fel.ida.pipelines.pipes.generic.PairMerge;
+import cz.cvut.fel.ida.pipelines.pipes.specific.NeuralSerializerPipe;
+import cz.cvut.fel.ida.pipelines.pipes.specific.TemplateToNeuralPipe;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.setup.Sources;
+import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 
@@ -32,7 +31,7 @@ public class PythonBuilder extends AbstractPipelineBuilder<Sources, Pair<NeuralM
 
     public PythonBuilder(Settings settings) {
         super(settings);
-        this.weightFactory = new WeightFactory(new AtomicInteger(0));
+        this.weightFactory = new WeightFactory(settings.inferred.maxWeightCount);
     }
 
     public Pipe<Template, NeuralModel> convertModel() {

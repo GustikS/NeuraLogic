@@ -8,5 +8,5 @@ import ./embeddings.txt
 {1} carriage(Y) :- loadnum(Y, X), embed_loadshape(X).
 {1} carriage(Y) :- loadshape(Y, X), embed_roof(X).
 
-{1} train :- {1} carriage(Y).
+{1} train :- carriage(Y).
 {1} direction :- train.

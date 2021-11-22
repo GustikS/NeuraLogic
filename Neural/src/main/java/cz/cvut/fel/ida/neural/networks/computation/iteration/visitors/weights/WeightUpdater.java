@@ -72,9 +72,7 @@ public class WeightUpdater implements WeightVisitor {
     }
 
     public void clearUpdates() {
-
         Arrays.fill(weightUpdates, null);
         updatedWeightsOnly.clear();
-
     }
 }
