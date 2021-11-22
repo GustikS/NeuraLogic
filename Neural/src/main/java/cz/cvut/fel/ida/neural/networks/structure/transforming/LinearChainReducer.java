@@ -77,7 +77,7 @@ public class LinearChainReducer implements NetworkReducing {
             BaseNeuron<Neurons, State.Neural> child = (BaseNeuron<Neurons, State.Neural>) middleInputNeurons.get(0);
             Iterator<Neurons> parents = inet.getOutputs(middle);
             if (parents == null) {
-                LOG.warning("Neuron has only 1 input but has no output, thus not pruning it.");
+                LOG.info("Neuron has only 1 input but has no output, thus not pruning it (i.e., an output neuron).");
                 return false;
             }
             parents.forEachRemaining(parent -> {

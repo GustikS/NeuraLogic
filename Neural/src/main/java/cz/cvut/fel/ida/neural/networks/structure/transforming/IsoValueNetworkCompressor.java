@@ -99,8 +99,8 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
         LOG.info("IsoValue neuron compression from " + sizeBefore + " down to " + etalons.size() + " etalons (topologic-reconstruction: " + inet.allNeuronsTopologic.size() + ")");
         if (etalons.size() > inet.allNeuronsTopologic.size()) {
             LOG.warning("There are more iso-values than neurons after compression (some unique parts have been pruned out!) = lossy compression");
-        } else if (etalons.size() < inet.allNeuronsTopologic.size()) {
-            LOG.warning("There are more neurons than iso-values (some neurons have not been pruned despite having the same value) = prevented by isomorphism check");
+        } else if (etalons.size() < inet.allNeuronsTopologic.size() - 1) {
+            LOG.warning("There are more neurons than iso-values (some neurons have not been pruned despite having the same value) - e.g. output neurons, or prevented by isomorphism check.");
         }
 
         allWeights.forEach(weight -> {
