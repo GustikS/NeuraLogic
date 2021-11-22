@@ -57,6 +57,9 @@ public class XOR {
         String[] dataset = getDatasetArgs("neural/xor/solution");
 
         Settings settings = Settings.forFastTest();
+        settings.squishLastLayer = false;
+        settings.inferOutputNeuronFcn = false;  //we want the template fcns exactly as they are
+
         settings.appLimitSamples = -1;
         Pair<Pipeline, ?> results = Main.main(dataset, settings);
         DetailedClassificationResults classificationResults = (DetailedClassificationResults) results.s;

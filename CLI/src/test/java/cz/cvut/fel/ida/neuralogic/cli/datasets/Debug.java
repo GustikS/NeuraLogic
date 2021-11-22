@@ -11,10 +11,10 @@ import static cz.cvut.fel.ida.utils.generic.Utilities.getDatasetArgs;
 public class Debug {
     private static final Logger LOG = Logger.getLogger(Debug.class.getName());
 
-    static String dataset = "debug/xor_first_sample";
+    static String dataset = "neural/xor/relational_debug";
 
-    @TestAnnotations.Slow
-    public void embeddings() throws Exception {
+    @TestAnnotations.Fast
+    public void xor() throws Exception {
         Settings settings = Settings.forSlowTest();
 //        settings.debugPipeline = true;
 //        settings.drawing = true;

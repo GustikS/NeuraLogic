@@ -1,0 +1,3 @@
+$a={1, 8} xor(X, Y) :- $b={8, 1} x(X), $c={8, 1} x(Y), *xy(X, Y), *n(Y).
+$a={1, 8} xor(X, Y) :- $b={8, 1} x(X), $c={8, 1} xor(Y, Z), *xy(X, Y), *xy(Y, Z).
+xor :- xor(0, X).

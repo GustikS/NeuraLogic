@@ -11,6 +11,7 @@ import cz.cvut.fel.ida.utils.generic.Utilities;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -39,6 +40,7 @@ public class ModelLoading {
         Pair<Pipeline, ?> trainResults = Main.main(Utilities.splitArgs(args), settings);
         Double trainDispersion = ((ClassificationResults) trainResults.s).dispersion;
 
+        settings.inferred.maxWeightCount = new AtomicInteger(0);
         args += " -te " + dataset + "/splits/trainExamples.txt";
         Pair<Pipeline, ?> testResults = Main.main(Utilities.splitArgs(args), settings);
         Double testDispersion = ((ClassificationResults) testResults.s).dispersion;
