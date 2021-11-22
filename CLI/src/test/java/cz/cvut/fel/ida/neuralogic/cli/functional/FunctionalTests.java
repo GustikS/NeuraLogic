@@ -24,7 +24,7 @@ public class FunctionalTests {
     void checkAvailableUseCases(String argString) throws Exception {
         String resourcePath = Utilities.getResourcePath(argString);
         LOG.info("Testing " + resourcePath);
-        String args = "-lim 1 -ts 0 -sd " + resourcePath;
+        String args = "-lim 1 -ts 1 -sd " + resourcePath;
         Main.mainExc(splitArgs(args));
     }
 }

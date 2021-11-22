@@ -67,19 +67,19 @@ public class TemplateSamplesBuilder extends AbstractPipelineBuilder<Sources, Pai
 
         if (this.template == null) {
             Pipeline<Sources, Template> sourcesTemplatePipeline = pipeline.register(getSourcesTemplatePipeline(sources, settings));
-            duplicateBranch.connectAfterR(sourcesTemplatePipeline);
+            duplicateBranch.connectAfterL(sourcesTemplatePipeline);
             pairMerge.connectBeforeL(sourcesTemplatePipeline);
         } else {
             LambdaPipe<Sources, Template> sourcesTemplatePipeline = pipeline.register(
                     new LambdaPipe<>("TemplateIdentityPipe", s -> this.template, settings)
             );
-            duplicateBranch.connectAfterR(sourcesTemplatePipeline);
+            duplicateBranch.connectAfterL(sourcesTemplatePipeline);
             pairMerge.connectBeforeL(sourcesTemplatePipeline);
         }
 
         if (sources.val != null && (sources.val.QueriesProvided || sources.val.ExamplesProvided)) {  //merge the training samples with validation samples while marking the validation samples as ValidationOnly
             DuplicateBranch<Sources> trainValSamplesBranch = pipeline.register(new DuplicateBranch<>("TrainValSamplesBranch"));
-            duplicateBranch.connectAfterL(trainValSamplesBranch);
+            duplicateBranch.connectAfterR(trainValSamplesBranch);
             trainValSamplesBranch.connectAfterL(getSource);
 
             Pipe<Sources, Source> getVal = pipeline.register(new LambdaPipe<Sources, Source>("getValSourcePipe", sources -> sources.val, settings));
@@ -105,7 +105,7 @@ public class TemplateSamplesBuilder extends AbstractPipelineBuilder<Sources, Pai
             pairMerge.connectBeforeR(trainValMerge);
 
         } else {
-            duplicateBranch.connectAfterL(getSource);
+            duplicateBranch.connectAfterR(getSource);
             pairMerge.connectBeforeR(getLogicSampleStream);
         }
 
