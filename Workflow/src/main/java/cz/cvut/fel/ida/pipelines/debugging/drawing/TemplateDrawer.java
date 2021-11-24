@@ -58,7 +58,7 @@ public class TemplateDrawer extends Drawer<Template> {
 
     private String draw(WeightedRule rule, BodyAtom bodyAtom) {
         String edgeColor = bodyAtom.isNegated() ? "red" : "black";
-        String weight = bodyAtom.getConjunctWeight() == null ? "" : bodyAtom.getConjunctWeight().toString();
+        String weight = bodyAtom.getConjunctWeight() == null ? "" : bodyAtom.getConjunctWeight().toString(numberFormat);
         return rule.hashCode() + " -> " + bodyAtom.hashCode() + "[label=" + GraphViz.sanitize(weight) + ", color=" + edgeColor + "]";
     }
 
@@ -67,7 +67,7 @@ public class TemplateDrawer extends Drawer<Template> {
     }
 
     private String draw(Literal literal, WeightedRule rule) {
-        return literal.hashCode() + " -> " + rule.hashCode() + "[label=" + GraphViz.sanitize(rule.getWeight().toString()) + "]";
+        return literal.hashCode() + " -> " + rule.hashCode() + "[label=" + GraphViz.sanitize(rule.getWeight().toString(numberFormat)) + "]";
     }
 
     private String draw(Literal literal) {

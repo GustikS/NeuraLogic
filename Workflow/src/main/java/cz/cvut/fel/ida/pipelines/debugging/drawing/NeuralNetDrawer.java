@@ -55,7 +55,7 @@ public class NeuralNetDrawer extends Drawer<NeuralSample> {
         }
     }
 
-    public static class NeuronDrawer extends NeuronVisitor.Weighted.Detailed {
+    public class NeuronDrawer extends NeuronVisitor.Weighted.Detailed {
         private final GraphViz gv;
         private final NeuralNetwork<State.Structure> neuralNetwork;
 
@@ -69,11 +69,11 @@ public class NeuralNetDrawer extends Drawer<NeuralSample> {
 
             String name = neuron.getClass().getSimpleName() + ":" + neuron.index + ":" + neuron.name;
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
-            String value = state.getValue().toString();
+            String value = state.getValue().toString(NeuralNetDrawer.this.numberFormat);
             Value stateGradient = state.getGradient();
             String gradient = "";
             if (stateGradient != null)
-                gradient = stateGradient.toString();
+                gradient = stateGradient.toString(NeuralNetDrawer.this.numberFormat);
             String dimensions = Arrays.toString(state.getValue().size());
             Aggregation neuronAggregation;
             if (neuron instanceof FactNeuron)
@@ -102,7 +102,7 @@ public class NeuralNetDrawer extends Drawer<NeuralSample> {
             sb.append(weight.index).append(":");
             sb.append(weight.name).append(":");
             sb.append(Arrays.toString(weight.value.size())).append(":");
-            sb.append(weight.value.toString());
+            sb.append(weight.value.toString(NeuralNetDrawer.this.numberFormat));
             sb.append("\"");
             if (weight.isFixed)
                 sb.append(", style=dashed ");

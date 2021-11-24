@@ -275,15 +275,20 @@ public class Settings implements Serializable {
      */
     public transient Random random;
 
-    private static DecimalFormatSymbols custom = new DecimalFormatSymbols(Locale.US);
+    /**
+     * Default numeric Value precision for printing
+     */
+    public transient NumberFormat defaultNumberFormat = shortNumberFormat;
+
+    private transient static DecimalFormatSymbols decimalFormatSymbol = new DecimalFormatSymbols(Locale.US);
     /**
      * Global number formats for all printing
      */
-    public transient static NumberFormat superDetailedNumberFormat = new DecimalFormat("#.################", custom);
+    public transient static NumberFormat superDetailedNumberFormat = new DecimalFormat("#.################", decimalFormatSymbol);
 
-    public transient static NumberFormat detailedNumberFormat = new DecimalFormat("#.##########", custom);
+    public transient static NumberFormat detailedNumberFormat = new DecimalFormat("#.##########", decimalFormatSymbol);
 
-    public transient static NumberFormat shortNumberFormat = new DecimalFormat("#.##", custom);
+    public transient static NumberFormat shortNumberFormat = new DecimalFormat("#.##", decimalFormatSymbol);
 
     //------------------Abstract Pipelines
 
@@ -921,7 +926,7 @@ public class Settings implements Serializable {
     /**
      * Stores dynamically inferred settings and values
      */
-    public Inferred inferred = new Inferred();
+    public transient Inferred inferred = new Inferred();
 
     /**
      * Stores dynamically inferred settings

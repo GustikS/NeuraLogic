@@ -2,6 +2,7 @@ package cz.cvut.fel.ida.algebra.values;
 
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
 
+import java.text.NumberFormat;
 import java.util.Iterator;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -81,8 +82,9 @@ public class TensorValue extends Value {
 
     }
 
+
     @Override
-    public String toString() {
+    public String toString(NumberFormat numberFormat) {
         throw new ArithmeticException("Higher dimension Tensor operations are not implemented yet");
     }
 

@@ -50,7 +50,7 @@ public abstract class Results implements Exportable<Results> {
 
     @Override
     public String toString() {
-        return aggregationFcn.toString() + "-error= " + error.toString();
+        return aggregationFcn.toString() + "-error= " + error.toDetailedString();
     }
 
     public abstract boolean recalculate();

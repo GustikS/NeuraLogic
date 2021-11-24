@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.algebra.values;
 import org.jetbrains.annotations.NotNull;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
 
+import java.text.NumberFormat;
 import java.util.Iterator;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -79,7 +80,7 @@ class One extends Value {
     }
 
     @Override
-    public String toString() {
+    public String toString(NumberFormat numberFormat) {
         return "1";
     }
 

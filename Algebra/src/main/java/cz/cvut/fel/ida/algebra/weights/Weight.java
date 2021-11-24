@@ -3,8 +3,11 @@ package cz.cvut.fel.ida.algebra.weights;
 import cz.cvut.fel.ida.algebra.utils.metadata.WeightMetadata;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
+import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 import org.jetbrains.annotations.Nullable;
+
+import java.text.NumberFormat;
 
 /**
  * Created by gusta on 8.3.17.
@@ -104,11 +107,15 @@ public class Weight implements Exportable {
 
     @Override
     public String toString() {
+        return toString(Settings.shortNumberFormat);
+    }
+
+    public String toString(NumberFormat nf) {
         StringBuilder sb = new StringBuilder();
         if (manualInitialization || isFixed || isShared) {
             sb.append("<" + name + "> ");
         }
-        sb.append(value.toString());
+        sb.append(value.toString(nf));
         return sb.toString();
     }
 

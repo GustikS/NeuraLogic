@@ -21,7 +21,7 @@ public class GeometricDecay extends LearnRateDecayStrategy {
     public void decay(int epochNumber) {
         if (epochNumber > 0 && epochNumber % everyNepocha == 0) {
             actualLearningRate.value *= ratio;
-            LOG.fine("Decayed learning rate from initial " + initialLearningRate + " to " + actualLearningRate);
+            LOG.fine("Decayed learning rate from initial " + initialLearningRate.toString(Settings.detailedNumberFormat) + " to " + actualLearningRate.toString(Settings.detailedNumberFormat));
             decays++;
         }
     }

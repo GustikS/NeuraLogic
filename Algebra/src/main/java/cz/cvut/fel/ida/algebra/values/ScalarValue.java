@@ -1,9 +1,9 @@
 package cz.cvut.fel.ida.algebra.values;
 
-import org.jetbrains.annotations.NotNull;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
-import cz.cvut.fel.ida.setup.Settings;
+import org.jetbrains.annotations.NotNull;
 
+import java.text.NumberFormat;
 import java.util.Iterator;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -118,13 +118,8 @@ public class ScalarValue extends Value {
     }
 
     @Override
-    public String toString() {
-        return Settings.detailedNumberFormat.format(value);
-    }
-
-    @Override
-    public String toDetailedString() {
-        return Settings.superDetailedNumberFormat.format(value);
+    public String toString(NumberFormat numberFormat) {
+        return numberFormat.format(value);
     }
 
     /**

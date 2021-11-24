@@ -1,8 +1,9 @@
 package cz.cvut.fel.ida.algebra.values;
 
-import org.jetbrains.annotations.NotNull;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
+import org.jetbrains.annotations.NotNull;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -173,9 +174,20 @@ public class MatrixValue extends Value {
         values[i / rows][i % cols] += value;
     }
 
+
     @Override
-    public String toString() {
-        return Arrays.deepToString(values);
+    public String toString(NumberFormat numberFormat) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[\n");
+        for (int j = 0; j < values.length; j++) {
+            sb.append("[");
+            for (int i = 0; i < values[j].length; i++) {
+                sb.append(numberFormat.format(values[j][i])).append(",");
+            }
+            sb.replace(sb.length()-1, sb.length(), "]\n");
+        }
+        sb.append("]");
+        return sb.toString();
     }
 
     /**

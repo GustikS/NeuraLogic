@@ -1,9 +1,9 @@
 package cz.cvut.fel.ida.algebra.values;
 
-import org.jetbrains.annotations.NotNull;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
-import cz.cvut.fel.ida.setup.Settings;
+import org.jetbrains.annotations.NotNull;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -165,12 +165,11 @@ public class VectorValue extends Value {
     }
 
     @Override
-    public String toString() {
+    public String toString(NumberFormat numberFormat) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < values.length; i++) {
-            sb.append(",").append(Settings.shortNumberFormat.format(values[i]));
+            sb.append(",").append(numberFormat.format(values[i]));
         }
-        sb.replace(0, 1, "[");
         sb.replace(0, 1, "[");
         sb.append("]");
         return sb.toString();

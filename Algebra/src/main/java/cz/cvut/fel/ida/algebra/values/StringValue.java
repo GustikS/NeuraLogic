@@ -1,16 +1,17 @@
 package cz.cvut.fel.ida.algebra.values;
 
-import org.jetbrains.annotations.NotNull;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
+import org.jetbrains.annotations.NotNull;
 
+import java.text.NumberFormat;
 import java.util.Iterator;
 import java.util.function.Function;
 
 /**
  * This is just an ad-hoc helper class for cases where it might make sense to pass a string through the values.
- *
+ * <p>
  * Obviously no algebra implemented here.
- *
+ * <p>
  * Created by gusta on 8.3.17.
  */
 public class StringValue extends Value {
@@ -25,7 +26,6 @@ public class StringValue extends Value {
     public void initialize(ValueInitializer valueInitializer) {
 
     }
-
 
 
     @Override
@@ -70,16 +70,14 @@ public class StringValue extends Value {
 
     @Override
     public void set(int i, double value) {
-
     }
 
     @Override
     public void increment(int i, double value) {
-
     }
 
     @Override
-    public String toString() {
+    public String toString(NumberFormat numberFormat) {
         return value;
     }
 
@@ -310,8 +308,8 @@ public class StringValue extends Value {
 
     @Override
     public boolean equals(Value obj) {
-        if (obj instanceof StringValue){
-            if (value.equals(((StringValue) obj).value)){
+        if (obj instanceof StringValue) {
+            if (value.equals(((StringValue) obj).value)) {
                 return true;
             }
         }

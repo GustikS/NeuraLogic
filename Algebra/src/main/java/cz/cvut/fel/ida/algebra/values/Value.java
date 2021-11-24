@@ -1,8 +1,10 @@
 package cz.cvut.fel.ida.algebra.values;
 
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
+import cz.cvut.fel.ida.setup.Settings;
 
 import java.io.Serializable;
+import java.text.NumberFormat;
 import java.util.Iterator;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -99,8 +101,22 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
      */
     public abstract void increment(int i, double value);
 
+    /**
+     * Print out values with certain decimal precision
+     *
+     * @param numberFormat
+     * @return
+     */
+    public abstract String toString(NumberFormat numberFormat);
+
+    /**
+     * By default we print out values with short number precision
+     * @return
+     */
     @Override
-    public abstract String toString();
+    public String toString() {
+        return toString(Settings.shortNumberFormat);
+    }
 
     /**
      * Can be used for debugging
@@ -108,7 +124,7 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
      * @return
      */
     public String toDetailedString() {
-        return toString();
+        return toString(Settings.superDetailedNumberFormat);
     }
 
     /**

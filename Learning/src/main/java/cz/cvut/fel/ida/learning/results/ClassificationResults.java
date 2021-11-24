@@ -224,12 +224,12 @@ public class ClassificationResults extends RegressionResults {
         }
         if (error != null) {
             if (settings == null) {
-                sb.append(", error: ").append(error.toString());
+                sb.append(", error: ").append(error.toDetailedString());
             } else {
                 String errAggfcn = settings.errorAggregationFcn.toString();
                 String errFcn = settings.errorFunction.toString();
                 String errString = errAggfcn + "(" + errFcn + ")";
-                sb.append(", error: ").append(errString).append(" = ").append(error.toString());
+                sb.append(", error: ").append(errString).append(" = ").append(error.toDetailedString());
             }
         }
         return sb.toString();

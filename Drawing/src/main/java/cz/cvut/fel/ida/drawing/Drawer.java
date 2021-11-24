@@ -17,7 +17,7 @@ public abstract class Drawer<S> {   //todo next replace hashcodes (which collide
 
     private static final Logger LOG = Logger.getLogger(Drawer.class.getName());
 
-    protected NumberFormat numberFormat;
+    public NumberFormat numberFormat;
     protected Settings.Detail drawingDetail;
     protected boolean storeNotShow;
 
@@ -38,7 +38,7 @@ public abstract class Drawer<S> {   //todo next replace hashcodes (which collide
             }
         }
 
-        this.numberFormat = Settings.shortNumberFormat;
+        this.numberFormat = settings.defaultNumberFormat;
         this.drawingDetail = settings.drawingDetail;
         this.storeNotShow = settings.storeNotShow;
     }

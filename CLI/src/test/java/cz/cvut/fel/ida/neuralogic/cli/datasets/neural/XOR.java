@@ -88,6 +88,7 @@ public class XOR {
         settings.isoValueCompression = false;
         settings.chainPruning = false;
         settings.resultsRecalculationEpochae = 5;
+        settings.defaultNumberFormat = Settings.detailedNumberFormat;
         Pair<Pipeline, ?> results = Main.main(getDatasetArgs("neural/xor/vectorized", "-debug all"), settings);
     }
 }
