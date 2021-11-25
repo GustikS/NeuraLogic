@@ -184,7 +184,7 @@ public class MatrixValue extends Value {
             for (int i = 0; i < values[j].length; i++) {
                 sb.append(numberFormat.format(values[j][i])).append(",");
             }
-            sb.replace(sb.length()-1, sb.length(), "]\n");
+            sb.replace(sb.length()-1, sb.length(), "],\n");
         }
         sb.append("]");
         return sb.toString();

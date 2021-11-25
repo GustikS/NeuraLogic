@@ -24,6 +24,12 @@ public class XOR {
         Settings settings = Settings.forFastTest();
         settings.appLimitSamples = -1;
         settings.maxCumEpochCount = 1000;
+        settings.squishLastLayer = false;
+        settings.inferOutputNeuronFcn = false;
+
+//        settings.ruleNeuronActivation = Settings.ActivationFcn.RELU;
+//        settings.atomNeuronActivation = Settings.ActivationFcn.RELU;
+
         Pair<Pipeline, ?> results = Main.main(dataset, settings);
         DetailedClassificationResults classificationResults = (DetailedClassificationResults) results.s;
         Double bestAccuracy = classificationResults.bestAccuracy;
@@ -39,8 +45,17 @@ public class XOR {
         String[] dataset = getDatasetArgs("neural/xor/vectorized");
 
         Settings settings = Settings.forFastTest();
+        settings.seed = 4;
+
         settings.appLimitSamples = -1;
         settings.maxCumEpochCount = 1000;
+        settings.squishLastLayer = false;
+        settings.inferOutputNeuronFcn = false;
+
+//        settings.isoValueCompression = false;
+
+        settings.ruleNeuronActivation = Settings.ActivationFcn.RELU;
+        settings.atomNeuronActivation = Settings.ActivationFcn.RELU;
 
         Pair<Pipeline, ?> results = Main.main(dataset, settings);
         DetailedClassificationResults classificationResults = (DetailedClassificationResults) results.s;
