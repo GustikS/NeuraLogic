@@ -275,11 +275,6 @@ public class Settings implements Serializable {
      */
     public transient Random random;
 
-    /**
-     * Default numeric Value precision for printing
-     */
-    public transient NumberFormat defaultNumberFormat = shortNumberFormat;
-
     private transient static DecimalFormatSymbols decimalFormatSymbol = new DecimalFormatSymbols(Locale.US);
     /**
      * Global number formats for all printing
@@ -289,6 +284,11 @@ public class Settings implements Serializable {
     public transient static NumberFormat detailedNumberFormat = new DecimalFormat("#.##########", decimalFormatSymbol);
 
     public transient static NumberFormat shortNumberFormat = new DecimalFormat("#.##", decimalFormatSymbol);
+
+    /**
+     * Default numeric Value precision for printing
+     */
+    public transient static NumberFormat defaultNumberFormat = shortNumberFormat;
 
     //------------------Abstract Pipelines
 

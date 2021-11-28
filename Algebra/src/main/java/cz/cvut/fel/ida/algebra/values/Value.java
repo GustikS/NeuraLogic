@@ -110,12 +110,12 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
     public abstract String toString(NumberFormat numberFormat);
 
     /**
-     * By default we print out values with short number precision
+     * Printout values with default (short) number precision
      * @return
      */
     @Override
     public String toString() {
-        return toString(Settings.shortNumberFormat);
+        return toString(Settings.defaultNumberFormat);
     }
 
     /**

@@ -186,7 +186,7 @@ public class MatrixValue extends Value {
             }
             sb.replace(sb.length()-1, sb.length(), "],\n");
         }
-        sb.append("]");
+        sb.replace(sb.length()-2, sb.length(), "\n]");
         return sb.toString();
     }
 

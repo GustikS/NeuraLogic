@@ -10,9 +10,11 @@ import cz.cvut.fel.ida.neural.networks.structure.components.neurons.WeightedNeur
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.AggregationNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.types.TopologicNetwork;
+import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -21,6 +23,8 @@ import java.util.stream.Collectors;
 
 public class NeuralSerializer {
     private static final Logger LOG = Logger.getLogger(NeuralSerializer.class.getName());
+
+    public static NumberFormat numberFormat = Settings.defaultNumberFormat;
 
     public SerializedSample serialize(NeuralSample neuralSample) {
         return new SerializedSample(neuralSample);
@@ -50,7 +54,7 @@ public class NeuralSerializer {
             neuron = sample.query.neuron.getIndex();
             network = serialize((TopologicNetwork<State.Structure>) sample.query.evidence);
             id = sample.getId();
-            target = sample.target.toString();
+            target = sample.target.toString(numberFormat);
         }
     }
 
@@ -116,7 +120,7 @@ public class NeuralSerializer {
                 }
             }
             if (this.inputs.isEmpty()) {    //fact neuron
-                this.value = neuron.getRawState().getComputationView(0).getValue().toString();
+                this.value = neuron.getRawState().getComputationView(0).getValue().toString(numberFormat);
             }
             if (neuron.offset.index >= 0)
                 offset = neuron.offset.index;
@@ -137,7 +141,7 @@ public class NeuralSerializer {
             this.index = weight.index;
             this.isFixed = weight.isFixed;
             this.dimensions = weight.value.size();
-            this.value = weight.value.toString();
+            this.value = weight.value.toString(numberFormat);
         }
     }
 }
