@@ -345,6 +345,21 @@ public class Literal implements Serializable {
         return (hashCode = hash);
     }
 
+    public int liftedHashCode() {
+        int hash = this.predicate.name.hashCode();
+        for (int i = 0; i < terms.length; i++) {
+            long varcode;
+            if (terms[i] instanceof Variable){
+                varcode = 7;   // all variables map to the same hash number
+            } else {
+                varcode = (long) terms[i].hashCode();
+            }
+            hash = (int) (varcode * (long) hash);
+        }
+        hash *= (this.negated ? -1 : 1);
+        return (hashCode = hash);
+    }
+
     /**
      * Every instance of class Literal has a unique id (integer). This method allows the user to get it.
      * It can be the case that l1.equals(l2) but l1.id() != l2.id()

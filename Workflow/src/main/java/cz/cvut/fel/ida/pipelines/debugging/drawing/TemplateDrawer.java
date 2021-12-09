@@ -18,39 +18,45 @@ import java.util.Set;
  * Created by gusta on 8.3.17.
  */
 public class TemplateDrawer extends Drawer<Template> {
+
+    Set<String> graph;
+
     public TemplateDrawer(Settings settings) {
         super(settings);
     }
 
     @Override
     public void loadGraph(Template obj) {
+        graph = new LinkedHashSet<>();
         graphviz.start_graph();
         if (obj instanceof GraphTemplate) {
             loadGraph((GraphTemplate) obj);
         } else {
             loadGraph(new GraphTemplate(obj));
         }
+        graph.forEach(graphviz::addln);
         graphviz.end_graph();
     }
 
     public void loadGraph(GraphTemplate obj) {
+
         Map<Literal, Set<WeightedRule>> atom2rules = obj.atom2rules;
         LinkedHashSet<ValuedFact> facts = obj.facts;
 
         for (ValuedFact fact : facts) {
-            graphviz.addln(draw(fact));
+            graph.add(draw(fact));
         }
 
         for (Map.Entry<Literal, Set<WeightedRule>> entry : atom2rules.entrySet()) {
             Literal literal = entry.getKey();
             Set<WeightedRule> rules = entry.getValue();
-            graphviz.addln(draw(literal));
+            graph.add(draw(literal));
             for (WeightedRule rule : rules) {
-                graphviz.addln(draw(rule)); //rule with subsumable head by this literal
-                graphviz.addln(draw(literal, rule));
+                graph.add(draw(rule)); //rule with subsumable head by this literal
+                graph.add(draw(literal, rule));
                 for (BodyAtom bodyAtom : rule.getBody()) {
-                    graphviz.addln(draw(bodyAtom));
-                    graphviz.addln(draw(rule, bodyAtom)); //body literals from the  rule
+                    graph.add(draw(bodyAtom));
+                    graph.add(draw(rule, bodyAtom)); //body literals from the rule
                 }
             }
         }
@@ -59,7 +65,7 @@ public class TemplateDrawer extends Drawer<Template> {
     private String draw(WeightedRule rule, BodyAtom bodyAtom) {
         String edgeColor = bodyAtom.isNegated() ? "red" : "black";
         String weight = bodyAtom.getConjunctWeight() == null ? "" : bodyAtom.getConjunctWeight().toString(numberFormat);
-        return rule.hashCode() + " -> " + bodyAtom.hashCode() + "[label=" + GraphViz.sanitize(weight) + ", color=" + edgeColor + "]";
+        return rule.hashCode() + " -> " + bodyAtom.literal.liftedHashCode() + "[label=" + GraphViz.sanitize(weight) + ", color=" + edgeColor + "]";
     }
 
     private String draw(BodyAtom bodyAtom) {
@@ -67,11 +73,11 @@ public class TemplateDrawer extends Drawer<Template> {
     }
 
     private String draw(Literal literal, WeightedRule rule) {
-        return literal.hashCode() + " -> " + rule.hashCode() + "[label=" + GraphViz.sanitize(rule.getWeight().toString(numberFormat)) + "]";
+        return literal.liftedHashCode() + " -> " + rule.hashCode() + "[label=" + GraphViz.sanitize(rule.getWeight().toString(numberFormat)) + "]";
     }
 
     private String draw(Literal literal) {
-        return literal.hashCode() + "[label=" + GraphViz.sanitize(literal.toString()) + "]";
+        return literal.liftedHashCode() + "[label=" + GraphViz.sanitize(literal.toString()) + "]";
     }
 
     private String draw(WeightedRule rule) {
@@ -79,7 +85,7 @@ public class TemplateDrawer extends Drawer<Template> {
     }
 
     private String draw(ValuedFact fact) {
-        return fact.hashCode() + "[label=" + GraphViz.sanitize(fact.toString()) + "]";
+        return fact.literal.liftedHashCode() + "[label=" + GraphViz.sanitize(fact.toString()) + "]";
     }
 
 }

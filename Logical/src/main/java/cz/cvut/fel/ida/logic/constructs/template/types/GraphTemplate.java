@@ -33,14 +33,14 @@ public class GraphTemplate extends Template {
     transient Set<Literal> openAtoms;
 
     public GraphTemplate() {
-        atom2rules = new HashMap<>();
+        atom2rules = new LinkedHashMap<>();
     }
 
     public GraphTemplate(Template template) {
         super(template);
 
-        Map<Predicate, List<WeightedRule>> predicate2heads = new HashMap<>();
-        atom2rules = new HashMap<>();
+        Map<Predicate, List<WeightedRule>> predicate2heads = new LinkedHashMap<>();
+        atom2rules = new LinkedHashMap<>();
         closedAtoms = new HashSet<>();
         openAtoms = new HashSet<>();
 
