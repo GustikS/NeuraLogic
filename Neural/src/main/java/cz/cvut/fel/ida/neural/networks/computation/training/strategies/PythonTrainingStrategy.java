@@ -1,11 +1,9 @@
 package cz.cvut.fel.ida.neural.networks.computation.training.strategies;
 
-import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
 import cz.cvut.fel.ida.learning.results.Progress;
 import cz.cvut.fel.ida.learning.results.Result;
-import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.Evaluation;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.PythonEvaluation;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.PythonHookHandler;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.weights.WeightUpdater;
@@ -18,6 +16,9 @@ import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exporter;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -67,32 +68,50 @@ public class PythonTrainingStrategy extends TrainingStrategy {
     @Override
     public void setupDebugger(NeuralDebugging neuralDebugger) { }
 
-    public double learnSamples(int epochs) {
+    public String learnSamples(int epochs) {
         return learnSamples(samplesSet, epochs);
     }
 
-    public double learnSamples(List<NeuralSample> samples, int epochs) {
-        double totalError = 0.;
+    public String learnSamples(List<NeuralSample> samples, int epochs) {
         List<Result> results = null;
+
+        if (epochs <= 0) {
+            return "[]";
+        }
 
         for (int i = 0; i < epochs; i++) {
             results = listTrainer.learnEpoch(currentModel, samples);
         }
 
+        List<String> output = new ArrayList<>();
+        NumberFormat format = Settings.superDetailedNumberFormat;
+
         for (int i = results.size() - 1; i >= 0; --i) {
-            totalError += ((ScalarValue) results.get(i).errorValue()).value;
+            Result result = results.get(i);
+
+            output.add(Arrays.toString(new String[] {
+                    result.getTarget().toString(format),
+                    result.getOutput().toString(format),
+                    result.errorValue().toString(format),
+            }));
         }
 
-        return totalError;
+        return output.toString();
     }
 
-    public double learnSample(NeuralSample sample) {
+    public String learnSample(NeuralSample sample) {
         trainer.invalidateSample(trainer.getInvalidation(), sample);
         Result result = trainer.evaluateSample(trainer.getEvaluation(), sample);
 
         WeightUpdater weightUpdater = trainer.backpropSample(trainer.getBackpropagation(), result, sample);
         trainer.updateWeights(currentModel, weightUpdater);
-        return ((ScalarValue) result.errorValue()).value;
+        NumberFormat format = Settings.superDetailedNumberFormat;
+
+        return Arrays.toString(new String[]{
+                result.getTarget().toString(format),
+                result.getOutput().toString(format),
+                result.errorValue().toString(format),
+        });
     }
 
     public PythonSampleBackpropagateLoss evaluateSample(NeuralSample sample) {
@@ -102,8 +121,22 @@ public class PythonTrainingStrategy extends TrainingStrategy {
         return new PythonSampleBackpropagateLoss(sample, result);
     }
 
-    public List<Result> evaluateSamples(List<NeuralSample> samples) {
-        return listTrainer.evaluate(samples);
+    public String evaluateSamples(List<NeuralSample> samples) {
+        List<String> output = new ArrayList<>();
+        NumberFormat format = Settings.superDetailedNumberFormat;
+        List<Result> results = listTrainer.evaluate(samples);
+
+        for (int i = results.size() - 1; i >= 0; --i) {
+            Result result = results.get(i);
+
+            output.add(Arrays.toString(new String[] {
+                    result.getTarget().toString(format),
+                    result.getOutput().toString(format),
+                    result.errorValue().toString(format),
+            }));
+        }
+
+        return output.toString();
     }
 
     class PythonSampleBackpropagateLoss {
