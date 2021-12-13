@@ -1295,6 +1295,12 @@ public class Settings implements Serializable {
             message.append("stratification not possible with regression");
             valid = false;
         }
+
+        if (isoValueCompression && (atomNeuronActivation == ActivationFcn.RELU || ruleNeuronActivation == ActivationFcn.RELU)){
+            message.append("lossless network compression does not work together with ReLu activations functions.\n Either turn off the isovaluecompression or change activation function(s).");
+            valid = false;
+        }
+
         //todo more validation and inference of settings
 
         return valid;
