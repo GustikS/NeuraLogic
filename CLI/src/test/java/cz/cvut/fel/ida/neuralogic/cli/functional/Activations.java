@@ -60,6 +60,8 @@ public class Activations {
         settings.appLimitSamples = -1;
         settings.maxCumEpochCount = 1000;
 
+//        settings.ruleNeuronActivation = Settings.ActivationFcn.RELU;
+
         Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/mutagenesis", "-t ./templates/template_gnn_attention.txt"), settings);
     }
 }

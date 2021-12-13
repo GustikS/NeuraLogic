@@ -86,9 +86,14 @@ public class GraphViz {
         this.fix2ScreenSize = settings.fix2ScreenSize;
         this.storeImage = settings.storeNotShow;
 
-        gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        width = gd.getDisplayMode().getWidth();
-        height = gd.getDisplayMode().getHeight();
+        try {
+            gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+            width = gd.getDisplayMode().getWidth();
+            height = gd.getDisplayMode().getHeight();
+        } catch (Exception ex){
+            width = 800;
+            height = 600;
+        }
     }
 
     private static String getGraphvizExecutable(Settings settings) {
