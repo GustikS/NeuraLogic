@@ -1,11 +1,13 @@
 package cz.cvut.fel.ida.neural.networks.structure.transforming;
 
+import cz.cvut.fel.ida.algebra.functions.specific.Identity;
 import cz.cvut.fel.ida.neural.networks.structure.components.NeuralNetwork;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.BaseNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.QueryNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.WeightedNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.AggregationNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.types.DetailedNetwork;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.generic.Timing;
@@ -41,6 +43,9 @@ public class LinearChainReducer implements NetworkReducing {
             BaseNeuron<Neurons, State.Neural> neuron = inet.allNeuronsTopologic.get(i);
             if (!settings.pruneEvenWeightedNeurons && neuron instanceof WeightedNeuron)
                 continue;
+            if (settings.pruneOnlyIdentities && !(neuron instanceof AggregationNeuron) && !(neuron.getAggregation() instanceof Identity)) {
+                continue;
+            }
             boolean pruned = prune(inet, neuron);
             if (pruned) {
                 prunings++;

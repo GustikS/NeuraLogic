@@ -1,7 +1,9 @@
 package cz.cvut.fel.ida.neuralogic.cli.datasets;
 
 import cz.cvut.fel.ida.neuralogic.cli.Main;
+import cz.cvut.fel.ida.pipelines.Pipeline;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.utils.generic.TestAnnotations;
 
 import java.util.logging.Logger;
@@ -11,10 +13,10 @@ import static cz.cvut.fel.ida.utils.generic.Utilities.getDatasetArgs;
 public class Debug {
     private static final Logger LOG = Logger.getLogger(Debug.class.getName());
 
-    static String dataset = "neural/xor/relational_debug2";
 
     @TestAnnotations.Fast
     public void xor() throws Exception {
+        String dataset = "neural/xor/relational_debug2";
         Settings settings = Settings.forSlowTest();
         settings.seed = 4;
 //        settings.debugPipeline = true;
@@ -27,5 +29,18 @@ public class Debug {
         settings.losslessIsoCompression = true;
         settings.initLearningRate = 0.01;
         Main.main(getDatasetArgs(dataset,"-t ./template.txt"), settings);
+    }
+
+    @TestAnnotations.Interactive
+    public void pruning() throws Exception {
+        String dataset = "debug/pruning";
+        Settings settings = Settings.forInteractiveTest();
+
+        settings.maxCumEpochCount = 1;
+        settings.isoValueCompression = false;
+        settings.chainPruning = true;
+        settings.pruneOnlyIdentities = true;
+
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-debug all"), settings);
     }
 }

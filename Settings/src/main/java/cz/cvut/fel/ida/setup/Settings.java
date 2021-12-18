@@ -483,7 +483,11 @@ public class Settings implements Serializable {
      * With this on, we delete also weighted edges - more aggressive pruning, but may reduce network capability to learn!
      */
     public boolean pruneEvenWeightedNeurons = false;
-
+    /**
+     * When pruning, prune linear chains only for neurons with identity activations (and Aggregation neurons)
+     * i.e. do not change the network function at all
+     */
+    public boolean pruneOnlyIdentities = false;
     /**
      * Number of iterations for iso-value compression
      */
