@@ -1,0 +1,4 @@
+out :- connected(X,Y). [aggregation=avg, activation=sigmoid]
+
+connected/2 [activation=identity]
+out/0 [activation=identity]
