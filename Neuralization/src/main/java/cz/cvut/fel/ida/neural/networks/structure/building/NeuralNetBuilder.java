@@ -87,6 +87,9 @@ public class NeuralNetBuilder {
             if (hasComplexActivation(headAtomNeuron)) {   //the neuron will require complex input propagation
                 neuronMaps.containsComplexActivations = true;
             }
+            if (headAtomNeuron.getComputationView(0).getAggregationState().getInputMask() != null) { // also atom neurons may now require input masking!
+                neuronMaps.containsMasking = true;
+            }
         } else {
             headAtomNeuron.setShared(true);
             if (rules.entrySet().size() > 0) {  //if there are NEW rules for this headAtomNeuron to be processed, it means that we need to change its inputs in context of this new network!
@@ -161,6 +164,9 @@ public class NeuralNetBuilder {
                     }
                     if (hasComplexActivation(ruleNeuron)) {   //the neuron will require complex input propagation
                         neuronMaps.containsComplexActivations = true;
+                    }
+                    if (ruleNeuron.getComputationView(0).getAggregationState().getInputMask() != null) { // also rule neurons may now require input masking!
+                        neuronMaps.containsMasking = true;
                     }
                 } else {
                     //ruleNeuron.isShared = true;
