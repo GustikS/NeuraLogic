@@ -36,7 +36,19 @@ public class Debug {
         String dataset = "debug/pruning";
         Settings settings = Settings.forInteractiveTest();
 
-        settings.maxCumEpochCount = 1;
+        settings.isoValueCompression = false;
+        settings.chainPruning = true;
+        settings.pruneOnlyIdentities = true;
+
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-debug all"), settings);
+    }
+
+
+    @TestAnnotations.Interactive
+    public void activations() throws Exception {
+        String dataset = "debug/activations";
+        Settings settings = Settings.forInteractiveTest();
+
         settings.isoValueCompression = false;
         settings.chainPruning = true;
         settings.pruneOnlyIdentities = true;

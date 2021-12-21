@@ -1,9 +1,6 @@
 package cz.cvut.fel.ida.neural.networks.structure.components.neurons.states;
 
-import cz.cvut.fel.ida.algebra.functions.Activation;
-import cz.cvut.fel.ida.algebra.functions.Aggregation;
-import cz.cvut.fel.ida.algebra.functions.Concatenation;
-import cz.cvut.fel.ida.algebra.functions.XMax;
+import cz.cvut.fel.ida.algebra.functions.*;
 import cz.cvut.fel.ida.algebra.values.MatrixValue;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
@@ -260,6 +257,21 @@ public abstract class AggregationState implements Aggregation.State {
             }
         }
 
+        public static class AtomMax extends Max {
+
+            Activation activation;
+
+            public AtomMax(Activation aggregation) {
+                super(Activation.Singletons.sharpmax);
+                this.activation = aggregation;
+            }
+
+            @Override
+            public Value evaluate() {
+                return activation.evaluate(maxValue);
+            }
+        }
+
         public static class Min extends Pooling {
             int minIndex = -1;
             int currentIndex = 0;
@@ -306,6 +318,21 @@ public abstract class AggregationState implements Aggregation.State {
             @Override
             public void setupValueDimensions(Value value) {
                 this.minValue = value.getForm();
+            }
+        }
+
+        public static class AtomMin extends Min {
+
+            Activation activation;
+
+            public AtomMin(Activation aggregation) {
+                super(Activation.Singletons.sharpmin);
+                this.activation = aggregation;
+            }
+
+            @Override
+            public Value evaluate() {
+                return activation.evaluate(minValue);
             }
         }
 

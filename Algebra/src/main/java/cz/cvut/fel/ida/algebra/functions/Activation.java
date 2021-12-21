@@ -134,6 +134,14 @@ public abstract class Activation extends Aggregation {
                     String inner = agg.substring(agg.indexOf("-") + 1);
                     Aggregation innerActivation = parseActivation(inner);
                     return new Concatenation((Activation) innerActivation);
+                } else if (agg.startsWith("max-")) {
+                    String inner = agg.substring(agg.indexOf("-") + 1);
+                    Aggregation innerActivation = parseActivation(inner);
+                    return new SharpMax((Activation) innerActivation);
+                } else if (agg.startsWith("min-")) {
+                    String inner = agg.substring(agg.indexOf("-") + 1);
+                    Aggregation innerActivation = parseActivation(inner);
+                    return new SharpMin((Activation) innerActivation);
                 }
                 throw new RuntimeException("Unable to parse activation function: " + agg);
         }
@@ -148,5 +156,8 @@ public abstract class Activation extends Aggregation {
         public static Tanh tanh = new Tanh();
         public static Softmax softmax = new Softmax();
         public static Sparsemax sparsemax = new Sparsemax();
+
+        public static SharpMax sharpmax = new SharpMax(identity);
+        public static SharpMin sharpmin = new SharpMin(identity);
     }
 }

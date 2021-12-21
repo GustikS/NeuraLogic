@@ -398,6 +398,10 @@ public class StatesBuilder {
             return new AggregationState.Pooling.Sum(aggregation);
         } else if (aggregation instanceof Softmax) {
             return new AggregationState.SoftmaxState(aggregation);
+        } else if (aggregation instanceof SharpMax) {
+            return new AggregationState.Pooling.AtomMax(((SharpMax) aggregation).activation);
+        } else if (aggregation instanceof SharpMin) {
+            return new AggregationState.Pooling.AtomMin(((SharpMin) aggregation).activation);
         } else if (aggregation instanceof Activation) {
             return new AggregationState.ActivationState((Activation) aggregation);
         } else {
