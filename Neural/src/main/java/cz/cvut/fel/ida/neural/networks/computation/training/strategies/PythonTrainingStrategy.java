@@ -86,7 +86,7 @@ public class PythonTrainingStrategy extends TrainingStrategy {
         List<String> output = new ArrayList<>();
         NumberFormat format = Settings.superDetailedNumberFormat;
 
-        for (int i = results.size() - 1; i >= 0; --i) {
+        for (int i = 0, j = results.size(); i < j; ++i) {
             Result result = results.get(i);
 
             output.add(Arrays.toString(new String[] {
@@ -126,7 +126,7 @@ public class PythonTrainingStrategy extends TrainingStrategy {
         NumberFormat format = Settings.superDetailedNumberFormat;
         List<Result> results = listTrainer.evaluate(samples);
 
-        for (int i = results.size() - 1; i >= 0; --i) {
+        for (int i = 0, j = results.size(); i < j; ++i) {
             Result result = results.get(i);
 
             output.add(Arrays.toString(new String[] {
