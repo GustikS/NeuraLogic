@@ -260,6 +260,55 @@ public abstract class AggregationState implements Aggregation.State {
             }
         }
 
+        public static class Min extends Pooling {
+            int minIndex = -1;
+            int currentIndex = 0;
+            Value minValue;
+
+            // these should obtain the function in construction to be more generic - builder should take care of that
+            public Min(Aggregation aggregation) {
+                super(aggregation);
+            }
+
+            @Override
+            public void cumulate(Value value) {
+                if (minValue == null || minValue.greaterThan(value)) {
+                    minValue = value;
+                    minIndex = currentIndex;
+                }
+                currentIndex++;
+            }
+
+            @Override
+            public void invalidate() {
+                minIndex = -1;
+                currentIndex = 0;
+                minValue = null;
+            }
+
+            @Override
+            public int[] getInputMask() {
+                int[] inputs = new int[1];
+                inputs[0] = minIndex;
+                return inputs;
+            }
+
+            @Override
+            public Value gradient() {
+                return new ScalarValue(1);
+            }
+
+            @Override
+            public Value evaluate() {
+                return minValue;
+            }
+
+            @Override
+            public void setupValueDimensions(Value value) {
+                this.minValue = value.getForm();
+            }
+        }
+
         public static class Avg extends Pooling {
             int count = 0;
             Value sum;
