@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.neural.networks.structure.building.builders;
 import cz.cvut.fel.ida.algebra.functions.*;
 import cz.cvut.fel.ida.algebra.functions.specific.Average;
 import cz.cvut.fel.ida.algebra.functions.specific.Maximum;
+import cz.cvut.fel.ida.algebra.functions.specific.Minimum;
 import cz.cvut.fel.ida.algebra.functions.specific.Sum;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
@@ -391,10 +392,16 @@ public class StatesBuilder {
             return new AggregationState.Pooling.Avg(aggregation);
         } else if (aggregation instanceof Maximum) {
             return new AggregationState.Pooling.Max(aggregation);
+        } else if (aggregation instanceof Minimum) {
+            return new AggregationState.Pooling.Min(aggregation);
         } else if (aggregation instanceof Sum) {
             return new AggregationState.Pooling.Sum(aggregation);
         } else if (aggregation instanceof Softmax) {
             return new AggregationState.SoftmaxState(aggregation);
+        } else if (aggregation instanceof SharpMax) {
+            return new AggregationState.Pooling.AtomMax(((SharpMax) aggregation).activation);
+        } else if (aggregation instanceof SharpMin) {
+            return new AggregationState.Pooling.AtomMin(((SharpMin) aggregation).activation);
         } else if (aggregation instanceof Activation) {
             return new AggregationState.ActivationState((Activation) aggregation);
         } else {

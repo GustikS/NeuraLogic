@@ -2,6 +2,7 @@ package cz.cvut.fel.ida.algebra.functions;
 
 import cz.cvut.fel.ida.algebra.functions.specific.Average;
 import cz.cvut.fel.ida.algebra.functions.specific.Maximum;
+import cz.cvut.fel.ida.algebra.functions.specific.Minimum;
 import cz.cvut.fel.ida.algebra.functions.specific.Sum;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
@@ -50,6 +51,8 @@ public abstract class Aggregation implements Exportable {
                 return Singletons.average;
             case MAX:
                 return Singletons.maximum;
+            case MIN:
+                return Singletons.minimum;
             case SUM:
                 return Singletons.sum;
             //todo rest
@@ -65,6 +68,8 @@ public abstract class Aggregation implements Exportable {
                 return Singletons.average;
             case "max":
                 return Singletons.maximum;
+            case "min":
+                return Singletons.minimum;
             case "sum":
                 return Singletons.sum;
             default:
@@ -89,13 +94,14 @@ public abstract class Aggregation implements Exportable {
      */
     public abstract boolean isInputSymmetric();
 
-    public boolean isComplex(){
+    public boolean isComplex() {
         return false;
     }
 
     public static class Singletons {
         public static Average average = new Average();
         public static Maximum maximum = new Maximum();
+        public static Minimum minimum = new Minimum();
         public static Sum sum = new Sum();
     }
 

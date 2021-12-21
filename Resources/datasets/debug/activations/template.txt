@@ -1,0 +1,7 @@
+out :- connected(X,Y). [aggregation=avg, activation=sigmoid]
+out :- connected(1,2). [aggregation=avg, activation=identity]
+
+outer :- out.
+
+connected/2 [activation=identity]
+out/0 [activation=min-identity]
