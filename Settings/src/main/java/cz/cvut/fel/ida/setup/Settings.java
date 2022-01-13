@@ -276,6 +276,11 @@ public class Settings implements Serializable {
     public transient Random random;
 
     private transient static DecimalFormatSymbols decimalFormatSymbol = new DecimalFormatSymbols(Locale.US);
+
+    static {
+        decimalFormatSymbol.setInfinity("Infinity");
+    }
+
     /**
      * Global number formats for all printing
      */
