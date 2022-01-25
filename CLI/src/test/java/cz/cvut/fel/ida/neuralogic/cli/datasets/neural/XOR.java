@@ -52,7 +52,7 @@ public class XOR {
         settings.squishLastLayer = false;
         settings.inferOutputNeuronFcn = false;
 
-//        settings.isoValueCompression = false;
+        settings.isoValueCompression = false;
 
         settings.ruleNeuronActivation = Settings.ActivationFcn.RELU;
         settings.atomNeuronActivation = Settings.ActivationFcn.RELU;

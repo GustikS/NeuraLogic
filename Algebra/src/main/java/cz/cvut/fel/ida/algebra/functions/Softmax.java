@@ -4,6 +4,7 @@ import cz.cvut.fel.ida.algebra.values.MatrixValue;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.VectorValue;
+import cz.cvut.fel.ida.utils.math.VectorUtils;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -77,10 +78,12 @@ public class Softmax extends Activation implements XMax {
 
     @Override
     public double[] getProbabilities(double[] input) {
+        double max = VectorUtils.max(input);    //for numeric stability
+
         double expsum = 0;
         double[] exps = new double[input.length];
         for (int i = 0; i < input.length; i++) {
-            double exp = Math.exp(input[i]);
+            double exp = Math.exp(input[i] - max);
             exps[i] = exp;
             expsum += exp;
         }
@@ -95,10 +98,12 @@ public class Softmax extends Activation implements XMax {
             return getProbabilities(((VectorValue) inputs.get(0)).values);
         }
 
+        double max = getMax(inputs);    //for numeric stability
+
         double expsum = 0;
         double[] exps = new double[inputs.size()];
         for (int i = 0; i < inputs.size(); i++) {
-            double exp = Math.exp(((ScalarValue) inputs.get(i)).value); //assuming softmax over scalars!
+            double exp = Math.exp(((ScalarValue) inputs.get(i)).value - max); //assuming softmax over scalars!
             exps[i] = exp;
             expsum += exp;
         }
@@ -106,6 +111,15 @@ public class Softmax extends Activation implements XMax {
             exps[i] /= expsum;
         }
         return exps;
+    }
+
+    private double getMax(List<Value> inputs) {
+        double max = Double.NEGATIVE_INFINITY;
+        for (Value value : inputs){
+            if (((ScalarValue) value).value > max)
+                max = ((ScalarValue) value).value;
+        }
+        return max;
     }
 
     @Override
