@@ -69,7 +69,7 @@ The framework is mostly optimized for quick, high-level prototyping of learning 
     - and generic [latent logic programs](https://link.springer.com/chapter/10.1007/978-3-319-78090-0_10)
 
 
-<a name="myfootnote2">2</a>: _if you come from deep learning background, you may be familiar with similar terms such as "geometric deep learning" or "graph representation learning". Note also that this framework is not designed/limited to graphs only._
+<a name="myfootnote2">2</a>: _if you come from deep learning background, you may be familiar with similar terms such as "geometric deep learning" or "graph representation learning". Note that this framework is not limited to graphs only._
 
 ### Getting started
 
