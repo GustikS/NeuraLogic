@@ -1,0 +1,40 @@
+package cz.cvut.fel.ida.algebra.functions.specific;
+
+import cz.cvut.fel.ida.algebra.functions.Activation;
+import cz.cvut.fel.ida.utils.generic.Pair;
+
+import java.util.function.Function;
+import java.util.logging.Logger;
+
+/**
+ * Created by gusta on 8.3.17.
+ */
+public class LeakyReLu extends Activation {
+    private static final Logger LOG = Logger.getLogger(LeakyReLu.class.getName());
+
+    public static double alpha = 0.01;
+
+    @Override
+    public String getName() {
+        return LeakyReLu.class.getSimpleName();
+    }
+
+    private static final Function<Double, Double> signum = in -> in > 0 ? in : alpha * in;
+
+    private static final Function<Double, Double> zerograd = in -> in > 0 ? 1.0 : alpha;
+
+    public LeakyReLu() {
+        super(signum, zerograd);
+    }
+
+    @Override
+    public LeakyReLu replaceWithSingleton() {
+        return Singletons.leakyRelu;
+    }
+
+    @Override
+    public Pair<Double, Double> getSaturationRange() {
+        return new Pair<>(Double.MIN_VALUE, Double.MAX_VALUE);
+    }
+
+}

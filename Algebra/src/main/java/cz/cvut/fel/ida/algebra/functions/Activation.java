@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  * 3) update {@link Activation#parseActivation(String)} and {@link Activation#getActivationFunction(Settings.ActivationFcn)} with the new option
  * 4) if beneficial/required, create new computation state in {cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.AggregationState} for the function
  * 5) if the function requires special backprop treatment, create new Visitors.Down propagator and update ComplexDown with the option
- * 6) assign a specific State corresponding to the function in {cz.cvut.fel.ida.neural.networks.structure.building.builders.StatesBuilder#getAggregationState}
+ * 6) assign the specific State corresponding to the function in {cz.cvut.fel.ida.neural.networks.structure.building.builders.StatesBuilder#getAggregationState} if created
  * 7) update dimensionality inference in {cz.cvut.fel.ida.neural.networks.structure.building.builders.StatesBuilder} if necessary
  *
  *
@@ -85,6 +85,8 @@ public abstract class Activation extends Aggregation {
                 return Singletons.identity;
             case RELU:
                 return Singletons.relu;
+            case LEAKYRELU:
+                return Singletons.leakyRelu;
             case LUKASIEWICZ:
                 return Singletons.lukasiewiczSigmoid;
             case SOFTMAX:
@@ -109,6 +111,8 @@ public abstract class Activation extends Aggregation {
                 return Activation.Singletons.signum;
             case "relu":
                 return Activation.Singletons.relu;
+            case "leakyrelu":
+                return Activation.Singletons.leakyRelu;
             case "identity":
                 return Activation.Singletons.identity;
             case "lukasiewicz":
@@ -152,6 +156,7 @@ public abstract class Activation extends Aggregation {
         public static Sigmoid sigmoid = new Sigmoid();
         public static Signum signum = new Signum();
         public static ReLu relu = new ReLu();
+        public static LeakyReLu leakyRelu = new LeakyReLu();
         public static Identity identity = new Identity();
         public static Tanh tanh = new Tanh();
         public static Softmax softmax = new Softmax();

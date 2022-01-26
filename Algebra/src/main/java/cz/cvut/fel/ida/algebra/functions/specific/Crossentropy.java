@@ -14,8 +14,8 @@ public class Crossentropy implements ErrorFcn {
     static ScalarValue one = new ScalarValue(1);
     static ScalarValue minusOne = new ScalarValue(-1);
 
-    static double MAXENTVALUE = 100;
-    static double MAXENTGRADIENT = 1000000000;
+    static double MAXENTVALUE = 1e2;
+    static double MAXENTGRADIENT = 1e10;
 
     public static Crossentropy singleton = new Crossentropy();
 
