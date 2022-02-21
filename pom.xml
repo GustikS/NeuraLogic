@@ -4,14 +4,56 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>cz.cvut.fel.ida</groupId>
+    <artifactId>NeuraLogic</artifactId>
+    <version>0.2.1-alpha</version>
+    <packaging>pom</packaging>
+
+    <name>${project.groupId}:${project.artifactId}</name>
+    <description>A Java library for Deep Relational Learning (with differentiable logic programming).</description>
+    <url>https://github.com/GustikS/NeuraLogic</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>gustiks</id>
+            <name>Gustav Sir</name>
+            <email>souregus@gmail.com</email>
+            <organization>Czech Technical University</organization>
+            <organizationUrl>https://gustiks.github.io</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git@github.com:gustiks/neuralogic.git</connection>
+        <developerConnection>scm:git:ssh://github.com:gustiks/neuralogic.git</developerConnection>
+        <url>https://github.com/gustiks/neuralogic/tree/master</url>
+    </scm>
+
+
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <groupId>cz.cvut.fel.ida</groupId>
-    <artifactId>NeuraLogic</artifactId>
-    <packaging>pom</packaging>
-    <version>0.2.1-alpha</version>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+        </repository>
+    </distributionManagement>
+
+
     <modules>
         <module>Resources</module>
         <module>Algebra</module>
@@ -29,6 +71,7 @@
         <module>Utilities</module>
         <module>Workflow</module>
     </modules>
+
 
     <build>
         <plugins>
@@ -67,6 +110,33 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M5</version>
                 <configuration>
@@ -74,6 +144,8 @@
                     <excludedGroups>Interactive, Slow, AdHoc, SlowBenchmark</excludedGroups>
                 </configuration>
             </plugin>
+
+
 
             <!--<plugin>-->
             <!--<groupId>org.codehaus.mojo</groupId>-->
@@ -101,5 +173,37 @@
             <!--</plugin>-->
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>ci-cd</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <!-- Prevent gpg from using pinentry programs. Fixes: gpg: signing
+                                        failed: Inappropriate ioctl for device -->
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
