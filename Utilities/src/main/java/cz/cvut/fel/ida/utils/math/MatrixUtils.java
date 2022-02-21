@@ -435,7 +435,7 @@ public class MatrixUtils {
     /**
      * Creates a deep copy of the given matrix
      * @param matrix the matrix
-     * @returnthe copy of the given matrix
+     * @return the copy of the given matrix
      */
     public double[][] copy(double[][] matrix){
         double[][] newMatrix = new double[matrix.length][];
