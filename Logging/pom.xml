@@ -4,21 +4,22 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>NeuraLogic</artifactId>
-        <groupId>cz.cvut.fel.ida</groupId>
+        <!--<groupId>cz.cvut.fel.ida</groupId>-->
+        <groupId>io.github.gustiks</groupId>
         <version>0.2.1-alpha</version>
-    </parent>
+</parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>Logging</artifactId>
     <dependencies>
         <dependency>
-            <groupId>cz.cvut.fel.ida</groupId>
+            <groupId>io.github.gustiks</groupId>
             <artifactId>Settings</artifactId>
             <version>0.2.1-alpha</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>cz.cvut.fel.ida</groupId>
+            <groupId>io.github.gustiks</groupId>
             <artifactId>Utilities</artifactId>
             <version>0.2.1-alpha</version>
             <scope>compile</scope>

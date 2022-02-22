@@ -4,45 +4,46 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>NeuraLogic</artifactId>
-        <groupId>cz.cvut.fel.ida</groupId>
+        <!--<groupId>cz.cvut.fel.ida</groupId>-->
+        <groupId>io.github.gustiks</groupId>
         <version>0.2.1-alpha</version>
-    </parent>
+</parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>Workflow</artifactId>
     <dependencies>
         <dependency>
-            <groupId>cz.cvut.fel.ida</groupId>
+            <groupId>io.github.gustiks</groupId>
             <artifactId>Logical</artifactId>
             <version>0.2.1-alpha</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>cz.cvut.fel.ida</groupId>
+            <groupId>io.github.gustiks</groupId>
             <artifactId>Pipelines</artifactId>
             <version>0.2.1-alpha</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>cz.cvut.fel.ida</groupId>
+            <groupId>io.github.gustiks</groupId>
             <artifactId>Neural</artifactId>
             <version>0.2.1-alpha</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>cz.cvut.fel.ida</groupId>
+            <groupId>io.github.gustiks</groupId>
             <artifactId>Neuralization</artifactId>
             <version>0.2.1-alpha</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>cz.cvut.fel.ida</groupId>
+            <groupId>io.github.gustiks</groupId>
             <artifactId>Resources</artifactId>
             <version>0.2.1-alpha</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>cz.cvut.fel.ida</groupId>
+            <groupId>io.github.gustiks</groupId>
             <artifactId>Parsing</artifactId>
             <version>0.2.1-alpha</version>
             <scope>compile</scope>

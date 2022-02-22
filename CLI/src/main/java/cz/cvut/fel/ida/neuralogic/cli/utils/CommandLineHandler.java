@@ -16,7 +16,7 @@ public class CommandLineHandler {
         Options options = getOptions(settings);
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = null;
-        LOG.info("with arguments: " + Arrays.toString(args) + " ...parsed into:");
+        LOG.info("with arguments: " + Arrays.toString(args) + " ...parsed into:\n");
         try {
             cmd = parser.parse(options, args);
             if (cmd.getOptions().length == 0) {
@@ -184,8 +184,8 @@ public class CommandLineHandler {
         HelpFormatter formatter = new HelpFormatter();
         formatter.setWidth(200);
         formatter.setOptionComparator(null);
-        String header = "perform learning of a Lifted Relational Neural Network model";
-        String footer = "please refer to README or project page (https://github.com/GustikS/NeuraLogic) for further details.";
+        String header = "\nperform learning of a Lifted Relational Neural Network model\n";
+        String footer = "\nplease refer to README or project page (https://github.com/GustikS/NeuraLogic) for further details.\n";
         formatter.printHelp("java -jar NeuraLogic.jar", header, options, footer, true);
     }
 
