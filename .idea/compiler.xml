@@ -24,6 +24,8 @@
         <module name="Workflow" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="8" />
+    <bytecodeTargetLevel target="8">
+      <module name="Neuralogic" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>

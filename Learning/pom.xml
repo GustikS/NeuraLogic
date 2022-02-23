@@ -7,7 +7,7 @@
         <!--<groupId>cz.cvut.fel.ida</groupId>-->
         <groupId>io.github.gustiks</groupId>
         <version>0.3.0</version>
-</parent>
+    </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>Learning</artifactId>

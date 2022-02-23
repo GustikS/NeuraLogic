@@ -1,7 +1,8 @@
 # NeuraLogic
 [![Maven CI](https://github.com/GustikS/NeuraLogic/actions/workflows/maven.yml/badge.svg)](https://github.com/GustikS/NeuraLogic/actions/workflows/maven.yml)
-[![GitHub licence](https://img.shields.io/github/license/gustiks/neuralogic)](https://github.com/GustikS/NeuraLogic/blob/master/LICENSE)
 [![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/gustiks/neuralogic?include_prereleases)](https://github.com/GustikS/NeuraLogic/releases)
+[![GitHub licence](https://img.shields.io/github/license/gustiks/neuralogic)](https://github.com/GustikS/NeuraLogic/blob/master/LICENSE)
+[![javadoc](https://javadoc.io/badge2/io.github.gustiks/neuralogic/javadoc.svg)](https://javadoc.io/doc/io.github.gustiks/neuralogic)
 [![GitHub top language](https://img.shields.io/github/languages/top/gustiks/neuralogic)](https://adoptopenjdk.net/index.html?variant=openjdk8&jvmVariant=hotspot)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/gustiks/neuralogic)
 
@@ -23,16 +24,16 @@ At the core there is a custom [language](./Parsing/src/main/java/cz/cvut/fel/ida
     - i.e. the generic knowledge/bias which you want to use. It does not have to be explicit.
         - this is how you can encode diverse deep learning models, but also relational background knowledge and other constructs.
         - these rules will be used to (automatically) link the inputs to the outputs
-    - e.g. `0.99 covalent(B) :- oxygen(X), hydrogen(Y), bond(X,Y,B).` or just `embed(X) :- W_1 embed(Y), bond(X,Y,_).`
+    - e.g. `0.99 covalent(B) <= oxygen(X), hydrogen(Y), bond(X,Y,B).` or just `embed(X) <= W_1 embed(Y), bond(X,Y,_).`
 
 ### Example
 Consider a simple program for learning with molecular data<sup>[1](#myfootnote1)</sup>, encoding a generic idea that some hidden representation (predicate `h(.)`) of any chemical atom (variable `X`) is somewhat dependent on the other atoms (`a(Y)`) adjacent to it (`b(X,Y)`), with a parameterized rule as:
 `````
-W_h1 h(X) :- W_a a(Y), W_b b(X,Y).
+W_h1 h(X) <= W_a a(Y), W_b b(X,Y).
 `````
 Additionally, let's assume that representation of a molecule (`q`) follows from representations of all the contained atoms (`h(X)`), i.e.:
 ```
-W_q q :- W_h2 h(X).
+W_q q <= W_h2 h(X).
 ```
 These 2 rules, parameterized with the tensors `W_*`'s, then form a learning program, which can be directly used to classify molecules. Actually, it directly encodes a popular idea known as [Graph Neural Networks](https://distill.pub/2021/gnn-intro).
 Execution of this program (or "template") for 2 input molecule samples will generate 2 parameterized differentiable computation graphs as follows:
@@ -149,6 +150,23 @@ usage: java -jar NeuraLogic.jar
  -prune,--chainPruning <INT>             linear chain network pruning {0,1} (default: 1)
 ```
 
+### Maven Dependency
+
+To swiftly integrate within your project, you can either download a [jar release](https://github.com/GustikS/NeuraLogic/releases) or import as a dependency directly from Maven central or Github packages.
+
+```xml
+<dependency>
+  <groupId>io.github.gustiks</groupId>
+  <artifactId>neuralogic-cli</artifactId>
+  <version>0.3.0</version>
+</dependency>
+```
+
+Note that this is a multi-module project. You can choose to use the submodules independently (e.g. Algebra for simple math, Logic for inference, Neural for deep learning in Java, Pipelines for MLOps, etc.). 
+
+If you just want to use the project as a whole, the [Main class](https://github.com/GustikS/NeuraLogic/blob/master/CLI/src/main/java/cz/cvut/fel/ida/neuralogic/cli/Main.java) in the CLI module is your starting point (with all the transitive dependencies).
+
+
 ### Modules
 
 The project follows the standard [Maven structure](https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html), and you can build it from the parent [pom.xml](./pom.xml) file. It consists of the following modules:
@@ -172,37 +190,36 @@ The project follows the standard [Maven structure](https://maven.apache.org/guid
 | Utilities     | generic utilities (maths, java DIY, etc.), utilizing [Gson](https://github.com/google/gson) for serialization and [JMH](https://openjdk.java.net/projects/code-tools/jmh/) for microbenchmarking |
 | Workflow      | specific building blocks for typical ML worflows used with this framework, based on the Pipelines module |
 
-### Upcoming
 
-- Documentation wiki
-- Python API
-    - a more user friendly frontend
-    - plus integration to popular DL libraries
-- Lambda calculus support in the language
-- Migrating structure learning module from the previous version
-
-### Disclaimer
-This is a second generation of the framework<sup>[3](#myfootnote3)</sup>, but it is still work in (very slow) progress.
-The framework is meant for academic purposes, developed at [Intelligent Data Analysis lab](https://ida.fel.cvut.cz/) at Czech Technical University in Prague.
-In case of any questions or anything interesting, feel free to contact me at *souregus@gmail.com*, but please do not expect any sort of professional software support. If you are looking for something more conservative and user friendly, consider [PyG](https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html) or [DGL](https://www.dgl.ai/pages/start.html) for the graph-based learning use cases.
-
-<a name="myfootnote3">3</a>: _for reference, you can find previous implementation (2014-2018) in [this repository](https://github.com/GustikS/Neurologic)_
-
-### Related work
-##### Repositories
-
-For experiments from the paper "Beyond GNNs with LRNNs" (2020), please see a [GNNwLRNNs repository](https://github.com/GustikS/GNNwLRNNs).
-
-For experiments from the paper "Lossless Compression of Structured Convolutional Models via Lifting" (2020), please see a [NeuraLifting repository](https://github.com/GustikS/NeuraLifting).
 
 #### Papers
 
+[Beyond Graph Neural Networks with Lifted Relational Neural Networks](https://arxiv.org/abs/2007.06286) Machine Learning Journal, 2021
+
+[Lossless compression of structured convolutional models via lifting](https://arxiv.org/abs/2007.06567) ICLR, 2021
+
+[Lifted Relational Neural Networks](https://arxiv.org/abs/1508.05128) Journal of Artificial Intelligence Research, 2018
+
+[Stacked structure learning for lifted relational neural networks](https://link.springer.com/chapter/10.1007/978-3-319-78090-0_10) Inductive Logic Programming, 2017
+
+[Learning predictive categories using lifted relational neural networks](https://link.springer.com/chapter/10.1007/978-3-319-63342-8_9) Inductive Logic Programming, 2016
+
+[Lifted Relational Neural Networks (short version)](http://ceur-ws.org/Vol-1583/CoCoNIPS_2015_paper_7.pdf) Cognitive Computing workshop @NIPS, 2015
+
+---
+
+[Deep Learning with Relational Logic Representations.](https://gustiks.github.io/publication/dissertation) My dissertation thesis providing full (scientific) context for the framework.
+
+
+
+<!--
 Googling "**Lifted Relational Neural Networks**" should give you a [short paper](http://ceur-ws.org/Vol-1583/CoCoNIPS_2015_paper_7.pdf) from a NIPS workshop on cognitive computation 2015,
 and its [long version](https://www.jair.org/index.php/jair/article/view/11203) from Journal of Artificial Intelligence Research, 2018. The most up-to-date description of the framework then views it as a [generalization of Graph Neural Networks](https://arxiv.org/abs/2007.06286).
 
 Further, you can find applications and extensions, including declarative [learning scenarios](https://link.springer.com/chapter/10.1007/978-3-319-63342-8_9) (ILP 2016) and inductive [structure learning](https://link.springer.com/chapter/10.1007/978-3-319-78090-0_10) (ILP 2017) of the learning programs. The most complete description of the work in its full context can then be found in my [dissertation thesis](https://gustiks.github.io/files/dissertation.pdf).
+-->
 
-###### Videos
+##### Videos
 [IJCLR 2021 joint session](https://www.youtube.com/watch?v=-5h-h0ukXk0&list=PL18_rB75vx1PkjXnkX1jiqNeNnVCbNGIh&index=39)
 
 [ICLR 2021](https://slideslive.com/38954203/lossless-compression-of-structured-convolutional-models-gnns-via-lifting)
@@ -211,6 +228,36 @@ Further, you can find applications and extensions, including declarative [learni
 
 [Prague Machine learning meetups 2017](https://www.youtube.com/watch?v=LHj8M8SV1zA)
 
+<!--
 ###### Presentations
 
 [Prague Automated Reasoning Seminar 2016](http://arg.ciirc.cvut.cz/slides/2016-Sourek-LRNN.pdf)
+-->
+
+#### Related Repositories
+
+Much of the Logic and Utils modules comes from [Ondrej Kuzelka's](https://github.com/supertweety/) repositories [Logic](https://github.com/supertweety/Logic) and [Utils](https://github.com/supertweety/Utils)
+
+For experiments from the paper "Beyond GNNs with LRNNs" (2020), please see a [GNNwLRNNs repository](https://github.com/GustikS/GNNwLRNNs).
+
+For experiments from the paper "Lossless Compression of Structured Convolutional Models via Lifting" (2020), please see a [NeuraLifting repository](https://github.com/GustikS/NeuraLifting).
+
+<!--
+### Upcoming
+
+- Documentation wiki
+- Python API
+    - a more user friendly frontend
+    - plus integration to popular DL libraries
+- Lambda calculus support in the language
+- Migrating structure learning module from the previous version
+-->
+
+#### Disclaimer
+This is a second generation of the framework<sup>[3](#myfootnote3)</sup>, but it is still work in (very slow) progress.
+The framework is meant for academic purposes, developed at [Intelligent Data Analysis lab](https://ida.fel.cvut.cz/) at Czech Technical University in Prague.
+In case of any questions or anything interesting, feel free to contact me at *souregus@gmail.com*, but please do not expect any sort of professional software support. 
+<!--
+If you are looking for something more conservative and user friendly, consider [PyG](https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html) or [DGL](https://www.dgl.ai/pages/start.html) for the graph-based learning use cases.
+-->
+<a name="myfootnote3">3</a>: _for reference, you can find previous implementation (2014-2018) in [this repository](https://github.com/GustikS/Neurologic)_

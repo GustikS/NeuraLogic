@@ -12,7 +12,7 @@
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>A Java library for Deep Relational Learning (with differentiable logic programming).</description>
-    <url>https://github.com/GustikS/NeuraLogic</url>
+    <url>https://github.com/gustiks/neuralogic</url>
 
     <licenses>
         <license>
@@ -38,7 +38,6 @@
     </scm>
 
 
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -52,6 +51,12 @@
             <id>ossrh</id>
             <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
+
+        <!--<repository>-->
+            <!--<id>github</id>-->
+            <!--<name>gustiks</name>-->
+            <!--<url>https://maven.pkg.github.com/gustiks/neuralogic/</url>-->
+        <!--</repository>-->
     </distributionManagement>
 
 
@@ -90,6 +95,7 @@
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
+                    <!--<appendAssemblyId>false</appendAssemblyId>-->
                     <archive>
                         <manifest>
                             <mainClass>cz.cvut.fel.ida.neuralogic.cli.Main</mainClass>
