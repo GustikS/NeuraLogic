@@ -6,8 +6,8 @@
         <artifactId>NeuraLogic</artifactId>
         <!--<groupId>cz.cvut.fel.ida</groupId>-->
         <groupId>io.github.gustiks</groupId>
-        <version>0.2.1-alpha</version>
-</parent>
+        <version>0.3.0</version>
+    </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>Neural</artifactId>
@@ -15,13 +15,13 @@
         <dependency>
             <groupId>io.github.gustiks</groupId>
             <artifactId>Algebra</artifactId>
-            <version>0.2.1-alpha</version>
+            <version>0.3.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.github.gustiks</groupId>
             <artifactId>Learning</artifactId>
-            <version>0.2.1-alpha</version>
+            <version>0.3.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

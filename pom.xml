@@ -7,7 +7,7 @@
     <!--<groupId>cz.cvut.fel.ida</groupId>-->
     <groupId>io.github.gustiks</groupId>
     <artifactId>NeuraLogic</artifactId>
-    <version>0.2.1-alpha</version>
+    <version>0.3.0</version>
     <packaging>pom</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -76,17 +76,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.7</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                </configuration>
-            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -118,39 +107,16 @@
                             <goal>single</goal>
                         </goals>
                     </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>3.2.1</version>
-                <executions>
                     <execution>
-                        <id>attach-sources</id>
+                        <id>make-jar-with-dependencies</id>
+                        <phase>package</phase>
                         <goals>
-                            <goal>jar-no-fork</goal>
+                            <goal>single</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.0.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <doclint>none</doclint>
-                </configuration>
-            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -162,32 +128,6 @@
                 </configuration>
             </plugin>
 
-
-
-            <!--<plugin>-->
-            <!--<groupId>org.codehaus.mojo</groupId>-->
-            <!--<artifactId>exec-maven-plugin</artifactId>-->
-            <!--<version>1.6.0</version>-->
-            <!--<executions>-->
-            <!--<execution>-->
-            <!--<id>run-benchmarks</id>-->
-            <!--<phase>integration-test</phase>-->
-            <!--<goals>-->
-            <!--<goal>exec</goal>-->
-            <!--</goals>-->
-            <!--<configuration>-->
-            <!--<classpathScope>test</classpathScope>-->
-            <!--<executable>java</executable>-->
-            <!--<arguments>-->
-            <!--<argument>-classpath</argument>-->
-            <!--<classpath />-->
-            <!--<argument>org.openjdk.jmh.Main</argument>-->
-            <!--<argument>.*</argument>-->
-            <!--</arguments>-->
-            <!--</configuration>-->
-            <!--</execution>-->
-            <!--</executions>-->
-            <!--</plugin>-->
         </plugins>
     </build>
 
@@ -196,6 +136,49 @@
             <id>ci-cd</id>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.7</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.2.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.0.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <doclint>none</doclint>
+                        </configuration>
+                    </plugin>
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
@@ -207,17 +190,42 @@
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
-                                <!--<configuration>-->
-                                    <!--&lt;!&ndash; Prevent gpg from using pinentry programs. Fixes: gpg: signing-->
-                                        <!--failed: Inappropriate ioctl for device &ndash;&gt;-->
-                                    <!--<gpgArguments>-->
-                                        <!--&lt;!&ndash;<arg>&#45;&#45;pinentry-mode</arg>&ndash;&gt;-->
-                                        <!--<arg>loopback</arg>-->
-                                    <!--</gpgArguments>-->
-                                <!--</configuration>-->
+                                <configuration>
+                                    <!-- Prevent gpg from using pinentry programs. Fixes: gpg: signing
+                                        failed: Inappropriate ioctl for device -->
+                                    <gpgArguments>
+                                        <arg>pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
+
+                    <!--<plugin>-->
+                    <!--<groupId>org.codehaus.mojo</groupId>-->
+                    <!--<artifactId>exec-maven-plugin</artifactId>-->
+                    <!--<version>1.6.0</version>-->
+                    <!--<executions>-->
+                    <!--<execution>-->
+                    <!--<id>run-benchmarks</id>-->
+                    <!--<phase>integration-test</phase>-->
+                    <!--<goals>-->
+                    <!--<goal>exec</goal>-->
+                    <!--</goals>-->
+                    <!--<configuration>-->
+                    <!--<classpathScope>test</classpathScope>-->
+                    <!--<executable>java</executable>-->
+                    <!--<arguments>-->
+                    <!--<argument>-classpath</argument>-->
+                    <!--<classpath />-->
+                    <!--<argument>org.openjdk.jmh.Main</argument>-->
+                    <!--<argument>.*</argument>-->
+                    <!--</arguments>-->
+                    <!--</configuration>-->
+                    <!--</execution>-->
+                    <!--</executions>-->
+                    <!--</plugin>-->
                 </plugins>
             </build>
         </profile>

@@ -6,46 +6,46 @@
         <artifactId>NeuraLogic</artifactId>
         <!--<groupId>cz.cvut.fel.ida</groupId>-->
         <groupId>io.github.gustiks</groupId>
-        <version>0.2.1-alpha</version>
+        <version>0.3.0</version>
 </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>Workflow</artifactId>
+    <artifactId>NeuraLogic-Workflow</artifactId>
     <dependencies>
         <dependency>
             <groupId>io.github.gustiks</groupId>
             <artifactId>Logical</artifactId>
-            <version>0.2.1-alpha</version>
+            <version>0.3.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.github.gustiks</groupId>
             <artifactId>Pipelines</artifactId>
-            <version>0.2.1-alpha</version>
+            <version>0.3.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.github.gustiks</groupId>
             <artifactId>Neural</artifactId>
-            <version>0.2.1-alpha</version>
+            <version>0.3.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.github.gustiks</groupId>
             <artifactId>Neuralization</artifactId>
-            <version>0.2.1-alpha</version>
+            <version>0.3.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.github.gustiks</groupId>
             <artifactId>Resources</artifactId>
-            <version>0.2.1-alpha</version>
+            <version>0.3.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.github.gustiks</groupId>
             <artifactId>Parsing</artifactId>
-            <version>0.2.1-alpha</version>
+            <version>0.3.0</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
