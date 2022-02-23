@@ -347,4 +347,14 @@ public interface NeuralogicListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNegation(NeuralogicParser.NegationContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link NeuralogicParser#impliedBy}.
+	 * @param ctx the parse tree
+	 */
+	void enterImpliedBy(NeuralogicParser.ImpliedByContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link NeuralogicParser#impliedBy}.
+	 * @param ctx the parse tree
+	 */
+	void exitImpliedBy(NeuralogicParser.ImpliedByContext ctx);
 }

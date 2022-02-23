@@ -419,6 +419,18 @@ public class NeuralogicBaseListener implements NeuralogicListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitNegation(NeuralogicParser.NegationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterImpliedBy(NeuralogicParser.ImpliedByContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitImpliedBy(NeuralogicParser.ImpliedByContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

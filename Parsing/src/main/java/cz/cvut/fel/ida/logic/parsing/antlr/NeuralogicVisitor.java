@@ -214,4 +214,10 @@ public interface NeuralogicVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitNegation(NeuralogicParser.NegationContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link NeuralogicParser#impliedBy}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitImpliedBy(NeuralogicParser.ImpliedByContext ctx);
 }

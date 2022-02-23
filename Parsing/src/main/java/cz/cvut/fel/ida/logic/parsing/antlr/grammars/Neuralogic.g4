@@ -9,7 +9,7 @@ templateLine: lrnnRule | fact | (conjunction '.') | predicateMetadata | predicat
 //trainExamples may come in following formats (overloading the lrnn_rule):
 //labeled: label query literals :- lifted examples, where the label query literal may also be a <link> to the queries file
 //unlabeled: one big lifted example or one example per line (label query literals in separate queries file then)
-examplesFile: (label IMPLIED_BY liftedExample)+ | liftedExample+ ;
+examplesFile: (label impliedBy liftedExample)+ | liftedExample+ ;
 //Examples may also contain rules (separated by whitespace, rules must end with '.' as well as example)
 liftedExample: ((lrnnRule | conjunction)+ '.');
 //label can be either <link> or one or more valued query literals themselves
@@ -17,7 +17,7 @@ label: conjunction;
 
 // format with <link> :- query literals (lrnn_rule)
 // or simple labeled trainQueries, one or more per line (line-to-line correspondence with example file)
-queriesFile: (atom IMPLIED_BY conjunction '.')+ | (conjunction '.')+;
+queriesFile: (atom impliedBy conjunction '.')+ | (conjunction '.')+;
 
 // atomic true statement
 fact: atom '.';
@@ -39,7 +39,7 @@ conjunction: atom (COMMA atom)*;
 metadataVal: ATOMIC_NAME ASSIGN (value | (DOLLAR? ATOMIC_NAME));
 metadataList: LBRACKET (metadataVal (COMMA metadataVal)*)? RBRACKET;
 
-lrnnRule: atom IMPLIED_BY conjunction (',' offset)? '.' metadataList?;
+lrnnRule: atom impliedBy conjunction (',' offset)? '.' metadataList?;
 
 predicateOffset: predicate weight;
 predicateMetadata: predicate metadataList;
@@ -65,6 +65,8 @@ element2d: INT COMMA INT ':' number | LPAREN INT COMMA INT ':' number RPAREN;
 
 negation: NEGATION;
 
+impliedBy: IMPLIED_BY | IMPLIED_BY2;
+
 VARIABLE: UCASE_LETTER ALPHANUMERIC* | '_' ALPHANUMERIC+ | '_';
 
 // numbers
@@ -76,6 +78,7 @@ ATOMIC_NAME: TRUE | LCASE_LETTER ALPHANUMERIC*;
 
 // generic chars
 IMPLIED_BY: ':-';
+IMPLIED_BY2: '<=';
 ASSIGN: '=';
 LCURL: '{';
 RCURL: '}';
