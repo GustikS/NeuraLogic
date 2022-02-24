@@ -1,22 +1,21 @@
 # NeuraLogic
 [![Maven CI](https://github.com/GustikS/NeuraLogic/actions/workflows/maven.yml/badge.svg)](https://github.com/GustikS/NeuraLogic/actions/workflows/maven.yml)
 [![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/gustiks/neuralogic?include_prereleases)](https://github.com/GustikS/NeuraLogic/releases)
+[![javadoc](https://javadoc.io/badge2/io.github.gustiks/Neural/javadoc.svg)](https://javadoc.io/doc/io.github.gustiks/Neural/latest/index.html)
 [![GitHub licence](https://img.shields.io/github/license/gustiks/neuralogic)](https://github.com/GustikS/NeuraLogic/blob/master/LICENSE)
-[![javadoc](https://javadoc.io/badge2/io.github.gustiks/Workflow/javadoc.svg)](https://javadoc.io/doc/io.github.gustiks/Workflow)
 [![GitHub top language](https://img.shields.io/github/languages/top/gustiks/neuralogic)](https://adoptopenjdk.net/index.html?variant=openjdk8&jvmVariant=hotspot)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/gustiks/neuralogic)
 
-_NeuraLogic framework combines **relational** and **deep** learning via **differentiable logic programming**._
+_NeuraLogic framework combines **relational** and **deep** learning via a form of **differentiable logic programming**._
 
-_This is an official implementation of the concept of [Lifted Relational Neural Networks](https://jair.org/index.php/jair/article/view/11203)._
-
----
-
-There is also a Python front-end [**PyNeuralogic**](https://github.com/LukasZahradnik/PyNeuraLogic) now!
-
+- This is an official implementation of the concept of [Lifted Relational Neural Networks](https://jair.org/index.php/jair/article/view/11203).
+- There is also a Python front-end [**PyNeuralogic**](https://github.com/LukasZahradnik/PyNeuraLogic) now!
 
 ---
-At the core there is a custom [language](./Parsing/src/main/java/cz/cvut/fel/ida/logic/parsing/antlr/grammars/Neuralogic.g4) you can use to write differentiable programs encoding your learning scenarios, similarly to classic Deep Learning (DL) frameworks (e.g. TensorFlow). However, the language follows a [logic programming](https://en.wikipedia.org/wiki/Logic_programming) paradigm and is **declarative** in nature (it's similar to [Datalog](https://en.wikipedia.org/wiki/Datalog)). This means that instead of directly encoding the computational graph, you just _declare_:
+
+## About
+
+At the core of the framework, there is a custom [language](./Parsing/src/main/java/cz/cvut/fel/ida/logic/parsing/antlr/grammars/Neuralogic.g4) you can use to write differentiable programs encoding your learning scenarios, similarly to classic Deep Learning (DL) frameworks (e.g. TensorFlow). However, the language follows a [logic programming](https://en.wikipedia.org/wiki/Logic_programming) paradigm and is **declarative** in nature (it's similar to [Datalog](https://en.wikipedia.org/wiki/Datalog)). This means that instead of directly encoding the computational graph, you just _declare_:
 
 1. the _inputs_ (and their numeric values, if any)
     - i.e. the observed facts/data = objects, structures, knowledge graphs, relational databases, ...
@@ -33,15 +32,15 @@ At the core there is a custom [language](./Parsing/src/main/java/cz/cvut/fel/ida
 
 ### Example
 Consider a simple program for learning with molecular data<sup>[1](#myfootnote1)</sup>, encoding a generic idea that some hidden representation (predicate `h(.)`) of any chemical atom (variable `X`) is somewhat dependent on the other atoms (`a(Y)`) bound to it (`b(X,Y)`), with a parameterized rule as:
-`````
+```prolog
 W_h1 h(X) <= W_a a(Y), W_b b(X,Y).
-`````
-Additionally, let's assume that representation of a molecule (`q`) follows from representations of all the contained atoms (`h(X)`), i.e.:
 ```
+Additionally, let's assume that representation of a molecule (`q`) follows from representations of all the contained atoms (`h(X)`), i.e.:
+```prolog
 W_q q <= W_h2 h(X).
 ```
 These 2 rules, parameterized with the tensors `W_*`'s, then form a _learning program_, which can be used to classify molecules. Actually, it directly encodes a popular idea known as [Graph Neural Networks](https://distill.pub/2021/gnn-intro).
-Execution of this program (or "template") for 2 input molecule samples will generate 2 parameterized differentiable computational graphs as follows:
+Execution of this program ("template") for 2 input molecule samples will generate 2 parameterized computational graphs as follows:
 
 ![Template2Neural Grounding](.github/img/example_template.png)
 
@@ -168,7 +167,7 @@ usage: java -jar NeuraLogic.jar
     
 ### Maven Dependency
 
-To swiftly integrate within your Maven project, you can import as a dependency directly from Maven central or Github packages.
+To swiftly integrate within your project, you can import as a dependency directly from Maven central or Github packages.
 
 ```xml
 <dependency>
@@ -178,32 +177,32 @@ To swiftly integrate within your Maven project, you can import as a dependency d
 </dependency>
 ```
 
-For usage, the [Main class](https://github.com/GustikS/NeuraLogic/blob/master/CLI/src/main/java/cz/cvut/fel/ida/neuralogic/cli/Main.java) in the CLI module is your starting point (with all the transitive dependencies).
+For the above shown usage, the [Main class](https://github.com/GustikS/NeuraLogic/blob/master/CLI/src/main/java/cz/cvut/fel/ida/neuralogic/cli/Main.java) in the CLI module is your starting point.
 
 
 ### Modules
 
-Note that this is a multi-module [Maven project](https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html) (it builds from the parent [pom.xml](./pom.xml)). Hence, you can also choose to use the submodules independently (e.g. 'Algebra' for simple math, 'Logic' for logical inference, 'Neural' for deep learning in Java, 'Pipelines' for "MLOps", etc.). 
+Note that this is a multi-module [Maven project](https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html) (with a parent [pom.xml](./pom.xml)). Hence, you can also choose to use the submodules independently (e.g. 'Algebra' for simple math, 'Logic' for first-order inference, 'Neural' for deep learning in Java, 'Pipelines' for creating "MLOps" workflows, etc.). 
 
 
 | Module        | Description                                                            |
 |---------------|------------------------------------------------------------------------|
 | Algebra       | value definitions (scalar/vector/matrix...) with respective mathematical operations and functions |
 | CLI           | simple command line interface to the framework, based on Apache commons' [CLI](http://commons.apache.org/proper/commons-cli/) |
-| Drawing       | visualization of templates, groundings/inference and neural networks, based on DOT language ([Graphviz](https://graphviz.org/))                 |
-| Frontend      | Python scripts for calling some high-level functionalities, reading results, and exporting neural nets to [Dynet](http://dynet.io/), based on [Py4J](https://www.py4j.org/) (in progress)|
+| Drawing       | visualization of templates, inference and neural networks, based on DOT language ([Graphviz](https://graphviz.org/))                 |
+| Frontend      | Python scripts for calling some high-level functionalities, reading results, and exporting neural nets to [Dynet](http://dynet.io/), based on [Py4J](https://www.py4j.org/) (moved to [PyNeuralogic](https://github.com/LukasZahradnik/PyNeuraLogic))|
 | Learning      | high-level (supervised) machine learning definitions and functions |
 | Logging       | simple logging + (color) formatting, based on the default java.util.logging library |
-| Logic         | subsumption engine providing efficient first order logic grounding/inference, credit to [Ondrej Kuzelka](https://github.com/supertweety) |
+| Logic         | subsumption engine providing efficient relational logic grounding, credit to [Ondrej Kuzelka](https://github.com/supertweety) |
 | Logical       | the logical part of the integration containing logic-based structures and computation - i.e. weighted logic grounding, extension of the Logic module |
 | Neural        | the neural part of the integration containing neural-based structures and computation - i.e. neural nets processing, backprop and classic DL stuff |
 | Neuralization | the process of conversion from the logical to the neural structures |
 | Parsing       | definition and parsing of the NeuraLogic language into internal representation, based on [ANTLR](https://www.antlr.org/)  |
-| Pipelines     | high-level abstraction library for creating generic execution graphs, suitable for ML workflows (custom made) |
+| Pipelines     | high-level "MLOps" library for creating generic ML workflows (custom made) |
 | Resources     | test resources, templates, datasets, etc.  |
 | Settings      | central configuration/validation of all settings and input sources (files) |
-| Utilities     | generic utilities (maths, java DIY, etc.), utilizing [Gson](https://github.com/google/gson) for serialization and [JMH](https://openjdk.java.net/projects/code-tools/jmh/) for microbenchmarking |
-| Workflow      | specific building blocks for typical ML worflows used with this framework, based on the Pipelines module |
+| Utilities     | generic utilities (maths, java DIY, etc.), with [Gson](https://github.com/google/gson) serialization and [JMH](https://openjdk.java.net/projects/code-tools/jmh/) benchmarking |
+| Workflow      | NeuraLogic-specific building blocks for typical ML worflows, based on the Pipelines module |
 
 
 
