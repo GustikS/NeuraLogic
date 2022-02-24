@@ -55,7 +55,7 @@ For detailed syntax and semantics, please check out the concept of "[*Lifted Rel
 
 <a name="myfootnote1">1</a>: _Note that NeuraLogic is by no means designed or limited to learning with chemical data/models/knowledge, but we use it as an example domain here for consistency._
 
-### Use Cases
+## Use Cases
 While the framework can be used to encode anything from MLPs, CNNs, RNNs, etc., it is **not** well suited for classic deep learning with regular data based on large homogeneous tensor operations.
 The framework is rather meant for efficient encoding of deep **relational** learning scenarios<sup>[2](#myfootnote2)</sup>, i.e. using dynamic (weight-sharing) neural networks to learn from data with _irregular_ structure(s). 
 That is why we exploit the declarative language with first-order expressiveness, as it allows for compact encoding of complex relational scenarios (similarly to how [Prolog](https://en.wikipedia.org/wiki/Prolog) can be elegant for relational problems, while not so much for classic programming).
@@ -79,7 +79,7 @@ The framework is mostly optimized for quick, high-level prototyping of learning 
 
 <a name="myfootnote2">2</a>: _if you come from deep learning background, you may be familiar with related terms such as "Geometric deep learning" or "Graph representation learning" (but this framework is not limited to graphs only)._
 
-### Getting started
+## Getting started
 
 ##### Prerequisite
 
@@ -163,7 +163,7 @@ usage: java -jar NeuraLogic.jar
  -prune,--chainPruning <INT>             linear chain network pruning {0,1} (default: 1)
 ```
     
-### Maven Dependency
+## Maven Dependency
 
 To integrate within your project, you can import as a dependency directly from Maven central or Github packages.
 
