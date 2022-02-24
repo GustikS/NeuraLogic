@@ -104,7 +104,7 @@ Java ≥ 1.8
     1. molecule classification problem ([mutagenesis](https://www.doc.ic.ac.uk/~shm/mutagenesis.html))
         - `java -jar NeuraLogic.jar -sd ./NeuraLogic/Resources/datasets/relational/molecules/mutagenesis -ts 100`
     1. knowledge-base completion problem ([countries](https://www.aaai.org/ocs/index.php/SSS/SSS15/paper/viewPaper/10257))
-        - `java -jar NeuraLogic.jar -sd ./NeuraLogic/Resources/datasets/relational/kbs/nations -ts 20`
+        - `java -jar NeuraLogic.jar -sd ./NeuraLogic/Resources/datasets/relational/kbs/nations`
 1. you can check various exported settings and results in `DIR/target`
     1. if you have [Graphviz](https://graphviz.org/download/) installed (`which dot`), you can observe the internal computation structures in debug mode:
         - `java -jar NeuraLogic.jar -sd ./NeuraLogic/Resources/datasets/neural/xor/naive -iso -1 -prune -1 -debug all`
@@ -167,7 +167,7 @@ usage: java -jar NeuraLogic.jar
     
 ### Maven Dependency
 
-To swiftly integrate within your project, you can import as a dependency directly from Maven central or Github packages.
+To integrate within your project, you can import as a dependency directly from Maven central or Github packages.
 
 ```xml
 <dependency>
