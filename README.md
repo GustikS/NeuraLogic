@@ -87,7 +87,7 @@ The framework is mostly optimized for quick, high-level prototyping of learning 
 Java ≥ 1.8 
 ```
 
-   - [continuously tested](https://github.com/GustikS/NeuraLogic/actions) with JDK 1.8 on the latest Ubuntu, Windows and macOS<sup>[2](#myfootnote2)</sup>
+   - [continuously tested](https://github.com/GustikS/NeuraLogic/actions) with JDK 1.8 on the latest Ubuntu, Windows and macOS<sup>[3](#myfootnote3)</sup>
 
 #### Running examples
 
@@ -114,13 +114,11 @@ Java ≥ 1.8
 
 
 ---
-<a name="myfootnote2">2</a>: _if you don't have Java in your system already, get it either from [Oracle](https://www.oracle.com/java/technologies/javase-jre8-downloads.html) or [OpenJDK](https://adoptopenjdk.net/index.html?variant=openjdk8&jvmVariant=hotspot)_
+<a name="myfootnote3">3</a>: _if you don't have Java in your system already, get it either from [Oracle](https://www.oracle.com/java/technologies/javase-jre8-downloads.html) or [OpenJDK](https://adoptopenjdk.net/index.html?variant=openjdk8&jvmVariant=hotspot)_
    - for simple usage, it is enough to get the runtime environment (JRE)
    - for developers - you can clone and open this project directly in [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 
 <!-- (both OpenJDK (≥ v1.8.0_222) and Oracle JDK (≥ v1.8.0_151) will do). -->
-
----
 
 ### Usage
 ```
@@ -268,10 +266,10 @@ For experiments from the paper "Lossless Compression of Structured Convolutional
 -->
 
 #### Disclaimer
-This is a second generation of the framework<sup>[3](#myfootnote3)</sup>, but it is still work in (very slow) progress.
+This is a second generation of the framework<sup>[4](#myfootnote4)</sup>, but it is still work in (very slow) progress.
 The framework is meant for academic purposes, developed at [Intelligent Data Analysis lab](https://ida.fel.cvut.cz/) at Czech Technical University in Prague.
 In case of any questions or anything interesting, feel free to contact me at *souregus@gmail.com*, but please do not expect any sort of professional software support. 
 <!--
 If you are looking for something more conservative and user friendly, consider [PyG](https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html) or [DGL](https://www.dgl.ai/pages/start.html) for the graph-based learning use cases.
 -->
-<a name="myfootnote3">3</a>: _for reference, you can find previous implementation (2014-2018) in [this repository](https://github.com/GustikS/Neurologic)_
+<a name="myfootnote4">4</a>: _for reference, you can find previous implementation (2014-2018) in [this repository](https://github.com/GustikS/Neurologic)_
