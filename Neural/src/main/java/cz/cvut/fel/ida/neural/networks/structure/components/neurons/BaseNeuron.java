@@ -90,7 +90,6 @@ public abstract class BaseNeuron<T extends Neurons, S extends State.Neural> impl
     }
 
     @Override
-    @NotNull
     public Aggregation getAggregation() {
         return state.getAggregation();
     }
