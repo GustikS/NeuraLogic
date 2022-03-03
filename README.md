@@ -12,7 +12,7 @@ _NeuraLogic framework combines **relational** and **deep** learning via a form o
 - There is also a Python front-end [**PyNeuralogic**](https://github.com/LukasZahradnik/PyNeuraLogic) now!
 
 ---
-
+ 
 ## About
 
 At the core of the framework, there is a custom [language](./Parsing/src/main/java/cz/cvut/fel/ida/logic/parsing/antlr/grammars/Neuralogic.g4) you can use to write differentiable programs encoding your learning scenarios, similarly to classic Deep Learning (DL) frameworks (e.g. TensorFlow). However, the language follows a [logic programming](https://en.wikipedia.org/wiki/Logic_programming) paradigm and is **declarative** in nature (it's similar to [Datalog](https://en.wikipedia.org/wiki/Datalog)). This means that instead of directly encoding the computational graph, you just _declare_:
