@@ -19,7 +19,7 @@ public class SquaredDiff implements ErrorFcn {
             LOG.severe("Prediction output and target label are of different algebraic types! (e.g. scalar vs vector)");
         }
         Value diff = output.minus(target);
-        Value times = diff.times(diff);
+        Value times = diff.times(diff.transpose());
 //        return times.times(oneHalf);  //this is technically correct, but less interpretable
         return times;
     }
