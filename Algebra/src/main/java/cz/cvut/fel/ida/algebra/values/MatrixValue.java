@@ -70,13 +70,13 @@ public class MatrixValue extends Value {
 
         @Override
         public boolean hasNext() {
-            return row < maxRow || col < maxCol;
+            return row <= maxRow;
         }
 
         @Override
         public Double next() {
             double next = values[row][col];
-            if (col < cols - 1)
+            if (col < maxCol)
                 col++;
             else {
                 row++;
