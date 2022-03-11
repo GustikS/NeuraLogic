@@ -19,11 +19,16 @@ public class SquaredDiff implements ErrorFcn {
             LOG.severe("Prediction output and target label are of different algebraic types! (e.g. scalar vs vector)");
         }
         Value diff = output.minus(target);
-        Value diffT = diff.clone();
-        diffT.transpose();
-        Value times = diff.times(diffT);
-//        return times.times(oneHalf);  //this is technically correct, but less interpretable
-        return times;
+
+        double accumulator = 0d;
+        int elements = 0;
+
+        for (double value : diff) {
+            accumulator += value * value;
+            elements += 1;
+        }
+
+        return new ScalarValue(accumulator / elements);
     }
 
     @Override
