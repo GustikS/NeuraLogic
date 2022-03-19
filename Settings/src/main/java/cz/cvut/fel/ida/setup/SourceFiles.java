@@ -240,7 +240,7 @@ public class SourceFiles extends Sources {
     }
 
     public static String sanitizeTempl(String name) {
-        String sane = name.replaceAll("[,:;'\\[\\]/]", "_");
+        String sane = name.replaceAll("[,;'\\[\\]/]", "_");
         return sane;
     }
 

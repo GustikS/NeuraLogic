@@ -99,7 +99,7 @@ public class GraphViz {
 
     private static String getGraphvizExecutable(Settings settings) {
         if (Settings.os == Settings.OS.WINDOWS) {
-            return Paths.get(settings.graphvizPathWindows, settings.graphVizAlgorithm + ".exe").toString();
+            return Paths.get(settings.graphVizAlgorithm + ".exe").toString();
         } else if (GraphViz.osName.contains("MacOSX")) {
             return Paths.get(settings.graphvizPathMac, settings.graphVizAlgorithm).toString();
         } else {
