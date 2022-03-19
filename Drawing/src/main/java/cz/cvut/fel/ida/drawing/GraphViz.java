@@ -4,6 +4,7 @@ import cz.cvut.fel.ida.setup.Settings;
 
 import java.awt.*;
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.logging.Logger;
@@ -98,11 +99,11 @@ public class GraphViz {
 
     private static String getGraphvizExecutable(Settings settings) {
         if (Settings.os == Settings.OS.WINDOWS) {
-            return settings.graphvizPathWindows + "/" + settings.graphVizAlgorithm + ".exe";
+            return Paths.get(settings.graphvizPathWindows, settings.graphVizAlgorithm + ".exe").toString();
         } else if (GraphViz.osName.contains("MacOSX")) {
-            return settings.graphvizPathMac + "/" + settings.graphVizAlgorithm;
+            return Paths.get(settings.graphvizPathMac, settings.graphVizAlgorithm).toString();
         } else {
-            return settings.graphvizPathLinux + "/" + settings.graphVizAlgorithm;
+            return Paths.get(settings.graphvizPathLinux, settings.graphVizAlgorithm).toString();
         }
     }
 
@@ -286,7 +287,7 @@ public class GraphViz {
      * @return Success: 1, Failure: -1
      */
     public int writeImageToFile(byte[] img, String file) {
-        File to = new File(tempDir + "/" + sanitize(file) + "." + imgtype);
+        File to = new File(Paths.get(tempDir, sanitize(file) + "." + imgtype).toString());
         return writeImageToFile(img, to);
     }
 

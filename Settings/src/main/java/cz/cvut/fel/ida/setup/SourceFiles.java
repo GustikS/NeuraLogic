@@ -259,7 +259,7 @@ public class SourceFiles extends Sources {
     private String checkTemplate4Imports(Path path, AtomicBoolean changed, File foldDir) throws FileNotFoundException {
         try {
             if (path.toString().startsWith(".")) {
-                path = Paths.get(foldDir + "/" + path);
+                path = Paths.get(foldDir.toString(), path.toString());
             }
             List<String> strings = Files.readAllLines(path);
             for (int i = 0; i < strings.size(); i++) {
