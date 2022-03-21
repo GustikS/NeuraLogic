@@ -3,10 +3,24 @@ package cz.cvut.fel.ida.algebra.values;
 import cz.cvut.fel.ida.utils.generic.TestAnnotations;
 
 import java.util.Arrays;
+import java.util.Iterator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ValueTest {
+
+    @TestAnnotations.Fast
+    public void iteration() {
+        Value v1 = new MatrixValue(new double[][]{{1.0, 2.0}, {2.0, 4}, {3, 6}});
+        Iterator<Double> iterator = v1.iterator();
+        Double aDouble = null;
+        while (iterator.hasNext()) {
+            aDouble = iterator.next();
+            System.out.println(aDouble);
+        }
+        assertEquals(aDouble, 6);
+    }
+
 
     @TestAnnotations.Fast
     public void wrongTransposition() {

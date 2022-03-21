@@ -138,7 +138,7 @@ public class SourceFiles extends Sources {
             String templatePath = cmd.getOptionValue("template", settings.templateFile);
 
             File template_ = sanitizePath(settings, cmd, foldDir, sanitizeTempl(templatePath));
-            mergedTemplatePath = Paths.get(settings.outDir, template_ + settings.mergedTemplatesSuffix + this.foldId);
+            mergedTemplatePath = Paths.get(System.getProperty("user.dir"), settings.outDir, sanitizeTempl(template_ + settings.mergedTemplatesSuffix + this.foldId));
 
             if (templatePath.contains(",")) {
                 LOG.warning("There are multiple templates, will try to merge them first");
@@ -146,7 +146,8 @@ public class SourceFiles extends Sources {
                 if (templatePath.startsWith("["))
                     templatePath = templatePath.substring(1, templatePath.length() - 2);
                 String[] split = templatePath.split(",");
-                mergedTemplatePath.toFile().delete();   //delete previously existing
+                mergedTemplatePath.toFile().delete();   //delete previous if existing
+                mergedTemplatePath.toFile().getParentFile().mkdirs();
                 template_ = mergeTemplates(settings, cmd, foldDir, split);
             } else {
                 template_ = getTemplate(settings, cmd, foldDir, templatePath);
@@ -240,7 +241,7 @@ public class SourceFiles extends Sources {
     }
 
     public static String sanitizeTempl(String name) {
-        String sane = name.replaceAll("[,:;'\\[\\]/]", "_").replaceAll("\\\\","_");
+        String sane = name.replaceAll("[,:;'\\[\\]/]", "_").replaceAll("\\\\", "_");
         return sane;
     }
 
@@ -304,12 +305,13 @@ public class SourceFiles extends Sources {
         for (Path subTemplate : subTemplates) {
             try {
                 List<String> strings = Files.readAllLines(subTemplate);
-                if (templ.exists())
+                if (templ.exists()) {
                     Files.write(templ.toPath(), strings, StandardOpenOption.APPEND);
-                else
+                } else {
                     Files.write(templ.toPath(), strings, StandardOpenOption.CREATE);
+                }
             } catch (IOException e) {
-                LOG.severe("There is no subtemplate found at the specified path! : " + subTemplate);
+                LOG.severe("Couldn't write to: " + templ.toPath());
                 throw new FileNotFoundException();
             }
         }
