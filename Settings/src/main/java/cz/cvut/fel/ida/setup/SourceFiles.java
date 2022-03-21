@@ -138,7 +138,7 @@ public class SourceFiles extends Sources {
             String templatePath = cmd.getOptionValue("template", settings.templateFile);
 
             File template_ = sanitizePath(settings, cmd, foldDir, sanitizeTempl(templatePath));
-            mergedTemplatePath = Paths.get(template_ + settings.mergedTemplatesSuffix + this.foldId);
+            mergedTemplatePath = Paths.get(settings.outDir, template_ + settings.mergedTemplatesSuffix + this.foldId);
 
             if (templatePath.contains(",")) {
                 LOG.warning("There are multiple templates, will try to merge them first");
@@ -240,7 +240,7 @@ public class SourceFiles extends Sources {
     }
 
     public static String sanitizeTempl(String name) {
-        String sane = name.replaceAll("[,:;'\\[\\]/]", "_");
+        String sane = name.replaceAll("[,:;'\\[\\]/]", "_").replaceAll("\\\\","_");
         return sane;
     }
 
@@ -249,6 +249,7 @@ public class SourceFiles extends Sources {
         Path templPath = template_.toPath();
         String content = checkTemplate4Imports(templPath, changed, foldDir);
         if (changed.get()) {
+            mergedTemplatePath.toFile().getParentFile().mkdirs();
             Files.write(mergedTemplatePath, content.getBytes());
             template_ = mergedTemplatePath.toFile();
         }
