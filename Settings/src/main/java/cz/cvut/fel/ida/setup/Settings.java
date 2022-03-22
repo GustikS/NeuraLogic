@@ -148,9 +148,7 @@ public class Settings implements Serializable {
 
     //------------------Dependencies (graphviz for debugging)
 
-    public String graphvizPathLinux = "/usr/bin"; // this is where the dot typically is, if not, install graphviz
-    public String graphvizPathMac = "/usr/local/bin";   //never tried OSX...
-    public String graphvizPathWindows = "../Resources/graphviz"; //get it if you  don't have it and want to use it!
+    public String graphvizPath = null;
 
     public String pythonPath = "/opt/miniconda3/envs/lrnn/bin/python";
 //    public String pythonPath = "python";
