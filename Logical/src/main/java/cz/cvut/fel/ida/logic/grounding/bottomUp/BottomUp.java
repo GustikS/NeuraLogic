@@ -14,6 +14,7 @@ import cz.cvut.fel.ida.logic.constructs.template.components.HeadAtom;
 import cz.cvut.fel.ida.logic.constructs.template.components.WeightedRule;
 import cz.cvut.fel.ida.logic.grounding.GroundTemplate;
 import cz.cvut.fel.ida.logic.grounding.Grounder;
+import cz.cvut.fel.ida.logic.grounding.constructs.GroundRulesCollection;
 import cz.cvut.fel.ida.logic.subsumption.HerbrandModel;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.generic.Pair;
@@ -41,7 +42,10 @@ public class BottomUp extends Grounder {
     public BottomUp(Settings settings) {
         super(settings);
         herbrandModel = new HerbrandModel();
+        groundingsCollectionGetter = GroundRulesCollection.get(settings);
     }
+
+    GroundRulesCollection groundingsCollectionGetter;
 
     @NotNull
     public GroundTemplate groundRulesAndFacts(LiftedExample example, Template template) {
@@ -58,7 +62,7 @@ public class BottomUp extends Grounder {
             template.hornClauses = ruleMap;
         }
 
-        LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> groundRules = new LinkedHashMap<>();
+        LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules = new LinkedHashMap<>();  //todo test optimize access by further aggregating literals with the same predicate for subsumption testing?
 
         Set<Literal> facts = groundFacts.keySet();
         // add already inferred facts as a hack to speedup the Herbrand model calculation
@@ -94,20 +98,19 @@ public class BottomUp extends Grounder {
                 for (GroundRule grounding : groundings) {
 
                     grounding.internLiterals(allLiterals);
-                    Map<GroundHeadRule, LinkedHashSet<GroundRule>> rules2groundings =
-                            groundRules.computeIfAbsent(grounding.groundHead, k -> new LinkedHashMap<>());
+                    Map<GroundHeadRule, Collection<GroundRule>> rules2groundings = groundRules.computeIfAbsent(grounding.groundHead, k -> new LinkedHashMap<>()); //we still want unique rules at least
 
                     //aggregation neurons correspond to lifted rule with particular ground head
                     GroundHeadRule groundHeadRule = weightedRule.groundHeadRule(grounding.groundHead);
 
-                    LinkedHashSet<GroundRule> ruleGroundings = rules2groundings.computeIfAbsent(groundHeadRule, k -> new LinkedHashSet<>());
+                    Collection<GroundRule> ruleGroundings = rules2groundings.computeIfAbsent(groundHeadRule, k -> groundingsCollectionGetter.getGroundingCollection());    //here we choose whether we want only unique ground bodies or not
                     ruleGroundings.add(grounding);
                 }
             }
         }
         LOG.fine(groundRules.size() + " ground rules created.");
         totalGroundRules += groundRules.size();
-        GroundTemplate groundTemplate = new GroundTemplate(groundRules, groundFacts);
+        GroundTemplate groundTemplate = new GroundTemplate(groundRules, groundFacts, settings);
         herbrandModel.clear();
 
         timing.toc();
@@ -203,5 +206,4 @@ public class BottomUp extends Grounder {
         }
         return groundRules;
     }
-
 }

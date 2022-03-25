@@ -196,7 +196,7 @@ public class Neuralizer implements Exportable {
      */
     private DetailedNetwork blindNeuralization(GroundTemplate groundTemplate, NeuronMaps neuronMaps, NeuralSets currentNeuralSets) throws RuntimeException {
         //simply create neurons for all the ground rules
-        for (Map.Entry<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> entry : neuronMaps.groundRules.entrySet()) {
+        for (Map.Entry<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> entry : neuronMaps.groundRules.entrySet()) {
             neuralNetBuilder.loadNeuronsFromRules(entry.getKey(), entry.getValue(), currentNeuralSets);
         }
         neuronMaps.groundRules.clear();   //remove rules that will have their neurons already created
@@ -228,12 +228,12 @@ public class Neuralizer implements Exportable {
         }
         closedSet.add(literal);
 
-        LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>> ruleMap = neuronMaps.groundRules.remove(literal);
+        LinkedHashMap<GroundHeadRule, Collection<GroundRule>> ruleMap = neuronMaps.groundRules.remove(literal);
         if (ruleMap != null) {
             neuralNetBuilder.loadNeuronsFromRules(literal, ruleMap, currentNeuralSets);
             groundRulesProcessed++;
 
-            for (LinkedHashSet<GroundRule> groundings : ruleMap.values()) {
+            for (Collection<GroundRule> groundings : ruleMap.values()) {
                 for (GroundRule grounding : groundings) {
                     for (Literal bodyAtom : grounding.groundBody) {
                         recursiveNeuronsCreation(bodyAtom, closedSet, neuronMaps, currentNeuralSets);
@@ -244,7 +244,7 @@ public class Neuralizer implements Exportable {
     }
 
     @NotNull
-    protected List<Literal> getQueryMatchingLiterals(QueryAtom queryAtom, @NotNull LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> groundRules) {
+    protected List<Literal> getQueryMatchingLiterals(QueryAtom queryAtom, @NotNull LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules) {
 
         // ground query (simple, standard)?
         if (!queryAtom.headAtom.literal.containsVariable()) {
@@ -257,7 +257,7 @@ public class Neuralizer implements Exportable {
         Matching matching = new Matching();
         List<Literal> queryLiterals = new ArrayList<>();
 
-        for (Map.Entry<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> entry : groundRules.entrySet()) {  //find rules the head of which matches the query
+        for (Map.Entry<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> entry : groundRules.entrySet()) {  //find rules the head of which matches the query
             if (queryAtom.headAtom.literal.predicate().equals(entry.getKey().predicate()) && matching.subsumption(new Clause(queryAtom.headAtom.literal), new Clause(entry.getKey()))) { //todo check this method, also for speed
                 queryLiterals.add(entry.getKey());
             }

@@ -358,6 +358,8 @@ public class Settings implements Serializable {
      */
     public AggregationFcn factMergeActivation = AggregationFcn.MAX;
 
+    public boolean uniqueGroundingsOnly = true;
+
     //-----------------Neural nets creation
     /**
      * Prune out ground rules with no support for a given query EXPLICITLY in advance (even though in a supervised pipeline, only support will be taken recursively)

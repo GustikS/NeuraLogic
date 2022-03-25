@@ -18,7 +18,7 @@ public class NeuronMaps {
      * Ground rules that are NOT yet in the neuronmaps
      */
     @NotNull
-    public LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> groundRules;
+    public LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules;
 
     /**
      * Facts that are NOT yet in the neuronmaps
@@ -48,7 +48,7 @@ public class NeuronMaps {
      */
     public boolean containsComplexActivations;
 
-    public NeuronMaps(LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> groundRules, Map<Literal, ValuedFact> groundFacts) {
+    public NeuronMaps(LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules, Map<Literal, ValuedFact> groundFacts) {
         this.groundRules = new LinkedHashMap<>(groundRules);
         this.groundFacts = new HashMap<>(groundFacts);
     }

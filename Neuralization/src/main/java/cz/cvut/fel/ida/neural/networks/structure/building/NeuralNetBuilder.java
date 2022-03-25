@@ -53,7 +53,7 @@ public class NeuralNetBuilder {
      * @param head  a head of all the subsequent rules
      * @param rules all the rules with all the groundings where it appears as a head
      */
-    public void loadNeuronsFromRules(Literal head, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>> rules, NeuralSets createdNeurons) {
+    public void loadNeuronsFromRules(Literal head, LinkedHashMap<GroundHeadRule, Collection<GroundRule>> rules, NeuralSets createdNeurons) {
         NeuronMaps neuronMaps = neuralBuilder.neuronFactory.neuronMaps;
 
         boolean newAtomNeuron = false;
@@ -65,8 +65,8 @@ public class NeuralNetBuilder {
         if ((headAtomNeuron = neuronMaps.atomNeurons.get(head)) == null) {
             newAtomNeuron = true;
 
-            Iterator<Map.Entry<GroundHeadRule, LinkedHashSet<GroundRule>>> iterator = rules.entrySet().iterator();
-            Map.Entry<GroundHeadRule, LinkedHashSet<GroundRule>> liftedRule = null;
+            Iterator<Map.Entry<GroundHeadRule, Collection<GroundRule>>> iterator = rules.entrySet().iterator();
+            Map.Entry<GroundHeadRule, Collection<GroundRule>> liftedRule = null;
 
             while (iterator.hasNext()) {
                 liftedRule = iterator.next();
@@ -115,7 +115,7 @@ public class NeuralNetBuilder {
         }
 
         //2) AggregationNeurons creation
-        for (Map.Entry<GroundHeadRule, LinkedHashSet<GroundRule>> rules2groundings : rules.entrySet()) {
+        for (Map.Entry<GroundHeadRule, Collection<GroundRule>> rules2groundings : rules.entrySet()) {
             boolean newAggNeuron = false;
             AggregationNeuron aggNeuron;
 

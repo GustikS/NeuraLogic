@@ -10,8 +10,8 @@ import cz.cvut.fel.ida.logic.grounding.GroundTemplate;
 import cz.cvut.fel.ida.logic.grounding.GroundingSample;
 import cz.cvut.fel.ida.setup.Settings;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -38,19 +38,19 @@ public class GroundingDrawer extends Drawer<GroundingSample> {
 
     public void nodeGraph(GroundingSample obj) {
         GroundTemplate groundTemplate = obj.groundingWrap.getGroundTemplate();
-        LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> groundRules = groundTemplate.groundRules;
+        LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules = groundTemplate.groundRules;
         Map<Literal, ValuedFact> groundFacts = groundTemplate.groundFacts;
 
-        for (Map.Entry<Literal, LinkedHashMap<GroundHeadRule, LinkedHashSet<GroundRule>>> mapEntry : groundRules.entrySet()) {
+        for (Map.Entry<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> mapEntry : groundRules.entrySet()) {
             Literal groundHead = mapEntry.getKey();
             graphviz.addln(draw(groundHead));
-            for (Map.Entry<GroundHeadRule, LinkedHashSet<GroundRule>> entry : mapEntry.getValue().entrySet()) {
+            for (Map.Entry<GroundHeadRule, Collection<GroundRule>> entry : mapEntry.getValue().entrySet()) {
                 GroundHeadRule groundHeadRule = entry.getKey();
                 if (!compact) {
                     graphviz.addln(draw(groundHeadRule));
                     graphviz.addln(drawEdge(groundHead, groundHeadRule));
                 }
-                LinkedHashSet<GroundRule> bodyGroundings = entry.getValue();
+                Collection<GroundRule> bodyGroundings = entry.getValue();
                 for (GroundRule bodyGrounding : bodyGroundings) {
                     graphviz.addln(draw(bodyGrounding));
                     if (compact) {
