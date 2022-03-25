@@ -97,12 +97,16 @@ public class GraphViz {
     }
 
     private static String getGraphvizExecutable(Settings settings) {
+        if (settings.graphvizPath != null) {
+            return settings.graphvizPath;
+        }
+
         if (Settings.os == Settings.OS.WINDOWS) {
-            return settings.graphvizPathWindows + "/" + settings.graphVizAlgorithm + ".exe";
+            return settings.graphVizAlgorithm + ".exe";
         } else if (GraphViz.osName.contains("MacOSX")) {
-            return settings.graphvizPathMac + "/" + settings.graphVizAlgorithm;
+            return settings.graphVizAlgorithm;
         } else {
-            return settings.graphvizPathLinux + "/" + settings.graphVizAlgorithm;
+            return settings.graphVizAlgorithm;
         }
     }
 
