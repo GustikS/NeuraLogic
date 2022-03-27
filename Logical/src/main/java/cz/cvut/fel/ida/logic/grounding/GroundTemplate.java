@@ -10,7 +10,6 @@ import cz.cvut.fel.ida.logic.constructs.template.components.GroundRule;
 import cz.cvut.fel.ida.logic.constructs.template.types.GraphTemplate;
 import cz.cvut.fel.ida.logic.grounding.constructs.GroundRulesCollection;
 import cz.cvut.fel.ida.logic.subsumption.Matching;
-import cz.cvut.fel.ida.setup.Settings;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -44,19 +43,16 @@ public class GroundTemplate extends GraphTemplate implements Example {
      */
 //    public NeuronMaps neuronMaps;   //now move to grounding.GroundingSample for clarity   -> moved
 
-    Settings settings;
-
     public GroundTemplate() {
         this.name = "g" + counter++;
     }
 
-    public GroundTemplate(LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules, Map<Literal, ValuedFact> groundFacts, Settings settings) {
+    public GroundTemplate(LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules, Map<Literal, ValuedFact> groundFacts) {
         this();
         this.groundRules = groundRules;
         this.groundFacts = groundFacts;
         this.derivedGroundFacts = getFactsFromGroundRules(groundRules);
 //        this.neuronMaps = new NeuronMaps(groundRules, groundFacts);
-        this.settings = settings;
 
     }
 
@@ -66,7 +62,6 @@ public class GroundTemplate extends GraphTemplate implements Example {
         this.groundFacts = other.groundFacts;
         this.derivedGroundFacts = other.derivedGroundFacts;
 //        this.neuronMaps = other.neuronMaps;
-        this.settings = other.settings;
     }
 
     @Override
@@ -101,14 +96,12 @@ public class GroundTemplate extends GraphTemplate implements Example {
     public GroundTemplate diffAgainst(GroundTemplate memory) {
         GroundTemplate diff = new GroundTemplate();
 
-        GroundRulesCollection groundingsCollectionGetter = GroundRulesCollection.get(settings);
-
         //1) copy all ground rules into new diff
         diff.groundRules = new LinkedHashMap<>();
         for (Map.Entry<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> entry : this.groundRules.entrySet()) {
             LinkedHashMap<GroundHeadRule, Collection<GroundRule>> put = diff.groundRules.put(entry.getKey(), new LinkedHashMap<>());
             for (Map.Entry<GroundHeadRule, Collection<GroundRule>> entry2 : entry.getValue().entrySet()) {
-                Collection<GroundRule> put1 = put.put(entry2.getKey(), groundingsCollectionGetter.getGroundingCollection());
+                Collection<GroundRule> put1 = put.put(entry2.getKey(), GroundRulesCollection.getGroundingCollection(entry2.getKey().weightedRule));
                 put1.addAll(entry2.getValue());
             }
         }

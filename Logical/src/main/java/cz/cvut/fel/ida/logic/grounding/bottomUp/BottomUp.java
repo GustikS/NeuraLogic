@@ -42,10 +42,7 @@ public class BottomUp extends Grounder {
     public BottomUp(Settings settings) {
         super(settings);
         herbrandModel = new HerbrandModel();
-        groundingsCollectionGetter = GroundRulesCollection.get(settings);
     }
-
-    GroundRulesCollection groundingsCollectionGetter;
 
     @NotNull
     public GroundTemplate groundRulesAndFacts(LiftedExample example, Template template) {
@@ -103,14 +100,14 @@ public class BottomUp extends Grounder {
                     //aggregation neurons correspond to lifted rule with particular ground head
                     GroundHeadRule groundHeadRule = weightedRule.groundHeadRule(grounding.groundHead);
 
-                    Collection<GroundRule> ruleGroundings = rules2groundings.computeIfAbsent(groundHeadRule, k -> groundingsCollectionGetter.getGroundingCollection());    //here we choose whether we want only unique ground bodies or not
+                    Collection<GroundRule> ruleGroundings = rules2groundings.computeIfAbsent(groundHeadRule, k -> GroundRulesCollection.getGroundingCollection(weightedRule));    //here we choose whether we want only unique ground bodies or not
                     ruleGroundings.add(grounding);
                 }
             }
         }
         LOG.fine(groundRules.size() + " ground rules created.");
         totalGroundRules += groundRules.size();
-        GroundTemplate groundTemplate = new GroundTemplate(groundRules, groundFacts, settings);
+        GroundTemplate groundTemplate = new GroundTemplate(groundRules, groundFacts);
         herbrandModel.clear();
 
         timing.toc();

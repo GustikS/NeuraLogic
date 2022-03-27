@@ -34,6 +34,8 @@ public class WeightedRule implements Exportable {
     private Aggregation aggregationFcn;
     private Activation activationFcn;
 
+    public boolean allowDuplicitGroundings = false;
+
     private RuleMetadata metadata;
     private String originalString;
 

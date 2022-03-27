@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.logic.grounding.constructs;
 
 import cz.cvut.fel.ida.logic.constructs.template.components.GroundRule;
+import cz.cvut.fel.ida.logic.constructs.template.components.WeightedRule;
 import cz.cvut.fel.ida.setup.Settings;
 
 import java.util.Collection;
@@ -17,6 +18,14 @@ public abstract class GroundRulesCollection {
             return new GroundRulesCollectionUnique();
         } else {
             return new GroundRulesCollectionDuplicit();    //sometimes we might wish duplicit ground bodies to be aggregated (e.g. to get SUM of repeated elements)
+        }
+    }
+
+    public static Collection<GroundRule> getGroundingCollection(WeightedRule weightedRule) {
+        if (weightedRule.allowDuplicitGroundings) {
+            return new LinkedList<>();
+        } else {
+            return new LinkedHashSet<>();
         }
     }
 
