@@ -93,6 +93,8 @@ public abstract class Activation extends Aggregation {
                 return Singletons.exponentiation;
             case TRANSP:
                 return Singletons.transposition;
+            case NORMDIV:
+                return Singletons.normDiv;
             case SOFTMAX:
                 return Singletons.softmax;
             case SPARSEMAX:
@@ -125,6 +127,8 @@ public abstract class Activation extends Aggregation {
                 return Singletons.exponentiation;
             case "transpose":
                 return Singletons.transposition;
+            case "normdiv":
+                return Singletons.normDiv;
             case "softmax":
                 return Activation.Singletons.softmax;
             case "sparsemax":
@@ -177,5 +181,6 @@ public abstract class Activation extends Aggregation {
 
         public static Transposition transposition = new Transposition();
         public static CosineSim cosineSim = new CosineSim();
+        public static NormDiv normDiv = new NormDiv();
     }
 }
