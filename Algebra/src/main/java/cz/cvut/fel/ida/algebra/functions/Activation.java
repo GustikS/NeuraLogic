@@ -176,5 +176,6 @@ public abstract class Activation extends Aggregation {
         public static SharpMin sharpmin = new SharpMin(identity);
 
         public static Transposition transposition = new Transposition();
+        public static CosineSim cosineSim = new CosineSim();
     }
 }
