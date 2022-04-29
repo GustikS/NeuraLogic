@@ -91,6 +91,8 @@ public abstract class Activation extends Aggregation {
                 return Singletons.lukasiewiczSigmoid;
             case EXP:
                 return Singletons.exponentiation;
+            case TRANSP:
+                return Singletons.transposition;
             case SOFTMAX:
                 return Singletons.softmax;
             case SPARSEMAX:
@@ -121,6 +123,8 @@ public abstract class Activation extends Aggregation {
                 return Activation.Singletons.lukasiewiczSigmoid;
             case "exp":
                 return Singletons.exponentiation;
+            case "transpose":
+                return Singletons.transposition;
             case "softmax":
                 return Activation.Singletons.softmax;
             case "sparsemax":
@@ -171,5 +175,6 @@ public abstract class Activation extends Aggregation {
         public static SharpMax sharpmax = new SharpMax(identity);
         public static SharpMin sharpmin = new SharpMin(identity);
 
+        public static Transposition transposition = new Transposition();
     }
 }
