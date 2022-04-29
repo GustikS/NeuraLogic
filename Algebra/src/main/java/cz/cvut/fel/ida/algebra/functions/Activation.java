@@ -91,10 +91,14 @@ public abstract class Activation extends Aggregation {
                 return Singletons.lukasiewiczSigmoid;
             case EXP:
                 return Singletons.exponentiation;
+            case SQRT:
+                return Singletons.sqrt;
+            case INVERSE:
+                return Singletons.inverse;
             case TRANSP:
                 return Singletons.transposition;
-            case NORMDIV:
-                return Singletons.normDiv;
+            case NORM:
+                return Singletons.norm;
             case SOFTMAX:
                 return Singletons.softmax;
             case SPARSEMAX:
@@ -127,8 +131,12 @@ public abstract class Activation extends Aggregation {
                 return Singletons.exponentiation;
             case "transpose":
                 return Singletons.transposition;
-            case "normdiv":
-                return Singletons.normDiv;
+            case "norm":
+                return Singletons.norm;
+            case "sqrt":
+                return Singletons.sqrt;
+            case "inverse":
+                return Singletons.inverse;
             case "softmax":
                 return Activation.Singletons.softmax;
             case "sparsemax":
@@ -181,6 +189,8 @@ public abstract class Activation extends Aggregation {
 
         public static Transposition transposition = new Transposition();
         public static CosineSim cosineSim = new CosineSim();
-        public static NormDiv normDiv = new NormDiv();
+        public static Norm norm = new Norm();
+        public static SquareRoot sqrt = new SquareRoot();
+        public static Inverse inverse = new Inverse();
     }
 }

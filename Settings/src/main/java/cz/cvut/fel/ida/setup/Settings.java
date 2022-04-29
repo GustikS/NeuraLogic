@@ -768,9 +768,9 @@ public class Settings implements Serializable {
     public ActivationFcn negation = ActivationFcn.REVERSE;
 
     public enum ActivationFcn {
-        SIGMOID, TANH, SIGNUM, LUKASIEWICZ, RELU, LEAKYRELU, IDENTITY, REVERSE, SOFTMAX, SPARSEMAX, EXP, TRANSP, NORMDIV,
-        MAX, MIN    //newly also allowing these aggregations
-        ;
+        SIGMOID, TANH, SIGNUM, LUKASIEWICZ, RELU, LEAKYRELU, IDENTITY, REVERSE, SOFTMAX, SPARSEMAX,
+        EXP, TRANSP, NORM, SQRT, INVERSE,
+        MAX, MIN;    //newly also allowing these aggregations
     }
 
     public enum ErrorFcn {
@@ -778,7 +778,7 @@ public class Settings implements Serializable {
     }
 
     public enum AggregationFcn {
-        AVG, MAX, MIN, SUM
+        AVG, MAX, MIN, SUM, COUNT;
     }
 
     public IterationMode iterationMode = IterationMode.TOPOLOGIC;
@@ -1307,7 +1307,7 @@ public class Settings implements Serializable {
             valid = false;
         }
 
-        if (isoValueCompression && (atomNeuronActivation == ActivationFcn.RELU || ruleNeuronActivation == ActivationFcn.RELU)){
+        if (isoValueCompression && (atomNeuronActivation == ActivationFcn.RELU || ruleNeuronActivation == ActivationFcn.RELU)) {
             message.append("lossless network compression does not work together with ReLu activations functions.\n Either turn off the isovaluecompression or change activation function(s).");
             valid = false;
         }

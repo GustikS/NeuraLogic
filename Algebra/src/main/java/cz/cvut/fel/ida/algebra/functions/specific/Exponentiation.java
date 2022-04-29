@@ -14,7 +14,7 @@ public class Exponentiation extends Activation {
 
     @Override
     public String getName() {
-        return "Exp";
+        return Exponentiation.class.getSimpleName();
     }
 
     public static final Function<Double, Double> logist = in ->  Math.exp(in);
