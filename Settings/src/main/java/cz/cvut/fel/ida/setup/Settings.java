@@ -768,7 +768,7 @@ public class Settings implements Serializable {
     public ActivationFcn negation = ActivationFcn.REVERSE;
 
     public enum ActivationFcn {
-        SIGMOID, TANH, SIGNUM, LUKASIEWICZ, RELU, LEAKYRELU, IDENTITY, REVERSE, SOFTMAX, SPARSEMAX,
+        SIGMOID, TANH, SIGNUM, LUKASIEWICZ, RELU, LEAKYRELU, IDENTITY, REVERSE, SOFTMAX, SPARSEMAX, EXP,
         MAX, MIN    //newly also allowing these aggregations
         ;
     }
