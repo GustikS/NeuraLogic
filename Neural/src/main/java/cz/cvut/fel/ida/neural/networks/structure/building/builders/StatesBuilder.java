@@ -79,6 +79,10 @@ public class StatesBuilder {
                 LOG.severe("algebraic exception at neuron: " + neuron.toString());
                 throw ex;
             }
+            catch (Exception ex) {
+                LOG.severe("Exception at neuron state building (StatesBuilder): " + ex.toString());
+                throw ex;
+            }
         }
     }
 
