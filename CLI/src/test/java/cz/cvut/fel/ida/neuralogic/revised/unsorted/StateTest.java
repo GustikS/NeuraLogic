@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.neuralogic.revised.unsorted;
 
-import cz.cvut.fel.ida.algebra.functions.specific.Sigmoid;
+import cz.cvut.fel.ida.algebra.functions.transformation.elementwise.Sigmoid;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.neurons.Evaluator;

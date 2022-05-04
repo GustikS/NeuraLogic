@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.algebra.functions;
 
-import cz.cvut.fel.ida.algebra.functions.specific.*;
+import cz.cvut.fel.ida.algebra.functions.transformation.elementwise.*;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
 
@@ -9,7 +9,7 @@ import java.util.function.Function;
 import java.util.logging.Logger;
 
 /**
- * Class representing activation functions, i.e. those that firstly accumulate input values via summation and then apply some non-linearity on top.
+ * Class representing simple activation functions, i.e. those that element-wise apply some non-linearity on top of some Value.
  * The non-linearity is provided via FunctionalInterface Function separately for evaluation and derivative/gradient.
  * <p>
  * Steps for adding new activation/aggregation:
@@ -25,7 +25,7 @@ import java.util.logging.Logger;
  * <p>
  * Created by gusta on 8.3.17.
  */
-public abstract class Activation extends Aggregation {
+public abstract class Activation extends Transformation {
     private static final Logger LOG = Logger.getLogger(Activation.class.getName());
 
     /**
@@ -37,40 +37,29 @@ public abstract class Activation extends Aggregation {
      */
     transient Function<Double, Double> gradient;
 
+
     protected Activation(Function<Double, Double> evaluation, Function<Double, Double> gradient) {
         this.evaluation = evaluation;
         this.gradient = gradient;
     }
 
-    @Override
-    public boolean isInputSymmetric() {
-        return true;
+    public Value evaluate(Value combinedInputs) {
+        return combinedInputs.apply(evaluation);
     }
 
-    public Value evaluate(Value summedInputs) {
-        return summedInputs.apply(evaluation);
-    }
-
-    public Value differentiate(Value summedInputs) {
-        return summedInputs.apply(gradient);
-    }
-
-    @Override
-    public Value evaluate(List<Value> inputs) {
-        Value sum = inputs.get(0).clone();
-        for (int i = 1, len = inputs.size(); i < len; i++) {
-            sum.plus(inputs.get(i));
-        }
-        return evaluate(sum);
+    public Value differentiate(Value combinedInputs) {
+        return combinedInputs.apply(gradient);
     }
 
     @Override
     public Value differentiate(List<Value> inputs) {
-        Value sum = inputs.get(0).clone();
-        for (int i = 1, len = inputs.size(); i < len; i++) {
-            sum.plus(inputs.get(i));
-        }
-        return differentiate(sum);
+        Value evaluation = evaluate(inputs);
+        return differentiate(evaluation);
+    }
+
+    @Override
+    public boolean isInputSymmetric() {
+        return true;
     }
 
     public static Activation getActivationFunction(Settings.ActivationFcn activationFcn) {
@@ -95,14 +84,6 @@ public abstract class Activation extends Aggregation {
                 return Singletons.sqrt;
             case INVERSE:
                 return Singletons.inverse;
-            case TRANSP:
-                return Singletons.transposition;
-            case NORM:
-                return Singletons.norm;
-            case SOFTMAX:
-                return Singletons.softmax;
-            case SPARSEMAX:
-                return Singletons.sparsemax;
             default:
                 LOG.severe("Unimplemented activation function");
                 return null;
@@ -112,61 +93,29 @@ public abstract class Activation extends Aggregation {
     public static Aggregation parseActivation(String agg) {
         switch (agg) {
             case "sigmoid":
-                return Activation.Singletons.sigmoid;
+                return Singletons.sigmoid;
             case "sigm":
-                return Activation.Singletons.sigmoid;
+                return Singletons.sigmoid;
             case "tanh":
-                return Activation.Singletons.tanh;
+                return Singletons.tanh;
             case "signum":
-                return Activation.Singletons.signum;
+                return Singletons.signum;
             case "relu":
-                return Activation.Singletons.relu;
+                return Singletons.relu;
             case "leakyrelu":
-                return Activation.Singletons.leakyRelu;
+                return Singletons.leakyRelu;
             case "identity":
-                return Activation.Singletons.identity;
+                return Singletons.identity;
             case "lukasiewicz":
-                return Activation.Singletons.lukasiewiczSigmoid;
+                return Singletons.lukasiewiczSigmoid;
             case "exp":
                 return Singletons.exponentiation;
-            case "transpose":
-                return Singletons.transposition;
-            case "norm":
-                return Singletons.norm;
             case "sqrt":
                 return Singletons.sqrt;
             case "inverse":
                 return Singletons.inverse;
-            case "softmax":
-                return Activation.Singletons.softmax;
-            case "sparsemax":
-                return Activation.Singletons.sparsemax;
+
             default:
-                if (agg.startsWith("crosssum-")) {
-                    String inner = agg.substring(agg.indexOf("-") + 1);
-                    Aggregation innerActivation = parseActivation(inner);
-                    return new CrossSum((Activation) innerActivation);
-                } else if (agg.startsWith("elementproduct-")) {
-                    String inner = agg.substring(agg.indexOf("-") + 1);
-                    Aggregation innerActivation = parseActivation(inner);
-                    return new ElementProduct((Activation) innerActivation);
-                } else if (agg.startsWith("product-")) {
-                    String inner = agg.substring(agg.indexOf("-") + 1);
-                    Aggregation innerActivation = parseActivation(inner);
-                    return new Product((Activation) innerActivation);
-                } else if (agg.startsWith("concat-")) {
-                    String inner = agg.substring(agg.indexOf("-") + 1);
-                    Aggregation innerActivation = parseActivation(inner);
-                    return new Concatenation((Activation) innerActivation);
-                } else if (agg.startsWith("max-")) {
-                    String inner = agg.substring(agg.indexOf("-") + 1);
-                    Aggregation innerActivation = parseActivation(inner);
-                    return new SharpMax((Activation) innerActivation);
-                } else if (agg.startsWith("min-")) {
-                    String inner = agg.substring(agg.indexOf("-") + 1);
-                    Aggregation innerActivation = parseActivation(inner);
-                    return new SharpMin((Activation) innerActivation);
-                }
                 throw new RuntimeException("Unable to parse activation function: " + agg);
         }
     }
@@ -180,16 +129,6 @@ public abstract class Activation extends Aggregation {
         public static Identity identity = new Identity();
         public static Tanh tanh = new Tanh();
         public static Exponentiation exponentiation = new Exponentiation();
-
-        public static Softmax softmax = new Softmax();
-        public static Sparsemax sparsemax = new Sparsemax();
-
-        public static SharpMax sharpmax = new SharpMax(identity);
-        public static SharpMin sharpmin = new SharpMin(identity);
-
-        public static Transposition transposition = new Transposition();
-        public static CosineSim cosineSim = new CosineSim();
-        public static Norm norm = new Norm();
         public static SquareRoot sqrt = new SquareRoot();
         public static Inverse inverse = new Inverse();
     }

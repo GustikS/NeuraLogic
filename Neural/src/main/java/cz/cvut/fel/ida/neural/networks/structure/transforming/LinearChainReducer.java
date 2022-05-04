@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.neural.networks.structure.transforming;
 
-import cz.cvut.fel.ida.algebra.functions.specific.Identity;
+import cz.cvut.fel.ida.algebra.functions.transformation.elementwise.Identity;
 import cz.cvut.fel.ida.neural.networks.structure.components.NeuralNetwork;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.BaseNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;

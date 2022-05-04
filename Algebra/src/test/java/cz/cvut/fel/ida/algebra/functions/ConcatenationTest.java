@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.algebra.functions;
 
-import cz.cvut.fel.ida.algebra.functions.specific.ReLu;
+import cz.cvut.fel.ida.algebra.functions.combination.Concatenation;
+import cz.cvut.fel.ida.algebra.functions.transformation.elementwise.ReLu;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.VectorValue;
 import cz.cvut.fel.ida.utils.generic.TestAnnotations;

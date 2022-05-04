@@ -1,9 +1,9 @@
 package cz.cvut.fel.ida.learning.results;
 
 import cz.cvut.fel.ida.algebra.functions.ErrorFcn;
-import cz.cvut.fel.ida.algebra.functions.specific.Crossentropy;
-import cz.cvut.fel.ida.algebra.functions.specific.SoftEntropy;
-import cz.cvut.fel.ida.algebra.functions.specific.SquaredDiff;
+import cz.cvut.fel.ida.algebra.functions.error.Crossentropy;
+import cz.cvut.fel.ida.algebra.functions.error.SoftEntropy;
+import cz.cvut.fel.ida.algebra.functions.error.SquaredDiff;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
 

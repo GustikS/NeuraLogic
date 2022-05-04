@@ -762,23 +762,31 @@ public class Settings implements Serializable {
 
     public AggregationFcn errorAggregationFcn = AggregationFcn.AVG;
 
+    public CombinationFcn ruleNeuronCombination = CombinationFcn.SUM;
+    public ActivationFcn ruleNeuronActivation = ActivationFcn.TANH;
+    public CombinationFcn atomNeuronCombination = CombinationFcn.SUM;
     public ActivationFcn atomNeuronActivation = ActivationFcn.TANH;
     public AggregationFcn aggNeuronActivation = AggregationFcn.AVG;
-    public ActivationFcn ruleNeuronActivation = ActivationFcn.TANH;
     public ActivationFcn negation = ActivationFcn.REVERSE;
 
-    public enum ActivationFcn {
-        SIGMOID, TANH, SIGNUM, LUKASIEWICZ, RELU, LEAKYRELU, IDENTITY, REVERSE, SOFTMAX, SPARSEMAX,
-        EXP, TRANSP, NORM, SQRT, INVERSE,
-        MAX, MIN;    //newly also allowing these aggregations
+
+    public enum CombinationFcn {
+        SUM, PRODUCT, ELPRODUCT, CROSSSUM, CONCAT, MAX, MIN, SOFTMAX, SPARSEMAX, COSSIM
     }
 
-    public enum ErrorFcn {
-        SQUARED_DIFF, ABS_DIFF, CROSSENTROPY, SOFTENTROPY;
+    public enum ActivationFcn {
+        SIGMOID, TANH, SIGNUM, LUKASIEWICZ, RELU, LEAKYRELU, IDENTITY, REVERSE, INVERSE, EXP, SQRT,
+        TRANSP, SIZE,
+        SOFTMAX, SPARSEMAX,
+        MAX, MIN;    //newly also allowing these aggregations
     }
 
     public enum AggregationFcn {
         AVG, MAX, MIN, SUM, COUNT;
+    }
+
+    public enum ErrorFcn {
+        SQUARED_DIFF, ABS_DIFF, CROSSENTROPY, SOFTENTROPY;
     }
 
     public IterationMode iterationMode = IterationMode.TOPOLOGIC;

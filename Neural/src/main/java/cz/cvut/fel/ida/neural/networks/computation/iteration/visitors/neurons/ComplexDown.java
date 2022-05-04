@@ -1,6 +1,11 @@
 package cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.neurons;
 
 import cz.cvut.fel.ida.algebra.functions.*;
+import cz.cvut.fel.ida.algebra.functions.combination.Concatenation;
+import cz.cvut.fel.ida.algebra.functions.combination.CrossSum;
+import cz.cvut.fel.ida.algebra.functions.combination.ElementProduct;
+import cz.cvut.fel.ida.algebra.functions.combination.Product;
+import cz.cvut.fel.ida.algebra.functions.transformation.joint.Softmax;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.StateVisiting;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.weights.WeightUpdater;
 import cz.cvut.fel.ida.neural.networks.structure.components.NeuralNetwork;

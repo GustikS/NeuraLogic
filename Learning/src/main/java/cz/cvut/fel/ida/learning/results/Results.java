@@ -2,7 +2,7 @@ package cz.cvut.fel.ida.learning.results;
 
 import org.jetbrains.annotations.NotNull;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
-import cz.cvut.fel.ida.algebra.functions.specific.Average;
+import cz.cvut.fel.ida.algebra.functions.aggregation.Average;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.learning.results.metrics.HITS;
 import cz.cvut.fel.ida.setup.Settings;

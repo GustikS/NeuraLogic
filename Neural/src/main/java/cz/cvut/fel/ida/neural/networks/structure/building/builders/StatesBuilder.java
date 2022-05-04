@@ -1,10 +1,17 @@
 package cz.cvut.fel.ida.neural.networks.structure.building.builders;
 
 import cz.cvut.fel.ida.algebra.functions.*;
-import cz.cvut.fel.ida.algebra.functions.specific.Average;
-import cz.cvut.fel.ida.algebra.functions.specific.Maximum;
-import cz.cvut.fel.ida.algebra.functions.specific.Minimum;
-import cz.cvut.fel.ida.algebra.functions.specific.Sum;
+import cz.cvut.fel.ida.algebra.functions.aggregation.Average;
+import cz.cvut.fel.ida.algebra.functions.aggregation.Maximum;
+import cz.cvut.fel.ida.algebra.functions.aggregation.Minimum;
+import cz.cvut.fel.ida.algebra.functions.aggregation.Sum;
+import cz.cvut.fel.ida.algebra.functions.combination.Concatenation;
+import cz.cvut.fel.ida.algebra.functions.combination.CrossSum;
+import cz.cvut.fel.ida.algebra.functions.combination.ElementProduct;
+import cz.cvut.fel.ida.algebra.functions.combination.Product;
+import cz.cvut.fel.ida.algebra.functions.transformation.joint.SharpMax;
+import cz.cvut.fel.ida.algebra.functions.transformation.joint.SharpMin;
+import cz.cvut.fel.ida.algebra.functions.transformation.joint.Softmax;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.StateVisiting;
@@ -35,28 +42,6 @@ public class StatesBuilder {
         this.settings = settings;
     }
 
-    public boolean makeParallel(BaseNeuron neuron) {
-        State.Neural.Computation state = neuron.getComputationView(0);
-        if (settings.parallelTraining && !(neuron.getRawState() instanceof States.ComputationStateComposite)) {  //if not yet made ready for parallel access
-            States.ComputationStateComposite<State.Neural.Computation> compositeState = State.createCompositeState(state, settings.minibatchSize);//todo remove State S from the signature of Neuron? probably yes
-            neuron.setState(compositeState);
-            return true;
-        } else
-            return false;
-    }
-
-    public void addLinkedInputsToNetworkStates(DetailedNetwork<State.Structure> neuralNetwork) {
-        neuralNetwork.extraInputMapping.forEach((neuron, inputs) -> {
-            if (inputs instanceof NeuronMapping) {
-                States.Inputs inputsState = new States.Inputs((NeuronMapping) inputs);
-                neuralNetwork.addState(neuron, inputsState);
-            } else if (inputs instanceof WeightedNeuronMapping) {
-                States.WeightedInputs weightedInputsState = new States.WeightedInputs((WeightedNeuronMapping) inputs);
-                neuralNetwork.addState(neuron, weightedInputsState);
-            }
-        });
-    }
-
     /**
      * Infer correct dimensions of all the value tensors within this network and create respective {@link Value} objects.
      * todo now now this must respect the actual functions
@@ -67,7 +52,7 @@ public class StatesBuilder {
         for (int i = 0; i < detailedNetwork.allNeuronsTopologic.size(); i++) {
             BaseNeuron<Neurons, State.Neural> neuron = detailedNetwork.allNeuronsTopologic.get(i);
             if (neuron.getComputationView(0).getValue() != null)
-                continue;   // already initialized
+                continue;   // already initialized, e.g. FactNeurons
 
             try {
                 if (neuron instanceof WeightedNeuron) {
@@ -107,7 +92,7 @@ public class StatesBuilder {
             value = computationView.getValue();
             Weight nextWeight = weightIterator.next();
             if (nextWeight == null) {
-                LOG.finer("Weight for input missing, deducing unit weight for: " + next.name);
+                LOG.warning("Weight for input missing, deducing unit weight value for: " + next.name);
                 weight = Value.ONE;
             } else {
                 weight = nextWeight.value;
@@ -128,12 +113,13 @@ public class StatesBuilder {
             weight = weightIterator.next().value;
             if (value == null || weight == null) {
                 LOG.severe("Value dimension cannot be inferred!" + neuron);
+                return;
             } else {
                 Value increment = weight.times(value);
                 if (increment == null) {
                     LOG.severe("Weight-Value dimension mismatch at neuron:" + neuron);
                 } else {
-                    if (changesDimensions(neuron)) {
+                    if (changesDimensions(neuron)) {        //todo now place combination activaiton here instead
                         inputValues.add(increment);
                     } else {
                         Value plus = sum.plus(increment);
@@ -174,7 +160,7 @@ public class StatesBuilder {
             if (result == null) {
                 LOG.severe("Value dimension cannot be inferred!" + neuron);
             } else {
-                if (changesDimensions(neuron)) {
+                if (changesDimensions(neuron)) {    //todo now place combination activaiton here instead
                     inputValues.add(result);
                 } else if (neuron.getAggregation().getClass() == Product.class) {
                     Value increment = sum.times(result);
@@ -235,6 +221,16 @@ public class StatesBuilder {
         }
     }
 
+    public boolean makeParallel(BaseNeuron neuron) {
+        State.Neural.Computation state = neuron.getComputationView(0);
+        if (settings.parallelTraining && !(neuron.getRawState() instanceof States.ComputationStateComposite)) {  //if not yet made ready for parallel access
+            States.ComputationStateComposite<State.Neural.Computation> compositeState = State.createCompositeState(state, settings.minibatchSize);//todo remove State S from the signature of Neuron? probably yes
+            neuron.setState(compositeState);
+            return true;
+        } else
+            return false;
+    }
+
     /**
      * Here we use the current network's input mapping to go trough all the neurons recursively.
      * Although it is not necessary that all the neurons marked as such will be actually shared, as those input
@@ -262,6 +258,18 @@ public class StatesBuilder {
             }
         }
         return sharedCount;
+    }
+
+    public void addLinkedInputsToNetworkStates(DetailedNetwork<State.Structure> neuralNetwork) {
+        neuralNetwork.extraInputMapping.forEach((neuron, inputs) -> {
+            if (inputs instanceof NeuronMapping) {
+                States.Inputs inputsState = new States.Inputs((NeuronMapping) inputs);
+                neuralNetwork.addState(neuron, inputsState);
+            } else if (inputs instanceof WeightedNeuronMapping) {
+                States.WeightedInputs weightedInputsState = new States.WeightedInputs((WeightedNeuronMapping) inputs);
+                neuralNetwork.addState(neuron, weightedInputsState);
+            }
+        });
     }
 
     /**
@@ -403,9 +411,9 @@ public class StatesBuilder {
         } else if (aggregation instanceof Softmax) {
             return new AggregationState.SoftmaxState(aggregation);
         } else if (aggregation instanceof SharpMax) {
-            return new AggregationState.Pooling.AtomMax(((SharpMax) aggregation).activation);
+            return new AggregationState.Pooling.AtomMax();
         } else if (aggregation instanceof SharpMin) {
-            return new AggregationState.Pooling.AtomMin(((SharpMin) aggregation).activation);
+            return new AggregationState.Pooling.AtomMin();
         } else if (aggregation instanceof Activation) {
             return new AggregationState.ActivationState((Activation) aggregation);
         } else {

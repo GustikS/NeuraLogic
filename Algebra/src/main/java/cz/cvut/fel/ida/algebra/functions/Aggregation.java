@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.algebra.functions;
 
-import cz.cvut.fel.ida.algebra.functions.specific.*;
+import cz.cvut.fel.ida.algebra.functions.aggregation.*;
+import cz.cvut.fel.ida.algebra.functions.aggregation.Sum;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
@@ -54,7 +55,6 @@ public abstract class Aggregation implements Exportable {
                 return Singletons.sum;
             case COUNT:
                 return Singletons.count;
-            //todo rest
             default:
                 LOG.severe("Unimplemented aggregation function");
                 return null;

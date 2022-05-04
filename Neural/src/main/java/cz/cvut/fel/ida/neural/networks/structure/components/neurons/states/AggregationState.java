@@ -1,6 +1,8 @@
 package cz.cvut.fel.ida.neural.networks.structure.components.neurons.states;
 
 import cz.cvut.fel.ida.algebra.functions.*;
+import cz.cvut.fel.ida.algebra.functions.combination.Concatenation;
+import cz.cvut.fel.ida.algebra.functions.transformation.joint.XMax;
 import cz.cvut.fel.ida.algebra.values.MatrixValue;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
@@ -259,17 +261,17 @@ public abstract class AggregationState implements Aggregation.State {
 
         public static class AtomMax extends Max {
 
-            Activation activation;
+//            Activation activation;
 
-            public AtomMax(Activation aggregation) {
-                super(Activation.Singletons.sharpmax);
-                this.activation = aggregation;
+            public AtomMax() {
+                super(Transformation.Singletons.sharpmax);
+//                this.activation = aggregation;
             }
 
-            @Override
-            public Value evaluate() {
-                return activation.evaluate(maxValue);
-            }
+//            @Override
+//            public Value evaluate() {
+//                return activation.evaluate(maxValue);
+//            }
         }
 
         public static class Min extends Pooling {
@@ -323,17 +325,17 @@ public abstract class AggregationState implements Aggregation.State {
 
         public static class AtomMin extends Min {
 
-            Activation activation;
+//            Activation activation;
 
-            public AtomMin(Activation aggregation) {
-                super(Activation.Singletons.sharpmin);
-                this.activation = aggregation;
+            public AtomMin() {
+                super(Transformation.Singletons.sharpmin);
+//                this.activation = aggregation;
             }
 
-            @Override
-            public Value evaluate() {
-                return activation.evaluate(minValue);
-            }
+//            @Override
+//            public Value evaluate() {
+//                return activation.evaluate(minValue);
+//            }
         }
 
         public static class Avg extends Pooling {
