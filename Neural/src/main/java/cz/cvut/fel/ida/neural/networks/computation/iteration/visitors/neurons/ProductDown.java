@@ -8,7 +8,7 @@ import cz.cvut.fel.ida.neural.networks.structure.components.NeuralNetwork;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.BaseNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.WeightedNeuron;
-import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.AggregationState;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.CombinationState;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
@@ -26,7 +26,7 @@ public class ProductDown extends NeuronVisitor.Weighted {
     public <T extends Neurons, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
         State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
         Value gradient = stateVisitor.visit(state);
-        AggregationState.ProductState productState = (AggregationState.ProductState) state.getAggregationState();
+        CombinationState.ProductState productState = (CombinationState.ProductState) state.getAggregationState();
 
         Iterator<T> inputs = network.getInputs(neuron);
 
@@ -46,7 +46,7 @@ public class ProductDown extends NeuronVisitor.Weighted {
     public <T extends Neurons, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron) {
         State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
         Value gradient = stateVisitor.visit(state);
-        AggregationState.ProductState productState = (AggregationState.ProductState) state.getAggregationState();
+        CombinationState.ProductState productState = (CombinationState.ProductState) state.getAggregationState();
 
         Pair<Iterator<T>, Iterator<Weight>> inputs = network.getInputs(neuron);
 

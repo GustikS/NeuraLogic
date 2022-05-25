@@ -22,7 +22,7 @@ public class ElementProduct extends Product {
         return Singletons.elementProduct;
     }
 
-    protected Value multiplyInputs(List<Value> inputs) {
+    public Value multiplyInputs(List<Value> inputs) {
         int[] size = inputs.get(0).size();
         /*
         for (int i = 0; i < inputs.size(); i++) {

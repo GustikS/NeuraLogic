@@ -1,6 +1,8 @@
 package cz.cvut.fel.ida.neural.networks.structure.building.builders;
 
-import cz.cvut.fel.ida.algebra.functions.*;
+import cz.cvut.fel.ida.algebra.functions.Activation;
+import cz.cvut.fel.ida.algebra.functions.Aggregation;
+import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.functions.aggregation.Average;
 import cz.cvut.fel.ida.algebra.functions.aggregation.Maximum;
 import cz.cvut.fel.ida.algebra.functions.aggregation.Minimum;
@@ -19,10 +21,7 @@ import cz.cvut.fel.ida.neural.networks.computation.training.strategies.Hyperpara
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.BaseNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.WeightedNeuron;
-import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.AggregationState;
-import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
-import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.States;
-import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.StatesCache;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.*;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.FactNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.types.DetailedNetwork;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.NeuronMapping;
@@ -63,8 +62,7 @@ public class StatesBuilder {
             } catch (ArithmeticException ex) {
                 LOG.severe("algebraic exception at neuron: " + neuron.toString());
                 throw ex;
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 LOG.severe("Exception at neuron state building (StatesBuilder): " + ex.toString());
                 throw ex;
             }
@@ -136,8 +134,9 @@ public class StatesBuilder {
         if (changesDimensions(neuron)) {
             sum = neuron.getAggregation().evaluate(inputValues);
             if (neuron.getAggregation() instanceof CrossSum) {
-                AggregationState.CrossSumState crossProducState = (AggregationState.CrossSumState) neuron.getComputationView(0).getAggregationState();
+                CombinationState.CrossSumState crossProducState = (CombinationState.CrossSumState) neuron.getComputationView(0).getAggregationState();
                 crossProducState.initMapping(inputValues);
+                //todo now also init all CumulationState arraylist sizes here
             }
         }
         neuron.getComputationView(0).setupValueDimensions(sum);
@@ -182,7 +181,7 @@ public class StatesBuilder {
         if (changesDimensions(neuron)) {
             sum = neuron.getAggregation().evaluate(inputValues);
             if (neuron.getAggregation() instanceof CrossSum) {
-                AggregationState.CrossSumState crossProducState = (AggregationState.CrossSumState) neuron.getComputationView(0).getAggregationState();
+                CombinationState.CrossSumState crossProducState = (CombinationState.CrossSumState) neuron.getComputationView(0).getAggregationState();
                 crossProducState.initMapping(inputValues);
             }
         }
@@ -393,29 +392,29 @@ public class StatesBuilder {
 
     public static AggregationState getAggregationState(Aggregation aggregation) {
         if (aggregation instanceof CrossSum) {
-            return new AggregationState.CrossSumState(aggregation);
+            return new CombinationState.CrossSumState((Transformation) aggregation);
         } else if (aggregation instanceof ElementProduct) {
-            return new AggregationState.ElementProductState((Activation) aggregation);
+            return new CombinationState.ElementProductState((Activation) aggregation);
         } else if (aggregation instanceof Product) {
-            return new AggregationState.ProductState((Activation) aggregation);
+            return new CombinationState.ProductState((Activation) aggregation);
         } else if (aggregation instanceof Concatenation) {
-            return new AggregationState.ConcatState((Activation) aggregation);
+            return new CombinationState.ConcatState((Activation) aggregation);
         } else if (aggregation instanceof Average) {
-            return new AggregationState.Pooling.Avg(aggregation);
+            return new Pooling.Avg(aggregation);
         } else if (aggregation instanceof Maximum) {
-            return new AggregationState.Pooling.Max(aggregation);
+            return new Pooling.Max(aggregation);
         } else if (aggregation instanceof Minimum) {
-            return new AggregationState.Pooling.Min(aggregation);
+            return new Pooling.Min(aggregation);
         } else if (aggregation instanceof Sum) {
-            return new AggregationState.Pooling.Sum(aggregation);
+            return new Pooling.Sum(aggregation);
         } else if (aggregation instanceof Softmax) {
-            return new AggregationState.SoftmaxState(aggregation);
+            return new CombinationState.SoftmaxState((Transformation) aggregation);
         } else if (aggregation instanceof SharpMax) {
-            return new AggregationState.Pooling.AtomMax();
+            return new AggregationState.SharpMaxState();
         } else if (aggregation instanceof SharpMin) {
-            return new AggregationState.Pooling.AtomMin();
+            return new AggregationState.SharpMinState();
         } else if (aggregation instanceof Activation) {
-            return new AggregationState.ActivationState((Activation) aggregation);
+            return new AggregationState.SumState((Activation) aggregation);
         } else {
             throw new UnsupportedOperationException("unkown Aggregation function state");
         }

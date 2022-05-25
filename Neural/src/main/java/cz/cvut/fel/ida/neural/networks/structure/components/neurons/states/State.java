@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.neural.networks.structure.components.neurons.states;
 
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
+import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.modes.DFSstack;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.modes.Topologic;
@@ -84,6 +85,10 @@ public interface State<V> extends Exportable {
         Aggregation getAggregation();
 
         void setAggregation(Aggregation aggregation);
+
+        Aggregation getTransformation();
+
+        void setTransformation(Transformation aggregation);
 
         /**
          * Stateful values held by a Neuron for use during neural computation, i.e. Evaluation and Backpropagation

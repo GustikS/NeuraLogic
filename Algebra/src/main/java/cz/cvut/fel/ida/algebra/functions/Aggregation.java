@@ -137,6 +137,13 @@ public abstract class Aggregation implements Exportable {
         int[] getInputMask();
 
         /**
+         * Calculate the Value of the current State.
+         *
+         * @return
+         */
+        Value evaluate();
+
+        /**
          * Calculate gradient of the current State.
          *
          * @return
@@ -144,10 +151,9 @@ public abstract class Aggregation implements Exportable {
         Value gradient();
 
         /**
-         * Calculate the Value of the current State.
-         *
+         * Calculate gradient w.r.t. the next input
          * @return
          */
-        Value evaluate();
+        Value nextInputDerivative();
     }
 }
