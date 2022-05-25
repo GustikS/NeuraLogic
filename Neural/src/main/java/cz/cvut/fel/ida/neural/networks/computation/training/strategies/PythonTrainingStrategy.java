@@ -129,11 +129,7 @@ public class PythonTrainingStrategy extends TrainingStrategy {
         for (int i = 0, j = results.size(); i < j; ++i) {
             Result result = results.get(i);
 
-            output.add(Arrays.toString(new String[] {
-                    result.getTarget().toString(format),
-                    result.getOutput().toString(format),
-                    result.errorValue().toString(format),
-            }));
+            output.add(result.getOutput().toString(format));
         }
 
         return output.toString();
