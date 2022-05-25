@@ -1,9 +1,6 @@
 package cz.cvut.fel.ida.algebra.functions;
 
-import cz.cvut.fel.ida.algebra.functions.specific.Average;
-import cz.cvut.fel.ida.algebra.functions.specific.Maximum;
-import cz.cvut.fel.ida.algebra.functions.specific.Minimum;
-import cz.cvut.fel.ida.algebra.functions.specific.Sum;
+import cz.cvut.fel.ida.algebra.functions.specific.*;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
@@ -55,6 +52,8 @@ public abstract class Aggregation implements Exportable {
                 return Singletons.minimum;
             case SUM:
                 return Singletons.sum;
+            case COUNT:
+                return Singletons.count;
             //todo rest
             default:
                 LOG.severe("Unimplemented aggregation function");
@@ -72,6 +71,8 @@ public abstract class Aggregation implements Exportable {
                 return Singletons.minimum;
             case "sum":
                 return Singletons.sum;
+            case "count":
+                return Singletons.count;
             default:
                 throw new RuntimeException("Unable to parse activation function: " + agg);
         }
@@ -103,6 +104,7 @@ public abstract class Aggregation implements Exportable {
         public static Maximum maximum = new Maximum();
         public static Minimum minimum = new Minimum();
         public static Sum sum = new Sum();
+        public static Count count = new Count();
     }
 
     /**

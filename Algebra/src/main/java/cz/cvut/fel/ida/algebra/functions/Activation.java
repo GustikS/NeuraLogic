@@ -89,6 +89,16 @@ public abstract class Activation extends Aggregation {
                 return Singletons.leakyRelu;
             case LUKASIEWICZ:
                 return Singletons.lukasiewiczSigmoid;
+            case EXP:
+                return Singletons.exponentiation;
+            case SQRT:
+                return Singletons.sqrt;
+            case INVERSE:
+                return Singletons.inverse;
+            case TRANSP:
+                return Singletons.transposition;
+            case NORM:
+                return Singletons.norm;
             case SOFTMAX:
                 return Singletons.softmax;
             case SPARSEMAX:
@@ -117,6 +127,16 @@ public abstract class Activation extends Aggregation {
                 return Activation.Singletons.identity;
             case "lukasiewicz":
                 return Activation.Singletons.lukasiewiczSigmoid;
+            case "exp":
+                return Singletons.exponentiation;
+            case "transpose":
+                return Singletons.transposition;
+            case "norm":
+                return Singletons.norm;
+            case "sqrt":
+                return Singletons.sqrt;
+            case "inverse":
+                return Singletons.inverse;
             case "softmax":
                 return Activation.Singletons.softmax;
             case "sparsemax":
@@ -159,10 +179,18 @@ public abstract class Activation extends Aggregation {
         public static LeakyReLu leakyRelu = new LeakyReLu();
         public static Identity identity = new Identity();
         public static Tanh tanh = new Tanh();
+        public static Exponentiation exponentiation = new Exponentiation();
+
         public static Softmax softmax = new Softmax();
         public static Sparsemax sparsemax = new Sparsemax();
 
         public static SharpMax sharpmax = new SharpMax(identity);
         public static SharpMin sharpmin = new SharpMin(identity);
+
+        public static Transposition transposition = new Transposition();
+        public static CosineSim cosineSim = new CosineSim();
+        public static Norm norm = new Norm();
+        public static SquareRoot sqrt = new SquareRoot();
+        public static Inverse inverse = new Inverse();
     }
 }

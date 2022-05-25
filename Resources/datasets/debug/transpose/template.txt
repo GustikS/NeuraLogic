@@ -1,0 +1,6 @@
+{3,1} layer_1(X) :- edge(X, Y), {1, 3} feature(Y).
+{3,1} layer_1(X) :- {1, 3} feature(X).	
+
+layer_1/1 [activation=transpose]
+
+{1,3} predict(X) :- layer_1(X). [activation=transpose]

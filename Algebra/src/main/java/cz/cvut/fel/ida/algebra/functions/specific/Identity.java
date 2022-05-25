@@ -16,12 +16,12 @@ public class Identity extends Activation {
         return Identity.class.getSimpleName();
     }
 
-    private static final Function<Double, Double> signum = in -> in;
+    private static final Function<Double, Double> identity = in -> in;
 
-    private static final Function<Double, Double> zerograd = in -> 1.0;
+    private static final Function<Double, Double> constant = in -> 1.0;
 
     public Identity() {
-        super(signum, zerograd);
+        super(identity, constant);
     }
 
     @Override
