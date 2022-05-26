@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.neural.networks.structure.components.neurons.states;
 
-import cz.cvut.fel.ida.algebra.functions.Transformation;
+import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 
@@ -9,27 +9,27 @@ import java.util.logging.Logger;
 /**
  * State for aggregations based on pooling, e.g. Max or Avg. These require remembering different values for intermediate results.
  */
-public abstract class Pooling extends AggregationState {
+public abstract class Pooling implements Aggregation.State {
     private static final Logger LOG = Logger.getLogger(Pooling.class.getName());
 
-    public Pooling() {
-        super(null);
+    Value combinedInputs;
+
+    public Pooling(){}
+
+    @Override
+    public int[] getInputMask() {
+        return null;
     }
 
-    public Pooling(Transformation transformation) {
-        super(transformation);
+    @Override
+    public void setupValueDimensions(Value value) {
+        this.combinedInputs = value.getForm();
     }
-
 
     public static class Max extends Pooling {
         int maxIndex = -1;
         int currentIndex = 0;
 //        Value maxValue;
-
-        // these should obtain the function in construction to be more generic - builder should take care of that
-        public Max(Transformation transformation) {
-            super(transformation);
-        }
 
         @Override
         public void cumulate(Value value) {
@@ -38,6 +38,16 @@ public abstract class Pooling extends AggregationState {
                 maxIndex = currentIndex;
             }
             currentIndex++;
+        }
+
+        @Override
+        public Value evaluate() {
+            return combinedInputs;
+        }
+
+        @Override
+        public Value gradient() {
+            return Value.ONE;
         }
 
         @Override
@@ -59,17 +69,12 @@ public abstract class Pooling extends AggregationState {
             LOG.warning("Calling nextInputDerivative in Max pooling");
             return null;
         }
-
     }
 
 
     public static class Min extends Pooling {
         int minIndex = -1;
         int currentIndex = 0;
-
-        public Min(Transformation transformation) {
-            super(transformation);
-        }
 
         @Override
         public void cumulate(Value value) {
@@ -78,6 +83,16 @@ public abstract class Pooling extends AggregationState {
                 minIndex = currentIndex;
             }
             currentIndex++;
+        }
+
+        @Override
+        public Value evaluate() {
+            return combinedInputs;
+        }
+
+        @Override
+        public Value gradient() {
+            return Value.ONE;
         }
 
         @Override
@@ -96,22 +111,17 @@ public abstract class Pooling extends AggregationState {
 
         @Override
         public Value nextInputDerivative() {
+            LOG.warning("Calling nextInputDerivative in Min pooling");
             return null;
         }
 
     }
 
-
     public static class Avg extends Pooling {
         int count = 0;
         ScalarValue inverseCount;
 
-        public Avg(Transformation transformation) {
-            super(transformation);
-        }
-
-        public Avg(Transformation transformation, Value initSum) {
-            super(transformation);
+        public Avg(Value initSum) {
             combinedInputs = initSum;
         }
 
@@ -122,10 +132,9 @@ public abstract class Pooling extends AggregationState {
         }
 
         @Override
-        public void invalidate() {
-            combinedInputs.zero();
-            inverseCount = new ScalarValue(1.0 / count);
-            count = 0;    //it will be the same every time but anyway...
+        public Value evaluate() {
+//            return sum.apply(x -> x / count);
+            return combinedInputs.times(inverseCount);
         }
 
         @Override
@@ -134,36 +143,37 @@ public abstract class Pooling extends AggregationState {
         }
 
         @Override
+        public void invalidate() {
+            combinedInputs.zero();
+            inverseCount = new ScalarValue(1.0 / count);
+            count = 0;    //it will be the same every time but anyway...
+        }
+
+        @Override
         public Value nextInputDerivative() {
             return inverseCount;
-        }
-
-        @Override
-        public Value evaluate() {
-//            return sum.apply(x -> x / count);
-            return combinedInputs.times(inverseCount);
-        }
-
-        @Override
-        public void setupValueDimensions(Value value) {
-            this.combinedInputs = value.getForm();
         }
     }
 
     public static class Sum extends Pooling {
 
-        public Sum(Transformation transformation) {
-            super(transformation);
-        }
-
-        public Sum(Transformation transformation, Value initSum) {
-            super(transformation);
+        public Sum(Value initSum) {
             combinedInputs = initSum;
         }
 
         @Override
         public void cumulate(Value value) {
             combinedInputs.incrementBy(value);
+        }
+
+        @Override
+        public Value evaluate() {
+            return combinedInputs;
+        }
+
+        @Override
+        public Value gradient() {
+            return Value.ONE;
         }
 
         @Override
@@ -184,8 +194,7 @@ public abstract class Pooling extends AggregationState {
      */
     public static class MaxK extends Pooling {
 
-        public MaxK(Transformation transformation, int k) {
-            super(transformation);
+        public MaxK(int k) {
             //todo
         }
 

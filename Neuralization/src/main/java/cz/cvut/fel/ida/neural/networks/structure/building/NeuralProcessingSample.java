@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.neural.networks.structure.building;
 
 import cz.cvut.fel.ida.algebra.functions.Activation;
+import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.VectorValue;
@@ -32,7 +33,7 @@ public class NeuralProcessingSample extends NeuralSample {
             if (settings.trainOnlineResultsType == Settings.ResultsType.CLASSIFICATION) {
                 if (!settings.squishLastLayer) {
                     if (v instanceof VectorValue) {
-                        q.neuron.getRawState().setAggregation(Activation.Singletons.softmax);
+                        q.neuron.getRawState().setAggregation(Transformation.Singletons.softmax);
                     } else if (v instanceof ScalarValue) {
                         q.neuron.getRawState().setAggregation(Activation.Singletons.sigmoid);
                     }

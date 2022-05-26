@@ -97,9 +97,9 @@ public interface State<V> extends Exportable {
 
             Computation clone();
 
-            void setupValueDimensions(Value value);
+            void setupDimensions(Value value);
 
-            AggregationState getAggregationState();
+            Aggregation.State getAggregationState();
 
             Value getValue();
 

@@ -139,7 +139,7 @@ public class StatesBuilder {
                 //todo now also init all CumulationState arraylist sizes here
             }
         }
-        neuron.getComputationView(0).setupValueDimensions(sum);
+        neuron.getComputationView(0).setupDimensions(sum);
     }
 
     private void inferUnweightedDimension(DetailedNetwork<State.Structure> detailedNetwork, BaseNeuron<Neurons, State.Neural> neuron) {
@@ -185,7 +185,7 @@ public class StatesBuilder {
                 crossProducState.initMapping(inputValues);
             }
         }
-        neuron.getComputationView(0).setupValueDimensions(sum);
+        neuron.getComputationView(0).setupDimensions(sum);
     }
 
     /**
@@ -390,7 +390,7 @@ public class StatesBuilder {
         return neuralNetwork;
     }
 
-    public static AggregationState getAggregationState(Aggregation aggregation) {
+    public static Aggregation.State getAggregationState(Aggregation aggregation) {
         if (aggregation instanceof CrossSum) {
             return new CombinationState.CrossSumState((Transformation) aggregation);
         } else if (aggregation instanceof ElementProduct) {
@@ -400,19 +400,19 @@ public class StatesBuilder {
         } else if (aggregation instanceof Concatenation) {
             return new CombinationState.ConcatState((Activation) aggregation);
         } else if (aggregation instanceof Average) {
-            return new Pooling.Avg(aggregation);
+            return new Pooling.Avg();
         } else if (aggregation instanceof Maximum) {
-            return new Pooling.Max(aggregation);
+            return new Pooling.Max();
         } else if (aggregation instanceof Minimum) {
-            return new Pooling.Min(aggregation);
+            return new Pooling.Min();
         } else if (aggregation instanceof Sum) {
-            return new Pooling.Sum(aggregation);
+            return new Pooling.Sum();
         } else if (aggregation instanceof Softmax) {
             return new CombinationState.SoftmaxState((Transformation) aggregation);
         } else if (aggregation instanceof SharpMax) {
-            return new AggregationState.SharpMaxState();
+            return new TransformationState.SharpMaxState();
         } else if (aggregation instanceof SharpMin) {
-            return new AggregationState.SharpMinState();
+            return new TransformationState.SharpMinState();
         } else if (aggregation instanceof Activation) {
             return new AggregationState.SumState((Activation) aggregation);
         } else {

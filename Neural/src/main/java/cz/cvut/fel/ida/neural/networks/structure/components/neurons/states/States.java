@@ -88,7 +88,7 @@ public abstract class States implements State {
      */
     public static class ComputationStateStandard implements Neural.Computation {
 
-        public AggregationState aggregationState;
+        public Aggregation.State aggregationState;
         public Value outputValue;
         public Value acumGradient;
 
@@ -132,7 +132,7 @@ public abstract class States implements State {
         }
 
         @Override
-        public void setupValueDimensions(Value value) {
+        public void setupDimensions(Value value) {
             if (acumGradient != null) {
                 if (value.size().equals(acumGradient.size()))
                     LOG.severe("Collision with previously inferred Value dimensions!");
@@ -144,7 +144,7 @@ public abstract class States implements State {
         }
 
         @Override
-        public AggregationState getAggregationState() {
+        public Aggregation.State getAggregationState() {
             return aggregationState;
         }
 
@@ -185,7 +185,7 @@ public abstract class States implements State {
 
         Value outputValue;  // the Value is stored right here
         Value acumGradient; // also the gradient
-        AggregationState aggregationState;  // this state is just dummy (no computation there)
+        Aggregation.State aggregationState;  // this state is just dummy (no computation there)
         public boolean isLearnable = false;
 
         public SimpleValue(Value factValue) {
@@ -206,13 +206,13 @@ public abstract class States implements State {
         }
 
         @Override
-        public void setupValueDimensions(Value value) {
+        public void setupDimensions(Value value) {
             outputValue = value.getForm();
             acumGradient = value.getForm();
         }
 
         @Override
-        public AggregationState getAggregationState() {
+        public Aggregation.State getAggregationState() {
 //            LOG.severe("Fact neurons cannot be evaluated, you can only obtain the value via getResult!");
             return aggregationState;
         }

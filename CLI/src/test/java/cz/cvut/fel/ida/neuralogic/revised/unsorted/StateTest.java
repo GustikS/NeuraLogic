@@ -18,7 +18,7 @@ public class StateTest {
     @TestAnnotations.Fast
     public void dynamicDispatch() {
         State.Neural.Computation state = new States.ComputationStateStandard(new Sigmoid());
-        state.setupValueDimensions(new ScalarValue(0));
+        state.setupDimensions(new ScalarValue(0));
         Evaluator evaluator = new Evaluator(-1);
         Value value = state.getValue();
         Value output = evaluator.visit(state);

@@ -2,6 +2,7 @@ package cz.cvut.fel.ida.logic.constructs.template.components;
 
 import cz.cvut.fel.ida.algebra.functions.Activation;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
+import cz.cvut.fel.ida.algebra.functions.Combination;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.logic.Clause;
 import cz.cvut.fel.ida.logic.HornClause;
@@ -31,8 +32,9 @@ public class WeightedRule implements Exportable {
     private HeadAtom head;
     private List<BodyAtom> body;
 
-    private Aggregation aggregationFcn;
+    private Combination combinationFcn;
     private Activation activationFcn;
+    private Aggregation aggregationFcn;
 
     public boolean allowDuplicitGroundings = false;
 
@@ -223,6 +225,14 @@ public class WeightedRule implements Exportable {
         this.activationFcn = activationFcn;
     }
 
+    public Combination getCombinationFcn() {
+        return combinationFcn;
+    }
+
+    public void setCombinationFcn(Combination combinationFcn) {
+        this.combinationFcn = combinationFcn;
+    }
+
     public RuleMetadata getMetadata() {
         return metadata;
     }
@@ -238,4 +248,5 @@ public class WeightedRule implements Exportable {
     public void setOriginalString(String originalString) {
         this.originalString = originalString;
     }
+
 }

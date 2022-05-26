@@ -124,7 +124,7 @@ public abstract class Aggregation implements Exportable {
         void cumulate(Value value);
 
         /**
-         * Reset all intermediate results of calculation (typically by zeroing them out)
+         * Reset all intermediate results of calculation (after backprop step - typically by zeroing them out)
          */
         void invalidate();
 
@@ -155,5 +155,15 @@ public abstract class Aggregation implements Exportable {
          * @return
          */
         Value nextInputDerivative();
+
+        void setupValueDimensions(Value value);
+
+        Aggregation getAggregation();
+
+        void setAggregation(Aggregation aggregation);
+
+        Aggregation getTransformation();
+
+        void setTransformation(Transformation transformation);
     }
 }

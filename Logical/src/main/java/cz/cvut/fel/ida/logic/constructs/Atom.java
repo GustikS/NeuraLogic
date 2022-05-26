@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.logic.constructs;
 
 import cz.cvut.fel.ida.algebra.functions.Activation;
+import cz.cvut.fel.ida.algebra.functions.Combination;
 import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.logic.Predicate;
 import cz.cvut.fel.ida.logic.Term;
@@ -25,7 +26,11 @@ public class Atom implements Exportable {
     public Literal literal;
 
     @Nullable
+    public Combination combination;
+
+    @Nullable
     public Activation activation;
+
     @Nullable
     public String originalString;
 

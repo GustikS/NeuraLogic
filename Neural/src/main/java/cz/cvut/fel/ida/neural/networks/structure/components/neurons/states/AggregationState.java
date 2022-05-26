@@ -19,11 +19,13 @@ public abstract class AggregationState implements Aggregation.State {
 
     Aggregation aggregation;
     Transformation transformation;
+    TransformationState transformationState;
     Value combinedInputs;
     Value transformedGradient;
 
     public AggregationState(Transformation transformation) {
         this.transformation = transformation;
+        this.transformationState = TransformationState.get(transformation);
     }
 
     public Aggregation getAggregation() {
@@ -46,6 +48,7 @@ public abstract class AggregationState implements Aggregation.State {
         return null;
     }
 
+    @Override
     public void setupValueDimensions(Value value) {
         this.combinedInputs = value.getForm();
     }
@@ -104,11 +107,7 @@ public abstract class AggregationState implements Aggregation.State {
      * A dummy state for fact neurons (e.g. embeddings)
      * - no value here, the value is stored straight in the States.SimpleValue state
      */
-    public static class SimpleValueState extends AggregationState {
-
-        public SimpleValueState() {
-            super(null);
-        }
+    public static class SimpleValueState implements Aggregation.State {
 
         @Override
         public void cumulate(Value value) {
@@ -121,6 +120,11 @@ public abstract class AggregationState implements Aggregation.State {
         }
 
         @Override
+        public int[] getInputMask() {
+            return null;
+        }
+
+        @Override
         public Value gradient() {
             LOG.warning("Calling gradient of SimpleValueState");
             return Value.ONE;   //i.e. the invariant element for multiplication
@@ -130,6 +134,11 @@ public abstract class AggregationState implements Aggregation.State {
         public Value nextInputDerivative() {
             LOG.warning("Calling nextInputDerivative of SimpleValueState");
             return Value.ONE;   //i.e. the invariant element for multiplication
+        }
+
+        @Override
+        public void setupValueDimensions(Value value) {
+
         }
 
         @Override
@@ -156,11 +165,11 @@ public abstract class AggregationState implements Aggregation.State {
 //        public void setTransformation(Transformation transformation) {
 //
 //        }
-//
-        @Override
-        public void setupValueDimensions(Value value) {
-            LOG.warning("Calling setupValueDimensions of SimpleValueState");
-        }
+////
+//        @Override
+//        public void setupValueDimensions(Value value) {
+//            LOG.warning("Calling setupValueDimensions of SimpleValueState");
+//        }
     }
 
 
