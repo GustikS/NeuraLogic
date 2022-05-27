@@ -114,22 +114,17 @@ public class PythonTrainingStrategy extends TrainingStrategy {
         });
     }
 
-    public PythonSampleBackpropagateLoss evaluateSample(NeuralSample sample) {
+    public String evaluateSample(NeuralSample sample) {
         trainer.invalidateSample(trainer.getInvalidation(), sample);
-        Result result = trainer.evaluateSample(trainer.getEvaluation(), sample);
-
-        return new PythonSampleBackpropagateLoss(sample, result);
+        return evaluation.evaluate(sample.query).toString(Settings.superDetailedNumberFormat);
     }
 
     public String evaluateSamples(List<NeuralSample> samples) {
         List<String> output = new ArrayList<>();
         NumberFormat format = Settings.superDetailedNumberFormat;
-        List<Result> results = listTrainer.evaluate(samples);
 
-        for (int i = 0, j = results.size(); i < j; ++i) {
-            Result result = results.get(i);
-
-            output.add(result.getOutput().toString(format));
+        for (int i = 0, j = samples.size(); i < j; ++i) {
+            output.add(evaluation.evaluate(samples.get(i).query).toString(format));
         }
 
         return output.toString();
