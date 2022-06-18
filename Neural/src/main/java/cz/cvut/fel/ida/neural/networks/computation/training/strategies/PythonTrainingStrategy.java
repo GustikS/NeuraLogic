@@ -1,6 +1,5 @@
 package cz.cvut.fel.ida.neural.networks.computation.training.strategies;
 
-import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
 import cz.cvut.fel.ida.learning.results.Progress;
 import cz.cvut.fel.ida.learning.results.Result;
@@ -123,39 +122,12 @@ public class PythonTrainingStrategy extends TrainingStrategy {
         List<String> output = new ArrayList<>();
         NumberFormat format = Settings.superDetailedNumberFormat;
 
-        for (int i = 0, j = samples.size(); i < j; ++i) {
-            output.add(evaluation.evaluate(samples.get(i).query).toString(format));
+        for (NeuralSample sample : samples) {
+            trainer.invalidateSample(trainer.getInvalidation(), sample);
+            output.add(evaluation.evaluate(sample.query).toString(format));
         }
 
         return output.toString();
-    }
-
-    class PythonSampleBackpropagateLoss {
-        private final Result result;
-
-        private final NeuralSample sample;
-
-        PythonSampleBackpropagateLoss(NeuralSample sample, Result result) {
-            this.sample = sample;
-            this.result = result;
-        }
-
-        public void backward() {
-            WeightUpdater weightUpdater = trainer.backpropSample(trainer.getBackpropagation(), result, sample);
-            trainer.updateWeights(currentModel, weightUpdater);
-        }
-
-        public Value getOutput() {
-            return this.result.getOutput();
-        }
-
-        public Value getTarget() {
-            return this.result.getTarget();
-        }
-
-        public Value getError() {
-            return this.result.errorValue();
-        }
     }
 
     @Override
