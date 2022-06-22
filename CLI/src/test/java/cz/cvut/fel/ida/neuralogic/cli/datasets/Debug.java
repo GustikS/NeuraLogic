@@ -1,5 +1,7 @@
 package cz.cvut.fel.ida.neuralogic.cli.datasets;
 
+import cz.cvut.fel.ida.algebra.values.ScalarValue;
+import cz.cvut.fel.ida.learning.results.DetailedClassificationResults;
 import cz.cvut.fel.ida.neuralogic.cli.Main;
 import cz.cvut.fel.ida.pipelines.Pipeline;
 import cz.cvut.fel.ida.setup.Settings;
@@ -9,6 +11,7 @@ import cz.cvut.fel.ida.utils.generic.TestAnnotations;
 import java.util.logging.Logger;
 
 import static cz.cvut.fel.ida.utils.generic.Utilities.getDatasetArgs;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Debug {
     private static final Logger LOG = Logger.getLogger(Debug.class.getName());
@@ -29,6 +32,20 @@ public class Debug {
         settings.losslessIsoCompression = true;
         settings.initLearningRate = 0.01;
         Main.main(getDatasetArgs(dataset,"-t ./template.txt"), settings);
+    }
+
+    @TestAnnotations.Fast
+    public void minAgg() throws Exception {
+        String dataset = "debug/min";
+        Settings settings = Settings.forSlowTest();
+        settings.squishLastLayer = false;   //turn off both of these to avoid applying sigmoid on top
+        settings.inferOutputNeuronFcn = false;
+        
+        settings.maxCumEpochCount = 1;
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./template.txt"), settings);
+        DetailedClassificationResults classificationResults = (DetailedClassificationResults) results.s;
+        ScalarValue output = (ScalarValue) classificationResults.evaluations.get(0).getOutput();
+        assertEquals(-10, output.value);
     }
 
     @TestAnnotations.Interactive
