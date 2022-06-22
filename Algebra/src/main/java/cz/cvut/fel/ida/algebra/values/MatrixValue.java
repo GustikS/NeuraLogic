@@ -161,17 +161,17 @@ public class MatrixValue extends Value {
 
     @Override
     public double get(int i) {
-        return values[i / rows][i % cols];
+        return values[i / cols][i % cols];
     }
 
     @Override
     public void set(int i, double value) {
-        values[i / rows][i % cols] = value;
+        values[i / cols][i % cols] = value;
     }
 
     @Override
     public void increment(int i, double value) {
-        values[i / rows][i % cols] += value;
+        values[i / cols][i % cols] += value;
     }
 
 
