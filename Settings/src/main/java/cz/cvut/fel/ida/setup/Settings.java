@@ -765,7 +765,7 @@ public class Settings implements Serializable {
     public ActivationFcn atomNeuronActivation = ActivationFcn.TANH;
     public AggregationFcn aggNeuronActivation = AggregationFcn.AVG;
     public ActivationFcn ruleNeuronActivation = ActivationFcn.TANH;
-    public ActivationFcn negation = ActivationFcn.REVERSE;
+    public ActivationFcn softNegation = ActivationFcn.REVERSE;
 
     public enum ActivationFcn {
         SIGMOID, TANH, SIGNUM, LUKASIEWICZ, RELU, LEAKYRELU, IDENTITY, REVERSE, SOFTMAX, SPARSEMAX,

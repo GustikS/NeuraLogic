@@ -40,7 +40,7 @@ public class Debug {
         Settings settings = Settings.forSlowTest();
         settings.squishLastLayer = false;   //turn off both of these to avoid applying sigmoid on top
         settings.inferOutputNeuronFcn = false;
-        
+
         settings.maxCumEpochCount = 1;
         Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./template.txt"), settings);
         DetailedClassificationResults classificationResults = (DetailedClassificationResults) results.s;
@@ -71,5 +71,22 @@ public class Debug {
         settings.pruneOnlyIdentities = true;
 
         Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-debug all"), settings);
+    }
+
+    @TestAnnotations.Fast
+    public void negation() throws Exception {
+        String dataset = "debug/negation";
+        Settings settings = Settings.forSlowTest();
+        settings.squishLastLayer = false;   //turn off both of these to avoid applying sigmoid on top
+        settings.inferOutputNeuronFcn = false;
+//        settings.isoValueCompression = false;
+//        settings.chainPruning = false;
+        settings.pruneOnlyIdentities = true;
+
+        settings.maxCumEpochCount = 1;
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./template.txt"), settings);
+        DetailedClassificationResults classificationResults = (DetailedClassificationResults) results.s;
+        ScalarValue output = (ScalarValue) classificationResults.evaluations.get(0).getOutput();
+        assertEquals(0.9, output.value, 0.00000001);
     }
 }
