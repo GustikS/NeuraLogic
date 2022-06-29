@@ -17,23 +17,40 @@ public class BodyAtom extends Atom {
     @Nullable
     protected Weight weight;
 
-    public BodyAtom(WeightedPredicate weightedPredicate, List<Term> terms, boolean negated, Weight weight) {
-        super(weightedPredicate, terms, negated);
+    public Activation softNegation;
+
+    /**
+     * Whether to interpret negated literals with hard negation or fuzzy negation.
+     * hardNegation - will create negated literals and send it correspondingly to the logical engine
+     * softNegation - will only use the negation as a flag to apply corresponding negation activation function to the body atom
+     */
+    public BodyAtom(WeightedPredicate weightedPredicate, List<Term> terms, boolean hardNegation, Activation softNegation, Weight weight) {
+        super(weightedPredicate, terms, hardNegation);
         this.weight = weight;
+        this.softNegation = softNegation;
     }
 
     public BodyAtom(BodyAtom bodyAtom) {
         super(bodyAtom);
     }
 
+    public boolean isNegated() {
+        if (softNegation != null)
+            return true;
+        return super.isNegated();
+    }
+
     public Activation getNegationActivation() {
-        return activation;
+        return softNegation;
+    }
+
+    public void setNegationActivation(Activation softNegation){
+        this.softNegation = softNegation;
     }
 
     public Weight getConjunctWeight() {
         return weight;
     }
-
 
     @Override
     public boolean equals(Object obj) {

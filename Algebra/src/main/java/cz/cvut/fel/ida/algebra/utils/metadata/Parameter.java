@@ -16,6 +16,7 @@ public class Parameter implements Exportable {
     public enum Type {
         ACTIVATION,
         AGGREGATION,
+        NEGATION,
         OFFSET,
         LEARNABLE,
         VALUE,      //e.g. for storing images as default values of ground literals through weights ($w1 image(1). $w2 [value = (1,0,10,....)])
@@ -30,6 +31,9 @@ public class Parameter implements Exportable {
                 break;
             case "aggregation":
                 type = Type.AGGREGATION;
+                break;
+            case "negation":
+                type = Type.NEGATION;
                 break;
             case "offset":
                 type = Type.OFFSET;

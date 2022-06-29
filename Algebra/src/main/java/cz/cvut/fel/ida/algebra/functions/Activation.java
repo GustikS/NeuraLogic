@@ -95,6 +95,8 @@ public abstract class Activation extends Aggregation {
                 return Singletons.sqrt;
             case INVERSE:
                 return Singletons.inverse;
+            case REVERSE:
+                return Singletons.reverse;
             case TRANSP:
                 return Singletons.transposition;
             case NORM:
@@ -137,6 +139,8 @@ public abstract class Activation extends Aggregation {
                 return Singletons.sqrt;
             case "inverse":
                 return Singletons.inverse;
+            case "reverse":
+                return Singletons.reverse;
             case "softmax":
                 return Activation.Singletons.softmax;
             case "sparsemax":
@@ -192,5 +196,6 @@ public abstract class Activation extends Aggregation {
         public static Norm norm = new Norm();
         public static SquareRoot sqrt = new SquareRoot();
         public static Inverse inverse = new Inverse();
+        public static Reverse reverse = new Reverse();
     }
 }
