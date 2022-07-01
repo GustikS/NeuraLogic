@@ -89,4 +89,26 @@ public class Debug {
         ScalarValue output = (ScalarValue) classificationResults.evaluations.get(0).getOutput();
         assertEquals(0.9, output.value, 0.00000001);
     }
+
+    @TestAnnotations.Interactive
+    public void drawing() throws Exception {
+        String dataset = "debug/drawing";
+        Settings settings = Settings.forInteractiveTest();
+
+        settings.isoValueCompression = false;
+        settings.chainPruning = false;
+
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-debug all"), settings);
+    }
+
+    @TestAnnotations.Interactive
+    public void duplicits() throws Exception {
+        String dataset = "debug/duplicits";
+        Settings settings = Settings.forInteractiveTest();
+
+        settings.isoValueCompression = false;
+        settings.chainPruning = false;
+
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-debug all"), settings);
+    }
 }

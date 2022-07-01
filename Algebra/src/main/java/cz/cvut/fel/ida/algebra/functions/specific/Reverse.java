@@ -23,8 +23,8 @@ public class Reverse extends Activation {
     }
 
     @Override
-    public Inverse replaceWithSingleton() {
-        return Activation.Singletons.inverse;
+    public Reverse replaceWithSingleton() {
+        return Activation.Singletons.reverse;
     }
 
 

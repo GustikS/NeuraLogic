@@ -1,0 +1,8 @@
+h1 :- input(1). [activation=identity]
+h2 :- input(2). [activation=identity]
+
+h :- h1, ~h2. [activation=identity]
+
+h1/0 [activation=identity]
+h2/0 [activation=identity]
+h/0 [activation=identity]
