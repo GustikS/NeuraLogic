@@ -111,4 +111,15 @@ public class Debug {
 
         Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-debug all"), settings);
     }
+
+    @TestAnnotations.Interactive
+    public void factValues() throws Exception {
+        String dataset = "debug/facts";
+        Settings settings = Settings.forInteractiveTest();
+
+        settings.isoValueCompression = false;
+        settings.chainPruning = false;
+
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-debug all"), settings);
+    }
 }

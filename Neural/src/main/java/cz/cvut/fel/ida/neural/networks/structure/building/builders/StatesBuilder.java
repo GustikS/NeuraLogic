@@ -114,7 +114,7 @@ public class StatesBuilder {
             LOG.warning("Value dimension cannot be inferred for " + neuron);
             return;
         }
-        Value sum = weight.times(value);
+        Value sum = weight.times(value).clone();    //the result might be just value if unit weight -> clone
         if (sum == null) {
             LOG.severe("Weight-Value dimension mismatch at neuron:" + neuron);
         }
@@ -162,7 +162,7 @@ public class StatesBuilder {
             LOG.severe("Value dimension cannot be inferred!" + neuron);
         } else {
             inputValues.add(sum);
-            sum = sum.clone();  //we do not want to change any existing value here
+            sum = sum.clone();  //we do not want to change any existing value here -> clone
         }
         while (inputs.hasNext()) {
             Neurons next = inputs.next();
