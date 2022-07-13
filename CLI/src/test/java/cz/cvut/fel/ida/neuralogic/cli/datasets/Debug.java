@@ -122,4 +122,16 @@ public class Debug {
 
         Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-debug all"), settings);
     }
+
+    @TestAnnotations.Fast
+    public void transpose() throws Exception {
+        String dataset = "debug/transpose";
+        Settings settings = Settings.forInteractiveTest();
+        settings.softNegation = Settings.ActivationFcn.TRANSP;
+
+        settings.isoValueCompression = false;
+        settings.chainPruning = false;
+
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, ""), settings);
+    }
 }

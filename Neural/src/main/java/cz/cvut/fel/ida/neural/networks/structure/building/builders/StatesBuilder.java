@@ -206,7 +206,7 @@ public class StatesBuilder {
      * @return
      */
     private boolean changesDimensions(BaseNeuron<Neurons, State.Neural> neuron) {
-        return neuron.getAggregation() instanceof CrossSum || neuron.getAggregation() instanceof Concatenation || neuron.getAggregation() instanceof Softmax;
+        return neuron.getAggregation() instanceof CrossSum || neuron.getAggregation() instanceof Concatenation || neuron.getAggregation() instanceof Softmax || neuron.getAggregation() instanceof Transposition;
     }
 
     /**
