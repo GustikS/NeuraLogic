@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import static cz.cvut.fel.ida.utils.generic.Utilities.getDatasetArgs;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class Debug {
     private static final Logger LOG = Logger.getLogger(Debug.class.getName());
@@ -126,12 +127,14 @@ public class Debug {
     @TestAnnotations.Fast
     public void transpose() throws Exception {
         String dataset = "debug/transpose";
-        Settings settings = Settings.forInteractiveTest();
+        Settings settings = Settings.forSlowTest();
         settings.softNegation = Settings.ActivationFcn.TRANSP;
 
         settings.isoValueCompression = false;
         settings.chainPruning = false;
 
         Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, ""), settings);
+        System.out.println(results);
+        assertNotNull(results);
     }
 }
