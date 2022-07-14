@@ -1,5 +1,8 @@
 package cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.neurons;
 
+import cz.cvut.fel.ida.algebra.functions.Transposition;
+import cz.cvut.fel.ida.algebra.values.One;
+import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.StateVisiting;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
@@ -52,10 +55,16 @@ public class Backproper extends StateVisiting.Computation {
         Value inputFcnDerivative = state.getAggregationState().gradient(); //bottom-up accumulation
 
         Value currentLevelDerivative;
-        if (acumGradient.getClass().equals(inputFcnDerivative.getClass())) {
+        //todo add case where inputFcnDerivative is just one (no change in gradient, e.g. concat, transp...)
+        if (inputFcnDerivative instanceof One) {
+            currentLevelDerivative = acumGradient;
+        } else if (state.getAggregationState().getAggregation() instanceof Transposition){
+            currentLevelDerivative = acumGradient.transposedView();
+        } else if (acumGradient.getClass().equals(inputFcnDerivative.getClass()) || inputFcnDerivative instanceof ScalarValue) {
             currentLevelDerivative = acumGradient.elementTimes(inputFcnDerivative);  //elementTimes here - since the fcn to be differentiated was applied element-wise on a vector
         } else {
-            currentLevelDerivative = acumGradient.transposedView().times(inputFcnDerivative);  //times here - since the fcn was a complex vector function (e.g. softmax) and has a matrix derivative (Jacobian)
+//            currentLevelDerivative = acumGradient.transposedView().times(inputFcnDerivative);  //times here - since the fcn was a complex vector function (e.g. softmax) and has a matrix derivative (Jacobian)
+            currentLevelDerivative = inputFcnDerivative.times(acumGradient);
         }
 
         //there is no setting (remembering) of the calculated gradient (as opposed to output, which is reused), it is just returned

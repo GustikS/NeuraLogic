@@ -402,6 +402,8 @@ public class StatesBuilder {
             return new AggregationState.Pooling.AtomMax(((SharpMax) aggregation).activation);
         } else if (aggregation instanceof SharpMin) {
             return new AggregationState.Pooling.AtomMin(((SharpMin) aggregation).activation);
+        } else if (aggregation instanceof Transposition) {
+            return new AggregationState.TranspositionState();
         } else if (aggregation instanceof Activation) {
             return new AggregationState.ActivationState((Activation) aggregation);
         } else {

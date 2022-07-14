@@ -228,4 +228,24 @@ class ValueTest {
         assertTrue(equals);
     }
 
+    @TestAnnotations.Fast
+    public void matrixGradient() {
+        Value v = new MatrixValue(new double[][]{{1.2, 2.07, 3.67}, {3.25, 4.1, 5.7}});
+        Value w = new VectorValue(new double[]{3.2, 4.76},true);
+
+        Value g = new VectorValue(new double[]{1.2, 2.11, 3.02}, true);
+
+
+        Value output = w.times(v);
+        System.out.println(output);
+
+        Value grad1 = g.transposedView().times(w).transposedView();
+        System.out.println(grad1);
+
+        Value grad2 = w.transposedView().times(g);
+        System.out.println(grad2);
+
+        assertTrue(grad1.equals(grad2));
+    }
+
 }

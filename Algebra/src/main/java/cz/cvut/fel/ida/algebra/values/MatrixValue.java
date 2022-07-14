@@ -223,7 +223,7 @@ public class MatrixValue extends Value {
         if (!value.rowOrientation) {
             throw new ArithmeticException("Column vector times matrix, try transposition. Vector size = " + value.values.length);
         }
-        VectorValue result = new VectorValue(cols);
+        VectorValue result = new VectorValue(cols,true);
         double[] resultValues = result.values;
         double[] origValues = value.values;
         for (int i = 0; i < cols; i++) {

@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 /**
  * A constant abstract 1 to make some operations faster
  */
-class One extends Value {
+public class One extends Value {
 
     private static final Logger LOG = Logger.getLogger(One.class.getName());
 

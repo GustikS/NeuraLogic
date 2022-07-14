@@ -33,7 +33,7 @@ public class Transposition extends Activation {
      */
     public Value differentiate(Value summedInputs) {
         Value form = summedInputs.getForm();
-        form.transpose();
+//        form.transpose();     //we want the derivative to be addable to the inputs, not the (transposed) outputs
         Value apply = form.apply(in -> 1.0);
         return apply;
     }

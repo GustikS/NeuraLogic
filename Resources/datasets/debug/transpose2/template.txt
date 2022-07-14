@@ -1,0 +1,5 @@
+layer_1(X) :- {3,4} edge(X,Y).
+
+{1,4} layer_2(X) :- ~layer_1(X).
+
+{1,3} predict(X) :- ~layer_2(X).

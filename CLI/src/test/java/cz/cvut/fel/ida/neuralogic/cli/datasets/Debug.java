@@ -137,4 +137,18 @@ public class Debug {
         System.out.println(results);
         assertNotNull(results);
     }
+
+    @TestAnnotations.Fast
+    public void transpose2() throws Exception {
+        String dataset = "debug/transpose2";
+        Settings settings = Settings.forSlowTest();
+        settings.softNegation = Settings.ActivationFcn.TRANSP;
+
+        settings.isoValueCompression = false;
+        settings.chainPruning = false;
+
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, ""), settings);
+        System.out.println(results);
+        assertNotNull(results);
+    }
 }

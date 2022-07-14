@@ -53,7 +53,7 @@ public class StandardDown extends NeuronVisitor.Weighted {
         T input;
         Weight weight;
 
-        Value transpGradient = gradient.transposedView();    //todo next speedup everything around here, minimize Value copying
+//        Value transpGradient = gradient.transposedView();    //todo next speedup everything around here, minimize Value copying
 
         while (inputNeurons.hasNext()) {    //neurons and weights should always be aligned correctly, so skipping the check here for some speedup
             input = inputNeurons.next();
@@ -63,7 +63,8 @@ public class StandardDown extends NeuronVisitor.Weighted {
             Value transpInputValue = inputComputationView.getValue().transposedView();
             weightUpdater.visit(weight, gradient.times(transpInputValue));
 
-            inputComputationView.storeGradient(transpGradient.times(weight.value));
+//            inputComputationView.storeGradient(transpGradient.times(weight.value));
+            inputComputationView.storeGradient(weight.value.transposedView().times(gradient));
         }
     }
 }

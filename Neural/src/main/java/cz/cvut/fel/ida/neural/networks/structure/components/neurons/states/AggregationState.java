@@ -189,6 +189,56 @@ public abstract class AggregationState implements Aggregation.State {
     }
 
     /**
+     * Trivial but necessary to correctly handle changing dimensions
+     */
+    public static class TranspositionState extends AggregationState {
+        Value inputs;
+        Activation transp = Activation.Singletons.transposition;
+
+        public TranspositionState() {
+        }
+
+        @Override
+        public void cumulate(Value value) {
+            inputs = value;
+        }
+
+        @Override
+        public void invalidate() {
+            inputs = null;
+        }
+
+        public int[] getInputMask() {
+            return null;
+        }
+
+        @Override
+        public Value gradient() {
+            return transp.differentiate(inputs);
+        }
+
+        @Override
+        public Value evaluate() {
+            return transp.evaluate(inputs);
+        }
+
+        @Override
+        public Activation getAggregation() {
+            return transp;
+        }
+
+        @Override
+        public void setAggregation(Aggregation act) {
+            this.transp = (Activation) act;
+        }
+
+        @Override
+        public void setupValueDimensions(Value value) {
+            // do nothing - there is no actual cummulation of values
+        }
+    }
+
+    /**
      * State for aggregations based on pooling, e.g. Max or Avg. These require remembering different values for intermediate results.
      */
     public static abstract class Pooling extends AggregationState {

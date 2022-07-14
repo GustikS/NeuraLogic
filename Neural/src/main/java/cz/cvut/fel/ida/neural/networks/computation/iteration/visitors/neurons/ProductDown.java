@@ -68,7 +68,8 @@ public class ProductDown extends NeuronVisitor.Weighted {
 
             weightUpdater.visit(weight, derivative.times(inputValue));
 
-            inputComputationView.storeGradient(derivative.transposedView().times(weight.value));
+//            inputComputationView.storeGradient(derivative.transposedView().times(weight.value));
+            inputComputationView.storeGradient(weight.value.transposedView().times(derivative));
         }
     }
 }
