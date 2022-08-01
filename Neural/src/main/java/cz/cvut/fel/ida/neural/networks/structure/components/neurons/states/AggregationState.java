@@ -17,6 +17,229 @@ import java.util.logging.Logger;
 public abstract class AggregationState implements Aggregation.State {
     private static final Logger LOG = Logger.getLogger(AggregationState.class.getName());
 
+    public abstract Aggregation getAggregation();
+
+    public abstract void setAggregation(Aggregation act);
+
+    public abstract void setupValueDimensions(Value value);
+
+    /**
+     * State for standard Activation function, e.g. Sigmoid, which sums all the inputs and then applies some non-linearity to the result.
+     */
+    public static class ActivationState extends AggregationState {
+        Activation activation;
+        Value summedInputs;
+
+        public ActivationState(Activation activation) {
+            this.activation = activation;
+        }
+
+        public ActivationState(Activation activation, Value valueStore) {
+            this.activation = activation;
+            this.summedInputs = valueStore;
+        }
+
+        @Override
+        public void cumulate(Value value) {
+            summedInputs.incrementBy(value);
+        }
+
+        @Override
+        public void invalidate() {
+            summedInputs.zero();
+        }
+
+        public int[] getInputMask() {
+            return null;
+        }
+
+        @Override
+        public Value gradient() {
+            return activation.differentiate(summedInputs);
+        }
+
+        @Override
+        public Value evaluate() {
+            return activation.evaluate(summedInputs);
+        }
+
+        @Override
+        public Activation getAggregation() {
+            return activation;
+        }
+
+        @Override
+        public void setAggregation(Aggregation act) {
+            this.activation = (Activation) act;
+        }
+
+        @Override
+        public void setupValueDimensions(Value value) {
+            this.summedInputs = value.getForm();
+        }
+    }
+
+    /**
+     * A dummy state for fact neurons (e.g. embeddings)
+     * - no value here, the value is stored straight in the States.SimpleValue state
+     */
+    public static class SimpleValueState extends AggregationState {
+
+        public SimpleValueState() {
+        }
+
+
+        @Override
+        public void cumulate(Value value) {
+            // no such thing here
+        }
+
+        @Override
+        public void invalidate() {
+//            value.zero(); //No, this is a value storage - the value can get initialized
+        }
+
+        public int[] getInputMask() {
+            return null;
+        }
+
+        @Override
+        public Value gradient() {
+            return Value.ONE;   //i.e. the invariant element for multiplication
+        }
+
+        @Override
+        public Value evaluate() {
+            return null;
+        }
+
+        @Override
+        public Activation getAggregation() {
+            return null;
+        }
+
+        @Override
+        public void setAggregation(Aggregation act) {
+        }
+
+        @Override
+        public void setupValueDimensions(Value value) {
+
+        }
+    }
+
+    /**
+     * Same as ActivationState, but multiplies the inputs instead
+     * todo now Could be a subclass, but test if not causing a slowdown
+     */
+    public static class ElementProductState extends AggregationState {
+        Activation activation;
+        Value multipliedInputs;
+
+        public ElementProductState(Activation activation) {
+            this.activation = activation;
+        }
+
+        public ElementProductState(Activation activation, Value valueStore) {
+            this.activation = activation;
+            this.multipliedInputs = valueStore;
+        }
+
+        @Override
+        public void cumulate(Value value) {
+            multipliedInputs.elementMultiplyBy(value);
+        }
+
+        @Override
+        public void invalidate() {
+            multipliedInputs.zero().incrementBy(Value.ONE);
+        }
+
+        public int[] getInputMask() {
+            return null;
+        }
+
+        @Override
+        public Value gradient() {
+            return activation.differentiate(multipliedInputs);
+        }
+
+        @Override
+        public Value evaluate() {
+            return activation.evaluate(multipliedInputs);
+        }
+
+        @Override
+        public Activation getAggregation() {
+            return activation;
+        }
+
+        @Override
+        public void setAggregation(Aggregation act) {
+            this.activation = (Activation) act;
+        }
+
+        @Override
+        public void setupValueDimensions(Value value) {
+            this.multipliedInputs = value.getForm();
+        }
+    }
+
+    /**
+     * Trivial but necessary to correctly handle changing dimensions
+     */
+    public static class TranspositionState extends AggregationState {
+        Value inputs;
+        Activation transp = Activation.Singletons.transposition;
+
+        public TranspositionState() {
+        }
+
+        @Override
+        public void cumulate(Value value) {
+            inputs = value;
+        }
+
+        @Override
+        public void invalidate() {
+            inputs = null;
+        }
+
+        public int[] getInputMask() {
+            return null;
+        }
+
+        @Override
+        public Value gradient() {
+            return transp.differentiate(inputs);
+        }
+
+        @Override
+        public Value evaluate() {
+            return transp.evaluate(inputs);
+        }
+
+        @Override
+        public Activation getAggregation() {
+            return transp;
+        }
+
+        @Override
+        public void setAggregation(Aggregation act) {
+            this.transp = (Activation) act;
+        }
+
+        @Override
+        public void setupValueDimensions(Value value) {
+            // do nothing - there is no actual cummulation of values
+        }
+    }
+
+    /**
+     * State for aggregations based on pooling, e.g. Max or Avg. These require remembering different values for intermediate results.
+     */
+    public static abstract class Pooling extends AggregationState {
+        Aggregation aggregation;
     Aggregation aggregation;
     Transformation transformation;
     TransformationState transformationState;

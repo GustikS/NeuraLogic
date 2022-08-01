@@ -69,7 +69,9 @@ public class ElementProductDown extends NeuronVisitor.Weighted {
 
             weightUpdater.visit(weight, grad.times(transpInputValue));
 
-            inputComputationView.storeGradient(grad.transposedView().times(weight.value));
+//            inputComputationView.storeGradient(grad.transposedView().times(weight.value));
+            inputComputationView.storeGradient(weight.value.transposedView().times(grad));
+
         }
     }
 }

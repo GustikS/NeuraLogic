@@ -141,7 +141,7 @@ public class VectorValue extends Value {
 
     @Override
     public Value apply(Function<Double, Double> function) {
-        VectorValue result = new VectorValue(values.length);
+        VectorValue result = new VectorValue(values.length, rowOrientation);
         double[] resultValues = result.values;
         for (int i = 0; i < values.length; i++) {
             resultValues[i] = function.apply(values[i]);

@@ -1,0 +1,2 @@
+{1} bond_embed(7).
+layer1(A) :- atom(N, M), {1} bond_embed(B), bond(N, A, B).

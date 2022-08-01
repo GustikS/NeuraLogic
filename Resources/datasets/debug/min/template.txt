@@ -1,0 +1,2 @@
+h :- input(X). [activation=identity, aggregation=min]
+h/0 [activation=identity]

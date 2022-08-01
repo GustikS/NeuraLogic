@@ -144,7 +144,7 @@ public class NeuronFactory {
     }
 
     public NegationNeuron createNegationNeuron(AtomFact atomFact, Activation negation) {
-        Activation activation = negation != null ? negation : Activation.getActivationFunction(settings.negation);
+        Activation activation = negation != null ? negation : Activation.getActivationFunction(settings.softNegation);
         State.Neural.Computation state = State.createBaseState(settings, activation);
         NegationNeuron<State.Neural.Computation> negationNeuron = new NegationNeuron<>(atomFact, counter++, state);
         neuronMaps.negationNeurons.add(negationNeuron);

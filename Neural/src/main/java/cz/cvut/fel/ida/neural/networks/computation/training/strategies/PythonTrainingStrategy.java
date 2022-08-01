@@ -1,6 +1,5 @@
 package cz.cvut.fel.ida.neural.networks.computation.training.strategies;
 
-import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
 import cz.cvut.fel.ida.learning.results.Progress;
 import cz.cvut.fel.ida.learning.results.Result;
@@ -114,57 +113,21 @@ public class PythonTrainingStrategy extends TrainingStrategy {
         });
     }
 
-    public PythonSampleBackpropagateLoss evaluateSample(NeuralSample sample) {
+    public String evaluateSample(NeuralSample sample) {
         trainer.invalidateSample(trainer.getInvalidation(), sample);
-        Result result = trainer.evaluateSample(trainer.getEvaluation(), sample);
-
-        return new PythonSampleBackpropagateLoss(sample, result);
+        return evaluation.evaluate(sample.query).toString(Settings.superDetailedNumberFormat);
     }
 
     public String evaluateSamples(List<NeuralSample> samples) {
         List<String> output = new ArrayList<>();
         NumberFormat format = Settings.superDetailedNumberFormat;
-        List<Result> results = listTrainer.evaluate(samples);
 
-        for (int i = 0, j = results.size(); i < j; ++i) {
-            Result result = results.get(i);
-
-            output.add(Arrays.toString(new String[] {
-                    result.getTarget().toString(format),
-                    result.getOutput().toString(format),
-                    result.errorValue().toString(format),
-            }));
+        for (NeuralSample sample : samples) {
+            trainer.invalidateSample(trainer.getInvalidation(), sample);
+            output.add(evaluation.evaluate(sample.query).toString(format));
         }
 
         return output.toString();
-    }
-
-    class PythonSampleBackpropagateLoss {
-        private final Result result;
-
-        private final NeuralSample sample;
-
-        PythonSampleBackpropagateLoss(NeuralSample sample, Result result) {
-            this.sample = sample;
-            this.result = result;
-        }
-
-        public void backward() {
-            WeightUpdater weightUpdater = trainer.backpropSample(trainer.getBackpropagation(), result, sample);
-            trainer.updateWeights(currentModel, weightUpdater);
-        }
-
-        public Value getOutput() {
-            return this.result.getOutput();
-        }
-
-        public Value getTarget() {
-            return this.result.getTarget();
-        }
-
-        public Value getError() {
-            return this.result.errorValue();
-        }
     }
 
     @Override

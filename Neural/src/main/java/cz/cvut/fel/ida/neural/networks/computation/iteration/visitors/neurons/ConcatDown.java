@@ -71,7 +71,8 @@ public class ConcatDown extends NeuronVisitor.Weighted {
             Value transpInputValue = inputComputationView.getValue().transposedView();
             weightUpdater.visit(weight, elementGradient.times(transpInputValue));
 
-            inputComputationView.storeGradient(elementGradient.times(weight.value));
+//            inputComputationView.storeGradient(elementGradient.times(weight.value));
+            inputComputationView.storeGradient(weight.value.transposedView().times(elementGradient));
         }
         if (inputNeurons.hasNext() || scalarValueIterator.hasNext()) {
             throw new RuntimeException("Concatenation Gradients dimensions mismatch (only Scalar concatenation can be differentiated now).");

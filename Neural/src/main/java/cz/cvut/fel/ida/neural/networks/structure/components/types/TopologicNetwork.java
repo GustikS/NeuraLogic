@@ -48,6 +48,9 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
         Set<Neurons> visited = new HashSet<>();
         LinkedList<BaseNeuron<Neurons, State.Neural>> stack = new LinkedList<>();
         for (AtomNeurons queryNeuron : queryNeurons) {
+            if (visited.contains(queryNeuron)){
+                continue;
+            }
             BaseNeuron<Neurons, State.Neural> outputStart1 = (BaseNeuron<Neurons, State.Neural>) queryNeuron;
             topoSortRecursive(outputStart1, visited, stack);
         }
@@ -67,8 +70,13 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
             indices[i] = allNeuronsTopologic.get(i).index;
         }
         Arrays.sort(indices);
+        int prev = -1;
         for (int i = 0; i < allNeuronsTopologic.size(); i++) {
             allNeuronsTopologic.get(i).index = indices[i];
+            if (indices[i] == prev){
+                LOG.severe("Duplicit neuron indices detected!!");
+            }
+            prev = indices[i];
         }
     }
 

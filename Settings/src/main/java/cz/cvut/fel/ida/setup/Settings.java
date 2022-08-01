@@ -767,7 +767,7 @@ public class Settings implements Serializable {
     public CombinationFcn atomNeuronCombination = CombinationFcn.SUM;
     public ActivationFcn atomNeuronActivation = ActivationFcn.TANH;
     public AggregationFcn aggNeuronActivation = AggregationFcn.AVG;
-    public ActivationFcn negation = ActivationFcn.REVERSE;
+    public ActivationFcn softNegation = ActivationFcn.REVERSE;
 
 
     public enum CombinationFcn {

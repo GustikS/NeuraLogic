@@ -63,7 +63,7 @@ dimensions: LCURL number (COMMA number)* RCURL;
 element: INT ':' number | LPAREN INT ':' number RPAREN;
 element2d: INT COMMA INT ':' number | LPAREN INT COMMA INT ':' number RPAREN;
 
-negation: NEGATION;
+negation: NEGATION | SOFTNEGATION;
 
 impliedBy: IMPLIED_BY | IMPLIED_BY2;
 
@@ -93,7 +93,8 @@ SLASH: '/';
 CARET: '^';
 TRUE: 'true';
 DOLLAR: '$';
-NEGATION: '~';
+NEGATION: '!';
+SOFTNEGATION: '~';
 SPECIAL: '@';
 PRIVATE: '*';
 PIPE: '|';

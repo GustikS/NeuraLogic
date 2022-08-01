@@ -1,5 +1,6 @@
 package cz.cvut.fel.ida.logic.parsing.grammarParsing;
 
+import cz.cvut.fel.ida.algebra.functions.Activation;
 import cz.cvut.fel.ida.algebra.utils.metadata.Parameter;
 import cz.cvut.fel.ida.algebra.utils.metadata.ParameterValue;
 import cz.cvut.fel.ida.algebra.values.*;
@@ -125,7 +126,18 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             WeightedPredicate predicate = ctx.predicate().accept(new PredicateVisitor(terms.size()));
             Weight weight = ctx.weight() != null ? ctx.weight().accept(new WeightVisitor()) : null;
 
-            BodyAtom bodyAtom = new BodyAtom(predicate, terms, ctx.negation() != null, weight);
+            boolean hardNegation = false;
+            Activation softNegation = null;
+            if (ctx.negation() != null) {
+                if (ctx.negation().SOFTNEGATION() != null) {
+                    softNegation = Activation.getActivationFunction(builder.settings.softNegation);
+                }
+                else if (ctx.negation().NEGATION() != null) {
+                    hardNegation = true;
+                }
+            }
+
+            BodyAtom bodyAtom = new BodyAtom(predicate, terms, hardNegation, softNegation, weight);
             bodyAtom.originalString = ctx.getText();
 
             return bodyAtom;

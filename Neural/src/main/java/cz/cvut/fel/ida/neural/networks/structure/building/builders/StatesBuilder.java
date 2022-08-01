@@ -101,7 +101,7 @@ public class StatesBuilder {
             LOG.warning("Value dimension cannot be inferred for " + neuron);
             return;
         }
-        Value sum = weight.times(value);
+        Value sum = weight.times(value).clone();    //the result might be just value if unit weight -> clone
         if (sum == null) {
             LOG.severe("Weight-Value dimension mismatch at neuron:" + neuron);
         }
@@ -151,7 +151,7 @@ public class StatesBuilder {
             LOG.severe("Value dimension cannot be inferred!" + neuron);
         } else {
             inputValues.add(sum);
-            sum = sum.clone();  //we do not want to change any existing value here
+            sum = sum.clone();  //we do not want to change any existing value here -> clone
         }
         while (inputs.hasNext()) {
             Neurons next = inputs.next();
@@ -195,7 +195,7 @@ public class StatesBuilder {
      * @return
      */
     private boolean changesDimensions(BaseNeuron<Neurons, State.Neural> neuron) {
-        return neuron.getAggregation() instanceof CrossSum || neuron.getAggregation() instanceof Concatenation || neuron.getAggregation() instanceof Softmax;
+        return neuron.getAggregation() instanceof CrossSum || neuron.getAggregation() instanceof Concatenation || neuron.getAggregation() instanceof Softmax || neuron.getAggregation() instanceof Transposition;
     }
 
     /**
@@ -412,6 +412,9 @@ public class StatesBuilder {
         } else if (aggregation instanceof SharpMax) {
             return new TransformationState.SharpMaxState();
         } else if (aggregation instanceof SharpMin) {
+            return new AggregationState.Pooling.AtomMin(((SharpMin) aggregation).activation);
+        } else if (aggregation instanceof Transposition) {
+            return new AggregationState.TranspositionState();
             return new TransformationState.SharpMinState();
         } else if (aggregation instanceof Activation) {
             return new AggregationState.SumState((Activation) aggregation);
