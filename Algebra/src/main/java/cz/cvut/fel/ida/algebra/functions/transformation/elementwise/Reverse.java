@@ -1,4 +1,4 @@
-package cz.cvut.fel.ida.algebra.functions.specific;
+package cz.cvut.fel.ida.algebra.functions.transformation.elementwise;
 
 import cz.cvut.fel.ida.algebra.functions.Activation;
 import cz.cvut.fel.ida.utils.generic.Pair;
@@ -24,7 +24,7 @@ public class Reverse extends Activation {
 
     @Override
     public Reverse replaceWithSingleton() {
-        return Activation.Singletons.reverse;
+        return Singletons.reverse;
     }
 
 

@@ -86,14 +86,6 @@ public abstract class Activation extends Transformation {
                 return Singletons.inverse;
             case REVERSE:
                 return Singletons.reverse;
-            case TRANSP:
-                return Singletons.transposition;
-            case NORM:
-                return Singletons.norm;
-            case SOFTMAX:
-                return Singletons.softmax;
-            case SPARSEMAX:
-                return Singletons.sparsemax;
             default:
                 LOG.severe("Unimplemented activation function");
                 return null;
@@ -126,10 +118,6 @@ public abstract class Activation extends Transformation {
                 return Singletons.inverse;
             case "reverse":
                 return Singletons.reverse;
-            case "softmax":
-                return Activation.Singletons.softmax;
-            case "sparsemax":
-                return Activation.Singletons.sparsemax;
 
             default:
                 throw new RuntimeException("Unable to parse activation function: " + agg);
