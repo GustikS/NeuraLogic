@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.algebra.functions.transformation.elementwise;
 
-import cz.cvut.fel.ida.algebra.functions.Activation;
+import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.function.Function;
@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 /**
  * Created by gusta on 8.3.17.
  */
-public class Sigmoid extends Activation {
+public class Sigmoid extends ElementWise {
     private static final Logger LOG = Logger.getLogger(Sigmoid.class.getName());
 
     public static final Function<Double, Double> logist = in -> in > 100 ? 1 : (in < -100 ? 0 : 1 / (1 + Math.exp(-in)));

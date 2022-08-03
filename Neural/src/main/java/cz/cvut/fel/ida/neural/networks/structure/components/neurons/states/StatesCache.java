@@ -7,6 +7,10 @@ import cz.cvut.fel.ida.setup.Settings;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
+/**
+ * For storing (structural) states at the level of the whole network (e.g. input overmapping and other meta-info)
+ * @param <T>
+ */
 public abstract class StatesCache<T extends State.Neural.Structure> {
     private static final Logger LOG = Logger.getLogger(StatesCache.class.getName());
     /**

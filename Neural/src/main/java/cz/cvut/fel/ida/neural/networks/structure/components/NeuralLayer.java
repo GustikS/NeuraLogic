@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.neural.networks.structure.components;
 
-import cz.cvut.fel.ida.algebra.functions.Activation;
+import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.WeightedNeuron;
 
 import java.util.List;
@@ -10,5 +10,5 @@ import java.util.List;
  */
 public class NeuralLayer {
     List<WeightedNeuron> neurons;
-    Activation activation;
+    ElementWise elementWise;
 }

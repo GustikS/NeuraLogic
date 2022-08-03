@@ -1,18 +1,9 @@
 package cz.cvut.fel.ida.neural.networks.structure.building.builders;
 
-import cz.cvut.fel.ida.algebra.functions.Activation;
-import cz.cvut.fel.ida.algebra.functions.Aggregation;
-import cz.cvut.fel.ida.algebra.functions.Transformation;
-import cz.cvut.fel.ida.algebra.functions.aggregation.Average;
-import cz.cvut.fel.ida.algebra.functions.aggregation.Maximum;
-import cz.cvut.fel.ida.algebra.functions.aggregation.Minimum;
-import cz.cvut.fel.ida.algebra.functions.aggregation.Sum;
 import cz.cvut.fel.ida.algebra.functions.combination.Concatenation;
 import cz.cvut.fel.ida.algebra.functions.combination.CrossSum;
-import cz.cvut.fel.ida.algebra.functions.combination.ElementProduct;
 import cz.cvut.fel.ida.algebra.functions.combination.Product;
-import cz.cvut.fel.ida.algebra.functions.transformation.joint.SharpMax;
-import cz.cvut.fel.ida.algebra.functions.transformation.joint.SharpMin;
+import cz.cvut.fel.ida.algebra.functions.states.CombinationState;
 import cz.cvut.fel.ida.algebra.functions.transformation.joint.Softmax;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
@@ -132,9 +123,9 @@ public class StatesBuilder {
         }
 
         if (changesDimensions(neuron)) {
-            sum = neuron.getAggregation().evaluate(inputValues);
-            if (neuron.getAggregation() instanceof CrossSum) {
-                CombinationState.CrossSumState crossProducState = (CombinationState.CrossSumState) neuron.getComputationView(0).getAggregationState();
+            sum = neuron.getCombination().evaluate(inputValues);
+            if (neuron.getCombination() instanceof CrossSum) {
+                CombinationState.CrossSumState crossProducState = (CombinationState.CrossSumState) neuron.getComputationView(0).getFcnState();
                 crossProducState.initMapping(inputValues);
                 //todo now also init all CumulationState arraylist sizes here
             }
@@ -161,7 +152,7 @@ public class StatesBuilder {
             } else {
                 if (changesDimensions(neuron)) {    //todo now place combination activaiton here instead
                     inputValues.add(result);
-                } else if (neuron.getAggregation().getClass() == Product.class) {
+                } else if (neuron.getCombination().getClass() == Product.class) {
                     Value increment = sum.times(result);
                     if (increment == null) {
                         LOG.severe("Input Values dimension mismatch at neuron:" + neuron);
@@ -179,9 +170,9 @@ public class StatesBuilder {
             }
         }
         if (changesDimensions(neuron)) {
-            sum = neuron.getAggregation().evaluate(inputValues);
-            if (neuron.getAggregation() instanceof CrossSum) {
-                CombinationState.CrossSumState crossProducState = (CombinationState.CrossSumState) neuron.getComputationView(0).getAggregationState();
+            sum = neuron.getCombination().evaluate(inputValues);
+            if (neuron.getCombination() instanceof CrossSum) {
+                CombinationState.CrossSumState crossProducState = (CombinationState.CrossSumState) neuron.getComputationView(0).getFcnState();
                 crossProducState.initMapping(inputValues);
             }
         }
@@ -195,7 +186,7 @@ public class StatesBuilder {
      * @return
      */
     private boolean changesDimensions(BaseNeuron<Neurons, State.Neural> neuron) {
-        return neuron.getAggregation() instanceof CrossSum || neuron.getAggregation() instanceof Concatenation || neuron.getAggregation() instanceof Softmax || neuron.getAggregation() instanceof Transposition;
+        return neuron.getCombination() instanceof CrossSum || neuron.getCombination() instanceof Concatenation || neuron.getCombination() instanceof Softmax || neuron.getCombination() instanceof Transposition;
     }
 
     /**
@@ -388,38 +379,5 @@ public class StatesBuilder {
         }
         neuralNetwork.neuronStates = StatesCache.getCache(settings, structureStates);
         return neuralNetwork;
-    }
-
-    public static Aggregation.State getAggregationState(Aggregation aggregation) {
-        if (aggregation instanceof CrossSum) {
-            return new CombinationState.CrossSumState((Transformation) aggregation);
-        } else if (aggregation instanceof ElementProduct) {
-            return new CombinationState.ElementProductState((Activation) aggregation);
-        } else if (aggregation instanceof Product) {
-            return new CombinationState.ProductState((Activation) aggregation);
-        } else if (aggregation instanceof Concatenation) {
-            return new CombinationState.ConcatState((Activation) aggregation);
-        } else if (aggregation instanceof Average) {
-            return new Pooling.Avg();
-        } else if (aggregation instanceof Maximum) {
-            return new Pooling.Max();
-        } else if (aggregation instanceof Minimum) {
-            return new Pooling.Min();
-        } else if (aggregation instanceof Sum) {
-            return new Pooling.Sum();
-        } else if (aggregation instanceof Softmax) {
-            return new CombinationState.SoftmaxState((Transformation) aggregation);
-        } else if (aggregation instanceof SharpMax) {
-            return new TransformationState.SharpMaxState();
-        } else if (aggregation instanceof SharpMin) {
-            return new AggregationState.Pooling.AtomMin(((SharpMin) aggregation).activation);
-        } else if (aggregation instanceof Transposition) {
-            return new AggregationState.TranspositionState();
-            return new TransformationState.SharpMinState();
-        } else if (aggregation instanceof Activation) {
-            return new AggregationState.SumState((Activation) aggregation);
-        } else {
-            throw new UnsupportedOperationException("unkown Aggregation function state");
-        }
     }
 }

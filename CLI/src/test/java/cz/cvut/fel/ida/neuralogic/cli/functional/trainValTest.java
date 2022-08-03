@@ -27,8 +27,8 @@ public class trainValTest {
 
         settings.modelSelection = Settings.ModelSelection.ERROR;
 
-        settings.atomNeuronActivation = Settings.ActivationFcn.TANH;
-        settings.ruleNeuronActivation = Settings.ActivationFcn.TANH;
+        settings.atomNeuronTransformation = Settings.ActivationFcn.TANH;
+        settings.ruleNeuronTransformation = Settings.ActivationFcn.TANH;
 
         settings.resultsRecalculationEpochae = 10;
         settings.trainValidationPercentage = 0.8;

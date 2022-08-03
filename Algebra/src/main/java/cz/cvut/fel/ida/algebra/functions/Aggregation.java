@@ -1,13 +1,8 @@
 package cz.cvut.fel.ida.algebra.functions;
 
 import cz.cvut.fel.ida.algebra.functions.aggregation.*;
-import cz.cvut.fel.ida.algebra.functions.aggregation.Sum;
-import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
-import cz.cvut.fel.ida.utils.exporting.Exportable;
-import cz.cvut.fel.ida.utils.generic.Pair;
 
-import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -16,34 +11,19 @@ import java.util.logging.Logger;
  * i.e. if the inputs are always summed up at first and then some non-linearity applied to the sum, use Activation class instead,
  * which is based on providing existing Function<Double, Double> processing, while here the calculation must be implemented via inheritance.
  */
-public abstract class Aggregation implements Exportable {
+public abstract class Aggregation implements Combination {
     private static final Logger LOG = Logger.getLogger(Aggregation.class.getName());
 
     /**
-     * Simply name of the activation function (used for external mapping into DL frameworks)
+     * The mmain characteristic of simple aggregation functions is that they are input permutation invariant
+     * @return
      */
-    public String getName() {
-        return this.getClass().getSimpleName();
+    @Override
+    public boolean isInputSymmetric() {
+        return true;
     }
 
-    /**
-     * We do not want to create a new object for the same activation function that gets repeated over milions of neurons, even if it's very lightweight
-     *
-     * @return
-     */
-    public abstract Aggregation replaceWithSingleton();
-
-    /**
-     * Return the result of corresponding Aggregation function applied to the list of inputs.
-     *
-     * @param inputs
-     * @return
-     */
-    public abstract Value evaluate(List<Value> inputs);
-
-    public abstract Value differentiate(List<Value> inputs);
-
-    public static Aggregation getAggregation(Settings.AggregationFcn aggregationFcn) {
+    public static Aggregation getFunction(Settings.CombinationFcn aggregationFcn) {
         switch (aggregationFcn) {
             case AVG:
                 return Singletons.average;
@@ -56,47 +36,9 @@ public abstract class Aggregation implements Exportable {
             case COUNT:
                 return Singletons.count;
             default:
-                LOG.severe("Unimplemented aggregation function");
+//                LOG.severe("Unimplemented aggregation function");
                 return null;
         }
-    }
-
-    public static Aggregation parseFrom(String agg) {
-        switch (agg) {
-            case "avg":
-                return Singletons.average;
-            case "max":
-                return Singletons.maximum;
-            case "min":
-                return Singletons.minimum;
-            case "sum":
-                return Singletons.sum;
-            case "count":
-                return Singletons.count;
-            default:
-                throw new RuntimeException("Unable to parse activation function: " + agg);
-        }
-    }
-
-    /**
-     * Return 2 values, lower bound and upper bound, beyond which the function is almost saturated
-     *
-     * @return
-     */
-    public Pair<Double, Double> getSaturationRange() {
-        return null;    // by default there is no saturation (for Max, Avg, Identity, etc.)
-    }
-
-    /**
-     * The inputs can be permuted without affecting the result?
-     * This may cause some neurons to be equivalent and thus be effectively pruned as such.
-     *
-     * @return
-     */
-    public abstract boolean isInputSymmetric();
-
-    public boolean isComplex() {
-        return false;
     }
 
     public static class Singletons {
@@ -107,63 +49,41 @@ public abstract class Aggregation implements Exportable {
         public static Count count = new Count();
     }
 
-    /**
-     * During neural computation of Aggregation/Activation, a computational State resides in memory for efficient reuse.
-     * E.g. we are not given all inputs/outputs at once, but the Values come sequentially as we iterate the neurons.
-     * This State is then to accumulate the intermediate Values first, before finally calling the respective functions.
-     * <p>
-     * This interface applies equally to the Activation subclass, so it is just kept here once.
-     * See AggregationState for concrete implementations.
-     */
-    public interface State extends Exportable {
-        /**
-         * Store a value - add it to the current state
-         *
-         * @param value
-         */
-        void cumulate(Value value);
+    public abstract class State extends Combination.State {
 
-        /**
-         * Reset all intermediate results of calculation (after backprop step - typically by zeroing them out)
-         */
-        void invalidate();
-
-        /**
-         * If the activation applies to inly a subset of the input values, this return an array of the corresponding indices.
-         * Otherwise returns null if the activation is based on all the inputs.
-         *
-         * @return
-         */
-        int[] getInputMask();
-
-        /**
-         * Calculate the Value of the current State.
-         *
-         * @return
-         */
-        Value evaluate();
-
-        /**
-         * Calculate gradient of the current State.
-         *
-         * @return
-         */
-        Value gradient();
-
-        /**
-         * Calculate gradient w.r.t. the next input
-         * @return
-         */
-        Value nextInputDerivative();
-
-        void setupValueDimensions(Value value);
-
-        Aggregation getAggregation();
-
-        void setAggregation(Aggregation aggregation);
-
-        Aggregation getTransformation();
-
-        void setTransformation(Transformation transformation);
     }
+
+
+//    public static Aggregation.State getAggregationState(Aggregation aggregation) {
+//        if (aggregation instanceof CrossSum) {
+//            return new CombinationState.CrossSumState((Transformation) aggregation);
+//        } else if (aggregation instanceof ElementProduct) {
+//            return new CombinationState.ElementProductState((Activation) aggregation);
+//        } else if (aggregation instanceof Product) {
+//            return new CombinationState.ProductState((Activation) aggregation);
+//        } else if (aggregation instanceof Concatenation) {
+//            return new CombinationState.ConcatState((Activation) aggregation);
+//        } else if (aggregation instanceof Average) {
+//            return new Pooling.Avg();
+//        } else if (aggregation instanceof Maximum) {
+//            return new Pooling.Max();
+//        } else if (aggregation instanceof Minimum) {
+//            return new Pooling.Min();
+//        } else if (aggregation instanceof Sum) {
+//            return new Pooling.Sum();
+//        } else if (aggregation instanceof Softmax) {
+//            return new CombinationState.SoftmaxState((Transformation) aggregation);
+//        } else if (aggregation instanceof SharpMax) {
+//            return new TransformationState.SharpMaxState();
+//        } else if (aggregation instanceof SharpMin) {
+//            return new AggregationState.Pooling.AtomMin(((SharpMin) aggregation).activation);
+//        } else if (aggregation instanceof Transposition) {
+//            return new AggregationState.TranspositionState();
+//            return new TransformationState.SharpMinState();
+//        } else if (aggregation instanceof Activation) {
+//            return new AggregationState.SumState((Activation) aggregation);
+//        } else {
+//            throw new UnsupportedOperationException("unkown Aggregation function state");
+//        }
+//    }
 }

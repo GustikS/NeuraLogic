@@ -1,7 +1,9 @@
 package cz.cvut.fel.ida.logic.constructs.template.metadata;
 
-import cz.cvut.fel.ida.algebra.functions.Activation;
+import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
+import cz.cvut.fel.ida.algebra.functions.Combination;
+import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.utils.metadata.Metadata;
 import cz.cvut.fel.ida.algebra.utils.metadata.Parameter;
 import cz.cvut.fel.ida.algebra.utils.metadata.ParameterValue;
@@ -32,20 +34,21 @@ public class RuleMetadata extends Metadata<WeightedRule> {
         } else if (parameter.type == Parameter.Type.LEARNABLE && parameterValue.type == ParameterValue.Type.BOOLEAN) {
             valid = true;
         } else if (parameter.type == Parameter.Type.ACTIVATION && parameterValue.type == ParameterValue.Type.STRING) {
-            Aggregation aggregation = Activation.parseActivation(parameterValue.stringValue);
-            if (aggregation != null) {
+            Settings.TransformationFcn transformationFcn = Settings.parseTransformation(parameterValue.stringValue);
+            Transformation function = Transformation.getFunction(transformationFcn);
+            if (function != null) {
                 valid = true;
-                parameterValue.value = aggregation;
+                parameterValue.value = function;
             }
-        } else if (parameter.type == Parameter.Type.AGGREGATION && parameterValue.type == ParameterValue.Type.STRING) {
-            Aggregation aggregation = Aggregation.parseFrom(parameterValue.stringValue);
-            if (aggregation != null) {
+        } else if ((parameter.type == Parameter.Type.AGGREGATION || parameter.type == Parameter.Type.COMBINATION) && parameterValue.type == ParameterValue.Type.STRING) {
+            Settings.CombinationFcn combinationFcn = Settings.parseCombination(parameterValue.stringValue);
+            Combination function = Combination.getFunction(combinationFcn);
+            if (function != null) {
                 valid = true;
-                parameterValue.value = aggregation;
+                parameterValue.value = function;
             }
-            //todo rest
         }
-
+        //todo rest
         if (valid)
             metadata.put(parameter, parameterValue);
         return true;
@@ -58,7 +61,7 @@ public class RuleMetadata extends Metadata<WeightedRule> {
 
     private void apply(WeightedRule rule, Parameter param, ParameterValue value) {
         if (param.type == Parameter.Type.ACTIVATION) {
-            rule.setActivationFcn((Activation) value.value);
+            rule.setTransformation((ElementWise) value.value);
         }
         if (param.type == Parameter.Type.AGGREGATION) {
             rule.setAggregationFcn((Aggregation) value.value);

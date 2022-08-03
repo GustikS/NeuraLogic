@@ -1,7 +1,7 @@
 package cz.cvut.fel.ida.logic.constructs;
 
-import cz.cvut.fel.ida.algebra.functions.Activation;
 import cz.cvut.fel.ida.algebra.functions.Combination;
+import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.logic.Predicate;
 import cz.cvut.fel.ida.logic.Term;
@@ -29,7 +29,7 @@ public class Atom implements Exportable {
     public Combination combination;
 
     @Nullable
-    public Activation activation;
+    public Transformation transformation;
 
     @Nullable
     public String originalString;
@@ -45,13 +45,13 @@ public class Atom implements Exportable {
         }
         this.offsettedPredicate = weightedPredicate;
         this.literal = new Literal(weightedPredicate.predicate, negated, terms);
-        this.activation = offsettedPredicate.activation;    //by default we inhering the activation from the predicate
+        this.transformation = offsettedPredicate.transformation;    //by default we inhering the activation from the predicate
     }
 
     public Atom(Atom another) {
         this.offsettedPredicate = another.offsettedPredicate;
         this.literal = another.literal;
-        this.activation = another.activation;
+        this.transformation = another.transformation;
         this.originalString = another.originalString;
     }
 
@@ -91,11 +91,20 @@ public class Atom implements Exportable {
         return literal.toString();
     }
 
-    public Activation getActivation() {
-        if (this.activation != null)
-            return this.activation;
-        else if (this.offsettedPredicate.activation != null)
-            return this.offsettedPredicate.activation;
+    public Transformation getTransformation() {
+        if (this.transformation != null)
+            return this.transformation;
+        else if (this.offsettedPredicate.transformation != null)
+            return this.offsettedPredicate.transformation;
+        else
+            return null;
+    }
+
+    public Combination getCombination() {
+        if (this.combination != null)
+            return this.combination;
+        else if (this.offsettedPredicate.combination != null)
+            return this.offsettedPredicate.combination;
         else
             return null;
     }

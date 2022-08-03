@@ -1,12 +1,12 @@
 package cz.cvut.fel.ida.algebra.functions.transformation.elementwise;
 
-import cz.cvut.fel.ida.algebra.functions.Activation;
+import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.function.Function;
 import java.util.logging.Logger;
 
-public class Reverse extends Activation {
+public class Reverse extends ElementWise {
     private static final Logger LOG = Logger.getLogger(Reverse.class.getName());
 
     @Override

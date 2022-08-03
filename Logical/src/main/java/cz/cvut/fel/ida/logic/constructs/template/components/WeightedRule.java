@@ -1,8 +1,7 @@
 package cz.cvut.fel.ida.logic.constructs.template.components;
 
-import cz.cvut.fel.ida.algebra.functions.Activation;
-import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.functions.Combination;
+import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.logic.Clause;
 import cz.cvut.fel.ida.logic.HornClause;
@@ -33,8 +32,8 @@ public class WeightedRule implements Exportable {
     private List<BodyAtom> body;
 
     private Combination combinationFcn;
-    private Activation activationFcn;
-    private Aggregation aggregationFcn;
+    private Transformation transformationFcn;
+    private Combination aggregationFcn;
 
     public boolean allowDuplicitGroundings = false;
 
@@ -59,7 +58,7 @@ public class WeightedRule implements Exportable {
         this.getBody().addAll(other.getBody());
         this.setOffset(other.getOffset());
         this.setAggregationFcn(other.getAggregationFcn());
-        this.setActivationFcn(other.getActivationFcn());
+        this.setTransformation(other.getTransformation());
         this.setMetadata(other.getMetadata());
         this.setOriginalString(other.getOriginalString());
         this.isEditable = other.isEditable;
@@ -154,7 +153,7 @@ public class WeightedRule implements Exportable {
         if (getWeight() != null && !getWeight().equals(other.getWeight()) || getOffset() != null && !getOffset().equals(other.getOffset())) {
             return false;
         }
-        if (getAggregationFcn() != null && !getAggregationFcn().equals(other.getAggregationFcn()) || getActivationFcn() != null && !getActivationFcn().equals(other.getActivationFcn())) {
+        if (getAggregationFcn() != null && !getAggregationFcn().equals(other.getAggregationFcn()) || getTransformation() != null && !getTransformation().equals(other.getTransformation())) {
             return false;
         }
         if (!getHead().equals(other.getHead()) || !getBody().equals(other.getBody())) {
@@ -209,20 +208,20 @@ public class WeightedRule implements Exportable {
         this.body = body;
     }
 
-    public Aggregation getAggregationFcn() {
+    public Combination getAggregationFcn() {
         return aggregationFcn;
     }
 
-    public void setAggregationFcn(Aggregation aggregationFcn) {
+    public void setAggregationFcn(Combination aggregationFcn) {
         this.aggregationFcn = aggregationFcn;
     }
 
-    public Activation getActivationFcn() {
-        return activationFcn;
+    public Transformation getTransformation() {
+        return transformationFcn;
     }
 
-    public void setActivationFcn(Activation activationFcn) {
-        this.activationFcn = activationFcn;
+    public void setTransformation(Transformation transformation) {
+        this.transformationFcn = transformation;
     }
 
     public Combination getCombinationFcn() {

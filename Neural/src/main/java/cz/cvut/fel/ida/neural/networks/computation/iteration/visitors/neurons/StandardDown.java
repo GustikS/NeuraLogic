@@ -43,7 +43,7 @@ public class StandardDown extends NeuronVisitor.Weighted {
     public <T extends Neurons, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron) {
         State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
         Value gradient = stateVisitor.visit(state);
-        //state.invalidate(); //todo (b) test if faster with invalidation here (at the end of backprop) instead of using separate iteration with networks.computation.iteration.visitors.states.Invalidator ?
+        //state.invalidate(); //todo (b) test if faster with invalidation here (at the end of backprop) instead of using separate iteration with networks.computation.iteration.visitors.states.Invalidator ? Not a good idea, what if we want to reuse the values?
         Pair<Iterator<T>, Iterator<Weight>> inputs = network.getInputs(neuron);
 
         weightUpdater.visit(neuron.offset, gradient);

@@ -2,6 +2,8 @@ package cz.cvut.fel.ida.algebra.functions.combination;
 
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.functions.Combination;
+import cz.cvut.fel.ida.algebra.functions.Transformation;
+import cz.cvut.fel.ida.algebra.functions.states.CombinationState;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.VectorValue;
 
@@ -31,6 +33,11 @@ public class CrossSum extends Combination {
     @Override
     public boolean isInputSymmetric() {
         return false;   // changing the number of inputs in crossproduct is problematic...
+    }
+
+    @Override
+    public State getState(Aggregation aggregation) {
+        return new CombinationState.CrossSumState((Transformation) aggregation);
     }
 
     @Override

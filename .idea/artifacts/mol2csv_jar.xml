@@ -1,0 +1,15 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="mol2csv:jar">
+    <output-path>$PROJECT_DIR$/target/artifacts/mol2csv</output-path>
+    <root id="archive" name="Resources.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/Resources/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="module-output" name="Logging" />
+      <element id="module-output" name="Settings" />
+      <element id="module-output" name="Utilities" />
+      <element id="module-output" name="Logic" />
+      <element id="module-output" name="Resources" />
+    </root>
+  </artifact>
+</component>

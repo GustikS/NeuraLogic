@@ -70,8 +70,8 @@ public class EColi {
         settings.initLearningRate = 0.0001;
         settings.maxCumEpochCount = 200;
 
-        settings.atomNeuronActivation = Settings.ActivationFcn.TANH;
-        settings.ruleNeuronActivation = Settings.ActivationFcn.TANH;
+        settings.atomNeuronTransformation = Settings.ActivationFcn.TANH;
+        settings.ruleNeuronTransformation = Settings.ActivationFcn.TANH;
 
         settings.trainValidationPercentage = 1.0;
 

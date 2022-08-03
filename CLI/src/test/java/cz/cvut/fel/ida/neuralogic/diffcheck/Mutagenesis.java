@@ -48,8 +48,8 @@ public class Mutagenesis {
         settings.maxCumEpochCount = 100;
         settings.resultsRecalculationEpochae = 1;
 
-        settings.atomNeuronActivation = Settings.ActivationFcn.SIGMOID;
-        settings.ruleNeuronActivation = Settings.ActivationFcn.SIGMOID;
+        settings.atomNeuronTransformation = Settings.ActivationFcn.SIGMOID;
+        settings.ruleNeuronTransformation = Settings.ActivationFcn.SIGMOID;
 
         settings.errorAggregationFcn = Settings.AggregationFcn.AVG;
         settings.errorFunction = Settings.ErrorFcn.SQUARED_DIFF;
@@ -96,8 +96,8 @@ public class Mutagenesis {
         settings.maxCumEpochCount = 1000;
         settings.resultsRecalculationEpochae = 10;
 
-        settings.atomNeuronActivation = Settings.ActivationFcn.SIGMOID;
-        settings.ruleNeuronActivation = Settings.ActivationFcn.SIGMOID;
+        settings.atomNeuronTransformation = Settings.ActivationFcn.SIGMOID;
+        settings.ruleNeuronTransformation = Settings.ActivationFcn.SIGMOID;
 
         settings.shuffleEachEpoch = true;
         settings.debugSampleOutputs = false;

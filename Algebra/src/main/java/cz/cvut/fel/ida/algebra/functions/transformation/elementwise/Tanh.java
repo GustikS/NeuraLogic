@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.algebra.functions.transformation.elementwise;
 
-import cz.cvut.fel.ida.algebra.functions.Activation;
+import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.function.Function;
@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 /**
  * Created by gusta on 8.3.17.
  */
-public class Tanh extends Activation {
+public class Tanh extends ElementWise {
     private static final Logger LOG = Logger.getLogger(Tanh.class.getName());
 
     private static final Function<Double, Double> tanh = Math::tanh;

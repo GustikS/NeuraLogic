@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.neural.networks.structure.components.neurons;
 
-import cz.cvut.fel.ida.algebra.functions.Aggregation;
+import cz.cvut.fel.ida.algebra.functions.Combination;
+import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.NeuronVisiting;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
@@ -90,8 +91,13 @@ public abstract class BaseNeuron<T extends Neurons, S extends State.Neural> impl
     }
 
     @Override
-    public Aggregation getAggregation() {
-        return state.getAggregation();
+    public Combination getCombination() {
+        return state.getCombination();
+    }
+
+    @Override
+    public Transformation getTransformation() {
+        return state.getTransformation();
     }
 
     public final boolean hasNoInputs() {

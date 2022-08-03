@@ -1,4 +1,4 @@
-package cz.cvut.fel.ida.neural.networks.structure.components.neurons.states;
+package cz.cvut.fel.ida.algebra.functions.states;
 
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
@@ -22,7 +22,7 @@ public abstract class Pooling implements Aggregation.State {
     }
 
     @Override
-    public void setupValueDimensions(Value value) {
+    public void setupDimensions(Value value) {
         this.combinedInputs = value.getForm();
     }
 
@@ -229,7 +229,7 @@ public abstract class Pooling implements Aggregation.State {
         }
 
         @Override
-        public void setupValueDimensions(Value value) {
+        public void setupDimensions(Value value) {
 
         }
     }

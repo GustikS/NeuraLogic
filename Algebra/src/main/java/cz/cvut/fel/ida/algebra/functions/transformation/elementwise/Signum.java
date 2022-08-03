@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.algebra.functions.transformation.elementwise;
 
-import cz.cvut.fel.ida.algebra.functions.Activation;
+import cz.cvut.fel.ida.algebra.functions.ElementWise;
 
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 /**
  * Created by gusta on 8.3.17.
  */
-public class Signum extends Activation {
+public class Signum extends ElementWise {
     private static final Logger LOG = Logger.getLogger(Signum.class.getName());
 
     private static final Function<Double, Double> signum = in -> in > 0 ? 1.0 : 0.0;

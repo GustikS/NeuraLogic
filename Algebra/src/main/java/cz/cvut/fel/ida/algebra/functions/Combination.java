@@ -1,11 +1,11 @@
 package cz.cvut.fel.ida.algebra.functions;
 
-import cz.cvut.fel.ida.algebra.functions.aggregation.Sum;
 import cz.cvut.fel.ida.algebra.functions.combination.*;
 import cz.cvut.fel.ida.algebra.functions.transformation.joint.SharpMax;
 import cz.cvut.fel.ida.algebra.functions.transformation.joint.SharpMin;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -13,36 +13,46 @@ import java.util.logging.Logger;
 /**
  * Class representing combination functions
  */
-public abstract class Combination extends Aggregation {
+public interface Combination extends ActivationFcn, Exportable {
 
-    private static final Logger LOG = Logger.getLogger(Combination.class.getName());
+    static final Logger LOG = Logger.getLogger(Combination.class.getName());
 
     /**
-     * Default gradient update is nothing happens = inert Value.ONE w.r.t. multiplication (chain rule)
+     * Return the result of corresponding Aggregation function applied to the list of inputs.
+     *
      * @param inputs
      * @return
      */
-    @Override
-    public Value differentiate(List<Value> inputs) {
-        return Value.ONE;
-    }
+    public abstract Value evaluate(List<Value> inputs);
 
-    public static Aggregation getCombinationFunction(Settings.CombinationFcn combinationFcn) {
+    public abstract Value differentiate(List<Value> inputs);
+
+    /**
+     * The inputs can be permuted without affecting the result?
+     * This may cause some neurons to be equivalent and thus be effectively pruned as such.
+     *
+     * @return
+     */
+    public abstract boolean isInputSymmetric();
+
+    public static Combination getFunction(Settings.CombinationFcn combinationFcn) {
+        Aggregation function = Aggregation.getFunction(combinationFcn);
+        if (function != null) {
+            return function;
+        }
         switch (combinationFcn) {
-            case SUM:
-                return Singletons.sum;
             case PRODUCT:
                 return Singletons.product;
             case ELPRODUCT:
                 return Singletons.elementProduct;
+            case SOFTMAX:
+                return Transformation.Singletons.softmax;
+            case SPARSEMAX:
+                return Transformation.Singletons.sparsemax;
             case CROSSSUM:
                 return Singletons.crossSum;
             case CONCAT:
                 return Singletons.concatenation;
-            case MAX:
-                return Singletons.max;
-            case MIN:
-                return Singletons.min;
             case COSSIM:
                 return Singletons.cosineSim;
             default:
@@ -51,31 +61,7 @@ public abstract class Combination extends Aggregation {
         }
     }
 
-    public static Aggregation parseActivation(String comb) {
-        switch (comb) {
-            case "sum":
-                return Combination.Singletons.sum;
-            case "prod":
-                return Singletons.product;
-            case "elprod":
-                return Singletons.elementProduct;
-            case "cross":
-                return Singletons.crossSum;
-            case "concat":
-                return Singletons.concatenation;
-            case "max":
-                return Singletons.max;
-            case "min":
-                return Singletons.min;
-            case "cossim":
-                return Singletons.cosineSim;
-            default:
-                throw new RuntimeException("Unable to parse combination function: " + comb);
-        }
-    }
-
     public static class Singletons {
-        public static Sum sum = new Sum();
         public static Product product = new Product();
         public static ElementProduct elementProduct = new ElementProduct();
         public static CrossSum crossSum = new CrossSum();
@@ -83,5 +69,47 @@ public abstract class Combination extends Aggregation {
         public static SharpMax max = new SharpMax();
         public static SharpMin min = new SharpMin();
         public static CosineSim cosineSim = new CosineSim();
+    }
+
+    public abstract class State implements ActivationFcn.State {
+        protected Combination combination;
+
+        protected Value combinedInputs;
+        protected Value processedGradient;
+
+        public State(Combination combination){
+            this.combination = combination;
+        }
+
+        @Override
+        public void invalidate() {
+            combinedInputs = null;
+            processedGradient = null;
+        }
+
+        @Override
+        public void setupDimensions(Value value) {
+            combinedInputs = value.getForm();
+        }
+
+        @Override
+        public Combination getCombination() {
+            return combination;
+        }
+
+        @Override
+        public void setCombination(Combination combination) {
+            this.combination = combination;
+        }
+
+        @Override
+        public Transformation getTransformation() {
+            return null;
+        }
+
+        @Override
+        public void setTransformation(Transformation transformation) {
+            LOG.severe("Trying to set Transformation in Combination.State");
+        }
     }
 }

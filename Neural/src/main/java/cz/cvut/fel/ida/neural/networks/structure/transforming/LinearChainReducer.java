@@ -43,7 +43,7 @@ public class LinearChainReducer implements NetworkReducing {
             BaseNeuron<Neurons, State.Neural> neuron = inet.allNeuronsTopologic.get(i);
             if (!settings.pruneEvenWeightedNeurons && neuron instanceof WeightedNeuron)
                 continue;
-            if (settings.pruneOnlyIdentities && !(neuron instanceof AggregationNeuron) && !(neuron.getAggregation() instanceof Identity)) {
+            if (settings.pruneOnlyIdentities && !(neuron instanceof AggregationNeuron) && !(neuron.getCombination() instanceof Identity)) {
                 continue;
             }
             boolean pruned = prune(inet, neuron);

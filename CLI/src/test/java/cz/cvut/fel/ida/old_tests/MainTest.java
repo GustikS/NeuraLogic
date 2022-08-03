@@ -209,7 +209,7 @@ public class MainTest {
         Settings settings = new Settings();
 
         settings.initDistribution = Settings.InitDistribution.UNIFORM;
-        settings.aggNeuronActivation = Settings.AggregationFcn.AVG;
+        settings.aggNeuronCombination = Settings.AggregationFcn.AVG;
 
         settings.seed = 0;
         settings.initLearningRate = 0.01;

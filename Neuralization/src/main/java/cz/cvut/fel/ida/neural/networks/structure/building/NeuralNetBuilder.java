@@ -87,7 +87,7 @@ public class NeuralNetBuilder {
             if (hasComplexActivation(headAtomNeuron)) {   //the neuron will require complex input propagation
                 neuronMaps.containsComplexActivations = true;
             }
-            if (headAtomNeuron.getComputationView(0).getAggregationState().getInputMask() != null) { // also atom neurons may now require input masking!
+            if (headAtomNeuron.getComputationView(0).getFcnState().getInputMask() != null) { // also atom neurons may now require input masking!
                 neuronMaps.containsMasking = true;
             }
         } else {
@@ -122,7 +122,7 @@ public class NeuralNetBuilder {
             if ((aggNeuron = neuronMaps.aggNeurons.get(rules2groundings.getKey())) == null) {
                 newAggNeuron = true;
                 aggNeuron = neuralBuilder.neuronFactory.createAggNeuron(rules2groundings.getKey());
-                if (aggNeuron.getComputationView(0).getAggregationState().getInputMask() != null) { // the neuron will require input masking!
+                if (aggNeuron.getComputationView(0).getFcnState().getInputMask() != null) { // the neuron will require input masking!
                     neuronMaps.containsMasking = true;
                 }
                 createdNeurons.aggNeurons.add(aggNeuron);
@@ -165,7 +165,7 @@ public class NeuralNetBuilder {
                     if (hasComplexActivation(ruleNeuron)) {   //the neuron will require complex input propagation
                         neuronMaps.containsComplexActivations = true;
                     }
-                    if (ruleNeuron.getComputationView(0).getAggregationState().getInputMask() != null) { // also rule neurons may now require input masking!
+                    if (ruleNeuron.getComputationView(0).getFcnState().getInputMask() != null) { // also rule neurons may now require input masking!
                         neuronMaps.containsMasking = true;
                     }
                 } else {
@@ -184,7 +184,7 @@ public class NeuralNetBuilder {
     }
 
     public static boolean hasComplexActivation(Neurons neuron) {
-        Aggregation aggregation = neuron.getComputationView(0).getAggregationState().getAggregation();
+        Aggregation aggregation = neuron.getComputationView(0).getFcnState().getCombination();
         return aggregation.isComplex();
     }
 

@@ -1,41 +1,38 @@
-package cz.cvut.fel.ida.neural.networks.structure.components.neurons.states;
+package cz.cvut.fel.ida.algebra.functions.states;
 
+import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.values.Value;
 
 import java.util.logging.Logger;
 
-/**
- * This is to facilitate the fact that each function behaves differently w.r.t. online calculation, i.e. when inputs
- * are not all given at once, but need to be sequentially accumulated. For instance, when iterating inputs for the MAX
- * aggregation function, we need to remember the current maxValue and index, while for Sigmoid it is sufficient to
- * remember only the current sum of all processed inputs. Of course that this could be worked-around by just remembering
- * all the accumulated inputs (in a List) all the time, but that would be very inefficient, since the calculations would have to be
- * carried out by iterating the list many times (without remembering the intermediate results for each activation function).
- */
+
 public abstract class AggregationState implements Aggregation.State {
     private static final Logger LOG = Logger.getLogger(AggregationState.class.getName());
 
-    public abstract Aggregation getAggregation();
+    Value combinedInputs;
 
-    public abstract void setAggregation(Aggregation act);
+    public Pooling(){}
 
-    public abstract void setupValueDimensions(Value value);
+    @Override
+    public int[] getInputMask() {
+        return null;
+    }
 
     /**
      * State for standard Activation function, e.g. Sigmoid, which sums all the inputs and then applies some non-linearity to the result.
      */
     public static class ActivationState extends AggregationState {
-        Activation activation;
+        ElementWise elementWise;
         Value summedInputs;
 
-        public ActivationState(Activation activation) {
-            this.activation = activation;
+        public ActivationState(ElementWise elementWise) {
+            this.elementWise = elementWise;
         }
 
-        public ActivationState(Activation activation, Value valueStore) {
-            this.activation = activation;
+        public ActivationState(ElementWise elementWise, Value valueStore) {
+            this.elementWise = elementWise;
             this.summedInputs = valueStore;
         }
 
@@ -55,26 +52,26 @@ public abstract class AggregationState implements Aggregation.State {
 
         @Override
         public Value gradient() {
-            return activation.differentiate(summedInputs);
+            return elementWise.differentiate(summedInputs);
         }
 
         @Override
         public Value evaluate() {
-            return activation.evaluate(summedInputs);
+            return elementWise.evaluate(summedInputs);
         }
 
         @Override
-        public Activation getAggregation() {
-            return activation;
+        public ElementWise getCombination() {
+            return elementWise;
         }
 
         @Override
-        public void setAggregation(Aggregation act) {
-            this.activation = (Activation) act;
+        public void setCombination(Aggregation act) {
+            this.elementWise = (ElementWise) act;
         }
 
         @Override
-        public void setupValueDimensions(Value value) {
+        public void setupDimensions(Value value) {
             this.summedInputs = value.getForm();
         }
     }
@@ -114,16 +111,16 @@ public abstract class AggregationState implements Aggregation.State {
         }
 
         @Override
-        public Activation getAggregation() {
+        public ElementWise getCombination() {
             return null;
         }
 
         @Override
-        public void setAggregation(Aggregation act) {
+        public void setCombination(Aggregation act) {
         }
 
         @Override
-        public void setupValueDimensions(Value value) {
+        public void setupDimensions(Value value) {
 
         }
     }
@@ -133,15 +130,15 @@ public abstract class AggregationState implements Aggregation.State {
      * todo now Could be a subclass, but test if not causing a slowdown
      */
     public static class ElementProductState extends AggregationState {
-        Activation activation;
+        ElementWise elementWise;
         Value multipliedInputs;
 
-        public ElementProductState(Activation activation) {
-            this.activation = activation;
+        public ElementProductState(ElementWise elementWise) {
+            this.elementWise = elementWise;
         }
 
-        public ElementProductState(Activation activation, Value valueStore) {
-            this.activation = activation;
+        public ElementProductState(ElementWise elementWise, Value valueStore) {
+            this.elementWise = elementWise;
             this.multipliedInputs = valueStore;
         }
 
@@ -161,26 +158,26 @@ public abstract class AggregationState implements Aggregation.State {
 
         @Override
         public Value gradient() {
-            return activation.differentiate(multipliedInputs);
+            return elementWise.differentiate(multipliedInputs);
         }
 
         @Override
         public Value evaluate() {
-            return activation.evaluate(multipliedInputs);
+            return elementWise.evaluate(multipliedInputs);
         }
 
         @Override
-        public Activation getAggregation() {
-            return activation;
+        public ElementWise getCombination() {
+            return elementWise;
         }
 
         @Override
-        public void setAggregation(Aggregation act) {
-            this.activation = (Activation) act;
+        public void setCombination(Aggregation act) {
+            this.elementWise = (ElementWise) act;
         }
 
         @Override
-        public void setupValueDimensions(Value value) {
+        public void setupDimensions(Value value) {
             this.multipliedInputs = value.getForm();
         }
     }
@@ -190,7 +187,7 @@ public abstract class AggregationState implements Aggregation.State {
      */
     public static class TranspositionState extends AggregationState {
         Value inputs;
-        Activation transp = Activation.Singletons.transposition;
+        ElementWise transp = ElementWise.Singletons.transposition;
 
         public TranspositionState() {
         }
@@ -220,17 +217,17 @@ public abstract class AggregationState implements Aggregation.State {
         }
 
         @Override
-        public Activation getAggregation() {
+        public ElementWise getCombination() {
             return transp;
         }
 
         @Override
-        public void setAggregation(Aggregation act) {
-            this.transp = (Activation) act;
+        public void setCombination(Aggregation act) {
+            this.transp = (ElementWise) act;
         }
 
         @Override
-        public void setupValueDimensions(Value value) {
+        public void setupDimensions(Value value) {
             // do nothing - there is no actual cummulation of values
         }
     }
@@ -240,7 +237,6 @@ public abstract class AggregationState implements Aggregation.State {
      */
     public static abstract class Pooling extends AggregationState {
         Aggregation aggregation;
-    Aggregation aggregation;
     Transformation transformation;
     TransformationState transformationState;
     Value combinedInputs;
@@ -251,11 +247,11 @@ public abstract class AggregationState implements Aggregation.State {
         this.transformationState = TransformationState.get(transformation);
     }
 
-    public Aggregation getAggregation() {
+    public Aggregation getCombination() {
         return aggregation;
     }
 
-    public void setAggregation(Aggregation aggregation) {
+    public void setCombination(Aggregation aggregation) {
         this.aggregation = aggregation;
     }
 
@@ -272,7 +268,7 @@ public abstract class AggregationState implements Aggregation.State {
     }
 
     @Override
-    public void setupValueDimensions(Value value) {
+    public void setupDimensions(Value value) {
         this.combinedInputs = value.getForm();
     }
 
@@ -360,7 +356,7 @@ public abstract class AggregationState implements Aggregation.State {
         }
 
         @Override
-        public void setupValueDimensions(Value value) {
+        public void setupDimensions(Value value) {
 
         }
 

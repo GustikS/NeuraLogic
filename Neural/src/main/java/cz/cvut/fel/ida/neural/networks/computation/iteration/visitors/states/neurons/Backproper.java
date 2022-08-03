@@ -52,13 +52,13 @@ public class Backproper extends StateVisiting.Computation {
     @Override
     public Value visit(State.Neural.Computation state) {
         Value acumGradient = state.getGradient(); //top-down accumulation //todo test add check if non-zero and cut otherwise?
-        Value inputFcnDerivative = state.getAggregationState().gradient(); //bottom-up accumulation
+        Value inputFcnDerivative = state.getFcnState().gradient(); //bottom-up accumulation
 
         Value currentLevelDerivative;
         //todo add case where inputFcnDerivative is just one (no change in gradient, e.g. concat, transp...)
         if (inputFcnDerivative instanceof One) {
             currentLevelDerivative = acumGradient;
-        } else if (state.getAggregationState().getAggregation() instanceof Transposition){
+        } else if (state.getFcnState().getCombination() instanceof Transposition){
             currentLevelDerivative = acumGradient.transposedView();
         } else if (acumGradient.getClass().equals(inputFcnDerivative.getClass()) || inputFcnDerivative instanceof ScalarValue) {
             currentLevelDerivative = acumGradient.elementTimes(inputFcnDerivative);  //elementTimes here - since the fcn to be differentiated was applied element-wise on a vector

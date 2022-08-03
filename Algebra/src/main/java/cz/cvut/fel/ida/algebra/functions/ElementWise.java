@@ -4,7 +4,6 @@ import cz.cvut.fel.ida.algebra.functions.transformation.elementwise.*;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
 
-import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -13,9 +12,9 @@ import java.util.logging.Logger;
  * The non-linearity is provided via FunctionalInterface Function separately for evaluation and derivative/gradient.
  * <p>
  * Steps for adding new activation/aggregation:
- * 1) add definition of the function (evaluation+differentiation) by overriding {@link Activation} or {@link Aggregation} class
- * 2) create a static singleton in {@link Activation} or {@link Aggregation} for reuse, if possible
- * 3) update {@link Activation#parseActivation(String)} and {@link Activation#getActivationFunction(Settings.ActivationFcn)} with the new option
+ * 1) add definition of the function (evaluation+differentiation) by overriding {@link ElementWise} or {@link Aggregation} class
+ * 2) create a static singleton in {@link ElementWise} or {@link Aggregation} for reuse, if possible
+ * 3) update {@link ElementWise#parseFrom(String)} and {@link ElementWise#getFunction(Settings.ActivationFcn)} with the new option
  * 4) if beneficial/required, create new computation state in {cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.AggregationState} for the function
  * 5) if the function requires special backprop treatment, create new Visitors.Down propagator and update ComplexDown with the option
  * 6) assign the specific State corresponding to the function in {cz.cvut.fel.ida.neural.networks.structure.building.builders.StatesBuilder#getAggregationState} if created
@@ -25,8 +24,8 @@ import java.util.logging.Logger;
  * <p>
  * Created by gusta on 8.3.17.
  */
-public abstract class Activation extends Transformation {
-    private static final Logger LOG = Logger.getLogger(Activation.class.getName());
+public abstract class ElementWise implements Transformation {
+    private static final Logger LOG = Logger.getLogger(ElementWise.class.getName());
 
     /**
      * Forward-pass function
@@ -38,31 +37,30 @@ public abstract class Activation extends Transformation {
     transient Function<Double, Double> gradient;
 
 
-    protected Activation(Function<Double, Double> evaluation, Function<Double, Double> gradient) {
+    protected ElementWise(Function<Double, Double> evaluation, Function<Double, Double> gradient) {
         this.evaluation = evaluation;
         this.gradient = gradient;
     }
 
+    /**
+     * We apply element-wise here
+     * @param combinedInputs
+     * @return
+     */
     public Value evaluate(Value combinedInputs) {
         return combinedInputs.apply(evaluation);
     }
 
+    /**
+     * We apply element-wise here
+     * @param combinedInputs
+     * @return
+     */
     public Value differentiate(Value combinedInputs) {
         return combinedInputs.apply(gradient);
     }
 
-    @Override
-    public Value differentiate(List<Value> inputs) {
-        Value evaluation = evaluate(inputs);
-        return differentiate(evaluation);
-    }
-
-    @Override
-    public boolean isInputSymmetric() {
-        return true;
-    }
-
-    public static Activation getActivationFunction(Settings.ActivationFcn activationFcn) {
+    public static ElementWise getFunction(Settings.TransformationFcn activationFcn) {
         switch (activationFcn) {
             case SIGMOID:
                 return Singletons.sigmoid;
@@ -87,42 +85,11 @@ public abstract class Activation extends Transformation {
             case REVERSE:
                 return Singletons.reverse;
             default:
-                LOG.severe("Unimplemented activation function");
+//                LOG.severe("Unimplemented activation function");
                 return null;
         }
     }
 
-    public static Aggregation parseActivation(String agg) {
-        switch (agg) {
-            case "sigmoid":
-                return Singletons.sigmoid;
-            case "sigm":
-                return Singletons.sigmoid;
-            case "tanh":
-                return Singletons.tanh;
-            case "signum":
-                return Singletons.signum;
-            case "relu":
-                return Singletons.relu;
-            case "leakyrelu":
-                return Singletons.leakyRelu;
-            case "identity":
-                return Singletons.identity;
-            case "lukasiewicz":
-                return Singletons.lukasiewiczSigmoid;
-            case "exp":
-                return Singletons.exponentiation;
-            case "sqrt":
-                return Singletons.sqrt;
-            case "inverse":
-                return Singletons.inverse;
-            case "reverse":
-                return Singletons.reverse;
-
-            default:
-                throw new RuntimeException("Unable to parse activation function: " + agg);
-        }
-    }
 
     public static class Singletons {
         public static LukasiewiczSigmoid lukasiewiczSigmoid = new LukasiewiczSigmoid();
@@ -136,5 +103,23 @@ public abstract class Activation extends Transformation {
         public static SquareRoot sqrt = new SquareRoot();
         public static Inverse inverse = new Inverse();
         public static Reverse reverse = new Reverse();
+    }
+
+    @Override
+    public Transformation.State getState(boolean singleInput) {
+        return new State(this);
+    }
+
+    public static class State extends Transformation.State {
+
+        public State(ElementWise elementWise) {
+            super(elementWise);
+        }
+
+        @Override
+        public void ingestTopGradient(Value topGradient) {
+            Value inputFcnDerivative = gradient();
+            processedGradient = topGradient.elementTimes(inputFcnDerivative);       //elementTimes here - since the fcn to be differentiated was applied element-wise on a vector
+        }
     }
 }

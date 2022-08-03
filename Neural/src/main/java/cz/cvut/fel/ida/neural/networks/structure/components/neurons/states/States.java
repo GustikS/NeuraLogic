@@ -1,6 +1,9 @@
 package cz.cvut.fel.ida.neural.networks.structure.components.neurons.states;
 
+import cz.cvut.fel.ida.algebra.functions.ActivationFcn;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
+import cz.cvut.fel.ida.algebra.functions.Combination;
+import cz.cvut.fel.ida.algebra.functions.states.AggregationState;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.Backpropagation;
@@ -10,7 +13,6 @@ import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.neu
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.neurons.Dropouter;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.neurons.Evaluator;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.neurons.Invalidator;
-import cz.cvut.fel.ida.neural.networks.structure.building.builders.StatesBuilder;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.NeuronMapping;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.WeightedNeuronMapping;
@@ -48,12 +50,12 @@ public abstract class States implements State {
         }
 
         @Override
-        public Aggregation getAggregation() {
+        public Aggregation getCombination() {
             return aggregation;
         }
 
         @Override
-        public void setAggregation(Aggregation aggregation) {
+        public void setCombination(Aggregation aggregation) {
             this.aggregation = aggregation;
         }
 
@@ -63,8 +65,8 @@ public abstract class States implements State {
         }
 
         @Override
-        public void setTransformation(Transformation aggregation) {
-            this.transformation = transformation;
+        public void setTransformation(Transformation transformation) {
+            this.transformation = this.transformation;
         }
 
         public Value accept(StateVisiting.Computation visitor) {
@@ -88,44 +90,45 @@ public abstract class States implements State {
      */
     public static class ComputationStateStandard implements Neural.Computation {
 
-        public Aggregation.State aggregationState;
+        public ActivationFcn.State fcnState;
         public Value outputValue;
         public Value acumGradient;
 
-        public ComputationStateStandard(Aggregation activation) {
-            aggregationState = StatesBuilder.getAggregationState(activation);
+        public ComputationStateStandard(Combination combination, Transformation transformation) {
+//            state = StatesBuilder.getAggregationState(combination, transformation);
+              fcnState = ActivationFcn.State.getState(combination,transformation);
         }
 
         @Override
         public void invalidate() {
             outputValue.zero();
             acumGradient.zero();
-            aggregationState.invalidate();
+            fcnState.invalidate();
         }
 
         @Override
-        public Aggregation getAggregation() {
-            return aggregationState.getAggregation();
+        public Combination getCombination() {
+            return fcnState.getCombination();
         }
 
         @Override
-        public void setAggregation(Aggregation aggregation) {
-            this.aggregationState.setAggregation(aggregation);
+        public void setCombination(Aggregation aggregation) {
+            this.fcnState.setCombination(aggregation);
         }
 
         @Override
         public Aggregation getTransformation() {
-            return aggregationState.getTransformation();
+            return fcnState.getTransformation();
         }
 
         @Override
         public void setTransformation(Transformation transformation) {
-            this.aggregationState.setTransformation(transformation);
+            this.fcnState.setTransformation(transformation);
         }
 
         @Override
         public ComputationStateStandard clone() {
-            ComputationStateStandard clone = new ComputationStateStandard(aggregationState.getAggregation());
+            ComputationStateStandard clone = new ComputationStateStandard(fcnState.getCombination());
             clone.outputValue = this.outputValue.clone();
             clone.acumGradient = this.acumGradient.clone();
             return clone;
@@ -138,14 +141,14 @@ public abstract class States implements State {
                     LOG.severe("Collision with previously inferred Value dimensions!");
                 return;
             }
-            aggregationState.setupValueDimensions(value);
+            fcnState.setupDimensions(value);
             outputValue = value.getForm();
             acumGradient = value.getForm();
         }
 
         @Override
-        public Aggregation.State getAggregationState() {
-            return aggregationState;
+        public Aggregation.State getFcnState() {
+            return fcnState;
         }
 
         public void setValue(Value value) {
@@ -165,7 +168,7 @@ public abstract class States implements State {
         }
 
         public void storeValue(Value value) {
-            aggregationState.cumulate(value);
+            fcnState.cumulate(value);
         }
 
         public void storeGradient(Value value) {
@@ -174,7 +177,7 @@ public abstract class States implements State {
 
         @Override
         public Value evaluate() {
-            return aggregationState.evaluate();
+            return fcnState.evaluate();
         }
     }
 
@@ -212,7 +215,7 @@ public abstract class States implements State {
         }
 
         @Override
-        public Aggregation.State getAggregationState() {
+        public Aggregation.State getFcnState() {
 //            LOG.severe("Fact neurons cannot be evaluated, you can only obtain the value via getResult!");
             return aggregationState;
         }
@@ -256,13 +259,13 @@ public abstract class States implements State {
         }
 
         @Override
-        public Aggregation getAggregation() {
+        public Aggregation getCombination() {
 //            LOG.warning("FactNeurons have no aggregation.");
             return null;
         }
 
         @Override
-        public void setAggregation(Aggregation aggregation) {
+        public void setCombination(Aggregation aggregation) {
             LOG.warning("FactNeurons have no Aggregation.");
         }
 
@@ -294,16 +297,16 @@ public abstract class States implements State {
          */
         boolean calculated;
 
-        public ParentCounter(Aggregation activationFunction, int count) {
-            super(activationFunction);
+        public ParentCounter(Combination combination, Transformation transformation, int count) {
+            super(combination, transformation);
             this.parentCount = count;
         }
 
         /**
          * If we do not know the parentCount in advance
          */
-        public ParentCounter(Aggregation activationFunction) {
-            super(activationFunction);
+        public ParentCounter(Combination combination, Transformation transformation) {
+            super(combination, transformation);
         }
 
         @Override
@@ -384,14 +387,14 @@ public abstract class States implements State {
         private boolean dropoutProcessed;
         private Settings settings;
 
-        public DropoutStore(Settings settings, double dropoutRate, Aggregation activationFunction) {
-            super(activationFunction);
+        public DropoutStore(Settings settings, double dropoutRate, Combination combination, Transformation transformation) {
+            super(combination, transformation);
             this.settings = settings;
             this.dropoutRate = dropoutRate;
         }
 
-        public DropoutStore(Settings settings, Aggregation activationFunction) {
-            super(activationFunction);
+        public DropoutStore(Settings settings, Combination combination, Transformation transformation) {
+            super(combination, transformation);
             this.settings = settings;
             this.dropoutRate = settings.dropoutRate;
         }
@@ -437,23 +440,23 @@ public abstract class States implements State {
 
         public final class ParentsDropoutStore extends ParentCounter implements Neural.Computation.HasDropout {
 
-            public ParentsDropoutStore(Settings settings, Aggregation activationFunction) {
-                super(activationFunction);
+            public ParentsDropoutStore(Settings settings, Combination combination, Transformation transformation) {
+                super(combination, transformation);
                 DropoutStore.this.settings = settings;
             }
 
-            public ParentsDropoutStore(Aggregation activationFunction) {
-                super(activationFunction);
+            public ParentsDropoutStore(Combination combination, Transformation transformation) {
+                super(combination, transformation);
             }
 
-            public ParentsDropoutStore(Settings settings, double dropoutRate, Aggregation aggregation) {
-                super(aggregation);
+            public ParentsDropoutStore(Settings settings, double dropoutRate, Combination combination, Transformation transformation) {
+                super(combination, transformation);
                 DropoutStore.this.settings = settings;
                 DropoutStore.this.dropoutRate = dropoutRate;
             }
 
             public ParentsDropoutStore clone() {
-                ParentsDropoutStore clone = new ParentsDropoutStore(DropoutStore.this.settings, DropoutStore.this.dropoutRate, this.aggregationState.getAggregation());
+                ParentsDropoutStore clone = new ParentsDropoutStore(DropoutStore.this.settings, DropoutStore.this.dropoutRate, this.fcnState.getCombination(), this.fcnState.getTransformation());
                 clone.parentCount = this.parentCount;
                 clone.checked = this.checked;
                 clone.calculated = this.calculated; //todo check

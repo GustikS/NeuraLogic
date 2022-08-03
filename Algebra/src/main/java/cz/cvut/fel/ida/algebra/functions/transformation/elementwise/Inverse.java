@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.algebra.functions.transformation.elementwise;
 
-import cz.cvut.fel.ida.algebra.functions.Activation;
+import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.function.Function;
@@ -9,13 +9,8 @@ import java.util.logging.Logger;
 /**
  * Created by gusta on 8.3.17.
  */
-public class Inverse extends Activation {
+public class Inverse extends ElementWise {
     private static final Logger LOG = Logger.getLogger(Inverse.class.getName());
-
-    @Override
-    public String getName() {
-        return Inverse.class.getSimpleName();
-    }
 
     public static final Function<Double, Double> inverse = in -> 1 / in;
 

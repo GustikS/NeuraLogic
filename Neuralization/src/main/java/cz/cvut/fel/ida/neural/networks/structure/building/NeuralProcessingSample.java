@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.neural.networks.structure.building;
 
-import cz.cvut.fel.ida.algebra.functions.Activation;
+import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
@@ -33,16 +33,16 @@ public class NeuralProcessingSample extends NeuralSample {
             if (settings.trainOnlineResultsType == Settings.ResultsType.CLASSIFICATION) {
                 if (!settings.squishLastLayer) {
                     if (v instanceof VectorValue) {
-                        q.neuron.getRawState().setAggregation(Transformation.Singletons.softmax);
+                        q.neuron.getRawState().setCombination(Transformation.Singletons.softmax);
                     } else if (v instanceof ScalarValue) {
-                        q.neuron.getRawState().setAggregation(Activation.Singletons.sigmoid);
+                        q.neuron.getRawState().setCombination(ElementWise.Singletons.sigmoid);
                     }
                     settings.errorFunction = Settings.ErrorFcn.CROSSENTROPY;
                 } else {
                     if (v instanceof VectorValue) {
-                        q.neuron.getRawState().setAggregation(Activation.Singletons.identity);
+                        q.neuron.getRawState().setCombination(ElementWise.Singletons.identity);
                     } else if (v instanceof ScalarValue) {
-                        q.neuron.getRawState().setAggregation(Activation.Singletons.identity);
+                        q.neuron.getRawState().setCombination(ElementWise.Singletons.identity);
                     }
                     settings.errorFunction = Settings.ErrorFcn.SOFTENTROPY;
                 }

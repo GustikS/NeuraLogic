@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.algebra.functions.transformation.joint;
 
-import cz.cvut.fel.ida.algebra.functions.Aggregation;
+import cz.cvut.fel.ida.algebra.functions.ActivationFcn;
+import cz.cvut.fel.ida.algebra.functions.Combination;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.values.MatrixValue;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
@@ -8,6 +9,7 @@ import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.VectorValue;
 import cz.cvut.fel.ida.utils.math.VectorUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -15,12 +17,12 @@ import java.util.logging.Logger;
  * This is both Transformation (joint activation) and Aggregation...
  * todo test softmax as an aggregation fcn
  */
-public class Softmax extends Transformation implements XMax {
+public class Softmax implements Transformation, Combination, XMax {
     private static final Logger LOG = Logger.getLogger(Softmax.class.getName());
 
     @Override
-    public Aggregation replaceWithSingleton() {
-        return Singletons.softmax;
+    public Transformation replaceWithSingleton() {
+        return Transformation.Singletons.softmax;
     }
 
     public Value evaluate(Value combinedInputs) {
@@ -58,6 +60,7 @@ public class Softmax extends Transformation implements XMax {
         MatrixValue output = new MatrixValue(diffs);
         return output;
     }
+
 
     public double[][] getGradient(double[] exps) {
         double[][] diffs = new double[exps.length][exps.length];
@@ -113,7 +116,7 @@ public class Softmax extends Transformation implements XMax {
 
     private double getMax(List<Value> inputs) {
         double max = Double.NEGATIVE_INFINITY;
-        for (Value value : inputs){
+        for (Value value : inputs) {
             if (((ScalarValue) value).value > max)
                 max = ((ScalarValue) value).value;
         }
@@ -128,5 +131,87 @@ public class Softmax extends Transformation implements XMax {
     @Override
     public boolean isComplex() {
         return true;
+    }
+
+    @Override
+    public ActivationFcn.State getState(boolean singleInputValue) {
+        if (singleInputValue)
+            return new TransformationState();
+        else
+            return new CombinationState();
+    }
+
+    public static class TransformationState extends Transformation.State {
+
+        double[] probabilities;
+
+        public TransformationState() {
+            super(Transformation.Singletons.softmax);
+        }
+
+        @Override
+        public void invalidate() {
+            super.invalidate();
+            probabilities = null;
+        }
+
+        @Override
+        public Value evaluate() {
+            probabilities = Transformation.Singletons.softmax.getProbabilities(((VectorValue) input).values);
+            return new VectorValue(probabilities);
+        }
+
+        @Override
+        public Value gradient() {
+            double[][] gradient = Transformation.Singletons.softmax.getGradient(probabilities);
+            return new MatrixValue(gradient);
+        }
+
+    }
+
+    public static class CombinationState extends Combination.State {
+
+        ArrayList<Value> accumulatedInputs;
+        double[] probabilities;
+        int i = 0;
+
+        public CombinationState() {
+            super(Transformation.Singletons.softmax);
+        }
+
+        @Override
+        public void invalidate() {
+            super.invalidate();
+            accumulatedInputs.clear();
+            probabilities = null;
+            i = 0;
+        }
+
+        @Override
+        public Value evaluate() {
+            probabilities = Transformation.Singletons.softmax.getProbabilities(accumulatedInputs);
+            return new VectorValue(probabilities);
+        }
+
+        @Override
+        public void cumulate(Value value) {
+            accumulatedInputs.add(value);
+        }
+
+        @Override
+        public void ingestTopGradient(Value topGradient) {
+            Value inputFcnDerivative = gradient();
+            processedGradient = inputFcnDerivative.times(topGradient);  //times here - since the fcn was a complex vector function (e.g. softmax) and has a matrix derivative (Jacobian)
+        }
+
+        @Override
+        public Value nextInputDerivative() {
+            return new ScalarValue(processedGradient.get(i++));
+        }
+
+        public Value gradient() {
+            double[][] gradient = Transformation.Singletons.softmax.getGradient(probabilities);
+            return new MatrixValue(gradient);
+        }
     }
 }

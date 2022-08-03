@@ -1,7 +1,7 @@
 package cz.cvut.fel.ida.algebra.functions.transformation.joint;
 
+import cz.cvut.fel.ida.algebra.functions.ActivationFcn;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
-import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.VectorValue;
 
@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 /**
  * This is somewhere between activation and Aggregation...
  */
-public class SharpMin extends Transformation {
+public class SharpMin implements ActivationFcn.Combination, ActivationFcn.Transformation {
     private static final Logger LOG = Logger.getLogger(SharpMin.class.getName());
 
 
@@ -32,7 +32,7 @@ public class SharpMin extends Transformation {
 
 
     public Aggregation replaceWithSingleton() {
-        return Singletons.sharpmin;
+        return cz.cvut.fel.ida.algebra.functions.Transformation.Singletons.sharpmin;
     }
 
     /**

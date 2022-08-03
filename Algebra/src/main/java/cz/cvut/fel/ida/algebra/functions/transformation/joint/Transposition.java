@@ -1,7 +1,8 @@
 package cz.cvut.fel.ida.algebra.functions.transformation.joint;
 
-import cz.cvut.fel.ida.algebra.functions.Aggregation;
+import cz.cvut.fel.ida.algebra.functions.ActivationFcn;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
+import cz.cvut.fel.ida.algebra.functions.states.AggregationState;
 import cz.cvut.fel.ida.algebra.values.Value;
 
 import java.util.logging.Logger;
@@ -10,13 +11,13 @@ public class Transposition extends Transformation {
     private static final Logger LOG = Logger.getLogger(Transposition.class.getName());
 
     @Override
-    public boolean isComplex() {
-        return false;
+    public ActivationFcn replaceWithSingleton() {
+        return Singletons.transposition;
     }
 
     @Override
-    public Aggregation replaceWithSingleton() {
-        return Singletons.transposition;
+    public State getState(ActivationFcn activationFcn) {
+        return new AggregationState.TranspositionState();
     }
 
     public Value evaluate(Value combinedInputs) {

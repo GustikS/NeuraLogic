@@ -354,7 +354,7 @@ public class Settings implements Serializable {
     /**
      * How to aggregate 2 identical facts stated with 2 different truth values (e.g., 0.3 person(petr).; 0.9 person(petr).)
      */
-    public AggregationFcn factMergeActivation = AggregationFcn.MAX;
+    public CombinationFcn factMergeActivation = CombinationFcn.MAX;
 
     public boolean uniqueGroundingsOnly = true;
 
@@ -760,29 +760,93 @@ public class Settings implements Serializable {
     public boolean passResultsCache = false;
 
 
-    public AggregationFcn errorAggregationFcn = AggregationFcn.AVG;
+    public CombinationFcn errorAggregationFcn = CombinationFcn.AVG;
 
     public CombinationFcn ruleNeuronCombination = CombinationFcn.SUM;
-    public ActivationFcn ruleNeuronActivation = ActivationFcn.TANH;
+    public TransformationFcn ruleNeuronTransformation = TransformationFcn.TANH;
     public CombinationFcn atomNeuronCombination = CombinationFcn.SUM;
-    public ActivationFcn atomNeuronActivation = ActivationFcn.TANH;
-    public AggregationFcn aggNeuronActivation = AggregationFcn.AVG;
-    public ActivationFcn softNegation = ActivationFcn.REVERSE;
-
+    public TransformationFcn atomNeuronTransformation = TransformationFcn.TANH;
+    public CombinationFcn aggNeuronCombination = CombinationFcn.AVG;
+    public TransformationFcn softNegation = TransformationFcn.REVERSE;
 
     public enum CombinationFcn {
-        SUM, PRODUCT, ELPRODUCT, CROSSSUM, CONCAT, MAX, MIN, SOFTMAX, SPARSEMAX, COSSIM
+        AVG, MAX, MIN, SUM, COUNT,  //AggregationFcn
+        PRODUCT, ELPRODUCT, CROSSSUM, CONCAT, SOFTMAX, SPARSEMAX, COSSIM    //CombinationFcn
     }
 
-    public enum ActivationFcn {
-        SIGMOID, TANH, SIGNUM, LUKASIEWICZ, RELU, LEAKYRELU, IDENTITY, REVERSE, INVERSE, EXP, SQRT,
-        TRANSP, SIZE,
-        SOFTMAX, SPARSEMAX,
-        MAX, MIN;    //newly also allowing these aggregations
+    public enum TransformationFcn {
+        SIGMOID, TANH, SIGNUM, LUKASIEWICZ, RELU, LEAKYRELU, IDENTITY, REVERSE, INVERSE, EXP, SQRT,     //ActivationFcn
+        TRANSP, SIZE, SOFTMAX, SPARSEMAX, MAX, MIN;    //TransformationFcn
     }
 
-    public enum AggregationFcn {
-        AVG, MAX, MIN, SUM, COUNT;
+    public static CombinationFcn parseCombination(String combination) {
+        switch (combination.toLowerCase()) {
+            // Aggregation
+            case "avg":
+                return CombinationFcn.AVG;
+            case "max":
+                return CombinationFcn.MAX;
+            case "min":
+                return CombinationFcn.MIN;
+            case "sum":
+                return CombinationFcn.SUM;
+            case "count":
+                return CombinationFcn.COUNT;
+            // Combination
+            case "prod":
+                return CombinationFcn.PRODUCT;
+            case "elprod":
+                return CombinationFcn.ELPRODUCT;
+            case "cross":
+                return CombinationFcn.CROSSSUM;
+            case "concat":
+                return CombinationFcn.CONCAT;
+            case "cossim":
+                return CombinationFcn.COSSIM;
+            default:
+                throw new RuntimeException("Unable to parse combination function from: " + combination);
+        }
+    }
+
+    public static TransformationFcn parseTransformation(String transformation){
+        switch (transformation.toLowerCase()){
+            // ElementWise Activation
+            case "sigmoid":
+                return TransformationFcn.SIGMOID;
+            case "sigm":
+                return TransformationFcn.SIGMOID;
+            case "tanh":
+                return TransformationFcn.TANH;
+            case "signum":
+                return TransformationFcn.SIGNUM;
+            case "relu":
+                return TransformationFcn.RELU;
+            case "leakyrelu":
+                return TransformationFcn.LEAKYRELU;
+            case "identity":
+                return TransformationFcn.IDENTITY;
+            case "lukasiewicz":
+                return TransformationFcn.LUKASIEWICZ;
+            case "exp":
+                return TransformationFcn.EXP;
+            case "sqrt":
+                return TransformationFcn.SQRT;
+            case "inverse":
+                return TransformationFcn.INVERSE;
+            case "reverse":
+                return TransformationFcn.REVERSE;
+            // Transformation
+            case "softmax":
+                return TransformationFcn.SOFTMAX;
+            case "sparsemax":
+                return TransformationFcn.SPARSEMAX;
+            case "transpose":
+                return TransformationFcn.TRANSP;
+            case "size":
+                return TransformationFcn.SIZE;
+            default:
+                throw new RuntimeException("Unable to parse transformation function from: " + transformation);
+        }
     }
 
     public enum ErrorFcn {
@@ -1142,26 +1206,34 @@ public class Settings implements Serializable {
             switch (_errorFunction.toLowerCase()) {
                 case "mse":
                     settings.errorFunction = ErrorFcn.SQUARED_DIFF;
-                    settings.errorAggregationFcn = AggregationFcn.AVG;
+                    settings.errorAggregationFcn = CombinationFcn.AVG;
                     break;
                 case "xent":
                     settings.errorFunction = ErrorFcn.CROSSENTROPY;
-                    settings.errorAggregationFcn = AggregationFcn.AVG;
+                    settings.errorAggregationFcn = CombinationFcn.AVG;
                     break;
             }
         }
 
-        if (cmd.hasOption("atomFunction")) {
-            String _fnc = cmd.getOptionValue("atomFunction");
-            settings.atomNeuronActivation = getFcn(_fnc);
+        if (cmd.hasOption("atomCombination")) {
+            String _fnc = cmd.getOptionValue("atomCombination");
+            settings.atomNeuronCombination = parseCombination(_fnc);
         }
-        if (cmd.hasOption("ruleFunction")) {
-            String _fnc = cmd.getOptionValue("ruleFunction");
-            settings.ruleNeuronActivation = getFcn(_fnc);
+        if (cmd.hasOption("atomTransformation")) {
+            String _fnc = cmd.getOptionValue("atomTransformation");
+            settings.atomNeuronTransformation = parseTransformation(_fnc);
+        }
+        if (cmd.hasOption("ruleCombination")) {
+            String _fnc = cmd.getOptionValue("ruleCombination");
+            settings.ruleNeuronCombination = parseCombination(_fnc);
+        }
+        if (cmd.hasOption("ruleTransformation")) {
+            String _fnc = cmd.getOptionValue("ruleTransformation");
+            settings.ruleNeuronTransformation = parseTransformation(_fnc);
         }
         if (cmd.hasOption("aggFunction")) {
             String _fnc = cmd.getOptionValue("aggFunction");
-            settings.aggNeuronActivation = getAgg(_fnc);
+            settings.aggNeuronCombination = parseCombination(_fnc);
         }
 
         if (cmd.hasOption("sourcesDir")) {
@@ -1263,35 +1335,6 @@ public class Settings implements Serializable {
         return settings;
     }
 
-    private AggregationFcn getAgg(String fnc) {
-        switch (fnc.toLowerCase()) {
-            case "avg":
-                return AggregationFcn.AVG;
-            case "max":
-                return AggregationFcn.MAX;
-            case "sum":
-                return AggregationFcn.SUM;
-            default:
-                throw new UnsupportedOperationException("Unknown function: " + fnc);
-        }
-    }
-
-    private ActivationFcn getFcn(String fnc) {
-        switch (fnc.toLowerCase()) {
-            case "sigm":
-                return ActivationFcn.SIGMOID;
-            case "tanh":
-                return ActivationFcn.TANH;
-            case "relu":
-                return ActivationFcn.RELU;
-            case "line":
-                return ActivationFcn.IDENTITY;
-            default:
-                throw new UnsupportedOperationException("Unknown function: " + fnc);
-        }
-    }
-
-
     /**
      * Check for banned combinations here
      *
@@ -1315,7 +1358,7 @@ public class Settings implements Serializable {
             valid = false;
         }
 
-        if (isoValueCompression && (atomNeuronActivation == ActivationFcn.RELU || ruleNeuronActivation == ActivationFcn.RELU)) {
+        if (isoValueCompression && (atomNeuronTransformation == TransformationFcn.RELU || ruleNeuronTransformation == TransformationFcn.RELU)) {
             message.append("lossless network compression does not work together with ReLu activations functions.\n Either turn off the isovaluecompression or change activation function(s).");
             valid = false;
         }

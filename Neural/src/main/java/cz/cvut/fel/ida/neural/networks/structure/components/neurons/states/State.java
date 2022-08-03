@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.neural.networks.structure.components.neurons.states;
 
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
+import cz.cvut.fel.ida.algebra.functions.Combination;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.modes.DFSstack;
@@ -39,18 +40,18 @@ public interface State<V> extends Exportable {
         return visitor.visit(this);
     }
 
-    static State.Neural.Computation createBaseState(Settings settings, Aggregation activationFunction) {
+    static Neural.Computation createBaseState(Settings settings, Combination combination, Transformation activationFunction) {
         switch (settings.neuralState) {
             case STANDARD:
-                return new States.ComputationStateStandard(activationFunction);
+                return new States.ComputationStateStandard(combination, activationFunction);
             case PARENTS:
-                return new States.ParentCounter(activationFunction);
+                return new States.ParentCounter(combination, activationFunction);
             case DROPOUT:
-                return new States.DropoutStore(settings, activationFunction);
+                return new States.DropoutStore(settings, combination, activationFunction);
             case PAR_DROPOUT:
-                return new States.DropoutStore(settings, activationFunction).new ParentsDropoutStore(activationFunction);
+                return new States.DropoutStore(settings, combination, activationFunction).new ParentsDropoutStore(combination, activationFunction);
             default:
-                return new States.ComputationStateStandard(activationFunction);
+                return new States.ComputationStateStandard(combination, activationFunction);
         }
     }
 
@@ -82,13 +83,13 @@ public interface State<V> extends Exportable {
          */
         Computation getComputationView(int index);
 
-        Aggregation getAggregation();
+        Combination getCombination();
 
-        void setAggregation(Aggregation aggregation);
+        void setCombination(Aggregation aggregation);
 
-        Aggregation getTransformation();
+        Transformation getTransformation();
 
-        void setTransformation(Transformation aggregation);
+        void setTransformation(Transformation transformation);
 
         /**
          * Stateful values held by a Neuron for use during neural computation, i.e. Evaluation and Backpropagation
@@ -99,7 +100,7 @@ public interface State<V> extends Exportable {
 
             void setupDimensions(Value value);
 
-            Aggregation.State getAggregationState();
+            Aggregation.State getFcnState();
 
             Value getValue();
 

@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.neural.networks.structure.components.neurons;
 
-import cz.cvut.fel.ida.algebra.functions.Aggregation;
+import cz.cvut.fel.ida.algebra.functions.Combination;
+import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.NeuronVisiting;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
@@ -22,7 +23,9 @@ public interface Neurons<T extends Neurons, S extends State.Neural> extends Expo
 
     S getRawState();
 
-    Aggregation getAggregation();
+    Combination getCombination();
+
+    Transformation getTransformation();
 
     String getName();
 

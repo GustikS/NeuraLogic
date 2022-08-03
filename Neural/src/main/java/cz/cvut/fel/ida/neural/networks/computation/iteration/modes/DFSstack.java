@@ -82,7 +82,7 @@ public class DFSstack {
         public <T extends Neurons, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             Value value = stateVisitor.visit(state);
-            Iterator<T> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());
+            Iterator<T> inputs = network.getInputs(neuron, state.getFcnState().getInputMask());
             while (inputs.hasNext()) {
                 T input = inputs.next();
                 State.Neural.Computation computationView = input.getComputationView(stateVisitor.stateIndex);
@@ -97,7 +97,7 @@ public class DFSstack {
         public <T extends Neurons, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron) {
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             Value gradient = stateVisitor.visit(state);
-            Pair<Iterator<T>, Iterator<Weight>> inputs = network.getInputs(neuron, state.getAggregationState().getInputMask());
+            Pair<Iterator<T>, Iterator<Weight>> inputs = network.getInputs(neuron, state.getFcnState().getInputMask());
 
             weightUpdater.visit(neuron.offset, gradient);
 

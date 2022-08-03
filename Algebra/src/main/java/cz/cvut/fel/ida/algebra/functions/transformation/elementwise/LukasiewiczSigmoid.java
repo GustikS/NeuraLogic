@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.algebra.functions.transformation.elementwise;
 
-import cz.cvut.fel.ida.algebra.functions.Activation;
+import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.function.Function;
@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 /**
  * A type of Sigmoidal activation function approximating Lukasiewicz more tightly (steeper gradient and offset -0.5)
  */
-public class LukasiewiczSigmoid extends Activation {
+public class LukasiewiczSigmoid extends ElementWise {
     private static final Logger LOG = Logger.getLogger(LukasiewiczSigmoid.class.getName());
 
 
@@ -28,10 +28,5 @@ public class LukasiewiczSigmoid extends Activation {
     @Override
     public Pair<Double, Double> getSaturationRange() {
         return new Pair<>(0.01, 0.99);
-    }
-
-    @Override
-    public boolean isInputSymmetric() {
-        return true;
     }
 }

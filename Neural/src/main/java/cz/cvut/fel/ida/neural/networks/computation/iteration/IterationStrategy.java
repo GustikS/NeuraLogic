@@ -10,7 +10,7 @@ import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.neu
 import cz.cvut.fel.ida.neural.networks.structure.components.NeuralNetwork;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.BaseNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
-import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.AggregationState;
+import cz.cvut.fel.ida.algebra.functions.states.AggregationState;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
 
 import java.util.logging.Logger;

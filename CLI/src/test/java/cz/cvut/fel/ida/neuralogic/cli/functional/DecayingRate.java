@@ -35,8 +35,8 @@ public class DecayingRate {
         settings.chainPruning = true;
 
 
-        settings.ruleNeuronActivation = Settings.ActivationFcn.TANH;
-        settings.atomNeuronActivation = Settings.ActivationFcn.SIGMOID;
+        settings.ruleNeuronTransformation = Settings.ActivationFcn.TANH;
+        settings.atomNeuronTransformation = Settings.ActivationFcn.SIGMOID;
 
 
         settings.plotProgress = 15;

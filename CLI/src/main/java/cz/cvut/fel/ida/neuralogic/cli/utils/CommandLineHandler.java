@@ -82,9 +82,9 @@ public class CommandLineHandler {
         options.addOption(Option.builder("preft").longOpt("preferTraining").argName("INT").numberOfArgs(1).optionalArg(true).desc("turn on to force best training model selection as opposed to (default) selecting best validation error model {0,1} (default: " + (settings.preferBestTrainingNotvalidation ? 1 : 0) + ")").build());
 
         //functions
-        options.addOption(Option.builder("atomf").longOpt("atomFunction").argName("ENUM").numberOfArgs(1).optionalArg(true).desc("activation function for atom neurons {sigmoid,tanh,relu,identity,...} (default: " + settings.atomNeuronActivation.name().toLowerCase() + ")").build());
-        options.addOption(Option.builder("rulef").longOpt("ruleFunction").argName("ENUM").numberOfArgs(1).optionalArg(true).desc("activation function for rule neurons {sigmoid,tanh,relu,identity,...} (default: " + settings.ruleNeuronActivation.name().toLowerCase() + ")").build());
-        options.addOption(Option.builder("aggf").longOpt("aggFunction").argName("ENUM").numberOfArgs(1).optionalArg(true).desc("aggregation function for aggregation neurons {avg,max,sum,...} (default: " + settings.aggNeuronActivation.name().toLowerCase() + ")").build());
+        options.addOption(Option.builder("atomf").longOpt("atomFunction").argName("ENUM").numberOfArgs(1).optionalArg(true).desc("activation function for atom neurons {sigmoid,tanh,relu,identity,...} (default: " + settings.atomNeuronTransformation.name().toLowerCase() + ")").build());
+        options.addOption(Option.builder("rulef").longOpt("ruleFunction").argName("ENUM").numberOfArgs(1).optionalArg(true).desc("activation function for rule neurons {sigmoid,tanh,relu,identity,...} (default: " + settings.ruleNeuronTransformation.name().toLowerCase() + ")").build());
+        options.addOption(Option.builder("aggf").longOpt("aggFunction").argName("ENUM").numberOfArgs(1).optionalArg(true).desc("aggregation function for aggregation neurons {avg,max,sum,...} (default: " + settings.aggNeuronCombination.name().toLowerCase() + ")").build());
 
         //evaluation
         options.addOption(Option.builder("em").longOpt("evaluationMode").argName("ENUM").numberOfArgs(1).optionalArg(true).desc("evaluation metrics are either for {regression, classification, kbc} (default: " + "classification" + ")").build());
@@ -161,9 +161,11 @@ public class CommandLineHandler {
         options.addOption(new Option("preft", "preferTraining", true, "turn on to force best training model selection as opposed to (default) selecting best validation error model (" + settings.preferBestTrainingNotvalidation + ")"));
 
         //functions
-        options.addOption(new Option("atomf", "atomFunction", true, "activation function for atom neurons (" + settings.atomNeuronActivation.name().toLowerCase() + ")"));
-        options.addOption(new Option("rulef", "ruleFunction", true, "activation function for rule neurons (" + settings.ruleNeuronActivation.name().toLowerCase() + ")"));
-        options.addOption(new Option("aggf", "aggFunction", true, "aggregation function for aggregation neurons (" + settings.aggNeuronActivation.name().toLowerCase() + ")"));
+        options.addOption(new Option("atomagg", "atomCombination", true, "combination function for atom neurons (" + settings.atomNeuronCombination.name().toLowerCase() + ")"));
+        options.addOption(new Option("atomf", "atomTransformation", true, "transformation function for atom neurons (" + settings.atomNeuronTransformation.name().toLowerCase() + ")"));
+        options.addOption(new Option("ruleagg", "ruleCombination", true, "combination function for rule neurons (" + settings.ruleNeuronCombination.name().toLowerCase() + ")"));
+        options.addOption(new Option("rulef", "ruleTransformation", true, "transformation function for rule neurons (" + settings.ruleNeuronTransformation.name().toLowerCase() + ")"));
+        options.addOption(new Option("aggf", "aggFunction", true, "aggregation function for aggregation neurons (" + settings.aggNeuronCombination.name().toLowerCase() + ")"));
 
         //evaluation
         options.addOption(new Option("em", "evaluationMode", true, "evaluation is either [regression, classification, kbc] (" + "classification" + ")"));

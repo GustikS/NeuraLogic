@@ -50,7 +50,7 @@ public class ComplexDown extends NeuronVisitor.Weighted {
     }
 
     private <T extends Neurons, S extends State.Neural> void switchDown(BaseNeuron<T, S> neuron) {
-        Aggregation aggregation = neuron.getAggregation();
+        Aggregation aggregation = neuron.getCombination();
         if (aggregation instanceof CrossSum) {
             crossDown.visit(neuron);
         } else if (aggregation instanceof ElementProduct) {
@@ -69,7 +69,7 @@ public class ComplexDown extends NeuronVisitor.Weighted {
     }
 
     private <T extends Neurons, S extends State.Neural> void switchDown(WeightedNeuron<T, S> neuron) {
-        Aggregation aggregation = neuron.getAggregation();
+        Aggregation aggregation = neuron.getCombination();
         if (aggregation instanceof CrossSum) {
             crossDown.visit(neuron);
         } else if (aggregation instanceof ElementProduct) {

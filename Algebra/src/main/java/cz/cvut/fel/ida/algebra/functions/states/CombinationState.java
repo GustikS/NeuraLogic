@@ -1,4 +1,4 @@
-package cz.cvut.fel.ida.neural.networks.structure.components.neurons.states;
+package cz.cvut.fel.ida.algebra.functions.states;
 
 import cz.cvut.fel.ida.algebra.functions.Combination;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
@@ -16,14 +16,13 @@ import java.util.logging.Logger;
  * There could possibly be functions that cannot be calculated in a cumulative fashion, e.g. when we need to process all elements twice (e.g. normalize/softmax ?),
  * Or with the special CrossSum construct!
  */
-public abstract class CombinationState extends AggregationState {
+public abstract class CombinationState implements Combination.State {
     private static final Logger LOG = Logger.getLogger(CombinationState.class.getName());
 
     ArrayList<Value> accumulatedInputs;
     int i = 0;
 
-    public CombinationState(Transformation transformation) {
-        super(transformation);
+    public CombinationState() {
         accumulatedInputs = new ArrayList<>();
     }
 

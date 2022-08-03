@@ -79,10 +79,10 @@ public class NeuralNetDrawer extends Drawer<NeuralSample> {
             if (neuron instanceof FactNeuron)
                 neuronAggregation = null;
             else
-                neuronAggregation = neuron.getAggregation();
+                neuronAggregation = neuron.getCombination();
             String aggregation = "";
             if (neuronAggregation != null)
-                aggregation = neuron.getAggregation().getName();
+                aggregation = neuron.getCombination().getName();
 
             StringBuilder sb = new StringBuilder();
             sb.append("\"");

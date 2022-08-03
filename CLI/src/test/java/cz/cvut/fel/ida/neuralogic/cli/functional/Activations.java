@@ -44,7 +44,7 @@ public class Activations {
 
         Settings settings = Settings.forSlowTest();
 
-        settings.aggNeuronActivation = Settings.AggregationFcn.MAX;
+        settings.aggNeuronCombination = Settings.AggregationFcn.MAX;
 
 //        settings.iterationMode = Settings.IterationMode.BFS;
 //        settings.iterationMode = Settings.IterationMode.DFS_STACK;

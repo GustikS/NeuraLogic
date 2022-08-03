@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.logic.constructs;
 
-import cz.cvut.fel.ida.algebra.functions.Activation;
+import cz.cvut.fel.ida.algebra.functions.Combination;
+import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.logic.Predicate;
 import cz.cvut.fel.ida.logic.constructs.template.metadata.PredicateMetadata;
@@ -23,7 +24,10 @@ public class WeightedPredicate implements Serializable {
      * If it has the weight, it should be carrying the activation too.
      */
     @Nullable
-    public Activation activation;
+    public Transformation transformation;
+
+    @Nullable
+    public Combination combination;
 
     /**
      * Regular logic predicate

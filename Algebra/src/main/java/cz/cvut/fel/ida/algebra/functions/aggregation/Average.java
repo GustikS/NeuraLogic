@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.algebra.functions.aggregation;
 
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
+import cz.cvut.fel.ida.algebra.functions.states.Pooling;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 
@@ -32,6 +33,45 @@ public class Average extends Aggregation {
     @Override
     public boolean isInputSymmetric() {
         return true;
+    }
+
+
+    public static class State extends Aggregation.State {
+        int count = 0;
+        ScalarValue inverseCount;
+
+        public Avg(Value initSum) {
+            combinedInputs = initSum;
+        }
+
+        @Override
+        public void cumulate(Value value) {
+            combinedInputs.incrementBy(value);
+            count++;
+        }
+
+        @Override
+        public Value evaluate() {
+//            return sum.apply(x -> x / count);
+            return combinedInputs.times(inverseCount);
+        }
+
+        @Override
+        public Value gradient() {
+            return inverseCount;
+        }
+
+        @Override
+        public void invalidate() {
+            combinedInputs.zero();
+            inverseCount = new ScalarValue(1.0 / count);
+            count = 0;    //it will be the same every time but anyway...
+        }
+
+        @Override
+        public Value nextInputDerivative() {
+            return inverseCount;
+        }
     }
 
 }

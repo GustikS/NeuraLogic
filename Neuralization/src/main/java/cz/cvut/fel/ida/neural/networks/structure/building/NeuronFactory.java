@@ -1,7 +1,8 @@
 package cz.cvut.fel.ida.neural.networks.structure.building;
 
-import cz.cvut.fel.ida.algebra.functions.Activation;
-import cz.cvut.fel.ida.algebra.functions.Aggregation;
+import cz.cvut.fel.ida.algebra.functions.ElementWise;
+import cz.cvut.fel.ida.algebra.functions.Combination;
+import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
@@ -51,8 +52,10 @@ public class NeuronFactory {
     }
 
     public WeightedAtomNeuron createWeightedAtomNeuron(HeadAtom head, Literal groundHead) {
-        Activation activation = head.getActivation() != null ? head.getActivation() : Activation.getActivationFunction(settings.atomNeuronActivation);
-        State.Neural.Computation state = State.createBaseState(settings, activation);
+        Combination combination = head.getCombination() != null ? head.getCombination() : Combination.getFunction(settings.atomNeuronCombination);
+        Transformation transformation = head.getTransformation() != null ? head.getTransformation() : Transformation.getFunction(settings.atomNeuronTransformation);
+
+        State.Neural.Computation state = State.createBaseState(settings, combination, transformation);
         Weight offset = head.getOffset();
         if (offset == null) {
             if (settings.defaultAtomOffsetsLearnable) {
@@ -74,8 +77,10 @@ public class NeuronFactory {
     }
 
     public AtomNeuron createUnweightedAtomNeuron(HeadAtom head, Literal groundHead) {
-        Activation activation = head.getActivation() != null ? head.getActivation() : Activation.getActivationFunction(settings.atomNeuronActivation);
-        State.Neural.Computation state = State.createBaseState(settings, activation);
+        Combination combination = head.getCombination() != null ? head.getCombination() : Combination.getFunction(settings.atomNeuronCombination);
+        Transformation transformation = head.getTransformation() != null ? head.getTransformation() : Transformation.getFunction(settings.atomNeuronTransformation);
+
+        State.Neural.Computation state = State.createBaseState(settings, combination, transformation);
         AtomNeuron<State.Neural.Computation> atomNeuron = new AtomNeuron<>(groundHead.toString(), counter++, state);
         neuronMaps.atomNeurons.put(groundHead, atomNeuron);
         LOG.finest(() -> "Created atom neuron: " + atomNeuron);
@@ -84,8 +89,9 @@ public class NeuronFactory {
 
     public AggregationNeuron createAggNeuron(GroundHeadRule groundHeadRule) {
         WeightedRule weightedRule = groundHeadRule.weightedRule;
-        Aggregation aggregation = weightedRule.getAggregationFcn() != null ? weightedRule.getAggregationFcn() : Aggregation.getAggregation(settings.aggNeuronActivation);
-        State.Neural.Computation state = State.createBaseState(settings, aggregation);
+        Combination aggregation = weightedRule.getAggregationFcn() != null ? weightedRule.getAggregationFcn() : Combination.getFunction(settings.aggNeuronCombination);
+
+        State.Neural.Computation state = State.createBaseState(settings, aggregation, null);
         AggregationNeuron<State.Neural.Computation> aggregationNeuron = new AggregationNeuron<>(settings.fullAggNeuronStrings ? groundHeadRule.toFullString() : weightedRule.getOriginalString(), counter++, state);
         neuronMaps.aggNeurons.put(groundHeadRule, aggregationNeuron);
         LOG.finest(() -> "Created aggregation neuron: " + aggregationNeuron);
@@ -94,8 +100,10 @@ public class NeuronFactory {
 
     public RuleNeuron createRuleNeuron(GroundRule groundRule) {
         WeightedRule weightedRule = groundRule.weightedRule;
-        Activation activation = weightedRule.getActivationFcn() != null ? weightedRule.getActivationFcn() : Activation.getActivationFunction(settings.ruleNeuronActivation);
-        State.Neural.Computation state = State.createBaseState(settings, activation);
+        Combination combination = weightedRule.getCombinationFcn() != null ? weightedRule.getCombinationFcn() : Combination.getFunction(settings.ruleNeuronCombination);
+        Transformation transformation = weightedRule.getTransformation() != null ? weightedRule.getTransformation() : Transformation.getFunction(settings.ruleNeuronTransformation);
+
+        State.Neural.Computation state = State.createBaseState(settings, combination, transformation);
         RuleNeuron<State.Neural.Computation> ruleNeuron = new RuleNeuron<>(settings.fullRuleNeuronStrings ? groundRule.toFullString() : weightedRule.getOriginalString(), counter++, state);
         neuronMaps.ruleNeurons.put(groundRule, ruleNeuron);
         LOG.finest(() -> "Created rule neuron: " + ruleNeuron);
@@ -104,7 +112,9 @@ public class NeuronFactory {
 
     public WeightedRuleNeuron createWeightedRuleNeuron(GroundRule groundRule) {
         WeightedRule weightedRule = groundRule.weightedRule;
-        Activation activation = weightedRule.getActivationFcn() != null ? weightedRule.getActivationFcn() : Activation.getActivationFunction(settings.ruleNeuronActivation);
+        Combination combination = weightedRule.getCombinationFcn() != null ? weightedRule.getCombinationFcn() : Combination.getFunction(settings.ruleNeuronCombination);
+        Transformation transformation = weightedRule.getTransformation() != null ? weightedRule.getTransformation() : Transformation.getFunction(settings.ruleNeuronTransformation);
+
         Weight offset = weightedRule.getOffset();
         if (offset == null) {
             if (settings.defaultRuleOffsetsLearnable) {
@@ -119,7 +129,7 @@ public class NeuronFactory {
                 }
             }
         }
-        State.Neural.Computation state = State.createBaseState(settings, activation);
+        State.Neural.Computation state = State.createBaseState(settings, combination, transformation);
         WeightedRuleNeuron<State.Neural.Computation> weightedRuleNeuron = new WeightedRuleNeuron<>(settings.fullRuleNeuronStrings ? groundRule.toFullString() : weightedRule.getOriginalString(), offset, counter++, state);
         neuronMaps.ruleNeurons.put(groundRule, weightedRuleNeuron);
         LOG.finest(() -> "Created weightedRule neuron: " + weightedRuleNeuron);
@@ -143,9 +153,9 @@ public class NeuronFactory {
         }
     }
 
-    public NegationNeuron createNegationNeuron(AtomFact atomFact, Activation negation) {
-        Activation activation = negation != null ? negation : Activation.getActivationFunction(settings.softNegation);
-        State.Neural.Computation state = State.createBaseState(settings, activation);
+    public NegationNeuron createNegationNeuron(AtomFact atomFact, ElementWise negation) {
+        Transformation transformation = negation != null ? negation : Transformation.getFunction(settings.softNegation);
+        State.Neural.Computation state = State.createBaseState(settings, null, transformation);
         NegationNeuron<State.Neural.Computation> negationNeuron = new NegationNeuron<>(atomFact, counter++, state);
         neuronMaps.negationNeurons.add(negationNeuron);
         LOG.finest(() -> "Created negation neuron: " + negationNeuron);

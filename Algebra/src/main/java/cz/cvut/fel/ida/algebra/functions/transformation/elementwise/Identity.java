@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.algebra.functions.transformation.elementwise;
 
-import cz.cvut.fel.ida.algebra.functions.Activation;
+import cz.cvut.fel.ida.algebra.functions.ElementWise;
 
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -8,13 +8,8 @@ import java.util.logging.Logger;
 /**
  * Created by gusta on 8.3.17.
  */
-public class Identity extends Activation {
+public class Identity extends ElementWise {
     private static final Logger LOG = Logger.getLogger(Identity.class.getName());
-
-    @Override
-    public String getName() {
-        return Identity.class.getSimpleName();
-    }
 
     private static final Function<Double, Double> identity = in -> in;
 

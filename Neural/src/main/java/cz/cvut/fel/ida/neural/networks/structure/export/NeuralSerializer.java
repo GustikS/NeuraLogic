@@ -89,7 +89,7 @@ public class NeuralSerializer {
         SerializedNeuron(BaseNeuron<Neurons, State.Neural> neuron, TopologicNetwork<State.Structure> network) {
             name = neuron.toString();
             index = neuron.index;
-            Aggregation aggregation = neuron.getAggregation();
+            Aggregation aggregation = neuron.getCombination();
             if (aggregation != null)
                 activation = aggregation.getName();
             if (neuron instanceof AggregationNeuron) {

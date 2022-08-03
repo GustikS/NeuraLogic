@@ -64,7 +64,7 @@ public class ParallelEdgeMerger implements NetworkReducing {    //todo repair - 
             //weighted neurons, which would cause more overhead than reduction, so we either just prune them or skip them completely
 
             if (settings.removeIdenticalUnweightedInputs) {
-                if (!neuron.getAggregation().isInputSymmetric()) {
+                if (!neuron.getCombination().isInputSymmetric()) {
                     return;
                 }
                 Set<Neurons> inputNeurons = new HashSet<>();
@@ -94,7 +94,7 @@ public class ParallelEdgeMerger implements NetworkReducing {    //todo repair - 
             if (!settings.mergeIdenticalWeightedInputs){
                 return;
             }
-            if (!neuron.getAggregation().isInputSymmetric()) {
+            if (!neuron.getCombination().isInputSymmetric()) {
                 return;
             }
             Pair<Iterator<T>, Iterator<Weight>> pair = network.getInputs(neuron);

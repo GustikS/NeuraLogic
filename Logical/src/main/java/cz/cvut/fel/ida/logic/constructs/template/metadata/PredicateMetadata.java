@@ -1,14 +1,15 @@
 package cz.cvut.fel.ida.logic.constructs.template.metadata;
 
-import cz.cvut.fel.ida.algebra.functions.Activation;
-import cz.cvut.fel.ida.algebra.functions.Aggregation;
-import cz.cvut.fel.ida.algebra.values.Value;
-import cz.cvut.fel.ida.algebra.weights.Weight;
+import cz.cvut.fel.ida.algebra.functions.ElementWise;
+import cz.cvut.fel.ida.algebra.functions.Combination;
+import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.utils.metadata.Metadata;
-import cz.cvut.fel.ida.logic.constructs.WeightedPredicate;
-import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.algebra.utils.metadata.Parameter;
 import cz.cvut.fel.ida.algebra.utils.metadata.ParameterValue;
+import cz.cvut.fel.ida.algebra.values.Value;
+import cz.cvut.fel.ida.algebra.weights.Weight;
+import cz.cvut.fel.ida.logic.constructs.WeightedPredicate;
+import cz.cvut.fel.ida.setup.Settings;
 
 import java.util.Map;
 import java.util.logging.Logger;
@@ -34,13 +35,21 @@ public class PredicateMetadata extends Metadata<WeightedPredicate> {
         if (parameter.type == Parameter.Type.OFFSET && (parameterValue.type == ParameterValue.Type.VALUE || parameterValue.type == ParameterValue.Type.WEIGHT)) {
             valid = true;
         } else if (parameter.type == Parameter.Type.ACTIVATION && parameterValue.type == ParameterValue.Type.STRING) {
-            Aggregation aggregation = Activation.parseActivation(parameterValue.stringValue);
-            if (aggregation != null) {
+            Settings.TransformationFcn transformationFcn = Settings.parseTransformation(parameterValue.stringValue);
+            Transformation function = Transformation.getFunction(transformationFcn);
+            if (function != null) {
                 valid = true;
-                parameterValue.value = aggregation;
+                parameterValue.value = function;
             }
-            //todo rest
+        } else if (parameter.type == Parameter.Type.COMBINATION && parameterValue.type == ParameterValue.Type.STRING) {
+            Settings.CombinationFcn combinationFcn = Settings.parseCombination(parameterValue.stringValue);
+            Combination function = Combination.getFunction(combinationFcn);
+            if (function != null) {
+                valid = true;
+                parameterValue.value = function;
+            }
         }
+        //todo rest
 
         if (valid)
             metadata.put(parameter, parameterValue);
@@ -56,7 +65,7 @@ public class PredicateMetadata extends Metadata<WeightedPredicate> {
 
     private void apply(WeightedPredicate predicate, Parameter param, ParameterValue value) {
         if (param.type == Parameter.Type.ACTIVATION) {
-            predicate.activation = (Activation) value.value;
+            predicate.transformation = (ElementWise) value.value;
         } else if (param.type == Parameter.Type.OFFSET) {
             if (value.value instanceof Weight)
                 predicate.weight = (Weight) value.value;
