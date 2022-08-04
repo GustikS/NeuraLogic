@@ -1,8 +1,10 @@
 package cz.cvut.fel.ida.algebra.functions;
 
 import cz.cvut.fel.ida.algebra.functions.aggregation.*;
+import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -11,17 +13,27 @@ import java.util.logging.Logger;
  * i.e. if the inputs are always summed up at first and then some non-linearity applied to the sum, use Activation class instead,
  * which is based on providing existing Function<Double, Double> processing, while here the calculation must be implemented via inheritance.
  */
-public abstract class Aggregation implements Combination {
-    private static final Logger LOG = Logger.getLogger(Aggregation.class.getName());
+public interface Aggregation extends Combination, Transformation {
+    static final Logger LOG = Logger.getLogger(Aggregation.class.getName());
 
     /**
-     * The mmain characteristic of simple aggregation functions is that they are input permutation invariant
+     * The mmain characteristic of simple aggregation functions is that they are input permutation invariant (AVG, SUM, etc.)
+     *
      * @return
      */
     @Override
-    public boolean isInputSymmetric() {
+    default boolean isInputSymmetric() {
         return true;
     }
+
+
+    /**
+     * Given the symmetry, the gradient is a single Value here
+     * @param inputs
+     * @return
+     */
+    public abstract Value differentiate(List<Value> inputs);
+
 
     public static Aggregation getFunction(Settings.CombinationFcn aggregationFcn) {
         switch (aggregationFcn) {
@@ -49,8 +61,25 @@ public abstract class Aggregation implements Combination {
         public static Count count = new Count();
     }
 
-    public abstract class State extends Combination.State {
+    public static abstract class State extends Combination.State {
 
+        protected Value combinedInputs;
+        protected Value processedGradient;
+
+        public State(Combination combination) {
+            super(combination);
+        }
+
+        @Override
+        public void setupDimensions(Value value) {
+            this.combinedInputs = value.getForm();
+        }
+
+//        @Override
+//        public void ingestTopGradient(Value topGradient) {
+//            Value inputFcnDerivative = gradient();
+//            processedGradient = topGradient.elementTimes(inputFcnDerivative);       //elementTimes here - since the fcn to be differentiated was applied element-wise on a vector
+//        }
     }
 
 

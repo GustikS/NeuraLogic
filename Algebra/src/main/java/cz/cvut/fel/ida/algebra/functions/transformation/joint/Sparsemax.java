@@ -1,7 +1,7 @@
 package cz.cvut.fel.ida.algebra.functions.transformation.joint;
 
-import cz.cvut.fel.ida.algebra.functions.Aggregation;
-import cz.cvut.fel.ida.algebra.values.MatrixValue;
+import cz.cvut.fel.ida.algebra.functions.ActivationFcn;
+import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.VectorValue;
@@ -16,26 +16,15 @@ import java.util.logging.Logger;
 public class Sparsemax extends Softmax {
     private static final Logger LOG = Logger.getLogger(Sparsemax.class.getName());
 
-    public Sparsemax() {
-    }
-
     @Override
-    public Aggregation replaceWithSingleton() {
-        return Singletons.sparsemax;
+    public Transformation replaceWithSingleton() {
+        return Transformation.Singletons.sparsemax;
     }
 
     @Override
     public Value evaluate(List<Value> inputs) {
         double[] exps = getProbabilities(inputs);
         VectorValue output = new VectorValue(exps);
-        return output;
-    }
-
-    @Override
-    public Value differentiate(List<Value> inputs) {
-        double[] exps = getProbabilities(inputs);
-        double[][] diffs = getGradient(exps);
-        MatrixValue output = new MatrixValue(diffs);
         return output;
     }
 
@@ -120,5 +109,13 @@ public class Sparsemax extends Softmax {
     @Override
     public boolean isComplex() {
         return true;
+    }
+
+    @Override
+    public ActivationFcn.State getState(boolean singleInput) {
+        if (singleInput)
+            return new Sparsemax.TransformationState(Transformation.Singletons.sparsemax);
+        else
+            return new Sparsemax.CombinationState(Transformation.Singletons.sparsemax);
     }
 }

@@ -1,8 +1,5 @@
-package cz.cvut.fel.ida.algebra.functions.states;
+package cz.cvut.fel.ida.algebra.functions;
 
-import cz.cvut.fel.ida.algebra.functions.ActivationFcn;
-import cz.cvut.fel.ida.algebra.functions.Combination;
-import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.values.Value;
 import org.jetbrains.annotations.NotNull;
 

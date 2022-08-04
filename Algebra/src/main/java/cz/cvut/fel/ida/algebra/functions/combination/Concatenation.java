@@ -1,7 +1,8 @@
 package cz.cvut.fel.ida.algebra.functions.combination;
 
-import cz.cvut.fel.ida.algebra.functions.Aggregation;
+import cz.cvut.fel.ida.algebra.functions.ActivationFcn;
 import cz.cvut.fel.ida.algebra.functions.Combination;
+import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.VectorValue;
 
@@ -11,10 +12,26 @@ import java.util.logging.Logger;
 
 /**
  * It flattens/linearizes the input Values, hence the result is always a VectorValue!
- *  - to avoid the necessity to specify along which dimension to do the concat...       //todo make a parameterized version
+ * - to avoid the necessity to specify along which dimension to do the concat...       //todo make a parameterized version
  */
-public class Concatenation extends Combination {
+public class Concatenation implements Combination {
     private static final Logger LOG = Logger.getLogger(Concatenation.class.getName());
+
+    @Override
+    public Combination replaceWithSingleton() {
+        return Singletons.concatenation;
+    }
+
+    @Override
+    public Value evaluate(List<Value> inputs) {
+        List<Double> concat = new ArrayList<>();
+        for (Value input : inputs) {
+            for (Double val : input) {
+                concat.add(val);
+            }
+        }
+        return new VectorValue(concat);
+    }
 
     @Override
     public boolean isComplex() {
@@ -26,23 +43,36 @@ public class Concatenation extends Combination {
         return false;
     }
 
-    @Override
-    public Aggregation replaceWithSingleton() {
-        return Singletons.crossSum;
-    }
 
     @Override
-    public Value evaluate(List<Value> inputs) {
-        return concatenate(inputs);
+    public ActivationFcn.State getState(boolean singleInput) {
+        return new State(Singletons.concatenation);
     }
 
-    public static VectorValue concatenate(List<Value> inputs) {
-        List<Double> concat = new ArrayList<>();
-        for (Value input : inputs) {
-            for (Double val : input) {
-                concat.add(val);
-            }
+    public static class State extends Combination.InputArrayState {
+
+        public State(Combination combination) {
+            super(combination);
         }
-        return new VectorValue(concat);
+
+        @Override
+        public Value evaluate() {
+            return Singletons.concatenation.evaluate(accumulatedInputs);
+        }
+
+        @Override
+        public void ingestTopGradient(Value topGradient) {
+            processedGradient = topGradient;
+        }
+
+        /**
+         * Just sending down the next scalar from the gradient vector
+         *
+         * @return
+         */
+        @Override
+        public Value nextInputDerivative() {
+            return new ScalarValue(processedGradient.get(i++));
+        }
     }
 }

@@ -1,13 +1,25 @@
 package cz.cvut.fel.ida.algebra.functions;
 
-import cz.cvut.fel.ida.algebra.functions.states.CompoundState;
 import cz.cvut.fel.ida.algebra.functions.transformation.elementwise.Identity;
 import cz.cvut.fel.ida.algebra.values.Value;
+import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.logging.Logger;
 
+/**
+ *
+ * Steps for adding new activation/aggregation:
+ * 1) add definition of the function (evaluation+differentiation) by overriding {@link Transformation} or {@link Combination} class
+ * 2) create a static singleton in {@link Transformation} or {@link Combination} for reuse, if possible
+ * 3) update {@link Settings#parseCombination(String)} or {@link Settings#parseTransformation(String)} with the new option
+ * 4) if beneficial/required, create new State for the function in the same class
+ *      - see other similar function classes and copy
+ *
+ *
+ * Created by gusta on 8.3.17.
+ */
 public interface ActivationFcn {
     static final Logger LOG = Logger.getLogger(ActivationFcn.class.getName());
 
@@ -28,9 +40,9 @@ public interface ActivationFcn {
     /**
      * Get the corresponding state for (faster) online calculation (if applicable)
      *
-     * @param vectorized - whether to use Transformation or Combination interpretation of the function (e.g. SoftMax can be both)
+     * @param singleInput - whether to use Transformation or Combination interpretation of the function (e.g. SoftMax can be both)
      */
-    public abstract State getState(boolean vectorized);
+    public abstract State getState(boolean singleInput);
 
     /**
      * Return 2 values, lower bound and upper bound, beyond which the function is almost saturated
@@ -95,6 +107,7 @@ public interface ActivationFcn {
 
         /**
          * Process the top gradient through the custom logic of this function state
+         *
          * @param topGradient
          */
         void ingestTopGradient(Value topGradient);
@@ -113,7 +126,7 @@ public interface ActivationFcn {
          *
          * @return
          */
-        default int[] getInputMask(){
+        default int[] getInputMask() {
             return null;
         }
 
@@ -127,8 +140,8 @@ public interface ActivationFcn {
 
 
         static State getState(Combination combination, Transformation transformation) {
-            Combination.State combinationState;
-            Transformation.State transformationState;
+            State combinationState;
+            State transformationState;
 
             if (combination == null && transformation == null) {
                 LOG.severe("Trying to create a fcn state with no combination or transformation fcn");
@@ -140,8 +153,73 @@ public interface ActivationFcn {
             } else {
                 combinationState = combination.getState(false);
                 transformationState = transformation.getState(true);
-                return new CompoundState(combinationState, transformationState);
+                return new CompoundState((Combination.State) combinationState, (Transformation.State) transformationState);
             }
+        }
+    }
+
+    /**
+     * A dummy state for fact neurons (e.g. embeddings)
+     * - no value here, the value is stored straight in the States.SimpleValue state
+     */
+    public static class SimpleValueState implements ActivationFcn.State {
+
+        protected Value embedding;
+        Value currentGradient;
+
+        public SimpleValueState(Value embedding) {
+            this.embedding = embedding;
+        }
+
+        @Override
+        public void setupDimensions(Value value) {
+            embedding = value.getForm();
+        }
+
+        @Override
+        public void invalidate() {
+            //void - this is a value storage - the value should stay throughout the whole learning
+        }
+
+        @Override
+        public Value evaluate() {
+            LOG.warning("Calling evaluate on SimpleValueState");
+            return embedding;
+        }
+
+        @Override
+        public void cumulate(Value value) {
+            // no such thing here!
+        }
+
+        @Override
+        public void ingestTopGradient(Value topGradient) {
+            currentGradient = topGradient;
+        }
+
+        @Override
+        public Value nextInputDerivative() {
+            return currentGradient; // need to pass, not for inputs (there are none), but for the offset of the FactNeuron which actually stores the embedding Value
+        }
+
+        @Override
+        public Combination getCombination() {
+            return null;
+        }
+
+        @Override
+        public void setCombination(Combination combination) {
+            //void
+        }
+
+        @Override
+        public Transformation getTransformation() {
+            return null;
+        }
+
+        @Override
+        public void setTransformation(Transformation transformation) {
+            //void
         }
     }
 }

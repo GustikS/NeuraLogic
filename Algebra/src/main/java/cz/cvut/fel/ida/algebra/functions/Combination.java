@@ -1,17 +1,20 @@
 package cz.cvut.fel.ida.algebra.functions;
 
 import cz.cvut.fel.ida.algebra.functions.combination.*;
-import cz.cvut.fel.ida.algebra.functions.transformation.joint.SharpMax;
-import cz.cvut.fel.ida.algebra.functions.transformation.joint.SharpMin;
+import cz.cvut.fel.ida.algebra.functions.transformation.joint.Softmax;
+import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * Class representing combination functions
+ * Class representing combination functions from a List of Values to a single Value
+ *
+ * Also the gradient cannot generaly be just a single Value (see {@link Aggregation for that}
  */
 public interface Combination extends ActivationFcn, Exportable {
 
@@ -24,8 +27,6 @@ public interface Combination extends ActivationFcn, Exportable {
      * @return
      */
     public abstract Value evaluate(List<Value> inputs);
-
-    public abstract Value differentiate(List<Value> inputs);
 
     /**
      * The inputs can be permuted without affecting the result?
@@ -66,30 +67,15 @@ public interface Combination extends ActivationFcn, Exportable {
         public static ElementProduct elementProduct = new ElementProduct();
         public static CrossSum crossSum = new CrossSum();
         public static Concatenation concatenation = new Concatenation();
-        public static SharpMax max = new SharpMax();
-        public static SharpMin min = new SharpMin();
         public static CosineSim cosineSim = new CosineSim();
+        public static Softmax softmax = new Softmax();
     }
 
-    public abstract class State implements ActivationFcn.State {
+    public static abstract class State implements ActivationFcn.State {
         protected Combination combination;
 
-        protected Value combinedInputs;
-        protected Value processedGradient;
-
-        public State(Combination combination){
+        public State(Combination combination) {
             this.combination = combination;
-        }
-
-        @Override
-        public void invalidate() {
-            combinedInputs = null;
-            processedGradient = null;
-        }
-
-        @Override
-        public void setupDimensions(Value value) {
-            combinedInputs = value.getForm();
         }
 
         @Override
@@ -110,6 +96,39 @@ public interface Combination extends ActivationFcn, Exportable {
         @Override
         public void setTransformation(Transformation transformation) {
             LOG.severe("Trying to set Transformation in Combination.State");
+        }
+    }
+
+    abstract class InputArrayState extends State {
+        protected Value processedGradient;
+        protected ArrayList<Value> accumulatedInputs;
+        protected int i;
+
+        public InputArrayState(Combination combination) {
+            super(combination);
+        }
+
+
+        @Override
+        public void cumulate(Value value) {
+            accumulatedInputs.add(value);
+        }
+
+        @Override
+        public void invalidate() {
+            accumulatedInputs.clear();
+            i = 0;
+        }
+
+        /**
+         * Misusing the default functionality to pass the array dimension
+         *
+         * @param value
+         */
+        @Override
+        public void setupDimensions(Value value) {
+            accumulatedInputs = new ArrayList<Value>((int) ((ScalarValue) value).value);
+            i = 0;
         }
     }
 }

@@ -10,19 +10,6 @@ import java.util.logging.Logger;
 /**
  * Class representing simple activation functions, i.e. those that element-wise apply some non-linearity on top of some Value.
  * The non-linearity is provided via FunctionalInterface Function separately for evaluation and derivative/gradient.
- * <p>
- * Steps for adding new activation/aggregation:
- * 1) add definition of the function (evaluation+differentiation) by overriding {@link ElementWise} or {@link Aggregation} class
- * 2) create a static singleton in {@link ElementWise} or {@link Aggregation} for reuse, if possible
- * 3) update {@link ElementWise#parseFrom(String)} and {@link ElementWise#getFunction(Settings.ActivationFcn)} with the new option
- * 4) if beneficial/required, create new computation state in {cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.AggregationState} for the function
- * 5) if the function requires special backprop treatment, create new Visitors.Down propagator and update ComplexDown with the option
- * 6) assign the specific State corresponding to the function in {cz.cvut.fel.ida.neural.networks.structure.building.builders.StatesBuilder#getAggregationState} if created
- * 7) update dimensionality inference in {cz.cvut.fel.ida.neural.networks.structure.building.builders.StatesBuilder} if necessary
- *
- *
- * <p>
- * Created by gusta on 8.3.17.
  */
 public abstract class ElementWise implements Transformation {
     private static final Logger LOG = Logger.getLogger(ElementWise.class.getName());

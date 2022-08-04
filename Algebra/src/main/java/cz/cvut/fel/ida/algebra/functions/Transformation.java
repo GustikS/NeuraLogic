@@ -38,8 +38,6 @@ public interface Transformation extends ActivationFcn, Exportable {
         switch (transformation) {
             case TRANSP:
                 return Singletons.transposition;
-            case SIZE:
-                return Singletons.size;
             case SOFTMAX:
                 return Singletons.softmax;
             case SPARSEMAX:
@@ -54,10 +52,6 @@ public interface Transformation extends ActivationFcn, Exportable {
         public static Softmax softmax = new Softmax();
         public static Sparsemax sparsemax = new Sparsemax();
 
-        public static SharpMax sharpmax = new SharpMax();
-        public static SharpMin sharpmin = new SharpMin();
-
-        public static Size size = new Size();
         public static Transposition transposition = new Transposition();
     }
 
@@ -67,7 +61,7 @@ public interface Transformation extends ActivationFcn, Exportable {
         Transformation transformation;
 
         protected Value input;
-        Value processedGradient;
+        protected Value processedGradient;
 
         public State(Transformation transformation){
             this.transformation = transformation;
@@ -129,4 +123,6 @@ public interface Transformation extends ActivationFcn, Exportable {
             LOG.severe("Trying to set Combination in Transformation.State");
         }
     }
+
+
 }

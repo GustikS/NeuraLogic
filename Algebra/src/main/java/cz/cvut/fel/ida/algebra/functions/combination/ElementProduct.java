@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.algebra.functions.combination;
 
-import cz.cvut.fel.ida.algebra.functions.Aggregation;
+import cz.cvut.fel.ida.algebra.functions.ActivationFcn;
+import cz.cvut.fel.ida.algebra.functions.Combination;
 import cz.cvut.fel.ida.algebra.values.Value;
 
 import java.util.List;
@@ -18,11 +19,12 @@ public class ElementProduct extends Product {
     }
 
     @Override
-    public Aggregation replaceWithSingleton() {
+    public Combination replaceWithSingleton() {
         return Singletons.elementProduct;
     }
 
-    public Value multiplyInputs(List<Value> inputs) {
+    @Override
+    public Value evaluate(List<Value> inputs) {
         int[] size = inputs.get(0).size();
         /*
         for (int i = 0; i < inputs.size(); i++) {
@@ -37,5 +39,44 @@ public class ElementProduct extends Product {
             mult.elementMultiplyBy(inputs.get(i));
         }
         return mult;
+    }
+
+    @Override
+    public ActivationFcn.State getState(boolean singleInput) {
+        return new State(Singletons.elementProduct);
+    }
+
+    public static class State extends InputArrayState {
+
+        Value combinedInputs;
+
+        public State(Combination combination) {
+            super(combination);
+        }
+
+        @Override
+        public Value evaluate() {
+            combinedInputs = Singletons.elementProduct.evaluate(accumulatedInputs);
+            return combinedInputs;
+        }
+
+        @Override
+        public void invalidate() {
+            super.invalidate();
+            combinedInputs = null;
+        }
+
+        @Override
+        public void ingestTopGradient(Value topGradient) {
+            processedGradient = topGradient;
+        }
+
+        @Override
+        public Value nextInputDerivative() {
+//            Value gradient = combinedInputs.transposedView().elementDivideBy(accumulatedInputs.get(i++)); // check if transposition needed??
+            Value gradient = combinedInputs.elementDivideBy(accumulatedInputs.get(i++));
+            gradient.elementMultiplyBy(processedGradient);
+            return gradient;
+        }
     }
 }

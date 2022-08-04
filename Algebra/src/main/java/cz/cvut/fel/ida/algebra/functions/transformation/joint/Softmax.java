@@ -9,7 +9,6 @@ import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.VectorValue;
 import cz.cvut.fel.ida.utils.math.VectorUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -50,14 +49,6 @@ public class Softmax implements Transformation, Combination, XMax {
     public Value evaluate(List<Value> inputs) {
         double[] exps = getProbabilities(inputs);
         VectorValue output = new VectorValue(exps);
-        return output;
-    }
-
-    @Override
-    public Value differentiate(List<Value> inputs) {
-        double[] exps = getProbabilities(inputs);
-        double[][] diffs = getGradient(exps);
-        MatrixValue output = new MatrixValue(diffs);
         return output;
     }
 
@@ -134,68 +125,39 @@ public class Softmax implements Transformation, Combination, XMax {
     }
 
     @Override
-    public ActivationFcn.State getState(boolean singleInputValue) {
-        if (singleInputValue)
-            return new TransformationState();
+    public ActivationFcn.State getState(boolean singleInput) {
+        if (singleInput)
+            return new TransformationState(Transformation.Singletons.softmax);
         else
-            return new CombinationState();
+            return new CombinationState(Transformation.Singletons.softmax); //let's reuse the same Transformation singleton in both cases
     }
 
     public static class TransformationState extends Transformation.State {
 
-        double[] probabilities;
-
-        public TransformationState() {
-            super(Transformation.Singletons.softmax);
+        public TransformationState(Transformation transformation) {
+            super(transformation);
         }
-
-        @Override
-        public void invalidate() {
-            super.invalidate();
-            probabilities = null;
-        }
-
-        @Override
-        public Value evaluate() {
-            probabilities = Transformation.Singletons.softmax.getProbabilities(((VectorValue) input).values);
-            return new VectorValue(probabilities);
-        }
-
-        @Override
-        public Value gradient() {
-            double[][] gradient = Transformation.Singletons.softmax.getGradient(probabilities);
-            return new MatrixValue(gradient);
-        }
-
     }
 
-    public static class CombinationState extends Combination.State {
+    public static class CombinationState extends Combination.InputArrayState {
 
-        ArrayList<Value> accumulatedInputs;
         double[] probabilities;
-        int i = 0;
 
-        public CombinationState() {
-            super(Transformation.Singletons.softmax);
+        public CombinationState(Combination combination) {
+            super(combination);
         }
 
         @Override
         public void invalidate() {
             super.invalidate();
-            accumulatedInputs.clear();
             probabilities = null;
-            i = 0;
         }
 
         @Override
         public Value evaluate() {
-            probabilities = Transformation.Singletons.softmax.getProbabilities(accumulatedInputs);
+            XMax xMax = (XMax) combination;
+            probabilities = xMax.getProbabilities(accumulatedInputs);
             return new VectorValue(probabilities);
-        }
-
-        @Override
-        public void cumulate(Value value) {
-            accumulatedInputs.add(value);
         }
 
         @Override
@@ -210,7 +172,8 @@ public class Softmax implements Transformation, Combination, XMax {
         }
 
         public Value gradient() {
-            double[][] gradient = Transformation.Singletons.softmax.getGradient(probabilities);
+            XMax xMax = (XMax) combination;
+            double[][] gradient = xMax.getGradient(probabilities);
             return new MatrixValue(gradient);
         }
     }
