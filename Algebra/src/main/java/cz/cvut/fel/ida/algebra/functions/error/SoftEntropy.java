@@ -1,7 +1,7 @@
 package cz.cvut.fel.ida.algebra.functions.error;
 
 import cz.cvut.fel.ida.algebra.functions.ErrorFcn;
-import cz.cvut.fel.ida.algebra.functions.transformation.joint.Softmax;
+import cz.cvut.fel.ida.algebra.functions.combination.Softmax;
 import cz.cvut.fel.ida.algebra.functions.transformation.elementwise.Sigmoid;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;

@@ -25,7 +25,7 @@ public class Product implements Combination {
     }
 
     @Override
-    public boolean isInputSymmetric() {
+    public boolean isPermutationInvariant() {
         return false;
     }
 

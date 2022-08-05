@@ -100,12 +100,7 @@ public class Count implements Aggregation {
 
         @Override
         public void ingestTopGradient(Value topGradient) {
-            //void
-        }
-
-        @Override
-        public Value nextInputDerivative() {
-            return Value.ZERO;  //here we really want to stop the gradient flow!
+            processedGradient = Value.ZERO;     //here we really want to stop the gradient flow!
         }
     }
 }

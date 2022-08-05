@@ -59,7 +59,7 @@ public class CosineSim implements Combination {
     }
 
     @Override
-    public boolean isInputSymmetric() {
+    public boolean isPermutationInvariant() {
         return false;
     }
 

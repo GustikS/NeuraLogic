@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.algebra.functions;
 
-import cz.cvut.fel.ida.algebra.functions.transformation.joint.Sparsemax;
+import cz.cvut.fel.ida.algebra.functions.combination.Sparsemax;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.utils.generic.TestAnnotations;

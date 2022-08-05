@@ -8,10 +8,13 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * Class representing general functions that take some (possibly sorted) set of input Values. It is able to evaluate and differentiate.
- * This is a generalization of Activation. If it is sufficient to apply the function to the mere summation of the inputs,
- * i.e. if the inputs are always summed up at first and then some non-linearity applied to the sum, use Activation class instead,
- * which is based on providing existing Function<Double, Double> processing, while here the calculation must be implemented via inheritance.
+ * Class representing general {@link Combination} functions that take some (unsorted) set of input Values and produce a single Value.
+ * These are commonly input permutation invariant and can operate on variable-sized input lists (as opposed to pure Combination fcns).
+ * Hence, they can also produce a single gradient Value (to be sent to all the inputs the same).
+ *
+ * Additionally, these functions can also be used as {@link Transformation}.
+ * The interpretation is that the same logic is performed on the individual numbers of the input Value (vector) instead of the list.
+ *
  */
 public interface Aggregation extends Combination, Transformation {
     static final Logger LOG = Logger.getLogger(Aggregation.class.getName());
@@ -22,7 +25,7 @@ public interface Aggregation extends Combination, Transformation {
      * @return
      */
     @Override
-    default boolean isInputSymmetric() {
+    default boolean isPermutationInvariant() {
         return true;
     }
 
@@ -75,11 +78,6 @@ public interface Aggregation extends Combination, Transformation {
             this.combinedInputs = value.getForm();
         }
 
-//        @Override
-//        public void ingestTopGradient(Value topGradient) {
-//            Value inputFcnDerivative = gradient();
-//            processedGradient = topGradient.elementTimes(inputFcnDerivative);       //elementTimes here - since the fcn to be differentiated was applied element-wise on a vector
-//        }
     }
 
 

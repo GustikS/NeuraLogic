@@ -1,5 +1,7 @@
 package cz.cvut.fel.ida.algebra.functions;
 
+import cz.cvut.fel.ida.algebra.functions.combination.Softmax;
+import cz.cvut.fel.ida.algebra.functions.combination.Sparsemax;
 import cz.cvut.fel.ida.algebra.functions.transformation.joint.*;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
@@ -8,7 +10,10 @@ import cz.cvut.fel.ida.utils.exporting.Exportable;
 import java.util.logging.Logger;
 
 /**
- * Class representing (arbitrary) transformation of a single Value to a single Value
+ * Class representing (arbitrary) transformation of a single Value to a single Value.
+ * It can be evaluated and differentiated on the input Value, returning also a single Value.
+ *
+ * If it can be also used as a Combination fcn, it is placed in that package preferably (but implements both interfaces, e.g. Softmax)
  */
 public interface Transformation extends ActivationFcn, Exportable {
 
@@ -58,7 +63,7 @@ public interface Transformation extends ActivationFcn, Exportable {
 
     public static abstract class State implements ActivationFcn.State {
 
-        Transformation transformation;
+        protected Transformation transformation;
 
         protected Value input;
         protected Value processedGradient;

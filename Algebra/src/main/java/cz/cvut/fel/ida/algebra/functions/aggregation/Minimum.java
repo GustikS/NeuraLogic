@@ -93,7 +93,7 @@ public class Minimum implements Aggregation {
     }
 
     @Override
-    public boolean isInputSymmetric() {
+    public boolean isPermutationInvariant() {
         return true;
     }
 

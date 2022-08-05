@@ -1,4 +1,4 @@
-package cz.cvut.fel.ida.algebra.functions.transformation.joint;
+package cz.cvut.fel.ida.algebra.functions.combination;
 
 import cz.cvut.fel.ida.algebra.functions.ActivationFcn;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
@@ -102,7 +102,7 @@ public class Sparsemax extends Softmax {
     }
 
     @Override
-    public boolean isInputSymmetric() {
+    public boolean isPermutationInvariant() {
         return false;
     }
 

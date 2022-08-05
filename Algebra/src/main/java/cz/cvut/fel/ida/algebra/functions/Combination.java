@@ -1,7 +1,7 @@
 package cz.cvut.fel.ida.algebra.functions;
 
 import cz.cvut.fel.ida.algebra.functions.combination.*;
-import cz.cvut.fel.ida.algebra.functions.transformation.joint.Softmax;
+import cz.cvut.fel.ida.algebra.functions.combination.Softmax;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
@@ -12,9 +12,10 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * Class representing combination functions from a List of Values to a single Value
+ * Class representing general Combination functions from a List of Values to a single Value.
  *
- * Also the gradient cannot generaly be just a single Value (see {@link Aggregation for that}
+ * Also the gradient cannot generaly be just a single Value (see {@link Aggregation for that}.
+ * These Combination functions commonly have a fixed-size list of inputs (otherwise see {@link Aggregation for variable-sized input lists}.
  */
 public interface Combination extends ActivationFcn, Exportable {
 
@@ -34,7 +35,7 @@ public interface Combination extends ActivationFcn, Exportable {
      *
      * @return
      */
-    public abstract boolean isInputSymmetric();
+    public abstract boolean isPermutationInvariant();
 
     public static Combination getFunction(Settings.CombinationFcn combinationFcn) {
         Aggregation function = Aggregation.getFunction(combinationFcn);

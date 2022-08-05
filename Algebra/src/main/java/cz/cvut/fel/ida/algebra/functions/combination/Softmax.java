@@ -1,8 +1,9 @@
-package cz.cvut.fel.ida.algebra.functions.transformation.joint;
+package cz.cvut.fel.ida.algebra.functions.combination;
 
 import cz.cvut.fel.ida.algebra.functions.ActivationFcn;
 import cz.cvut.fel.ida.algebra.functions.Combination;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
+import cz.cvut.fel.ida.algebra.functions.transformation.joint.XMax;
 import cz.cvut.fel.ida.algebra.values.MatrixValue;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
@@ -34,6 +35,12 @@ public class Softmax implements Transformation, Combination, XMax {
         }
     }
 
+    /**
+     * Inefficient, we should remember the probabilities
+     *
+     * @param summedInputs
+     * @return
+     */
     public Value differentiate(Value summedInputs) {
         if (summedInputs instanceof VectorValue) {
             VectorValue inputVector = (VectorValue) summedInputs;
@@ -45,6 +52,12 @@ public class Softmax implements Transformation, Combination, XMax {
         }
     }
 
+    /**
+     * We assume a list of ScalarValues here!
+     *
+     * @param inputs
+     * @return
+     */
     @Override
     public Value evaluate(List<Value> inputs) {
         double[] exps = getProbabilities(inputs);
@@ -115,7 +128,7 @@ public class Softmax implements Transformation, Combination, XMax {
     }
 
     @Override
-    public boolean isInputSymmetric() {
+    public boolean isPermutationInvariant() {
         return false;
     }
 
@@ -134,8 +147,29 @@ public class Softmax implements Transformation, Combination, XMax {
 
     public static class TransformationState extends Transformation.State {
 
+        double[] probabilities;
+
         public TransformationState(Transformation transformation) {
             super(transformation);
+        }
+
+        @Override
+        public void invalidate() {
+            super.invalidate();
+            probabilities = null;
+        }
+
+        @Override
+        public Value evaluate() {
+            XMax xMax = (XMax) transformation;
+            probabilities = xMax.getProbabilities(((VectorValue) input).values);
+            return new VectorValue(probabilities);
+        }
+
+        public Value gradient() {
+            XMax xMax = (XMax) transformation;
+            double[][] gradient = xMax.getGradient(probabilities);
+            return new MatrixValue(gradient);
         }
     }
 

@@ -58,7 +58,7 @@ public class CrossSum implements Combination {
     }
 
     @Override
-    public boolean isInputSymmetric() {
+    public boolean isPermutationInvariant() {
         return false;   // changing the number of inputs in crossproduct is problematic...
     }
 

@@ -9,6 +9,7 @@ import cz.cvut.fel.ida.utils.generic.Pair;
 import java.util.logging.Logger;
 
 /**
+ * The most general interface for all activation functions
  *
  * Steps for adding new activation/aggregation:
  * 1) add definition of the function (evaluation+differentiation) by overriding {@link Transformation} or {@link Combination} class
@@ -63,6 +64,8 @@ public interface ActivationFcn {
     }
 
     /**
+     * The most general interface for all activation function States
+     *
      * This is to facilitate the fact that each function behaves differently w.r.t. online calculation, i.e. when inputs
      * are not all given at once, but need to be sequentially accumulated. For instance, when iterating inputs for the MAX
      * aggregation function, we need to remember the current maxValue and index, while for Sigmoid it is sufficient to
@@ -159,8 +162,8 @@ public interface ActivationFcn {
     }
 
     /**
-     * A dummy state for fact neurons (e.g. embeddings)
-     * - no value here, the value is stored straight in the States.SimpleValue state
+     * A dummy state for FactNeurons (e.g. embeddings)
+     *  - can be learnable!
      */
     public static class SimpleValueState implements ActivationFcn.State {
 
