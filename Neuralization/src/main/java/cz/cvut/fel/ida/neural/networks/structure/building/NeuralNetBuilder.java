@@ -1,6 +1,5 @@
 package cz.cvut.fel.ida.neural.networks.structure.building;
 
-import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
@@ -10,7 +9,6 @@ import cz.cvut.fel.ida.logic.constructs.template.components.GroundRule;
 import cz.cvut.fel.ida.neural.networks.structure.building.builders.StatesBuilder;
 import cz.cvut.fel.ida.neural.networks.structure.components.NeuralSets;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.BaseNeuron;
-import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.WeightedNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.*;
@@ -83,9 +81,6 @@ public class NeuralNetBuilder {
             } else {
                 headAtomNeuron = neuralBuilder.neuronFactory.createUnweightedAtomNeuron(liftedRule.getKey().weightedRule.getHead(), head);
                 createdNeurons.atomNeurons.add((AtomNeuron) headAtomNeuron);
-            }
-            if (hasComplexActivation(headAtomNeuron)) {   //the neuron will require complex input propagation
-                neuronMaps.containsComplexActivations = true;
             }
             if (headAtomNeuron.getComputationView(0).getFcnState().getInputMask() != null) { // also atom neurons may now require input masking!
                 neuronMaps.containsMasking = true;
@@ -162,9 +157,6 @@ public class NeuralNetBuilder {
                         ruleNeuron = neuralBuilder.neuronFactory.createRuleNeuron(grounding);
                         createdNeurons.ruleNeurons.add((RuleNeuron) ruleNeuron);
                     }
-                    if (hasComplexActivation(ruleNeuron)) {   //the neuron will require complex input propagation
-                        neuronMaps.containsComplexActivations = true;
-                    }
                     if (ruleNeuron.getComputationView(0).getFcnState().getInputMask() != null) { // also rule neurons may now require input masking!
                         neuronMaps.containsMasking = true;
                     }
@@ -183,10 +175,6 @@ public class NeuralNetBuilder {
         }
     }
 
-    public static boolean hasComplexActivation(Neurons neuron) {
-        Aggregation aggregation = neuron.getComputationView(0).getFcnState().getCombination();
-        return aggregation.isComplex();
-    }
 
     /**
      * Create FactNeurons mapped back to ground Literals
@@ -257,6 +245,8 @@ public class NeuralNetBuilder {
      * This is only meant to go through the most necessary postprocessing steps to make for a valid neural network.
      * For the more advanced postprocessing optimization there is a whole configurable pipeline in {NeuralNetsBuilder}
      *
+     * todo now now detect neurons with a single input and replace their compound states with a transformation state
+     *
      * @return
      */
     public DetailedNetwork finalizeStoredNetwork(String id, NeuralSets createdNeurons, List<Literal> queryMatchingLiterals) throws RuntimeException {
@@ -306,9 +296,6 @@ public class NeuralNetBuilder {
             statesBuilder.setupDropoutStates(neuralNetwork);  //setup individual dropout rates for each neuron
         }
 
-        if (getNeuronMaps().containsComplexActivations) {
-            neuralNetwork.containsComplexActivations = true;
-        }
         if (getNeuronMaps().containsMasking) {
             neuralNetwork.containsInputMasking = true;
         }

@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.algebra.functions;
 
-import cz.cvut.fel.ida.algebra.functions.transformation.elementwise.Identity;
+import cz.cvut.fel.ida.algebra.functions.transformation.joint.Identity;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
@@ -10,15 +10,15 @@ import java.util.logging.Logger;
 
 /**
  * The most general interface for all activation functions
- *
+ * <p>
  * Steps for adding new activation/aggregation:
  * 1) add definition of the function (evaluation+differentiation) by overriding {@link Transformation} or {@link Combination} class
  * 2) create a static singleton in {@link Transformation} or {@link Combination} for reuse, if possible
  * 3) update {@link Settings#parseCombination(String)} or {@link Settings#parseTransformation(String)} with the new option
  * 4) if beneficial/required, create new State for the function in the same class
- *      - see other similar function classes and copy
- *
- *
+ * - see other similar function classes and copy
+ * <p>
+ * <p>
  * Created by gusta on 8.3.17.
  */
 public interface ActivationFcn {
@@ -65,7 +65,7 @@ public interface ActivationFcn {
 
     /**
      * The most general interface for all activation function States
-     *
+     * <p>
      * This is to facilitate the fact that each function behaves differently w.r.t. online calculation, i.e. when inputs
      * are not all given at once, but need to be sequentially accumulated. For instance, when iterating inputs for the MAX
      * aggregation function, we need to remember the current maxValue and index, while for Sigmoid it is sufficient to
@@ -121,7 +121,7 @@ public interface ActivationFcn {
          *
          * @return
          */
-        Value nextInputDerivative();
+        Value nextInputGradient();
 
         /**
          * If the activation applies to inly a subset of the input values, this return an array of the corresponding indices.
@@ -147,13 +147,13 @@ public interface ActivationFcn {
             State transformationState;
 
             if (combination == null && transformation == null) {
-                LOG.severe("Trying to create a fcn state with no combination or transformation fcn");
+                LOG.severe("Trying to create a fcn state with no combination or transformation fcn");   // FactNeurons with no activation fcns get their states directly - not through this function
                 return null;
-            } else if (transformation == null || transformation instanceof Identity) {
-                return combination.getState(false);
-            } else if (combination == null) {
+            } else if (combination == null) {   // negation neurons (and maybe other single-input neurons in future)
                 return transformation.getState(true);
-            } else {
+            } else if (transformation == null || transformation instanceof Identity) {
+                return combination.getState(false);     // aggregation neurons AND newly other neurons with no non-linearity on top
+            } else {    //  neurons with both combination and transformation on top (e.g. SUM + Tanh)
                 combinationState = combination.getState(false);
                 transformationState = transformation.getState(true);
                 return new CompoundState((Combination.State) combinationState, (Transformation.State) transformationState);
@@ -163,7 +163,7 @@ public interface ActivationFcn {
 
     /**
      * A dummy state for FactNeurons (e.g. embeddings)
-     *  - can be learnable!
+     * - can be learnable!
      */
     public static class SimpleValueState implements ActivationFcn.State {
 
@@ -201,7 +201,7 @@ public interface ActivationFcn {
         }
 
         @Override
-        public Value nextInputDerivative() {
+        public Value nextInputGradient() {
             return currentGradient; // need to pass, not for inputs (there are none), but for the offset of the FactNeuron which actually stores the embedding Value
         }
 

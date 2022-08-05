@@ -3,7 +3,6 @@ package cz.cvut.fel.ida.neural.networks.structure.components.neurons.states;
 import cz.cvut.fel.ida.algebra.functions.ActivationFcn;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.functions.Combination;
-import cz.cvut.fel.ida.algebra.functions.states.AggregationState;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.Backpropagation;
@@ -37,7 +36,7 @@ public abstract class States implements State {
      */
     public static final class ComputationStateComposite<T extends Neural.Computation> implements Neural<Value> {
         public final T[] states;
-        Aggregation aggregation;
+        Combination combination;
         Transformation transformation;
 
         public ComputationStateComposite(T[] states) {
@@ -50,23 +49,23 @@ public abstract class States implements State {
         }
 
         @Override
-        public Aggregation getCombination() {
-            return aggregation;
+        public Combination getCombination() {
+            return combination;
         }
 
         @Override
-        public void setCombination(Aggregation aggregation) {
-            this.aggregation = aggregation;
+        public void setCombination(Combination combination) {
+            this.combination = combination;
         }
 
         @Override
-        public Aggregation getTransformation() {
+        public Transformation getTransformation() {
             return transformation;
         }
 
         @Override
         public void setTransformation(Transformation transformation) {
-            this.transformation = this.transformation;
+            this.transformation = transformation;
         }
 
         public Value accept(StateVisiting.Computation visitor) {
@@ -96,7 +95,7 @@ public abstract class States implements State {
 
         public ComputationStateStandard(Combination combination, Transformation transformation) {
 //            state = StatesBuilder.getAggregationState(combination, transformation);
-              fcnState = ActivationFcn.State.getState(combination,transformation);
+            fcnState = ActivationFcn.State.getState(combination, transformation);
         }
 
         @Override
@@ -112,12 +111,12 @@ public abstract class States implements State {
         }
 
         @Override
-        public void setCombination(Aggregation aggregation) {
-            this.fcnState.setCombination(aggregation);
+        public void setCombination(Combination combination) {
+            this.fcnState.setCombination(combination);
         }
 
         @Override
-        public Aggregation getTransformation() {
+        public Transformation getTransformation() {
             return fcnState.getTransformation();
         }
 
@@ -128,7 +127,7 @@ public abstract class States implements State {
 
         @Override
         public ComputationStateStandard clone() {
-            ComputationStateStandard clone = new ComputationStateStandard(fcnState.getCombination());
+            ComputationStateStandard clone = new ComputationStateStandard(fcnState.getCombination(), fcnState.getTransformation());
             clone.outputValue = this.outputValue.clone();
             clone.acumGradient = this.acumGradient.clone();
             return clone;
@@ -147,7 +146,7 @@ public abstract class States implements State {
         }
 
         @Override
-        public Aggregation.State getFcnState() {
+        public ActivationFcn.State getFcnState() {
             return fcnState;
         }
 
@@ -188,13 +187,13 @@ public abstract class States implements State {
 
         Value outputValue;  // the Value is stored right here
         Value acumGradient; // also the gradient
-        Aggregation.State aggregationState;  // this state is just dummy (no computation there)
-        public boolean isLearnable = false;
+        ActivationFcn.SimpleValueState fcnState;  // this state is just dummy (no computation there)
+        public boolean isLearnable = false;     //not learnable by default
 
         public SimpleValue(Value factValue) {
             outputValue = factValue;
             acumGradient = factValue.getForm();
-            aggregationState = new AggregationState.SimpleValueState();
+            fcnState = new ActivationFcn.SimpleValueState(factValue);
         }
 
         @Override
@@ -215,9 +214,8 @@ public abstract class States implements State {
         }
 
         @Override
-        public Aggregation.State getFcnState() {
-//            LOG.severe("Fact neurons cannot be evaluated, you can only obtain the value via getResult!");
-            return aggregationState;
+        public ActivationFcn.SimpleValueState getFcnState() {
+            return fcnState;
         }
 
         @Override
@@ -259,14 +257,13 @@ public abstract class States implements State {
         }
 
         @Override
-        public Aggregation getCombination() {
-//            LOG.warning("FactNeurons have no aggregation.");
+        public Combination getCombination() {
             return null;
         }
 
         @Override
-        public void setCombination(Aggregation aggregation) {
-            LOG.warning("FactNeurons have no Aggregation.");
+        public void setCombination(Combination combination) {
+            LOG.warning("FactNeurons have no Combination.");
         }
 
         @Override

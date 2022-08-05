@@ -34,7 +34,7 @@ public class NeuronFactory {
     private Weight atomOffset;
     private Weight ruleOffset;
 
-    private Value defaultFactValue = Value.ONE;
+    private Value defaultFactValue;
 
     /**
      * A mapping from ground literals and ground rules to respective neurons, which will be incrementally modified during the building process
@@ -48,6 +48,8 @@ public class NeuronFactory {
         ruleOffset = new Weight(-9, "fixedRuleOffset", new ScalarValue(settings.defaultRuleNeuronOffset), true, true);
         if (settings.defaultFactValue != 1) {
             defaultFactValue = new ScalarValue(settings.defaultFactValue);
+        } else {
+            defaultFactValue = Value.ONE;
         }
     }
 
@@ -139,7 +141,7 @@ public class NeuronFactory {
     public FactNeuron createFactNeuron(ValuedFact fact) {
         FactNeuron result = neuronMaps.factNeurons.get(fact.literal);
         if (result == null) {    //fact neuron might have been created already and for them it is ok
-            States.SimpleValue simpleValue = new States.SimpleValue(fact.getValue() == null ? this.defaultFactValue : fact.getValue());
+            States.SimpleValue simpleValue = new States.SimpleValue(fact.getValue() == null ? this.defaultFactValue : fact.getValue());     //todo this is incompatible with ParentCounter state for Fact neurons...
             FactNeuron factNeuron = new FactNeuron(fact.toString(), fact.weight, counter++, simpleValue);
             if (fact.weight != null && fact.weight.isLearnable()) {
                 factNeuron.hasLearnableValue = true;

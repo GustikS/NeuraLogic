@@ -60,11 +60,6 @@ public class NeuralNetwork<N extends State.Neural.Structure> implements Example 
     public boolean containsInputMasking; //todo test template with Max aggregation
 
     /**
-     * Whether there are neurons which propagate values to inputs in non-standard manner (requires special visitors)
-     */
-    public boolean containsComplexActivations;
-
-    /**
      * A structure to store States and Search for neurons within this network (if available)
      */
     @Nullable

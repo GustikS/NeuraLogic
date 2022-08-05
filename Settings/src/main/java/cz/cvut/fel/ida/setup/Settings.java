@@ -775,8 +775,8 @@ public class Settings implements Serializable {
     }
 
     public enum TransformationFcn {
-        SIGMOID, TANH, SIGNUM, LUKASIEWICZ, RELU, LEAKYRELU, IDENTITY, REVERSE, INVERSE, EXP, SQRT,     //ActivationFcn
-        TRANSP, SOFTMAX, SPARSEMAX, MAX, MIN;    //TransformationFcn
+        SIGMOID, TANH, SIGNUM, LUKASIEWICZ, RELU, LEAKYRELU, REVERSE, INVERSE, EXP, SQRT,     //ActivationFcn
+        IDENTITY, TRANSP, SOFTMAX, SPARSEMAX, MAX, MIN;    //TransformationFcn
     }
 
     public static CombinationFcn parseCombination(String combination) {

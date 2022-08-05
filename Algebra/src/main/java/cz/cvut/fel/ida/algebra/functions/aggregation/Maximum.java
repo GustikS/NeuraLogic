@@ -156,7 +156,7 @@ public class Maximum implements Aggregation {
          * @return
          */
         @Override
-        public Value nextInputDerivative() {
+        public Value nextInputGradient() {
 //            LOG.warning("Calling nextInputDerivative in Max pooling");
 //            return null;
             if (maxIndex == currentIndex++) {

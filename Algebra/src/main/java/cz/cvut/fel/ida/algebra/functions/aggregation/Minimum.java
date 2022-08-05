@@ -155,7 +155,7 @@ public class Minimum implements Aggregation {
          * @return
          */
         @Override
-        public Value nextInputDerivative() {
+        public Value nextInputGradient() {
 //            LOG.warning("Calling nextInputDerivative in Min pooling");
 //            return null;
             if (minIndex == currentIndex++) {

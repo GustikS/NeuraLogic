@@ -1,20 +1,20 @@
 package cz.cvut.fel.ida.logic.grounding;
 
-import cz.cvut.fel.ida.algebra.functions.Aggregation;
+import cz.cvut.fel.ida.algebra.functions.Combination;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.logic.HornClause;
 import cz.cvut.fel.ida.logic.Literal;
-import cz.cvut.fel.ida.logic.constructs.example.LiftedExample;
-import cz.cvut.fel.ida.logic.grounding.bottomUp.BottomUp;
 import cz.cvut.fel.ida.logic.constructs.building.factories.WeightFactory;
+import cz.cvut.fel.ida.logic.constructs.example.LiftedExample;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
 import cz.cvut.fel.ida.logic.constructs.template.components.WeightedRule;
+import cz.cvut.fel.ida.logic.grounding.bottomUp.BottomUp;
+import cz.cvut.fel.ida.logic.grounding.topDown.TopDown;
+import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.utils.generic.Timing;
-import cz.cvut.fel.ida.logic.grounding.topDown.TopDown;
-import cz.cvut.fel.ida.setup.Settings;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -140,7 +140,7 @@ public abstract class Grounder implements Exportable {
      * @return
      */
     private ValuedFact merge2facts(ValuedFact a, ValuedFact b) {
-        Aggregation factAggregation = Aggregation.getAggregation(settings.factMergeActivation);
+        Combination factAggregation = Combination.getFunction(settings.factMergeActivation);
         Value evaluation = factAggregation.evaluate(Arrays.asList(a.getValue(), b.getValue()));
         return new ValuedFact(a.getOffsettedPredicate(), a.getLiteral().termList(), a.getLiteral().isNegated(), weightFactory.construct("foo", evaluation, true, true));
     }

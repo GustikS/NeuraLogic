@@ -43,11 +43,6 @@ public class NeuronMaps {
      */
     public boolean containsMasking;
 
-    /**
-     * Does the network contain any neuron that combines its inputs via crossproduct scheme (i.e. requires complex gradient propagation)?
-     */
-    public boolean containsComplexActivations;
-
     public NeuronMaps(LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules, Map<Literal, ValuedFact> groundFacts) {
         this.groundRules = new LinkedHashMap<>(groundRules);
         this.groundFacts = new HashMap<>(groundFacts);

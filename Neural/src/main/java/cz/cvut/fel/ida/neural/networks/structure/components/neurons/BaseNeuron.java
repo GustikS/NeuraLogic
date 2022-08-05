@@ -58,12 +58,14 @@ public abstract class BaseNeuron<T extends Neurons, S extends State.Neural> impl
     public boolean sharedAfterCreation;
     /**
      * We want fast iteration over inputs - todo test - consider array here with grounder storing the inputMappings in a list first
+     * FactNeurons have no inputs - represented by an empty list rather than null, so that we do not need to check for null everywhere (that should not add too much extra memory)
+     *  - note that FactNeurons are not iterated if their Value is not learnable...
+     * todo test - consider a special class of neurons with a single input (postprocess) to avoid the iteration in many cases?
      */
     @NotNull
-    // FactNeurons have no inputs - represented by an empty list rather than null, so that we do not need to check for null everywhere (that should not add too much extra memory)
     protected ArrayList<T> inputs;
     /**
-     * Depth of this neuron. Might be useful e.g. for Dropout or some transformations. todo
+     * Depth of this neuron. Might be useful e.g. for Dropout or some transformations. todo unused
      */
     public int layer;
 
@@ -81,6 +83,7 @@ public abstract class BaseNeuron<T extends Neurons, S extends State.Neural> impl
         inputs.add(input);
     }
 
+    @NotNull
     @Override
     public final ArrayList<T> getInputs() {
         return inputs;

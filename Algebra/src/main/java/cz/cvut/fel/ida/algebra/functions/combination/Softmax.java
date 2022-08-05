@@ -201,7 +201,7 @@ public class Softmax implements Transformation, Combination, XMax {
         }
 
         @Override
-        public Value nextInputDerivative() {
+        public Value nextInputGradient() {
             return new ScalarValue(processedGradient.get(i++));
         }
 

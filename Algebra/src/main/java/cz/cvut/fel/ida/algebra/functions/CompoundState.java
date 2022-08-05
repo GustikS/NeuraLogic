@@ -12,9 +12,9 @@ public class CompoundState implements ActivationFcn.State {
     private static final Logger LOG = Logger.getLogger(CompoundState.class.getName());
 
     @NotNull
-    Combination.State combinationState;
+    private final Combination.State combinationState;
     @NotNull
-    Transformation.State transformationState;
+    private final Transformation.State transformationState;
 
     public CompoundState(Combination.State combinationState, Transformation.State transformationState) {
         this.combinationState = combinationState;
@@ -54,8 +54,8 @@ public class CompoundState implements ActivationFcn.State {
     }
 
     @Override
-    public Value nextInputDerivative() {
-        return combinationState.nextInputDerivative();
+    public Value nextInputGradient() {
+        return combinationState.nextInputGradient();
     }
 
     @Override
@@ -82,6 +82,5 @@ public class CompoundState implements ActivationFcn.State {
     public void setTransformation(Transformation transformation) {
         transformationState.setTransformation(transformation);
     }
-
 
 }

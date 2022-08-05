@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.neural.networks.structure.components.neurons.states;
 
-import cz.cvut.fel.ida.algebra.functions.Aggregation;
+import cz.cvut.fel.ida.algebra.functions.ActivationFcn;
 import cz.cvut.fel.ida.algebra.functions.Combination;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.values.Value;
@@ -21,7 +21,7 @@ import java.util.List;
  * Interfaces used for clarity of stateful processing during neural computations.
  * These are interfaces (not abstract classes) so that existing classes can be used directly as a state,
  * and so that compound states supporting multiple interfaces (e.g. dropout AND parents) can be created.
- * Special class States then contains particular formations of typical useful states.
+ * Special class States then contains particular formations of typical useful states, e.g. {@link States.ComputationStateStandard}
  */
 public interface State<V> extends Exportable {
 
@@ -85,7 +85,7 @@ public interface State<V> extends Exportable {
 
         Combination getCombination();
 
-        void setCombination(Aggregation aggregation);
+        void setCombination(Combination combination);
 
         Transformation getTransformation();
 
@@ -100,7 +100,7 @@ public interface State<V> extends Exportable {
 
             void setupDimensions(Value value);
 
-            Aggregation.State getFcnState();
+            ActivationFcn.State getFcnState();
 
             Value getValue();
 

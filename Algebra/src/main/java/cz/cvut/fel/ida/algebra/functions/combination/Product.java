@@ -56,7 +56,7 @@ public class Product implements Combination {
         }
 
         @Override
-        public Value nextInputDerivative() {
+        public Value nextInputGradient() {
             return derivativeFrom(i++, processedGradient);
         }
 

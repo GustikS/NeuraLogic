@@ -127,7 +127,7 @@ public class CrossSum implements Combination {
         }
 
         @Override
-        public Value nextInputDerivative() {
+        public Value nextInputGradient() {
             return inputGradients.get(i++);
         }
 

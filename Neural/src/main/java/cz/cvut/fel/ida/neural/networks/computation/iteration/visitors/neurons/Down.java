@@ -1,5 +1,6 @@
 package cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.neurons;
 
+import cz.cvut.fel.ida.algebra.functions.ActivationFcn;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.Backpropagation;
@@ -17,43 +18,58 @@ import java.util.Iterator;
 /**
  * Down = propagating some values from actual neuron's State to its inputs - e.g. for ({@link Backpropagation}
  * <p>
- * These visitors DO NOT support input masking (i.e. max pooling).
+ * These visitors DO NOT support input masking
+ *
+ * todo now now check offsets and their gradients
  */
-public class StandardDown extends NeuronVisitor.Weighted {
+public class Down extends NeuronVisitor.Weighted {
 
-    public StandardDown(NeuralNetwork<State.Neural.Structure> network, StateVisiting.Computation topDown, WeightUpdater weightUpdater) {
+    public Down(NeuralNetwork<State.Neural.Structure> network, StateVisiting.Computation topDown, WeightUpdater weightUpdater) {
         super(network, topDown, weightUpdater);
     }
 
     @Override
     public <T extends Neurons, S extends State.Neural> void visit(BaseNeuron<T, S> neuron) {
+//        State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
+//        Value gradient = stateVisitor.visit(state);
+
         State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
-        Value gradient = stateVisitor.visit(state);
+
+        Value topGradient = state.getGradient();
+        ActivationFcn.State fcnState = state.getFcnState();
+        fcnState.ingestTopGradient(topGradient);
 
         Iterator<T> inputs = network.getInputs(neuron);
 
         T input;
         while (inputs.hasNext()) {
             input = inputs.next();
-            input.getComputationView(stateVisitor.stateIndex).storeGradient(gradient);
+            Value inputGradient = fcnState.nextInputGradient();
+            input.getComputationView(stateVisitor.stateIndex).storeGradient(inputGradient);
         }
     }
 
     @Override
     public <T extends Neurons, S extends State.Neural> void visit(WeightedNeuron<T, S> neuron) {
         State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
-        Value gradient = stateVisitor.visit(state);
+
+        Value topGradient = state.getGradient();
+        ActivationFcn.State fcnState = state.getFcnState();
+        fcnState.ingestTopGradient(topGradient);
+
         //state.invalidate(); //todo (b) test if faster with invalidation here (at the end of backprop) instead of using separate iteration with networks.computation.iteration.visitors.states.Invalidator ? Not a good idea, what if we want to reuse the values?
         Pair<Iterator<T>, Iterator<Weight>> inputs = network.getInputs(neuron);
 
-        weightUpdater.visit(neuron.offset, gradient);
+        Value offsetGradient = fcnState.nextInputGradient();
+
+        weightUpdater.visit(neuron.offset, offsetGradient);
 
         Iterator<T> inputNeurons = inputs.r;
         Iterator<Weight> inputWeights = inputs.s;
         T input;
         Weight weight;
 
-//        Value transpGradient = gradient.transposedView();    //todo next speedup everything around here, minimize Value copying
+//        Value transpGradient = gradient.transposedView();
 
         while (inputNeurons.hasNext()) {    //neurons and weights should always be aligned correctly, so skipping the check here for some speedup
             input = inputNeurons.next();
@@ -61,10 +77,11 @@ public class StandardDown extends NeuronVisitor.Weighted {
             State.Neural.Computation inputComputationView = input.getComputationView(stateVisitor.stateIndex);
 
             Value transpInputValue = inputComputationView.getValue().transposedView();
-            weightUpdater.visit(weight, gradient.times(transpInputValue));
+            Value inputGradient = fcnState.nextInputGradient();
+            weightUpdater.visit(weight, inputGradient.times(transpInputValue));
 
 //            inputComputationView.storeGradient(transpGradient.times(weight.value));
-            inputComputationView.storeGradient(weight.value.transposedView().times(gradient));
+            inputComputationView.storeGradient(weight.value.transposedView().times(inputGradient));     //todo next speedup the matrix transposition here with a custom transposedTimes?
         }
     }
 }

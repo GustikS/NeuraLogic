@@ -105,7 +105,7 @@ public class CosineSim implements Combination {
         }
 
         @Override
-        public Value nextInputDerivative() {
+        public Value nextInputGradient() {
             return processedGradient.elementTimes(inputGradients.get(i++));
         }
 

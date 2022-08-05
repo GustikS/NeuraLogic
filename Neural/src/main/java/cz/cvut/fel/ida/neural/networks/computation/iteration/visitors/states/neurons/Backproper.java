@@ -1,8 +1,5 @@
 package cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.neurons;
 
-import cz.cvut.fel.ida.algebra.functions.Transposition;
-import cz.cvut.fel.ida.algebra.values.One;
-import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.StateVisiting;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
@@ -13,8 +10,11 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
+ * - todo to be removed - the fcnStates do this directly now
+ * - this is now only valid for symmetric functions (deprecated)
  * Created by gusta on 8.3.17.
  */
+@Deprecated
 public class Backproper extends StateVisiting.Computation {
     private static final Logger LOG = Logger.getLogger(Backproper.class.getName());
 
@@ -51,23 +51,29 @@ public class Backproper extends StateVisiting.Computation {
 
     @Override
     public Value visit(State.Neural.Computation state) {
+        LOG.warning("Calling obsolete Backproper...");
         Value acumGradient = state.getGradient(); //top-down accumulation //todo test add check if non-zero and cut otherwise?
-        Value inputFcnDerivative = state.getFcnState().gradient(); //bottom-up accumulation
 
-        Value currentLevelDerivative;
-        //todo add case where inputFcnDerivative is just one (no change in gradient, e.g. concat, transp...)
-        if (inputFcnDerivative instanceof One) {
-            currentLevelDerivative = acumGradient;
-        } else if (state.getFcnState().getCombination() instanceof Transposition){
-            currentLevelDerivative = acumGradient.transposedView();
-        } else if (acumGradient.getClass().equals(inputFcnDerivative.getClass()) || inputFcnDerivative instanceof ScalarValue) {
-            currentLevelDerivative = acumGradient.elementTimes(inputFcnDerivative);  //elementTimes here - since the fcn to be differentiated was applied element-wise on a vector
-        } else {
-//            currentLevelDerivative = acumGradient.transposedView().times(inputFcnDerivative);  //times here - since the fcn was a complex vector function (e.g. softmax) and has a matrix derivative (Jacobian)
-            currentLevelDerivative = inputFcnDerivative.times(acumGradient);
-        }
+        state.getFcnState().ingestTopGradient(acumGradient);
 
-        //there is no setting (remembering) of the calculated gradient (as opposed to output, which is reused), it is just returned
-        return currentLevelDerivative;
+        Value inputFcnDerivative = state.getFcnState().nextInputGradient(); // todo WARNING - only valid for symmetric functions (deprecated)
+
+        return inputFcnDerivative;
+
+//        Value currentLevelDerivative;
+//        //todo add case where inputFcnDerivative is just one (no change in gradient, e.g. concat, transp...)
+//        if (inputFcnDerivative instanceof One) {
+//            currentLevelDerivative = acumGradient;
+//        } else if (state.getFcnState().getCombination() instanceof Transposition){
+//            currentLevelDerivative = acumGradient.transposedView();
+//        } else if (acumGradient.getClass().equals(inputFcnDerivative.getClass()) || inputFcnDerivative instanceof ScalarValue) {
+//            currentLevelDerivative = acumGradient.elementTimes(inputFcnDerivative);  //elementTimes here - since the fcn to be differentiated was applied element-wise on a vector
+//        } else {
+////            currentLevelDerivative = acumGradient.transposedView().times(inputFcnDerivative);  //times here - since the fcn was a complex vector function (e.g. softmax) and has a matrix derivative (Jacobian)
+//            currentLevelDerivative = inputFcnDerivative.times(acumGradient);
+//        }
+//
+//        //there is no setting (remembering) of the calculated gradient (as opposed to output, which is reused), it is just returned
+//        return currentLevelDerivative;
     }
 }

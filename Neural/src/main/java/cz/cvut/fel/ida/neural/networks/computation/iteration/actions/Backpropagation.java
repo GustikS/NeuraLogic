@@ -7,9 +7,8 @@ import cz.cvut.fel.ida.neural.networks.computation.iteration.modes.BFS;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.modes.DFSrecursion;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.modes.DFSstack;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.modes.Topologic;
-import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.neurons.ComplexDown;
+import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.neurons.Down;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.neurons.NeuronVisitor;
-import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.neurons.StandardDown;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.neurons.Backproper;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.weights.WeightUpdater;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
@@ -61,11 +60,8 @@ public class Backpropagation {
     public TopDown getTopDownPropagator(NeuralNetwork<State.Neural.Structure> network, Neurons outputNeuron) {
 //        return new DFSrecursion().new TDownVisitor(network, outputNeuron, backproper, weightUpdater);
 
-        if (network instanceof TopologicNetwork && !network.containsInputMasking) {
-            NeuronVisitor.Weighted down = new StandardDown(network, backproper, weightUpdater);
-            if (network.containsComplexActivations) {
-                down = new ComplexDown(down);
-            }
+        if (network instanceof TopologicNetwork && (!network.containsInputMasking || settings.iterationMode == Settings.IterationMode.TOPOLOGIC)) {
+            NeuronVisitor.Weighted down = new Down(network, backproper, weightUpdater);
             return new Topologic((TopologicNetwork<State.Neural.Structure>) network).new TDownVisitor(outputNeuron, down);
         } else if (settings.iterationMode == Settings.IterationMode.DFS_RECURSIVE) {
             return new DFSrecursion().new TDownVisitor(network, outputNeuron, backproper, weightUpdater);

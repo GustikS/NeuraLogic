@@ -71,7 +71,7 @@ public class Concatenation implements Combination {
          * @return
          */
         @Override
-        public Value nextInputDerivative() {
+        public Value nextInputGradient() {
             return new ScalarValue(processedGradient.get(i++));
         }
     }

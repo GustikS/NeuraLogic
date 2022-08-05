@@ -41,6 +41,8 @@ public interface Transformation extends ActivationFcn, Exportable {
             return function;
         }
         switch (transformation) {
+            case IDENTITY:
+                return Singletons.identity;
             case TRANSP:
                 return Singletons.transposition;
             case SOFTMAX:
@@ -58,6 +60,7 @@ public interface Transformation extends ActivationFcn, Exportable {
         public static Sparsemax sparsemax = new Sparsemax();
 
         public static Transposition transposition = new Transposition();
+        public static Identity identity = new Identity();
     }
 
 
@@ -99,7 +102,7 @@ public interface Transformation extends ActivationFcn, Exportable {
         }
 
         @Override
-        public Value nextInputDerivative() {
+        public Value nextInputGradient() {
             return processedGradient;
         }
 

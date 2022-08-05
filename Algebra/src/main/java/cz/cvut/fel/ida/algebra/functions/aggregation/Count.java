@@ -87,7 +87,7 @@ public class Count implements Aggregation {
         }
 
         @Override
-        public Value nextInputDerivative() {
+        public Value nextInputGradient() {
             return Value.ZERO;  //here we really want to stop the gradient flow!
         }
     }

@@ -55,8 +55,6 @@ public abstract class ElementWise implements Transformation {
                 return Singletons.tanh;
             case SIGNUM:
                 return Singletons.signum;
-            case IDENTITY:
-                return Singletons.identity;
             case RELU:
                 return Singletons.relu;
             case LEAKYRELU:
@@ -84,7 +82,6 @@ public abstract class ElementWise implements Transformation {
         public static Signum signum = new Signum();
         public static ReLu relu = new ReLu();
         public static LeakyReLu leakyRelu = new LeakyReLu();
-        public static Identity identity = new Identity();
         public static Tanh tanh = new Tanh();
         public static Exponentiation exponentiation = new Exponentiation();
         public static SquareRoot sqrt = new SquareRoot();

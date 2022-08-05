@@ -90,7 +90,7 @@ public class Sum implements Aggregation {
         }
 
         @Override
-        public Value nextInputDerivative() {
+        public Value nextInputGradient() {
             return processedGradient;
         }
     }

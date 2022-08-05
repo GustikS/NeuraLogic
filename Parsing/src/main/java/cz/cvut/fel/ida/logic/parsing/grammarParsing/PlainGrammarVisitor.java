@@ -227,6 +227,9 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             Weight weight = null;
             if (ctx.weight() != null) {
                 weight = ctx.weight().accept(new WeightVisitor());
+                if (builder.settings.parentCounting && weight.isLearnable()){
+                    LOG.warning("Detected learnable fact values with a parentCounting mode setup - not supported!");
+                }
             }
 //            if (weight == null) {
 //                weight = builder.weightFactory.construct("factWeight", builder.settings.defaultFactValue, true, true);  //todo next custom weights should have some flag

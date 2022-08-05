@@ -3,8 +3,8 @@ package cz.cvut.fel.ida.neural.networks.structure.building.builders;
 import cz.cvut.fel.ida.algebra.functions.combination.Concatenation;
 import cz.cvut.fel.ida.algebra.functions.combination.CrossSum;
 import cz.cvut.fel.ida.algebra.functions.combination.Product;
-import cz.cvut.fel.ida.algebra.functions.states.CombinationState;
 import cz.cvut.fel.ida.algebra.functions.combination.Softmax;
+import cz.cvut.fel.ida.algebra.functions.transformation.joint.Transposition;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.StateVisiting;
@@ -12,7 +12,9 @@ import cz.cvut.fel.ida.neural.networks.computation.training.strategies.Hyperpara
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.BaseNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.WeightedNeuron;
-import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.*;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.States;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.StatesCache;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.FactNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.types.DetailedNetwork;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.NeuronMapping;
@@ -125,7 +127,7 @@ public class StatesBuilder {
         if (changesDimensions(neuron)) {
             sum = neuron.getCombination().evaluate(inputValues);
             if (neuron.getCombination() instanceof CrossSum) {
-                CombinationState.CrossSumState crossProducState = (CombinationState.CrossSumState) neuron.getComputationView(0).getFcnState();
+                CrossSum.State crossProducState = (CrossSum.State) neuron.getComputationView(0).getFcnState();
                 crossProducState.initMapping(inputValues);
                 //todo now also init all CumulationState arraylist sizes here
             }
@@ -172,7 +174,7 @@ public class StatesBuilder {
         if (changesDimensions(neuron)) {
             sum = neuron.getCombination().evaluate(inputValues);
             if (neuron.getCombination() instanceof CrossSum) {
-                CombinationState.CrossSumState crossProducState = (CombinationState.CrossSumState) neuron.getComputationView(0).getFcnState();
+                CrossSum.State crossProducState = (CrossSum.State) neuron.getComputationView(0).getFcnState();
                 crossProducState.initMapping(inputValues);
             }
         }

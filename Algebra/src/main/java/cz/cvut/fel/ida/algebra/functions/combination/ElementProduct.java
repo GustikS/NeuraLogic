@@ -116,7 +116,7 @@ public class ElementProduct extends Product implements Transformation {
         }
 
         @Override
-        public Value nextInputDerivative() {
+        public Value nextInputGradient() {
 //            Value gradient = combinedInputs.transposedView().elementDivideBy(accumulatedInputs.get(i++)); // check if transposition needed??
             Value gradient = combinedInputs.elementDivideBy(accumulatedInputs.get(i++));
             gradient.elementMultiplyBy(processedGradient);
