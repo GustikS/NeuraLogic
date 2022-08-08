@@ -1,5 +1,9 @@
 package cz.cvut.fel.ida.pipelines.building;
 
+import cz.cvut.fel.ida.algebra.functions.ElementWise;
+import cz.cvut.fel.ida.algebra.functions.Transformation;
+import cz.cvut.fel.ida.algebra.values.ScalarValue;
+import cz.cvut.fel.ida.algebra.values.VectorValue;
 import cz.cvut.fel.ida.learning.Query;
 import cz.cvut.fel.ida.learning.crossvalidation.splitting.StratifiedSplitter;
 import cz.cvut.fel.ida.logic.constructs.building.ExamplesBuilder;
@@ -130,6 +134,7 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
         Pipe<Stream<LogicSample>, Stream<LogicSample>> postProcessPipe = new Pipe<Stream<LogicSample>, Stream<LogicSample>>("PostprocessSamplesPipe", settings) {
             @Override
             public Stream<LogicSample> apply(Stream<LogicSample> logicSampleStream) {
+
                 if (settings.appLimitSamples > 0) {
                     LOG.warning("Limiting the learning samples to the first: " + settings.appLimitSamples);
                     if (settings.stratification) {
@@ -144,9 +149,47 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
                         logicSampleStream = logicSampleStream.limit(settings.appLimitSamples);
                     }
                 }
+
+                if (settings.inferOutputNeuronFcn) {
+                    if (settings.trainOnlineResultsType == Settings.ResultsType.CLASSIFICATION) {
+                        if (!settings.squishLastLayer) {
+                            logicSampleStream = logicSampleStream.map(ls -> setupForCrossentropy(ls));
+                        } else {
+                            logicSampleStream = logicSampleStream.map(ls -> setupForSoftentropy(ls));
+                        }
+                    }
+                }
+
                 return logicSampleStream;
             }
+
         };
         return postProcessPipe;
+    }
+
+    private LogicSample setupForCrossentropy(LogicSample ls) {
+
+            if (ls.target instanceof VectorValue) {
+                ls.query.headAtom.transformation = Transformation.Singletons.softmax;
+            } else if (ls.target instanceof ScalarValue) {
+                ls.query.headAtom.transformation = ElementWise.Singletons.sigmoid;
+            }
+            settings.errorFunction = Settings.ErrorFcn.CROSSENTROPY;
+            return ls;
+
+    }
+
+    private LogicSample setupForSoftentropy(LogicSample ls) {
+
+        if (ls.target instanceof VectorValue) {
+            ls.query.headAtom.transformation = null;
+//            ls.query.headAtom.transformation = Transformation.Singletons.identity;
+        } else if (ls.target instanceof ScalarValue) {
+            ls.query.headAtom.transformation = null;
+//            ls.query.headAtom.transformation = Transformation.Singletons.identity;
+        }
+        settings.errorFunction = Settings.ErrorFcn.SOFTENTROPY;
+        return ls;
+
     }
 }

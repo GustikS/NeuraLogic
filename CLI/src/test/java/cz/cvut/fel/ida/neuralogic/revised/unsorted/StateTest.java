@@ -1,5 +1,6 @@
 package cz.cvut.fel.ida.neuralogic.revised.unsorted;
 
+import cz.cvut.fel.ida.algebra.functions.aggregation.Sum;
 import cz.cvut.fel.ida.algebra.functions.transformation.elementwise.Sigmoid;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
@@ -17,8 +18,9 @@ public class StateTest {
 
     @TestAnnotations.Fast
     public void dynamicDispatch() {
-        State.Neural.Computation state = new States.ComputationStateStandard(new Sigmoid());
+        State.Neural.Computation state = new States.ComputationStateStandard(new Sum(), new Sigmoid());
         state.setupDimensions(new ScalarValue(0));
+        state.invalidate();
         Evaluator evaluator = new Evaluator(-1);
         Value value = state.getValue();
         Value output = evaluator.visit(state);

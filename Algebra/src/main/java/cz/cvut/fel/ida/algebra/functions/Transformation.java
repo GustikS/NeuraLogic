@@ -77,6 +77,9 @@ public interface Transformation extends ActivationFcn, Exportable {
 
         @Override
         public void cumulate(Value value) {
+            if (input != null){
+                LOG.severe("Resetting input in Transformation.State (this should probably be Combination.State instead!)");
+            }
             input = value;  // there should be only a single input value for this state type!!
         }
 
@@ -108,7 +111,7 @@ public interface Transformation extends ActivationFcn, Exportable {
 
         @Override
         public void setupDimensions(Value value) {
-            this.input = value.getForm();
+//            this.input = value.getForm();     // we do input = null in invalidate!
         }
 
         @Override
@@ -117,18 +120,8 @@ public interface Transformation extends ActivationFcn, Exportable {
         }
 
         @Override
-        public void setTransformation(Transformation transformation) {
-            this.transformation = transformation;
-        }
-
-        @Override
         public Combination getCombination() {
             return null;
-        }
-
-        @Override
-        public void setCombination(Combination combination) {
-            LOG.severe("Trying to set Combination in Transformation.State");
         }
     }
 

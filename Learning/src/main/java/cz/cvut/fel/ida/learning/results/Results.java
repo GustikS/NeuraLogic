@@ -87,7 +87,7 @@ public abstract class Results implements Exportable<Results> {
     }
 
     private static Aggregation getAggregation(Settings settings) {
-        if (settings.errorAggregationFcn == Settings.AggregationFcn.AVG) {
+        if (settings.errorAggregationFcn == Settings.CombinationFcn.AVG) {
             return new Average();
         } else {
             LOG.severe("Unsupported errorAggregationFcn.");

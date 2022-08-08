@@ -508,6 +508,9 @@ public class Settings implements Serializable {
      */
     public int plotProgress = -1;
 
+    /**
+     * The training task type - this flag influences, e.g., neural sample postprocessing
+     */
     public ResultsType trainOnlineResultsType = ResultsType.CLASSIFICATION;
     public ResultsType trainRecalculationResultsType = ResultsType.DETAILEDCLASSIFICATION;
     public ResultsType validationResultsType = ResultsType.DETAILEDCLASSIFICATION;

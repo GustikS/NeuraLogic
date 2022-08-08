@@ -1,10 +1,11 @@
 package cz.cvut.fel.ida.logic.constructs.example;
 
-import cz.cvut.fel.ida.logic.constructs.template.Template;
-import cz.cvut.fel.ida.logic.constructs.template.components.HeadAtom;
-import cz.cvut.fel.ida.algebra.functions.ElementWise;
+import cz.cvut.fel.ida.algebra.functions.Combination;
+import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.learning.Query;
+import cz.cvut.fel.ida.logic.constructs.template.Template;
+import cz.cvut.fel.ida.logic.constructs.template.components.HeadAtom;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
@@ -18,12 +19,12 @@ public class CompositeQuery extends Query<LiftedExample, Template> {
     /**
      * list of query atoms with possible negations
      */
-    List<Pair<HeadAtom, ElementWise>> queryAtoms;
+    List<Pair<HeadAtom, Transformation>> queryAtoms;
 
-    ElementWise aggregationFcn;
-    ElementWise elementWiseFcn;
+    Combination aggregationFcn;
+    Transformation elementWiseFcn;
 
-    public CompositeQuery(String id, int queryCounter, double importance, List<Pair<HeadAtom, ElementWise>> queryAtoms) {
+    public CompositeQuery(String id, int queryCounter, double importance, List<Pair<HeadAtom, Transformation>> queryAtoms) {
         super(id, queryCounter, importance, null);
         this.queryAtoms = queryAtoms;
     }

@@ -14,9 +14,9 @@ public class Parameter implements Exportable {
     public Type type;
 
     public enum Type {
-        ACTIVATION,
-        AGGREGATION,
         COMBINATION,
+        TRANSFORMATION,
+        AGGREGATION,
         NEGATION,
         OFFSET,
         LEARNABLE,
@@ -28,10 +28,10 @@ public class Parameter implements Exportable {
         name = parameter;
         switch (parameter) {
             case "activation":
-                type = Type.ACTIVATION;
+                type = Type.TRANSFORMATION;
                 break;
             case "transformation":
-                type = Type.ACTIVATION;
+                type = Type.TRANSFORMATION;
                 break;
             case "aggregation":
                 type = Type.AGGREGATION;

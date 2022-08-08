@@ -54,19 +54,10 @@ public abstract class States implements State {
         }
 
         @Override
-        public void setCombination(Combination combination) {
-            this.combination = combination;
-        }
-
-        @Override
         public Transformation getTransformation() {
             return transformation;
         }
 
-        @Override
-        public void setTransformation(Transformation transformation) {
-            this.transformation = transformation;
-        }
 
         public Value accept(StateVisiting.Computation visitor) {
             return states[visitor.stateIndex].accept(visitor);
@@ -111,18 +102,8 @@ public abstract class States implements State {
         }
 
         @Override
-        public void setCombination(Combination combination) {
-            this.fcnState.setCombination(combination);
-        }
-
-        @Override
         public Transformation getTransformation() {
             return fcnState.getTransformation();
-        }
-
-        @Override
-        public void setTransformation(Transformation transformation) {
-            this.fcnState.setTransformation(transformation);
         }
 
         @Override
@@ -148,6 +129,11 @@ public abstract class States implements State {
         @Override
         public ActivationFcn.State getFcnState() {
             return fcnState;
+        }
+
+        @Override
+        public void resetFcnState(ActivationFcn.State newState) {
+            this.fcnState = newState;
         }
 
         public void setValue(Value value) {
@@ -219,6 +205,11 @@ public abstract class States implements State {
         }
 
         @Override
+        public void resetFcnState(ActivationFcn.State newState) {
+            this.fcnState = (ActivationFcn.SimpleValueState) newState;
+        }
+
+        @Override
         public Value getValue() {
             return outputValue;
         }
@@ -262,19 +253,10 @@ public abstract class States implements State {
         }
 
         @Override
-        public void setCombination(Combination combination) {
-            LOG.warning("FactNeurons have no Combination.");
-        }
-
-        @Override
         public Aggregation getTransformation() {
             return null;
         }
 
-        @Override
-        public void setTransformation(Transformation transformation) {
-            LOG.warning("FactNeurons have no Transformation.");
-        }
     }
 
 

@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.learning.results;
 
 import cz.cvut.fel.ida.algebra.functions.ElementWise;
+import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.utils.MathUtils;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
@@ -159,7 +160,7 @@ public class ClassificationResults extends RegressionResults {
 
         if (settings.squishLastLayer){  //this means that the outputs are not normalized between 0-1!
             for (Result evaluation : evaluations) {
-                evaluation.setOutput(ElementWise.Singletons.softmax.evaluate(evaluation.getOutput()));
+                evaluation.setOutput(Transformation.Singletons.softmax.evaluate(evaluation.getOutput()));
             }
         }
 

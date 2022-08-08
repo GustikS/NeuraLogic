@@ -1,6 +1,5 @@
 package cz.cvut.fel.ida.logic.constructs.template.metadata;
 
-import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.algebra.functions.Combination;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.utils.metadata.Metadata;
@@ -34,7 +33,7 @@ public class PredicateMetadata extends Metadata<WeightedPredicate> {
         boolean valid = false;
         if (parameter.type == Parameter.Type.OFFSET && (parameterValue.type == ParameterValue.Type.VALUE || parameterValue.type == ParameterValue.Type.WEIGHT)) {
             valid = true;
-        } else if (parameter.type == Parameter.Type.ACTIVATION && parameterValue.type == ParameterValue.Type.STRING) {
+        } else if (parameter.type == Parameter.Type.TRANSFORMATION && parameterValue.type == ParameterValue.Type.STRING) {
             Settings.TransformationFcn transformationFcn = Settings.parseTransformation(parameterValue.stringValue);
             Transformation function = Transformation.getFunction(transformationFcn);
             if (function != null) {
@@ -64,8 +63,10 @@ public class PredicateMetadata extends Metadata<WeightedPredicate> {
     }
 
     private void apply(WeightedPredicate predicate, Parameter param, ParameterValue value) {
-        if (param.type == Parameter.Type.ACTIVATION) {
-            predicate.transformation = (ElementWise) value.value;
+        if (param.type == Parameter.Type.TRANSFORMATION) {
+            predicate.transformation = (Transformation) value.value;
+        } else if (param.type == Parameter.Type.COMBINATION) {
+            predicate.combination = (Combination) value.value;
         } else if (param.type == Parameter.Type.OFFSET) {
             if (value.value instanceof Weight)
                 predicate.weight = (Weight) value.value;

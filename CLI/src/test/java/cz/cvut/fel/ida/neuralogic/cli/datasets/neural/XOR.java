@@ -54,8 +54,8 @@ public class XOR {
 
         settings.isoValueCompression = false;
 
-        settings.ruleNeuronTransformation = Settings.ActivationFcn.RELU;
-        settings.atomNeuronTransformation = Settings.ActivationFcn.RELU;
+        settings.ruleNeuronTransformation = Settings.TransformationFcn.RELU;
+        settings.atomNeuronTransformation = Settings.TransformationFcn.RELU;
 
         Pair<Pipeline, ?> results = Main.main(dataset, settings);
         DetailedClassificationResults classificationResults = (DetailedClassificationResults) results.s;

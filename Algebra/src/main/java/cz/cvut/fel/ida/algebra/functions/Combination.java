@@ -85,18 +85,8 @@ public interface Combination extends ActivationFcn, Exportable {
         }
 
         @Override
-        public void setCombination(Combination combination) {
-            this.combination = combination;
-        }
-
-        @Override
         public Transformation getTransformation() {
             return null;
-        }
-
-        @Override
-        public void setTransformation(Transformation transformation) {
-            LOG.severe("Trying to set Transformation in Combination.State");
         }
     }
 

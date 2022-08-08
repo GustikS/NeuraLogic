@@ -29,8 +29,8 @@ public class ModelLoading {
 
         settings.trainValidationPercentage = 1.0;
 
-        settings.ruleNeuronTransformation = Settings.ActivationFcn.TANH;
-        settings.atomNeuronTransformation = Settings.ActivationFcn.TANH;
+        settings.ruleNeuronTransformation = Settings.TransformationFcn.TANH;
+        settings.atomNeuronTransformation = Settings.TransformationFcn.TANH;
 
         settings.initLearningRate = 0.001;
         settings.maxCumEpochCount = 90;
@@ -61,8 +61,8 @@ public class ModelLoading {
 
         settings.trainValidationPercentage = 1.0;
 
-        settings.ruleNeuronTransformation = Settings.ActivationFcn.TANH;
-        settings.atomNeuronTransformation = Settings.ActivationFcn.TANH;
+        settings.ruleNeuronTransformation = Settings.TransformationFcn.TANH;
+        settings.atomNeuronTransformation = Settings.TransformationFcn.TANH;
 
         settings.initLearningRate = 0.001;
 

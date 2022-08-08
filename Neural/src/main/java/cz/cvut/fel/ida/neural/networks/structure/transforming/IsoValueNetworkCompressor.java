@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.neural.networks.structure.transforming;
 
-import cz.cvut.fel.ida.algebra.functions.ElementWise;
+import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
 import cz.cvut.fel.ida.algebra.weights.Weight;
@@ -71,7 +71,7 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
 
         QueryNeuron queryNeuron;
         if (outputs.size() > 1) {
-            States.ComputationStateStandard dummyState = new States.ComputationStateStandard(ElementWise.Singletons.identity);
+            States.ComputationStateStandard dummyState = new States.ComputationStateStandard(null, Transformation.Singletons.identity);
             dummyState.outputValue = Value.ZERO;
             AtomNeuron dummy = new AtomNeuron("dummy", -1, dummyState);
             queryNeuron = new QueryNeuron("", -1, 1.0, dummy, inet);

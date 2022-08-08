@@ -69,18 +69,8 @@ public class CompoundState implements ActivationFcn.State {
     }
 
     @Override
-    public void setCombination(Combination combination) {
-        combinationState.setCombination(combination);
-    }
-
-    @Override
     public Transformation getTransformation() {
         return transformationState.getTransformation();
-    }
-
-    @Override
-    public void setTransformation(Transformation transformation) {
-        transformationState.setTransformation(transformation);
     }
 
 }

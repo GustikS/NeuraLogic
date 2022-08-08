@@ -135,12 +135,7 @@ public interface ActivationFcn {
 
         Combination getCombination();
 
-        void setCombination(Combination combination);
-
         Transformation getTransformation();
-
-        void setTransformation(Transformation transformation);
-
 
         static State getState(Combination combination, Transformation transformation) {
             State combinationState;
@@ -211,18 +206,9 @@ public interface ActivationFcn {
         }
 
         @Override
-        public void setCombination(Combination combination) {
-            //void
-        }
-
-        @Override
         public Transformation getTransformation() {
             return null;
         }
 
-        @Override
-        public void setTransformation(Transformation transformation) {
-            //void
-        }
     }
 }

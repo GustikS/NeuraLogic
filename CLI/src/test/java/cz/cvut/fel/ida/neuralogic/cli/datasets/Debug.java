@@ -128,7 +128,7 @@ public class Debug {
     public void transpose() throws Exception {
         String dataset = "debug/transpose";
         Settings settings = Settings.forSlowTest();
-        settings.softNegation = Settings.ActivationFcn.TRANSP;
+        settings.softNegation = Settings.TransformationFcn.TRANSP;
 
         settings.isoValueCompression = false;
         settings.chainPruning = false;
@@ -142,7 +142,7 @@ public class Debug {
     public void transpose2() throws Exception {
         String dataset = "debug/transpose2";
         Settings settings = Settings.forSlowTest();
-        settings.softNegation = Settings.ActivationFcn.TRANSP;
+        settings.softNegation = Settings.TransformationFcn.TRANSP;
 
         settings.isoValueCompression = false;
         settings.chainPruning = false;

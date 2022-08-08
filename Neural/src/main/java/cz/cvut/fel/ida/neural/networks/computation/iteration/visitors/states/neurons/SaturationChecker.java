@@ -15,11 +15,11 @@ public class SaturationChecker extends StateVisiting.Computation {
     public Value visit(State.Neural.Computation state) {
         Value value = state.getValue();
 
-        if (state.getCombination() == null) {
+        if (state.getTransformation() == null) {
             return Value.ZERO;
         }
 
-        Pair<Double, Double> range = state.getCombination().getSaturationRange();
+        Pair<Double, Double> range = state.getTransformation().getSaturationRange();
         if (range == null) {
             return Value.ZERO;
         }

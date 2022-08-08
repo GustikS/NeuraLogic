@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.neural.networks.structure.export;
 
-import cz.cvut.fel.ida.algebra.functions.Aggregation;
+import cz.cvut.fel.ida.algebra.functions.Combination;
+import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
@@ -65,7 +66,9 @@ public class NeuralSerializer {
 
         public String name;
         public int index;
-        public String activation;
+
+        public String combination;
+        public String transformation;
 
         public int[] dimensions;
 
@@ -89,9 +92,12 @@ public class NeuralSerializer {
         SerializedNeuron(BaseNeuron<Neurons, State.Neural> neuron, TopologicNetwork<State.Structure> network) {
             name = neuron.toString();
             index = neuron.index;
-            Aggregation aggregation = neuron.getCombination();
-            if (aggregation != null)
-                activation = aggregation.getName();
+            Combination combination = neuron.getCombination();
+            if (combination != null)
+                this.combination = combination.getName();
+            Transformation transformation = neuron.getTransformation();
+            if (transformation != null)
+                this.transformation = transformation.getName();
             if (neuron instanceof AggregationNeuron) {
                 pooling = true;
             }

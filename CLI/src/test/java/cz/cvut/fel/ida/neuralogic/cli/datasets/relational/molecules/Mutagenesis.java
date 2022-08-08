@@ -87,8 +87,8 @@ public class Mutagenesis {
 
         settings.modelSelection = Settings.ModelSelection.ERROR;
 
-        settings.atomNeuronTransformation = Settings.ActivationFcn.TANH;
-        settings.ruleNeuronTransformation = Settings.ActivationFcn.TANH;
+        settings.atomNeuronTransformation = Settings.TransformationFcn.TANH;
+        settings.ruleNeuronTransformation = Settings.TransformationFcn.TANH;
 
         settings.resultsRecalculationEpochae = 10;
 //        settings.trainValidationPercentage = 1.0;

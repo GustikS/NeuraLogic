@@ -59,6 +59,7 @@ public class WeightedRule implements Exportable {
         this.setOffset(other.getOffset());
         this.setAggregationFcn(other.getAggregationFcn());
         this.setTransformation(other.getTransformation());
+        this.setCombination(other.getCombination());
         this.setMetadata(other.getMetadata());
         this.setOriginalString(other.getOriginalString());
         this.isEditable = other.isEditable;
@@ -153,7 +154,7 @@ public class WeightedRule implements Exportable {
         if (getWeight() != null && !getWeight().equals(other.getWeight()) || getOffset() != null && !getOffset().equals(other.getOffset())) {
             return false;
         }
-        if (getAggregationFcn() != null && !getAggregationFcn().equals(other.getAggregationFcn()) || getTransformation() != null && !getTransformation().equals(other.getTransformation())) {
+        if (getAggregationFcn() != null && !getAggregationFcn().equals(other.getAggregationFcn()) || getTransformation() != null && !getTransformation().equals(other.getTransformation()) || getCombination() != null && !getCombination().equals(other.getCombination())) {
             return false;
         }
         if (!getHead().equals(other.getHead()) || !getBody().equals(other.getBody())) {
@@ -224,11 +225,11 @@ public class WeightedRule implements Exportable {
         this.transformationFcn = transformation;
     }
 
-    public Combination getCombinationFcn() {
+    public Combination getCombination() {
         return combinationFcn;
     }
 
-    public void setCombinationFcn(Combination combinationFcn) {
+    public void setCombination(Combination combinationFcn) {
         this.combinationFcn = combinationFcn;
     }
 

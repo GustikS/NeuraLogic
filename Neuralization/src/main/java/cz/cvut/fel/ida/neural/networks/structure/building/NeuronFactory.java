@@ -1,6 +1,5 @@
 package cz.cvut.fel.ida.neural.networks.structure.building;
 
-import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.algebra.functions.Combination;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
@@ -102,7 +101,7 @@ public class NeuronFactory {
 
     public RuleNeuron createRuleNeuron(GroundRule groundRule) {
         WeightedRule weightedRule = groundRule.weightedRule;
-        Combination combination = weightedRule.getCombinationFcn() != null ? weightedRule.getCombinationFcn() : Combination.getFunction(settings.ruleNeuronCombination);
+        Combination combination = weightedRule.getCombination() != null ? weightedRule.getCombination() : Combination.getFunction(settings.ruleNeuronCombination);
         Transformation transformation = weightedRule.getTransformation() != null ? weightedRule.getTransformation() : Transformation.getFunction(settings.ruleNeuronTransformation);
 
         State.Neural.Computation state = State.createBaseState(settings, combination, transformation);
@@ -114,7 +113,7 @@ public class NeuronFactory {
 
     public WeightedRuleNeuron createWeightedRuleNeuron(GroundRule groundRule) {
         WeightedRule weightedRule = groundRule.weightedRule;
-        Combination combination = weightedRule.getCombinationFcn() != null ? weightedRule.getCombinationFcn() : Combination.getFunction(settings.ruleNeuronCombination);
+        Combination combination = weightedRule.getCombination() != null ? weightedRule.getCombination() : Combination.getFunction(settings.ruleNeuronCombination);
         Transformation transformation = weightedRule.getTransformation() != null ? weightedRule.getTransformation() : Transformation.getFunction(settings.ruleNeuronTransformation);
 
         Weight offset = weightedRule.getOffset();
@@ -155,7 +154,7 @@ public class NeuronFactory {
         }
     }
 
-    public NegationNeuron createNegationNeuron(AtomFact atomFact, ElementWise negation) {
+    public NegationNeuron createNegationNeuron(AtomFact atomFact, Transformation negation) {
         Transformation transformation = negation != null ? negation : Transformation.getFunction(settings.softNegation);
         State.Neural.Computation state = State.createBaseState(settings, null, transformation);
         NegationNeuron<State.Neural.Computation> negationNeuron = new NegationNeuron<>(atomFact, counter++, state);

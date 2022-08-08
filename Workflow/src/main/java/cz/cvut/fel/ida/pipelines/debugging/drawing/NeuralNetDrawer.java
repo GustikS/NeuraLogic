@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.pipelines.debugging.drawing;
 
-import cz.cvut.fel.ida.algebra.functions.Aggregation;
+import cz.cvut.fel.ida.algebra.functions.Combination;
+import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.drawing.Drawer;
@@ -75,14 +76,21 @@ public class NeuralNetDrawer extends Drawer<NeuralSample> {
             if (stateGradient != null)
                 gradient = stateGradient.toString(NeuralNetDrawer.this.numberFormat);
             String dimensions = Arrays.toString(state.getValue().size());
-            Aggregation neuronAggregation;
-            if (neuron instanceof FactNeuron)
-                neuronAggregation = null;
-            else
-                neuronAggregation = neuron.getCombination();
-            String aggregation = "";
-            if (neuronAggregation != null)
-                aggregation = neuron.getCombination().getName();
+            Combination neuronCombination;
+            Transformation neuronTransformation;
+            if (neuron instanceof FactNeuron) {
+                neuronCombination = null;
+                neuronTransformation = null;
+            }
+            else {
+                neuronCombination = neuron.getCombination();
+                neuronTransformation = neuron.getTransformation();
+            }
+            String fcns = "";
+            if (neuronCombination != null)
+                fcns += neuronCombination.getName();
+            if (neuronTransformation != null)
+                fcns += "+" + neuronTransformation.getName();
 
             StringBuilder sb = new StringBuilder();
             sb.append("\"");
@@ -90,7 +98,7 @@ public class NeuralNetDrawer extends Drawer<NeuralSample> {
             sb.append("val: ").append(value).append("\n");
             sb.append("grad: ").append(gradient).append("\n");
             sb.append("dim: ").append(dimensions).append("\n");
-            sb.append("fcn: ").append(aggregation).append("\n");
+            sb.append("fcn: ").append(fcns).append("\n");
             sb.append("\"");
             return sb.toString();
         }

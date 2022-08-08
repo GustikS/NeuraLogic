@@ -1,6 +1,5 @@
 package cz.cvut.fel.ida.logic.constructs.template.metadata;
 
-import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.functions.Combination;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
@@ -33,7 +32,7 @@ public class RuleMetadata extends Metadata<WeightedRule> {
             valid = true;
         } else if (parameter.type == Parameter.Type.LEARNABLE && parameterValue.type == ParameterValue.Type.BOOLEAN) {
             valid = true;
-        } else if (parameter.type == Parameter.Type.ACTIVATION && parameterValue.type == ParameterValue.Type.STRING) {
+        } else if (parameter.type == Parameter.Type.TRANSFORMATION && parameterValue.type == ParameterValue.Type.STRING) {
             Settings.TransformationFcn transformationFcn = Settings.parseTransformation(parameterValue.stringValue);
             Transformation function = Transformation.getFunction(transformationFcn);
             if (function != null) {
@@ -60,8 +59,11 @@ public class RuleMetadata extends Metadata<WeightedRule> {
     }
 
     private void apply(WeightedRule rule, Parameter param, ParameterValue value) {
-        if (param.type == Parameter.Type.ACTIVATION) {
-            rule.setTransformation((ElementWise) value.value);
+        if (param.type == Parameter.Type.COMBINATION) {
+            rule.setCombination((Combination) value.value);
+        }
+        if (param.type == Parameter.Type.TRANSFORMATION) {
+            rule.setTransformation((Transformation) value.value);
         }
         if (param.type == Parameter.Type.AGGREGATION) {
             rule.setAggregationFcn((Aggregation) value.value);

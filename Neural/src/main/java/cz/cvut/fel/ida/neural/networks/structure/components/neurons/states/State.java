@@ -85,11 +85,7 @@ public interface State<V> extends Exportable {
 
         Combination getCombination();
 
-        void setCombination(Combination combination);
-
         Transformation getTransformation();
-
-        void setTransformation(Transformation transformation);
 
         /**
          * Stateful values held by a Neuron for use during neural computation, i.e. Evaluation and Backpropagation
@@ -101,6 +97,8 @@ public interface State<V> extends Exportable {
             void setupDimensions(Value value);
 
             ActivationFcn.State getFcnState();
+
+            void resetFcnState(ActivationFcn.State newState);
 
             Value getValue();
 

@@ -14,7 +14,7 @@ class TranspositionTest {
     @TestAnnotations.Fast
     public void transpose() throws Exception {
         Settings settings = new Settings();
-        settings.softNegation = Settings.ActivationFcn.TRANSP;
+        settings.softNegation = Settings.TransformationFcn.TRANSP;
         settings.chainPruning = false;
         settings.isoValueCompression = false;
         Pair<Pipeline, ?> results = Main.main(getDatasetArgs("debug/transpose"), settings);

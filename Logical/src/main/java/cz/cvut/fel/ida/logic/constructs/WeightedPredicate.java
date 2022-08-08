@@ -21,7 +21,7 @@ public class WeightedPredicate implements Serializable {
     public Weight weight;
 
     /**
-     * If it has the weight, it should be carrying the activation too.
+     * If it has the weight, it should be carrying both the activations too.
      */
     @Nullable
     public Transformation transformation;
