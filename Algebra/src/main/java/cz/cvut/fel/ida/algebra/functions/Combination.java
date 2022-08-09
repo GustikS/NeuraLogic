@@ -1,8 +1,6 @@
 package cz.cvut.fel.ida.algebra.functions;
 
 import cz.cvut.fel.ida.algebra.functions.combination.*;
-import cz.cvut.fel.ida.algebra.functions.combination.Softmax;
-import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
@@ -36,6 +34,15 @@ public interface Combination extends ActivationFcn, Exportable {
      * @return
      */
     public abstract boolean isPermutationInvariant();
+
+    /**
+     * Most of the function will behave like an Identity when only a single input is presented
+     * @return
+     */
+    default Transformation singleInputVersion(){
+        return Transformation.Singletons.identity;
+    }
+
 
     public static Combination getFunction(Settings.CombinationFcn combinationFcn) {
         Aggregation function = Aggregation.getFunction(combinationFcn);
@@ -111,15 +118,12 @@ public interface Combination extends ActivationFcn, Exportable {
             i = 0;
         }
 
-        /**
-         * Misusing the default functionality to pass the array dimension
-         *
-         * @param value
-         */
         @Override
-        public void setupDimensions(Value value) {
-            accumulatedInputs = new ArrayList<Value>((int) ((ScalarValue) value).value);
+        public Value initEval(List<Value> values) {
+            accumulatedInputs = (ArrayList<Value>) values;
+            accumulatedInputs.trimToSize();
             i = 0;
+            return evaluate();
         }
     }
 }

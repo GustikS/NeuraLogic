@@ -3,6 +3,8 @@ package cz.cvut.fel.ida.algebra.functions;
 import cz.cvut.fel.ida.algebra.values.Value;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -28,10 +30,11 @@ public class CompoundState implements ActivationFcn.State {
     }
 
     @Override
-    public void setupDimensions(Value value) {
-        combinationState.setupDimensions(value);
-        Value evaluate = combinationState.evaluate();
-        transformationState.setupDimensions(evaluate);
+    public Value initEval(List<Value> values) {
+        Value value = combinationState.initEval(values);
+        List<Value> vals = new ArrayList<>(1);
+        vals.add(value);
+        return transformationState.initEval(vals);
     }
 
     @Override

@@ -7,29 +7,35 @@ import cz.cvut.fel.ida.algebra.values.Value;
 import java.util.logging.Logger;
 
 /**
- * A special class for no transformation at all
+ * A special class for a function outputting a constant ONE
  */
-public class Identity implements Transformation {
-    private static final Logger LOG = Logger.getLogger(Identity.class.getName());
+public class ConstantOne implements Transformation {
+    private static final Logger LOG = Logger.getLogger(ConstantOne.class.getName());
+
+    State singletonState = new State(Singletons.constantOne);
 
     @Override
     public Value evaluate(Value combinedInputs) {
-        return combinedInputs;
-    }
-
-    @Override
-    public Value differentiate(Value combinedInputs) {
         return Value.ONE;
     }
 
     @Override
-    public ActivationFcn replaceWithSingleton() {
-        return Singletons.identity;
+    public Value differentiate(Value combinedInputs) {
+        return Value.ZERO;
     }
 
     @Override
+    public ActivationFcn replaceWithSingleton() {
+        return Singletons.constantOne;
+    }
+
+    /**
+     * There is actually nothing stateful here
+     * @return
+     */
+    @Override
     public ActivationFcn.State getState(boolean singleInput) {
-        return new State(Singletons.identity);
+        return singletonState;
     }
 
     public static class State extends Transformation.State {
@@ -39,21 +45,21 @@ public class Identity implements Transformation {
         }
 
         /**
-         * No functionality at all
+         * Return constant one no matter what
          * @return
          */
         @Override
         public Value evaluate() {
-            return input;
+            return Value.ONE;
         }
 
         /**
-         * No functionality
+         * the gradient will be zero no matter what
          * @param topGradient
          */
         @Override
         public void ingestTopGradient(Value topGradient) {
-            processedGradient = topGradient;
+            processedGradient = Value.ZERO;
         }
     }
 }

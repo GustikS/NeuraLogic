@@ -94,11 +94,20 @@ public interface State<V> extends Exportable {
 
             Computation clone();
 
-            void setupDimensions(Value value);
+            /**
+             * Evaluation given a raw list of input Values + Initialization of all the stateful Values.
+             * To be performed upon initialization.
+             * Inefficient for (repeated) computation itself.
+             *
+             * @param inputValues
+             */
+            Value initEval(List<Value> inputValues);
+
+            Value evaluate();
 
             ActivationFcn.State getFcnState();
 
-            void resetFcnState(ActivationFcn.State newState);
+            void setFcnState(ActivationFcn.State fcnState);
 
             Value getValue();
 
@@ -136,7 +145,6 @@ public interface State<V> extends Exportable {
                 return true;
             }
 
-            Value evaluate();
 
             interface HasParents {
 

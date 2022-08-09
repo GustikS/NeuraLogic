@@ -46,6 +46,11 @@ public class Count implements Aggregation {
     }
 
     @Override
+    public Transformation singleInputVersion() {
+        return Transformation.Singletons.constantOne;
+    }
+
+    @Override
     public ActivationFcn.State getState(boolean singleInput) {
         if (singleInput)
             return new TransformationState(Singletons.count);
@@ -55,7 +60,7 @@ public class Count implements Aggregation {
 
 
     public static class AggregationState extends Combination.State {
-        int currentIndex = 0;
+        int count = 0;  //this is to stay the same after init!
 
         public AggregationState(Combination combination) {
             super(combination);
@@ -63,22 +68,23 @@ public class Count implements Aggregation {
 
         @Override
         public void cumulate(Value value) {
-            currentIndex++;
-        }
-
-        @Override
-        public void setupDimensions(Value value) {
-            currentIndex = 0;
+//            currentIndex++;
         }
 
         @Override
         public void invalidate() {
-            currentIndex = 0;
+//            currentIndex = 0;
         }
 
         @Override
         public Value evaluate() {
-            return new ScalarValue(currentIndex);
+            return new ScalarValue(count);
+        }
+
+        @Override
+        public Value initEval(List<Value> inputValues) {
+            count = inputValues.size();
+            return evaluate();
         }
 
         @Override

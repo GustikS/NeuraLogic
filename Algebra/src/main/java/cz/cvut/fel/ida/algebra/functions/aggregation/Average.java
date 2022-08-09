@@ -61,8 +61,8 @@ public class Average implements Aggregation {
     }
 
     public static class AggregationState extends Aggregation.State {
-        int count = 0;
-        ScalarValue inverseCount;
+        int count = 0;  //these are to stay the same after init!
+        ScalarValue inverseCount;   //these are to stay the same after init!
 
         public AggregationState(Combination combination) {
             super(combination);
@@ -72,7 +72,6 @@ public class Average implements Aggregation {
         @Override
         public void cumulate(Value value) {
             combinedInputs.incrementBy(value);
-            count++;
         }
 
         @Override
@@ -87,10 +86,15 @@ public class Average implements Aggregation {
         }
 
         @Override
+        public Value initEval(List<Value> values) {
+            count = values.size();
+            inverseCount = new ScalarValue(1.0 / count);
+            return super.initEval(values);
+        }
+
+        @Override
         public void invalidate() {
             combinedInputs.zero();
-            inverseCount = new ScalarValue(1.0 / count);
-            count = 0;    //it will be the same every time but anyway...
         }
 
         @Override

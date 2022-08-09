@@ -1,5 +1,6 @@
 package cz.cvut.fel.ida.neural.networks.structure.building;
 
+import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.functions.Combination;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
@@ -90,7 +91,7 @@ public class NeuronFactory {
 
     public AggregationNeuron createAggNeuron(GroundHeadRule groundHeadRule) {
         WeightedRule weightedRule = groundHeadRule.weightedRule;
-        Combination aggregation = weightedRule.getAggregationFcn() != null ? weightedRule.getAggregationFcn() : Combination.getFunction(settings.aggNeuronCombination);
+        Aggregation aggregation = weightedRule.getAggregationFcn() != null ? weightedRule.getAggregationFcn() : Aggregation.getFunction(settings.aggNeuronAggregation);
 
         State.Neural.Computation state = State.createBaseState(settings, aggregation, null);
         AggregationNeuron<State.Neural.Computation> aggregationNeuron = new AggregationNeuron<>(settings.fullAggNeuronStrings ? groundHeadRule.toFullString() : weightedRule.getOriginalString(), counter++, state);

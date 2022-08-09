@@ -2,11 +2,14 @@ package cz.cvut.fel.ida.algebra.functions;
 
 import cz.cvut.fel.ida.algebra.functions.combination.Softmax;
 import cz.cvut.fel.ida.algebra.functions.combination.Sparsemax;
-import cz.cvut.fel.ida.algebra.functions.transformation.joint.*;
+import cz.cvut.fel.ida.algebra.functions.transformation.joint.ConstantOne;
+import cz.cvut.fel.ida.algebra.functions.transformation.joint.Identity;
+import cz.cvut.fel.ida.algebra.functions.transformation.joint.Transposition;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -61,6 +64,7 @@ public interface Transformation extends ActivationFcn, Exportable {
 
         public static Transposition transposition = new Transposition();
         public static Identity identity = new Identity();
+        public static ConstantOne constantOne = new ConstantOne();
     }
 
 
@@ -94,6 +98,15 @@ public interface Transformation extends ActivationFcn, Exportable {
             return transformation.evaluate(input);
         }
 
+        @Override
+        public Value initEval(List<Value> inputValues) {
+            if (inputValues.size() != 1){
+                LOG.severe("Setting up Transformation.State with more than one Value.");
+            }
+            input = inputValues.get(0);
+            return evaluate();
+        }
+
         public Value gradient() {
             return transformation.differentiate(input);
         }
@@ -107,11 +120,6 @@ public interface Transformation extends ActivationFcn, Exportable {
         @Override
         public Value nextInputGradient() {
             return processedGradient;
-        }
-
-        @Override
-        public void setupDimensions(Value value) {
-//            this.input = value.getForm();     // we do input = null in invalidate!
         }
 
         @Override

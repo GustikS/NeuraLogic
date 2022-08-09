@@ -137,6 +137,15 @@ public class Softmax implements Transformation, Combination, XMax {
         return true;
     }
 
+    /**
+     * Softmax for a single scalar input value = constant 1
+     * @return
+     */
+    @Override
+    public Transformation singleInputVersion() {
+        return Transformation.Singletons.constantOne;
+    }
+
     @Override
     public ActivationFcn.State getState(boolean singleInput) {
         if (singleInput)

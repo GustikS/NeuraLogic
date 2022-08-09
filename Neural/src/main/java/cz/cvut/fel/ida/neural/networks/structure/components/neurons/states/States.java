@@ -1,7 +1,6 @@
 package cz.cvut.fel.ida.neural.networks.structure.components.neurons.states;
 
 import cz.cvut.fel.ida.algebra.functions.ActivationFcn;
-import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.functions.Combination;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.values.Value;
@@ -17,6 +16,8 @@ import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.NeuronMa
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 import cz.cvut.fel.ida.setup.Settings;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -85,7 +86,6 @@ public abstract class States implements State {
         public Value acumGradient;
 
         public ComputationStateStandard(Combination combination, Transformation transformation) {
-//            state = StatesBuilder.getAggregationState(combination, transformation);
             fcnState = ActivationFcn.State.getState(combination, transformation);
         }
 
@@ -115,25 +115,12 @@ public abstract class States implements State {
         }
 
         @Override
-        public void setupDimensions(Value value) {
-            if (acumGradient != null) {
-                if (value.size().equals(acumGradient.size()))
-                    LOG.severe("Collision with previously inferred Value dimensions!");
-                return;
-            }
-            fcnState.setupDimensions(value);
-            outputValue = value.getForm();
-            acumGradient = value.getForm();
-        }
-
-        @Override
         public ActivationFcn.State getFcnState() {
             return fcnState;
         }
 
-        @Override
-        public void resetFcnState(ActivationFcn.State newState) {
-            this.fcnState = newState;
+        public void setFcnState(ActivationFcn.State fcnState) {
+            this.fcnState = fcnState;
         }
 
         public void setValue(Value value) {
@@ -164,6 +151,23 @@ public abstract class States implements State {
         public Value evaluate() {
             return fcnState.evaluate();
         }
+
+        @Override
+        public Value initEval(List<Value> inputValues) {
+            if (fcnState == null){
+                LOG.severe("No fcnState created (initialized) in Neuron State.");
+            }
+            Value value = fcnState.initEval(inputValues);
+            if (outputValue != null) {
+                LOG.warning("Repeated initEval initialization of computation State.");
+                if (!Arrays.equals(value.size(), outputValue.size()))
+                    LOG.severe("Collision with previously inferred Value dimensions!");
+            }
+            outputValue = value;
+            acumGradient = value.getForm();
+            return outputValue;
+        }
+
     }
 
     /**
@@ -194,19 +198,12 @@ public abstract class States implements State {
         }
 
         @Override
-        public void setupDimensions(Value value) {
-            outputValue = value.getForm();
-            acumGradient = value.getForm();
-        }
-
-        @Override
         public ActivationFcn.SimpleValueState getFcnState() {
             return fcnState;
         }
 
-        @Override
-        public void resetFcnState(ActivationFcn.State newState) {
-            this.fcnState = (ActivationFcn.SimpleValueState) newState;
+        public void setFcnState(ActivationFcn.State fcnState) {
+            this.fcnState = (ActivationFcn.SimpleValueState) fcnState;
         }
 
         @Override
@@ -248,12 +245,21 @@ public abstract class States implements State {
         }
 
         @Override
+        public Value initEval(List<Value> inputValues) {
+            Value value = fcnState.initEval(inputValues);
+            outputValue = value;
+            acumGradient = value.getForm();
+            return outputValue;
+        }
+
+
+        @Override
         public Combination getCombination() {
             return null;
         }
 
         @Override
-        public Aggregation getTransformation() {
+        public Transformation getTransformation() {
             return null;
         }
 

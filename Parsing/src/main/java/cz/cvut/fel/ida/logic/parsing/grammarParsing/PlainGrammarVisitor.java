@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.logic.parsing.grammarParsing;
 
-import cz.cvut.fel.ida.algebra.functions.ElementWise;
+import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.utils.metadata.Parameter;
 import cz.cvut.fel.ida.algebra.utils.metadata.ParameterValue;
 import cz.cvut.fel.ida.algebra.values.*;
@@ -127,10 +127,10 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             Weight weight = ctx.weight() != null ? ctx.weight().accept(new WeightVisitor()) : null;
 
             boolean hardNegation = false;
-            ElementWise softNegation = null;
+            Transformation softNegation = null;
             if (ctx.negation() != null) {
                 if (ctx.negation().SOFTNEGATION() != null) {
-                    softNegation = ElementWise.getFunction(builder.settings.softNegation);
+                    softNegation = Transformation.getFunction(builder.settings.softNegation);
                 }
                 else if (ctx.negation().NEGATION() != null) {
                     hardNegation = true;

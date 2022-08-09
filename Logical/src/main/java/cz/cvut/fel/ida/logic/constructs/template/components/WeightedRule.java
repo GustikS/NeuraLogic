@@ -1,5 +1,6 @@
 package cz.cvut.fel.ida.logic.constructs.template.components;
 
+import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.functions.Combination;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.weights.Weight;
@@ -33,7 +34,7 @@ public class WeightedRule implements Exportable {
 
     private Combination combinationFcn;
     private Transformation transformationFcn;
-    private Combination aggregationFcn;
+    private Aggregation aggregationFcn;
 
     public boolean allowDuplicitGroundings = false;
 
@@ -209,11 +210,11 @@ public class WeightedRule implements Exportable {
         this.body = body;
     }
 
-    public Combination getAggregationFcn() {
+    public Aggregation getAggregationFcn() {
         return aggregationFcn;
     }
 
-    public void setAggregationFcn(Combination aggregationFcn) {
+    public void setAggregationFcn(Aggregation aggregationFcn) {
         this.aggregationFcn = aggregationFcn;
     }
 

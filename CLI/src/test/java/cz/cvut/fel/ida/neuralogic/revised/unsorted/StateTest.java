@@ -9,6 +9,8 @@ import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.States;
 import cz.cvut.fel.ida.utils.generic.TestAnnotations;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,7 +21,9 @@ public class StateTest {
     @TestAnnotations.Fast
     public void dynamicDispatch() {
         State.Neural.Computation state = new States.ComputationStateStandard(new Sum(), new Sigmoid());
-        state.setupDimensions(new ScalarValue(0));
+        List<Value> inputValues = new ArrayList<>();
+        inputValues.add(new ScalarValue(0));
+        state.initEval(inputValues);
         state.invalidate();
         Evaluator evaluator = new Evaluator(-1);
         Value value = state.getValue();

@@ -2,6 +2,7 @@ package cz.cvut.fel.ida.algebra.functions.combination;
 
 import cz.cvut.fel.ida.algebra.functions.ActivationFcn;
 import cz.cvut.fel.ida.algebra.functions.Combination;
+import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.VectorValue;
@@ -69,6 +70,12 @@ public class CosineSim implements Combination {
     }
 
     @Override
+    public Transformation singleInputVersion() {
+        LOG.severe("Trying to setup CosineSimilarity for a single input.");
+        return Transformation.Singletons.identity;
+    }
+
+    @Override
     public ActivationFcn.State getState(boolean singleInput) {
         return new State(Singletons.cosineSim);
     }
@@ -82,12 +89,6 @@ public class CosineSim implements Combination {
         }
 
         @Override
-        public void setupDimensions(Value value) {
-            super.setupDimensions(value);
-            inputGradients = new ArrayList<>(2);
-        }
-
-        @Override
         public void invalidate() {
             super.invalidate();
             inputGradients.clear();
@@ -96,6 +97,15 @@ public class CosineSim implements Combination {
         @Override
         public Value evaluate() {
             return Singletons.cosineSim.evaluate(accumulatedInputs);
+        }
+
+        @Override
+        public Value initEval(List<Value> inputValues) {
+            if (inputValues.size() != 2){
+                LOG.severe("Trying to evaluate CosineSim with other than 2 input values.");
+            }
+            inputGradients = new ArrayList<>(2);
+            return super.initEval(inputValues);
         }
 
         @Override

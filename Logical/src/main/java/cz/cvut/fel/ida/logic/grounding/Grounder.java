@@ -1,6 +1,6 @@
 package cz.cvut.fel.ida.logic.grounding;
 
-import cz.cvut.fel.ida.algebra.functions.Combination;
+import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.logic.HornClause;
 import cz.cvut.fel.ida.logic.Literal;
@@ -140,7 +140,7 @@ public abstract class Grounder implements Exportable {
      * @return
      */
     private ValuedFact merge2facts(ValuedFact a, ValuedFact b) {
-        Combination factAggregation = Combination.getFunction(settings.factMergeActivation);
+        Aggregation factAggregation = Aggregation.getFunction(settings.factMergeActivation);
         Value evaluation = factAggregation.evaluate(Arrays.asList(a.getValue(), b.getValue()));
         return new ValuedFact(a.getOffsettedPredicate(), a.getLiteral().termList(), a.getLiteral().isNegated(), weightFactory.construct("foo", evaluation, true, true));
     }

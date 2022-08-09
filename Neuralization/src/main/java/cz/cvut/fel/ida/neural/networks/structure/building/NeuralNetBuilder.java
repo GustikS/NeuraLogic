@@ -288,7 +288,7 @@ public class NeuralNetBuilder {
 
         StatesBuilder statesBuilder = neuralBuilder.statesBuilder;
         //fill all the states with correct dimension values
-        statesBuilder.inferValues(neuralNetwork);   // todo somehow iterate only over the created neurons (but in topological order) - is that faster?
+        statesBuilder.initializeStates(neuralNetwork);   // somehow iterate only over the created neurons (but in topological order) -> this is done by skipping neurons with non-null outputValues
 
         LOG.fine("Neuron dimensions inferred.");
 

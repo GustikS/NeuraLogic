@@ -81,8 +81,8 @@ public class CrossSum implements Combination {
         }
 
         @Override
-        public void setupDimensions(Value value) {
-            super.setupDimensions(value);
+        public Value initEval(List<Value> values) {
+            Value eval = super.initEval(values);
 
             if (accumulatedInputs == null || accumulatedInputs.isEmpty()){
                 LOG.severe("CrossSum State not  initialized correctly");
@@ -96,6 +96,8 @@ public class CrossSum implements Combination {
                     inputGradients.add(accumulatedInputs.get(i).getForm());
                 }
             }
+
+            return eval;
         }
 
         @Override

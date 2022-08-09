@@ -37,7 +37,6 @@ public interface Aggregation extends Combination, Transformation {
      */
     public abstract Value differentiate(List<Value> inputs);
 
-
     public static Aggregation getFunction(Settings.CombinationFcn aggregationFcn) {
         switch (aggregationFcn) {
             case AVG:
@@ -74,10 +73,10 @@ public interface Aggregation extends Combination, Transformation {
         }
 
         @Override
-        public void setupDimensions(Value value) {
-            this.combinedInputs = value.getForm();
+        public Value initEval(List<Value> values) {
+            combinedInputs = combination.evaluate(values);
+            return combinedInputs;
         }
-
     }
 
 

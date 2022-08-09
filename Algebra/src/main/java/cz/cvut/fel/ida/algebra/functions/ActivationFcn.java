@@ -6,6 +6,7 @@ import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -83,13 +84,6 @@ public interface ActivationFcn {
     public interface State extends Exportable {
 
         /**
-         * Initialization of all necessary Values
-         *
-         * @param value
-         */
-        void setupDimensions(Value value);
-
-        /**
          * Reset all intermediate results of calculation (after backprop step - typically by zeroing them out)
          */
         void invalidate();
@@ -100,6 +94,15 @@ public interface ActivationFcn {
          * @return
          */
         Value evaluate();
+
+        /**
+         * Evaluation given a raw list of input Values + Initialization of all the stateful Values.
+         * To be performed upon initialization.
+         * Inefficient for (repeated) computation itself.
+         *
+         * @param inputValues
+         */
+        Value initEval(List<Value> inputValues);
 
         /**
          * Store a value - add it to the current state
@@ -144,7 +147,7 @@ public interface ActivationFcn {
             if (combination == null && transformation == null) {
                 LOG.severe("Trying to create a fcn state with no combination or transformation fcn");   // FactNeurons with no activation fcns get their states directly - not through this function
                 return null;
-            } else if (combination == null) {   // negation neurons (and maybe other single-input neurons in future)
+            } else if (combination == null) {   // negation neurons (other single-input neurons are captured later by StateInitializer)
                 return transformation.getState(true);
             } else if (transformation == null || transformation instanceof Identity) {
                 return combination.getState(false);     // aggregation neurons AND newly other neurons with no non-linearity on top
@@ -153,6 +156,33 @@ public interface ActivationFcn {
                 transformationState = transformation.getState(true);
                 return new CompoundState((Combination.State) combinationState, (Transformation.State) transformationState);
             }
+        }
+
+        /**
+         * Get a possibly updated version of the existing state, given the extra context of the input values
+         * @param fcnState
+         * @param inputValues
+         * @return
+         */
+        static State getState(State fcnState, List<Value> inputValues) {
+            if (inputValues.size() == 0){
+                LOG.severe("No neuron input values collected at initialization, cannot infer the State update.");
+            }
+            ActivationFcn.State transformationState = fcnState;
+            if (inputValues.size() == 1 && !(fcnState instanceof Transformation.State)) {    // if there is just a single input value, this should be a pure Transformation.State (No combination involved)
+                Transformation transformation = fcnState.getTransformation();
+                Combination combination = fcnState.getCombination();
+                if (transformation == null){   // if this was a pure Combination.State (not CompoundState) - e.g. in aggregation neurons
+                    transformationState = combination.singleInputVersion().getState(true);
+                } else {    // if this was a CompoundState, take only the transformation part
+                    if (combination.singleInputVersion() instanceof Identity) { // if the combination can be replaced with Identity, we can safely skip it
+                        transformationState = transformation.getState(true);
+                    } else {    // if the combination is some weird function, we should keep the CompoundState as is
+                        return fcnState;
+                    }
+                }
+            }
+            return transformationState;
         }
     }
 
@@ -170,11 +200,6 @@ public interface ActivationFcn {
         }
 
         @Override
-        public void setupDimensions(Value value) {
-            embedding = value.getForm();
-        }
-
-        @Override
         public void invalidate() {
             //void - this is a value storage - the value should stay throughout the whole learning
         }
@@ -182,6 +207,15 @@ public interface ActivationFcn {
         @Override
         public Value evaluate() {
             LOG.warning("Calling evaluate on SimpleValueState");
+            return embedding;
+        }
+
+        @Override
+        public Value initEval(List<Value> inputValues) {
+            if (inputValues.size() != 1){
+                LOG.severe("Setting up SimpleValueState with more than one Value.");
+            }
+            embedding = inputValues.get(0);
             return embedding;
         }
 

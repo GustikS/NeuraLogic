@@ -769,7 +769,7 @@ public class Settings implements Serializable {
     public TransformationFcn ruleNeuronTransformation = TransformationFcn.TANH;
     public CombinationFcn atomNeuronCombination = CombinationFcn.SUM;
     public TransformationFcn atomNeuronTransformation = TransformationFcn.TANH;
-    public CombinationFcn aggNeuronCombination = CombinationFcn.AVG;
+    public CombinationFcn aggNeuronAggregation = CombinationFcn.AVG;    // this should only be from the Aggregation subset!
     public TransformationFcn softNegation = TransformationFcn.REVERSE;
 
     public enum CombinationFcn {
@@ -1234,7 +1234,7 @@ public class Settings implements Serializable {
         }
         if (cmd.hasOption("aggFunction")) {
             String _fnc = cmd.getOptionValue("aggFunction");
-            settings.aggNeuronCombination = parseCombination(_fnc);
+            settings.aggNeuronAggregation = parseCombination(_fnc);
         }
 
         if (cmd.hasOption("sourcesDir")) {

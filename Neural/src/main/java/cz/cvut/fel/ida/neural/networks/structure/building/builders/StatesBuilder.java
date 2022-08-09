@@ -1,26 +1,18 @@
 package cz.cvut.fel.ida.neural.networks.structure.building.builders;
 
-import cz.cvut.fel.ida.algebra.functions.combination.Concatenation;
-import cz.cvut.fel.ida.algebra.functions.combination.CrossSum;
-import cz.cvut.fel.ida.algebra.functions.combination.Product;
-import cz.cvut.fel.ida.algebra.functions.combination.Softmax;
-import cz.cvut.fel.ida.algebra.functions.transformation.joint.Transposition;
-import cz.cvut.fel.ida.algebra.values.Value;
-import cz.cvut.fel.ida.algebra.weights.Weight;
+import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.neurons.StateInitializer;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.StateVisiting;
+import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.neurons.Evaluator;
 import cz.cvut.fel.ida.neural.networks.computation.training.strategies.Hyperparameters.DropoutRateStrategy;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.BaseNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
-import cz.cvut.fel.ida.neural.networks.structure.components.neurons.WeightedNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.States;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.StatesCache;
-import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.FactNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.types.DetailedNetwork;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.NeuronMapping;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 import cz.cvut.fel.ida.setup.Settings;
-import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -35,25 +27,27 @@ public class StatesBuilder {
     }
 
     /**
-     * Infer correct dimensions of all the value tensors within this network and create respective {@link Value} objects.
-     * todo now now this must respect the actual functions
+     * Infer correct dimensions of all the intermediate Values within this network's neurons' States and their fcnStates
      *
      * @param detailedNetwork
      */
-    public void inferValues(DetailedNetwork<State.Structure> detailedNetwork) {
+    public void initializeStates(DetailedNetwork<State.Structure> detailedNetwork) {
+
+        int stateIndex = 0;
+
+        StateInitializer stateInitializer = new StateInitializer(detailedNetwork, new Evaluator(stateIndex));   // the Evaluator is just for carrying the index, which is 0 here (no parallel states yet)
+
         for (int i = 0; i < detailedNetwork.allNeuronsTopologic.size(); i++) {
             BaseNeuron<Neurons, State.Neural> neuron = detailedNetwork.allNeuronsTopologic.get(i);
-            if (neuron.getComputationView(0).getValue() != null)
-                continue;   // already initialized, e.g. FactNeurons
+            if (neuron.getComputationView(stateIndex).getValue() != null)
+                continue;   // already initialized, e.g. FactNeurons (or from possible neuron reuse)
 
             try {
-                if (neuron instanceof WeightedNeuron) {
-                    inferWeightedDimension(detailedNetwork, neuron);
-                } else {
-                    inferUnweightedDimension(detailedNetwork, neuron);
-                }
+
+                neuron.visit(stateInitializer);  // not the other way around for correct generic casting...
+
             } catch (ArithmeticException ex) {
-                LOG.severe("algebraic exception at neuron: " + neuron.toString());
+                LOG.severe("Arithmetic exception at neuron: " + neuron.toString());
                 throw ex;
             } catch (Exception ex) {
                 LOG.severe("Exception at neuron state building (StatesBuilder): " + ex.toString());
@@ -62,134 +56,6 @@ public class StatesBuilder {
         }
     }
 
-    private void inferWeightedDimension(DetailedNetwork<State.Structure> detailedNetwork, BaseNeuron<Neurons, State.Neural> neuron) {
-
-        if (((BaseNeuron) neuron) instanceof FactNeuron) {
-            //facts neurons have no inputs to infer the generics
-            return;
-        }
-
-        WeightedNeuron<BaseNeuron, State.Neural> weightedNeuron = (WeightedNeuron) neuron;
-        List<Value> inputValues = new ArrayList<>();
-
-        Pair<Iterator<BaseNeuron>, Iterator<Weight>> inputs = detailedNetwork.getInputs(weightedNeuron);
-        Iterator<BaseNeuron> neuronIterator = inputs.r;
-        Iterator<Weight> weightIterator = inputs.s;
-        Value value = null;
-        Value weight = null;
-        if (neuronIterator.hasNext()) {
-            BaseNeuron next = neuronIterator.next();
-            State.Neural.Computation computationView = next.getComputationView(0);
-            value = computationView.getValue();
-            Weight nextWeight = weightIterator.next();
-            if (nextWeight == null) {
-                LOG.warning("Weight for input missing, deducing unit weight value for: " + next.name);
-                weight = Value.ONE;
-            } else {
-                weight = nextWeight.value;
-            }
-        }
-
-        if (value == null || weight == null) {
-            LOG.warning("Value dimension cannot be inferred for " + neuron);
-            return;
-        }
-        Value sum = weight.times(value).clone();    //the result might be just value if unit weight -> clone
-        if (sum == null) {
-            LOG.severe("Weight-Value dimension mismatch at neuron:" + neuron);
-        }
-        inputValues.add(sum);
-        while (neuronIterator.hasNext()) {
-            value = neuronIterator.next().getComputationView(0).getValue();
-            weight = weightIterator.next().value;
-            if (value == null || weight == null) {
-                LOG.severe("Value dimension cannot be inferred!" + neuron);
-                return;
-            } else {
-                Value increment = weight.times(value);
-                if (increment == null) {
-                    LOG.severe("Weight-Value dimension mismatch at neuron:" + neuron);
-                } else {
-                    if (changesDimensions(neuron)) {        //todo now place combination activaiton here instead
-                        inputValues.add(increment);
-                    } else {
-                        Value plus = sum.plus(increment);
-                        if (plus == null) {
-                            LOG.severe("Input Values dimension mismatch at neuron:" + neuron);
-                        } else {
-                            sum.incrementBy(increment);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (changesDimensions(neuron)) {
-            sum = neuron.getCombination().evaluate(inputValues);
-            if (neuron.getCombination() instanceof CrossSum) {
-                CrossSum.State crossProducState = (CrossSum.State) neuron.getComputationView(0).getFcnState();
-                crossProducState.initMapping(inputValues);
-                //todo now also init all CumulationState arraylist sizes here
-            }
-        }
-        neuron.getComputationView(0).setupDimensions(sum);
-    }
-
-    private void inferUnweightedDimension(DetailedNetwork<State.Structure> detailedNetwork, BaseNeuron<Neurons, State.Neural> neuron) {
-        Iterator<Neurons> inputs = detailedNetwork.getInputs(neuron);
-        List<Value> inputValues = new ArrayList<>();
-
-        Value sum = inputs.next().getComputationView(0).getValue();
-        if (sum == null) {
-            LOG.severe("Value dimension cannot be inferred!" + neuron);
-        } else {
-            inputValues.add(sum);
-            sum = sum.clone();  //we do not want to change any existing value here -> clone
-        }
-        while (inputs.hasNext()) {
-            Neurons next = inputs.next();
-            Value result = next.getComputationView(0).getValue();
-            if (result == null) {
-                LOG.severe("Value dimension cannot be inferred!" + neuron);
-            } else {
-                if (changesDimensions(neuron)) {    //todo now place combination activaiton here instead
-                    inputValues.add(result);
-                } else if (neuron.getCombination().getClass() == Product.class) {
-                    Value increment = sum.times(result);
-                    if (increment == null) {
-                        LOG.severe("Input Values dimension mismatch at neuron:" + neuron);
-                    } else {
-                        sum = increment;
-                    }
-                } else {
-                    Value increment = sum.plus(result);
-                    if (increment == null) {
-                        LOG.severe("Input Values dimension mismatch at neuron:" + neuron);
-                    } else {
-                        sum.incrementBy(result);
-                    }
-                }
-            }
-        }
-        if (changesDimensions(neuron)) {
-            sum = neuron.getCombination().evaluate(inputValues);
-            if (neuron.getCombination() instanceof CrossSum) {
-                CrossSum.State crossProducState = (CrossSum.State) neuron.getComputationView(0).getFcnState();
-                crossProducState.initMapping(inputValues);
-            }
-        }
-        neuron.getComputationView(0).setupDimensions(sum);
-    }
-
-    /**
-     * Check whether this activaiton needs to be treated specially
-     *
-     * @param neuron
-     * @return
-     */
-    private boolean changesDimensions(BaseNeuron<Neurons, State.Neural> neuron) {
-        return neuron.getCombination() instanceof CrossSum || neuron.getCombination() instanceof Concatenation || neuron.getCombination() instanceof Softmax || neuron.getCombination() instanceof Transposition;
-    }
 
     /**
      * Sets individual dropout rates and ALSO computes depth of each neuron (since this is the only place where it is necessary).

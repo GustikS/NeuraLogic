@@ -1,5 +1,6 @@
 package cz.cvut.fel.ida.learning.results;
 
+import cz.cvut.fel.ida.algebra.functions.aggregation.Sum;
 import org.jetbrains.annotations.NotNull;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.functions.aggregation.Average;
@@ -89,6 +90,8 @@ public abstract class Results implements Exportable<Results> {
     private static Aggregation getAggregation(Settings settings) {
         if (settings.errorAggregationFcn == Settings.CombinationFcn.AVG) {
             return new Average();
+        } else if (settings.errorAggregationFcn == Settings.CombinationFcn.SUM) {
+            return new Sum();
         } else {
             LOG.severe("Unsupported errorAggregationFcn.");
         }
