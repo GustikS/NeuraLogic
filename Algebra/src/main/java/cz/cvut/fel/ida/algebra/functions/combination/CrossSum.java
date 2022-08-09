@@ -115,7 +115,7 @@ public class CrossSum implements Combination {
 
         @Override
         public void ingestTopGradient(Value topGradient) {
-//            processedGradient = topGradient;
+            processedGradient = topGradient;
 
             for (int i = 0; i < mapping.length; i++) {
                 double grad = processedGradient.get(i);

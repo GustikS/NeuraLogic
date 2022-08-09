@@ -228,7 +228,7 @@ public abstract class States implements State {
 
         @Override
         public void storeValue(Value value) {
-            LOG.warning("FactNeurons storeValue call");
+//            LOG.warning("FactNeurons storeValue call");   // - this is ok, they receive the offset if learnable
             outputValue = value;    //there is no accumulation of values here (from inputs) as there are no inputs
         }
 

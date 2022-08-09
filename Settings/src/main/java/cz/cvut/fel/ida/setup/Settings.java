@@ -796,11 +796,11 @@ public class Settings implements Serializable {
             case "count":
                 return CombinationFcn.COUNT;
             // Combination
-            case "prod":
+            case "product":
                 return CombinationFcn.PRODUCT;
-            case "elprod":
+            case "elproduct":
                 return CombinationFcn.ELPRODUCT;
-            case "cross":
+            case "crosssum":
                 return CombinationFcn.CROSSSUM;
             case "concat":
                 return CombinationFcn.CONCAT;

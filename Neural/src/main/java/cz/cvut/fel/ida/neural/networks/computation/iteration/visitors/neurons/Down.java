@@ -60,9 +60,10 @@ public class Down extends NeuronVisitor.Weighted {
         //state.invalidate(); //todo (b) test if faster with invalidation here (at the end of backprop) instead of using separate iteration with networks.computation.iteration.visitors.states.Invalidator ? Not a good idea, what if we want to reuse the values?
         Pair<Iterator<T>, Iterator<Weight>> inputs = network.getInputs(neuron);
 
-        Value offsetGradient = fcnState.nextInputGradient();
-
-        weightUpdater.visit(neuron.offset, offsetGradient);
+        if (neuron.offset.value != Value.ZERO) {
+            Value offsetGradient = fcnState.nextInputGradient();    // the offset is always the first Value in the List !
+            weightUpdater.visit(neuron.offset, offsetGradient);
+        }
 
         Iterator<T> inputNeurons = inputs.r;
         Iterator<Weight> inputWeights = inputs.s;

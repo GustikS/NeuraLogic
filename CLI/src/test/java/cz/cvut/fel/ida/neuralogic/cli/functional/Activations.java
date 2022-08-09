@@ -42,7 +42,7 @@ public class Activations {
     @TestAnnotations.Medium
     public void max() throws Exception {
 
-        Settings settings = Settings.forSlowTest();
+        Settings settings = Settings.forFastTest();
 
         settings.aggNeuronAggregation = Settings.CombinationFcn.MAX;
 
@@ -58,7 +58,7 @@ public class Activations {
 
         Settings settings = Settings.forFastTest();
         settings.appLimitSamples = -1;
-        settings.maxCumEpochCount = 1000;
+        settings.maxCumEpochCount = 10;
 
 //        settings.ruleNeuronActivation = Settings.ActivationFcn.RELU;
 

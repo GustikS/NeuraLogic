@@ -62,7 +62,8 @@ public class StateInitializer extends NeuronVisitor.Weighted {
         Weight weight;
         List<Value> inputValues = new ArrayList<>();
 
-        inputValues.add(neuron.offset.value);   // the offset is always the first Value in the List !
+        if (neuron.offset.value != Value.ZERO)  // only add input if it is not void - otherwise there are problems with initialization of the Value form
+            inputValues.add(neuron.offset.value);   // the offset is always the first Value in the List !
 
         while (inputNeurons.hasNext()) {
             input = inputNeurons.next();

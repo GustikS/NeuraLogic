@@ -35,6 +35,7 @@ class Zero extends Value {
 
     @Override
     public Value getForm() {
+        LOG.fine("Getting Form of a constant ZERO");
         return this;
     }
 
@@ -54,7 +55,7 @@ class Zero extends Value {
 
     @Override
     public Value apply(Function<Double, Double> function) {
-        throw new ArithmeticException("Trying to modify value of constant ONE");
+        throw new ArithmeticException("Trying to modify value of constant ZERO");
     }
 
     @Override

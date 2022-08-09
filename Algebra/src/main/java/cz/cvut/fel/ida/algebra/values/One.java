@@ -30,12 +30,14 @@ public class One extends Value {
 
     @Override
     public Value clone() {
-        return new ScalarValue(1);
+        LOG.fine("Cloning a constant ONE");
+        return this;
     }
 
     @Override
     public Value getForm() {
-        return new ScalarValue(0);
+        LOG.fine("Getting Form of a constant ONE");
+        return this;
     }
 
     @Override

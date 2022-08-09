@@ -46,11 +46,7 @@ public class NeuronFactory {
         this.settings = settings;
         atomOffset = new Weight(-10, "fixedAtomOffset", new ScalarValue(settings.defaultAtomNeuronOffset), true, true);
         ruleOffset = new Weight(-9, "fixedRuleOffset", new ScalarValue(settings.defaultRuleNeuronOffset), true, true);
-        if (settings.defaultFactValue != 1) {
-            defaultFactValue = new ScalarValue(settings.defaultFactValue);
-        } else {
-            defaultFactValue = Value.ONE;
-        }
+        defaultFactValue = new ScalarValue(settings.defaultFactValue);  // this should not be just Value.ONE as the fact values need to be valid values for subsequent modification (e.g. function application)
     }
 
     public WeightedAtomNeuron createWeightedAtomNeuron(HeadAtom head, Literal groundHead) {
