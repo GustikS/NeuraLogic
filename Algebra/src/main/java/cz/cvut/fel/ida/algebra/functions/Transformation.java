@@ -128,6 +128,15 @@ public interface Transformation extends ActivationFcn, Exportable {
         }
 
         @Override
+        public ActivationFcn.State changeTransformationState(Transformation transformation) {
+            if (transformation.getClass().equals(this.transformation.getClass())){
+                return this;    // no change
+            } else {
+                return transformation.getState(true);
+            }
+        }
+
+        @Override
         public Combination getCombination() {
             return null;
         }

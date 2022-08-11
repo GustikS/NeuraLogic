@@ -1,5 +1,6 @@
 package cz.cvut.fel.ida.algebra.functions;
 
+import cz.cvut.fel.ida.algebra.functions.transformation.joint.Identity;
 import cz.cvut.fel.ida.algebra.values.Value;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,7 +17,7 @@ public class CompoundState implements ActivationFcn.State {
     @NotNull
     private final Combination.State combinationState;
     @NotNull
-    private final Transformation.State transformationState;
+    private Transformation.State transformationState;
 
     public CompoundState(Combination.State combinationState, Transformation.State transformationState) {
         this.combinationState = combinationState;
@@ -52,8 +53,8 @@ public class CompoundState implements ActivationFcn.State {
     @Override
     public void ingestTopGradient(Value topGradient) {
         transformationState.ingestTopGradient(topGradient);
-        Value gradient = transformationState.gradient();
-        combinationState.ingestTopGradient(gradient);
+        Value transformationGradient = transformationState.nextInputGradient();
+        combinationState.ingestTopGradient(transformationGradient);
     }
 
     @Override
@@ -76,4 +77,15 @@ public class CompoundState implements ActivationFcn.State {
         return transformationState.getTransformation();
     }
 
+    @Override
+    public ActivationFcn.State changeTransformationState(Transformation transformation) {
+        if (transformation.getClass().equals(this.transformationState.transformation.getClass())) {
+            return this;    // no change
+        } else if (transformation instanceof Identity) {
+            return this.combinationState;   // no transformation anymore
+        } else {
+            this.transformationState = (Transformation.State) transformation.getState(true);    // switch to the new transformation (no stateful values there)
+            return this;
+        }
+    }
 }

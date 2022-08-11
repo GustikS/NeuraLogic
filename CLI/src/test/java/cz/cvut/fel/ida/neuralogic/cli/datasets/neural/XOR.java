@@ -25,7 +25,7 @@ public class XOR {
         settings.appLimitSamples = -1;
         settings.maxCumEpochCount = 1000;
         settings.squishLastLayer = false;
-        settings.inferOutputNeuronFcn = false;
+        settings.inferOutputFcns = false;
 
 //        settings.ruleNeuronActivation = Settings.ActivationFcn.RELU;
 //        settings.atomNeuronActivation = Settings.ActivationFcn.RELU;
@@ -50,7 +50,7 @@ public class XOR {
         settings.appLimitSamples = -1;
         settings.maxCumEpochCount = 1000;
         settings.squishLastLayer = false;
-        settings.inferOutputNeuronFcn = false;
+        settings.inferOutputFcns = false;
 
         settings.isoValueCompression = false;
 
@@ -73,7 +73,8 @@ public class XOR {
 
         Settings settings = Settings.forFastTest();
         settings.squishLastLayer = false;
-        settings.inferOutputNeuronFcn = false;  //we want the template fcns exactly as they are
+        settings.inferOutputFcns = false;  //we want the template fcns exactly as they are
+//        settings.errorFunction = Settings.ErrorFcn.CROSSENTROPY;
 
         settings.appLimitSamples = -1;
         Pair<Pipeline, ?> results = Main.main(dataset, settings);

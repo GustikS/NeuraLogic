@@ -29,7 +29,7 @@ public class ErrorFunctions {
         settings.shuffleBeforeTraining = false;
         settings.shuffleEachEpoch = false;
 
-        settings.inferOutputNeuronFcn = true;
+        settings.inferOutputFcns = true;
         settings.squishLastLayer = false;
         settings.errorFunction = Settings.ErrorFcn.CROSSENTROPY;
 
@@ -54,7 +54,7 @@ public class ErrorFunctions {
         settings.shuffleBeforeTraining = false;
         settings.shuffleEachEpoch = false;
 
-        settings.inferOutputNeuronFcn = true;
+        settings.inferOutputFcns = true;
         settings.squishLastLayer = true;
 //        settings.errorFunction = Settings.ErrorFcn.CROSSENTROPY;
 

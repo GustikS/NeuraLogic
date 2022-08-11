@@ -24,11 +24,11 @@ public class StateTest {
         List<Value> inputValues = new ArrayList<>();
         inputValues.add(new ScalarValue(0));
         state.initEval(inputValues);
-        state.invalidate();
+//        state.invalidate();
         Evaluator evaluator = new Evaluator(-1);
         Value value = state.getValue();
         Value output = evaluator.visit(state);
-        assertEquals(value, new ScalarValue(0));
+        assertEquals(value, new ScalarValue(0.5));
         assertEquals(output, new ScalarValue(0.5));
     }
 }

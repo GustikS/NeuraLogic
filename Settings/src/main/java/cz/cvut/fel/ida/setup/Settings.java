@@ -104,9 +104,7 @@ public class Settings implements Serializable {
         setting.mainMode = MainMode.COMPLETE;
         setting.neuralNetsPostProcessing = false;
         setting.chainPruning = true;
-
         setting.outDir = Settings.logFile;
-        setting.infer();
         return setting;
     }
 
@@ -116,9 +114,7 @@ public class Settings implements Serializable {
         setting.plotProgress = -1;
         setting.appLimitSamples = -1;
         setting.seed = 0;
-
         setting.outDir = Settings.logFile;
-        setting.infer();
         return setting;
     }
 
@@ -128,9 +124,7 @@ public class Settings implements Serializable {
         setting.plotProgress = -1;
         setting.appLimitSamples = -1;
         setting.seed = 0;
-
         setting.outDir = Settings.logFile;
-        setting.infer();
         return setting;
     }
 
@@ -140,9 +134,7 @@ public class Settings implements Serializable {
         setting.plotProgress = 1;
         setting.appLimitSamples = -1;
         setting.seed = 0;
-
         setting.outDir = Settings.logFile;
-        setting.infer();
         return setting;
     }
 
@@ -707,11 +699,12 @@ public class Settings implements Serializable {
      * - i.e. evaluationMode (classification/regression/KBC)
      * - e.g. it will set softmax+crossentropy if multinomial classification is detected (and sigmoid for binary)
      */
-    public boolean inferOutputNeuronFcn = true;
+    public boolean inferOutputFcns = true;
 
     /**
      * Merge the last activation fcn and the errorFcn into a single function
      * - e.g. squish softmax + crossentropy into softentropy for optimization and numerical stability
+     * - this is generally desirable to keep true
      */
     public boolean squishLastLayer = true;
 
@@ -811,8 +804,8 @@ public class Settings implements Serializable {
         }
     }
 
-    public static TransformationFcn parseTransformation(String transformation){
-        switch (transformation.toLowerCase()){
+    public static TransformationFcn parseTransformation(String transformation) {
+        switch (transformation.toLowerCase()) {
             // ElementWise Activation
             case "sigmoid":
                 return TransformationFcn.SIGMOID;
@@ -1416,6 +1409,21 @@ public class Settings implements Serializable {
 
         if (validationResultsType == ResultsType.DETAILEDCLASSIFICATION || validationResultsType == ResultsType.KBC) {
             calculateBestThreshold = true;  //it does not cost more then
+        }
+
+        if (inferOutputFcns) {
+            if (trainOnlineResultsType == ResultsType.REGRESSION) {
+                errorFunction = ErrorFcn.SQUARED_DIFF;
+            } else {
+                if (squishLastLayer) {
+                    errorFunction = ErrorFcn.SOFTENTROPY;
+                } else {
+                    errorFunction = ErrorFcn.CROSSENTROPY;
+                }
+            }
+        }
+        if (errorFunction == ErrorFcn.SOFTENTROPY) {
+            squishLastLayer = true;
         }
 
 //        resultsRecalculationEpochae = maxCumEpochCount / 100;

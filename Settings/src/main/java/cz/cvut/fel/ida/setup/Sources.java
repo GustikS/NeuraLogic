@@ -60,7 +60,8 @@ public class Sources {
 //            System.exit(1);
         }
 
-        settings.infer();
+        settings.infer();   //  this is important here
+
         StringBuilder problems = new StringBuilder();
         Boolean validation = settings.validate(problems);
         if (!validation) {

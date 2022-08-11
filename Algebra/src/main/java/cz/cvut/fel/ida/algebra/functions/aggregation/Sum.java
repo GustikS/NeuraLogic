@@ -62,7 +62,6 @@ public class Sum implements Aggregation {
     }
 
 
-
     public static class AggregationState extends Aggregation.State {
 
         public AggregationState(Combination combination) {

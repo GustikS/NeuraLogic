@@ -45,22 +45,24 @@ public class Atom implements Exportable {
         }
         this.offsettedPredicate = weightedPredicate;
         this.literal = new Literal(weightedPredicate.predicate, negated, terms);
-        this.transformation = offsettedPredicate.transformation;    //by default we are inheriting the activation from the predicate
-        this.combination = offsettedPredicate.combination;
+        this.combination = weightedPredicate.combination;
+        this.transformation = weightedPredicate.transformation;    //by default we are inheriting the activation from the predicate
     }
 
     public Atom(Atom another) {
         this.offsettedPredicate = another.offsettedPredicate;
         this.literal = another.literal;
-        this.transformation = another.transformation;
         this.combination = another.combination;
+        this.transformation = another.transformation;
         this.originalString = another.originalString;
+        this.dropout = another.dropout;
     }
 
     public Predicate getPredicate() {
         return literal.predicate();
     }
 
+    @NotNull
     public WeightedPredicate getOffsettedPredicate() {
         return offsettedPredicate;
     }
@@ -69,6 +71,7 @@ public class Atom implements Exportable {
         return literal.isNegated();
     }
 
+    @NotNull
     public Literal getLiteral() {
         return literal;
     }

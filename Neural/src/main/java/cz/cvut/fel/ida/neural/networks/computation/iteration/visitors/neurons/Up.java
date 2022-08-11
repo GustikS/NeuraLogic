@@ -35,7 +35,7 @@ public class Up extends NeuronVisitor.Weighted {
         T input;
         while (inputs.hasNext()) {
             input = inputs.next();
-            state.storeValue(input.getComputationView(stateVisitor.stateIndex).getValue());
+            state.cumulateValue(input.getComputationView(stateVisitor.stateIndex).getValue());
         }
         Value value = stateVisitor.visit(state);
     }
@@ -52,12 +52,12 @@ public class Up extends NeuronVisitor.Weighted {
         //state.invalidate(); //todo (a) test if faster with invalidation here (at the beginning of evaluation) instead of using separate iteration with networks.computation.iteration.visitors.states.Invalidator ?
 
         if (neuron.offset.value != Value.ZERO)  // only store offset if it is not void - otherwise there may be problems with its behavior w.r.t. some functions
-            state.storeValue(neuron.offset.value);
+            state.cumulateValue(neuron.offset.value);
 
         while (inputNeurons.hasNext()) { //todo test version with fori
             input = inputNeurons.next();
             weight = inputWeights.next();
-            state.storeValue(weight.value.times(input.getComputationView(stateVisitor.stateIndex).getValue()));
+            state.cumulateValue(weight.value.times(input.getComputationView(stateVisitor.stateIndex).getValue()));
         }
         Value value = stateVisitor.visit(state);
     }

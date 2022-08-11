@@ -26,11 +26,12 @@ public class Runner {
     }
 
     public static Pair<Pipeline, ?> main(String[] args, Settings settings) throws Exception {
-        Logging logging = Logging.initLogging(settings);
-
         if (settings == null) {
             settings = new Settings();
         }
+
+        Logging logging = Logging.initLogging(settings);
+
         Sources sources = getSources(args, settings);
 
         logging.initialize(settings.loggingLevel, settings.supressLogFileOutput, settings.customLogColors);

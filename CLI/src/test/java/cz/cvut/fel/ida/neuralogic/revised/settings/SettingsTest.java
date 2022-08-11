@@ -19,6 +19,7 @@ public class SettingsTest {
     @TestAnnotations.Fast
     public void exportToJson() {
         Settings settings = new Settings();
+        settings.infer();
         String json = settings.exportToJson();
         LOG.fine(json);
         assertFalse(json.isEmpty());
@@ -27,6 +28,7 @@ public class SettingsTest {
     @TestAnnotations.Fast
     public void exportToJsonFile() {
         Settings settings = Settings.forFastTest();
+        settings.infer();
         Path exportPath = Paths.get(Settings.logFile, settings.settingsExportFile);
         TextExporter.exportString(settings.exportToJson(), exportPath);
         assertTrue(exportPath.toFile().exists());
@@ -35,6 +37,7 @@ public class SettingsTest {
     @TestAnnotations.Fast
     public void exportImportFromJson() {
         Settings settings = Settings.forFastTest();
+        settings.infer();
         Path exportPath = Paths.get(Settings.logFile, settings.settingsExportFile);
         settings.maxCumEpochCount = 7;
         TextExporter.exportString(settings.exportToJson(), exportPath);

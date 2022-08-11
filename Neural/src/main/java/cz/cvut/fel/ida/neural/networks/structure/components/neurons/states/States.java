@@ -81,9 +81,9 @@ public abstract class States implements State {
      */
     public static class ComputationStateStandard implements Neural.Computation {
 
-        public ActivationFcn.State fcnState;
-        public Value outputValue;
-        public Value acumGradient;
+        ActivationFcn.State fcnState;
+        Value outputValue;
+        Value acumGradient;
 
         public ComputationStateStandard(Combination combination, Transformation transformation) {
             fcnState = ActivationFcn.State.getState(combination, transformation);
@@ -91,7 +91,8 @@ public abstract class States implements State {
 
         @Override
         public void invalidate() {
-            outputValue.zero();
+//            outputValue.zero();   // the outputValue here can actually be pointer passed from some actual input Value, which we do not want to modify (e.g. unlearnable Fact Value)
+            outputValue = null;
             acumGradient.zero();
             fcnState.invalidate();
         }
@@ -139,7 +140,7 @@ public abstract class States implements State {
             return acumGradient;
         }
 
-        public void storeValue(Value value) {
+        public void cumulateValue(Value value) {
             fcnState.cumulate(value);
         }
 
@@ -227,7 +228,7 @@ public abstract class States implements State {
         }
 
         @Override
-        public void storeValue(Value value) {
+        public void cumulateValue(Value value) {
 //            LOG.warning("FactNeurons storeValue call");   // - this is ok, they receive the offset if learnable
             outputValue = value;    //there is no accumulation of values here (from inputs) as there are no inputs
         }

@@ -25,7 +25,7 @@ public class MulticlassClassification {
         settings.appLimitSamples = -1;
         settings.maxCumEpochCount = 1000;
 
-        settings.inferOutputNeuronFcn = true;
+        settings.inferOutputFcns = true;
         settings.squishLastLayer = true;
 
         Pair<Pipeline, ?> results = Main.main(dataset, settings);
@@ -49,7 +49,7 @@ public class MulticlassClassification {
         settings.appLimitSamples = -1;
         settings.maxCumEpochCount = 1000;
 
-        settings.inferOutputNeuronFcn = true;
+        settings.inferOutputFcns = true;
         settings.squishLastLayer = false;
 
         Pair<Pipeline, ?> results = Main.main(dataset, settings);
@@ -69,7 +69,7 @@ public class MulticlassClassification {
         settings.appLimitSamples = -1;
         settings.maxCumEpochCount = 1000;
 
-        settings.inferOutputNeuronFcn = true;
+        settings.inferOutputFcns = true;
         settings.squishLastLayer = false;
 
         Pair<Pipeline, ?> results = Main.main(dataset, settings);

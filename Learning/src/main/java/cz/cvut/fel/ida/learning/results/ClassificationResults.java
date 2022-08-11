@@ -115,12 +115,13 @@ public class ClassificationResults extends RegressionResults {
      *
      * @param evaluations
      */
-    private void loadBinaryMetrics(List<Result> evaluations) {    //todo add multiclass evaluation?
+    private void loadBinaryMetrics(List<Result> evaluations) {
 
         if (!(evaluations.get(0).getTarget() instanceof ScalarValue)) {
             loadMulticlassMetrics(evaluations);
             return;
         }
+
         if (settings.squishLastLayer){  //this means that the outputs are not normalized!
             for (Result evaluation : evaluations) {
                 evaluation.setOutput(ElementWise.Singletons.sigmoid.evaluate(evaluation.getOutput()));

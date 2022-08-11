@@ -225,7 +225,7 @@ public class VectorValue extends Value {
             }
             return result;
         } else {
-            String err = "Incompatible dimensions for vector multiplication: " + Arrays.toString(value.size()) + " vs " + Arrays.toString(size()) + " (try transposition)";
+            String err = "Incompatible dimensions for vector multiplication: " + Arrays.toString(value.size()) + " vs " + Arrays.toString(this.size()) + " (try transposition)";
             LOG.severe(err);
             throw new ArithmeticException(err); // todo measure if any cost of this
 //            return null;
@@ -248,8 +248,8 @@ public class VectorValue extends Value {
             throw new ArithmeticException(err);
         }
         if (value.cols > 1 && rowOrientation) {
-            LOG.severe("Multiplying matrix with a row-oriented vector!");
-            throw new ArithmeticException("Multiplying matrix with a row-oriented vector!");
+            LOG.severe("Multiplying matrix with a row-oriented vector: " + Arrays.toString(value.size()) + " times " + Arrays.toString(this.size()));
+            throw new ArithmeticException("Multiplying matrix with a row-oriented vector: " + Arrays.toString(value.size()) + " times " + Arrays.toString(this.size()));
         }
         VectorValue result = new VectorValue(value.rows);
         double[] resultValues = result.values;
@@ -301,7 +301,7 @@ public class VectorValue extends Value {
 
     @Override
     protected Value elementTimes(MatrixValue value) {
-        LOG.warning("Calculation matrix element-wise product with vector...");
+        LOG.warning("Calculating matrix element-wise product with vector...");
         if (value.cols != values.length) {
             String err = "Matrix elementTimes vector broadcast dimension mismatch: " + value.cols + " vs." + values.length;
             LOG.severe(err);

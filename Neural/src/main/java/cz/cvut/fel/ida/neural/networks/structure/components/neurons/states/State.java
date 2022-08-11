@@ -117,7 +117,7 @@ public interface State<V> extends Exportable {
 
             void setGradient(Value gradient);
 
-            void storeValue(Value value);
+            void cumulateValue(Value value);
 
             void storeGradient(Value gradient);
 

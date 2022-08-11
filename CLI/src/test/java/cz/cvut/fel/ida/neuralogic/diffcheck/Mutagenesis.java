@@ -54,7 +54,7 @@ public class Mutagenesis {
         settings.errorAggregationFcn = Settings.CombinationFcn.AVG;
         settings.errorFunction = Settings.ErrorFcn.SQUARED_DIFF;
 
-        settings.inferOutputNeuronFcn = false;
+        settings.inferOutputFcns = false;
         settings.squishLastLayer = false;
 
         settings.calculateBestThreshold = true;

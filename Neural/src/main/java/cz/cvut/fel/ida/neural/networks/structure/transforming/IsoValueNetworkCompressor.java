@@ -72,7 +72,7 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
         QueryNeuron queryNeuron;
         if (outputs.size() > 1) {
             States.ComputationStateStandard dummyState = new States.ComputationStateStandard(null, Transformation.Singletons.identity);
-            dummyState.outputValue = Value.ZERO;
+            dummyState.setValue(Value.ZERO);
             AtomNeuron dummy = new AtomNeuron("dummy", -1, dummyState);
             queryNeuron = new QueryNeuron("", -1, 1.0, dummy, inet);
         } else {

@@ -95,6 +95,13 @@ public interface Combination extends ActivationFcn, Exportable {
         public Transformation getTransformation() {
             return null;
         }
+
+        @Override
+        public ActivationFcn.State changeTransformationState(Transformation transformation) {
+            // no transformation = no change
+            return this;
+        }
+
     }
 
     abstract class InputArrayState extends State {

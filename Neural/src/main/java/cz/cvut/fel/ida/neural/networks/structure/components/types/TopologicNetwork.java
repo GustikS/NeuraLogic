@@ -3,8 +3,8 @@ package cz.cvut.fel.ida.neural.networks.structure.components.types;
 import cz.cvut.fel.ida.neural.networks.structure.components.NeuralNetwork;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.BaseNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
-import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.AtomNeurons;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.AtomNeurons;
 
 import java.util.*;
 import java.util.logging.Level;

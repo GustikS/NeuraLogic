@@ -2,12 +2,13 @@ package cz.cvut.fel.ida.neural.networks.structure.building.factories;
 
 import cz.cvut.fel.ida.neural.networks.structure.components.NeuralNetwork;
 import cz.cvut.fel.ida.neural.networks.structure.components.NeuralSets;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.BaseNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.AtomNeurons;
 import cz.cvut.fel.ida.neural.networks.structure.components.types.DetailedNetwork;
 import cz.cvut.fel.ida.neural.networks.structure.components.types.TopologicNetwork;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.LinkedMapping;
-import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
 import cz.cvut.fel.ida.setup.Settings;
 
 import java.util.*;
@@ -54,6 +55,8 @@ public class NeuralNetFactory {
             detailedNetwork = new DetailedNetwork(id, createdNeurons.getAllNeurons(), createdNeurons);
         }
 
+        trimNeuronInputLists(detailedNetwork.allNeuronsTopologic);
+
         if (!settings.possibleNeuronSharing) {
             detailedNetwork.sortIndices();  // only for independent networks
         }
@@ -68,5 +71,15 @@ public class NeuralNetFactory {
             }
         }
         return detailedNetwork;
+    }
+
+    /**
+     * Trim all the input arraylists to save some memory....
+     * @param allNeuronsTopologic
+     */
+    public static void trimNeuronInputLists(List<BaseNeuron<Neurons, State.Neural>> allNeuronsTopologic) {
+        for (BaseNeuron<Neurons, State.Neural> neuron : allNeuronsTopologic) {
+            neuron.getInputs().trimToSize();
+        }
     }
 }

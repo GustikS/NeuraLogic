@@ -89,7 +89,7 @@ public class PythonEvaluation extends Evaluation {
             T input;
             while (inputs.hasNext()) {
                 input = inputs.next();
-                state.storeValue(input.getComputationView(stateVisitor.stateIndex).getValue());
+                state.cumulateValue(input.getComputationView(stateVisitor.stateIndex).getValue());
             }
             Value value = stateVisitor.visit(state);
 
@@ -107,11 +107,13 @@ public class PythonEvaluation extends Evaluation {
             T input;
             Weight weight;
 
-            state.storeValue(neuron.offset.value);
+            if (neuron.offset.value != Value.ZERO)  // only store offset if it is not void - otherwise there may be problems with its behavior w.r.t. some functions
+                state.cumulateValue(neuron.offset.value);
+
             while (inputNeurons.hasNext()) {
                 input = inputNeurons.next();
                 weight = inputWeights.next();
-                state.storeValue(weight.value.times(input.getComputationView(stateVisitor.stateIndex).getValue()));
+                state.cumulateValue(weight.value.times(input.getComputationView(stateVisitor.stateIndex).getValue()));
             }
 
             Value value = stateVisitor.visit(state);

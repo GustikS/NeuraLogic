@@ -140,6 +140,8 @@ public interface ActivationFcn {
 
         Transformation getTransformation();
 
+        ActivationFcn.State changeTransformationState(Transformation transformation);
+
         static State getState(Combination combination, Transformation transformation) {
             State combinationState;
             State transformationState;
@@ -242,6 +244,12 @@ public interface ActivationFcn {
         @Override
         public Transformation getTransformation() {
             return null;
+        }
+
+        @Override
+        public ActivationFcn.State changeTransformationState(Transformation transformation) {
+            // no change
+            return this;
         }
 
     }

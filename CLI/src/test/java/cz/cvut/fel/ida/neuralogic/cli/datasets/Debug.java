@@ -26,7 +26,7 @@ public class Debug {
 //        settings.debugPipeline = true;
 //        settings.drawing = true;
         settings.squishLastLayer = false;
-        settings.inferOutputNeuronFcn = false;
+        settings.inferOutputFcns = false;
 //        settings.plotProgress = 1;
         settings.maxCumEpochCount = 100;
 //        settings.isoValueCompression = true;
@@ -40,7 +40,7 @@ public class Debug {
         String dataset = "debug/min";
         Settings settings = Settings.forSlowTest();
         settings.squishLastLayer = false;   //turn off both of these to avoid applying sigmoid on top
-        settings.inferOutputNeuronFcn = false;
+        settings.inferOutputFcns = false;
 
         settings.maxCumEpochCount = 1;
         Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./template.txt"), settings);
@@ -79,7 +79,7 @@ public class Debug {
         String dataset = "debug/negation";
         Settings settings = Settings.forSlowTest();
         settings.squishLastLayer = false;   //turn off both of these to avoid applying sigmoid on top
-        settings.inferOutputNeuronFcn = false;
+        settings.inferOutputFcns = false;
 //        settings.isoValueCompression = false;
 //        settings.chainPruning = false;
         settings.pruneOnlyIdentities = true;
