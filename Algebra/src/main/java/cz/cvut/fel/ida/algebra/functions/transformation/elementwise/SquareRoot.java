@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.algebra.functions.transformation.elementwise;
 import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -13,9 +14,9 @@ public class SquareRoot extends ElementWise {
     private static final Logger LOG = Logger.getLogger(SquareRoot.class.getName());
 
 
-    public static final Function<Double, Double> sqrt = in -> Math.sqrt(in);
+    public static final DoubleUnaryOperator sqrt = Math::sqrt;
 
-    private static final Function<Double, Double> diffSqrt = in -> 0.5 * Math.pow(in, -0.5);
+    private static final DoubleUnaryOperator diffSqrt = in -> 0.5 * Math.pow(in, -0.5);
 
     public SquareRoot() {
         super(sqrt, diffSqrt);

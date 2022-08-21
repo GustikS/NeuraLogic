@@ -7,7 +7,7 @@ import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.DoubleUnaryOperator;
 import java.util.logging.Logger;
 
 /**
@@ -100,7 +100,7 @@ public class MatrixValue extends Value {
 
     @Override
     public void transpose() {
-        double[] trValues = new double[values.length];
+        final double[] trValues = new double[values.length];
 
         for (int i = 0; i < rows; i++) {
             final int tmpIndex = i * cols;
@@ -132,12 +132,12 @@ public class MatrixValue extends Value {
     }
 
     @Override
-    public Value apply(Function<Double, Double> function) {
+    public Value apply(DoubleUnaryOperator function) {
         final MatrixValue result = new MatrixValue(rows, cols);
         final double[] tmpValues = result.values;
 
         for (int i = 0; i < tmpValues.length; i++) {
-            tmpValues[i] = function.apply(values[i]);
+            tmpValues[i] = function.applyAsDouble(values[i]);
         }
 
         return result;
@@ -205,12 +205,14 @@ public class MatrixValue extends Value {
             LOG.severe(err);
             throw new ArithmeticException(err);
         }
+
         if (!value.rowOrientation) {
             throw new ArithmeticException("Column vector times matrix, try transposition. Vector size = " + value.values.length);
         }
-        VectorValue result = new VectorValue(cols,true);
-        double[] resultValues = result.values;
-        double[] origValues = value.values;
+
+        final VectorValue result = new VectorValue(cols,true);
+        final double[] resultValues = result.values;
+        final double[] origValues = value.values;
 
         for (int j = 0; j < rows; j++) {
             final int tmpIndex = j * cols;

@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.text.NumberFormat;
 import java.util.Iterator;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -89,8 +90,8 @@ public class ScalarValue extends Value {
     }
 
     @Override
-    public Value apply(Function<Double, Double> function) {
-        return new ScalarValue(function.apply(value));
+    public Value apply(DoubleUnaryOperator function) {
+        return new ScalarValue(function.applyAsDouble(value));
     }
 
     @Override

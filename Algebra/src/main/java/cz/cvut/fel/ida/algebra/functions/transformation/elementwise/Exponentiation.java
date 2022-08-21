@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.algebra.functions.transformation.elementwise;
 import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -12,9 +13,9 @@ import java.util.logging.Logger;
 public class Exponentiation extends ElementWise {
     private static final Logger LOG = Logger.getLogger(Exponentiation.class.getName());
 
-    public static final Function<Double, Double> logist = in ->  Math.exp(in);
+    public static final DoubleUnaryOperator logist = Math::exp;
 
-    private static final Function<Double, Double> diffLogist = in -> Math.exp(in);
+    private static final DoubleUnaryOperator diffLogist = Math::exp;
 
     public Exponentiation() {
         super(logist, diffLogist);

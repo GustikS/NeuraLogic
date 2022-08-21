@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.algebra.functions.transformation.elementwise;
 import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -13,11 +14,11 @@ public class LukasiewiczSigmoid extends ElementWise {
     private static final Logger LOG = Logger.getLogger(LukasiewiczSigmoid.class.getName());
 
 
-    static Function<Double, Double> logist = in -> in > 100 ? 1 : (in < -100 ? 0 : 1 / (1 + Math.exp(-6 * in - 0.5)));
+    static DoubleUnaryOperator logist = in -> in > 100 ? 1 : (in < -100 ? 0 : 1 / (1 + Math.exp(-6 * in - 0.5)));
 
     public LukasiewiczSigmoid() {
         super(logist,
-                in -> in > 100 || in < -100 ? 0 : logist.apply(in) * (1 - logist.apply(in))
+                in -> in > 100 || in < -100 ? 0 : logist.applyAsDouble(in) * (1 - logist.applyAsDouble(in))
         );
     }
 

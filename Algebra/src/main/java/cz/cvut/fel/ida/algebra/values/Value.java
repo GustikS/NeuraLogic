@@ -6,6 +6,7 @@ import cz.cvut.fel.ida.setup.Settings;
 import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.Iterator;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -75,7 +76,7 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
      * @param function
      * @return
      */
-    public abstract Value apply(Function<Double, Double> function);
+    public abstract Value apply(DoubleUnaryOperator function);
 
     /**
      * Since Value is Iterable<Double>, we can access i-th element

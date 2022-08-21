@@ -7,6 +7,7 @@ import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -140,11 +141,11 @@ public class VectorValue extends Value {
     }
 
     @Override
-    public Value apply(Function<Double, Double> function) {
+    public Value apply(DoubleUnaryOperator function) {
         VectorValue result = new VectorValue(values.length, rowOrientation);
         double[] resultValues = result.values;
         for (int i = 0; i < values.length; i++) {
-            resultValues[i] = function.apply(values[i]);
+            resultValues[i] = function.applyAsDouble(values[i]);
         }
         return result;
     }

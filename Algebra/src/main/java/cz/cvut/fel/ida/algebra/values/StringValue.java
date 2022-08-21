@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.text.NumberFormat;
 import java.util.Iterator;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 
 /**
@@ -59,7 +60,7 @@ public class StringValue extends Value {
     }
 
     @Override
-    public Value apply(Function<Double, Double> function) {
+    public Value apply(DoubleUnaryOperator function) {
         return null;
     }
 

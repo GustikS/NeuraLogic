@@ -4,6 +4,7 @@ import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
 
 import java.text.NumberFormat;
 import java.util.Iterator;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -63,7 +64,7 @@ public class TensorValue extends Value {
     }
 
     @Override
-    public TensorValue apply(Function<Double, Double> function) {
+    public TensorValue apply(DoubleUnaryOperator function) {
         throw new ArithmeticException("Higher dimension Tensor operations are not implemented yet");
     }
 
