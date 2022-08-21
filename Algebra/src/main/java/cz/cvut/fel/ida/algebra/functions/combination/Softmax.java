@@ -45,8 +45,8 @@ public class Softmax implements Transformation, Combination, XMax {
         if (summedInputs instanceof VectorValue) {
             VectorValue inputVector = (VectorValue) summedInputs;
             double[] exps = getProbabilities(inputVector.values);
-            double[][] diffs = getGradient(exps);
-            return new MatrixValue(diffs);
+            double[] diffs = getGradient(exps);
+            return new MatrixValue(diffs, exps.length, exps.length);
         } else {
             throw new ClassCastException("Trying to differentiate softmax on something else than a Vector...");
         }
@@ -66,14 +66,16 @@ public class Softmax implements Transformation, Combination, XMax {
     }
 
 
-    public double[][] getGradient(double[] exps) {
-        double[][] diffs = new double[exps.length][exps.length];
+    public double[] getGradient(double[] exps) {
+        final double[] diffs = new double[exps.length * exps.length];
         for (int i = 0; i < exps.length; i++) {
+            final int tmpIndex = i * exps.length;
+
             for (int j = 0; j < exps.length; j++) {
                 if (i == j) {
-                    diffs[i][j] = exps[i] * (1 - exps[j]);
+                    diffs[tmpIndex + j] = exps[i] * (1 - exps[j]);
                 } else {
-                    diffs[i][j] = -exps[i] * exps[j];
+                    diffs[tmpIndex + j] = -exps[i] * exps[j];
                 }
             }
         }
@@ -177,8 +179,8 @@ public class Softmax implements Transformation, Combination, XMax {
 
         public Value gradient() {
             XMax xMax = (XMax) transformation;
-            double[][] gradient = xMax.getGradient(probabilities);
-            return new MatrixValue(gradient);
+            double[] gradient = xMax.getGradient(probabilities);
+            return new MatrixValue(gradient, probabilities.length, probabilities.length);
         }
     }
 
@@ -216,8 +218,8 @@ public class Softmax implements Transformation, Combination, XMax {
 
         public Value gradient() {
             XMax xMax = (XMax) combination;
-            double[][] gradient = xMax.getGradient(probabilities);
-            return new MatrixValue(gradient);
+            double[] gradient = xMax.getGradient(probabilities);
+            return new MatrixValue(gradient, probabilities.length, probabilities.length);
         }
     }
 }

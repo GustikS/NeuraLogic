@@ -80,21 +80,24 @@ public class Sparsemax extends Softmax {
      * @param exps
      * @return
      */
-    public double[][] getGradient(double[] exps) {
+    public double[] getGradient(double[] exps) {
         int support = 0;
         for (int i = 0; i < exps.length; i++) {
             if (exps[i] > 0) support++;
         }
-        double[][] diffs = new double[exps.length][exps.length];
+
+        final double[] diffs = new double[exps.length * exps.length];
         for (int i = 0; i < exps.length; i++) {
             if (exps[i] == 0) continue;
-            for (int j = 0; j < diffs.length; j++) {
+
+            final int tmpIndex = i * exps.length;
+            for (int j = 0; j < exps.length; j++) {
                 if (exps[j] == 0) continue;
 
                 if (i == j) {
-                    diffs[i][j] = 1 - 1.0 / support;
+                    diffs[tmpIndex + j] = 1 - 1.0 / support;
                 } else {
-                    diffs[i][j] = -1.0 / support;
+                    diffs[tmpIndex + j] = -1.0 / support;
                 }
             }
         }

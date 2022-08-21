@@ -149,12 +149,13 @@ public class ScalarValue extends Value {
 
     @Override
     protected MatrixValue times(MatrixValue value) {
-        MatrixValue clone = value.clone();
-        for (int i = 0; i < clone.rows; i++) {
-            for (int j = 0; j < clone.cols; j++) {
-                clone.values[i][j] *= this.value;
-            }
+        final MatrixValue clone = value.clone();
+        final double[] values = clone.values;
+
+        for (int i = 0; i < values.length; i++) {
+            values[i] *= this.value;
         }
+
         return clone;
     }
 
@@ -188,11 +189,11 @@ public class ScalarValue extends Value {
 
     @Override
     protected Value elementTimes(MatrixValue value) {
-        MatrixValue clone = value.clone();
-        for (int i = 0; i < clone.rows; i++) {
-            for (int j = 0; j < clone.cols; j++) {
-                clone.values[i][j] *= this.value;
-            }
+        final MatrixValue clone = value.clone();
+        final double[] values = clone.values;
+
+        for (int i = 0; i < values.length; i++) {
+            values[i] *= this.value;
         }
         return clone;
     }
@@ -227,12 +228,13 @@ public class ScalarValue extends Value {
 
     @Override
     protected Value kroneckerTimes(MatrixValue value) {
-        MatrixValue clone = value.clone();
-        for (int i = 0; i < clone.rows; i++) {
-            for (int j = 0; j < clone.cols; j++) {
-                clone.values[i][j] *= this.value;
-            }
+        final MatrixValue clone = value.clone();
+        final double[] values = clone.values;
+
+        for (int i = 0; i < values.length; i++) {
+            values[i] *= this.value;
         }
+
         return clone;
     }
 
@@ -266,11 +268,11 @@ public class ScalarValue extends Value {
 
     @Override
     protected Value elementDivideBy(MatrixValue value) {
-        MatrixValue clone = value.clone();
-        for (int i = 0; i < clone.rows; i++) {
-            for (int j = 0; j < clone.cols; j++) {
-                clone.values[i][j] /= this.value;
-            }
+        final MatrixValue clone = value.clone();
+        final double[] values = clone.values;
+
+        for (int i = 0; i < values.length; i++) {
+            values[i] /= this.value;
         }
         return clone;
     }
@@ -311,11 +313,11 @@ public class ScalarValue extends Value {
 
     @Override
     protected MatrixValue plus(MatrixValue value) {
-        MatrixValue clone = value.clone();
-        for (int i = 0; i < clone.rows; i++) {
-            for (int j = 0; j < clone.cols; j++) {
-                clone.values[i][j] += this.value;
-            }
+        final MatrixValue clone = value.clone();
+        final double[] values = clone.values;
+
+        for (int i = 0; i < values.length; i++) {
+            values[i] += this.value;
         }
         return clone;
     }
@@ -374,11 +376,11 @@ public class ScalarValue extends Value {
      */
     @Override
     protected MatrixValue minus(MatrixValue value) {
-        MatrixValue clone = value.clone();
-        for (int i = 0; i < clone.rows; i++) {
-            for (int j = 0; j < clone.cols; j++) {
-                clone.values[i][j] -= this.value;
-            }
+        final MatrixValue clone = value.clone();
+        final double[] values = clone.values;
+
+        for (int i = 0; i < values.length; i++) {
+            values[i] -= this.value;
         }
         return clone;
     }
@@ -431,10 +433,10 @@ public class ScalarValue extends Value {
      */
     @Override
     protected void incrementBy(MatrixValue value) {
-        for (int i = 0; i < value.rows; i++) {
-            for (int j = 0; j < value.cols; j++) {
-                value.values[i][j] += this.value;
-            }
+        final double[] values = value.values;
+
+        for (int i = 0; i < values.length; i++) {
+            values[i] += this.value;
         }
     }
 
@@ -464,10 +466,10 @@ public class ScalarValue extends Value {
 
     @Override
     protected void elementMultiplyBy(MatrixValue value) {
-        for (int i = 0; i < value.rows; i++) {
-            for (int j = 0; j < value.cols; j++) {
-                value.values[i][j] *= this.value;
-            }
+        final double[] values = value.values;
+
+        for (int i = 0; i < values.length; i++) {
+            values[i] *= this.value;
         }
     }
 
@@ -514,13 +516,14 @@ public class ScalarValue extends Value {
     @Override
     protected boolean greaterThan(MatrixValue maxValue) {
         int greater = 0;
-        for (int i = 0; i < maxValue.rows; i++) {
-            for (int j = 0; j < maxValue.cols; j++) {
-                if (maxValue.values[i][j] > this.value) {
-                    greater++;
-                }
+        final double[] values = maxValue.values;
+
+        for (int i = 0; i < values.length; i++) {
+            if (values[i] > this.value) {
+                greater++;
             }
         }
+
         return greater > maxValue.cols * maxValue.rows / 2;
     }
 
