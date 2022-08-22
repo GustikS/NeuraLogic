@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 import java.text.NumberFormat;
 import java.util.Iterator;
 import java.util.function.DoubleUnaryOperator;
-import java.util.function.Function;
 
 /**
  * This is just an ad-hoc helper class for cases where it might make sense to pass a string through the values.
@@ -63,6 +62,9 @@ public class StringValue extends Value {
     public Value apply(DoubleUnaryOperator function) {
         return null;
     }
+
+    @Override
+    public void applyInplace(DoubleUnaryOperator function) {}
 
     @Override
     public double get(int i) {

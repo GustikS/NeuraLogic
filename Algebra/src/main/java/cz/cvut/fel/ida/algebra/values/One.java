@@ -61,6 +61,11 @@ public class One extends Value {
     }
 
     @Override
+    public void applyInplace(DoubleUnaryOperator function) {
+        throw new ArithmeticException("Trying to modify value of constant ONE");
+    }
+
+    @Override
     public double get(int i) {
         if (i != 0) {
             LOG.severe("Scalar value: asking for i-th element!");

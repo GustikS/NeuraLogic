@@ -6,7 +6,6 @@ import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
 import java.text.NumberFormat;
 import java.util.Iterator;
 import java.util.function.DoubleUnaryOperator;
-import java.util.function.Function;
 import java.util.logging.Logger;
 
 /**
@@ -56,6 +55,11 @@ class Zero extends Value {
 
     @Override
     public Value apply(DoubleUnaryOperator function) {
+        throw new ArithmeticException("Trying to modify value of constant ZERO");
+    }
+
+    @Override
+    public void applyInplace(DoubleUnaryOperator function) {
         throw new ArithmeticException("Trying to modify value of constant ZERO");
     }
 

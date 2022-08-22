@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
-import java.util.function.Function;
 import java.util.logging.Logger;
 
 /**
@@ -98,19 +97,13 @@ public class VectorValue extends Value {
 
     @Override
     public VectorValue zero() {
-        for (int i = 0; i < values.length; i++) {
-            values[i] = 0;
-        }
+        Arrays.fill(values, 0);
         return this;
     }
 
     @Override
     public VectorValue clone() {
-        VectorValue clone = new VectorValue(values.length);
-        clone.rowOrientation = rowOrientation;
-        for (int i = 0; i < clone.values.length; i++) {
-            clone.values[i] = this.values[i];
-        }
+        VectorValue clone = new VectorValue(values.clone(), rowOrientation);
         return clone;
     }
 
@@ -148,6 +141,13 @@ public class VectorValue extends Value {
             resultValues[i] = function.applyAsDouble(values[i]);
         }
         return result;
+    }
+
+    @Override
+    public void applyInplace(DoubleUnaryOperator function) {
+        for (int i = 0; i < values.length; i++) {
+            values[i] = function.applyAsDouble(values[i]);
+        }
     }
 
     @Override
@@ -189,12 +189,14 @@ public class VectorValue extends Value {
 
     @Override
     protected VectorValue times(ScalarValue value) {
-        VectorValue result = this.getForm();
-        double[] resultValues = result.values;
-        double otherValue = value.value;
-        for (int i = 0; i < values.length; i++) {
-            resultValues[i] = values[i] * otherValue;
+        final VectorValue result = this.clone();
+        final double[] resultValues = result.values;
+        final double otherValue = value.value;
+
+        for (int i = 0; i < resultValues.length; i++) {
+            resultValues[i] *= otherValue;
         }
+        
         return result;
     }
 
@@ -207,24 +209,25 @@ public class VectorValue extends Value {
     @Override
     protected Value times(VectorValue value) {
         if (value.rowOrientation && !this.rowOrientation && value.values.length == values.length) {
-            ScalarValue result = new ScalarValue(0);
             double resultValue = 0;
-            double[] otherValues = value.values;
+            final double[] otherValues = value.values;
+
             for (int i = 0; i < values.length; i++) {
                 resultValue += values[i] * otherValues[i];
             }
-            result.value = resultValue;
-            return result;
+
+            return new ScalarValue(resultValue);
         } else if (!value.rowOrientation && this.rowOrientation) {
             LOG.finest(() -> "Performing vector x vector matrix multiplication.");
             final MatrixValue result = new MatrixValue(value.values.length, values.length);
             final double[] resultValues = result.values;
+            final double[] tempValues = value.values;
 
-            for (int i = 0; i < value.values.length; i++) {
-                final int tmpValue = i * values.length;
+            int index = 0;
 
-                for (int j = 0; j < values.length; j++) {
-                    resultValues[tmpValue + j] = value.values[i] * values[j];
+            for (final double tmpValue : tempValues) {
+                for (final double v : values) {
+                    resultValues[index++] = tmpValue * v;
                 }
             }
             return result;
@@ -619,7 +622,8 @@ public class VectorValue extends Value {
             LOG.severe(err);
             throw new ArithmeticException(err);
         }
-        double[] otherValues = value.values;
+        final double[] otherValues = value.values;
+
         for (int i = 0; i < otherValues.length; i++) {
             otherValues[i] += values[i];
         }

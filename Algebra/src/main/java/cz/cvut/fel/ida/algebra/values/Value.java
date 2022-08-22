@@ -7,7 +7,6 @@ import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.Iterator;
 import java.util.function.DoubleUnaryOperator;
-import java.util.function.Function;
 import java.util.logging.Logger;
 
 /**
@@ -77,6 +76,13 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
      * @return
      */
     public abstract Value apply(DoubleUnaryOperator function);
+
+    /**
+     * Element-wise application of a given real function
+     *
+     * @param function
+     */
+    public abstract void applyInplace(DoubleUnaryOperator function);
 
     /**
      * Since Value is Iterable<Double>, we can access i-th element

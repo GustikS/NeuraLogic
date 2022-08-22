@@ -31,11 +31,12 @@ public class Adam implements Optimizer {
 
     public void performGradientStep(List<Weight> updatedWeights, Value[] gradients, int iteration) {
         //correction
-        ScalarValue fix1 = new ScalarValue(1 / (1 - Math.pow(beta1.value, iteration)));
-        ScalarValue fix2 = new ScalarValue(1 / (1 - Math.pow(beta2.value, iteration)));
+        final ScalarValue fix1 = new ScalarValue(1 / (1 - Math.pow(beta1.value, iteration)));
+        final ScalarValue fix2 = new ScalarValue(1 / (1 - Math.pow(beta2.value, iteration)));
 
-        Value oneBeta1 = Value.ONE.minus(beta1);
-        Value oneBeta2 = Value.ONE.minus(beta2);
+        final Value oneBeta1 = Value.ONE.minus(beta1);
+        final Value oneBeta2 = Value.ONE.minus(beta2);
+        final double eps = this.epsilon.value;
 
         for (Weight weight : updatedWeights) {
             Value gradient = gradients[weight.index].times(minusOne);    //the gradient
@@ -54,11 +55,8 @@ public class Adam implements Optimizer {
             Value s_corr = weight.velocity.times(fix2);
 
             //update
-            Value divider = s_corr.apply(Math::sqrt);
-            divider.incrementBy(epsilon);
-            divider = divider.apply(val -> (-1 / val));
-
-            v_corr.elementMultiplyBy(divider);
+            s_corr.applyInplace(val -> (-1 / (Math.sqrt(val) + eps)));
+            v_corr.elementMultiplyBy(s_corr);
             v_corr.elementMultiplyBy(learningRate);
             weight.value.incrementBy(v_corr);
         }

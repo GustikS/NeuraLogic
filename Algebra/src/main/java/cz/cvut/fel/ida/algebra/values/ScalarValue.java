@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 import java.text.NumberFormat;
 import java.util.Iterator;
 import java.util.function.DoubleUnaryOperator;
-import java.util.function.Function;
 import java.util.logging.Logger;
 
 /**
@@ -95,6 +94,11 @@ public class ScalarValue extends Value {
     }
 
     @Override
+    public void applyInplace(DoubleUnaryOperator function) {
+        value = function.applyAsDouble(value);
+    }
+
+    @Override
     public double get(int i) {
         if (i != 0) {
             LOG.severe("Scalar value: asking for i-th element!");
@@ -141,10 +145,13 @@ public class ScalarValue extends Value {
 
     @Override
     protected VectorValue times(VectorValue vector) {
-        VectorValue clone = vector.clone();
-        for (int i = 0; i < vector.values.length; i++) {
-            clone.values[i] *= this.value;
+        final VectorValue clone = vector.clone();
+        final double[] values = clone.values;
+
+        for (int i = 0; i < values.length; i++) {
+            values[i] *= this.value;
         }
+
         return clone;
     }
 
@@ -422,8 +429,11 @@ public class ScalarValue extends Value {
      */
     @Override
     protected void incrementBy(VectorValue value) {
-        for (int i = 0; i < value.values.length; i++) {
-            value.values[i] += this.value;
+        final double[] values = value.values;
+        final double tmpValue = this.value;
+
+        for (int i = 0; i < values.length; i++) {
+            values[i] += tmpValue;
         }
     }
 

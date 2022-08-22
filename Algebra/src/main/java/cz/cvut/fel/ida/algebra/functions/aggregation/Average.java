@@ -24,7 +24,9 @@ public class Average implements Aggregation {
         for (int i = 1, len = inputs.size(); i < len; i++) {
             sum.incrementBy(inputs.get(i));
         }
-        return sum.times(new ScalarValue(1.0 / inputs.size()));
+
+        sum.elementMultiplyBy(new ScalarValue(1.0 / inputs.size()));
+        return sum;
     }
 
     @Override

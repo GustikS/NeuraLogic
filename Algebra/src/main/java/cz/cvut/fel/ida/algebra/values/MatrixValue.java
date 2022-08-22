@@ -144,6 +144,13 @@ public class MatrixValue extends Value {
     }
 
     @Override
+    public void applyInplace(DoubleUnaryOperator function) {
+        for (int i = 0; i < values.length; i++) {
+            values[i] = function.applyAsDouble(values[i]);
+        }
+    }
+
+    @Override
     public double get(int i) {
         return values[i];
     }
