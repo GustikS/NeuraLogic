@@ -69,6 +69,8 @@ public abstract class ElementWise implements Transformation {
                 return Singletons.inverse;
             case REVERSE:
                 return Singletons.reverse;
+            case LOGARITHM:
+                return Singletons.logarithm;
             default:
 //                LOG.severe("Unimplemented activation function");
                 return null;
@@ -87,6 +89,7 @@ public abstract class ElementWise implements Transformation {
         public static SquareRoot sqrt = new SquareRoot();
         public static Inverse inverse = new Inverse();
         public static Reverse reverse = new Reverse();
+        public static Logarithm logarithm = new Logarithm();
     }
 
     @Override

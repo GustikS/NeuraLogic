@@ -56,7 +56,7 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
     public abstract void transpose();
 
     /**
-     * Returns a transposed view on the same data (except for matrix values, which throws an error instead)
+     * Returns a new Value object as a transposed view of the same data
      *
      * @return
      */
@@ -161,6 +161,23 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
     protected abstract Value elementTimes(MatrixValue value);
 
     protected abstract Value elementTimes(TensorValue value);
+
+
+    /**
+     * CONSTRUCTIVE transposition+multiplication within one call (for optimization)
+     *
+     * @param value
+     * @return
+     */
+    public abstract Value transposedTimes(Value value);
+
+    protected abstract Value transposedTimes(ScalarValue value);
+
+    protected abstract Value transposedTimes(VectorValue value);
+
+    protected abstract Value transposedTimes(MatrixValue value);
+
+    protected abstract Value transposedTimes(TensorValue value);
 
     /**
      * KRONECKER product - CONSTRUCTIVE

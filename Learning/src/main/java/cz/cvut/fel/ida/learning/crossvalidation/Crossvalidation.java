@@ -69,7 +69,7 @@ public class Crossvalidation<T extends LearningSample> {
         int correctClassCount = 0;
         int allCount = 0;
 
-        for (TrainTestResults trainTestResults : foldRunStatsList) {    //todo now now test this crossval output
+        for (TrainTestResults trainTestResults : foldRunStatsList) {    //todo now test this crossval output
             Results training = trainTestResults.training.bestResults.training;
 
             allTrain.addAll(training.evaluations);

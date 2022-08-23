@@ -67,7 +67,7 @@ public interface Splitter<T extends LearningSample> {
 
     @NotNull
     static <T extends LearningSample> Splitter<T> getSplitter(Settings settings) {
-        if (settings.stratification) {
+        if (settings.stratification && settings.trainOnlineResultsType != Settings.ResultsType.REGRESSION) {
             return new StratifiedSplitter<>(settings);
         } else {
             return new LinearSplitter<>(settings);

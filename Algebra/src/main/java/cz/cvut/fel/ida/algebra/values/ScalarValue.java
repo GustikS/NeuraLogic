@@ -207,6 +207,48 @@ public class ScalarValue extends Value {
     }
 
     @Override
+    public Value transposedTimes(Value value) {
+        return value.transposedTimes(this);
+    }
+
+    @Override
+    protected Value transposedTimes(ScalarValue value) {
+        return new ScalarValue(this.value * value.value);
+    }
+
+    @Override
+    protected Value transposedTimes(VectorValue vector) {
+        VectorValue clone = vector.clone();
+        clone.transpose();
+        for (int i = 0; i < vector.values.length; i++) {
+            clone.values[i] *= this.value;
+        }
+        return clone;
+    }
+
+    @Override
+    protected Value transposedTimes(MatrixValue value) {
+        MatrixValue clone = value.clone();
+        clone.transpose();
+        for (int i = 0; i < clone.rows; i++) {
+            for (int j = 0; j < clone.cols; j++) {
+                clone.values[i][j] *= this.value;
+            }
+        }
+        return clone;
+    }
+
+    @Override
+    protected Value transposedTimes(TensorValue value) {
+        TensorValue clone = value.clone();
+        clone.transpose();
+        for (int i = 0; i < clone.tensor.values.length; i++) {
+            clone.tensor.values[i] *= this.value;
+        }
+        return clone;
+    }
+
+    @Override
     public Value kroneckerTimes(Value value) {
         return value.elementTimes(this);
     }
@@ -341,7 +383,7 @@ public class ScalarValue extends Value {
     }
 
     /**
-     * DD - switch of sides??!! todo check
+     * DD - switch of sides??!!
      *
      * @param value
      * @return
@@ -352,7 +394,7 @@ public class ScalarValue extends Value {
     }
 
     /**
-     * DD - switch of sides??!! todo check
+     * DD - switch of sides??!!
      *
      * @param value
      * @return
@@ -367,7 +409,7 @@ public class ScalarValue extends Value {
     }
 
     /**
-     * DD - switch of sides??!! todo check
+     * DD - switch of sides??!!
      *
      * @param value
      * @return

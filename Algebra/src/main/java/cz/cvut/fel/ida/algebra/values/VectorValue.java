@@ -324,6 +324,75 @@ public class VectorValue extends Value {
     }
 
     @Override
+    public Value transposedTimes(Value value) {
+        return value.transposedTimes(this);
+    }
+
+    @Override
+    protected Value transposedTimes(ScalarValue value) {
+        VectorValue result = this.getForm();
+        double[] resultValues = result.values;
+        double otherValue = value.value;
+        for (int i = 0; i < values.length; i++) {
+            resultValues[i] = values[i] * otherValue;
+        }
+        return result;
+    }
+
+    @Override
+    protected Value transposedTimes(VectorValue value) {
+        if (!value.rowOrientation && !this.rowOrientation && value.values.length == values.length) {
+            double resultValue = 0;
+            double[] otherValues = value.values;
+            for (int i = 0; i < values.length; i++) {
+                resultValue += values[i] * otherValues[i];
+            }
+            return new ScalarValue(resultValue);
+        } else if (value.rowOrientation && this.rowOrientation) {
+            LOG.finest(() -> "Performing vector x vector matrix multiplication.");
+            MatrixValue result = new MatrixValue(value.values.length, values.length);
+            double[][] resultValues = result.values;
+            for (int i = 0; i < value.values.length; i++) {
+                for (int j = 0; j < values.length; j++) {
+                    resultValues[i][j] = value.values[i] * values[j];
+                }
+            }
+            return result;
+        } else {
+            String err = "Incompatible dimensions for transposed vector multiplication: " + Arrays.toString(value.size()) + " vs " + Arrays.toString(this.size()) + " (try transposition)";
+            LOG.severe(err);
+            throw new ArithmeticException(err);
+        }
+    }
+
+    @Override
+    protected Value transposedTimes(MatrixValue value) {
+        if (value.rows != values.length) {
+            String err = "Matrix row length mismatch with vector length for transposed multiplication: " + value.cols + " vs." + values.length;
+            LOG.severe(err);
+            throw new ArithmeticException(err);
+        }
+        if (value.rows > 1 && rowOrientation) {
+            LOG.severe("Multiplying matrix with a row-oriented vector: " + Arrays.toString(value.size()) + " times " + Arrays.toString(this.size()));
+            throw new ArithmeticException("Multiplying matrix with a row-oriented vector: " + Arrays.toString(value.size()) + " times " + Arrays.toString(this.size()));
+        }
+        VectorValue result = new VectorValue(value.cols);   // column vector
+        double[] resultValues = result.values;
+        double[][] matrixValues = value.values;
+        for (int i = 0; i < value.cols; i++) {
+            for (int j = 0; j < value.rows; j++) {
+                resultValues[i] += matrixValues[j][i] * this.values[j];
+            }
+        }
+        return result;
+    }
+
+    @Override
+    protected Value transposedTimes(TensorValue value) {
+        throw new ArithmeticException("Algebraic operation between Tensor and Vector are not implemented yet");
+    }
+
+    @Override
     public Value kroneckerTimes(Value value) {
         return value.kroneckerTimes(this);
     }

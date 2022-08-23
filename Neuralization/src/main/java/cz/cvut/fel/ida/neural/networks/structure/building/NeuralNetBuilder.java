@@ -245,8 +245,6 @@ public class NeuralNetBuilder {
      * This is only meant to go through the most necessary postprocessing steps to make for a valid neural network.
      * For the more advanced postprocessing optimization there is a whole configurable pipeline in {NeuralNetsBuilder}
      *
-     * todo now now detect neurons with a single input and replace their compound states with a transformation state
-     *
      * @return
      */
     public DetailedNetwork finalizeStoredNetwork(String id, NeuralSets createdNeurons, List<Literal> queryMatchingLiterals) throws RuntimeException {

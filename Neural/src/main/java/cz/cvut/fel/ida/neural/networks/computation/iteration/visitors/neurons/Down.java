@@ -18,7 +18,7 @@ import java.util.Iterator;
 /**
  * Down = propagating some values from actual neuron's State to its inputs - e.g. for ({@link Backpropagation}
  * <p>
- * These visitors DO NOT support input masking
+ * These visitors DO NOT support input masking - they just propagate through all the inputs
  *
  * todo now now check offsets and their gradients
  */
@@ -82,7 +82,9 @@ public class Down extends NeuronVisitor.Weighted {
             weightUpdater.visit(weight, inputGradient.times(transpInputValue));
 
 //            inputComputationView.storeGradient(transpGradient.times(weight.value));
-            inputComputationView.storeGradient(weight.value.transposedView().times(inputGradient));     //todo next speedup the matrix transposition here with a custom transposedTimes?
+//            inputComputationView.storeGradient(weight.value.transposedView().times(inputGradient));     //speedup the matrix transposition here with a custom transposedTimes? -> done
+
+            inputComputationView.storeGradient(weight.value.transposedTimes(inputGradient));
         }
     }
 }

@@ -29,7 +29,7 @@ public class SquareRoot extends ElementWise {
 
     @Override
     public Pair<Double, Double> getSaturationRange() {
-        return new Pair<>(0.0, 10.0);
+        return new Pair<>(0.0, 100.0);
     }
 
 }

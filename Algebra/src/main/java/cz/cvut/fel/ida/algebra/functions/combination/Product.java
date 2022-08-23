@@ -87,9 +87,9 @@ public class Product implements Combination {
                 Value transposedRight = right.transposedView();
                 return topGradient.times(transposedRight);
             } else if (right == null) {
-                return topGradient.transposedView().times(left);
+                return topGradient.transposedTimes(left);
             } else {
-                Value times = topGradient.transposedView().times(left);
+                Value times = topGradient.transposedTimes(left);
                 Value kronecker = right.transposedView().kroneckerTimes(times);   //todo test this!!
                 return kronecker;
             }

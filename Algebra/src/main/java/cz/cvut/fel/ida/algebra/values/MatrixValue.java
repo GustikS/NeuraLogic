@@ -249,7 +249,7 @@ public class MatrixValue extends Value {
     @Override
     protected MatrixValue times(MatrixValue value) {
         if (value.cols != rows) {
-            String err = "Matrix to matrix dimension mismatch for multiplication" + value.cols + " != " + rows;
+            String err = "Matrix to matrix dimension mismatch for multiplication " + value.cols + " != " + rows;
             LOG.severe(err);
             throw new ArithmeticException(err);
         }
@@ -326,6 +326,70 @@ public class MatrixValue extends Value {
 
     @Override
     protected Value elementTimes(TensorValue value) {
+        throw new ArithmeticException("Algebraic operation between Tensor and Matrix are not implemented yet");
+    }
+
+    @Override
+    public Value transposedTimes(Value value) {
+        return value.transposedTimes(this);
+    }
+
+    @Override
+    protected Value transposedTimes(ScalarValue value) {
+        MatrixValue clone = this.clone();
+        double value1 = value.value;
+        for (int i = 0; i < clone.rows; i++) {
+            for (int j = 0; j < clone.cols; j++) {
+                clone.values[i][j] *= value1;
+            }
+        }
+        return clone;
+    }
+
+    @Override
+    protected Value transposedTimes(VectorValue value) {
+        if (rows != value.values.length) {
+            String err = "Matrix row length mismatch with vector length for multiplication: " + rows + " vs." + value.values.length;
+            LOG.severe(err);
+            throw new ArithmeticException(err);
+        }
+        if (value.rowOrientation) {
+            throw new ArithmeticException("Row vector transposedTimes matrix, try transposition. Vector size = " + value.values.length);
+        }
+        VectorValue result = new VectorValue(cols,true);
+        double[] resultValues = result.values;
+        double[] origValues = value.values;
+        for (int i = 0; i < cols; i++) {
+            for (int j = 0; j < rows; j++) {
+                resultValues[i] += origValues[j] * values[j][i];
+            }
+        }
+        return result;
+    }
+
+    @Override
+    protected Value transposedTimes(MatrixValue value) {
+        if (value.rows != rows) {
+            String err = "Matrix to matrix dimension mismatch for transposed multiplication" + value.rows + " != " + rows;
+            LOG.severe(err);
+            throw new ArithmeticException(err);
+        }
+        MatrixValue result = new MatrixValue(value.cols, this.cols);
+        double[][] lhs = value.values;
+
+        double[][] resultValues = result.values;
+        for (int i = 0; i < value.cols; i++) {         // rows from transposed lhs
+            for (int j = 0; j < cols; j++) {     // columns from rhs
+                for (int k = 0; k < value.rows; k++) { // columns from transposed lhs
+                    resultValues[i][j] += lhs[k][i] * values[k][j];
+                }
+            }
+        }
+        return result;
+    }
+
+    @Override
+    protected Value transposedTimes(TensorValue value) {
         throw new ArithmeticException("Algebraic operation between Tensor and Matrix are not implemented yet");
     }
 

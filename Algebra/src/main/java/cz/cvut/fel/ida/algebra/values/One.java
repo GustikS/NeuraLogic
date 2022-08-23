@@ -137,6 +137,31 @@ public class One extends Value {
     }
 
     @Override
+    public Value transposedTimes(Value value) {
+        return value;
+    }
+
+    @Override
+    protected Value transposedTimes(ScalarValue value) {
+        return value;
+    }
+
+    @Override
+    protected Value transposedTimes(VectorValue value) {
+        return value.transposedView();
+    }
+
+    @Override
+    protected Value transposedTimes(MatrixValue value) {
+        return value.transposedView();
+    }
+
+    @Override
+    protected Value transposedTimes(TensorValue value) {
+        return value.transposedView();
+    }
+
+    @Override
     public Value kroneckerTimes(Value value) {
         return value;
     }
