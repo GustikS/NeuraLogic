@@ -37,11 +37,11 @@ public class GlorotUniformInitializer implements ValueInitializer {
 
     @Override
     public void initMatrix(MatrixValue matrix) {
-        double limit = getLimit(matrix);
-        for (int i = 0; i < matrix.rows; i++) {
-            for (int j = 0; j < matrix.cols; j++) {
-                matrix.values[i][j] = distribution.getDoubleValue(-limit, limit);
-            }
+        final double limit = getLimit(matrix);
+        final double[] values = matrix.values;
+
+        for (int i = 0; i < values.length; i++) {
+            values[i] = distribution.getDoubleValue(-limit, limit);
         }
     }
 

@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.text.NumberFormat;
 import java.util.Iterator;
-import java.util.function.Function;
+import java.util.function.DoubleUnaryOperator;
 
 /**
  * This is just an ad-hoc helper class for cases where it might make sense to pass a string through the values.
@@ -59,9 +59,12 @@ public class StringValue extends Value {
     }
 
     @Override
-    public Value apply(Function<Double, Double> function) {
+    public Value apply(DoubleUnaryOperator function) {
         return null;
     }
+
+    @Override
+    public void applyInplace(DoubleUnaryOperator function) {}
 
     @Override
     public double get(int i) {

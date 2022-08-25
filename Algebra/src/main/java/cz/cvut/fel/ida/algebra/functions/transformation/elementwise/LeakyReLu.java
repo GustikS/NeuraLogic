@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.algebra.functions.transformation.elementwise;
 import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -19,9 +20,9 @@ public class LeakyReLu extends ElementWise {
         return LeakyReLu.class.getSimpleName();
     }
 
-    private static final Function<Double, Double> signum = in -> in > 0 ? in : alpha * in;
+    private static final DoubleUnaryOperator signum = in -> in > 0 ? in : alpha * in;
 
-    private static final Function<Double, Double> zerograd = in -> in > 0 ? 1.0 : alpha;
+    private static final DoubleUnaryOperator zerograd = in -> in > 0 ? 1.0 : alpha;
 
     public LeakyReLu() {
         super(signum, zerograd);

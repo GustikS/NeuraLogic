@@ -11,7 +11,7 @@ class ValueTest {
 
     @TestAnnotations.Fast
     public void iteration() {
-        Value v1 = new MatrixValue(new double[][]{{1.0, 2.0}, {2.0, 4}, {3, 6}});
+        Value v1 = new MatrixValue(new double[]{1.0, 2.0, 2.0, 4, 3, 6}, 3, 2);
         Iterator<Double> iterator = v1.iterator();
         Double aDouble = null;
         while (iterator.hasNext()) {
@@ -32,8 +32,8 @@ class ValueTest {
     @TestAnnotations.Fast
     public void correctDimensions() {
         Value v1 = new VectorValue(Arrays.asList(1.0, 2.0, 3.0));
-        double contents[][] = {{1.0, 2.0, 3.0}};
-        Value m1 = new MatrixValue(contents);
+        double contents[] = {1.0, 2.0, 3.0};
+        Value m1 = new MatrixValue(contents, 1, 3);
         assertNotNull(m1.times(v1));
     }
 
@@ -43,8 +43,8 @@ class ValueTest {
     @TestAnnotations.Fast
     public void correctDoubleDispatch() {
         Value v1 = new VectorValue(Arrays.asList(1.0, 2.0, 3.0));
-        double contents[][] = {{1.0, 2.0, 3.0}};
-        MatrixValue m1 = new MatrixValue(contents);
+        double contents[] = {1.0, 2.0, 3.0};
+        MatrixValue m1 = new MatrixValue(contents, 1, 3);
         assertNotNull(m1.times(v1));
     }
 
@@ -54,8 +54,8 @@ class ValueTest {
     @TestAnnotations.Fast
     public void dynamicDispatchTrap() {
         VectorValue v1 = new VectorValue(Arrays.asList(1.0, 2.0, 3.0));
-        double contents[][] = {{1.0, 2.0, 3.0}};
-        Value m1 = new MatrixValue(contents);
+        double contents[] = {1.0, 2.0, 3.0};
+        Value m1 = new MatrixValue(contents, 1, 3);
         assertThrows(ArithmeticException.class, () -> m1.times(v1));
     }
 
@@ -164,7 +164,7 @@ class ValueTest {
         Value b = new VectorValue(new double[]{1.0, 2.0, 3.0}, false);
 
         Value kroneckerTimes = a.kroneckerTimes(b);
-        boolean equals = new MatrixValue(new double[][]{{1.0, 2.0}, {2.0, 4}, {3, 6}}).equals(kroneckerTimes);
+        boolean equals = new MatrixValue(new double[]{1.0, 2.0, 2.0, 4, 3, 6}, 3, 2).equals(kroneckerTimes);
         assertTrue(equals);
     }
 
@@ -174,63 +174,65 @@ class ValueTest {
         Value b = new VectorValue(new double[]{1.0, 2.0, 3.0}, true);
 
         Value kroneckerTimes = a.kroneckerTimes(b);
-        boolean equals = new MatrixValue(new double[][]{{1.0, 2.0}, {2.0, 4}, {3, 6}}).transposedView().equals(kroneckerTimes);
+        boolean equals = new MatrixValue(new double[]{1.0, 2.0, 2.0, 4, 3, 6}, 3, 2).transposedView().equals(kroneckerTimes);
         assertTrue(equals);
     }
 
     @TestAnnotations.Fast
     public void kroneckerVectorMatrix1() {
         Value a = new VectorValue(new double[]{1.0, 2.0}, false);
-        Value b = new MatrixValue(new double[][]{{1.0, 2.0}, {3.0, 4.0}});
+        Value b = new MatrixValue(new double[]{1.0, 2.0, 3.0, 4.0}, 2, 2);
 
         Value kroneckerTimes = a.kroneckerTimes(b);
-        boolean equals = new MatrixValue(new double[][]{{1.0, 2.0}, {3, 4}, {2, 4}, {6, 8}}).equals(kroneckerTimes);
+        boolean equals = new MatrixValue(new double[]{1.0, 2.0, 3, 4, 2, 4, 6, 8}, 4, 2).equals(kroneckerTimes);
         assertTrue(equals);
     }
 
     @TestAnnotations.Fast
     public void kroneckerVectorMatrix2() {
         Value a = new VectorValue(new double[]{1.0, 2.0, 3.0}, true);
-        Value b = new MatrixValue(new double[][]{{1.0, 2.0}, {3.0, 4.0}});
+        Value b = new MatrixValue(new double[]{1.0, 2.0, 3.0, 4.0}, 2, 2);
 
         Value kroneckerTimes = a.kroneckerTimes(b);
-        boolean equals = new MatrixValue(new double[][]{{1.0, 2.0, 2, 4, 3, 6}, {3, 4, 6, 8, 9, 12}}).equals(kroneckerTimes);
+        boolean equals = new MatrixValue(new double[]{1.0, 2.0, 2, 4, 3, 6, 3, 4, 6, 8, 9, 12}, 2, 6).equals(kroneckerTimes);
         assertTrue(equals);
     }
 
     @TestAnnotations.Fast
     public void kroneckerMatrixVector1() {
         Value a = new VectorValue(new double[]{1.0, 2.0, 3.0}, true);
-        Value b = new MatrixValue(new double[][]{{1.0, 2.0}, {3.0, 4.0}});
+        Value b = new MatrixValue(new double[]{1.0, 2.0, 3.0, 4.0}, 2, 2);
 
         Value kroneckerTimes = b.kroneckerTimes(a);
-        boolean equals = new MatrixValue(new double[][]{{1.0, 2.0, 3, 2, 4, 6}, {3, 6, 9, 4, 8, 12}}).equals(kroneckerTimes);
+        boolean equals = new MatrixValue(new double[]{1.0, 2.0, 3, 2, 4, 6, 3, 6, 9, 4, 8, 12}, 2, 6).equals(kroneckerTimes);
         assertTrue(equals);
     }
 
     @TestAnnotations.Fast
     public void kroneckerMatrixVector2() {
         Value a = new VectorValue(new double[]{1.0, 2.0, 3.0}, false);
-        Value b = new MatrixValue(new double[][]{{1.0, 2.0}, {3.0, 4.0}});
+        Value b = new MatrixValue(new double[]{1.0, 2.0, 3.0, 4.0}, 2, 2);
 
         Value kroneckerTimes = b.kroneckerTimes(a);
-        boolean equals = new MatrixValue(new double[][]{{1.0, 2.0}, {2, 4}, {3, 6}, {3, 4}, {6, 8}, {9, 12}}).equals(kroneckerTimes);
+        boolean equals = new MatrixValue(new double[]{1.0, 2.0, 2, 4, 3, 6, 3, 4, 6, 8, 9, 12}, 6, 2).equals(kroneckerTimes);
         assertTrue(equals);
     }
 
     @TestAnnotations.Fast
     public void kroneckerMatrixMatrix1() {
-        Value a = new MatrixValue(new double[][]{{1.0, 2.0, 3.0}, {3.0, 4.0, 5.0}});
-        Value b = new MatrixValue(new double[][]{{1.0, 2.0}, {3.0, 4.0}});
+        Value a = new MatrixValue(new double[]{1.0, 2.0, 3.0, 3.0, 4.0, 5.0}, 2, 3);
+        Value b = new MatrixValue(new double[]{1.0, 2.0, 3.0, 4.0}, 2, 2);
 
         Value kroneckerTimes = a.kroneckerTimes(b);
-        boolean equals = new MatrixValue(new double[][]{{1.0, 2.0, 2.0, 4.0, 3.0, 6.0}, {3.0, 4.0, 6.0, 8.0, 9.0, 12.0}, {3.0, 6.0, 4.0, 8.0, 5.0, 10.0}, {9.0, 12.0, 12.0, 16.0, 15.0, 20.0}}).equals(kroneckerTimes);
+        boolean equals = new MatrixValue(
+            new double[]{1.0, 2.0, 2.0, 4.0, 3.0, 6.0, 3.0, 4.0, 6.0, 8.0, 9.0, 12.0, 3.0, 6.0, 4.0, 8.0, 5.0, 10.0, 9.0, 12.0, 12.0, 16.0, 15.0, 20.0}, 4, 6
+        ).equals(kroneckerTimes);
         assertTrue(equals);
     }
 
     @TestAnnotations.Fast
     public void matrixGradient() {
-        Value v = new MatrixValue(new double[][]{{1.2, 2.07, 3.67}, {3.25, 4.1, 5.7}});
+        Value v = new MatrixValue(new double[]{1.2, 2.07, 3.67, 3.25, 4.1, 5.7}, 2, 3);
         Value w = new VectorValue(new double[]{3.2, 4.76},true);
 
         Value g = new VectorValue(new double[]{1.2, 2.11, 3.02}, true);
@@ -251,8 +253,8 @@ class ValueTest {
 
     @TestAnnotations.Fast
     public void transposedTimesMatrixMatrix() {
-        Value a = new MatrixValue(new double[][]{{1.0, 2.0, 3.0}, {3.0, 4.0, 5.0}});
-        Value b = new MatrixValue(new double[][]{{1.0, 2.0, 3.5, 3.5}, {3.0, 4.0, 3.5, 3.5}});
+        Value a = new MatrixValue(new double[]{1.0, 2.0, 3.0, 3.0, 4.0, 5.0}, 2, 3);
+        Value b = new MatrixValue(new double[]{1.0, 2.0, 3.5, 3.5, 3.0, 4.0, 3.5, 3.5}, 2, 4);
 
         Value c = a.transposedTimes(b);
         Value d = a.transposedView().times(b);
@@ -262,7 +264,7 @@ class ValueTest {
 
     @TestAnnotations.Fast
     public void transposedTimesMatrixVector() {
-        Value a = new MatrixValue(new double[][]{{1.0, 2.0, 3.0}, {3.0, 4.0, 5.0}});
+        Value a = new MatrixValue(new double[]{1.0, 2.0, 3.0, 3.0, 4.0, 5.0}, 2, 3);
         Value b = new VectorValue(new double[]{1.0, 2.0});
 
         Value c = a.transposedTimes(b);
@@ -275,7 +277,7 @@ class ValueTest {
     @TestAnnotations.Fast
     public void transposedTimesVectorMatrix() {
         Value a = new VectorValue(new double[]{1.0, 2.0});
-        Value b = new MatrixValue(new double[][]{{1.0, 2.0, 3.0}, {3.0, 4.0, 5.0}});
+        Value b = new MatrixValue(new double[]{1.0, 2.0, 3.0, 3.0, 4.0, 5.0}, 2, 3);
 
         Value c = a.transposedTimes(b);
         Value d = a.transposedView().times(b);
@@ -286,7 +288,7 @@ class ValueTest {
     @TestAnnotations.Fast
     public void transposedTimesScalarMatrix() {
         Value a = new ScalarValue(0.5);
-        Value b = new MatrixValue(new double[][]{{1.0, 2.0, 3.0}, {3.0, 4.0, 5.0}});
+        Value b = new MatrixValue(new double[]{1.0, 2.0, 3.0, 3.0, 4.0, 5.0}, 2, 3);
 
         Value c = a.transposedTimes(b);
         Value d = a.transposedView().times(b);
@@ -296,7 +298,7 @@ class ValueTest {
 
     @TestAnnotations.Fast
     public void transposedTimesMatrixScalar() {
-        Value b = new MatrixValue(new double[][]{{1.0, 2.0, 3.0}, {3.0, 4.0, 5.0}});
+        Value b = new MatrixValue(new double[]{1.0, 2.0, 3.0, 3.0, 4.0, 5.0}, 2, 3);
         Value a = new Zero();
 
         Value c = a.transposedTimes(b);

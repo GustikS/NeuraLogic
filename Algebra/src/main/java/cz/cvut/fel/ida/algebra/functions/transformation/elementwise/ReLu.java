@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.algebra.functions.transformation.elementwise;
 import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -12,9 +13,9 @@ import java.util.logging.Logger;
 public class ReLu extends ElementWise {
     private static final Logger LOG = Logger.getLogger(ReLu.class.getName());
 
-    private static final Function<Double, Double> eval = in -> in > 0 ? in : 0.0;
+    private static final DoubleUnaryOperator eval = in -> in > 0 ? in : 0.0;
 
-    private static final Function<Double, Double> grad = in -> in > 0 ? 1.0 : 0.0;
+    private static final DoubleUnaryOperator grad = in -> in > 0 ? 1.0 : 0.0;
 
     public ReLu() {
         super(eval, grad);

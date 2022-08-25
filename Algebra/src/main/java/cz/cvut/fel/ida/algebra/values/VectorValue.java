@@ -7,7 +7,7 @@ import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.DoubleUnaryOperator;
 import java.util.logging.Logger;
 
 /**
@@ -97,19 +97,13 @@ public class VectorValue extends Value {
 
     @Override
     public VectorValue zero() {
-        for (int i = 0; i < values.length; i++) {
-            values[i] = 0;
-        }
+        Arrays.fill(values, 0);
         return this;
     }
 
     @Override
     public VectorValue clone() {
-        VectorValue clone = new VectorValue(values.length);
-        clone.rowOrientation = rowOrientation;
-        for (int i = 0; i < clone.values.length; i++) {
-            clone.values[i] = this.values[i];
-        }
+        VectorValue clone = new VectorValue(values.clone(), rowOrientation);
         return clone;
     }
 
@@ -140,13 +134,20 @@ public class VectorValue extends Value {
     }
 
     @Override
-    public Value apply(Function<Double, Double> function) {
+    public Value apply(DoubleUnaryOperator function) {
         VectorValue result = new VectorValue(values.length, rowOrientation);
         double[] resultValues = result.values;
         for (int i = 0; i < values.length; i++) {
-            resultValues[i] = function.apply(values[i]);
+            resultValues[i] = function.applyAsDouble(values[i]);
         }
         return result;
+    }
+
+    @Override
+    public void applyInplace(DoubleUnaryOperator function) {
+        for (int i = 0; i < values.length; i++) {
+            values[i] = function.applyAsDouble(values[i]);
+        }
     }
 
     @Override
@@ -188,12 +189,14 @@ public class VectorValue extends Value {
 
     @Override
     protected VectorValue times(ScalarValue value) {
-        VectorValue result = this.getForm();
-        double[] resultValues = result.values;
-        double otherValue = value.value;
-        for (int i = 0; i < values.length; i++) {
-            resultValues[i] = values[i] * otherValue;
+        final VectorValue result = this.clone();
+        final double[] resultValues = result.values;
+        final double otherValue = value.value;
+
+        for (int i = 0; i < resultValues.length; i++) {
+            resultValues[i] *= otherValue;
         }
+        
         return result;
     }
 
@@ -206,21 +209,25 @@ public class VectorValue extends Value {
     @Override
     protected Value times(VectorValue value) {
         if (value.rowOrientation && !this.rowOrientation && value.values.length == values.length) {
-            ScalarValue result = new ScalarValue(0);
             double resultValue = 0;
-            double[] otherValues = value.values;
+            final double[] otherValues = value.values;
+
             for (int i = 0; i < values.length; i++) {
                 resultValue += values[i] * otherValues[i];
             }
-            result.value = resultValue;
-            return result;
+
+            return new ScalarValue(resultValue);
         } else if (!value.rowOrientation && this.rowOrientation) {
             LOG.finest(() -> "Performing vector x vector matrix multiplication.");
-            MatrixValue result = new MatrixValue(value.values.length, values.length);
-            double[][] resultValues = result.values;
-            for (int i = 0; i < value.values.length; i++) {
-                for (int j = 0; j < values.length; j++) {
-                    resultValues[i][j] = value.values[i] * values[j];
+            final MatrixValue result = new MatrixValue(value.values.length, values.length);
+            final double[] resultValues = result.values;
+            final double[] tempValues = value.values;
+
+            int index = 0;
+
+            for (final double tmpValue : tempValues) {
+                for (final double v : values) {
+                    resultValues[index++] = tmpValue * v;
                 }
             }
             return result;
@@ -251,12 +258,16 @@ public class VectorValue extends Value {
             LOG.severe("Multiplying matrix with a row-oriented vector: " + Arrays.toString(value.size()) + " times " + Arrays.toString(this.size()));
             throw new ArithmeticException("Multiplying matrix with a row-oriented vector: " + Arrays.toString(value.size()) + " times " + Arrays.toString(this.size()));
         }
-        VectorValue result = new VectorValue(value.rows);
-        double[] resultValues = result.values;
-        double[][] matrixValues = value.values;
+
+        final VectorValue result = new VectorValue(value.rows);
+        final double[] resultValues = result.values;
+        final double[] matrixValues = value.values;
+
         for (int i = 0; i < value.rows; i++) {
+            final int tmpIndex = i * value.cols;
+
             for (int j = 0; j < value.cols; j++) {
-                resultValues[i] += matrixValues[i][j] * this.values[j];
+                resultValues[i] += matrixValues[tmpIndex + j] * this.values[j];
             }
         }
         return result;
@@ -308,13 +319,13 @@ public class VectorValue extends Value {
             throw new ArithmeticException(err);
         }
         MatrixValue result = new MatrixValue(value.rows, value.cols);
-        double[][] resultValues = result.values;
-        double[][] matrixValues = value.values;
-        for (int i = 0; i < value.rows; i++) {
-            for (int j = 0; j < value.cols; j++) {
-                resultValues[i][j] = matrixValues[i][j] * this.values[j];
-            }
+        double[] resultValues = result.values;
+        double[] matrixValues = value.values;
+
+        for (int i = 0; i < resultValues.length; i++) {
+            resultValues[i] = matrixValues[i] * this.values[i % value.cols];
         }
+
         return result;
     }
 
@@ -350,11 +361,15 @@ public class VectorValue extends Value {
             return new ScalarValue(resultValue);
         } else if (value.rowOrientation && this.rowOrientation) {
             LOG.finest(() -> "Performing vector x vector matrix multiplication.");
-            MatrixValue result = new MatrixValue(value.values.length, values.length);
-            double[][] resultValues = result.values;
+            final MatrixValue result = new MatrixValue(value.values.length, values.length);
+            final double[] resultValues = result.values;
+
             for (int i = 0; i < value.values.length; i++) {
+                final double tmpValue = value.values[i];
+                final int tmpIndex = i * values.length;
+
                 for (int j = 0; j < values.length; j++) {
-                    resultValues[i][j] = value.values[i] * values[j];
+                    resultValues[tmpIndex + j] = tmpValue * values[j];
                 }
             }
             return result;
@@ -376,12 +391,16 @@ public class VectorValue extends Value {
             LOG.severe("Multiplying matrix with a row-oriented vector: " + Arrays.toString(value.size()) + " times " + Arrays.toString(this.size()));
             throw new ArithmeticException("Multiplying matrix with a row-oriented vector: " + Arrays.toString(value.size()) + " times " + Arrays.toString(this.size()));
         }
-        VectorValue result = new VectorValue(value.cols);   // column vector
-        double[] resultValues = result.values;
-        double[][] matrixValues = value.values;
-        for (int i = 0; i < value.cols; i++) {
-            for (int j = 0; j < value.rows; j++) {
-                resultValues[i] += matrixValues[j][i] * this.values[j];
+
+        final VectorValue result = new VectorValue(value.cols);   // column vector
+        final double[] resultValues = result.values;
+        final double[] matrixValues = value.values;
+        for (int j = 0; j < value.rows; j++) {
+            final int tmpIndex = j * value.cols;
+            final double tmpValue = this.values[j];
+
+            for (int i = 0; i < value.cols; i++) {
+                resultValues[i] += matrixValues[tmpIndex + i] * tmpValue;
             }
         }
         return result;
@@ -425,18 +444,23 @@ public class VectorValue extends Value {
             return result;
         } else {
             MatrixValue result = new MatrixValue(rows, cols);
-            double[][] resultValues = result.values;
-            double[] otherValues = value.values;
+            final double[] resultValues = result.values;
+            final double[] otherValues = value.values;
+
             if (rowOrientation) {
                 for (int i = 0; i < otherValues.length; i++) {
+                    final int tmpIndex = i * values.length;
+
                     for (int j = 0; j < values.length; j++) {
-                        resultValues[i][j] = otherValues[i] * values[j];
+                        resultValues[tmpIndex + j] = otherValues[i] * values[j];
                     }
                 }
             } else {
-                for (int i = 0; i < otherValues.length; i++) {
-                    for (int j = 0; j < values.length; j++) {
-                        resultValues[j][i] = otherValues[i] * values[j];
+                for (int j = 0; j < values.length; j++) {
+                    final int tmpIndex = j * otherValues.length;
+
+                    for (int i = 0; i < otherValues.length; i++) {
+                        resultValues[tmpIndex + i] = otherValues[i] * values[j];
                     }
                 }
             }
@@ -450,13 +474,16 @@ public class VectorValue extends Value {
         int cols = cols() * matrix.cols;
 
         MatrixValue result = new MatrixValue(rows, cols);
-        double[][] resultValues = result.values;
-        double[][] otherValues = matrix.values;
+        double[] resultValues = result.values;
+        double[] otherValues = matrix.values;
+
         if (rowOrientation) {
             for (int r1 = 0; r1 < matrix.rows; r1++) {
                 for (int c1 = 0; c1 < matrix.cols; c1++) {
                     for (int k = 0; k < values.length; k++) {
-                        resultValues[r1][c1 * values.length + k] = otherValues[r1][c1] * values[k];
+                        final int tmpIndex = c1 * values.length + k;
+
+                        resultValues[r1 *  cols + tmpIndex] = otherValues[r1 * matrix.cols + c1] * values[k];
                     }
                 }
             }
@@ -464,7 +491,8 @@ public class VectorValue extends Value {
             for (int r1 = 0; r1 < matrix.rows; r1++) {
                 for (int c1 = 0; c1 < matrix.cols; c1++) {
                     for (int k = 0; k < values.length; k++) {
-                        resultValues[r1 * values.length + k][c1] = otherValues[r1][c1] * values[k];
+                        final int tmpIndex = r1 * values.length + k;
+                        resultValues[tmpIndex * cols + c1] = otherValues[r1 * matrix.cols + c1] * values[k];
                     }
                 }
             }
@@ -519,11 +547,14 @@ public class VectorValue extends Value {
             throw new ArithmeticException(err);
         }
         MatrixValue result = new MatrixValue(value.rows, value.cols);
-        double[][] resultValues = result.values;
-        double[][] matrixValues = value.values;
+        double[] resultValues = result.values;
+        double[] matrixValues = value.values;
+
         for (int i = 0; i < value.rows; i++) {
+            final int tmpIndex = i * value.cols;
+
             for (int j = 0; j < value.cols; j++) {
-                resultValues[i][j] = matrixValues[i][j] / values[j];
+                resultValues[tmpIndex + j] = matrixValues[tmpIndex + j] / values[j];
             }
         }
         return result;
@@ -668,7 +699,8 @@ public class VectorValue extends Value {
             LOG.severe(err);
             throw new ArithmeticException(err);
         }
-        double[] otherValues = value.values;
+        final double[] otherValues = value.values;
+
         for (int i = 0; i < otherValues.length; i++) {
             otherValues[i] += values[i];
         }

@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.algebra.functions.transformation.elementwise;
 import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -12,9 +13,9 @@ import java.util.logging.Logger;
 public class Inverse extends ElementWise {
     private static final Logger LOG = Logger.getLogger(Inverse.class.getName());
 
-    public static final Function<Double, Double> inverse = in -> 1 / in;
+    public static final DoubleUnaryOperator inverse = in -> 1 / in;
 
-    private static final Function<Double, Double> inverseDiff = in -> -1 / (in * in);
+    private static final DoubleUnaryOperator inverseDiff = in -> -1 / (in * in);
 
     public Inverse() {
         super(inverse, inverseDiff);

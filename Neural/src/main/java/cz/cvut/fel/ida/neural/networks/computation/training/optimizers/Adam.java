@@ -31,22 +31,34 @@ public class Adam implements Optimizer {
 
     public void performGradientStep(List<Weight> updatedWeights, Value[] gradients, int iteration) {
         //correction
-        ScalarValue fix1 = new ScalarValue(1 / (1 - Math.pow(beta1.value, iteration)));
-        ScalarValue fix2 = new ScalarValue(1 / (1 - Math.pow(beta2.value, iteration)));
+        final ScalarValue fix1 = new ScalarValue(1 / (1 - Math.pow(beta1.value, iteration)));
+        final ScalarValue fix2 = new ScalarValue(1 / (1 - Math.pow(beta2.value, iteration)));
+
+        final Value oneBeta1 = Value.ONE.minus(beta1);
+        final Value oneBeta2 = Value.ONE.minus(beta2);
+        final double eps = this.epsilon.value;
 
         for (Weight weight : updatedWeights) {
-
             Value gradient = gradients[weight.index].times(minusOne);    //the gradient
-            weight.velocity = (beta2.times(weight.velocity)).plus(Value.ONE.minus(beta2).times(gradient.elementTimes(gradient)));
-            weight.momentum = (beta1.times(weight.momentum)).plus((Value.ONE.minus(beta1)).times(gradient));
+
+            Value gradientPower = gradient.elementTimes(gradient);
+            gradientPower.elementMultiplyBy(oneBeta2);
+
+            weight.velocity.elementMultiplyBy(beta2);
+            weight.velocity.incrementBy(gradientPower);
+
+            gradient.elementMultiplyBy(oneBeta1);
+            weight.momentum.elementMultiplyBy(beta1);
+            weight.momentum.incrementBy(gradient);
 
             Value v_corr = weight.momentum.times(fix1);
             Value s_corr = weight.velocity.times(fix2);
 
             //update
-            Value divider = s_corr.apply(Math::sqrt).plus(epsilon).apply(val -> (-1 / val));
-            Value update = v_corr.elementTimes(divider).times(learningRate);
-            weight.value.incrementBy(update);
+            s_corr.applyInplace(val -> (-1 / (Math.sqrt(val) + eps)));
+            v_corr.elementMultiplyBy(s_corr);
+            v_corr.elementMultiplyBy(learningRate);
+            weight.value.incrementBy(v_corr);
         }
 
     }

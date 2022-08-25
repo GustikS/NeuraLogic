@@ -317,14 +317,14 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             } else if (ctx.sparseMatrix() != null) {
                 int dim1 = Integer.parseInt(ctx.sparseMatrix().INT().get(0).getText());
                 int dim2 = Integer.parseInt(ctx.sparseMatrix().INT().get(1).getText());
-                double[][] sparseMatrix = new double[dim1][dim2];
+                double[] sparseMatrix = new double[dim1 * dim2];
                 for (NeuralogicParser.Element2dContext context : ctx.sparseMatrix().element2d()) {
                     int i = Integer.parseInt(context.INT().get(0).getText());
                     int j = Integer.parseInt(context.INT().get(1).getText());
                     double v = Double.parseDouble(context.number().getText());
-                    sparseMatrix[i][j] = v;
+                    sparseMatrix[i * dim2 + j] = v;
                 }
-                value = new MatrixValue(sparseMatrix);
+                value = new MatrixValue(sparseMatrix, dim1, dim2);
             } else if (ctx.dimensions() != null) {
                 isInitialized = false;
                 List<Integer> dims = ctx.dimensions().number().stream().map(num -> Integer.parseInt(num.getText())).collect(Collectors.toList());

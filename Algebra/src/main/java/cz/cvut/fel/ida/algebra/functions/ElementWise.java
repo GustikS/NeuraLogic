@@ -4,6 +4,7 @@ import cz.cvut.fel.ida.algebra.functions.transformation.elementwise.*;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
 
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -17,14 +18,14 @@ public abstract class ElementWise implements Transformation {
     /**
      * Forward-pass function
      */
-    transient Function<Double, Double> evaluation;
+    transient DoubleUnaryOperator evaluation;
     /**
      * Backward-pass / derivative of the evaluation function
      */
-    transient Function<Double, Double> gradient;
+    transient DoubleUnaryOperator gradient;
 
 
-    protected ElementWise(Function<Double, Double> evaluation, Function<Double, Double> gradient) {
+    protected ElementWise(DoubleUnaryOperator evaluation, DoubleUnaryOperator gradient) {
         this.evaluation = evaluation;
         this.gradient = gradient;
     }

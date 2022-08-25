@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.algebra.functions.transformation.elementwise;
 import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -12,9 +13,9 @@ import java.util.logging.Logger;
 public class Tanh extends ElementWise {
     private static final Logger LOG = Logger.getLogger(Tanh.class.getName());
 
-    private static final Function<Double, Double> tanh = Math::tanh;
+    private static final DoubleUnaryOperator tanh = Math::tanh;
 
-    private static final Function<Double, Double> diffTanh = in -> {
+    private static final DoubleUnaryOperator diffTanh = in -> {
         if (in > 100 || in < -100)
             return 0.0;
         double tanh1 = Math.tanh(in);
