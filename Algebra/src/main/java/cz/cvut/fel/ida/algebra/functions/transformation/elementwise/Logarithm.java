@@ -3,7 +3,7 @@ package cz.cvut.fel.ida.algebra.functions.transformation.elementwise;
 import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
-import java.util.function.Function;
+import java.util.function.DoubleUnaryOperator;
 import java.util.logging.Logger;
 
 /**
@@ -12,9 +12,9 @@ import java.util.logging.Logger;
 public class Logarithm extends ElementWise {
     private static final Logger LOG = Logger.getLogger(Logarithm.class.getName());
 
-    public static final Function<Double, Double> logist = Math::log;
+    public static final DoubleUnaryOperator logist = Math::log;
 
-    private static final Function<Double, Double> diffLogist = in -> 1 / in;
+    private static final DoubleUnaryOperator diffLogist = in -> 1 / in;
 
     public Logarithm() {
         super(logist, diffLogist);

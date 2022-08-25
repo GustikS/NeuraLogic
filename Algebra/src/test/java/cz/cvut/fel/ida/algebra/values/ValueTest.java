@@ -253,8 +253,8 @@ class ValueTest {
 
     @TestAnnotations.Fast
     public void transposedTimesMatrixMatrix() {
-        Value a = new MatrixValue(new double[][]{{1.0, 2.0, 3.0}, {3.0, 4.0, 5.0}});
-        Value b = new MatrixValue(new double[][]{{1.0, 2.0, 3.5, 3.5}, {3.0, 4.0, 3.5, 3.5}});
+        Value a = new MatrixValue(new double[]{1.0, 2.0, 3.0, 3.0, 4.0, 5.0}, 2, 3);
+        Value b = new MatrixValue(new double[]{1.0, 2.0, 3.5, 3.5, 3.0, 4.0, 3.5, 3.5}, 2, 4);
 
         Value c = a.transposedTimes(b);
         Value d = a.transposedView().times(b);
@@ -264,7 +264,7 @@ class ValueTest {
 
     @TestAnnotations.Fast
     public void transposedTimesMatrixVector() {
-        Value a = new MatrixValue(new double[][]{{1.0, 2.0, 3.0}, {3.0, 4.0, 5.0}});
+        Value a = new MatrixValue(new double[]{1.0, 2.0, 3.0, 3.0, 4.0, 5.0}, 2, 3);
         Value b = new VectorValue(new double[]{1.0, 2.0});
 
         Value c = a.transposedTimes(b);
@@ -277,7 +277,7 @@ class ValueTest {
     @TestAnnotations.Fast
     public void transposedTimesVectorMatrix() {
         Value a = new VectorValue(new double[]{1.0, 2.0});
-        Value b = new MatrixValue(new double[][]{{1.0, 2.0, 3.0}, {3.0, 4.0, 5.0}});
+        Value b = new MatrixValue(new double[]{1.0, 2.0, 3.0, 3.0, 4.0, 5.0}, 2, 3);
 
         Value c = a.transposedTimes(b);
         Value d = a.transposedView().times(b);
@@ -288,7 +288,7 @@ class ValueTest {
     @TestAnnotations.Fast
     public void transposedTimesScalarMatrix() {
         Value a = new ScalarValue(0.5);
-        Value b = new MatrixValue(new double[][]{{1.0, 2.0, 3.0}, {3.0, 4.0, 5.0}});
+        Value b = new MatrixValue(new double[]{1.0, 2.0, 3.0, 3.0, 4.0, 5.0}, 2, 3);
 
         Value c = a.transposedTimes(b);
         Value d = a.transposedView().times(b);
@@ -298,7 +298,7 @@ class ValueTest {
 
     @TestAnnotations.Fast
     public void transposedTimesMatrixScalar() {
-        Value b = new MatrixValue(new double[][]{{1.0, 2.0, 3.0}, {3.0, 4.0, 5.0}});
+        Value b = new MatrixValue(new double[]{1.0, 2.0, 3.0, 3.0, 4.0, 5.0}, 2, 3);
         Value a = new Zero();
 
         Value c = a.transposedTimes(b);

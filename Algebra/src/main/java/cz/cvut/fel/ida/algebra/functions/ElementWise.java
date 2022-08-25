@@ -107,9 +107,7 @@ public abstract class ElementWise implements Transformation {
         @Override
         public void ingestTopGradient(Value topGradient) {
             Value inputFcnDerivative = gradient();
-            inputFcnDerivative.elementMultiplyBy(topGradient); //elementMultiplyBy here - since the fcn to be differentiated was applied element-wise on a vector
-
-            processedGradient = inputFcnDerivative;
+            processedGradient = topGradient.elementTimes(inputFcnDerivative);       //elementTimes here - since the fcn to be differentiated was applied element-wise on a vector
         }
     }
 }

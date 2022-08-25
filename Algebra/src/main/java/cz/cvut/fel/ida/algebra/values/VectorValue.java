@@ -361,11 +361,15 @@ public class VectorValue extends Value {
             return new ScalarValue(resultValue);
         } else if (value.rowOrientation && this.rowOrientation) {
             LOG.finest(() -> "Performing vector x vector matrix multiplication.");
-            MatrixValue result = new MatrixValue(value.values.length, values.length);
-            double[][] resultValues = result.values;
+            final MatrixValue result = new MatrixValue(value.values.length, values.length);
+            final double[] resultValues = result.values;
+
             for (int i = 0; i < value.values.length; i++) {
+                final double tmpValue = value.values[i];
+                final int tmpIndex = i * values.length;
+
                 for (int j = 0; j < values.length; j++) {
-                    resultValues[i][j] = value.values[i] * values[j];
+                    resultValues[tmpIndex + j] = tmpValue * values[j];
                 }
             }
             return result;
@@ -387,12 +391,16 @@ public class VectorValue extends Value {
             LOG.severe("Multiplying matrix with a row-oriented vector: " + Arrays.toString(value.size()) + " times " + Arrays.toString(this.size()));
             throw new ArithmeticException("Multiplying matrix with a row-oriented vector: " + Arrays.toString(value.size()) + " times " + Arrays.toString(this.size()));
         }
-        VectorValue result = new VectorValue(value.cols);   // column vector
-        double[] resultValues = result.values;
-        double[][] matrixValues = value.values;
-        for (int i = 0; i < value.cols; i++) {
-            for (int j = 0; j < value.rows; j++) {
-                resultValues[i] += matrixValues[j][i] * this.values[j];
+
+        final VectorValue result = new VectorValue(value.cols);   // column vector
+        final double[] resultValues = result.values;
+        final double[] matrixValues = value.values;
+        for (int j = 0; j < value.rows; j++) {
+            final int tmpIndex = j * value.cols;
+            final double tmpValue = this.values[j];
+
+            for (int i = 0; i < value.cols; i++) {
+                resultValues[i] += matrixValues[tmpIndex + i] * tmpValue;
             }
         }
         return result;

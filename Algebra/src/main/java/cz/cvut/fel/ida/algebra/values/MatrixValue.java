@@ -347,13 +347,14 @@ public class MatrixValue extends Value {
 
     @Override
     protected Value transposedTimes(ScalarValue value) {
-        MatrixValue clone = this.clone();
-        double value1 = value.value;
-        for (int i = 0; i < clone.rows; i++) {
-            for (int j = 0; j < clone.cols; j++) {
-                clone.values[i][j] *= value1;
-            }
+        final MatrixValue clone = this.clone();
+        final double value1 = value.value;
+        final double[] values = clone.values;
+
+        for (int i = 0; i < values.length; i++) {
+            values[i] *= value1;
         }
+
         return clone;
     }
 
@@ -370,11 +371,16 @@ public class MatrixValue extends Value {
         VectorValue result = new VectorValue(cols,true);
         double[] resultValues = result.values;
         double[] origValues = value.values;
-        for (int i = 0; i < cols; i++) {
-            for (int j = 0; j < rows; j++) {
-                resultValues[i] += origValues[j] * values[j][i];
+
+        for (int j = 0; j < rows; j++) {
+            final int tmpIndex = j * cols;
+            final double originalValue = origValues[j];
+
+            for (int i = 0; i < cols; i++) {
+                resultValues[i] += originalValue * values[tmpIndex + i];
             }
         }
+
         return result;
     }
 
@@ -385,14 +391,20 @@ public class MatrixValue extends Value {
             LOG.severe(err);
             throw new ArithmeticException(err);
         }
-        MatrixValue result = new MatrixValue(value.cols, this.cols);
-        double[][] lhs = value.values;
 
-        double[][] resultValues = result.values;
+        final MatrixValue result = new MatrixValue(value.cols, this.cols);
+        final double[] lhs = value.values;
+        final double[] resultValues = result.values;
+
         for (int i = 0; i < value.cols; i++) {         // rows from transposed lhs
-            for (int j = 0; j < cols; j++) {     // columns from rhs
-                for (int k = 0; k < value.rows; k++) { // columns from transposed lhs
-                    resultValues[i][j] += lhs[k][i] * values[k][j];
+            final int tmpIndex = i * cols;
+
+            for (int k = 0; k < value.rows; k++) { // columns from transposed lhs
+                final int valuesTmpIndex = k * cols;
+                final double lhsValue = lhs[k * value.cols + i];
+
+                for (int j = 0; j < cols; j++) {     // columns from rhs
+                    resultValues[tmpIndex + j] += lhsValue * values[valuesTmpIndex + j];
                 }
             }
         }

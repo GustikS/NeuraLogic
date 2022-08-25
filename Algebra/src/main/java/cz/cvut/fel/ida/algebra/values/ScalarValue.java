@@ -237,13 +237,17 @@ public class ScalarValue extends Value {
 
     @Override
     protected Value transposedTimes(MatrixValue value) {
-        MatrixValue clone = value.clone();
-        clone.transpose();
-        for (int i = 0; i < clone.rows; i++) {
-            for (int j = 0; j < clone.cols; j++) {
-                clone.values[i][j] *= this.value;
+        final MatrixValue clone = new MatrixValue(value.cols, value.rows);
+        final double[] trValues = clone.values;
+
+        for (int i = 0; i < value.rows; i++) {
+            final int tmpIndex = i * value.cols;
+
+            for (int j = 0; j < value.cols; j++) {
+                trValues[j * value.rows + i] = this.value * value.values[tmpIndex + j];
             }
         }
+
         return clone;
     }
 
