@@ -29,7 +29,7 @@ public class Exponentiation extends ElementWise {
 
     @Override
     public Pair<Double, Double> getSaturationRange() {
-        return new Pair<>(-5.0, Double.MAX_VALUE);
+        return new Pair<>(0.01, Double.MAX_VALUE);
     }
 
 }

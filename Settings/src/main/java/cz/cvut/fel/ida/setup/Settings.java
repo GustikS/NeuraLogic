@@ -348,6 +348,10 @@ public class Settings implements Serializable {
      */
     public CombinationFcn factMergeActivation = CombinationFcn.MAX;
 
+    /**
+     * We commonly squish duplicits rule groundings.
+     * But sometimes we might wish duplicit ground bodies to be aggregated (e.g. to get SUM of repeated elements)
+     */
     public boolean uniqueGroundingsOnly = true;
 
     //-----------------Neural nets creation
@@ -771,7 +775,7 @@ public class Settings implements Serializable {
     }
 
     public enum TransformationFcn {
-        SIGMOID, TANH, SIGNUM, LUKASIEWICZ, RELU, LEAKYRELU, REVERSE, INVERSE, EXP, SQRT,     //ActivationFcn
+        SIGMOID, TANH, SIGNUM, LUKASIEWICZ, RELU, LEAKYRELU, REVERSE, INVERSE, EXP, LOGARITHM, SQRT,     //ActivationFcn
         IDENTITY, TRANSP, SOFTMAX, SPARSEMAX, MAX, MIN;    //TransformationFcn
     }
 
@@ -951,9 +955,10 @@ public class Settings implements Serializable {
      */
     public int foldsCount = 5;
     /**
-     * Assemble folds w.r.t. class distribution
+     * Assemble folds (e.g. train-val split) w.r.t. class distribution
      */
     public boolean stratification = true;
+
     public boolean exportFolds = true;
     /**
      * Are the train folds to be completely isolated, even though they share common subsets? (test folds are always isolated).

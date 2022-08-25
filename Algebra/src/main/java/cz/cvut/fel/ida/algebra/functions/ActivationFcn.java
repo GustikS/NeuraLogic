@@ -30,7 +30,7 @@ public interface ActivationFcn {
      */
     public default String getName() {
         return this.getClass().getSimpleName();
-    }   //todo now now test if the name gets inherited
+    }
 
     /**
      * We do not want to create a new object for the same activation function that gets repeated over milions of neurons, even if it's very lightweight

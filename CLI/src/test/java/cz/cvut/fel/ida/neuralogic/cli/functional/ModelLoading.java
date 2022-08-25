@@ -48,7 +48,7 @@ public class ModelLoading {
     }
 
     /**
-     * Correct model storing+loading, checked via givin the same results on the same sample set.
+     * Correct model storing+loading, checked via giving the same results on the same sample set.
      * This is an important test.
      *
      * @throws Exception

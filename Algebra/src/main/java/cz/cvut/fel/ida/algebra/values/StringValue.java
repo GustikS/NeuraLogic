@@ -135,6 +135,31 @@ public class StringValue extends Value {
     }
 
     @Override
+    public Value transposedTimes(Value value) {
+        return null;
+    }
+
+    @Override
+    protected Value transposedTimes(ScalarValue value) {
+        return null;
+    }
+
+    @Override
+    protected Value transposedTimes(VectorValue value) {
+        return null;
+    }
+
+    @Override
+    protected Value transposedTimes(MatrixValue value) {
+        return null;
+    }
+
+    @Override
+    protected Value transposedTimes(TensorValue value) {
+        return null;
+    }
+
+    @Override
     public Value kroneckerTimes(Value value) {
         return null;
     }

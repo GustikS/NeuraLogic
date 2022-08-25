@@ -144,6 +144,31 @@ public class TensorValue extends Value {
     }
 
     @Override
+    public Value transposedTimes(Value value) {
+        throw new ArithmeticException("Higher dimension Tensor operations are not implemented yet");
+    }
+
+    @Override
+    protected Value transposedTimes(ScalarValue value) {
+        throw new ArithmeticException("Higher dimension Tensor operations are not implemented yet");
+    }
+
+    @Override
+    protected Value transposedTimes(VectorValue value) {
+        throw new ArithmeticException("Higher dimension Tensor operations are not implemented yet");
+    }
+
+    @Override
+    protected Value transposedTimes(MatrixValue value) {
+        throw new ArithmeticException("Higher dimension Tensor operations are not implemented yet");
+    }
+
+    @Override
+    protected Value transposedTimes(TensorValue value) {
+        throw new ArithmeticException("Higher dimension Tensor operations are not implemented yet");
+    }
+
+    @Override
     public Value kroneckerTimes(Value value) {
         throw new ArithmeticException("Higher dimension Tensor operations are not implemented yet");
     }
