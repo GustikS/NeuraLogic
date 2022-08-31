@@ -93,7 +93,7 @@ public class CrossSum implements Combination {
             if (inputGradients == null){
                 inputGradients = new ArrayList<>(accumulatedInputs.size());
                 for (int j = 0; j < accumulatedInputs.size(); j++) {
-                    inputGradients.add(accumulatedInputs.get(i).getForm());
+                    inputGradients.add(accumulatedInputs.get(j).getForm());
                 }
             }
 

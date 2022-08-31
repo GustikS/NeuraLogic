@@ -377,3 +377,4 @@ bondKappa_A2/1 {1}
 bondKappa_A3/1 {1}
 
 finalKappa/1 {1}
+finalKappa/1 [transformation=sigm]

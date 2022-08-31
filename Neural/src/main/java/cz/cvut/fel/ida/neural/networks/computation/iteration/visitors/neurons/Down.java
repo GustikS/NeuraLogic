@@ -81,7 +81,7 @@ public class Down extends NeuronVisitor.Weighted {
             Value inputGradient = fcnState.nextInputGradient();
             weightUpdater.visit(weight, inputGradient.times(transpInputValue));
 
-//            inputComputationView.storeGradient(transpGradient.times(weight.value));
+//            inputComputationView.storeGradient(inputGradient.transposedView().times(weight.value));
 //            inputComputationView.storeGradient(weight.value.transposedView().times(inputGradient));     //speedup the matrix transposition here with a custom transposedTimes? -> done
 
             inputComputationView.storeGradient(weight.value.transposedTimes(inputGradient));

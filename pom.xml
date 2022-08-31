@@ -53,9 +53,9 @@
         </repository>
 
         <!--<repository>-->
-            <!--<id>github</id>-->
-            <!--<name>gustiks</name>-->
-            <!--<url>https://maven.pkg.github.com/gustiks/neuralogic/</url>-->
+        <!--<id>github</id>-->
+        <!--<name>gustiks</name>-->
+        <!--<url>https://maven.pkg.github.com/gustiks/neuralogic/</url>-->
         <!--</repository>-->
     </distributionManagement>
 
@@ -197,40 +197,40 @@
                                     <goal>sign</goal>
                                 </goals>
                                 <!--<configuration>-->
-                                    <!--&lt;!&ndash; Prevent gpg from using pinentry programs. Fixes: gpg: signing-->
-                                        <!--failed: Inappropriate ioctl for device &ndash;&gt;-->
-                                    <!--&lt;!&ndash;<gpgArguments>&ndash;&gt;-->
-                                        <!--&lt;!&ndash;<arg>pinentry-mode</arg>&ndash;&gt;-->
-                                        <!--&lt;!&ndash;<arg>loopback</arg>&ndash;&gt;-->
-                                    <!--&lt;!&ndash;</gpgArguments>&ndash;&gt;-->
+                                <!--&lt;!&ndash; Prevent gpg from using pinentry programs. Fixes: gpg: signing-->
+                                <!--failed: Inappropriate ioctl for device &ndash;&gt;-->
+                                <!--&lt;!&ndash;<gpgArguments>&ndash;&gt;-->
+                                <!--&lt;!&ndash;<arg>pinentry-mode</arg>&ndash;&gt;-->
+                                <!--&lt;!&ndash;<arg>loopback</arg>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</gpgArguments>&ndash;&gt;-->
                                 <!--</configuration>-->
                             </execution>
                         </executions>
                     </plugin>
 
                     <!--<plugin>-->
-                    <!--<groupId>org.codehaus.mojo</groupId>-->
-                    <!--<artifactId>exec-maven-plugin</artifactId>-->
-                    <!--<version>1.6.0</version>-->
-                    <!--<executions>-->
-                    <!--<execution>-->
-                    <!--<id>run-benchmarks</id>-->
-                    <!--<phase>integration-test</phase>-->
-                    <!--<goals>-->
-                    <!--<goal>exec</goal>-->
-                    <!--</goals>-->
-                    <!--<configuration>-->
-                    <!--<classpathScope>test</classpathScope>-->
-                    <!--<executable>java</executable>-->
-                    <!--<arguments>-->
-                    <!--<argument>-classpath</argument>-->
-                    <!--<classpath />-->
-                    <!--<argument>org.openjdk.jmh.Main</argument>-->
-                    <!--<argument>.*</argument>-->
-                    <!--</arguments>-->
-                    <!--</configuration>-->
-                    <!--</execution>-->
-                    <!--</executions>-->
+                        <!--<groupId>org.codehaus.mojo</groupId>-->
+                        <!--<artifactId>exec-maven-plugin</artifactId>-->
+                        <!--<version>1.6.0</version>-->
+                        <!--<executions>-->
+                            <!--<execution>-->
+                                <!--<id>run-benchmarks</id>-->
+                                <!--<phase>integration-test</phase>-->
+                                <!--<goals>-->
+                                    <!--<goal>exec</goal>-->
+                                <!--</goals>-->
+                                <!--<configuration>-->
+                                    <!--<classpathScope>test</classpathScope>-->
+                                    <!--<executable>java</executable>-->
+                                    <!--<arguments>-->
+                                        <!--<argument>-classpath</argument>-->
+                                        <!--<classpath/>-->
+                                        <!--<argument>org.openjdk.jmh.Main</argument>-->
+                                        <!--<argument>.*</argument>-->
+                                    <!--</arguments>-->
+                                <!--</configuration>-->
+                            <!--</execution>-->
+                        <!--</executions>-->
                     <!--</plugin>-->
                 </plugins>
             </build>

@@ -30,18 +30,13 @@ public class ElementProduct extends Product implements Transformation {
 
     @Override
     public Value evaluate(List<Value> inputs) {
-        int[] size = inputs.get(0).size();
-        /*
-        for (int i = 0; i < inputs.size(); i++) {
-            if (!Arrays.equals(size,inputs.get(i).size())) {
-                LOG.severe("ScalarProduct dimensions mismatch!");   //get maximal dimension here instead (zero-pad the rest) ? -> no, invalid vector/matrix operation anyway, rather do not misuse it
-                return null;
-            }
-        }
-        */
         Value mult = inputs.get(0).clone();
         for (int i = 1; i < inputs.size(); i++) {
-            mult.elementMultiplyBy(inputs.get(i));
+            try {
+                mult.elementMultiplyBy(inputs.get(i));
+            } catch (ArithmeticException e){
+                mult = mult.elementTimes(inputs.get(i));
+            }
         }
         return mult;
     }

@@ -56,7 +56,7 @@ public class ErrorFunctions {
 
         settings.inferOutputFcns = true;
         settings.squishLastLayer = true;
-//        settings.errorFunction = Settings.ErrorFcn.CROSSENTROPY;
+        settings.errorFunction = Settings.ErrorFcn.SQUARED_DIFF;
 
         Pair<Pipeline, ?> results = Main.main(dataset, settings);
         DetailedClassificationResults classificationResults = (DetailedClassificationResults) results.s;
