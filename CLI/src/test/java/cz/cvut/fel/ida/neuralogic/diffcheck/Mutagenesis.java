@@ -20,7 +20,7 @@ public class Mutagenesis {
     String[] args2ex = Utilities.getDatasetArgs("relational/molecules/mutagenesis/diffcheck", "-e examples2only.txt");
     String[] argsAll = Utilities.getDatasetArgs("relational/molecules/mutagenesis/diffcheck", "-q allQueries.txt");
     String[] argsVect = Utilities.getDatasetArgs("relational/molecules/mutagenesis/diffcheck", "-q ./allQueries.txt -t ./template_vectorized.txt");
-    String[] argsNew = Utilities.getDatasetArgs("relational/molecules/mutagenesis/");
+    String[] argsNew = Utilities.getDatasetArgs("relational/molecules/mutagenesis/", "-t ./templates/template_old_vectorized.txt");
 
     /**
      * DO NOT TOUCH THIS!!
@@ -90,7 +90,7 @@ public class Mutagenesis {
         settings.initDistribution = Settings.InitDistribution.UNIFORM;
 
         settings.trainValidationPercentage = 1.0;
-        settings.plotProgress = 20;
+//        settings.plotProgress = 20;
 
         settings.seed = 0;
         settings.maxCumEpochCount = 1000;
@@ -107,6 +107,10 @@ public class Mutagenesis {
         settings.setOptimizer(Settings.OptimizerSet.SGD);
         settings.initLearningRate = 0.3;
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
+
+        settings.errorFunction = Settings.ErrorFcn.SQUARED_DIFF;
+        settings.inferOutputFcns = false;
+        settings.squishLastLayer = false;
 
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = false;
@@ -132,7 +136,7 @@ public class Mutagenesis {
         settings.trainValidationPercentage = 1.0;
 
         settings.initDistribution = Settings.InitDistribution.UNIFORM;
-        settings.plotProgress = 20;
+//        settings.plotProgress = 20;
 
         settings.seed = 0;
         settings.maxCumEpochCount = 1000;
@@ -145,6 +149,13 @@ public class Mutagenesis {
         settings.setOptimizer(Settings.OptimizerSet.SGD);
         settings.initLearningRate = 0.3;
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
+
+        settings.atomNeuronTransformation = Settings.TransformationFcn.SIGMOID;     // TanH are much better, but this is the diffcheck test
+        settings.ruleNeuronTransformation = Settings.TransformationFcn.SIGMOID;
+
+        settings.errorFunction = Settings.ErrorFcn.SQUARED_DIFF;
+        settings.inferOutputFcns = false;
+        settings.squishLastLayer = false;
 
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = false;
@@ -172,7 +183,7 @@ public class Mutagenesis {
         settings.trainValidationPercentage = 1.0;
 
         settings.initDistribution = Settings.InitDistribution.UNIFORM;
-        settings.plotProgress = 20;
+//        settings.plotProgress = 20;
 
         settings.seed = 0;
         settings.maxCumEpochCount = 1000;
@@ -185,6 +196,13 @@ public class Mutagenesis {
         settings.setOptimizer(Settings.OptimizerSet.SGD);
         settings.initLearningRate = 0.3;
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
+
+        settings.atomNeuronTransformation = Settings.TransformationFcn.SIGMOID;     // TanH are much better, but this is the diffcheck test
+        settings.ruleNeuronTransformation = Settings.TransformationFcn.SIGMOID;
+
+        settings.errorFunction = Settings.ErrorFcn.SQUARED_DIFF;
+        settings.inferOutputFcns = false;
+        settings.squishLastLayer = false;
 
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = false;
@@ -212,7 +230,7 @@ public class Mutagenesis {
         settings.trainValidationPercentage = 1.0;
 
         settings.initDistribution = Settings.InitDistribution.UNIFORM;
-        settings.plotProgress = 20;
+//        settings.plotProgress = 20;
 
         settings.seed = 0;
         settings.maxCumEpochCount = 1000;
@@ -225,6 +243,13 @@ public class Mutagenesis {
         settings.setOptimizer(Settings.OptimizerSet.SGD);
         settings.initLearningRate = 0.3;
         settings.iterationMode = Settings.IterationMode.TOPOLOGIC;
+
+        settings.atomNeuronTransformation = Settings.TransformationFcn.SIGMOID;     // TanH are much better, but this is the diffcheck test
+        settings.ruleNeuronTransformation = Settings.TransformationFcn.SIGMOID;
+//
+        settings.errorFunction = Settings.ErrorFcn.SQUARED_DIFF;
+        settings.inferOutputFcns = false;
+        settings.squishLastLayer = false;
 
         settings.oneQueryPerExample = true;
         settings.neuralNetsPostProcessing = false;

@@ -22,7 +22,11 @@ public class Sum implements Aggregation {
     public Value evaluate(List<Value> inputs) {
         Value sum = inputs.get(0).clone();
         for (int i = 1, len = inputs.size(); i < len; i++) {
-            sum.incrementBy(inputs.get(i));
+            try {
+                sum.incrementBy(inputs.get(i));
+            } catch (ArithmeticException e){
+                sum = sum.plus(inputs.get(i));      // in case we e.g. start with a ScalarValue and the next one is a VectorValue, the broadcasting wouldn't work
+            }
         }
         return sum;
     }

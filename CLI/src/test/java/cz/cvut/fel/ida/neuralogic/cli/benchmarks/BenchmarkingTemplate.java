@@ -4,6 +4,7 @@ import cz.cvut.fel.ida.utils.generic.TestAnnotations;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.RunnerException;
+import org.openjdk.jmh.annotations.Benchmark;
 
 import java.time.Duration;
 import java.util.Collection;

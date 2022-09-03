@@ -731,7 +731,7 @@ public class VectorValue extends Value {
 
     @Override
     protected void elementMultiplyBy(ScalarValue value) {
-        String err = "Incompatible dimensions of algebraic operation - scalar multiplyBy by vector";
+        String err = "Incompatible dimensions of algebraic operation - scalar elementMultiplyBy by vector";
         LOG.severe(err);
         throw new ArithmeticException(err);
     }

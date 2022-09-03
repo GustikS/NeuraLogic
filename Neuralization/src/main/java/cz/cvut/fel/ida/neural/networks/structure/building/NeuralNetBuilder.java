@@ -259,7 +259,7 @@ public class NeuralNetBuilder {
                         LOG.warning(err);
                         throw new InputMismatchException(err);
                     } else {
-                        String err = "Query: " + queryMatchingLiteral + " was not matched anywhere in the ground network - Cannot calculate its output!";
+                        String err = "Query: [" + queryMatchingLiteral + "] was not matched anywhere in the ground network - Cannot calculate its output!";
                         LOG.severe(err);
                         LOG.warning(" -> This most likely means that the template is wrong as there is no proof-path from the example to the query");
                         LOG.warning("   -> Check all the predicate signatures etc. to make sure the template matches your examples and that there is at least 1 inference chain to the query");
