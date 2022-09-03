@@ -835,6 +835,8 @@ public class Settings implements Serializable {
                 return TransformationFcn.INVERSE;
             case "reverse":
                 return TransformationFcn.REVERSE;
+            case "log":
+                return TransformationFcn.LOGARITHM;
             // Transformation
             case "softmax":
                 return TransformationFcn.SOFTMAX;
