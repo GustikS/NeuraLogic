@@ -471,17 +471,18 @@ public class SourceFiles extends Sources {
     public static String identifyFileTypeUsingFilesProbeContentType(final String fileName) {
         String fileType = null;
         final File file = new File(fileName);
-        try {
-            fileType = Files.probeContentType(file.toPath());
-        } catch (IOException ioException) {
-            LOG.severe("ERROR: Unable to determine file type for " + fileName + " due to IOException " + ioException);
-        }
-        if (fileType == null) {
-            LOG.severe("ERROR: Unable to determine file type (for unknown reason, maybe opened by other process? Or Windows...)");
-            if (fileName.endsWith(".java"))
-                fileType = "text/x-java";
-            else
+        if (fileName.endsWith(".java"))
+            fileType = "text/x-java";
+        else {
+            try {
+                fileType = Files.probeContentType(file.toPath());
+            } catch (IOException ioException) {
+                LOG.severe("ERROR: Unable to determine file type for " + fileName + " due to IOException " + ioException);
+            }
+            if (fileType == null) {
+                LOG.severe("ERROR: Unable to determine file type (for unknown reason, maybe opened by other process? Or Windows...)");
                 fileType = "text/plain";    // default to plaintext
+            }
         }
         return fileType;
     }

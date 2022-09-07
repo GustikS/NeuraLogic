@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="fastTestSuite" type="JUnit" factoryName="JUnit">
     <output_file path="$PROJECT_DIR$/target/testing/lastTests.txt" is_save="true" />
-    <module name="CLI" />
+    <module name="neuralogic-cli" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="ALTERNATIVE_JRE_PATH" value="BUNDLED" />
     <option name="PACKAGE_NAME" value="" />
