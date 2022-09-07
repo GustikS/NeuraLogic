@@ -477,8 +477,11 @@ public class SourceFiles extends Sources {
             LOG.severe("ERROR: Unable to determine file type for " + fileName + " due to IOException " + ioException);
         }
         if (fileType == null) {
-            LOG.severe("ERROR: Unable to determine file type (for unknown reason, probably opened by other process?): " + fileName + " defaulting to text/plain");
-            fileType = "text/plain";
+            LOG.severe("ERROR: Unable to determine file type (for unknown reason, maybe opened by other process? Or Windows...)");
+            if (fileName.endsWith(".java"))
+                fileType = "text/x-java";
+            else
+                fileType = "text/plain";    // default to plaintext
         }
         return fileType;
     }
