@@ -20,7 +20,7 @@ public class Mutagenesis {
     String[] args2ex = Utilities.getDatasetArgs("relational/molecules/mutagenesis/diffcheck", "-e examples2only.txt");
     String[] argsAll = Utilities.getDatasetArgs("relational/molecules/mutagenesis/diffcheck", "-q allQueries.txt");
     String[] argsVect = Utilities.getDatasetArgs("relational/molecules/mutagenesis/diffcheck", "-q ./allQueries.txt -t ./template_vectorized.txt");
-    String[] argsNew = Utilities.getDatasetArgs("relational/molecules/mutagenesis/", "-t ./templates/template_old_vectorized.txt");
+    String[] argsNew = Utilities.getDatasetArgs("relational/molecules/mutagenesis/", "-t ./templates/template_older_vectorized.txt", "-q ./diffcheck/allQueries.txt");
 
     /**
      * DO NOT TOUCH THIS!!
@@ -80,6 +80,7 @@ public class Mutagenesis {
     /**
      * true results :- train: accuracy: 91.49%, disp: 0.6420141023483763, error: AVG(SQUARED_DIFF) = 0.0701644803, (best thresh acc: 93.62%) (maj. 66.49%), (AUC-ROC: 0.9556825397), (AUC-PR: 0.9736792284)
      * Total time: 02:12:49:596
+     *
      * @throws Exception
      */
     @TestAnnotations.Slow
@@ -126,6 +127,7 @@ public class Mutagenesis {
     /**
      * true results :- train: accuracy: 90.43%, disp: 0.6190426133500868, error: AVG(SQUARED_DIFF) = 0.0739864, (best thresh acc: 92.02%) (maj. 66.49%), (AUC-ROC: 0.9564444444), (AUC-PR: 0.9756295178)
      * Total time: 00:36:39:985
+     *
      * @throws Exception
      */
     @TestAnnotations.Slow
@@ -171,8 +173,9 @@ public class Mutagenesis {
     /**
      * true results :- train: accuracy: 90.43%, disp: 0.6269538938163348, error: AVG(SQUARED_DIFF) = 0.0764636179, (best thresh acc: 92.02%) (maj. 66.49%), (AUC-ROC: 0.9601269841), (AUC-PR: 0.978976231)
      * Total time: 00:10:02:965
-     *
+     * <p>
      * btw. ADAM s lr=0.01 tu bezi brutalne dobre
+     *
      * @throws Exception
      */
     @TestAnnotations.Slow
@@ -216,7 +219,6 @@ public class Mutagenesis {
     }
 
     /**
-     *
      * with result: accuracy: 87.77%, disp: 0.49502512040795565, error: 0.1022808575, (best thresh acc: 89.36%) (maj. 66.49%), (AUC-ROC: 0.9306666667), (AUC-PR: 0.9653845754)
      * Total time: 00:10:05:965
      *
@@ -258,8 +260,9 @@ public class Mutagenesis {
         settings.storeNotShow = true;
 
         Pair<Pipeline, ?> main = Main.main(argsNew, settings);
+//        Pair<Pipeline, ?> main = Main.main(new String[]{"-e relational/molecules/mutagenesis/diffcheck/examples_repaired.txt", " -t relational/molecules/mutagenesis/templates/template_old_vectorized.txt"}, settings);
         DetailedClassificationResults results = (DetailedClassificationResults) main.s;
-        assertEquals(0.6109891807533523, results.dispersion,  0.01);
+        assertEquals(0.6109891807533523, results.dispersion, 0.01);
     }
 
 }
