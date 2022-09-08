@@ -260,7 +260,6 @@ public class Mutagenesis {
         settings.storeNotShow = true;
 
         Pair<Pipeline, ?> main = Main.main(argsNew, settings);
-//        Pair<Pipeline, ?> main = Main.main(new String[]{"-e relational/molecules/mutagenesis/diffcheck/examples_repaired.txt", " -t relational/molecules/mutagenesis/templates/template_old_vectorized.txt"}, settings);
         DetailedClassificationResults results = (DetailedClassificationResults) main.s;
         assertEquals(0.6109891807533523, results.dispersion, 0.01);
     }
