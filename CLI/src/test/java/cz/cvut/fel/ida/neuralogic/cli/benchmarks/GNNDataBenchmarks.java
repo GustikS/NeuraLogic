@@ -102,6 +102,4 @@ public class GNNDataBenchmarks {
         assertEquals(dispersion, results.dispersion, 0.000001);
         assertEquals(referenceTime.toMillis(), main.r.timing.getTimeTaken().toMillis(), referenceTime.toMillis() * 0.3);
     }
-
-
 }

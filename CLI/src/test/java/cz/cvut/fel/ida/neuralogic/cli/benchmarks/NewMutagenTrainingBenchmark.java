@@ -28,42 +28,53 @@ import static cz.cvut.fel.ida.utils.generic.Benchmarking.benchmarkSlow;
 import static cz.cvut.fel.ida.utils.generic.Utilities.getDatasetArgs;
 
 @TestAnnotations.Slow
-public class DefaultMutagenTrainingBenchmark {
-    private static final Logger LOG = Logger.getLogger(DefaultMutagenTrainingBenchmark.class.getName());
-
-    static String[] dataset = getDatasetArgs("relational/molecules/mutagenesis");
-    static int learningSteps = 100;
-
+public class NewMutagenTrainingBenchmark {
+    private static final Logger LOG = Logger.getLogger(NewMutagenTrainingBenchmark.class.getName());
 
     @TestAnnotations.Slow
-    public void testMutagenFastEnough() throws RunnerException {
-        Duration referenceTime = Duration.ofSeconds(54);
+    public void testTrainingFastEnough() throws RunnerException {
+        Duration referenceTime = Duration.ofSeconds(11);
         double maxDeviation = 0.1;
 
         Collection<RunResult> runResults = benchmarkSlow(getClass().getName() + ".defaultTraining", 3, 1);
         assertSmallRuntimeDeviation(runResults, referenceTime, maxDeviation);
     }
 
+    @TestAnnotations.AdHoc
+    public void debugVersion() throws Exception {
+        GroundingState defaultBenchmarkState = new GroundingState();
+        defaultBenchmarkState.initialize();
+        defaultTraining(defaultBenchmarkState);
+    }
+
+
     /**
      * Prepare the grounded and neuralized networks here for all the tests!
      */
     @State(Scope.Benchmark)
-    public static class DefaultBenchmarkState {
+    public static class GroundingState {
         Sources sources;
 
         NeuralModel neuralModel;
         List<NeuralSample> samples;
 
+        Settings settings = Settings.forMediumTest();
+        String[] arguments = getDatasetArgs("relational/molecules/mutagenesis", "-t ./templates/template_gnnW10.txt");
+
+        void setup(String[] arguments, Settings settings) {
+            this.arguments = arguments;
+            this.settings = settings;
+        }
+
         @Setup(Level.Trial)
         public void initialize() throws Exception {
-            Logging.initLogging(new Settings());
+            Logging.initLogging(settings);
+            settings.maxCumEpochCount = 100;
             LOG.warning("Initializing state!");
-            Settings settings = Settings.forSlowTest();
-            settings.appLimitSamples = -1;
-            settings.intermediateDebug = false;
-            settings.debugExporting = false;
+            System.out.println(arguments);
+            System.out.println(settings);
+            sources = Runner.getSources(arguments, settings);
 
-            sources = Runner.getSources(dataset, settings);
             End2endTrainigBuilder.End2endNNBuilder end2endNNBuilder = new End2endTrainigBuilder(settings, sources).new End2endNNBuilder();
             Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> end2EndNNbuilding = end2endNNBuilder.buildPipeline();
             Pair<String, Pair<NeuralModel, Stream<NeuralSample>>> stringPairPair = end2EndNNbuilding.execute(sources);
@@ -74,14 +85,11 @@ public class DefaultMutagenTrainingBenchmark {
     }
 
     @Benchmark
-    public Pair<String, Pair<NeuralModel, Progress>> defaultTraining(DefaultBenchmarkState state) throws Exception {
-        Settings settings = Settings.forSlowTest();
-        settings.appLimitSamples = -1;
-        settings.maxCumEpochCount = learningSteps;
-        return neuralTraining(state, settings);
+    public Pair<String, Pair<NeuralModel, Progress>> defaultTraining(GroundingState state) throws Exception {
+        return neuralTraining(state, state.settings);
     }
 
-    public static Pair<String, Pair<NeuralModel, Progress>> neuralTraining(DefaultBenchmarkState state, Settings settings) throws Exception {
+    public static Pair<String, Pair<NeuralModel, Progress>> neuralTraining(GroundingState state, Settings settings) throws Exception {
         TrainingBuilder.NeuralLearningBuilder neuralLearningBuilder = new TrainingBuilder.NeuralLearningBuilder(settings);
         Pipeline<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Progress>> trainingPipeline = neuralLearningBuilder.buildPipeline();
         Pair<String, Pair<NeuralModel, Progress>> trainingResults = trainingPipeline.execute(new Pair<>(state.neuralModel, state.samples.stream()));

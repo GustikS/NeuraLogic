@@ -5,7 +5,6 @@ import cz.cvut.fel.ida.pipelines.Pipeline;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.utils.generic.TestAnnotations;
-import cz.cvut.fel.ida.utils.generic.Utilities;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.RunnerException;
@@ -16,10 +15,14 @@ import java.util.logging.Logger;
 
 import static cz.cvut.fel.ida.utils.generic.Benchmarking.assertSmallRuntimeDeviation;
 import static cz.cvut.fel.ida.utils.generic.Benchmarking.benchmarkSlow;
-import static cz.cvut.fel.ida.utils.generic.Utilities.splitArgs;
+import static cz.cvut.fel.ida.utils.generic.Utilities.getDatasetArgs;
 
 public class MainStagesMutaBenchmarks {
     private static final Logger LOG = Logger.getLogger(MainStagesMutaBenchmarks.class.getName());
+
+    static String dataset = "relational/molecules/mutagenesis";
+    static String template = "-t ./templates/template_gnnW10.txt";
+
 
     @TestAnnotations.Slow
     public void benchmarkMutagenesisLoading() throws RunnerException {
@@ -32,7 +35,7 @@ public class MainStagesMutaBenchmarks {
 
     @TestAnnotations.Slow
     public void benchmarkMutagenesisGrounding() throws RunnerException {
-        Duration referenceTime = Duration.ofSeconds(12);
+        Duration referenceTime = Duration.ofSeconds(5);
         double maxDeviation = 0.2;
 
         Collection<RunResult> runResults = benchmarkSlow(getClass().getName() + ".mutagenesisGrounding", 3, 1);
@@ -41,7 +44,7 @@ public class MainStagesMutaBenchmarks {
 
     @TestAnnotations.Slow
     public void benchmarkMutagenesisFullTraining() throws RunnerException {
-        Duration referenceTime = Duration.ofSeconds(65);
+        Duration referenceTime = Duration.ofSeconds(18);
         double maxDeviation = 0.2;
 
         Collection<RunResult> runResults = benchmarkSlow(getClass().getName() + ".mutagenesisFullTraining", 2, 1);
@@ -50,26 +53,25 @@ public class MainStagesMutaBenchmarks {
 
     @Benchmark
     public void mutagenesis1SampleProcessing() throws Exception {
-        Settings settings = new Settings();
-        String resourcePath = Utilities.getResourcePath("relational/molecules/mutagenesis");
-        String args = "-lim 1 -ts 0 -sd " + resourcePath;
-        Pair<Pipeline, ?> main = Main.main(splitArgs(args), settings);
-        System.out.println(main.s);
+        Settings settings = Settings.forMediumTest();
+        String[] args = getDatasetArgs(dataset, template, "-lim 1 -ts 0");
+        Pair<Pipeline, ?> main = Main.main(args, settings);
+        System.out.println("mutagenesis1SampleProcessing");
     }
 
     @Benchmark
     public void mutagenesisGrounding() throws Exception {
-        Settings settings = new Settings();
-        String resourcePath = Utilities.getResourcePath("relational/molecules/mutagenesis");
-        String args = "-lim -1 -ts 0 -sd " + resourcePath;
-        Main.main(splitArgs(args), settings);
+        Settings settings = Settings.forMediumTest();
+        String[] args = getDatasetArgs(dataset, template, "-lim -1 -ts 0");
+        Pair<Pipeline, ?> main = Main.main(args, settings);
+        System.out.println(main.s);
     }
 
     @Benchmark
     public void mutagenesisFullTraining() throws Exception {
-        Settings settings = new Settings();
-        String resourcePath = Utilities.getResourcePath("relational/molecules/mutagenesis");
-        String args = "-lim -1 -ts 100 -sd " + resourcePath;
-        Main.main(splitArgs(args), settings);
+        Settings settings = Settings.forMediumTest();
+        String[] args = getDatasetArgs(dataset, template, "-lim -1 -ts 100");
+        Pair<Pipeline, ?> main = Main.main(args, settings);
+        System.out.println(main.s);
     }
 }

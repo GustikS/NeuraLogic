@@ -113,6 +113,8 @@ public class Settings implements Serializable {
         setting.drawing = false;
         setting.plotProgress = -1;
         setting.appLimitSamples = -1;
+        setting.maxCumEpochCount = 100;
+        setting.resultsRecalculationEpochae = 100;
         setting.seed = 0;
         setting.outDir = Settings.logFile;
         return setting;
