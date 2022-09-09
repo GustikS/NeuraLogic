@@ -106,7 +106,7 @@ public class Gringo extends Grounder {
         Term[] terms = copy.arguments();
 
         for (int i = 0; i < terms.length; i++) {
-            String term = intToConst.get(Integer.parseInt(parsedLiteral.get(i + 1)));
+            String term = intToConst.get(Integer.parseInt(parsedLiteral.get(i)));
             terms[i] = constantFactory.construct(term);
         }
 
@@ -114,30 +114,26 @@ public class Gringo extends Grounder {
     }
 
     private List<String> parseLiteralFromString(String literal) {
-        String[] split = literal.split("\\(", 2);
+        final int termIndex = literal.indexOf("(");
+        final int len = literal.length();
 
-        if (split.length == 1) {
-            List<String> predName = new ArrayList<>(1);
-            predName.add(split[0]);
-            return predName;
+        if (termIndex >= len - 2) {
+            return Collections.EMPTY_LIST;
         }
 
-        String[] splitTerms = split[1].split(",");
-        List<String> result = new ArrayList<>(splitTerms.length + 1);
-        result.add(split[0]);
+        int previousIndex = termIndex;
+        int commaIndex = -1;
 
-        for (int i = 0; i < splitTerms.length - 1; i++) {
-            result.add(splitTerms[i]);
+        List<String> result = new ArrayList<>();
+        while ((commaIndex = literal.indexOf(",", previousIndex + 1)) != -1) {
+            result.add(literal.substring(previousIndex + 1, commaIndex));
+            previousIndex = commaIndex;
         }
 
-        if (splitTerms.length != 0) {
-            String last = splitTerms[splitTerms.length - 1];
-
-            if (last.charAt(last.length() - 1) == ')') {
-                result.add(last.substring(0, last.length() - 1));
-            } else {
-                result.add(last);
-            }
+        if (literal.charAt(len - 1) == ')') {
+            result.add(literal.substring(previousIndex + 1, len - 1));
+        } else {
+            result.add(literal.substring(previousIndex + 1, len));
         }
 
         return result;
@@ -182,17 +178,17 @@ public class Gringo extends Grounder {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    String[] split = line.split(":-");
-
-                    if (split.length <= 1) {
+                    int index = line.indexOf(":-");
+                    if (index == -1) {
                         continue;
                     }
 
-                    String[] head = split[0].split(";");
-                    int ruleId = Integer.parseInt(head[1].substring(5, head[1].length() - 2));
+                    int headDelimiter = line.indexOf(";");
+                    int ruleId = Integer.parseInt(line.substring(headDelimiter + 6, index - 2));
+                    String head = line.substring(1, headDelimiter);
 
-                    String[] body = split[1].substring(0, split[1].length() - 1).split("\\),");
-                    List<String> parsedHead = parseLiteralFromString(head[0].substring(1));
+                    String[] body = line.substring(index + 2, line.length() - 1).split("\\),");
+                    List<String> parsedHead = parseLiteralFromString(head);
                     List<List<String>> parsedBody = new ArrayList<>(body.length);
 
                     for (int i = 0; i < body.length; i++) {
