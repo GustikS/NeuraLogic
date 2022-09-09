@@ -28,6 +28,8 @@ public class Gringo extends Grounder {
 
     private String templateStr = "";
 
+    private final Runtime runtime = Runtime.getRuntime();
+
     public Gringo(Settings settings) {
         super(settings);
         constantFactory = new ConstantFactory();
@@ -130,7 +132,12 @@ public class Gringo extends Grounder {
 
         if (splitTerms.length != 0) {
             String last = splitTerms[splitTerms.length - 1];
-            result.add(last.substring(0, last.length() - 1));
+
+            if (last.charAt(last.length() - 1) == ')') {
+                result.add(last.substring(0, last.length() - 1));
+            } else {
+                result.add(last);
+            }
         }
 
         return result;
@@ -171,7 +178,7 @@ public class Gringo extends Grounder {
                 bw.append(buildProgram(new HashSet<>(), exampleGroundFacts.keySet()));
             }
 
-            Process process = Runtime.getRuntime().exec("gringo " + temp + " --text");
+            Process process = runtime.exec("gringo " + temp + " --text");
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
