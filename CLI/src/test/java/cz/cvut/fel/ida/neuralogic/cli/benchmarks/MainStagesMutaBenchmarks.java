@@ -13,8 +13,7 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.logging.Logger;
 
-import static cz.cvut.fel.ida.utils.generic.Benchmarking.assertSmallRuntimeDeviation;
-import static cz.cvut.fel.ida.utils.generic.Benchmarking.benchmarkSlow;
+import static cz.cvut.fel.ida.utils.generic.Benchmarking.*;
 import static cz.cvut.fel.ida.utils.generic.Utilities.getDatasetArgs;
 
 public class MainStagesMutaBenchmarks {
@@ -24,19 +23,19 @@ public class MainStagesMutaBenchmarks {
     static String template = "-t ./templates/template_gnnW10.txt";
 
 
-    @TestAnnotations.Slow
+    @TestAnnotations.FastBenchmark
     public void benchmarkMutagenesisLoading() throws RunnerException {
-        Duration referenceTime = Duration.ofMillis(500);
-        double maxDeviation = 0.5;
+        Duration referenceTime = Duration.ofMillis(340);
+        double maxDeviation = 0.4;
 
         Collection<RunResult> runResults = benchmarkSlow(getClass().getName() + ".mutagenesis1SampleProcessing", 5, 2);
         assertSmallRuntimeDeviation(runResults, referenceTime, maxDeviation);
     }
 
-    @TestAnnotations.Slow
+    @TestAnnotations.FastBenchmark
     public void benchmarkMutagenesisGrounding() throws RunnerException {
-        Duration referenceTime = Duration.ofSeconds(5);
-        double maxDeviation = 0.2;
+        Duration referenceTime = Duration.ofMillis(5500);
+        double maxDeviation = 0.4;
 
         Collection<RunResult> runResults = benchmarkSlow(getClass().getName() + ".mutagenesisGrounding", 3, 1);
         assertSmallRuntimeDeviation(runResults, referenceTime, maxDeviation);

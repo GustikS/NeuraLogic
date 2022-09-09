@@ -27,14 +27,14 @@ import static cz.cvut.fel.ida.utils.generic.Benchmarking.assertSmallRuntimeDevia
 import static cz.cvut.fel.ida.utils.generic.Benchmarking.benchmarkSlow;
 import static cz.cvut.fel.ida.utils.generic.Utilities.getDatasetArgs;
 
-@TestAnnotations.Slow
+
 public class NewMutagenTrainingBenchmark {
     private static final Logger LOG = Logger.getLogger(NewMutagenTrainingBenchmark.class.getName());
 
-    @TestAnnotations.Slow
+    @TestAnnotations.FastBenchmark
     public void testTrainingFastEnough() throws RunnerException {
-        Duration referenceTime = Duration.ofSeconds(11);
-        double maxDeviation = 0.1;
+        Duration referenceTime = Duration.ofSeconds(12);
+        double maxDeviation = 0.4;
 
         Collection<RunResult> runResults = benchmarkSlow(getClass().getName() + ".defaultTraining", 3, 1);
         assertSmallRuntimeDeviation(runResults, referenceTime, maxDeviation);
