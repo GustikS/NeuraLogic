@@ -74,9 +74,9 @@ public @interface TestAnnotations {
     @Retention(RUNTIME)
     @Test
     @TestOnly
-    @Tag("SlowBenchmark")
+    @Tag("PreciseBenchmark")
     @ExtendWith({TestLogging.PreciseBenchmarking.class})
-    @interface SlowBenchmark {
+    @interface PreciseBenchmark {
     }
 
     @Target({TYPE, METHOD, ANNOTATION_TYPE})

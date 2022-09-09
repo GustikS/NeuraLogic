@@ -13,9 +13,13 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.logging.Logger;
 
-import static cz.cvut.fel.ida.utils.generic.Benchmarking.*;
+import static cz.cvut.fel.ida.utils.generic.Benchmarking.assertSmallRuntimeDeviation;
+import static cz.cvut.fel.ida.utils.generic.Benchmarking.benchmarkSlow;
 import static cz.cvut.fel.ida.utils.generic.Utilities.getDatasetArgs;
 
+/**
+ * The reference times measured within IntelliJ during the full fastTestSuite run
+ */
 public class MainStagesMutaBenchmarks {
     private static final Logger LOG = Logger.getLogger(MainStagesMutaBenchmarks.class.getName());
 
@@ -23,19 +27,19 @@ public class MainStagesMutaBenchmarks {
     static String template = "-t ./templates/template_gnnW10.txt";
 
 
-    @TestAnnotations.FastBenchmark
+    @TestAnnotations.PreciseBenchmark
     public void benchmarkMutagenesisLoading() throws RunnerException {
         Duration referenceTime = Duration.ofMillis(340);
-        double maxDeviation = 0.4;
+        double maxDeviation = 0.5;
 
         Collection<RunResult> runResults = benchmarkSlow(getClass().getName() + ".mutagenesis1SampleProcessing", 5, 2);
         assertSmallRuntimeDeviation(runResults, referenceTime, maxDeviation);
     }
 
-    @TestAnnotations.FastBenchmark
+    @TestAnnotations.PreciseBenchmark
     public void benchmarkMutagenesisGrounding() throws RunnerException {
-        Duration referenceTime = Duration.ofMillis(5500);
-        double maxDeviation = 0.4;
+        Duration referenceTime = Duration.ofMillis(4000);
+        double maxDeviation = 0.5;
 
         Collection<RunResult> runResults = benchmarkSlow(getClass().getName() + ".mutagenesisGrounding", 3, 1);
         assertSmallRuntimeDeviation(runResults, referenceTime, maxDeviation);

@@ -37,12 +37,12 @@ public class Benchmarking {
 
     private static DecimalFormat df = new DecimalFormat("0.000");
 
-    @TestAnnotations.SlowBenchmark
-    public void genericPreciesBenchmark() {
+    @TestAnnotations.Slow
+    public void genericPreciseBenchmark() {
         Double coeff = TestLogging.baselinePerformanceCoeff;
         LOG.warning("TESTING NOW");
         double baselinePerformanceCoeff = getBaselinePerformanceCoeff();
-        assertEquals(coeff, baselinePerformanceCoeff, 0.001);
+        assertEquals(coeff, baselinePerformanceCoeff, 0.01);
     }
 
     @TestAnnotations.Slow
@@ -79,7 +79,7 @@ public class Benchmarking {
      */
     @Benchmark
     public List<Integer> baselinePerformance() {
-        int tuning = 45100;
+        int tuning = 43700;
         Random random = new Random(0);
         List<Integer> list = new LinkedList<>();
         for (int i = 0; i < tuning; i++) {
@@ -101,12 +101,17 @@ public class Benchmarking {
     }
 
     public static void assertSmallRuntimeDeviation(Collection<RunResult> runResults, Duration referenceDuration, double maxDeviation) {
+        double coeff = TestLogging.baselinePerformanceCoeff;
+        LOG.warning("On this machine TestLogging.baselinePerformanceCoeff = " + coeff);
 
-        if (runResults == null){
+        if (runResults == null) {
             return;
         }
 
         double score = getMeanTime(runResults);
+
+        LOG.info(score + timeUnit.toString() + " => applying speed coefficient for this machine: " + coeff);
+        score = score / coeff; // normalization by the speed coefficient specific for this machine!
 
         Duration realDuration = Duration.of(Math.round(score), temporalUnit);
 

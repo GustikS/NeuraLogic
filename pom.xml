@@ -130,7 +130,7 @@
                 <version>3.0.0-M5</version>
                 <configuration>
                     <skip>false</skip>
-                    <groups>Fast, Medium, FastBenchmark</groups>
+                    <groups>Fast, Medium, PreciseBenchmark</groups>
                     <!--<excludedGroups>Interactive, Slow, AdHoc, SlowBenchmark</excludedGroups>-->
                     <includes>
                         <include>*.java</include>
