@@ -1,6 +1,5 @@
 package cz.cvut.fel.ida.logic.grounding.topDown;
 
-import com.sun.jna.Pointer;
 import cz.cvut.fel.ida.logic.*;
 import cz.cvut.fel.ida.logic.constructs.building.factories.ConstantFactory;
 import cz.cvut.fel.ida.logic.constructs.example.LiftedExample;
@@ -15,32 +14,17 @@ import cz.cvut.fel.ida.logic.grounding.Grounder;
 import cz.cvut.fel.ida.logic.grounding.constructs.GroundRulesCollection;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.generic.Pair;
-import org.potassco.clingo.control.Control;
-import org.potassco.clingo.control.ProgramPart;
-import org.potassco.clingo.control.SymbolicAtom;
-import org.potassco.clingo.internal.Clingo;
-import org.potassco.clingo.internal.NativeSize;
-import org.potassco.clingo.solving.GroundCallback;
-import org.potassco.clingo.solving.Observer;
-import org.potassco.clingo.symbol.Function;
-import org.potassco.clingo.symbol.Number;
-import org.potassco.clingo.symbol.Symbol;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 public class Gringo extends Grounder {
 
-    private int ruleCounter = 0;
-
-    int count = 0;
-
     final private ConstantFactory constantFactory;
-
-    final private HashMap<Integer, Integer> intToRuleId = new HashMap<>();
     final private HashMap<Integer, String> intToConst = new HashMap<>();
     final private HashMap<String, Integer> constToInt = new HashMap<>();
-
-    final GroundingObserver observer = new GroundingObserver();
 
     private String templateStr = "";
 
@@ -94,14 +78,10 @@ public class Gringo extends Grounder {
 
         for (Map.Entry<HornClause, List<WeightedRule>> entry : ruleEntries) {
             for (WeightedRule rule : entry.getValue()) {
-                final int ruleMapIndex = getConstantIndex(index + "");
-                intToRuleId.put(ruleMapIndex, index);
-
                 builder.append("{");
                 addLiteralToProgram(rule.getHead().literal, builder);
-                builder.append(";");
-                builder.append("__id(");
-                builder.append(ruleMapIndex);
+                builder.append(";__id(");
+                builder.append(index);
                 builder.append(")}:-");
 
                 index++;
@@ -116,32 +96,50 @@ public class Gringo extends Grounder {
             }
         }
 
-        ruleCounter = index;
-
         return builder;
     }
 
-    private Literal getGroundedLiteral(Literal literal, SymbolicAtom symbolicAtom) {
+    private Literal getGroundedLiteral(Literal literal, List<String> parsedLiteral) {
         Literal copy = literal.emptyCopy();
-        Function symbol = (Function) symbolicAtom.getSymbol();
-
-        Symbol[] arguments = symbol.getArguments();
         Term[] terms = copy.arguments();
 
         for (int i = 0; i < terms.length; i++) {
-            Number arg = (Number) arguments[i];
-            terms[i] = constantFactory.construct(intToConst.get(arg.getNumber()));
+            String term = intToConst.get(Integer.parseInt(parsedLiteral.get(i + 1)));
+            terms[i] = constantFactory.construct(term);
         }
 
         return copy;
     }
 
+    private List<String> parseLiteralFromString(String literal) {
+        String[] split = literal.split("\\(", 2);
+
+        if (split.length == 1) {
+            List<String> predName = new ArrayList<>(1);
+            predName.add(split[0]);
+            return predName;
+        }
+
+        String[] splitTerms = split[1].split(",");
+        List<String> result = new ArrayList<>(splitTerms.length + 1);
+        result.add(split[0]);
+
+        for (int i = 0; i < splitTerms.length - 1; i++) {
+            result.add(splitTerms[i]);
+        }
+
+        if (splitTerms.length != 0) {
+            String last = splitTerms[splitTerms.length - 1];
+            result.add(last.substring(0, last.length() - 1));
+        }
+
+        return result;
+    }
+
     @Override
     public GroundTemplate groundRulesAndFacts(LiftedExample example, Template template) {
         timing.tic();
-        count++;
 
-        Control control = new Control("--keep-facts");
         Map<HornClause, List<WeightedRule>> ruleMap = template.hornClauses;
         Map<Literal, ValuedFact> groundFacts = null;
 
@@ -158,59 +156,69 @@ public class Gringo extends Grounder {
             groundFacts = mapToLogic(rulesAndFacts(new LiftedExample(), template)).s;
         }
 
-        control.add(templateStr);
-
         Set<Map.Entry<HornClause, List<WeightedRule>>> ruleEntries = ruleMap.entrySet();
-        Map<Literal, ValuedFact> exampleGroundFacts = mapToLogic(rulesAndFacts(example, new Template()).s);
-
-        groundFacts.putAll(exampleGroundFacts);
-
-        StringBuilder program = buildProgram(new HashSet<>(), exampleGroundFacts.keySet());
-        control.add(program.toString());
-
         LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules = new LinkedHashMap<>();
+        Map<Integer, List<List<List<String>>>> bodies = new HashMap<>();
+        Map<Integer, List<List<String>>> heads = new HashMap<>();
 
-        HashMap<Integer, SymbolicAtom> symbolMap = new HashMap<>();
-        Map<Integer, Integer> counterToMap = new HashMap<>();
+        try {
+            Path temp = Files.createTempFile("", ".lp");
 
-        observer.init(ruleCounter);
+            try (FileWriter fw = new FileWriter(temp.toFile()); BufferedWriter bw = new BufferedWriter(fw)) {
+                bw.write(templateStr);
+                Map<Literal, ValuedFact> exampleGroundFacts = mapToLogic(rulesAndFacts(example, new Template()).s);
+                groundFacts.putAll(exampleGroundFacts);
+                bw.append(buildProgram(new HashSet<>(), exampleGroundFacts.keySet()));
+            }
 
-        final Map<Integer, List<int[]>> bodies = observer.bodies;
-        final Map<Integer, List<Integer>> heads = observer.heads;
+            Process process = Runtime.getRuntime().exec("gringo " + temp + " --text");
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] split = line.split(":-");
 
-        control.registerObserver(observer);
-        control.ground();
+                    if (split.length <= 1) {
+                        continue;
+                    }
 
-        for (SymbolicAtom symbol : control.getSymbolicAtoms()) {
-            symbolMap.put(symbol.getLiteral(), symbol);
-        }
+                    String[] head = split[0].split(";");
+                    int ruleId = Integer.parseInt(head[1].substring(5, head[1].length() - 2));
 
-        for (int key : bodies.keySet()) {
-            Function fun = (Function) symbolMap.get(key).getSymbol();
-            Number number = (Number) fun.getArguments()[0];
-            counterToMap.put(intToRuleId.get(number.getNumber()), key);
+                    String[] body = split[1].substring(0, split[1].length() - 1).split("\\),");
+                    List<String> parsedHead = parseLiteralFromString(head[0].substring(1));
+                    List<List<String>> parsedBody = new ArrayList<>(body.length);
+
+                    for (int i = 0; i < body.length; i++) {
+                        parsedBody.add(parseLiteralFromString(body[i]));
+                    }
+
+                    bodies.computeIfAbsent(ruleId, k -> new ArrayList<>()).add(parsedBody);
+                    heads.computeIfAbsent(ruleId, k -> new ArrayList<>()).add(parsedHead);
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         int ruleCounter = 0;
         for (Map.Entry<HornClause, List<WeightedRule>> entry : ruleEntries) {
             for (WeightedRule rule : entry.getValue()) {
-                if (!counterToMap.containsKey(ruleCounter)) {
+                if (!bodies.containsKey(ruleCounter)) {
                     ruleCounter++;
                     continue;
                 }
 
-                final int mappedRuleCounter = counterToMap.get(ruleCounter);
-                final List<Integer> headGroundings = heads.get(mappedRuleCounter);
-                final List<int[]> bodyGroundings = bodies.get(mappedRuleCounter);
+                final List<List<String>> headGroundings = heads.get(ruleCounter);
+                final List<List<List<String>>> bodyGroundings = bodies.get(ruleCounter);
                 final int bodySize = rule.getBody().size();
 
                 ruleCounter++;
 
                 for (int i = 0, groundingSize = headGroundings.size(); i < groundingSize; i++) {
-                    int headId = headGroundings.get(i);
-                    int[] bodyGroundingIds = bodyGroundings.get(i);
+                    List<String> headGrouding = headGroundings.get(i);
+                    List<List<String>> bodyGrounding = bodyGroundings.get(i);
 
-                    Literal groundHead = getGroundedLiteral(rule.getHead().literal, symbolMap.get(headId));
+                    Literal groundHead = getGroundedLiteral(rule.getHead().literal, headGrouding);
                     List<Literal> groundBody = new ArrayList<>(bodySize);
                     List<BodyAtom> body = rule.getBody();
 
@@ -222,8 +230,7 @@ public class Gringo extends Grounder {
                             continue;
                         }
 
-                        SymbolicAtom bodySymbol = symbolMap.get(bodyGroundingIds[bodySize - j - 1]);
-                        groundBody.add(getGroundedLiteral(literal, bodySymbol));
+                        groundBody.add(getGroundedLiteral(literal, bodyGrounding.get(bodySize - j - 1)));
                     }
 
                     GroundRule grounding = new GroundRule(rule, groundHead, groundBody.toArray(new Literal[groundBody.size()]));
@@ -239,9 +246,6 @@ public class Gringo extends Grounder {
             }
         }
 
-        control.cleanup();
-        control.close();
-
         GroundTemplate groundTemplate = new GroundTemplate(groundRules, groundFacts);
 
         timing.toc();
@@ -253,33 +257,4 @@ public class Gringo extends Grounder {
         return null;
     }
 
-    public static class GroundingObserver implements Observer {
-        public Map<Integer, List<int[]>> bodies;
-        public Map<Integer, List<Integer>> heads;
-        public List<Integer> facts = new ArrayList<>();
-
-        public void init(int ruleCount) {
-            this.bodies = new HashMap<>(ruleCount);
-            this.heads = new HashMap<>(ruleCount);
-        }
-
-        @Override
-        public void rule(boolean choice, int[] head, int[] body) {
-            if (body.length == 0) {
-                facts.add(head[0]);
-            } else {
-                final int id = head[1];
-                List<int[]> bodiesSub = bodies.get(id);
-
-                if (bodiesSub == null) {
-                    bodiesSub = new ArrayList<>();
-                    heads.put(id, new ArrayList<>());
-                    bodies.put(id, bodiesSub);
-                }
-
-                bodiesSub.add(body);
-                heads.get(id).add(head[0]);
-            }
-        }
-    }
 }

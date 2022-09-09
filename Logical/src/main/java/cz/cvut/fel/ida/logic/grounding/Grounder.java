@@ -10,6 +10,7 @@ import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
 import cz.cvut.fel.ida.logic.constructs.template.components.WeightedRule;
 import cz.cvut.fel.ida.logic.grounding.bottomUp.BottomUp;
+import cz.cvut.fel.ida.logic.grounding.topDown.Gringo;
 import cz.cvut.fel.ida.logic.grounding.topDown.TopDown;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
@@ -49,6 +50,8 @@ public abstract class Grounder implements Exportable {
                 return new BottomUp(settings);
             case TDOWN:
                 return new TopDown(settings);
+            case GRINGO:
+                return new Gringo(settings);
             default:
                 return new BottomUp(settings);
         }
