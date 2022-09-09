@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.GLOBAL;
 
 public class TestLogging implements BeforeAllCallback, BeforeEachCallback, AfterEachCallback, ExtensionContext.Store.CloseableResource {
     private static final Logger LOG = Logger.getLogger(Benchmarking.class.getName());
-    
+
     public static Double baselinePerformanceCoeff;
 
     Logging logging;

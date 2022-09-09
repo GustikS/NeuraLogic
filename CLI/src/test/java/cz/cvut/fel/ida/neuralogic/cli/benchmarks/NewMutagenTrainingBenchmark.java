@@ -37,7 +37,7 @@ public class NewMutagenTrainingBenchmark {
     @TestAnnotations.PreciseBenchmark
     public void testTrainingFastEnough() throws RunnerException {
         Duration referenceTime = Duration.ofSeconds(11);
-        double maxDeviation = 0.4;
+        double maxDeviation = 3.5;
 
         Collection<RunResult> runResults = benchmarkSlow(getClass().getName() + ".defaultTraining", 3, 1);
         assertSmallRuntimeDeviation(runResults, referenceTime, maxDeviation);
