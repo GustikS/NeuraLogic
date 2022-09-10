@@ -117,7 +117,7 @@ public class Gringo extends Grounder {
         final int termIndex = literal.indexOf("(");
         final int len = literal.length();
 
-        if (termIndex >= len - 2) {
+        if (termIndex > len - 2) {
             return Collections.EMPTY_LIST;
         }
 
@@ -199,6 +199,8 @@ public class Gringo extends Grounder {
                     heads.computeIfAbsent(ruleId, k -> new ArrayList<>()).add(parsedHead);
                 }
             }
+
+            Files.delete(temp);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
