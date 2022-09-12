@@ -19,7 +19,7 @@ public class TestLogging implements BeforeAllCallback, BeforeEachCallback, After
 
     @Override
     public void beforeEach(ExtensionContext context) {
-        LOG.info("beforeEach is called");
+//        LOG.info("beforeEach is called");
         context.getRoot().getStore(GLOBAL).put("any unique name", this);
         try {
             logging = Logging.initTestLogging("log" + sanitize(context));

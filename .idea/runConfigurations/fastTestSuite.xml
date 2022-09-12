@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="fastTestSuite" type="JUnit" factoryName="JUnit">
     <output_file path="$PROJECT_DIR$/target/testing/lastTests.txt" is_save="true" />
-    <module name="neuralogic-cli" />
+    <module name="CLI" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="ALTERNATIVE_JRE_PATH" value="BUNDLED" />
     <option name="PACKAGE_NAME" value="" />
@@ -11,7 +11,7 @@
     <option name="VM_PARAMETERS" value="-Xmx4g" />
     <option name="PARAMETERS" value="" />
     <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
-    <tag value="Fast | Medium" />
+    <tag value="Fast | Medium | PreciseBnchmark" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

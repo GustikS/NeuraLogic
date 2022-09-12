@@ -3,7 +3,7 @@
     <option name="ALTERNATIVE_JRE_PATH" value="BUNDLED" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="MAIN_CLASS_NAME" value="cz.cvut.fel.ida.neuralogic.cli.Main" />
-    <module name="neuralogic-cli" />
+    <module name="CLI" />
     <option name="PROGRAM_PARAMETERS" value="-sd Resources/datasets/relational/molecules/mutagenesis/" />
     <option name="VM_PARAMETERS" value="-Xmx4g" />
     <extension name="coverage">

@@ -30,7 +30,7 @@ public class MainStagesMutaBenchmarks {
     @TestAnnotations.PreciseBenchmark
     public void benchmarkMutagenesisLoading() throws RunnerException {
         Duration referenceTime = Duration.ofMillis(340);
-        double maxDeviation = 0.5;
+        double maxDeviation = 1.5;
 
         Collection<RunResult> runResults = benchmarkSlow(getClass().getName() + ".mutagenesis1SampleProcessing", 5, 2);
         assertSmallRuntimeDeviation(runResults, referenceTime, maxDeviation);
@@ -39,7 +39,7 @@ public class MainStagesMutaBenchmarks {
     @TestAnnotations.PreciseBenchmark
     public void benchmarkMutagenesisGrounding() throws RunnerException {
         Duration referenceTime = Duration.ofMillis(5000);
-        double maxDeviation = 3.5;
+        double maxDeviation = 0.5;
 
         Collection<RunResult> runResults = benchmarkSlow(getClass().getName() + ".mutagenesisGrounding", 3, 1);
         assertSmallRuntimeDeviation(runResults, referenceTime, maxDeviation);

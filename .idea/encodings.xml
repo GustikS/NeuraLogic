@@ -1,21 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="Encoding" addBOMForNewFiles="with NO BOM">
+  <component name="Encoding">
     <file url="file://$PROJECT_DIR$" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Algebra" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Algebra/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Algebra/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/CLI" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/CLI/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/CLI/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Drawing" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Drawing/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Drawing/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Learning" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Learning/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Learning/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Logging" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Logging/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Logging/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Logic" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Logic/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Logic/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Logical" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Logical/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Logical/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Neural" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Neural/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Neural/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Neuralization" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Neuralization/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Neuralization/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Parsing" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Parsing/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Parsing/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Pipelines" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Pipelines/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Pipelines/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Resources/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Resources/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Settings" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Settings/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Settings/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Utilities" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Utilities/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Utilities/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Workflow" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Workflow/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Workflow/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
   </component>
 </project>
