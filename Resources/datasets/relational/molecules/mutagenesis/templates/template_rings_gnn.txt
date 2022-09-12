@@ -1,0 +1,39 @@
+import ./embeddings.txt
+
+threeRing(A,B,C) :- bond(A,B,Bond1), bond(B,C,Bond2), bond(C,A,Bond3), @alldiff(A,B,C).
+fourRing(A,B,C,D) :- bond(A,B,Bond1), bond(B,C,Bond2), bond(C,D,Bond3), bond(D,A,Bond4), @alldiff(A,B,C,D).
+fiveRing(A,B,C,D,E) :- bond(A,B,Bond1), bond(B,C,Bond2), bond(C,D,Bond3), bond(D,E,Bond4), bond(E,A,Bond5), @alldiff(A,B,C,D,E).
+sixRing(A,B,C,D,E,F) :- bond(A,B,Bond1), bond(B,C,Bond2), bond(C,D,Bond3), bond(D,E,Bond4), bond(E,F,Bond5), bond(F,A, Bond6), @alldiff(A,B,C,D,E,F).
+
+three1(A,B,C) :- {3,1} threeRing(A,B,C), {3,3} atom_embed(A), {3,3} atom_embed(B), {3,3} atom_embed(C).
+three2(A,B,C) :- three1(A,B,C,D), {3,3} atom_embed2(A), {3,3} atom_embed2(B), {3,3} atom_embed2(C).
+
+{3,3} atom_embed2(A) :- three1(A,B,C).
+{3,3} atom_embed3(A) :- three2(A,B,C).
+
+four1(A,B,C,D) :- {3,1} fourRing(A,B,C,D), {3,3} atom_embed(A), {3,3} atom_embed(B), {3,3} atom_embed(C), {3,3} atom_embed(D). 
+four2(A,B,C,D) :- four1(A,B,C,D), {3,3} atom_embed2(A), {3,3} atom_embed2(B), {3,3} atom_embed2(C), {3,3} atom_embed2(D).
+
+{3,3} atom_embed2(A) :- four1(A,B,C,D).
+{3,3} atom_embed3(A) :- four2(A,B,C,D).
+
+five1(A,B,C,D,E) :- {3,1} fiveRing(A,B,C,D,E), {3,3} atom_embed(A), {3,3} atom_embed(B), {3,3} atom_embed(C), {3,3} atom_embed(D), {3,3} atom_embed(E).
+five2(A,B,C,D,E) :- five1(A,B,C,D,E), {3,3} atom_embed2(A), {3,3} atom_embed2(B), {3,3} atom_embed2(C), {3,3} atom_embed2(D), {3,3} atom_embed2(E).
+
+{3,3} atom_embed2(A) :- five1(A,B,C,D,E).
+{3,3} atom_embed3(A) :- five2(A,B,C,D,E).
+
+six1(A,B,C,D,E,F) :- {3,1} sixRing(A,B,C,D,E,F), {3,3} atom_embed(A), {3,3} atom_embed(B), {3,3} atom_embed(C), {3,3} atom_embed(D), {3,3} atom_embed(E), {3,3} atom_embed(F).
+six2(A,B,C,D,E,F) :- six1(A,B,C,D,E,F), {3,3} atom_embed2(A), {3,3} atom_embed2(B), {3,3} atom_embed2(C), {3,3} atom_embed2(D), {3,3} atom_embed2(E), {3,3} atom_embed2(F).
+
+{3,3} atom_embed2(A) :- six1(A,B,C,D,E,F).
+{3,3} atom_embed3(A) :- six2(A,B,C,D,E,F).
+
+% + classic GNN in parallel
+atom_embed2(X) :- {3,3} atom_embed(X), {3,3} atom_embed(Y), bond(X,Y,B).
+atom_embed3(X) :- {3,3} atom_embed2(X), {3,3} atom_embed2(Y), bond(X,Y,B).
+
+% final global readout with jumping knowledge
+{1,3} predict :- atom_embed(X).
+{1,3} predict :- atom_embed2(X).
+{1,3} predict :- atom_embed3(X).
