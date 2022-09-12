@@ -34,12 +34,12 @@ jobs:
       uses: mikepenz/action-junit-report@v3
       if: always() # always run even if the previous step fails
       with:
-        report_paths: '**/build/test-results/test/*.xml'
+        report_paths: '**/surefire-reports/*.xml'
         
     - name: Test Report2
-      uses: dorny/test-reporter@v1
+      uses: dorny/test-reporter@v1.5.0
       if: success() || failure()    # run this step even if previous step failed
       with:
-        name: Junit Tests           # Name of the check run which will be created
+        name: Test Report2           # Name of the check run which will be created
         path: '**/surefire-reports/*.xml'    # Path to test results
         reporter: java-junit        # Format of test results
