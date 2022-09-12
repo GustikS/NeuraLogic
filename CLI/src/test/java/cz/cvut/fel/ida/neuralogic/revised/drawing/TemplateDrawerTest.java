@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.neuralogic.revised.drawing;
 
 import cz.cvut.fel.ida.neuralogic.cli.utils.Runner;
+import cz.cvut.fel.ida.pipelines.debugging.GroundingDebugger;
 import cz.cvut.fel.ida.pipelines.debugging.TemplateDebugger;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.setup.Sources;
@@ -20,5 +21,15 @@ public class TemplateDrawerTest {
         TemplateDebugger templateDebugger = new TemplateDebugger(sources, settings);
         templateDebugger.executeDebug();
     }
+
+
+    @TestAnnotations.Interactive
+    public void drawing() throws Exception {
+        Settings settings = Settings.forInteractiveTest();
+        Sources sources = Runner.getSources(getDatasetArgs("simple/drawing", "-t ./template.txt"), settings);
+        TemplateDebugger templateDebugger = new TemplateDebugger(sources, settings);
+        templateDebugger.executeDebug();
+    }
+
 
 }

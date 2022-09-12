@@ -41,10 +41,13 @@ public class GraphTemplate extends Template {
 
         Map<Predicate, List<WeightedRule>> predicate2heads = new LinkedHashMap<>();
         atom2rules = new LinkedHashMap<>();
-        closedAtoms = new HashSet<>();
+        closedAtoms = template.facts.stream().map(f -> f.literal).collect(Collectors.toSet());
+        if (template.inferredLiterals != null) {
+            closedAtoms.addAll(template.inferredLiterals);
+        }
         openAtoms = new HashSet<>();
 
-        Clause clause = new Clause(template.facts.stream().map(f -> f.literal).collect(Collectors.toList()));
+        Clause clause = new Clause(closedAtoms);
         Matching matching = new Matching(Collections.singletonList(clause));
 
         for (WeightedRule rule : template.rules) {
@@ -60,9 +63,10 @@ public class GraphTemplate extends Template {
                     List<WeightedRule> possibleRules = predicate2heads.get(bodyAtom.literal.predicate());
                     boolean hasChildren = false;
                     if (possibleRules != null) {
-                        for (WeightedRule possibleRule : possibleRules) {
-                            // if the head of this possibleRule can be unified with the bodyatom, add such a possible path
-                            if (matching.subsumption(new Clause(possibleRule.getHead().literal), new Clause(bodyAtom.literal))) { //todo check and optimize this
+                        for (WeightedRule possibleRule : possibleRules) {   //todo check and optimize this
+                            if (matching.subsumption(new Clause(possibleRule.getHead().literal), new Clause(bodyAtom.literal)) // if the head of this possibleRule can be unified with the bodyatom (subtituted for it), add such a possible path
+                                    || (matching.subsumption(new Clause(bodyAtom.literal), new Clause(possibleRule.getHead().literal))) // the other direction - bodyAtom might be a general (lifted) case of the possibleRule's head - also a possible inference path
+                            ) {
                                 hasChildren = true;
                                 Set<WeightedRule> rules4atom = atom2rules.computeIfAbsent(bodyAtom.literal, k -> new HashSet<>());
                                 rules4atom.add(possibleRule);
@@ -70,9 +74,7 @@ public class GraphTemplate extends Template {
                         }
                     }
                     if (!hasChildren) {
-                        if (matching.subsumption(new Clause(bodyAtom.literal), 0)) {  //if it is true directly in the template
-                            closedAtoms.add(bodyAtom.literal);
-                        } else {    //if it needs to be derived from example
+                        if (!closedAtoms.contains(bodyAtom.literal)) {  //if it is not true directly in the template
                             openAtoms.add(bodyAtom.literal);
                         }
                     }

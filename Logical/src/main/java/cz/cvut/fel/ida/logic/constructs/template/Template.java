@@ -35,7 +35,7 @@ public class Template implements Model<QueryAtom>, Exportable {
     public LinkedHashSet<Conjunction> constraints;  //todo how to handle these?
 
     @Nullable
-    transient Set<Literal> inferredLiterals;
+    public transient Set<Literal> inferredLiterals;
 
     /**
      * This is merely for computational reuse (it can be computed any time from the rules).
