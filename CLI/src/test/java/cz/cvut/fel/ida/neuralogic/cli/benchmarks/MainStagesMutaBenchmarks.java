@@ -39,7 +39,7 @@ public class MainStagesMutaBenchmarks {
     @TestAnnotations.PreciseBenchmark
     public void benchmarkMutagenesisGrounding() throws RunnerException {
         Duration referenceTime = Duration.ofMillis(5000);
-        double maxDeviation = 0.5;
+        double maxDeviation = 3.5;
 
         Collection<RunResult> runResults = benchmarkSlow(getClass().getName() + ".mutagenesisGrounding", 3, 1);
         assertSmallRuntimeDeviation(runResults, referenceTime, maxDeviation);

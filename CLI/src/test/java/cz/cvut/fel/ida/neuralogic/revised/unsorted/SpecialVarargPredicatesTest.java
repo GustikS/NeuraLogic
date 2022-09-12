@@ -91,7 +91,7 @@ class SpecialVarargPredicatesTest {
         HornClause finalRule;
         template.add(finalRule = new HornClause(Clause.parse(" nextOne(A,B), !@next(A,B)")));
 
-        test(facts, template, finalRule, 20);       // 5 * 4 others
+        test(facts, template, finalRule, 2);       // (1,2) (2,3)
     }
 
     private void test(LinkedHashSet<Literal> facts, List<HornClause> template, HornClause finalRule, int number) {
