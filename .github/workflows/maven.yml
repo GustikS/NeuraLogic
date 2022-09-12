@@ -26,12 +26,12 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
       
-    - name: Test Report0
-      if: ${{ always() }}
-      uses: scacap/action-surefire-report@v1
-      with:
-        check_name: Failed Tests Report
-        report_paths: '**/surefire-reports/*.xml'
+#    - name: Test Report0
+#      if: ${{ always() }}
+#      uses: scacap/action-surefire-report@v1
+#      with:
+#        check_name: Failed Tests Report
+#        report_paths: '**/surefire-reports/*.xml'
 
     - name: Test Report2
       uses: dorny/test-reporter@v1.5.0
