@@ -96,11 +96,21 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
 
         this.allNeuronCount += sizeBefore;
         this.compressedNeuronCount += inet.allNeuronsTopologic.size();
-        LOG.info("IsoValue neuron compression from " + sizeBefore + " down to " + etalons.size() + " etalons (topologic-reconstruction: " + inet.allNeuronsTopologic.size() + ")");
+        LOG.info("IsoValue neuron compression from " + sizeBefore + " down to " + inet.allNeuronsTopologic.size() + "(etalon values: " + etalons.size() + ")");
         if (etalons.size() > inet.allNeuronsTopologic.size()) {
             LOG.warning("There are more iso-values than neurons after compression (some unique parts have been pruned out!) = lossy compression");
-        } else if (etalons.size() < inet.allNeuronsTopologic.size() - 1) {
-            LOG.warning("There are more neurons than iso-values (some neurons have not been pruned despite having the same value) - e.g. output neurons, or prevented by isomorphism check.");
+//            for (Neurons etalon : etalons) {
+//                if (!inet.allNeuronsTopologic.contains(etalon)){
+//                    System.out.println(etalon);
+//                }
+//            }
+        } else if (!settings.structuralIsoCompression && etalons.size() < inet.allNeuronsTopologic.size() - 1) {
+            LOG.warning("There are more neurons than iso-values (some neurons have not been pruned despite having the same value) - e.g. output neurons.");
+//            for (Neurons neuron : inet.allNeuronsTopologic) {
+//                if (!etalons.contains(neuron)){
+//                    System.out.println(neuron);
+//                }
+//            }
         }
 
         allWeights.forEach(weight -> {
@@ -138,8 +148,8 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
             }
         }
 
-        if (settings.losslessIsoCompression)
-            safeCompression(inet, isoValues, isoNeurons, etalonMap);
+        if (settings.structuralIsoCompression)
+            oversafeCompression(inet, isoValues, isoNeurons, etalonMap);
         else
             unsafeCompression(inet, etalonMap);
 
@@ -160,12 +170,15 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
             while (outputs.hasNext()) {   // over all its outputs
                 Neurons output = outputs.next();
                 inet.replaceInput((BaseNeuron<Neurons, State.Neural>) output, neuron, etalonReplacement);
-                inet.outputMapping.remove(neuron);  //just to make sure
+
+//                inet.replaceOutput((BaseNeuron<Neurons, State.Neural>) etalonReplacement,neuron,output);
+
+                inet.outputMapping.remove(neuron);//just to make sure
             }
         }
     }
 
-    private void safeCompression(DetailedNetwork<State.Structure> inet, Map<Neurons, ValueList> isoValues, Map<ValueList, List<Neurons>> isoNeurons, Map<Neurons, Neurons> etalonMap) {
+    private void oversafeCompression(DetailedNetwork<State.Structure> inet, Map<Neurons, ValueList> isoValues, Map<ValueList, List<Neurons>> isoNeurons, Map<Neurons, Neurons> etalonMap) {
         for (BaseNeuron<Neurons, State.Neural> neuron : inet.allNeuronsTopologic) { // over all neurons
             Neurons etalonReplacement = etalonMap.get(neuron);
             ValueList valueList = isoValues.get(neuron);
@@ -177,7 +190,8 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
                         continue;
                     }
                     if (!equivalent(inet, sameNeuron, etalonReplacement)) {
-                        LOG.warning("Trying to replace a neuron with a non-equivalent etalon == lossy compression!");
+                        LOG.warning("Trying to replace a neuron with a structurally non-equivalent etalon!");   // this may also happen for completely functionally equivalent neurons, e.g. due to void aggregation
+//                        LOG.info(((BaseNeuron<?, ?>) sameNeuron).index + " vs " + etalonReplacement.getIndex());
                         preventedByIsoCheck += 1;
                         continue;
                     }
@@ -313,7 +327,7 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
             if (hashCode != -1) {
                 return hashCode;
             } else {
-                int hashCode = 1;
+                hashCode = 1;
                 for (int i = 0; i < values.length; i++)
                     hashCode = 31 * hashCode + values[i].hashCode();
                 return hashCode;

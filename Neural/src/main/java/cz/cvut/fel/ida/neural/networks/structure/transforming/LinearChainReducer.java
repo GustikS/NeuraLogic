@@ -85,10 +85,21 @@ public class LinearChainReducer implements NetworkReducing {
                 LOG.info("Neuron has only 1 input but has no output, thus not pruning it (i.e., an output neuron).");
                 return false;
             }
-            parents.forEachRemaining(parent -> {
+
+            List<Neurons> middleOutputNeurons = new ArrayList<>();
+            parents.forEachRemaining(middleOutputNeurons::add);
+
+            for (Neurons parent : middleOutputNeurons) {
+
                 inet.replaceInput((BaseNeuron<Neurons, State.Neural>) parent, middle, child);
-                inet.replaceOutput(child, middle, parent);
-            });
+
+                if (middleOutputNeurons.size() > 1) {   // if there are more outputs of the middle neuron, we cannot simply remove middle, but must add the current child -> parent
+                    inet.outputMapping.get(middle).removeLink(parent);
+                    inet.outputMapping.get(child).addLink(parent);
+                } else {    // if middle has but a single output, we can safely skip it completely and replace also child -> parent
+                    inet.replaceOutput(child, middle, parent);
+                }
+            }
 //            System.out.println("pruning: " + middle);
             return true;
         }

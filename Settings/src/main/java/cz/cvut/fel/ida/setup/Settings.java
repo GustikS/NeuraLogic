@@ -102,8 +102,9 @@ public class Settings implements Serializable {
         setting.seed = 0;
         setting.maxCumEpochCount = 2;
         setting.mainMode = MainMode.COMPLETE;
-        setting.neuralNetsPostProcessing = false;
-        setting.chainPruning = true;
+//        setting.neuralNetsPostProcessing = false;
+//        setting.isoValueCompression = false;
+//        setting.chainPruning = false;
         setting.outDir = Settings.logFile;
         return setting;
     }
@@ -426,10 +427,10 @@ public class Settings implements Serializable {
      */
     public boolean isoValueCompression = true;
     /**
-     * If the isoValueCompression is performed, check whether the merged neurons are truly equivalent.
+     * If the isoValueCompression is performed, check whether the merged neurons are structurally (not just functionally) equivalent.
      * This is mostly for theoretical purposes and not typically needed in practice where we don't care about the true equivalence
      */
-    public boolean losslessIsoCompression = false;
+    public boolean structuralIsoCompression = false;
     /**
      * Top-down value (gradient) based sub-graph isomorphism collapsing (merging)
      */
@@ -1315,7 +1316,7 @@ public class Settings implements Serializable {
 
         if (cmd.hasOption("losslessCompression")) {
             String _losslessCompression = cmd.getOptionValue("losslessCompression");
-            settings.losslessIsoCompression = Integer.parseInt(_losslessCompression) > 0;
+            settings.structuralIsoCompression = Integer.parseInt(_losslessCompression) > 0;
         }
 
         if (cmd.hasOption("chainPruning")) {

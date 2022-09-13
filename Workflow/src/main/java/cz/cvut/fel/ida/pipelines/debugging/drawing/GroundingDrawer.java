@@ -71,11 +71,11 @@ public class GroundingDrawer extends Drawer<GroundingSample> {
     }
 
     private String draw(GroundHeadRule groundHeadRule) {
-        return groundHeadRule.hashCode() + " [shape=rarrow, fontsize=10, color=green, label=" + GraphViz.sanitize(groundHeadRule.toFullString()) + "]";
+        return groundHeadRule.hashCode() + " [shape=larrow, fontsize=10, color=green, label=" + GraphViz.sanitize(groundHeadRule.toFullString()) + "]";
     }
 
     private String draw(GroundRule groundRule) {
-        return groundRule.hashCode() + " [shape=cds, color=red, label=" + GraphViz.sanitize(groundRule.toString()) + "]";
+        return groundRule.hashCode() + " [shape=lpromoter, color=red, label=" + GraphViz.sanitize(groundRule.toString()) + "]";
     }
 
     public String draw(Literal groundHead) {

@@ -161,12 +161,17 @@ public class DetailedNetwork<N extends State.Neural.Structure> extends Topologic
         if ((inputMapping = extraInputMapping != null ? (NeuronMapping<Neurons>) extraInputMapping.get(parentNeuron) : null) != null) {
             inputMapping.replace(toReplace, replaceWith);
         } else {
+            boolean replaced = false;
             for (int i = 0; i < parentNeuron.getInputs().size(); i++) {
                 if (parentNeuron.getInputs().get(i).equals(toReplace)) {
                     parentNeuron.getInputs().set(i, replaceWith);
-//                    break;
+                    replaced = true;
+                    //                    break;
                 }
             }
+//            if (!replaced){
+//                LOG.warning("Neuron input replacement failed!: " + parentNeuron + " -> " + toReplace + " <- " + replaceWith);
+//            }
         }
     }
 

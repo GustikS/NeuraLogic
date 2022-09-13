@@ -30,7 +30,7 @@ public class Debug {
 //        settings.plotProgress = 1;
         settings.maxCumEpochCount = 100;
 //        settings.isoValueCompression = true;
-        settings.losslessIsoCompression = true;
+        settings.structuralIsoCompression = true;
         settings.initLearningRate = 0.01;
         Main.main(getDatasetArgs(dataset,"-t ./template.txt"), settings);
     }

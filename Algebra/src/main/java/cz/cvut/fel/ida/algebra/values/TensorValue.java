@@ -344,7 +344,15 @@ public class TensorValue extends Value {
     }
 
     @Override
+    public int hashCode() {
+        return tensor.hashCode();
+    }
+
+    @Override
     public boolean equals(Value obj) {
+        if (obj instanceof TensorValue) {
+            return this.tensor.equals(((TensorValue) obj).tensor);
+        }
         return false;
     }
 

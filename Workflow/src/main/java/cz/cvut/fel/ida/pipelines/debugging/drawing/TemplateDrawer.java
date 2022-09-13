@@ -89,11 +89,11 @@ public class TemplateDrawer extends Drawer<Template> {
     }
 
     private String draw(Literal literal, WeightedRule rule) {
-        return literal.liftedHashCode() + " -> " + rule.hashCode() + "[label=" + GraphViz.sanitize(rule.getWeight().toString(numberFormat)) + ", style=dashed]";
+        return literal.liftedHashCode() + " -> " + rule.hashCode() + "[label=" + GraphViz.sanitize(rule.getWeight().toString(numberFormat)) + ", color=green, style=dashed]";
     }
 
     private String draw(BodyAtom bodyAtom, ValuedFact matchedFact) {
-        return bodyAtom.literal.liftedHashCode() + " -> " + matchedFact.literal.liftedHashCode() + "[style=dashed, color=blue]";
+        return bodyAtom.literal.liftedHashCode() + " -> " + matchedFact.literal.liftedHashCode() + "[dir=both, style=dotted, color=blue]";
     }
 
     private String draw(Literal literal) {
@@ -101,7 +101,7 @@ public class TemplateDrawer extends Drawer<Template> {
     }
 
     private String draw(WeightedRule rule) {
-        return rule.hashCode() + "[label=" + GraphViz.sanitize(rule.getOriginalString()) + ", shape=rarrow, color=green]";
+        return rule.hashCode() + "[label=" + GraphViz.sanitize(rule.getOriginalString()) + ", shape=larrow, color=green]";
     }
 
     private String draw(ValuedFact fact) {
