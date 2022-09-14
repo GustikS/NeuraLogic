@@ -2,10 +2,13 @@ package cz.cvut.fel.ida.neuralogic.revised.debugging;
 
 import cz.cvut.fel.ida.logging.Logging;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
+import cz.cvut.fel.ida.neuralogic.cli.Main;
 import cz.cvut.fel.ida.neuralogic.cli.utils.Runner;
+import cz.cvut.fel.ida.pipelines.Pipeline;
 import cz.cvut.fel.ida.pipelines.debugging.TrainingDebugger;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.JavaExporter;
+import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.utils.generic.TestAnnotations;
 
 import java.nio.file.Paths;
@@ -38,5 +41,15 @@ public class TrainingDebuggerTest {
         LOG.fine(template.exportToJson());
         LOG.finer(template.toString());
         assertNotNull(template.rules);
+    }
+
+    @TestAnnotations.Interactive
+    public void drawing() throws Exception {
+        Settings settings = Settings.forInteractiveTest();
+        settings.maxCumEpochCount = 1;
+        settings.isoValueCompression = false;
+        settings.chainPruning = false;
+        settings.debugAll = true;
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs("debug/drawing/noquery"), settings);
     }
 }

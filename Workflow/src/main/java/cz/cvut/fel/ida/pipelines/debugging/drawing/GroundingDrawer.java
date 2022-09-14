@@ -31,7 +31,9 @@ public class GroundingDrawer extends Drawer<GroundingSample> {
 
         nodeGraph(obj);
 
-        graphviz.addln(GraphViz.sanitize(obj.query.headAtom.literal.toString()) + "[shape = tripleoctagon]");
+        if (obj.query.headAtom != null) {
+            graphviz.addln(GraphViz.sanitize(obj.query.headAtom.literal.toString()) + "[shape = tripleoctagon]");
+        }
 
         this.graphviz.end_graph();
     }
@@ -83,7 +85,7 @@ public class GroundingDrawer extends Drawer<GroundingSample> {
     }
 
     private String drawEdge(GroundRule bodyGrounding, Literal literal) {
-        return bodyGrounding.hashCode() + " -> " + GraphViz.sanitize(literal.toString())+ "[color=red, fontcolor=red]";
+        return bodyGrounding.hashCode() + " -> " + GraphViz.sanitize(literal.toString()) + "[color=red, fontcolor=red]";
     }
 
     public String drawEdge(GroundHeadRule groundHeadRule, GroundRule bodyGrounding) {

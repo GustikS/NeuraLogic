@@ -72,6 +72,10 @@ public class SequentialTrainer extends Trainer {
         public List<Result> learnEpoch(NeuralModel neuralModel, List<NeuralSample> sampleList) {
             List<Result> resultList = new ArrayList<>(sampleList.size());
             for (NeuralSample neuralSample : sampleList) {
+                if (neuralSample.query.neuron ==null){
+                    LOG.severe("No query neuron - skipping backprop for this sample.");
+                    continue;
+                }
                 Result result = learnFromSample(neuralModel, neuralSample, dropout, invalidation, evaluation, backpropagation);
                 resultList.add(result);
             }

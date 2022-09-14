@@ -41,10 +41,9 @@ public class TemplateSamplesBuilder extends AbstractPipelineBuilder<Sources, Pai
         Pipe<Sources, Source> getSource = null;
         SamplesProcessingBuilder samplesProcessor = null;
 
-        if (sources.trainOnly || sources.trainTest) {
+        if (sources.trainOnly || sources.trainTest || sources.drawing) {
             getSource = pipeline.register(new LambdaPipe<Sources, Source>("getTrainSourcePipe", sources -> sources.train, settings));
             samplesProcessor = new SamplesProcessingBuilder(settings, sources.train);
-
         } else if (sources.testOnly) {
             getSource = pipeline.register(new LambdaPipe<Sources, Source>("getTestSourcePipe", sources -> sources.test, settings));
             samplesProcessor = new SamplesProcessingBuilder(settings, sources.test);

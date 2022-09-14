@@ -45,7 +45,9 @@ public class NeuralNetDrawer extends Drawer<NeuralSample> {
 
         this.graphviz.start_graph();
         iterateNetwork();
-        this.graphviz.addln(sample.query.neuron.getIndex() + " [shape = tripleoctagon]");
+        if (sample.query.neuron != null) {
+            this.graphviz.addln(sample.query.neuron.getIndex() + " [shape = tripleoctagon]");
+        }
         this.graphviz.end_graph();
     }
 
@@ -81,8 +83,7 @@ public class NeuralNetDrawer extends Drawer<NeuralSample> {
             if (neuron instanceof FactNeuron) {
                 neuronCombination = null;
                 neuronTransformation = null;
-            }
-            else {
+            } else {
                 neuronCombination = neuron.getCombination();
                 neuronTransformation = neuron.getTransformation();
             }

@@ -94,7 +94,8 @@ public class XOR {
         settings.isoValueCompression = false;
         settings.chainPruning = false;
         settings.resultsRecalculationEpochae = 5;
-        Pair<Pipeline, ?> results = Main.main(getDatasetArgs("neural/xor/naive", "-debug all"), settings);
+        settings.debugAll = true;
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs("neural/xor/naive"), settings);
     }
 
     @TestAnnotations.Interactive

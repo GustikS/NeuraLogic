@@ -48,15 +48,15 @@ public class SourceFiles extends Sources {
     @Override
     public void infer(Settings settings) {
         if (checkForSubstring(trainExamples, settings.queryExampleSeparator, 2)) {
-            LOG.info("Queries within train examples file detected via separator " + settings.queryExampleSeparator);
+            LOG.fine("Queries within train examples file detected via separator " + settings.queryExampleSeparator);
             this.train.QueriesProvided = true;
         }
         if (checkForSubstring(valExamples, settings.queryExampleSeparator, 2)) {
-            LOG.info("Queries within validation examples file detected via separator " + settings.queryExampleSeparator);
+            LOG.fine("Queries within validation examples file detected via separator " + settings.queryExampleSeparator);
             this.val.QueriesProvided = true;
         }
         if (checkForSubstring(testExamples, settings.queryExampleSeparator, 2)) {
-            LOG.info("Queries within test examples file detected via separator " + settings.queryExampleSeparator);
+            LOG.fine("Queries within test examples file detected via separator " + settings.queryExampleSeparator);
             this.test.QueriesProvided = true;
         }
 
@@ -384,7 +384,7 @@ public class SourceFiles extends Sources {
         switch (contentType) {
             case "text/plain":
                 settings.plaintextInput = true;
-                LOG.fine("Input " + sourceType + " file type identified as plain text");
+                LOG.fine("Input " + sourceType + " file " + path + " type identified as plain text");
                 break;
             case "text/x-microdvd":
                 settings.plaintextInput = true;
@@ -397,7 +397,7 @@ public class SourceFiles extends Sources {
                 LOG.fine("Input " + sourceType + " file type identified as json");
                 break;
             case "text/x-java":
-                LOG.fine("Input " + sourceType + " file type identified as binary/java");
+                LOG.fine("Input " + sourceType + " file" + path + " type identified as binary/java");
                 break;
             default:
                 LOG.warning("File type of input " + sourceType + " not recognized!");

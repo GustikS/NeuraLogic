@@ -1,5 +1,6 @@
 package cz.cvut.fel.ida.neural.networks.computation.iteration.modes;
 
+import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.*;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.neurons.NeuronVisitor;
@@ -85,6 +86,10 @@ public class Topologic {
                 if (actualNeuron == outputNeuron)
                     break;
 
+            }
+            if (outputNeuron == null){
+                LOG.warning("No output neuron detected, don't know which Value to return from evaluation (returning dummy 0).");
+                return new ScalarValue(0);
             }
             return outputNeuron.getComputationView(neuronVisitor.stateVisitor.stateIndex).getValue();
         }
