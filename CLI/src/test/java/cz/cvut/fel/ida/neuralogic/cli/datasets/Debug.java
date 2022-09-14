@@ -19,7 +19,7 @@ public class Debug {
 
 
     @TestAnnotations.Fast
-    public void xor() throws Exception {
+    public void relational_xor() throws Exception {
         String dataset = "neural/xor/relational_debug2";
         Settings settings = Settings.forSlowTest();
         settings.seed = 4;
@@ -32,6 +32,7 @@ public class Debug {
 //        settings.isoValueCompression = true;
         settings.structuralIsoCompression = true;
         settings.initLearningRate = 0.01;
+        settings.debugAll = true;
         Main.main(getDatasetArgs(dataset,"-t ./template.txt"), settings);
     }
 
