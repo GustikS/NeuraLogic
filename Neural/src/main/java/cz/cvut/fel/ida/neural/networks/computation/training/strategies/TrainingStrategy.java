@@ -76,6 +76,7 @@ public abstract class TrainingStrategy implements Exportable {
             processBuilder.redirectOutput(new File(settings.exportDir + "/progress/plotter_output.txt"));
             processBuilder.redirectError(new File(settings.exportDir + "/progress/plotter_output.txt"));
             try {
+//                Map<String, String> environment = processBuilder.environment();
                 progressPlotter = processBuilder.start();
                 LOG.fine("Successfully called command: " + String.join(" ", cmd));
             } catch (IOException e) {

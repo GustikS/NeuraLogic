@@ -145,8 +145,8 @@ public class Settings implements Serializable {
 
     public String graphvizPath = null;
 
-    public String pythonPath = "/opt/miniconda3/envs/lrnn/bin/python";
-//    public String pythonPath = "python";
+//    public String pythonPath = "/opt/miniconda3/envs/lrnn/bin/python";
+    public String pythonPath = "python";
 
     public String progressPlotterPath = "../Frontend/grid/loading_results.py";
 

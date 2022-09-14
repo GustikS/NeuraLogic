@@ -1,0 +1,7 @@
+{1} layer_1(X) :- input(Y), edge(X, Y).
+{1} layer_2(Y) :- layer_1(X), edge(Y, X).
+{1} layer_3(X) :- layer_2(Y), edge(X, Y).
+{1} layer_4(Y) :- layer_3(X), edge(Y, X).
+{1} layer_5(X) :- layer_4(Y), edge(X, Y).
+
+out :- layer_5(X).

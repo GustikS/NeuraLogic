@@ -232,7 +232,7 @@ public class Mutagenesis {
         settings.trainValidationPercentage = 1.0;
 
         settings.initDistribution = Settings.InitDistribution.UNIFORM;
-//        settings.plotProgress = 20;
+        settings.plotProgress = 20;
 
         settings.seed = 0;
         settings.maxCumEpochCount = 1000;

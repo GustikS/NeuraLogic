@@ -5,7 +5,7 @@ import cz.cvut.fel.ida.learning.results.Progress;
 import java.util.logging.Logger;
 
 /**
- * todo restart after stagnation of error for long enough, or progresively increasing number of epochae
+ * todo now restart after stagnation of error for long enough, or progresively increasing number of epochae
  */
 public class DynamicRestartingStrategy extends RestartingStrategy {
     private static final Logger LOG = Logger.getLogger(DynamicRestartingStrategy.class.getName());
