@@ -31,7 +31,7 @@ public class Backpropagation {
     /**
      * Backproper is a StateVisitor, takes care of the action taken during iteration
      */
-    Backproper backproper;
+    public Backproper backproper;
 
     public Backpropagation(Settings settings, NeuralModel model, int index) {
         this.settings = settings;
@@ -73,10 +73,12 @@ public class Backpropagation {
     }
 
     public WeightUpdater backpropagate(NeuralSample neuralSample, Result evaluatedResult) {
+        return this.backpropagate(neuralSample, evaluatedResult.errorGradient());
+    }
+
+    public WeightUpdater backpropagate(NeuralSample neuralSample, Value errorGradient) {
         NeuralNetwork<State.Neural.Structure> neuralNetwork = neuralSample.query.evidence;
         AtomNeurons<State.Neural> outputNeuron = neuralSample.query.neuron;
-
-        Value errorGradient = evaluatedResult.errorGradient();
 
 //        errorGradient = errorGradient.times(new ScalarValue(settings.initLearningRate));//rather do not use this old trick, it does not help performance-wise that much and isn't too readable (and only usable for SGD, not ADAM)
 
