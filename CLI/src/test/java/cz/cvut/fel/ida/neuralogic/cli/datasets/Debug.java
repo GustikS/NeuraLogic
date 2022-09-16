@@ -115,6 +115,17 @@ public class Debug {
     }
 
     @TestAnnotations.Interactive
+    public void duplicitRules() throws Exception {
+        String dataset = "debug/duplicitRules";
+        Settings settings = Settings.forInteractiveTest();
+
+        settings.isoValueCompression = false;
+        settings.chainPruning = false;
+
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset), settings);
+    }
+
+    @TestAnnotations.Interactive
     public void factValues() throws Exception {
         String dataset = "debug/facts";
         Settings settings = Settings.forInteractiveTest();
