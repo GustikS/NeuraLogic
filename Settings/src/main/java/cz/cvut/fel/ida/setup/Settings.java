@@ -90,8 +90,15 @@ public class Settings implements Serializable {
      */
     public static boolean customLogColors = true;
 
+    /**
+     * Path to output log file
+     */
     public static String logFile = "./out/Logging";
 
+    /**
+     * Seed for absolutely everything (turned into static to pass even into distant packages, unfortunately)
+     */
+    public static int seed = 0;
     //------------------Builders
 
     public static Settings forFastTest() {
@@ -145,7 +152,6 @@ public class Settings implements Serializable {
 
     public String graphvizPath = null;
 
-//    public String pythonPath = "/opt/miniconda3/envs/lrnn/bin/python";
     public String pythonPath = "python";
 
     public String progressPlotterPath = "../Frontend/grid/loading_results.py";
@@ -262,10 +268,7 @@ public class Settings implements Serializable {
     }
 
     //------------------Global structures
-    /**
-     * Seed for absolutely everything
-     */
-    public int seed = 0;
+
     /**
      * Global random generator
      */
@@ -1368,6 +1371,11 @@ public class Settings implements Serializable {
 
         if (isoValueCompression && (atomNeuronTransformation == TransformationFcn.RELU || ruleNeuronTransformation == TransformationFcn.RELU)) {
             message.append("lossless network compression does not work together with ReLu activations functions.\n Either turn off the isovaluecompression or change activation function(s).");
+            valid = false;
+        }
+
+        if (isoValueCompression && (aggNeuronAggregation == CombinationFcn.MAX || atomNeuronCombination == CombinationFcn.MAX|| ruleNeuronCombination == CombinationFcn.MAX)) {
+            message.append("lossless network compression does not work well with MAX aggregation function.\n Either turn off the isovaluecompression or change activation function(s).");
             valid = false;
         }
 

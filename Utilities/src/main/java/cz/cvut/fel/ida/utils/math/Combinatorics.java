@@ -19,6 +19,7 @@
 
 package cz.cvut.fel.ida.utils.math;
 
+import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.generic.tuples.Tuple;
 
 import java.util.*;
@@ -30,7 +31,7 @@ import java.util.*;
  */
 public class Combinatorics {
     
-    private static Random random = new Random();
+    private static Random random = new Random(Settings.seed);
     
     private Combinatorics() {
     }

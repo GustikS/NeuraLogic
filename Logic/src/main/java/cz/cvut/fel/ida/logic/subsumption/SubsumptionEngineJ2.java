@@ -17,6 +17,7 @@ package cz.cvut.fel.ida.logic.subsumption;
 
 
 import cz.cvut.fel.ida.logic.*;
+import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.math.Combinatorics;
 import cz.cvut.fel.ida.utils.math.IntegerFunction;
 import cz.cvut.fel.ida.utils.math.Sugar;
@@ -48,7 +49,7 @@ public class SubsumptionEngineJ2 {
 
     private Map<String, CustomPredicate> customPredicates = new HashMap<String, CustomPredicate>();
 
-    private Random random = new Random();
+    private Random random = new Random(Settings.seed);
 
     private boolean learnVariableOrder = true;
 

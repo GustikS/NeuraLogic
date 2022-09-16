@@ -18,6 +18,8 @@
  */
 package cz.cvut.fel.ida.utils.math.random;
 
+import cz.cvut.fel.ida.setup.Settings;
+
 import java.util.*;
 import static java.lang.Math.*;
 
@@ -28,7 +30,7 @@ import static java.lang.Math.*;
  */
 public class BinomialGenerator {
 
-    private Random random = new Random();
+    private Random random = new Random(Settings.seed);
     private double cummulated[];
     private double logProbability;
     private double p;
