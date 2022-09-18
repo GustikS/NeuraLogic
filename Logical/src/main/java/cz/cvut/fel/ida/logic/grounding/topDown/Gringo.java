@@ -19,12 +19,11 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Gringo extends Grounder {
 
     final private ConstantFactory constantFactory;
-    final private HashMap<Integer, String> intToConst = new HashMap<>();
-    final private HashMap<String, Integer> constToInt = new HashMap<>();
 
     private String templateStr = "";
 
@@ -35,29 +34,12 @@ public class Gringo extends Grounder {
         constantFactory = new ConstantFactory();
     }
 
-    private int getConstantIndex(String value) {
-        int index = constToInt.getOrDefault(value, -1);
-        if (index == -1) {
-            index = constToInt.size();
-            constToInt.put(value, index);
-            intToConst.put(index, value);
-        }
-
-        return index;
-    }
-
     private void addLiteralToProgram(Literal literal, StringBuilder builder) {
-        builder.append(literal.predicateName());
-        builder.append("(");
+        builder.append(literal.predicateName()).append("(");
         Term[] terms = literal.arguments();
 
         for (int i = 0; i < terms.length; i++) {
-            if (terms[i] instanceof Variable) {
-                builder.append(terms[i].name());
-            } else {
-                int index = getConstantIndex(terms[i].name());
-                builder.append(index);
-            }
+            builder.append(terms[i].name());
 
             if (i != terms.length - 1) {
                 builder.append(",");
@@ -106,7 +88,7 @@ public class Gringo extends Grounder {
         Term[] terms = copy.arguments();
 
         for (int i = 0; i < terms.length; i++) {
-            String term = intToConst.get(Integer.parseInt(parsedLiteral.get(i)));
+            String term = parsedLiteral.get(i);
             terms[i] = constantFactory.construct(term);
         }
 
@@ -118,7 +100,7 @@ public class Gringo extends Grounder {
         final int len = literal.length();
 
         if (termIndex > len - 2) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         int previousIndex = termIndex;
@@ -139,82 +121,25 @@ public class Gringo extends Grounder {
         return result;
     }
 
-    @Override
-    public GroundTemplate groundRulesAndFacts(LiftedExample example, Template template) {
-        timing.tic();
-
-        Map<HornClause, List<WeightedRule>> ruleMap = template.hornClauses;
-        Map<Literal, ValuedFact> groundFacts = null;
-
-        if (ruleMap == null) {
-            Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> rulesAndFacts = mapToLogic(rulesAndFacts(new LiftedExample(), template));
-            ruleMap = rulesAndFacts.r;
-            groundFacts = rulesAndFacts.s;
-
-            template.hornClauses = ruleMap;
-            Set<Literal> facts = groundFacts.keySet();
-            StringBuilder program = buildProgram(ruleMap.entrySet(), facts);
-            templateStr = program.toString();
-        } else {
-            groundFacts = mapToLogic(rulesAndFacts(new LiftedExample(), template)).s;
-        }
-
+    private GroundTemplate getGroundTemplate(
+            Map<HornClause, List<WeightedRule>> ruleMap,
+            Map<Integer, List<List<String>>> groundedHeads,
+            Map<Integer, List<List<List<String>>>> groundedBodies,
+            Map<Literal, ValuedFact> groundFacts
+    ) {
         Set<Map.Entry<HornClause, List<WeightedRule>>> ruleEntries = ruleMap.entrySet();
         LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules = new LinkedHashMap<>();
-        Map<Integer, List<List<List<String>>>> bodies = new HashMap<>();
-        Map<Integer, List<List<String>>> heads = new HashMap<>();
-
-        try {
-            Path temp = Files.createTempFile("", ".lp");
-
-            try (FileWriter fw = new FileWriter(temp.toFile()); BufferedWriter bw = new BufferedWriter(fw)) {
-                bw.write(templateStr);
-                Map<Literal, ValuedFact> exampleGroundFacts = mapToLogic(rulesAndFacts(example, new Template()).s);
-                groundFacts.putAll(exampleGroundFacts);
-                bw.append(buildProgram(new HashSet<>(), exampleGroundFacts.keySet()));
-            }
-
-            Process process = runtime.exec("gringo " + temp + " --text");
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    int index = line.indexOf(":-");
-                    if (index == -1) {
-                        continue;
-                    }
-
-                    int headDelimiter = line.indexOf(";");
-                    int ruleId = Integer.parseInt(line.substring(headDelimiter + 6, index - 2));
-                    String head = line.substring(1, headDelimiter);
-
-                    String[] body = line.substring(index + 2, line.length() - 1).split("\\),");
-                    List<String> parsedHead = parseLiteralFromString(head);
-                    List<List<String>> parsedBody = new ArrayList<>(body.length);
-
-                    for (int i = 0; i < body.length; i++) {
-                        parsedBody.add(parseLiteralFromString(body[i]));
-                    }
-
-                    bodies.computeIfAbsent(ruleId, k -> new ArrayList<>()).add(parsedBody);
-                    heads.computeIfAbsent(ruleId, k -> new ArrayList<>()).add(parsedHead);
-                }
-            }
-
-            Files.delete(temp);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
 
         int ruleCounter = 0;
         for (Map.Entry<HornClause, List<WeightedRule>> entry : ruleEntries) {
             for (WeightedRule rule : entry.getValue()) {
-                if (!bodies.containsKey(ruleCounter)) {
+                if (!groundedBodies.containsKey(ruleCounter)) {
                     ruleCounter++;
                     continue;
                 }
 
-                final List<List<String>> headGroundings = heads.get(ruleCounter);
-                final List<List<List<String>>> bodyGroundings = bodies.get(ruleCounter);
+                final List<List<String>> headGroundings = groundedHeads.get(ruleCounter);
+                final List<List<List<String>>> bodyGroundings = groundedBodies.get(ruleCounter);
                 final int bodySize = rule.getBody().size();
 
                 ruleCounter++;
@@ -239,7 +164,9 @@ public class Gringo extends Grounder {
                     }
 
                     GroundRule grounding = new GroundRule(rule, groundHead, groundBody.toArray(new Literal[groundBody.size()]));
-                    Map<GroundHeadRule, Collection<GroundRule>> rules2groundings = groundRules.computeIfAbsent(grounding.groundHead, k -> new LinkedHashMap<>()); //we still want unique rules at least
+                    Map<GroundHeadRule, Collection<GroundRule>> rules2groundings = groundRules.computeIfAbsent(
+                            grounding.groundHead, k -> new LinkedHashMap<>()
+                    ); //we still want unique rules at least
 
                     //aggregation neurons correspond to lifted rule with particular ground head
                     GroundHeadRule groundHeadRule = rule.groundHeadRule(grounding.groundHead);
@@ -251,7 +178,80 @@ public class Gringo extends Grounder {
             }
         }
 
-        GroundTemplate groundTemplate = new GroundTemplate(groundRules, groundFacts);
+        return new GroundTemplate(groundRules, groundFacts);
+    }
+
+    @Override
+    public GroundTemplate groundRulesAndFacts(LiftedExample example, Template template) {
+        timing.tic();
+
+        Map<HornClause, List<WeightedRule>> ruleMap = template.hornClauses;
+
+        final Set<ValuedFact> flatFacts = template.facts.isEmpty() ? Collections.emptySet() : new LinkedHashSet<>(template.facts);
+        final Set<WeightedRule> rules = template.rules;
+        final Pair<Set<WeightedRule>, Set<ValuedFact>> templateRulesAndFacts = new Pair<>(rules, flatFacts);
+
+        final Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> rulesAndFacts = mapToLogic(templateRulesAndFacts);
+        final Map<Literal, ValuedFact> groundFacts = rulesAndFacts.s;
+
+        if (ruleMap == null) {
+            ruleMap = rulesAndFacts.r;
+            template.hornClauses = ruleMap;
+            templateStr = buildProgram(ruleMap.entrySet(), groundFacts.keySet()).toString();
+        }
+
+        final Map<Integer, List<List<List<String>>>> groundedBodies = new HashMap<>();
+        final Map<Integer, List<List<String>>> groundedHeads = new HashMap<>();
+
+        try {
+            final LinkedHashSet<ValuedFact> exampleFacts = new LinkedHashSet<>(example.flatFacts);
+
+            if (example.conjunctions != null && !example.conjunctions.isEmpty()) {
+                exampleFacts.addAll(example.conjunctions.stream().flatMap(conj -> conj.facts.stream()).collect(Collectors.toList()));
+            }
+
+            final Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> exampleRulesAndFacts = mapToLogic(new Pair<>(example.rules, exampleFacts));
+            groundFacts.putAll(exampleRulesAndFacts.s);
+
+            final Path temp = Files.createTempFile("", ".lp");
+
+            try (FileWriter fw = new FileWriter(temp.toFile()); BufferedWriter bw = new BufferedWriter(fw)) {
+                bw.write(templateStr);
+                bw.append(buildProgram(exampleRulesAndFacts.r.entrySet(), exampleRulesAndFacts.s.keySet()));
+            }
+
+            Process process = runtime.exec("gringo " + temp + " --text");
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    final int index = line.indexOf(":-");
+                    if (index == -1) {
+                        continue;
+                    }
+
+                    final int headDelimiter = line.indexOf(";");
+                    final int ruleId = Integer.parseInt(line.substring(headDelimiter + 6, index - 2));
+                    final String head = line.substring(1, headDelimiter);
+
+                    final String[] body = line.substring(index + 2, line.length() - 1).split("\\),");
+                    final List<String> parsedHead = parseLiteralFromString(head);
+                    final List<List<String>> parsedBody = new ArrayList<>(body.length);
+
+                    for (String s : body) {
+                        parsedBody.add(parseLiteralFromString(s));
+                    }
+
+                    groundedBodies.computeIfAbsent(ruleId, k -> new ArrayList<>()).add(parsedBody);
+                    groundedHeads.computeIfAbsent(ruleId, k -> new ArrayList<>()).add(parsedHead);
+                }
+            }
+
+            Files.delete(temp);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        final GroundTemplate groundTemplate = getGroundTemplate(ruleMap, groundedHeads, groundedBodies, groundFacts);
 
         timing.toc();
         return groundTemplate;
