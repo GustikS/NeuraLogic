@@ -12,6 +12,7 @@ import cz.cvut.fel.ida.logic.grounding.GroundTemplate;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
 import cz.cvut.fel.ida.logic.grounding.Grounder;
 import cz.cvut.fel.ida.logic.grounding.constructs.GroundRulesCollection;
+import cz.cvut.fel.ida.logic.subsumption.SpecialBinaryPredicates;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
@@ -19,6 +20,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 public class Gringo extends Grounder {
@@ -29,12 +31,33 @@ public class Gringo extends Grounder {
 
     private final Runtime runtime = Runtime.getRuntime();
 
+    private static final Map<String, BiConsumer<Literal, StringBuilder>> specialPredicateMap = new HashMap<>();
+
+    private static void specialBinaryPredicateFunction(Literal literal, StringBuilder builder, String divider) {
+        builder.append(literal.arguments()[0].name()).append(divider).append(literal.arguments()[1].name());
+    }
+
+    static {
+        specialPredicateMap.put(SpecialBinaryPredicates.NEXT, (l, b) -> specialBinaryPredicateFunction(l, b, " + 1 = "));
+        specialPredicateMap.put(SpecialBinaryPredicates.GT, (l, b) -> specialBinaryPredicateFunction(l, b, " > "));
+        specialPredicateMap.put(SpecialBinaryPredicates.GEQ, (l, b) -> specialBinaryPredicateFunction(l, b, " >= "));
+        specialPredicateMap.put(SpecialBinaryPredicates.LT, (l, b) -> specialBinaryPredicateFunction(l, b, " < "));
+        specialPredicateMap.put(SpecialBinaryPredicates.LEQ, (l, b) -> specialBinaryPredicateFunction(l, b, " <= "));
+        specialPredicateMap.put(SpecialBinaryPredicates.EQ, (l, b) -> specialBinaryPredicateFunction(l, b, " == "));
+        specialPredicateMap.put(SpecialBinaryPredicates.NEQ, (l, b) -> specialBinaryPredicateFunction(l, b, " != "));
+    }
+
     public Gringo(Settings settings) {
         super(settings);
         constantFactory = new ConstantFactory();
     }
 
     private void addLiteralToProgram(Literal literal, StringBuilder builder) {
+        if (literal.predicate().special) {
+            specialPredicateMap.get(literal.predicateName()).accept(literal, builder);
+            return;
+        }
+
         builder.append(literal.predicateName()).append("(");
         Term[] terms = literal.arguments();
 
@@ -122,10 +145,10 @@ public class Gringo extends Grounder {
     }
 
     private GroundTemplate getGroundTemplate(
-            Map<HornClause, List<WeightedRule>> ruleMap,
-            Map<Integer, List<List<String>>> groundedHeads,
-            Map<Integer, List<List<List<String>>>> groundedBodies,
-            Map<Literal, ValuedFact> groundFacts
+        Map<HornClause, List<WeightedRule>> ruleMap,
+        Map<Integer, List<List<String>>> groundedHeads,
+        Map<Integer, List<List<List<String>>>> groundedBodies,
+        Map<Literal, ValuedFact> groundFacts
     ) {
         Set<Map.Entry<HornClause, List<WeightedRule>>> ruleEntries = ruleMap.entrySet();
         LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules = new LinkedHashMap<>();
@@ -152,15 +175,17 @@ public class Gringo extends Grounder {
                     List<Literal> groundBody = new ArrayList<>(bodySize);
                     List<BodyAtom> body = rule.getBody();
 
+                    int offset = bodyGrounding.size() - 1;
+
                     for (int j = 0; j < bodySize; j++) {
                         BodyAtom atom = body.get(j);
 
                         Literal literal = atom.literal;
-                        if (literal.predicate().hidden) {
+                        if (literal.predicate().hidden || literal.predicate().special) {
                             continue;
                         }
 
-                        groundBody.add(getGroundedLiteral(literal, bodyGrounding.get(bodySize - j - 1)));
+                        groundBody.add(getGroundedLiteral(literal, bodyGrounding.get(offset--)));
                     }
 
                     GroundRule grounding = new GroundRule(rule, groundHead, groundBody.toArray(new Literal[groundBody.size()]));
@@ -181,6 +206,33 @@ public class Gringo extends Grounder {
         return new GroundTemplate(groundRules, groundFacts);
     }
 
+    private List<List<String>> parseGroundBody(String body) {
+        final List<List<String>> parsedBody = new ArrayList<>();
+        int previousIndex = 0;
+
+        while (true) {
+            int parentIndex = body.indexOf("(", previousIndex);
+            int commaIndex = body.indexOf(",", previousIndex);
+
+            if (parentIndex == -1 && commaIndex == -1) {
+                if (previousIndex < body.length()) {
+                    parsedBody.add(parseLiteralFromString(body.substring(previousIndex)));
+                }
+
+                return parsedBody;
+            }
+
+            if ((commaIndex < parentIndex && commaIndex != -1) || parentIndex == -1) { // handle body with predicates with no terms
+                parsedBody.add(parseLiteralFromString(body.substring(previousIndex, commaIndex)));
+                previousIndex = commaIndex + 1;
+            } else {
+                int parentCloseIndex = body.indexOf(")", parentIndex);
+                parsedBody.add(parseLiteralFromString(body.substring(previousIndex, parentCloseIndex)));
+                previousIndex = parentCloseIndex + 2;
+            }
+        }
+    }
+
     @Override
     public GroundTemplate groundRulesAndFacts(LiftedExample example, Template template) {
         timing.tic();
@@ -194,7 +246,7 @@ public class Gringo extends Grounder {
         final Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> rulesAndFacts = mapToLogic(templateRulesAndFacts);
         final Map<Literal, ValuedFact> groundFacts = rulesAndFacts.s;
 
-        if (ruleMap == null) {
+        if (ruleMap == null || templateStr.isEmpty()) {
             ruleMap = rulesAndFacts.r;
             template.hornClauses = ruleMap;
             templateStr = buildProgram(ruleMap.entrySet(), groundFacts.keySet()).toString();
@@ -231,18 +283,12 @@ public class Gringo extends Grounder {
 
                     final int headDelimiter = line.indexOf(";");
                     final int ruleId = Integer.parseInt(line.substring(headDelimiter + 6, index - 2));
+
                     final String head = line.substring(1, headDelimiter);
+                    final String bodyLine = line.substring(index + 2, line.length() - 1);
 
-                    final String[] body = line.substring(index + 2, line.length() - 1).split("\\),");
-                    final List<String> parsedHead = parseLiteralFromString(head);
-                    final List<List<String>> parsedBody = new ArrayList<>(body.length);
-
-                    for (String s : body) {
-                        parsedBody.add(parseLiteralFromString(s));
-                    }
-
-                    groundedBodies.computeIfAbsent(ruleId, k -> new ArrayList<>()).add(parsedBody);
-                    groundedHeads.computeIfAbsent(ruleId, k -> new ArrayList<>()).add(parsedHead);
+                    groundedBodies.computeIfAbsent(ruleId, k -> new ArrayList<>()).add(parseGroundBody(bodyLine));
+                    groundedHeads.computeIfAbsent(ruleId, k -> new ArrayList<>()).add(parseLiteralFromString(head));
                 }
             }
 
