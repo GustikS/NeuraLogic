@@ -7,21 +7,21 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="Algebra" />
-        <module name="CLI" />
         <module name="Drawing" />
-        <module name="Learning" />
         <module name="Logging" />
-        <module name="Logic" />
-        <module name="Logical" />
-        <module name="Neural" />
-        <module name="Neuralization" />
+        <module name="CLI" />
         <module name="Parsing" />
         <module name="Pipelines" />
-        <module name="Resources" />
-        <module name="Settings" />
-        <module name="Utilities" />
+        <module name="Logical" />
         <module name="Workflow" />
+        <module name="Learning" />
+        <module name="Neuralization" />
+        <module name="Utilities" />
+        <module name="Algebra" />
+        <module name="Resources" />
+        <module name="Logic" />
+        <module name="Settings" />
+        <module name="Neural" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="8">

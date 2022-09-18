@@ -109,7 +109,7 @@ public abstract class Grounder implements Exportable {
      * @return
      */
     public Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> mapToLogic(Pair<Set<WeightedRule>, Set<ValuedFact>> raf) {
-        Map<HornClause, List<WeightedRule>> ruleMap = raf.r.stream().collect(Collectors.toMap(WeightedRule::toHornClause, Arrays::asList, this::merge2rules, LinkedHashMap::new));
+        Map<HornClause, List<WeightedRule>> ruleMap = raf.r.stream().collect(Collectors.toMap(WeightedRule::toHornClause, k -> new ArrayList<>(Collections.singletonList(k)), this::merge2rules, LinkedHashMap::new));
         Map<Literal, ValuedFact> factMap = mapToLogic(raf.s);
         return new Pair<>(ruleMap, factMap);
     }
@@ -130,7 +130,9 @@ public abstract class Grounder implements Exportable {
      * @returnst
      */
     private List<WeightedRule> merge2rules(List<WeightedRule> a, List<WeightedRule> b) {
-        LOG.severe("Two rules with the same logical signature! Check the template for duplicites...");
+        LOG.severe("Two rules with the same logical signature detected! This is most likely by mistake and can cause troubles. Check the template for duplicites around:");
+        LOG.severe(a.get(0).getOriginalString());
+        LOG.severe(b.get(0).getOriginalString());
         a.addAll(b);
         return a;
     }

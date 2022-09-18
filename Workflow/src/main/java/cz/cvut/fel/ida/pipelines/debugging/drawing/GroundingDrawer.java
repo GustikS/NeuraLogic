@@ -31,7 +31,9 @@ public class GroundingDrawer extends Drawer<GroundingSample> {
 
         nodeGraph(obj);
 
-        graphviz.addln(GraphViz.sanitize(obj.query.headAtom.literal.toString()) + "[shape = tripleoctagon]");
+        if (obj.query.headAtom != null) {
+            graphviz.addln(GraphViz.sanitize(obj.query.headAtom.literal.toString()) + "[shape = tripleoctagon]");
+        }
 
         this.graphviz.end_graph();
     }
@@ -71,11 +73,11 @@ public class GroundingDrawer extends Drawer<GroundingSample> {
     }
 
     private String draw(GroundHeadRule groundHeadRule) {
-        return groundHeadRule.hashCode() + " [shape=rarrow, fontsize=10, color=green, label=" + GraphViz.sanitize(groundHeadRule.toFullString()) + "]";
+        return groundHeadRule.hashCode() + " [shape=larrow, fontsize=10, color=green, label=" + GraphViz.sanitize(groundHeadRule.toFullString()) + "]";
     }
 
     private String draw(GroundRule groundRule) {
-        return groundRule.hashCode() + " [shape=cds, color=red, label=" + GraphViz.sanitize(groundRule.toString()) + "]";
+        return groundRule.hashCode() + " [shape=lpromoter, color=red, label=" + GraphViz.sanitize(groundRule.toString()) + "]";
     }
 
     public String draw(Literal groundHead) {
@@ -83,7 +85,7 @@ public class GroundingDrawer extends Drawer<GroundingSample> {
     }
 
     private String drawEdge(GroundRule bodyGrounding, Literal literal) {
-        return bodyGrounding.hashCode() + " -> " + GraphViz.sanitize(literal.toString())+ "[color=red, fontcolor=red]";
+        return bodyGrounding.hashCode() + " -> " + GraphViz.sanitize(literal.toString()) + "[color=red, fontcolor=red]";
     }
 
     public String drawEdge(GroundHeadRule groundHeadRule, GroundRule bodyGrounding) {

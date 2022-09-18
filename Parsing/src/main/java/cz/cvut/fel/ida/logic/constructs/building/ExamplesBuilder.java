@@ -87,7 +87,7 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
             LOG.severe("Problem with parsing the examples");
             System.exit(4);
         } else if (examplesFileContext.liftedExample().size() == 1) {
-            LOG.info("Detecting exactly 1 (big) example in the examples source (file), switching to knowledge-base mode.");
+            LOG.fine("Detecting exactly 1 (big) example in the examples source (file), switching to knowledge-base mode.");
             if (settings.groundingMode != Settings.GroundingMode.GLOBAL) {
                 settings.groundingMode = Settings.GroundingMode.GLOBAL;
                 settings.infer();
@@ -95,7 +95,7 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
                 rebuildCallback.apply("GroundingPipeline");
             }
         } else {
-            LOG.info("Detecting multiple individual examples in the examples source (file), assuming independent graph mode");
+            LOG.fine("Detecting multiple individual examples in the examples source (file), assuming independent graph mode");
             settings.queriesAlignedWithExamples = true;
             if (settings.groundingMode != Settings.GroundingMode.INDEPENDENT) {
                 settings.groundingMode = Settings.GroundingMode.INDEPENDENT;
@@ -106,7 +106,7 @@ public class ExamplesBuilder extends SamplesBuilder<PlainExamplesParseTree, Pair
         }
         if (examplesFileContext.label() != null && !examplesFileContext.label().isEmpty()) {
             settings.queriesAlignedWithExamples = false;
-            LOG.info("Detecting examples to have ids/queries with them.");
+            LOG.fine("Detecting examples to have ids/queries with them.");
         }
     }
 }

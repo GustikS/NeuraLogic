@@ -25,3 +25,18 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+      
+#    - name: Test Report0
+#      if: ${{ always() }}
+#      uses: scacap/action-surefire-report@v1
+#      with:
+#        check_name: Failed Tests Report
+#        report_paths: '**/surefire-reports/*.xml'
+
+    - name: Test Report2
+      uses: dorny/test-reporter@v1.5.0
+      if: success() || failure()    # run this step even if previous step failed
+      with:
+        name: Full Test Report          # Name of the check run which will be created
+        path: '**/surefire-reports/*.xml'    # Path to test results
+        reporter: java-junit        # Format of test results

@@ -1,0 +1,1 @@
+input(1), input(2), input(3), edge(1, 2), edge(2, 3), edge(3, 1).

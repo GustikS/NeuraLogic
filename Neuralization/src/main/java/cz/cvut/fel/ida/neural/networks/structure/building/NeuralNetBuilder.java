@@ -282,13 +282,13 @@ public class NeuralNetBuilder {
 //            }).collect(Collectors.toList());
         }
         DetailedNetwork neuralNetwork = neuralBuilder.networkFactory.createDetailedNetwork(queryNeurons, createdNeurons, id, neuralBuilder.neuronFactory.neuronMaps.extraInputMapping);
-        LOG.fine("DetailedNetwork created.");
+        LOG.info("DetailedNetwork created.");
 
         StatesBuilder statesBuilder = neuralBuilder.statesBuilder;
         //fill all the states with correct dimension values
         statesBuilder.initializeStates(neuralNetwork);   // somehow iterate only over the created neurons (but in topological order) -> this is done by skipping neurons with non-null outputValues
 
-        LOG.fine("Neuron dimensions inferred.");
+        LOG.info("Neuron dimensions inferred.");
 
         if (settings.dropoutRate > 0) {
             statesBuilder.setupDropoutStates(neuralNetwork);  //setup individual dropout rates for each neuron

@@ -227,7 +227,7 @@ public class MainTest {
         settings.chainPruning = true;
 
         settings.isoValueCompression = true;
-        settings.losslessIsoCompression = false;
+        settings.structuralIsoCompression = false;
         settings.isoValueInits = 1;
         settings.isoDecimals = 15;
 
@@ -318,7 +318,7 @@ public class MainTest {
 
         settings.chainPruning = true;
         settings.isoValueCompression = true;
-        settings.losslessIsoCompression = false;
+        settings.structuralIsoCompression = false;
 
         Main.main(args, settings);
     }

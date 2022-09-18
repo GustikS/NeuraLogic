@@ -36,6 +36,9 @@ public class Activations {
 
         Settings settings = Settings.forFastTest();
 
+        settings.isoValueCompression = true;
+        settings.chainPruning = true;
+
         Pair<Pipeline, ?> results = Main.main(Utilities.getDatasetArgs("relational/molecules/mutagenesis", "-t ./templates/template_product.txt"), settings);
     }
 
@@ -45,6 +48,11 @@ public class Activations {
         Settings settings = Settings.forFastTest();
 
         settings.aggNeuronAggregation = Settings.CombinationFcn.MAX;
+
+        settings.isoValueCompression = false;
+        settings.chainPruning = true;
+//        settings.pruneOnlyIdentities = true;
+//        settings.structuralIsoCompression = true;
 
 //        settings.iterationMode = Settings.IterationMode.BFS;
 //        settings.iterationMode = Settings.IterationMode.DFS_STACK;

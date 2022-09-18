@@ -16,6 +16,7 @@
 package cz.cvut.fel.ida.logic.subsumption;
 
 import cz.cvut.fel.ida.logic.*;
+import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.math.IntegerFunction;
 import cz.cvut.fel.ida.utils.math.Sugar;
 import cz.cvut.fel.ida.utils.math.VectorUtils;
@@ -45,7 +46,7 @@ public class Matching {
 
     private boolean learnVariableOrdering = true;
 
-    private Random random = new Random();
+    private Random random = new Random(Settings.seed);
 
     /**
      * Creates a new instance of class Matching.

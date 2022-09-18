@@ -61,7 +61,7 @@ public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, 
                 });
                 sourcesTemplatePipe.connectAfter(nextPipe);
             }
-            Pipe<?, Template> nextPipe1 = null;
+            Pipe<?, Template> nextPipe1 = nextPipe;
             if (settings.reduceTemplate) {
                 Pipe<Template, GraphTemplate> graphTemplatePipe = pipeline.register(buildTemplateGraph());
                 nextPipe.connectAfter(graphTemplatePipe);

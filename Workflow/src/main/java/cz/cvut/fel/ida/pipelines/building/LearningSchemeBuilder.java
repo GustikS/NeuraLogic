@@ -76,7 +76,7 @@ public class LearningSchemeBuilder extends AbstractPipelineBuilder<Sources, Resu
             return new End2endTrainigBuilder(settings, sources).new End2endNNBuilder();
         }
         LOG.severe("Unknown pipeline mainMode!");
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Unknown pipeline mainMode! Invalid source files or settings (turn on debugging?).");
     }
 
     @Override

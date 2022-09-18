@@ -51,6 +51,11 @@ public class NeuronMapping<T extends Neurons> implements LinkedMapping<T> {
         inputs.add(input);
     }
 
+    @Override
+    public void removeLink(T input) {
+        inputs.remove(input);
+    }
+
     public LinkedMapping<T> getInputs(BaseNeuron neuron) {
         return this;
     }

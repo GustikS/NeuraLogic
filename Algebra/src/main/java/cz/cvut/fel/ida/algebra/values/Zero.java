@@ -343,6 +343,11 @@ class Zero extends Value {
     }
 
     @Override
+    public int hashCode() {
+        return this.getClass().hashCode();
+    }
+
+    @Override
     public boolean equals(Value obj) {
         if (obj instanceof Zero) {
             return true;

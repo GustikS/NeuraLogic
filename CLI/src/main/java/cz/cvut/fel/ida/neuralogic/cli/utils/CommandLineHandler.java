@@ -93,7 +93,7 @@ public class CommandLineHandler {
         //compression
         options.addOption(Option.builder("iso").longOpt("isoCompression").argName("INT").numberOfArgs(1).optionalArg(true).desc("iso-value network compression (lifting), number of decimal digits (default: " + settings.isoDecimals + ")").build());
         options.addOption(Option.builder("isoinits").longOpt("isoInitializations").argName("INT").numberOfArgs(1).optionalArg(true).desc("number of iso-value initializations for network compression (default: " + settings.isoValueInits + ")").build());
-        options.addOption(Option.builder("isocheck").longOpt("losslessCompression").argName("INT").numberOfArgs(1).optionalArg(true).desc("lossless compression isomorphism extra check? {0,1} (default: " + (settings.losslessIsoCompression ? 1 : 0) + ")").build());
+        options.addOption(Option.builder("isocheck").longOpt("losslessCompression").argName("INT").numberOfArgs(1).optionalArg(true).desc("lossless compression isomorphism extra check? {0,1} (default: " + (settings.structuralIsoCompression ? 1 : 0) + ")").build());
         options.addOption(Option.builder("prune").longOpt("chainPruning").argName("INT").numberOfArgs(1).optionalArg(true).desc("linear chain network pruning {0,1} (default: " + (settings.chainPruning ? 1 : 0) + ")").build());
 
         return options;
@@ -174,7 +174,7 @@ public class CommandLineHandler {
         //compression
         options.addOption(new Option("iso", "isoCompression", true, "iso-value network compression (lifting), number of decimal digits (" + settings.isoDecimals + ")"));
         options.addOption(new Option("isoinits", "isoInitializations", true, "number of iso-value initializations for network compression (lifting) (" + settings.isoValueInits + ")"));
-        options.addOption(new Option("isocheck", "losslessCompression", true, "lossless compression isomorphism extra check? (" + settings.losslessIsoCompression + ")"));
+        options.addOption(new Option("isocheck", "losslessCompression", true, "lossless compression isomorphism extra check? (" + settings.structuralIsoCompression + ")"));
         options.addOption(new Option("prune", "chainPruning", true, "linear chain network pruning (" + (settings.chainPruning ? 1 : 0) + ")"));
 
         //todo rest of the commandline options that might be useful

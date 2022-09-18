@@ -39,7 +39,7 @@ public class SoftEntropy implements ErrorFcn {
             }
             return new ScalarValue(z);
 
-        } else {    // general (vector) crossentropy
+        } else if (logit instanceof VectorValue) {    // general (vector) crossentropy
             double[] logitV = ((VectorValue) logit).values;
             double[] targetV = ((VectorValue) target).values;
 
@@ -65,6 +65,9 @@ public class SoftEntropy implements ErrorFcn {
                 err -= targetV[i] * logSumExp[i];
             }
             return new ScalarValue(err);
+        } else {
+            LOG.severe("Could no calculate SoftEntropy Value. Returning a dummy 0.");
+            return new ScalarValue(0);
         }
     }
 

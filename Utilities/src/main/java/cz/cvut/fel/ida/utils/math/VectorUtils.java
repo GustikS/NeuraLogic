@@ -16,19 +16,20 @@
 
 package cz.cvut.fel.ida.utils.math;
 
+import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.math.collections.NaturalNumbersList;
 import cz.cvut.fel.ida.utils.generic.tuples.Tuple;
 
 import java.util.*;
 
 /**
- * Class providing useful methods for working with one-doimensional arrays of numbers (vectors).
+ * Class providing useful methods for working with one-dimensional arrays of numbers (vectors).
  * 
  * @author Ondra
  */
 public class VectorUtils {
     
-    private static Random random = new Random(2015);
+    private static Random random = new Random(Settings.seed);
     
     private VectorUtils() {
     }

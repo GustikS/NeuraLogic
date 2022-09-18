@@ -19,7 +19,7 @@ public class Debug {
 
 
     @TestAnnotations.Fast
-    public void xor() throws Exception {
+    public void relational_xor() throws Exception {
         String dataset = "neural/xor/relational_debug2";
         Settings settings = Settings.forSlowTest();
         settings.seed = 4;
@@ -30,8 +30,9 @@ public class Debug {
 //        settings.plotProgress = 1;
         settings.maxCumEpochCount = 100;
 //        settings.isoValueCompression = true;
-        settings.losslessIsoCompression = true;
+        settings.structuralIsoCompression = true;
         settings.initLearningRate = 0.01;
+        settings.debugAll = true;
         Main.main(getDatasetArgs(dataset,"-t ./template.txt"), settings);
     }
 
@@ -111,6 +112,17 @@ public class Debug {
         settings.chainPruning = false;
 
         Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-debug all"), settings);
+    }
+
+    @TestAnnotations.Interactive
+    public void duplicitRules() throws Exception {
+        String dataset = "debug/duplicitRules";
+        Settings settings = Settings.forInteractiveTest();
+
+        settings.isoValueCompression = false;
+        settings.chainPruning = false;
+
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset), settings);
     }
 
     @TestAnnotations.Interactive

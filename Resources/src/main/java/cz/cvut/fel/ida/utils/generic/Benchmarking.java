@@ -4,6 +4,7 @@ import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.results.Result;
 import org.openjdk.jmh.results.RunResult;
+import org.openjdk.jmh.runner.NoBenchmarksException;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -36,12 +37,12 @@ public class Benchmarking {
 
     private static DecimalFormat df = new DecimalFormat("0.000");
 
-    @TestAnnotations.SlowBenchmark
-    public void genericPreciesBenchmark(){
+    @TestAnnotations.Slow
+    public void genericPreciseBenchmark() {
         Double coeff = TestLogging.baselinePerformanceCoeff;
         LOG.warning("TESTING NOW");
         double baselinePerformanceCoeff = getBaselinePerformanceCoeff();
-        assertEquals(coeff,baselinePerformanceCoeff,0.001);
+        assertEquals(coeff, baselinePerformanceCoeff, 0.01);
     }
 
     @TestAnnotations.Slow
@@ -73,11 +74,12 @@ public class Benchmarking {
      * Tuned for my PC to give a performance coefficient of app. 1.0 = 1s
      * Intel i7-5500 Linux (mint 17.3, kernel 4.4.0)
      * (Only IntelliJ and system performance monitoring turned on)
+     *
      * @return
      */
     @Benchmark
     public List<Integer> baselinePerformance() {
-        int tuning = 45100;
+        int tuning = 43700;
         Random random = new Random(0);
         List<Integer> list = new LinkedList<>();
         for (int i = 0; i < tuning; i++) {
@@ -99,8 +101,17 @@ public class Benchmarking {
     }
 
     public static void assertSmallRuntimeDeviation(Collection<RunResult> runResults, Duration referenceDuration, double maxDeviation) {
+        double coeff = TestLogging.baselinePerformanceCoeff;
+        LOG.warning("On this machine TestLogging.baselinePerformanceCoeff = " + coeff);
+
+        if (runResults == null) {
+            return;
+        }
 
         double score = getMeanTime(runResults);
+
+        LOG.info(score + timeUnit.toString() + " => applying speed coefficient for this machine: " + coeff);
+        score = score / coeff; // normalization by the speed coefficient specific for this machine!
 
         Duration realDuration = Duration.of(Math.round(score), temporalUnit);
 
@@ -110,7 +121,7 @@ public class Benchmarking {
         LOG.warning(realDuration + " vs. expected: " + referenceDuration);
         String deviationString = df.format(deviation * 100) + "%";
         String maxDeviationString = df.format(maxDeviation * 100) + "%";
-        String errorMessage = "Deviation " + deviationString + " exceeds maximum allowed deviation " + maxDeviationString;
+        String errorMessage = realDuration + " vs. expected: " + referenceDuration + "\n => deviation " + deviationString + " exceeding maximum allowed deviation " + maxDeviationString;
         assertTrue(deviation < maxDeviation, errorMessage);
     }
 
@@ -160,14 +171,19 @@ public class Benchmarking {
                 .threads(1)
                 .forks(1)
                 .shouldFailOnError(true)
-                .shouldDoGC(true)
+                .shouldDoGC(false)
                 //.jvmArgs("-XX:+UnlockDiagnosticVMOptions", "-XX:+PrintInlining")
 //                .addProfiler(WinPerfAsmProfiler.class)
 //                .addProfiler(StackProfiler.class)
                 .build();
 
-        Collection<RunResult> runResults = new Runner(opt).run();
-        return runResults;
+        try {
+            Collection<RunResult> runResults = new Runner(opt).run();
+            return runResults;
+        } catch (NoBenchmarksException ignored) {
+            LOG.warning("Skipping this automatically generated copy of the test...");
+            return null;
+        }
     }
 
     public static Collection<RunResult> benchmarkSlow(String methodPath) throws RunnerException {
@@ -190,13 +206,17 @@ public class Benchmarking {
                 .threads(1)
                 .forks(1)
                 .shouldFailOnError(true)
-                .shouldDoGC(true)
+                .shouldDoGC(false)
                 //.jvmArgs("-XX:+UnlockDiagnosticVMOptions", "-XX:+PrintInlining")
 //                .addProfiler(WinPerfAsmProfiler.class)
 //                .addProfiler(StackProfiler.class)
                 .build();
-
-        Collection<RunResult> runResults = new Runner(opt).run();
-        return runResults;
+        try {
+            Collection<RunResult> runResults = new Runner(opt).run();
+            return runResults;
+        } catch (NoBenchmarksException ignored) {
+            LOG.warning("Skipping this automatically generated copy of the test...");
+            return null;
+        }
     }
 }

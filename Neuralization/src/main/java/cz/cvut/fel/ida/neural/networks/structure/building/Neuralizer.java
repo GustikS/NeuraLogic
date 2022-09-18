@@ -1,5 +1,8 @@
 package cz.cvut.fel.ida.neural.networks.structure.building;
 
+import cz.cvut.fel.ida.algebra.values.ScalarValue;
+import cz.cvut.fel.ida.algebra.values.Value;
+import cz.cvut.fel.ida.learning.LearningSample;
 import cz.cvut.fel.ida.logic.Clause;
 import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.logic.constructs.building.factories.WeightFactory;
@@ -142,6 +145,12 @@ public class Neuralizer implements Exportable {
         neuralNetBuilder.setNeuronMaps(neuronMaps); //loading stored context from previous neural nets building
         NeuralSets createdNeurons = new NeuralSets();    //a set of neurons used exclusively for this network being created only!
 
+        if (groundingSample.query.headAtom == null) {
+            DetailedNetwork neuralNetwork = blindNeuralization(groundingSample.groundingWrap.getGroundTemplate(), neuronMaps, createdNeurons);
+            NeuralProcessingSample neuralProcessingSample = new NeuralProcessingSample(new ScalarValue(0), new QueryNeuron(groundingSample.getId(), 0, 0, null, neuralNetwork), groundingSample.type, settings);
+            return Collections.singletonList(neuralProcessingSample);
+        }
+
         List<QueryNeuron> queryNeurons = supervisedNeuralization(groundingSample, neuronMaps, createdNeurons);
         queryNeuronsCreated += queryNeurons.size();
         if (queryNeurons.isEmpty()) {
@@ -170,7 +179,7 @@ public class Neuralizer implements Exportable {
 
         List<Literal> queryMatchingLiterals = getQueryMatchingLiterals(queryAtom, groundTemplate.groundRules);
         if (queryMatchingLiterals.isEmpty()) {
-            String err = "Query not matched anywhere in the template:" + queryAtom;
+            String err = "Query [" + queryAtom.headAtom + "] not matched anywhere in the template. Cannot perform neural training.";
             LOG.severe(err);
             throw new RuntimeException(err);
         }
@@ -245,6 +254,10 @@ public class Neuralizer implements Exportable {
 
     @NotNull
     protected List<Literal> getQueryMatchingLiterals(QueryAtom queryAtom, @NotNull LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules) {
+
+        if (queryAtom.headAtom == null) {
+            return new ArrayList<>(0);
+        }
 
         // ground query (simple, standard)?
         if (!queryAtom.headAtom.literal.containsVariable()) {
