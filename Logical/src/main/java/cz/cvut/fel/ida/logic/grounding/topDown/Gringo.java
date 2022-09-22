@@ -13,6 +13,7 @@ import cz.cvut.fel.ida.logic.constructs.template.Template;
 import cz.cvut.fel.ida.logic.grounding.Grounder;
 import cz.cvut.fel.ida.logic.grounding.constructs.GroundRulesCollection;
 import cz.cvut.fel.ida.logic.subsumption.SpecialBinaryPredicates;
+import cz.cvut.fel.ida.logic.subsumption.SpecialVarargPredicates;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
@@ -33,8 +34,20 @@ public class Gringo extends Grounder {
 
     private static final Map<String, BiConsumer<Literal, StringBuilder>> specialPredicateMap = new HashMap<>();
 
+    private static int anonymousVarCounter = 0;
+
     private static void specialBinaryPredicateFunction(Literal literal, StringBuilder builder, String divider) {
-        builder.append(literal.arguments()[0].name()).append(divider).append(literal.arguments()[1].name());
+        builder.append(normalizeTerm(literal.arguments()[0].name(), anonymousVarCounter++))
+                .append(divider)
+                .append(normalizeTerm(literal.arguments()[1].name(), anonymousVarCounter++));
+    }
+
+    private static String normalizeTerm(String term, int termCount) {
+        if (term.equals("_")) {
+            return "AnonymousVariable" + termCount;
+        }
+
+        return term;
     }
 
     static {
@@ -45,6 +58,26 @@ public class Gringo extends Grounder {
         specialPredicateMap.put(SpecialBinaryPredicates.LEQ, (l, b) -> specialBinaryPredicateFunction(l, b, " <= "));
         specialPredicateMap.put(SpecialBinaryPredicates.EQ, (l, b) -> specialBinaryPredicateFunction(l, b, " == "));
         specialPredicateMap.put(SpecialBinaryPredicates.NEQ, (l, b) -> specialBinaryPredicateFunction(l, b, " != "));
+
+        specialPredicateMap.put(SpecialVarargPredicates.ALLDIFF, (l, b) -> {
+            Term[] terms = l.arguments();
+
+            if (terms.length <= 1) {
+               return;
+            }
+
+            for (int i = 0; i < terms.length - 1; i++) {
+                for (int j = i + 1; j < terms.length; j++) {
+                    b.append(normalizeTerm(terms[i].name(), anonymousVarCounter++))
+                            .append(" != ")
+                            .append(normalizeTerm(terms[j].name(), anonymousVarCounter++));
+
+                    if (i != terms.length - 2 || j != terms.length - 1) {
+                        b.append(",");
+                    }
+                }
+            }
+        });
     }
 
     public Gringo(Settings settings) {
@@ -62,7 +95,7 @@ public class Gringo extends Grounder {
         Term[] terms = literal.arguments();
 
         for (int i = 0; i < terms.length; i++) {
-            builder.append(terms[i].name());
+            builder.append(normalizeTerm(terms[i].name(), anonymousVarCounter++));
 
             if (i != terms.length - 1) {
                 builder.append(",");
@@ -85,6 +118,8 @@ public class Gringo extends Grounder {
 
         for (Map.Entry<HornClause, List<WeightedRule>> entry : ruleEntries) {
             for (WeightedRule rule : entry.getValue()) {
+                anonymousVarCounter = 0;
+
                 builder.append("{");
                 addLiteralToProgram(rule.getHead().literal, builder);
                 builder.append(";__id(");
@@ -122,6 +157,7 @@ public class Gringo extends Grounder {
         final int termIndex = literal.indexOf("(");
         final int len = literal.length();
 
+        // No terms
         if (termIndex > len - 2) {
             return Collections.emptyList();
         }
@@ -181,7 +217,7 @@ public class Gringo extends Grounder {
                         BodyAtom atom = body.get(j);
 
                         Literal literal = atom.literal;
-                        if (literal.predicate().hidden || literal.predicate().special) {
+                        if (literal.predicate().hidden) {
                             continue;
                         }
 
@@ -249,6 +285,8 @@ public class Gringo extends Grounder {
         if (ruleMap == null || templateStr.isEmpty()) {
             ruleMap = rulesAndFacts.r;
             template.hornClauses = ruleMap;
+
+            // cache the template string
             templateStr = buildProgram(ruleMap.entrySet(), groundFacts.keySet()).toString();
         }
 
@@ -277,7 +315,7 @@ public class Gringo extends Grounder {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     final int index = line.indexOf(":-");
-                    if (index == -1) {
+                    if (index == -1) {  // skip parsing facts
                         continue;
                     }
 
