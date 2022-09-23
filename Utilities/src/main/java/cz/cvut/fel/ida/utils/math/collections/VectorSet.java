@@ -15,6 +15,8 @@
 
 package cz.cvut.fel.ida.utils.math.collections;
 
+import cz.cvut.fel.ida.setup.Settings;
+
 import java.util.*;
 import java.math.*;
 /**
@@ -24,7 +26,7 @@ import java.math.*;
  */
 public class VectorSet {
     
-    private static Random random = new Random();
+    private static Random random = new Random(Settings.seed);
     
     private int startTwoPow = 5;
     

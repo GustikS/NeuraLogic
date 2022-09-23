@@ -1,0 +1,8 @@
+{1} foal(X) <= parent(dakotta,Y), house(dakotta).
+{1} small(aaa) :- sibling(X,Y), horse(Y).
+{1} foal(aida) :- small(X).
+{1} negFoal(X) <= foal(X).
+{1} house(X) :- horse(X).
+{1} house(abs) :- small(abc).
+parent(X,Y).
+horse(new).

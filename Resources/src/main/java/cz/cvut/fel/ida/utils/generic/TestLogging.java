@@ -19,6 +19,7 @@ public class TestLogging implements BeforeAllCallback, BeforeEachCallback, After
 
     @Override
     public void beforeEach(ExtensionContext context) {
+//        LOG.info("beforeEach is called");
         context.getRoot().getStore(GLOBAL).put("any unique name", this);
         try {
             logging = Logging.initTestLogging("log" + sanitize(context));
@@ -49,21 +50,22 @@ public class TestLogging implements BeforeAllCallback, BeforeEachCallback, After
 
     @Override
     public void beforeAll(ExtensionContext extensionContext) throws Exception {
-        LOG.warning("beforeAll is not called?");
+        LOG.warning("beforeAll is called");
     }
 
     public static class PreciseBenchmarking extends TestLogging {
         private static boolean started = false;
 
         @Override
-        public void beforeEach(ExtensionContext context) {
+        public void beforeEach(ExtensionContext context){
             // Your "before all tests" startup logic goes here
             // The following line registers a callback hook when the root test context is shut down
             super.beforeEach(context);
             if (!started){
                 baselinePerformanceCoeff = Benchmarking.getBaselinePerformanceCoeff();
+                LOG.warning("===========> Speed coefficient for this machine: " + baselinePerformanceCoeff);
             }
+            started = true;
         }
-
     }
 }

@@ -47,6 +47,7 @@ public class Sources {
     public boolean trainValTest = false;
     public boolean trainOnly = false;
     public boolean testOnly = false;
+    public boolean drawing = false; // only debug
 
     public static Sources getSources(CommandLine cmd, Settings settings) throws Exception {
         Sources sources = null;
@@ -134,6 +135,10 @@ public class Sources {
                     LOG.warning("Incosistent learning mode inference for this Source (missing template).");
                 }
                 testOnly = true;
+            } else if (settings.drawing) {
+                drawing = true;
+                settings.mainMode = Settings.MainMode.DEBUGGING;
+                LOG.warning("Missing any learning queries (labels) - this pipeline will be useful for informative debugging/drawing only (no training possible)");
             } else {
                 LOG.warning("Incosistent learning mode inferred for this Source.");
             }
@@ -172,9 +177,14 @@ public class Sources {
         }
 
         if (!train.QueriesProvided && !test.QueriesProvided && (folds == null || folds.isEmpty())) {
-            LOG.severe(msg = "Invalid learning setup - no training queries nor testing queries provided " + this.foldId + " \n");
-            problems.append(msg);
-            valid = false;
+            if (settings.drawing) {// missing queries -> might still be useful for drawing/debugging
+                drawing = true;
+                settings.mainMode = Settings.MainMode.DEBUGGING;
+            } else {
+                LOG.severe(msg = "Invalid learning setup - no training queries nor testing queries provided " + this.foldId + " \n");
+                problems.append(msg);
+                valid = false;
+            }
         }
         if ((getTemplateReader() == null && binaryTemplateStream == null) && train.QueriesReader == null && test.QueriesReader == null) {
             LOG.severe(msg = "Invalid learning setup - no template nor queries provided\n");

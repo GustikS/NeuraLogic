@@ -57,6 +57,7 @@ public class Constant implements Term {
         if (StringUtils.isNumeric(this.name())){
             if (StringUtils.isInteger(this.name())){
                 this.intValue = Integer.parseInt(this.name());
+                this.doubleValue = Double.parseDouble(this.name());
                 this.constantType = INTEGER;
             } else if (StringUtils.isDouble(this.name())){
                 this.doubleValue = Double.parseDouble(this.name());

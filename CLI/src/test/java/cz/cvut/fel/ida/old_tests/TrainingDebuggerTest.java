@@ -6,16 +6,19 @@ import cz.cvut.fel.ida.pipelines.debugging.TrainingDebugger;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.generic.TestAnnotations;
 
+import static cz.cvut.fel.ida.utils.generic.Utilities.getDatasetArgs;
+
 public class TrainingDebuggerTest {
 
     @TestAnnotations.AdHoc
     public void family() throws Exception {
         Logging logging = Logging.initLogging(new Settings());
-        String[] args = "-path ./resources/datasets/simple/family".split(" ");
+        String[] args = getDatasetArgs("simple/family");
         Settings settings = new Settings();
         settings.maxCumEpochCount = 2;
         settings.intermediateDebug = true;
         settings.undoWeightTrainingChanges = true;
+        settings.drawing = true;
         TrainingDebugger trainingDebugger = new TrainingDebugger(Runner.getSources(args, settings), settings);
         trainingDebugger.executeDebug();
     }
@@ -280,7 +283,7 @@ public class TrainingDebuggerTest {
         settings.chainPruning = true;
 
         settings.isoValueCompression = true;
-        settings.losslessIsoCompression = true;
+        settings.structuralIsoCompression = true;
         settings.isoValueInits = 1;
         settings.isoDecimals = 11;
 
@@ -354,7 +357,7 @@ public class TrainingDebuggerTest {
         settings.chainPruning = true;
 
         settings.isoValueCompression = true;
-        settings.losslessIsoCompression = false;
+        settings.structuralIsoCompression = false;
         settings.isoValueInits = 1;
         settings.isoDecimals = 12;
         settings.plotProgress = -1;
@@ -396,7 +399,7 @@ public class TrainingDebuggerTest {
         settings.chainPruning = true;
 
         settings.isoValueCompression = true;
-        settings.losslessIsoCompression = false;
+        settings.structuralIsoCompression = false;
         settings.isoValueInits = 1;
         settings.isoDecimals = 13;
 
@@ -434,7 +437,7 @@ public class TrainingDebuggerTest {
         settings.neuralNetsPostProcessing = true;
         settings.chainPruning = true;
         settings.isoValueCompression = true;
-        settings.losslessIsoCompression = true;
+        settings.structuralIsoCompression = true;
         settings.isoDecimals = 12;
         settings.storeNotShow = true;
 
@@ -458,7 +461,7 @@ public class TrainingDebuggerTest {
         Settings settings = new Settings();
         settings.maxCumEpochCount = 10;
         settings.isoValueCompression = true;
-        settings.losslessIsoCompression = true;
+        settings.structuralIsoCompression = true;
         settings.appLimitSamples = 100;
         for (int i = 0; i < 14; i++) {
             settings.isoDecimals = i;

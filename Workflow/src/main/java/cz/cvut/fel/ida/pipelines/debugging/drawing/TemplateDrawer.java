@@ -2,17 +2,20 @@ package cz.cvut.fel.ida.pipelines.debugging.drawing;
 
 import cz.cvut.fel.ida.drawing.Drawer;
 import cz.cvut.fel.ida.drawing.GraphViz;
+import cz.cvut.fel.ida.logic.Clause;
+import cz.cvut.fel.ida.logic.HornClause;
 import cz.cvut.fel.ida.logic.Literal;
+import cz.cvut.fel.ida.logic.Predicate;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
 import cz.cvut.fel.ida.logic.constructs.template.components.BodyAtom;
 import cz.cvut.fel.ida.logic.constructs.template.components.WeightedRule;
 import cz.cvut.fel.ida.logic.constructs.template.types.GraphTemplate;
+import cz.cvut.fel.ida.logic.subsumption.Matching;
 import cz.cvut.fel.ida.setup.Settings;
 
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by gusta on 8.3.17.
@@ -42,9 +45,13 @@ public class TemplateDrawer extends Drawer<Template> {
 
         Map<Literal, Set<WeightedRule>> atom2rules = obj.atom2rules;
         LinkedHashSet<ValuedFact> facts = obj.facts;
+        Matching matching = new Matching(Collections.singletonList(new Clause(facts.stream().map(f -> f.literal).collect(Collectors.toSet()))));
+        Map<Predicate, Set<ValuedFact>> pred2facts = new HashMap<>();
 
         for (ValuedFact fact : facts) {
             graph.add(draw(fact));
+            Set<ValuedFact> factSet = pred2facts.computeIfAbsent(fact.literal.predicate(), k -> new HashSet<>());
+            factSet.add(fact);
         }
 
         for (Map.Entry<Literal, Set<WeightedRule>> entry : atom2rules.entrySet()) {
@@ -57,6 +64,15 @@ public class TemplateDrawer extends Drawer<Template> {
                 for (BodyAtom bodyAtom : rule.getBody()) {
                     graph.add(draw(bodyAtom));
                     graph.add(draw(rule, bodyAtom)); //body literals from the rule
+
+                    Set<ValuedFact> matchedFacts;
+                    if ((matchedFacts = pred2facts.get(bodyAtom.literal.predicate())) != null)
+                        for (ValuedFact matchedFact : matchedFacts) {
+                            if (matching.subsumption(new Clause(matchedFact.literal), new Clause(bodyAtom.literal))
+                                    || matching.subsumption(new Clause(bodyAtom.literal), new Clause(matchedFact.literal))) {
+                                graph.add(draw(bodyAtom, matchedFact));
+                            }
+                        }
                 }
             }
         }
@@ -73,7 +89,11 @@ public class TemplateDrawer extends Drawer<Template> {
     }
 
     private String draw(Literal literal, WeightedRule rule) {
-        return literal.liftedHashCode() + " -> " + rule.hashCode() + "[label=" + GraphViz.sanitize(rule.getWeight().toString(numberFormat)) + "]";
+        return literal.liftedHashCode() + " -> " + rule.hashCode() + "[label=" + GraphViz.sanitize(rule.getWeight().toString(numberFormat)) + ", color=green, style=dashed]";
+    }
+
+    private String draw(BodyAtom bodyAtom, ValuedFact matchedFact) {
+        return bodyAtom.literal.liftedHashCode() + " -> " + matchedFact.literal.liftedHashCode() + "[dir=both, style=dotted, color=blue]";
     }
 
     private String draw(Literal literal) {
@@ -81,11 +101,11 @@ public class TemplateDrawer extends Drawer<Template> {
     }
 
     private String draw(WeightedRule rule) {
-        return rule.hashCode() + "[label=" + GraphViz.sanitize(rule.getOriginalString()) + ", shape=rarrow, color=green]";
+        return rule.hashCode() + "[label=" + GraphViz.sanitize(rule.getOriginalString()) + ", shape=larrow, color=green]";
     }
 
     private String draw(ValuedFact fact) {
-        return fact.literal.liftedHashCode() + "[label=" + GraphViz.sanitize(fact.toString()) + "]";
+        return fact.literal.liftedHashCode() + "[shape=house, label=" + GraphViz.sanitize(fact.toString()) + "]";
     }
 
 }

@@ -30,7 +30,7 @@ import static cz.cvut.fel.ida.utils.generic.Utilities.getDatasetArgs;
 
 @Nested
 @TestAnnotations.Slow
-public class FastMutagenTrainingBenchmark {
+public class OldMutagenTrainingBenchmark {
 
     static String[] dataset = getDatasetArgs("relational/molecules/mutagenesis");
     static int learningSteps = 100;
@@ -38,10 +38,10 @@ public class FastMutagenTrainingBenchmark {
 
 
 
-    private static final Logger LOG = Logger.getLogger(FastMutagenTrainingBenchmark.class.getName());
+    private static final Logger LOG = Logger.getLogger(OldMutagenTrainingBenchmark.class.getName());
 
     @TestAnnotations.Slow
-    public void testMutagenCompressedFastEnough() throws RunnerException {
+    public void testTrainingFastEnough() throws RunnerException {
         Duration referenceTime = Duration.ofSeconds(52);
         double maxDeviation = 0.1;
 
@@ -89,6 +89,7 @@ public class FastMutagenTrainingBenchmark {
         settings.appLimitSamples = -1;
         settings.maxCumEpochCount = learningSteps;
         settings.setOptimizer(optimizer);
+        settings.infer();
         return neuralTraining(state, settings);
     }
 

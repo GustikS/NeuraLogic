@@ -12,6 +12,7 @@ package cz.cvut.fel.ida.logic.subsumption;
 
 import cz.cvut.fel.ida.logic.*;
 import cz.cvut.fel.ida.logic.special.IsoClauseWrapper;
+import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.math.Cache;
 import cz.cvut.fel.ida.utils.math.Combinatorics;
 import cz.cvut.fel.ida.utils.math.Sugar;
@@ -47,7 +48,7 @@ public class ApproximateSubsetCounter {
 
     private Clause db;
 
-    private Random random = new Random(getClass().getName().hashCode());
+    private Random random = new Random(Settings.seed);
 
     private final static Object cacheLock = new Object();
 

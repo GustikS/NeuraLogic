@@ -809,6 +809,16 @@ public class MatrixValue extends Value {
         throw new ArithmeticException("Algebbraic operation between Tensor and Matrix are not implemented yet");
     }
 
+
+    @Override
+    public int hashCode() {
+        long hashCode = 1;
+        for (int i = 0; i < values.length; i++)
+            hashCode = 31 * hashCode + Double.valueOf(values[i]).hashCode();
+        return Long.hashCode(hashCode);
+    }
+
+
     @Override
     public boolean equals(Value obj) {
         if (obj instanceof MatrixValue) {

@@ -342,6 +342,11 @@ public class One extends Value {
     }
 
     @Override
+    public int hashCode() {
+        return this.getClass().hashCode();
+    }
+
+    @Override
     public boolean equals(Value obj) {
         if (obj instanceof One) {
             return true;

@@ -303,6 +303,8 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
 
     protected abstract boolean greaterThan(TensorValue maxValue);
 
+    public abstract int hashCode();
+
     public abstract boolean equals(Value obj);
 
     @Override

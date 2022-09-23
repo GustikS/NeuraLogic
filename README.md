@@ -202,7 +202,7 @@ Note that this is a multi-module [Maven project](https://maven.apache.org/guides
 | Utilities     | generic utilities (maths, java DIY, etc.), with [Gson](https://github.com/google/gson) serialization and [JMH](https://openjdk.java.net/projects/code-tools/jmh/) benchmarking |
 | Workflow      | NeuraLogic-specific building blocks for typical ML worflows, based on the Pipelines module |
 
-
+![Diagram](.github/img/neuralogic-cli.png)
 
 ## Papers
 

@@ -21,11 +21,11 @@ import java.util.Set;
  */
 public class SpecialBinaryPredicates {
 
-    public final static String NEQ = "@neq", LEQ = "@leq", GEQ = "@geq", LT = "@lt", GT = "@gt", EQ = "@eq";
+    public final static String NEQ = "@neq", LEQ = "@leq", GEQ = "@geq", LT = "@lt", GT = "@gt", EQ = "@eq", NEXT = "@next";
 
-    public final static Set<String> SPECIAL_PREDICATES = Sugar.<String>set(NEQ, LEQ, GEQ, LT, GT, EQ);
+    public final static Set<String> SPECIAL_PREDICATES = Sugar.<String>set(NEQ, LEQ, GEQ, LT, GT, EQ, NEXT);
 
-    public static boolean isTrueGround(Literal l){
+    public static boolean isTrueGround(Literal l) {
         String predicate = l.predicateName();
         boolean ret = false;
 
@@ -48,6 +48,8 @@ public class SpecialBinaryPredicates {
                 ret = n1.doubleValue() < n2.doubleValue();
             } else if (predicate.equals(SpecialBinaryPredicates.LEQ)) {
                 ret = n1.doubleValue() <= n2.doubleValue();
+            } else if (predicate.equals(SpecialBinaryPredicates.NEXT)) {
+                ret = n1.doubleValue() + 1 == n2.doubleValue();
             }
         } else {
             comparable1 = str1;
@@ -66,7 +68,7 @@ public class SpecialBinaryPredicates {
                 ret = comparable1.compareTo(comparable2) <= 0;
             }
         }
-        if (l.isNegated()){
+        if (l.isNegated()) {
             ret = !ret;
         }
         return ret;

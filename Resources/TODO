@@ -1,0 +1,463 @@
+Python frontend 
+	- k nemu dokumentaci a velkou davku prikladu a demicek
+
+Maven - copy jar na githubu
+ - https://docs.github.com/en/actions/guides/publishing-java-packages-with-maven
+
+wiki:
+	Maven detailed - which jar to use
+	open in IntelliJ
+
+updatovat popisky v zahlavi v kazde tride
+
+GPU support - https://www.infoq.com/articles/tornadovm-java-gpu-fpga/?itm_source=infoq&itm_campaign=user_page&itm_medium=link
+ - https://github.com/beehive-lab/TornadoVM
+
+
+ dodelat vsechna "todo now" z IntelliJ 
+ 	- temer vsechna se tykaji otestovani crossvalidace!
+	- pak uz jen DOTTreeDrawer a dalsi drobne...
+
+
+----------------------------------------------- vzdalenejsi TODO ------------------------------------------
+
+projet NCI datasety na nejvetsi rozdil v performance mezi stupidni baseline a sofistikovanejsim modelem
+
+zkusit porazit stare LRNN - vzit MDA dataset (dobre se uci)
+	- a na nem pak odladit vsechna nastaveni
+		- template, embedding dimension, vahy v konjunkcich
+		- aktivacni funkce, inicializace
+		- ADAM lr, training steps
+
+
+vybirat z gridu jen parametry urcite hodnoty (filter na experiment set)
+
+legenda NAPRAVO
+
+pridat validationPErc jako parametr
+
+pri pouziti validation loss toto pouzit jako stopovaci kriterium - kdyz zacne rust
+
+otestovat crossvalidaci
+	- parallelizace, synchronizace
+	- + vysledky s nejakou minulou verzi!
+
+
+layer normalization?
+	- pak taky batch normalization az budou minibatches?
+
+
+identicka pravidla s ruznou vahou v template - vyhodti jako chybu!
+
+
+vymyslet interakci logickych konstant unvitr predikatu a values ve vahach!!
+
+
+poradnou dokumentaci + dalsi release
+
+
+----------castecne preskocene
+
+podivat se jeste jednou na pamet
+
+otestovat validacni chybu nekde
+	- ze je 1:1 k nejakemu train setu
+
+import celych settings z (globalniho jsonu) jako default?
+	- jako aby user vse videl - ale bude to chtit i popisky!
+
+----------integrace
+
+https://github.com/awslabs/djl
+
+export do PyTorch - nutnost! (neni treba tunit dal javu, mel by byt rychlejsi nez dynet, alt. zkus i chainer)
+
+tensorflow for java integraci (ale spis hlavne pytorch)
+	- ostatni features dodelavat az jen pokud tam nebudou...
+	https://github.com/tensorflow/tensorflow/issues/17390
+	https://docs.google.com/presentation/d/e/2PACX-1vQ6DzxNTBrJo7K5P8t5_rBRGnyJoPUPBVOJR4ooHCwi4TlBFnIriFmI719rDNpcQzojqsV58aUqmBBx/pub?start=false&loop=false&delayms=3000&slide=id.g306175dd89_0_0
+https://github.com/karllessard/tensorflow/tree/java-ops-samples/tensorflow/java
+https://groups.google.com/a/tensorflow.org/forum/#!forum/jvm
+https://github.com/bytedeco/javacpp-presets/tree/master/tensorflow
+
+
+
+------------------------------------------------------------------------------------------------------- DONE---------------------------------------------------------------------------------------------
+
+
+spustit kompresi pres cely NCI-GI
+	- zjistit proc se nekdy lisi pocty (warning hlaska)
+	-> opraveny bug v pruningu (outputmapping) a isokopresi (hascode)
+
+exporter/prevodnik z PyG datasetu do LRNN
+	-> udela se rovnou v pythonu v ramci API
+
+vyhazet datasety z resources do data
+	- zrevidovat strukturu
+	-> spis vyclenit samostatny repozitar s ruznymi Datasety a ukazmaki
+
+
+rozchodit plne na windows
+	- vsude cesty bez lomitek pomoci Paths
+	- python volat ciste jako "python" bez cesty
+		- staci mit python >3.6, numpy, pandas, matplotlib
+	- v python scriptu zrusit plne cesty a dopredna lomitka
+
+
+module diagram with IntelliJ profi		
+	-> done, in Readme
+
+Python
+	- nejvic kriticka vec je udelat API
+
+
+pripravit LRNN nacitat maticovou/SQL reprezentaci!
+	- asi pres SQL, nebo csv tabulky
+	- prozatim pouzit jen jako nacitaci format - uvnitr se pretransformuje opet na ground facts
+	-> reseno pres python frontend
+
+MLP vrstvy
+	-> snad hotovo (spolecne s dalsimi v python frontend)
+
+pamatovat si aktivace v neuronech pro urychleni (pak prepouzit pri vypoctu derivace)
+	-> nove States si toho snad pamatuji uz dost
+
+pridat veci od Martina
+	-> to byly hlavne nove aktivacni funkce
+
+Maven publish package - https://docs.github.com/en/actions/language-and-framework-guides/publishing-java-packages-with-maven
+	-> je to na Maven central
+
+optimalizvoat vypocty s Values (napr. nevytvaret vzdy nove ale prepisovat, matice iterovat podle souvislych bloku v pameti)
+https://github.com/optimatika/ojAlgo/wiki/Java-Matrix-Benchmark
+	-> z vetsi casti hotove, optimalizaci uz probehlo dost
+	-> matice jsou ted jako pole
+
+Combination - Activation - Aggregation tridy 
+	- obecne zlepsit a vic integrovat -  StatesBuilder, ActivationState, Activation, a ComplexDown
+	-> done v ramci velke revize, komplet procisteno
+
+------------------- older
+
+embeddings special predicate
+	-> done, vytvoren i specialni fact neuron state pro ucitelna fakta (embeddings)
+
+attention support?
+	-> zakladni myslenka tam je
+	- dale by to chtelo spis sirsi support pro ruzne fce jako concat a softmax (pro dalsi typy attentions)
+
+sparse features ukladani nacitani
+	-> jen nacitani teda (parsing)
+
+softmax - pro multiclass klasifikaci
+Softmax + crossentropy special case preprocess
+query neuron + classification = sigmoid (infer) - asi neni potreba?
+	- jinak dat tanh
+	--> all done
+	
+
+Maven tests - soucasti buildu
+	-> jsou videt na githubu (bez slow a interactive)
+
+opravit max pooling
+	-> opraveno, ale moc netestovano
+
+.txt s i bez oboje validni
+	-> done, default bez koncovky, a zkousi se pridat
+
+vyhazet ciste logicke atomy po kompilaci do neuronek
+	- bude treba nejak rozlisit...
+odstranit logicke atomy
+	-> hidden flag *
+
+papery na arxiv
+
+more powerful GNNs:
+[11] C. Morris et al. Weisfeiler and Leman go neural: Higher-order graph neural networks (2019). Proc. AAAI.
+[12] H. Maron et al. Invariant and equivariant graph networks (2019). Proc. ICLR.
+[6] H. Maron et al. Provably powerful graph neural networks (2019). Proc. NeurIPS.
+survey: [14] R. Sato, A survey on the expressive power of graph neural networks (2020). arXiv: 2003.04078.
+
+chceme more expresivity, napr. trianngles
+
+https://towardsdatascience.com/beyond-weisfeiler-lehman-using-substructures-for-provably-expressive-graph-neural-networks-d476ad665fa3
+
+
+nahodit repo ke iso-kompresi
+
+maven tests - jen checknout proc
+maven build i na windows
+
+profesional server-side build+tests
+
+~ vs. . na oznaceni relativni cesty vstupu
+
+reformat + commit datasetu + templatu
+	- vyhodit embeddings
+	- posilit testy aktivacnich fci - na molekulach
+	- check all tests az na AdHoc+Interactive
+
+release upload
+
+LRNN udelat release + zakladni dokumentace
+
+pridat validation-set file moznos na vstupu? spis ne...
+	-> done
+
+readme
+	- odkazy na use cases
+	- running examples
+		- 1 KB mod
+	- cmd args check
+	- try to build with openjdk
+	- build with Maven
+
+video?
+
+concatenate
+softmax
+sparsemax
+
+nasobeni
+
+- promyslet pripadne dalsi experimenty na nips
+	- zopakovat experimenty se skutecnymi GNNs
+		- asi staci jen pridat jeden dalsi (GIN?)
+	- popsat to jako skutecne GNNs, a to jak na molekuly tak na KBs
+		- pridat LRNN jako rozsireni
+			- odkazat se na MLJ paper jako suplmementary
+
+
+vylepsit hlasky pri chybnych cestach
+
+nashrommazdit experimenty do spustitelne formy
+	- crossval uvolnit pamet mezi foldy...
+	- odstranit tensorboardX
+	- pridat verze
+	
+
+udelat hezci batching script
+pripravit scripty na nacitani vysledku
+
+iso-komprese na test-setu - nesmazat si vahy!
+	-> opraveno, vahy se  ukladaji
+	vyzkouset nacteni modelu
+	- funkcni, model ddava stejne vysledky jako pred ulozenim!
+
+exponential learning rate decay
+	- pridan prepinac
+
+nastavit git na win intellij
+	- normalne jedu na 2 ntb
+
+best accuracy horsi nez normal, jakto?
+	- jednoduse overfit threshold
+
+drzet vsechny datasety na jednom miste
+	- z nej brat do intellij i na grid!
+		-> tento centralni bude na vetsi experimenty v gusta/data, a pujdou do nej vsechny datasety, a jejich varianty
+			- tento musi byt zvlast od developmentu, protoze tam budou opakujici se mnoziny kvuli experiment gridum!
+	- krome nej vydelit scratch na development
+		-> scratch zustane v resources, protoze pri experimentovani s templates se budou nejlepe psat testy...
+			- a budou tam zas naopak verze, ktere nema smysl testovat na gridu, ale jen kvuli featuram lokalne...
+
+mutagen diffcheck
+	- diffchecked restored, a ulozeny mutagenesis dataset je ustaleny
+	- bylo to jen jedinym hloupym offsetem uplne na konci u finalKappa, ktery se nepriradil spravne kvuli spatne arite /0
+		- a ve skutecnosti to bez nej vychazi ve vektorizovane verzi lepe!
+
+Glorot initializer
+https://visualstudiomagazine.com/articles/2019/09/05/neural-network-glorot.aspx
+	-> ma fungovat spolecne s tanh - pridat do inference!
+He - ma fungovat s Relu - pridat!
+
+seradit learnable weights pred ucenim pro speedup
+	+ pamatovat updatovane vahy
+	-> cisty a jasny gradient update (learnable+updated weights only)
+
+pregenerovat v nove verzi antlr?
+	-> vraceno do stare: 4.7.2
+		- 4.8 neprinasi nic noveho
+
+commitnout jeden KB dataset?
+	-> blbej napad, prilis velke pro git
+
+fail gracefully pokud je v templatu, cestach, nebo groundovani chyba!
+	-> Exceptions se nyni propaguji z uplneho vnitrku az ven! 
+		-> test by mel tedy failnout pokud nastane kdekoliv necekana vyjimka a mel by jit resit/testovat
+
+rozchodit Parsing module
+	-> neni v nem nic potrebneho, vsechno pouzitelne je v LogicParsing...
+	-> antlr lze kompletne resit pomoci IntelliJ pluginu! Neni tedy zjevne nutny zadny Graddle projekt!
+	- testy
+		-> funkcni parsovani templatu v GrammarTests
+
+testy na datasetech by mely vracet accuracy a time a kontrolovat je!
+	-> pridano jako hlavni vystup primo z main!
+
+Debuggery budou vsechny exportovat vystup
+	- zaroven by mela jit deserializace zpet do streamu!
+		-> exportuji vse (JAVA/JSON) a umi nacist objekt nebo list objetku (z toho Stream je trivial)
+
+dekomponovat groundovani a trenovani
+	- aby vraceli prepouzitelny State
+	- pouzit pro testovani a benchmarking jmh with State
+		-> done, cela sada existujicich debuggeru umi (pres end2endtrainingBuilder) vracet ruzne casti behu
+			-> a benchmarky (mutagenesis) nad nimi bezi!!!
+
+rozmistit spravne stare testy do modulu a opravit
+	- vsechny jsou obnovene, jen prozatim vsechny v CLI (kvuli zavislostem)
+
+vycistit git
+
+prevest knihovny na Maven misto local files
+
+logovat casy u vsech benchmarku nekam na centralni misto
+	- nejen casy ale cely log output projistotu
+		- vse bude pak perfektne zpetne dohledatelne
+
+jnuit tests:
+	- zkontrolovat ze mame spravne slozku s resources
+	- zkontrolovat parsovani
+	- use JMH for bechmarking
+
+prejit na Maven strukturu
+	- doopravit testy
+		- rozdelit na fast a slow
+			- tj unit a integration
+			- zvlastni tridy!
+				- + @Category(unit/integration) anotace na urovni trid
+				- + kategorie benchmark (performance) a user (documented example usage) test
+	- resources
+	- build configs
+
+refactoring
+
+	- vydelit neuralization z neural a logical
+	- vyndat pipelines z logical
+	- rozdelit logging a drawing
+	- rozdelit settings a utils
+
+
+nepekne dependencies:
+	- Neuralization na Logic
+		- encapsulovat skrz Logical?
+	- CLI na Pipelines
+		- staci Workflow
+	- 
+
+export memory v ramci timing?
+	- jen v ramci finish()
+
+template casti import
+	- done, v obou variantach z commandline i jako import v template
+
+# run automatically from java
+	- Process p = Runtime.getRuntime().exec(command + param );
+	- done, with hardcoded paths - will be necessary anyway for future fronted interface
+		- i.e. it will be run from python by default, so no point in putting it into jar
+
+training progress:
+#todo add values to metrics (in legend or plot)	- plt. annotate
+	- https://stackoverflow.com/questions/6319155/show-the-final-y-axis-value-of-each-line-with-matplotlib
+
+streamovani json training error z javy do pythonu - vykreslovat
+	- https://stackoverflow.com/questions/5419888/reading-from-a-frequently-updated-file
+	- hotovy prototyp
+
+IntelliJ - set 4gb as default
+	- zkopiruje se z JUNIT templatu pro kazdy test run-confing
+
+joint komprese pri KB modu
+
+accuracy atd. taky do jsonu
+	-> hotovy pekny kompletni json exporting
+
+gnn template - no vectorization
+	-> nalezen rozumne velky kompromis co se trochu komprimuje i uci
+
+iso - ruzna nastaveni digits
+	- pres MDA datasety
+	- export velikosti siti a cas
+	- s puvodnim template!
+
+timers
+	-> trida Timing
+
+exporter tmp veci - napr. iso komprese
+	-> pomoci vlastnich pipe exporteru
+
+neuralogic - spustit original uncompressed, unvectorized templates
+	-> bezi, na dlouho
+
+crossentropy
+	-> done, correct
+
+unified molecular template? 
+	-> done
+
+vybrat jeden vhodny velky dataset, kde je test accuracy vyrazne nad majority
+		-> MDA dataset ma nejelpsi robustni uceni
+
+if no template found -> results into nullpointer exc
+	-> not anymore
+
+export sources nastaveni
+	-> stejne jako Settings
+
+knowledge base otestovat
+	-> bezi, templates s Ondrou
+
+neuronSets lokalne
+	-> uklada se set pouze nove vytvorenych neuronu
+
+export import tridy Settings
+	- pro konecne reseni logovani a parametrizaci experimentu
+
+spustit mutagen
+1) old classic	-	cca 90
+1b) neuralogic	-	cca 92 !
+2) vektorizace	-	cca 89
+3) komprese		-	cca 92
+4) komp+vector	-	cca 90
+-> nova neuralogic verze by mela fungovat perfektne!
+
+python exporter scriptu na RCI cluster - sjednotit!
+	- done
+
+
+spustit vsechny datasety s lossless kompresi a overit ekvivalentni uceni
+	- dulezite - potom budou uz vsechny experimenty s lossless kompressi!!
+	- zmerit pak i vektorizaci
+	- chain pruning
+	-> stare a nove LRNN uz vychazeji velmi podobne (poslano Ondrovi)
+
+
+- njdelsi ulohy
+110372.cerit-pbs.cerit-sc.cz	cerit	1	32gb	23gb	72%	MALME_3M_template_vector_cross__xval5_script.sh	154:58:31	99%	156:42:24	65%	F - dokončena (exit 0)		q_2w@cerit-pbs.cerit-sc.cz	12.1.20	21:39
+110373.cerit-pbs.cerit-sc.cz	cerit	1	32gb	24gb	75%	NCI_H322M_template_vector_cross__xval5_script.sh	174:03:18	99%	175:40:03	73%	F - dokončena (exit 0)		q_2w@cerit-pbs.cerit-sc.cz	12.1.20	21:39
+110375.cerit-pbs.cerit-sc.cz	cerit	1	32gb	25gb	77%	SF_295_template_vector_cross__xval5_script.sh	163:55:02	99%	165:51:07	69%	F - dokončena (exit 0)		q_2w@cerit-pbs.cerit-sc.cz	12.1.20	21:39
+110376.cerit-pbs.cerit-sc.cz	cerit	1	32gb	24gb	76%	NCI_H23_template_vector_cross__xval5_script.sh	163:26:41	98%	166:57:12	70%	F - dokončena (exit 0)		q_2w@cerit-pbs.cerit-sc.cz	12.1.20	21:39
+
+
+1:
++346ms - 20:37:44:356 <networks.structure.transforming.IsoValueNetworkCompressor> (reduce) [INFO] - IsoValue neuron compression from 22796 down to 10 etalons (topologic-reconstruction: 8)
+2:
++260ms - 20:37:06:510 <networks.structure.transforming.IsoValueNetworkCompressor> (reduce) [INFO] - IsoValue neuron compression from 22796 down to 48 etalons (topologic-reconstruction: 27)
+3:
++328ms - 20:33:36:152 <networks.structure.transforming.IsoValueNetworkCompressor> (reduce) [INFO] - IsoValue neuron compression from 22796 down to 201 etalons (topologic-reconstruction: 84)
+4:
++316ms - 20:35:50:219 <networks.structure.transforming.IsoValueNetworkCompressor> (reduce) [INFO] - IsoValue neuron compression from 22796 down to 1139 etalons (topologic-reconstruction: 633)
+5:
++284ms - 20:31:31:360 <networks.structure.transforming.IsoValueNetworkCompressor> (reduce) [INFO] - IsoValue neuron compression from 22796 down to 3152 etalons (topologic-reconstruction: 2926)
+7:
++368ms - 20:34:19:854 <networks.structure.transforming.IsoValueNetworkCompressor> (reduce) [INFO] - IsoValue neuron compression from 22796 down to 3751 etalons (topologic-reconstruction: 3751)
+10:
++293ms - 20:35:02:117 <networks.structure.transforming.IsoValueNetworkCompressor> (reduce) [INFO] - IsoValue neuron compression from 22796 down to 3752 etalons (topologic-reconstruction: 3752)
+
+
+zkusit ForcLift
+	- zkusit rychlost weight learning s redundantnimi pravidly
+	- zkusit detekovat pocet volani gradientu
+	- zkusit jiny gradient algorithm
+- projected gradient descend

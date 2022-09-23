@@ -19,6 +19,7 @@
 
 package cz.cvut.fel.ida.utils.math;
 
+import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.math.collections.MultiMap;
 import cz.cvut.fel.ida.utils.generic.tuples.Pair;
 import cz.cvut.fel.ida.utils.generic.tuples.Tuple;
@@ -33,7 +34,7 @@ import java.util.*;
  */
 public class Sugar {
     
-    private static Random random = new Random();
+    private static Random random = new Random(Settings.seed);
 
     public final static Object NIL = new Object(){
         public String toString(){

@@ -18,6 +18,7 @@
  */
 
 package cz.cvut.fel.ida.utils.math.random;
+import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.math.VectorUtils;
 
 import java.util.Random;
@@ -31,7 +32,7 @@ public class CustomRandomGenerator {
     
     private double[] cummulated;
     
-    private Random random = new Random();
+    private Random random = new Random(Settings.seed);
     
     /**
      * Creates a new instance of class CustomRandomGenerator with the given histogram of frequencies.

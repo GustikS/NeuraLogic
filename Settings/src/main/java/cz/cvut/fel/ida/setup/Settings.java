@@ -90,8 +90,15 @@ public class Settings implements Serializable {
      */
     public static boolean customLogColors = true;
 
+    /**
+     * Path to output log file
+     */
     public static String logFile = "./out/Logging";
 
+    /**
+     * Seed for absolutely everything (turned into static to pass even into distant packages, unfortunately)
+     */
+    public static int seed = 0;
     //------------------Builders
 
     public static Settings forFastTest() {
@@ -102,8 +109,9 @@ public class Settings implements Serializable {
         setting.seed = 0;
         setting.maxCumEpochCount = 2;
         setting.mainMode = MainMode.COMPLETE;
-        setting.neuralNetsPostProcessing = false;
-        setting.chainPruning = true;
+//        setting.neuralNetsPostProcessing = false;
+//        setting.isoValueCompression = false;
+//        setting.chainPruning = false;
         setting.outDir = Settings.logFile;
         return setting;
     }
@@ -113,6 +121,8 @@ public class Settings implements Serializable {
         setting.drawing = false;
         setting.plotProgress = -1;
         setting.appLimitSamples = -1;
+        setting.maxCumEpochCount = 100;
+        setting.resultsRecalculationEpochae = 100;
         setting.seed = 0;
         setting.outDir = Settings.logFile;
         return setting;
@@ -142,8 +152,7 @@ public class Settings implements Serializable {
 
     public String graphvizPath = null;
 
-    public String pythonPath = "/opt/miniconda3/envs/lrnn/bin/python";
-//    public String pythonPath = "python";
+    public String pythonPath = "python";
 
     public String progressPlotterPath = "../Frontend/grid/loading_results.py";
 
@@ -198,9 +207,12 @@ public class Settings implements Serializable {
      * Making this false will prevent from searching for graphviz executable
      */
     public boolean drawing = false;
+    /**
+     * Default debugging (=all) is on - fast switch to debug everything
+     */
+    public boolean debugAll = false;
 
     public boolean debugPipeline = false;
-
     public boolean debugTemplate = false;
     public boolean debugGrounding = false;
     public boolean debugNeuralization = false;
@@ -256,10 +268,7 @@ public class Settings implements Serializable {
     }
 
     //------------------Global structures
-    /**
-     * Seed for absolutely everything
-     */
-    public int seed = 0;
+
     /**
      * Global random generator
      */
@@ -424,10 +433,10 @@ public class Settings implements Serializable {
      */
     public boolean isoValueCompression = true;
     /**
-     * If the isoValueCompression is performed, check whether the merged neurons are truly equivalent.
+     * If the isoValueCompression is performed, check whether the merged neurons are structurally (not just functionally) equivalent.
      * This is mostly for theoretical purposes and not typically needed in practice where we don't care about the true equivalence
      */
-    public boolean losslessIsoCompression = false;
+    public boolean structuralIsoCompression = false;
     /**
      * Top-down value (gradient) based sub-graph isomorphism collapsing (merging)
      */
@@ -981,7 +990,7 @@ public class Settings implements Serializable {
     /**
      * Reduce template graph size (e.g. linear chains)
      */
-    public boolean reduceTemplate = true;
+    public boolean reduceTemplate = false;
     /**
      * If the template contains facts, infer all other possible true facts as a preprocessing step (to save some time inferring the same things over and over later)
      */
@@ -1256,14 +1265,15 @@ public class Settings implements Serializable {
             }
         }
 
-        if (cmd.hasOption("debug")) {
-            String _debug = cmd.getOptionValue("debug");
+        if (cmd.hasOption("debug") || settings.debugAll) {
+            String _debug = cmd.getOptionValue("debug", "all");
             settings.drawing = true;
             settings.mainMode = MainMode.DEBUGGING;
             switch (_debug) {
                 case "all":
                     settings.maxCumEpochCount = 2;
                     settings.resultsRecalculationEpochae = 2;
+                    settings.debugAll = true;
                     settings.intermediateDebug = true;
                     settings.debugPipeline = true;
                     settings.debugTemplate = true;
@@ -1313,7 +1323,7 @@ public class Settings implements Serializable {
 
         if (cmd.hasOption("losslessCompression")) {
             String _losslessCompression = cmd.getOptionValue("losslessCompression");
-            settings.losslessIsoCompression = Integer.parseInt(_losslessCompression) > 0;
+            settings.structuralIsoCompression = Integer.parseInt(_losslessCompression) > 0;
         }
 
         if (cmd.hasOption("chainPruning")) {
@@ -1361,6 +1371,11 @@ public class Settings implements Serializable {
 
         if (isoValueCompression && (atomNeuronTransformation == TransformationFcn.RELU || ruleNeuronTransformation == TransformationFcn.RELU)) {
             message.append("lossless network compression does not work together with ReLu activations functions.\n Either turn off the isovaluecompression or change activation function(s).");
+            valid = false;
+        }
+
+        if (isoValueCompression && (aggNeuronAggregation == CombinationFcn.MAX || atomNeuronCombination == CombinationFcn.MAX|| ruleNeuronCombination == CombinationFcn.MAX)) {
+            message.append("lossless network compression does not work well with MAX aggregation function.\n Either turn off the isovaluecompression or change activation function(s).");
             valid = false;
         }
 
@@ -1416,6 +1431,10 @@ public class Settings implements Serializable {
 
         if (validationResultsType == ResultsType.DETAILEDCLASSIFICATION || validationResultsType == ResultsType.KBC) {
             calculateBestThreshold = true;  //it does not cost more then
+        }
+
+        if (debugAll || debugNeuralization || debugTemplateTraining || debugSampleTraining){
+            inferOutputFcns = false;
         }
 
         if (inferOutputFcns) {

@@ -6,6 +6,7 @@ import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.pipelines.Pipe;
 import cz.cvut.fel.ida.pipelines.Pipeline;
+import cz.cvut.fel.ida.pipelines.debugging.drawing.TemplateDrawer;
 import cz.cvut.fel.ida.pipelines.pipes.generic.FirstFromPairPipe;
 import cz.cvut.fel.ida.pipelines.pipes.generic.StreamifyPipe;
 import cz.cvut.fel.ida.setup.Settings;
@@ -34,6 +35,7 @@ public class TrainingDebugger extends TemplateDebugger {
 
     public TrainingDebugger(Settings settings, Template template) {
         super(settings);
+        drawer = new TemplateDrawer(settings);
         this.templateRedrawCallback = (weightMap -> {
             template.updateWeightsFrom(weightMap);
             drawer.draw(template);

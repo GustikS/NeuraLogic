@@ -17,6 +17,7 @@ import static cz.cvut.fel.ida.utils.generic.Utilities.getDatasetArgs;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@TestAnnotations.Fast
 public class SampleDebuggerTest {
     private static final Logger LOG = Logger.getLogger(SampleDebuggerTest.class.getName());
 

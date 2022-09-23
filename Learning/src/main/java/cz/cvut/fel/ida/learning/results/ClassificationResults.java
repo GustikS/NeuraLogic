@@ -117,7 +117,7 @@ public class ClassificationResults extends RegressionResults {
      */
     private void loadBinaryMetrics(List<Result> evaluations) {
 
-        if (!(evaluations.get(0).getTarget() instanceof ScalarValue)) {
+        if ((evaluations.get(0).getTarget() instanceof VectorValue)) {
             loadMulticlassMetrics(evaluations);
             return;
         }

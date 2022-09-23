@@ -5,7 +5,7 @@ import cz.cvut.fel.ida.drawing.GraphViz;
 import cz.cvut.fel.ida.pipelines.*;
 import cz.cvut.fel.ida.pipelines.pipes.generic.IdentityGenPipe;
 import cz.cvut.fel.ida.setup.Settings;
-import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
+//import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -255,10 +255,11 @@ public class PipelineDrawer<S, T> extends Drawer<Pipeline<S, T>> {
                 } else if (actualTypeArgument instanceof ParameterizedType) {
                     Type[] actualTypeArguments = ((ParameterizedType) actualTypeArgument).getActualTypeArguments();
                     simpleName = Arrays.toString(recurseTypes(actualTypeArguments).toArray());
-                } else if (actualTypeArgument instanceof TypeVariableImpl) {
-                    TypeVariableImpl typeVariable = (TypeVariableImpl) actualTypeArgument;
-                    simpleName = typeVariable.getName();
                 }
+//                else if (actualTypeArgument instanceof TypeVariableImpl) {
+//                    TypeVariableImpl typeVariable = (TypeVariableImpl) actualTypeArgument;
+//                    simpleName = typeVariable.getName();
+//                }
 
 
             } catch (ClassCastException e) {

@@ -17,6 +17,8 @@ public interface LinkedMapping<T> extends Iterable<T> {
 
     void addLink(T input);
 
+    void removeLink(T input);
+
     interface WeightMapping {
 
         void addWeight(Weight weight);

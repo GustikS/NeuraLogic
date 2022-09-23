@@ -357,7 +357,7 @@ public class Literal implements Serializable {
             hash = (int) (varcode * (long) hash);
         }
         hash *= (this.negated ? -1 : 1);
-        return (hashCode = hash);
+        return hash;
     }
 
     /**

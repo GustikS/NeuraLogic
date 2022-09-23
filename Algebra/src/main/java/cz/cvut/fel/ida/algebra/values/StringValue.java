@@ -335,6 +335,11 @@ public class StringValue extends Value {
     }
 
     @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
+
+    @Override
     public boolean equals(Value obj) {
         if (obj instanceof StringValue) {
             if (value.equals(((StringValue) obj).value)) {
