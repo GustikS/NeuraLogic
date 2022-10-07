@@ -785,7 +785,7 @@ public class Settings implements Serializable {
 
     public enum TransformationFcn {
         SIGMOID, TANH, SIGNUM, LUKASIEWICZ, RELU, LEAKYRELU, REVERSE, INVERSE, EXP, LOGARITHM, SQRT,     //ActivationFcn
-        IDENTITY, TRANSP, SOFTMAX, SPARSEMAX, MAX, MIN;    //TransformationFcn
+        IDENTITY, TRANSP, NORM, SOFTMAX, SPARSEMAX, MAX, MIN;    //TransformationFcn
     }
 
     public static CombinationFcn parseCombination(String combination) {
@@ -853,6 +853,10 @@ public class Settings implements Serializable {
                 return TransformationFcn.SPARSEMAX;
             case "transpose":
                 return TransformationFcn.TRANSP;
+            case "norm":
+                return TransformationFcn.NORM;
+            case "layernorm":
+                return TransformationFcn.NORM;
             default:
                 throw new RuntimeException("Unable to parse transformation function from: " + transformation);
         }
