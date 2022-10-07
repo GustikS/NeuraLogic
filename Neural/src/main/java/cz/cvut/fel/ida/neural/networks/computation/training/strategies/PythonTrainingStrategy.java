@@ -45,6 +45,14 @@ public class PythonTrainingStrategy extends TrainingStrategy {
         this.trainer.setEvaluation(evaluation);
     }
 
+    public SequentialTrainer getTrainer() {
+        return this.trainer;
+    }
+
+    public NeuralModel getCurrentModel() {
+        return this.currentModel;
+    }
+
     public void setHooks(Set<String> hooks, PythonHookHandler callback) {
         evaluation.hooks = hooks;
         evaluation.hookHandler = callback;
