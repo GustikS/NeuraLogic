@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * This is both Transformation (joint activation) and Aggregation...
- * todo test softmax as an aggregation fcn
+ * This is both Transformation (joint activation) and Combination...
+ * todo test softmax as an combination fcn
  */
 public class Softmax implements Transformation, Combination, XMax {
     private static final Logger LOG = Logger.getLogger(Softmax.class.getName());

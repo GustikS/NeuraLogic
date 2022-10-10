@@ -35,8 +35,8 @@ public class NeuralProcessingSample extends NeuralSample {
         }
 
         if (settings.inferOutputFcns && settings.trainOnlineResultsType != Settings.ResultsType.REGRESSION) {
-            ActivationFcn.State newFcnState = null;
             State.Neural.Computation computationState = q.neuron.getRawState().getComputationView(-1);
+            ActivationFcn.State newFcnState = computationState.getFcnState();
             if (settings.errorFunction == Settings.ErrorFcn.SOFTENTROPY && !(q.neuron.getTransformation() == null || q.neuron.getTransformation() instanceof Identity)) {
                 newFcnState = computationState.getFcnState().changeTransformationState(Transformation.Singletons.identity);
             } else if (settings.errorFunction == Settings.ErrorFcn.CROSSENTROPY && !(q.neuron.getTransformation() instanceof Softmax || q.neuron.getTransformation() instanceof Sigmoid)) {

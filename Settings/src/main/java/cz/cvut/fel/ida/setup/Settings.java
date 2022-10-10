@@ -780,7 +780,7 @@ public class Settings implements Serializable {
 
     public enum CombinationFcn {
         AVG, MAX, MIN, SUM, COUNT,  //AggregationFcn
-        PRODUCT, ELPRODUCT, CROSSSUM, CONCAT, SOFTMAX, SPARSEMAX, COSSIM    //CombinationFcn
+        PRODUCT, ELPRODUCT, SOFTMAX, SPARSEMAX, CROSSSUM, CONCAT, COSSIM    //CombinationFcn
     }
 
     public enum TransformationFcn {
@@ -806,6 +806,10 @@ public class Settings implements Serializable {
                 return CombinationFcn.PRODUCT;
             case "elproduct":
                 return CombinationFcn.ELPRODUCT;
+            case "softmax":
+                return CombinationFcn.SOFTMAX;
+            case "sparsemax":
+                return CombinationFcn.SPARSEMAX;
             case "crosssum":
                 return CombinationFcn.CROSSSUM;
             case "concat":
