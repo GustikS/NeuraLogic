@@ -39,7 +39,10 @@ public class StateInitializer extends NeuronVisitor.Weighted {
             input = inputs.next();
             Value inputValue = input.getComputationView(stateVisitor.stateIndex).getValue();
             if (inputValue == null) {
-                LOG.severe("Input Value missing for input neuron: " + input.getName() + " of output neuron: " + neuron);
+                LOG.severe("Input Value missing for input neuron: " + input.getName() + " of output neuron: " + neuron +
+                        "The input neuron should have been processed before the output neuron - aren't there cycles in the computation graph?");
+//                throw new Exception("Input Value missing for input neuron: " + input.getName() + " of output neuron: " + neuron +
+//                        ". The input neuron was not processed before the output - aren't there cycles in the computation graph?");
             }
             inputValues.add(inputValue);
         }
@@ -74,7 +77,10 @@ public class StateInitializer extends NeuronVisitor.Weighted {
             }
             Value inputValue = input.getComputationView(stateVisitor.stateIndex).getValue();
             if (inputValue == null) {
-                LOG.severe("Input Value missing for input neuron: " + input.getName() + " of output neuron: " + neuron);
+                LOG.severe("Input Value missing for input neuron: " + input.getName() + " of output neuron: " + neuron +
+                        "The input neuron should have been processed before the output neuron - aren't there cycles in the computation graph?");
+//                throw new Exception("Input Value missing for input neuron: " + input.getName() + " of output neuron: " + neuron +
+//                        ". The input neuron was not processed before the output - aren't there cycles in the computation graph?");
             }
             Value times = weight.value.times(inputValue);
             if (times == null) {
