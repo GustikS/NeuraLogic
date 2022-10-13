@@ -9,12 +9,11 @@ import java.util.logging.Logger;
 public abstract class RestartingStrategy implements Exportable {
     private static final Logger LOG = Logger.getLogger(RestartingStrategy.class.getName());
 
-    public RestartingStrategy(){
-
-    }
-
-    public static RestartingStrategy getFrom(Settings settings) {
-        return new StaticRestartingStrategy(settings.maxCumEpochCount);
+    public static RestartingStrategy getFrom(Settings settings, boolean validationPossible) {
+        if (settings.earlyStopping)
+            return new DynamicRestartingStrategy(settings, validationPossible);
+        else
+            return new StaticRestartingStrategy(settings.maxCumEpochCount);
     }
 
     public abstract boolean continueRestart(Progress progress);

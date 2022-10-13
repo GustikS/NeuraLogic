@@ -79,7 +79,6 @@ public class CommandLineHandler {
         options.addOption(Option.builder("rec").longOpt("recalculationEpocha").argName("INT").numberOfArgs(1).optionalArg(true).desc("recalculate true training and validation error+stats every {INT} epochae (default: " + settings.resultsRecalculationEpochae + ")").build());
         options.addOption(Option.builder("decay").longOpt("learnRateDecay").argName("FLOAT").numberOfArgs(1).optionalArg(true).desc("learning rate decay geometric coefficient {-1,FLOAT} (default: " + settings.learnRateDecay + ")").build());
         options.addOption(Option.builder("decays").longOpt("decaySteps").argName("INT").numberOfArgs(1).optionalArg(true).desc("learning rate decays every {-1,INT} steps (default: " + settings.decaySteps + ")").build());
-        options.addOption(Option.builder("preft").longOpt("preferTraining").argName("INT").numberOfArgs(1).optionalArg(true).desc("turn on to force best training model selection as opposed to (default) selecting best validation error model {0,1} (default: " + (settings.preferBestTrainingNotvalidation ? 1 : 0) + ")").build());
 
         //functions
         options.addOption(Option.builder("atomf").longOpt("atomFunction").argName("ENUM").numberOfArgs(1).optionalArg(true).desc("activation function for atom neurons {sigmoid,tanh,relu,identity,...} (default: " + settings.atomNeuronTransformation.name().toLowerCase() + ")").build());
@@ -157,8 +156,6 @@ public class CommandLineHandler {
 
         options.addOption(new Option("decay", "learnRateDecay", true, "learning rate decay geometric coefficient (-1=off) (" + settings.learnRateDecay + ")"));
         options.addOption(new Option("decays", "decaySteps", true, "learning rate decays every N steps (" + settings.decaySteps + ")"));
-
-        options.addOption(new Option("preft", "preferTraining", true, "turn on to force best training model selection as opposed to (default) selecting best validation error model (" + settings.preferBestTrainingNotvalidation + ")"));
 
         //functions
         options.addOption(new Option("atomagg", "atomCombination", true, "combination function for atom neurons (" + settings.atomNeuronCombination.name().toLowerCase() + ")"));

@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.learning.results;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,7 +14,7 @@ import java.util.List;
  */
 public class Progress implements Exportable<Progress> {
 
-    transient Restart currentRestart;   //transient here since the progress gets exported online during training
+    public transient Restart currentRestart;   //transient here since the progress gets exported online during training
 
     transient public List<Restart> restarts;
 
@@ -65,9 +66,9 @@ public class Progress implements Exportable<Progress> {
     }
 
     public class Restart {
-        public List<Results> onlineTrainingResults = new LinkedList<>();
-        public List<Results> trueTrainingResults = new LinkedList<>();
-        public List<Results> validationResults = new LinkedList<>();
+        public List<Results> onlineTrainingResults = new ArrayList<>();
+        public List<Results> trueTrainingResults = new ArrayList<>();
+        public List<Results> validationResults = new ArrayList<>();
     }
 
     public static class TrainVal implements Exportable<TrainVal> {
@@ -85,8 +86,8 @@ public class Progress implements Exportable<Progress> {
          * @param other
          * @return
          */
-        public boolean betterThan(TrainVal other, boolean preferBestTrainingNotvalidation, Settings.ModelSelection criterion) {
-            if (other.validation.evaluations != null && !other.validation.evaluations.isEmpty() && !preferBestTrainingNotvalidation) {
+        public boolean betterThan(TrainVal other, Settings.DataSelection dataSelection, Settings.ModelSelection criterion) {
+            if (dataSelection == Settings.DataSelection.VALIDATION && other.validation.evaluations != null && !other.validation.evaluations.isEmpty()) {
                 return validation.betterThan(other.validation, criterion);
             } else {
                 return training.betterThan(other.training, criterion);
