@@ -95,6 +95,12 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
             //todo - remove maps by recursive copying (here?)
         }
 
+        if (settings.cycleBreaking) {
+            Pipe<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> pipe = pipeline.registerEnd(new CycleBreakingPipe(settings));
+            nextPipe.connectAfter(pipe);
+            nextPipe = pipe;
+        }
+
         if (settings.chainPruning) {
             Pipe<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> pruningPipe = pipeline.registerEnd(new PruningPipe(settings));
             nextPipe.connectAfter(pruningPipe);
@@ -113,12 +119,6 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
             EdgeMergerPipe edgeMergerPipe = pipeline.registerEnd(new EdgeMergerPipe(settings));
             nextPipe.connectAfter(edgeMergerPipe);
             nextPipe = edgeMergerPipe;
-        }
-
-        if (settings.cycleBreaking) {
-            Pipe<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> pipe = pipeline.registerEnd(new CycleBreakingPipe(settings));
-            nextPipe.connectAfter(pipe);
-            nextPipe = pipe;
         }
 
         if (settings.collapseWeights) {

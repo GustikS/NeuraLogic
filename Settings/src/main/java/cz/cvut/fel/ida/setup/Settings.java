@@ -574,15 +574,26 @@ public class Settings implements Serializable {
      * A single-pass weight training via streaming. This can save memory, but cannot re-iterate the data (i.e. learn in epochs)
      */
     public boolean neuralStreaming;
+
     /**
-     * Restarting the whole training?
+     * Restarting the whole training? Good e.g. in combination with earlyStopping
      */
-    public int restartCount = 1;
+    public int restartCount = 5;
+
+    /**
+     * Applies a DynamicRestartingStrategy with adaptive early stopping, or simple fixed maxCumEpochCount if off
+     */
+    public boolean earlyStopping = false;
 
     /**
      * Over all the restarts, how many epoch can be done at maximum.
      */
     public int maxCumEpochCount = 3000;
+
+    /**
+     * Number of epochae to take into account when calculating moving averages for loss decay detection
+     */
+    public int earlyStoppingPatience = 100;
 
     /**
      * Shuffle samples before neural training (only turn off for debugging purposes)
@@ -601,7 +612,7 @@ public class Settings implements Serializable {
     public boolean islearnRateDecay = false;    //todo next
 
     /**
-     * Apply the setup decay ever N steps
+     * Apply the learning rate decay ever N steps
      */
     public int decaySteps = 100;
 
@@ -780,12 +791,12 @@ public class Settings implements Serializable {
 
     public enum CombinationFcn {
         AVG, MAX, MIN, SUM, COUNT,  //AggregationFcn
-        PRODUCT, ELPRODUCT, CROSSSUM, CONCAT, SOFTMAX, SPARSEMAX, COSSIM    //CombinationFcn
+        PRODUCT, ELPRODUCT, SOFTMAX, SPARSEMAX, CROSSSUM, CONCAT, COSSIM    //CombinationFcn
     }
 
     public enum TransformationFcn {
         SIGMOID, TANH, SIGNUM, LUKASIEWICZ, RELU, LEAKYRELU, REVERSE, INVERSE, EXP, LOGARITHM, SQRT,     //ActivationFcn
-        IDENTITY, TRANSP, SOFTMAX, SPARSEMAX, MAX, MIN;    //TransformationFcn
+        IDENTITY, TRANSP, NORM, SOFTMAX, SPARSEMAX, MAX, MIN;    //TransformationFcn
     }
 
     public static CombinationFcn parseCombination(String combination) {
@@ -806,6 +817,10 @@ public class Settings implements Serializable {
                 return CombinationFcn.PRODUCT;
             case "elproduct":
                 return CombinationFcn.ELPRODUCT;
+            case "softmax":
+                return CombinationFcn.SOFTMAX;
+            case "sparsemax":
+                return CombinationFcn.SPARSEMAX;
             case "crosssum":
                 return CombinationFcn.CROSSSUM;
             case "concat":
@@ -853,6 +868,10 @@ public class Settings implements Serializable {
                 return TransformationFcn.SPARSEMAX;
             case "transpose":
                 return TransformationFcn.TRANSP;
+            case "norm":
+                return TransformationFcn.NORM;
+            case "layernorm":
+                return TransformationFcn.NORM;
             default:
                 throw new RuntimeException("Unable to parse transformation function from: " + transformation);
         }
@@ -879,16 +898,23 @@ public class Settings implements Serializable {
      */
     public boolean undoWeightTrainingChanges = false;
 
-    /**
-     * When measuring both training and validation error, choose the model with the best TRAINING error (off = default = choose the best VALIDATION error)
-     */
-    public boolean preferBestTrainingNotvalidation = false;
-
     public enum ModelSelection {
         ERROR, ACCURACY, DISPERSION, AUCroc, AUCpr
     }
 
+    /**
+     * Select the best model (from training) based on which metric?
+     */
     public ModelSelection modelSelection = ModelSelection.ERROR;
+
+    public enum DataSelection {
+        ONLINETRAIN, TRUETRAIN, VALIDATION
+    }
+
+    /**
+     * Evaluate the best model (e.g. for early stopping) preferably based on what evaluations?
+     */
+    public DataSelection dataSelection = DataSelection.VALIDATION;
 
     public boolean exportTrainedModel = true;
 
@@ -1337,11 +1363,6 @@ public class Settings implements Serializable {
             }
         }
 
-        if (cmd.hasOption("preferTraining")) {
-            String _sel = cmd.getOptionValue("preferTraining");
-            settings.preferBestTrainingNotvalidation = Double.parseDouble(_sel) > 0;
-        }
-
         //todo fill all the most useful settings
         return settings;
     }
@@ -1374,7 +1395,7 @@ public class Settings implements Serializable {
             valid = false;
         }
 
-        if (isoValueCompression && (aggNeuronAggregation == CombinationFcn.MAX || atomNeuronCombination == CombinationFcn.MAX|| ruleNeuronCombination == CombinationFcn.MAX)) {
+        if (isoValueCompression && (aggNeuronAggregation == CombinationFcn.MAX || atomNeuronCombination == CombinationFcn.MAX || ruleNeuronCombination == CombinationFcn.MAX)) {
             message.append("lossless network compression does not work well with MAX aggregation function.\n Either turn off the isovaluecompression or change activation function(s).");
             valid = false;
         }
@@ -1433,7 +1454,7 @@ public class Settings implements Serializable {
             calculateBestThreshold = true;  //it does not cost more then
         }
 
-        if (debugAll || debugNeuralization || debugTemplateTraining || debugSampleTraining){
+        if (debugAll || debugNeuralization || debugTemplateTraining || debugSampleTraining) {
             inferOutputFcns = false;
         }
 

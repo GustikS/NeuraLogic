@@ -51,7 +51,7 @@ public class LinearChainReducer implements NetworkReducing {
                 prunings++;
             }
         }
-        List<BaseNeuron<Neurons, State.Neural>> collect = outputs.stream().map(s -> (BaseNeuron<Neurons, State.Neural>) s.neuron).collect(Collectors.toList());
+        List<Neurons> collect = outputs.stream().map(s -> s.neuron).collect(Collectors.toList());
         NetworkReducing.supervisedNetReconstruction(inet, collect);    //lastly remove all the dead (pruned) neurons by building a new topologic sort starting from output neuron
         int sizeAfter = inet.allNeuronsTopologic.size();
 //        LOG.info(inet.toString());

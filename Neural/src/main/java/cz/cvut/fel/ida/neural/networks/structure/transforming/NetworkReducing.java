@@ -37,22 +37,10 @@ public interface NetworkReducing extends Exportable {
     /**
      * Rebuild the allNeuronsTopologic array
      * @param inet
-     * @param outputStart
+     * @param allQueryNeurons
      */
-    static void supervisedNetReconstruction(DetailedNetwork<State.Neural.Structure> inet, BaseNeuron<Neurons, State.Neural> outputStart){
-        Set<Neurons> visited = new HashSet<>();
-        LinkedList<BaseNeuron<Neurons, State.Neural>> stack = new LinkedList<>();
-        BaseNeuron<Neurons, State.Neural> outputStart1 = outputStart;
-        inet.topoSortRecursive(outputStart1, visited, stack);
-
-        List<BaseNeuron<Neurons, State.Neural>> reverse = new ArrayList<>(stack.size());
-        Iterator<BaseNeuron<Neurons, State.Neural>> descendingIterator = stack.descendingIterator();
-        descendingIterator.forEachRemaining(reverse::add);
-        inet.allNeuronsTopologic = reverse;
-    }
-
-    static void supervisedNetReconstruction(DetailedNetwork<State.Neural.Structure> inet, List<BaseNeuron<Neurons, State.Neural>> allQueryNeurons){
-        inet.allNeuronsTopologic = inet.topologicSort(allQueryNeurons);
+    static void supervisedNetReconstruction(DetailedNetwork<State.Neural.Structure> inet, List<Neurons> allQueryNeurons){
+        inet.allNeuronsTopologic = inet.new TopoSorting().topologicSort(allQueryNeurons);
     }
 
     void finish();

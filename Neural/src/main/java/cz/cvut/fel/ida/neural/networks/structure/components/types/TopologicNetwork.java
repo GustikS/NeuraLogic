@@ -1,10 +1,13 @@
 package cz.cvut.fel.ida.neural.networks.structure.components.types;
 
+import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.neural.networks.structure.components.NeuralNetwork;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.BaseNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.WeightedNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.AtomNeurons;
+import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -23,14 +26,15 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
 
     public TopologicNetwork(String id, List<BaseNeuron<Neurons, State.Neural>> allNeurons) {
         super(id, allNeurons.size());
-        allNeuronsTopologic = topologicSort(allNeurons);
+        allNeuronsTopologic = new TopoSorting().topologicSort(allNeurons);
 
         if (allNeuronsTopologic.size() != allNeurons.size()) {
             LOG.warning("Some neurons connected in the network are not in neuronmaps!");
         }
 
-        if (LOG.isLoggable(Level.FINEST))
+        if (LOG.isLoggable(Level.FINEST)) {
             LOG.finest(allNeuronsTopologic.toString());
+        }
     }
 
     public TopologicNetwork(String id, int size) {
@@ -45,19 +49,7 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
 
     public TopologicNetwork(List<AtomNeurons> queryNeurons, String id) {
         super(id, -1);
-        Set<Neurons> visited = new HashSet<>();
-        LinkedList<BaseNeuron<Neurons, State.Neural>> stack = new LinkedList<>();
-        for (AtomNeurons queryNeuron : queryNeurons) {
-            if (visited.contains(queryNeuron)){
-                continue;
-            }
-            BaseNeuron<Neurons, State.Neural> outputStart1 = (BaseNeuron<Neurons, State.Neural>) queryNeuron;
-            topoSortRecursive(outputStart1, visited, stack);
-        }
-        List<BaseNeuron<Neurons, State.Neural>> reverse = new ArrayList<>(stack.size());
-        Iterator<BaseNeuron<Neurons, State.Neural>> descendingIterator = stack.descendingIterator();
-        descendingIterator.forEachRemaining(reverse::add);
-        this.allNeuronsTopologic = reverse;
+        this.allNeuronsTopologic = new TopoSorting().topologicSort(queryNeurons);
         this.neuronCount = allNeuronsTopologic.size();
     }
 
@@ -73,7 +65,7 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
         int prev = -1;
         for (int i = 0; i < allNeuronsTopologic.size(); i++) {
             allNeuronsTopologic.get(i).index = indices[i];
-            if (indices[i] == prev){
+            if (indices[i] == prev) {
                 LOG.severe("Duplicit neuron indices detected!!");
             }
             prev = indices[i];
@@ -108,49 +100,81 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
         return null;
     }
 
-    /**
-     * Sort all the neuron for topologic ordering, irrespective of what is the output.
-     * <p>
-     * This is different to using existing DFS iterators in bottom-up mode, which also return topologically ordered neurons, since we are not given a QueryNeuron to start with.
-     * - hence we need the hashset for checking whether we have already visited each neuron.
-     * - this could be possibly emulated through a stateVisitor marking the states of neurons as visited
-     * - but that would force some manipulation with the actual states of neurons, which is not desirable here
-     * - we would have to undo that in another pass, making it possibly even more computationally demanding
-     *
-     * @param allNeurons
-     * @return
-     */
-    public List<BaseNeuron<Neurons, State.Neural>> topologicSort(List<BaseNeuron<Neurons, State.Neural>> allNeurons) {
-        Set<Neurons> visited = new HashSet<>();
-        LinkedList<BaseNeuron<Neurons, State.Neural>> stack = new LinkedList<>();
-
-        for (BaseNeuron<Neurons, State.Neural> neuron : allNeurons) {
-            if (!visited.contains(neuron))
-                topoSortRecursive(neuron, visited, stack);
-        }
-        //Collections.reverse(stack);
-        List<BaseNeuron<Neurons, State.Neural>> reverse = new ArrayList<>(stack.size());
-        Iterator<BaseNeuron<Neurons, State.Neural>> descendingIterator = stack.descendingIterator();
-        while (descendingIterator.hasNext()) {
-            reverse.add(descendingIterator.next());
-        }
-        return reverse;
-    }
-
-    public void topoSortRecursive(BaseNeuron<Neurons, State.Neural> neuron, Set<Neurons> visited, LinkedList<BaseNeuron<Neurons, State.Neural>> stack) {
-        visited.add(neuron);
-
-        Iterator<Neurons> inputs = getInputs(neuron);
-        while (inputs.hasNext()) {
-            Neurons next = inputs.next();
-            if (!visited.contains(next)) {
-                topoSortRecursive((BaseNeuron<Neurons, State.Neural>) next, visited, stack);
-            }
-        }
-        stack.addFirst(neuron);
-    }
     @Override
     public String toString() {
         return "net:" + id + ", neurons: " + allNeuronsTopologic.size();
+    }
+
+    /**
+     * A stateful object for sorting all the neurons for topologic ordering, given some starting (query) nodes, but these can possibly be even the full set of all nodes
+     * <p>
+     * Note that this is a bit different to using existing DFS iterators in bottom-up mode, which also return topologically ordered neurons, since we are not given a single QueryNeuron to start with.
+     * - hence we need a hashset for checking whether we have already visited each neuron.
+     *  - this hashset is replaced now with marking the neurons as OPEN/CLOSED respectively
+     *
+     */
+    public class TopoSorting {
+
+        LinkedList<Neurons> topoList = new LinkedList<>();
+
+        static final int OPEN = 1;
+        static final int CLOSED = -1;
+        static final int DEFAULT = 0;
+
+        public List<BaseNeuron<Neurons, State.Neural>> topologicSort(List<? extends Neurons> startNeurons) {
+
+            for (Neurons neuron : startNeurons) {
+                if (neuron.getLayer() == DEFAULT) {  // it should never be OPEN here...
+                    topoSortRecursive(neuron);
+                }
+            }
+
+            //Collections.reverse(stack);
+            List<BaseNeuron<Neurons, State.Neural>> reverse = new ArrayList<>(topoList.size());
+            Iterator<Neurons> descendingIterator = topoList.descendingIterator();
+            while (descendingIterator.hasNext()) {
+                BaseNeuron<Neurons, State.Neural> next = (BaseNeuron<Neurons, State.Neural>) descendingIterator.next();
+                next.setLayer(DEFAULT);
+                reverse.add(next);
+            }
+            return reverse;
+        }
+
+        private void topoSortRecursive(Neurons neuron) {
+            neuron.setLayer(OPEN);
+
+            Iterator<Neurons> inputs = getInputs(neuron);
+            while (inputs.hasNext()) {
+                Neurons input = inputs.next();
+                if (input.getLayer() != OPEN) {
+                    if (input.getLayer() != CLOSED) {
+                        topoSortRecursive(input);
+                    }
+                } else {
+                    removeBackEdge(neuron, inputs, input);  // recursive edge!
+                    LOG.warning("Cycle detected in ground neural network. A backEdge: " + neuron + " --> " + input + " has been removed!");
+                }
+            }
+
+            neuron.setLayer(CLOSED);
+            topoList.addFirst(neuron);
+        }
+
+        private void removeBackEdge(Neurons neuron, Iterator<Neurons> inputs, Neurons input) {
+            if (neuron instanceof WeightedNeuron){
+                Pair<Iterator<Neurons>, Iterator<Weight>> weightedInputs = getInputs((WeightedNeuron<Neurons, State.Neural>) neuron);
+                Iterator<Neurons> inputNeurons = weightedInputs.r;
+                Iterator<Weight> inputWeights = weightedInputs.s;
+                while (inputNeurons.hasNext()){
+                    inputWeights.next();
+                    if (inputNeurons.next() == input){
+                        inputNeurons.remove();
+                        inputWeights.remove();
+                    }
+                }
+            } else {
+                inputs.remove();
+            }
+        }
     }
 }

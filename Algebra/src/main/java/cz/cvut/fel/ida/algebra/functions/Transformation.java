@@ -4,6 +4,7 @@ import cz.cvut.fel.ida.algebra.functions.combination.Softmax;
 import cz.cvut.fel.ida.algebra.functions.combination.Sparsemax;
 import cz.cvut.fel.ida.algebra.functions.transformation.joint.ConstantOne;
 import cz.cvut.fel.ida.algebra.functions.transformation.joint.Identity;
+import cz.cvut.fel.ida.algebra.functions.transformation.joint.Normalization;
 import cz.cvut.fel.ida.algebra.functions.transformation.joint.Transposition;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
@@ -48,6 +49,8 @@ public interface Transformation extends ActivationFcn, Exportable {
                 return Singletons.identity;
             case TRANSP:
                 return Singletons.transposition;
+            case NORM:
+                return Singletons.normalization;
             case SOFTMAX:
                 return Singletons.softmax;
             case SPARSEMAX:
@@ -61,10 +64,12 @@ public interface Transformation extends ActivationFcn, Exportable {
     public static class Singletons {
         public static Softmax softmax = new Softmax();
         public static Sparsemax sparsemax = new Sparsemax();
+        public static Normalization normalization;
 
         public static Transposition transposition = new Transposition();
         public static Identity identity = new Identity();
         public static ConstantOne constantOne = new ConstantOne();
+
     }
 
 
