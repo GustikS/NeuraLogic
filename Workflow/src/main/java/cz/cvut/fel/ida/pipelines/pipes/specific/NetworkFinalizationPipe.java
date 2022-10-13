@@ -11,6 +11,7 @@ import cz.cvut.fel.ida.neural.networks.structure.transforming.ParentsExtractor;
 import cz.cvut.fel.ida.pipelines.Pipe;
 import cz.cvut.fel.ida.setup.Settings;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -32,7 +33,7 @@ public class NetworkFinalizationPipe extends Pipe<Stream<NeuralProcessingSample>
         if (settings.groundingMode == Settings.GroundingMode.GLOBAL && settings.iterationMode == Settings.IterationMode.TOPOLOGIC) {
             neuralProcessingSampleStream = neuralProcessingSampleStream.map(sample -> {
                 DetailedNetwork emptyCopy = sample.detailedNetwork.emptyCopy(sample.getId());
-                NetworkReducing.supervisedNetReconstruction(emptyCopy, (BaseNeuron<Neurons, State.Neural>) sample.query.neuron);
+                NetworkReducing.supervisedNetReconstruction(emptyCopy, Collections.singletonList(sample.query.neuron));
                 sample.detailedNetwork = emptyCopy;
                 sample.query.evidence = emptyCopy;
                 return sample;

@@ -32,7 +32,7 @@ public class Debug {
 //        settings.isoValueCompression = true;
         settings.structuralIsoCompression = true;
         settings.initLearningRate = 0.01;
-        settings.debugAll = true;
+//        settings.debugAll = true;
         Main.main(getDatasetArgs(dataset,"-t ./template.txt"), settings);
     }
 

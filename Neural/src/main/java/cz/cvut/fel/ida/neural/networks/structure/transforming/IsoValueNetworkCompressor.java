@@ -88,10 +88,10 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
 
         //lastly remove all the dead (pruned) neurons by building a new topologic sort starting from output neuron
         if (outputs.size() > 1) {
-            List<BaseNeuron<Neurons, State.Neural>> collect = outputs.stream().map(s -> (BaseNeuron<Neurons, State.Neural>) s.neuron).collect(Collectors.toList());
+            List<Neurons> collect = outputs.stream().map(s -> s.neuron).collect(Collectors.toList());
             NetworkReducing.supervisedNetReconstruction(inet, collect);
         } else {
-            NetworkReducing.supervisedNetReconstruction(inet, (BaseNeuron) outputs.get(0).neuron);
+            NetworkReducing.supervisedNetReconstruction(inet, Collections.singletonList(outputs.get(0).neuron));
         }
 
         this.allNeuronCount += sizeBefore;

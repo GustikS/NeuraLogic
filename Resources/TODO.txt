@@ -19,7 +19,26 @@ GPU support - https://www.infoq.com/articles/tornadovm-java-gpu-fpga/?itm_source
 	- pak uz jen DOTTreeDrawer a dalsi drobne...
 
 
+poradnou dokumentaci + dalsi release
+
+-------- mensi
+
+pri pouziti validation loss toto pouzit jako stopovaci kriterium - kdyz zacne rust
+
+
 ----------------------------------------------- vzdalenejsi TODO ------------------------------------------
+
+vymyslet interakci logickych konstant unvitr predikatu a values ve vahach!!
+
+
+otestovat crossvalidaci
+	- parallelizace, synchronizace
+	- + vysledky s nejakou minulou verzi!
+
+
+structure learning
+
+-------- udelat v ramci ChemGNN projektu:--------
 
 projet NCI datasety na nejvetsi rozdil v performance mezi stupidni baseline a sofistikovanejsim modelem
 
@@ -29,31 +48,11 @@ zkusit porazit stare LRNN - vzit MDA dataset (dobre se uci)
 		- aktivacni funkce, inicializace
 		- ADAM lr, training steps
 
-
 vybirat z gridu jen parametry urcite hodnoty (filter na experiment set)
 
 legenda NAPRAVO
 
 pridat validationPErc jako parametr
-
-pri pouziti validation loss toto pouzit jako stopovaci kriterium - kdyz zacne rust
-
-otestovat crossvalidaci
-	- parallelizace, synchronizace
-	- + vysledky s nejakou minulou verzi!
-
-
-layer normalization?
-	- pak taky batch normalization az budou minibatches?
-
-
-identicka pravidla s ruznou vahou v template - vyhodti jako chybu!
-
-
-vymyslet interakci logickych konstant unvitr predikatu a values ve vahach!!
-
-
-poradnou dokumentaci + dalsi release
 
 
 ----------castecne preskocene
@@ -84,6 +83,12 @@ https://github.com/bytedeco/javacpp-presets/tree/master/tensorflow
 
 ------------------------------------------------------------------------------------------------------- DONE---------------------------------------------------------------------------------------------
 
+layer normalization?
+	- pak taky batch normalization az budou minibatches?
+		-> spis ne, bath normalization je divnost...
+
+identicka pravidla s ruznou vahou v template - vyhodti jako chybu!
+	-> funguje + severe warning
 
 spustit kompresi pres cely NCI-GI
 	- zjistit proc se nekdy lisi pocty (warning hlaska)
