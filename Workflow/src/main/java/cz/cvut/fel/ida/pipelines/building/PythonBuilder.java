@@ -21,6 +21,8 @@ import cz.cvut.fel.ida.setup.Sources;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.IntConsumer;
 import java.util.stream.Stream;
 
 
@@ -59,7 +61,11 @@ public class PythonBuilder extends AbstractPipelineBuilder<Sources, Pair<NeuralM
         return templateSamplesBuilder.getSourcesTemplatePipeline(sources, settings).execute(sources).s;
     }
 
-    public Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> buildPipeline(Template template, Stream<LogicSample> logicSamples) {
+    public Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> buildPipeline(
+            Template template,
+            Stream<LogicSample> logicSamples,
+            IntConsumer progressCallback
+    ) {
         Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> pipeline = new Pipeline<>("PythonNNbuilding", this);
 
         //simple pipes
@@ -79,7 +85,7 @@ public class PythonBuilder extends AbstractPipelineBuilder<Sources, Pair<NeuralM
         templateSamplesBranch.connectAfterL(groundingPipeline).connectAfter(neuralizationPipeline);
         templateSamplesBranch.connectAfterR(templateDuplicateBranch);
 
-        PairMerge<NeuralModel, Stream<NeuralSample>> neuralMerge = pipeline.registerEnd(new PairMerge<>());
+        PairMerge<NeuralModel, Stream<NeuralSample>> neuralMerge = attachProgressCallback(progressCallback, pipeline);
 
         //prepare for training
         Pipe<Template, NeuralModel> template2NeuralModelPipe = pipeline.register(convertModel());
@@ -91,7 +97,11 @@ public class PythonBuilder extends AbstractPipelineBuilder<Sources, Pair<NeuralM
         return pipeline;
     }
 
-    public Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> buildPipeline(Template template, Sources sources) {
+    public Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> buildPipeline(
+            Template template,
+            Sources sources,
+            IntConsumer progressCallback
+    ) {
         Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> pipeline = new Pipeline<>("PythonNNbuilding", this);
 
         //simple pipes
@@ -108,7 +118,7 @@ public class PythonBuilder extends AbstractPipelineBuilder<Sources, Pair<NeuralM
         templateSamplesBranch.connectAfterL(groundingPipeline).connectAfter(neuralizationPipeline);
         templateSamplesBranch.connectAfterR(templateDuplicateBranch);
 
-        PairMerge<NeuralModel, Stream<NeuralSample>> neuralMerge = pipeline.registerEnd(new PairMerge<>());
+        PairMerge<NeuralModel, Stream<NeuralSample>> neuralMerge = attachProgressCallback(progressCallback, pipeline);
 
         //prepare for training
         Pipe<Template, NeuralModel> template2NeuralModelPipe = pipeline.register(convertModel());
@@ -118,6 +128,31 @@ public class PythonBuilder extends AbstractPipelineBuilder<Sources, Pair<NeuralM
         neuralMerge.connectBeforeR(neuralizationPipeline);
 
         return pipeline;
+    }
+
+    private PairMerge<NeuralModel, Stream<NeuralSample>> attachProgressCallback(
+            IntConsumer callback,
+            Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> pipeline
+    ) {
+        PairMerge<NeuralModel, Stream<NeuralSample>> neuralMerge;
+
+        if (callback == null) {
+            return pipeline.registerEnd(new PairMerge<>());
+        }
+
+        AtomicInteger counter = new AtomicInteger();
+        neuralMerge = pipeline.register(new PairMerge<>());
+
+        LambdaPipe<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Stream<NeuralSample>>> progressCallbackPipe = pipeline.registerEnd(
+                new LambdaPipe<>("ProgressCallbackPipe", pair -> {
+                    Stream<NeuralSample> stream = pair.s.peek(sample -> callback.accept(counter.incrementAndGet()));
+
+                    return new Pair<>(pair.r, stream);
+                }, settings)
+        );
+
+        neuralMerge.connectAfter(progressCallbackPipe);
+        return neuralMerge;
     }
 
     @Override
