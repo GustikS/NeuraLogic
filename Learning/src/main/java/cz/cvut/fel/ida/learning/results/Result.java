@@ -33,9 +33,6 @@ public class Result implements Comparable<Result> {
         this.position = position;
         this.setTarget(target);
         this.setOutput(output);
-        if (!target.getClass().equals(output.getClass())) {
-            throw new ArithmeticException("Output and Target Value dimensions do not match!");
-        }
     }
 
     public Value errorValue() {

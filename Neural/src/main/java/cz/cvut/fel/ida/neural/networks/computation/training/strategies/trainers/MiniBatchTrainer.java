@@ -31,14 +31,32 @@ public class MiniBatchTrainer extends Trainer {
      */
     List<SequentialTrainer> trainers;
 
+    NeuralModel neuralModel;
+
     private MiniBatchTrainer() {
     }
 
     public MiniBatchTrainer(Settings settings, Optimizer optimizer, NeuralModel neuralModel, int minibatchSize) {
         super(settings, optimizer);
         this.minibatchSize = minibatchSize;
+        this.neuralModel = neuralModel;
+
         trainers = new ArrayList<>(minibatchSize);
+
         for (int i = 0; i < minibatchSize; i++) {
+            trainers.add(new SequentialTrainer(settings, optimizer, neuralModel, i));
+        }
+    }
+
+    public void setMinibatchSize(int minibatchSize) {
+        this.minibatchSize = minibatchSize;
+
+        final int size = trainers.size();
+        if (size >= minibatchSize) {
+            return;
+        }
+
+        for (int i = size; i < minibatchSize; i++) {
             trainers.add(new SequentialTrainer(settings, optimizer, neuralModel, i));
         }
     }
@@ -51,7 +69,7 @@ public class MiniBatchTrainer extends Trainer {
         @Override
         public List<Result> learnEpoch(NeuralModel neuralModel, List<NeuralSample> sampleList) {
             List<Result> resultList = new ArrayList<>(sampleList.size());
-            MiniBatchIterator miniBatchIterator = new MiniBatchIterator(settings, sampleList);
+            MiniBatchIterator miniBatchIterator = new MiniBatchIterator(sampleList);
             while (miniBatchIterator.hasNext()) {
                 List<NeuralSample> minibatch = miniBatchIterator.next();
                 List<Result> results = minibatchParallelLearn(neuralModel, minibatch);
@@ -63,7 +81,7 @@ public class MiniBatchTrainer extends Trainer {
         @Override
         public List<Result> evaluate(List<NeuralSample> trainingSet) {
             List<Result> resultList = new ArrayList<>(trainingSet.size());
-            MiniBatchIterator miniBatchIterator = new MiniBatchIterator(settings, trainingSet);
+            MiniBatchIterator miniBatchIterator = new MiniBatchIterator(trainingSet);
             while (miniBatchIterator.hasNext()) {
                 List<NeuralSample> minibatch = miniBatchIterator.next();
                 List<Result> results = minibatchParallelEvaluate(minibatch);
@@ -121,28 +139,28 @@ public class MiniBatchTrainer extends Trainer {
      * @return
      */
     private List<Result> minibatchParallelLearn(final NeuralModel neuralModel, List<NeuralSample> sampleList) {
-        List<Result> results = new ArrayList<>(sampleList.size());
-        if (sampleList.size() > minibatchSize) {
+        final int size = sampleList.size();
+
+        if (size > minibatchSize) {
             LOG.severe("Minibatch size mismatch");
         }
-        List<Result> resultList = IntStream.range(0, minibatchSize).parallel().mapToObj(i -> new Task(trainers.get(i), sampleList.get(i))).map(task -> task.runLearning(neuralModel)).collect(Collectors.toList());
-        return resultList;
+        return IntStream.range(0, size).parallel().mapToObj(i -> new Task(trainers.get(i), sampleList.get(i))).map(task -> task.runLearning(neuralModel)).collect(Collectors.toList());
     }
 
     private List<Result> minibatchParallelEvaluate(List<NeuralSample> minibatch) {
-        List<Result> results = new ArrayList<>(minibatch.size());
-        if (minibatch.size() > minibatchSize) {
+        final int size = minibatch.size();
+
+        if (size > minibatchSize) {
             LOG.severe("Minibatch size mismatch");
         }
-        List<Result> resultList = IntStream.range(0, minibatchSize).parallel().mapToObj(i -> new Task(trainers.get(i), minibatch.get(i))).map(task -> task.runEvaluation()).collect(Collectors.toList());
-        return resultList;
+        return IntStream.range(0, size).parallel().mapToObj(i -> new Task(trainers.get(i), minibatch.get(i))).map(Task::runEvaluation).collect(Collectors.toList());
     }
 
 
     /**
      * Single sample training task object encompassing the necessary resources. Used for parallel execution.
      */
-    private class Task {
+    private static class Task {
         SequentialTrainer trainer;
         NeuralSample sample;
 
@@ -152,12 +170,12 @@ public class MiniBatchTrainer extends Trainer {
         }
 
         public Result runLearning(NeuralModel neuralModel) {
-            return learnFromSample(neuralModel, sample, trainer.dropout, trainer.invalidation, trainer.evaluation, trainer.backpropagation);
+            return trainer.learnFromSample(neuralModel, sample, trainer.dropout, trainer.invalidation, trainer.evaluation, trainer.backpropagation);
         }
 
         public Result runEvaluation() {
-            invalidateSample(trainer.invalidation, sample);
-            return evaluateSample(trainer.evaluation, sample);
+            trainer.invalidateSample(trainer.invalidation, sample);
+            return trainer.evaluateSample(trainer.evaluation, sample);
         }
     }
 
@@ -167,10 +185,8 @@ public class MiniBatchTrainer extends Trainer {
     public class MiniBatchIterator implements Iterator<List<NeuralSample>> {
         List<NeuralSample> sampleList;
         int i = 0;
-        int minibatchSize;
 
-        public MiniBatchIterator(Settings settings, List<NeuralSample> sampleList) {
-            this.minibatchSize = settings.minibatchSize;
+        public MiniBatchIterator(List<NeuralSample> sampleList) {
             this.sampleList = sampleList;
         }
 
