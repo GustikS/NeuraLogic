@@ -768,15 +768,11 @@ public class MatrixValue extends Value {
 
     @Override
     protected boolean greaterThan(ScalarValue maxValue) {
-        int greater = 0;
-
+        double sum = 0;
         for (int i = 0; i < values.length; i++) {
-            if (values[i] < maxValue.value) {
-                greater++;
-            }
+            sum += values[i];
         }
-
-        return greater > cols * rows / 2;
+        return maxValue.value > sum;
     }
 
     @Override
@@ -792,16 +788,13 @@ public class MatrixValue extends Value {
             LOG.severe(err);
             throw new ArithmeticException(err);
         }
-
-        int greater = 0;
-
+        double thisSum = 0;
+        double otherSum = 0;
         for (int i = 0; i < values.length; i++) {
-            if (values[i] < maxValue.values[i]) {
-                greater++;
-            }
+            thisSum += values[i];
+            otherSum += maxValue.values[i];
         }
-
-        return greater > cols * rows / 2;
+        return otherSum > thisSum;
     }
 
     @Override

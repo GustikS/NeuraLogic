@@ -306,4 +306,15 @@ class ValueTest {
 
         assertTrue(c.equals(d));
     }
+
+    @TestAnnotations.Fast
+    public void compare(){
+        Value a = new VectorValue(Arrays.asList(1.0,2.0,6.0));
+        Value b = new VectorValue(Arrays.asList(2.0,2.0,3.0));
+        Value c = new VectorValue(Arrays.asList(2.0,2.0,6.0));
+
+        assertEquals(a.compareTo(b),1);
+        assertEquals(b.compareTo(c),-1);
+        assertEquals(a.compareTo(c),-1);
+    }
 }

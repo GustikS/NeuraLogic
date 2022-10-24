@@ -196,7 +196,7 @@ public class VectorValue extends Value {
         for (int i = 0; i < resultValues.length; i++) {
             resultValues[i] *= otherValue;
         }
-        
+
         return result;
     }
 
@@ -483,7 +483,7 @@ public class VectorValue extends Value {
                     for (int k = 0; k < values.length; k++) {
                         final int tmpIndex = c1 * values.length + k;
 
-                        resultValues[r1 *  cols + tmpIndex] = otherValues[r1 * matrix.cols + c1] * values[k];
+                        resultValues[r1 * cols + tmpIndex] = otherValues[r1 * matrix.cols + c1] * values[k];
                     }
                 }
             }
@@ -774,13 +774,11 @@ public class VectorValue extends Value {
 
     @Override
     protected boolean greaterThan(ScalarValue maxValue) {
-        int greater = 0;
+        double sum = 0;
         for (int i = 0; i < values.length; i++) {
-            if (maxValue.value > values[i]) {
-                greater++;
-            }
+            sum += values[i];
         }
-        return greater > values.length / 2;
+        return maxValue.value > sum;
     }
 
     @Override
@@ -790,13 +788,13 @@ public class VectorValue extends Value {
             LOG.severe(err);
             throw new ArithmeticException(err);
         }
-        int greater = 0;
+        double thisSum = 0;
+        double otherSum = 0;
         for (int i = 0; i < values.length; i++) {
-            if (maxValue.values[i] > values[i]) {
-                greater++;
-            }
+            thisSum += values[i];
+            otherSum += maxValue.values[i];
         }
-        return greater > values.length / 2;
+        return otherSum > thisSum;
     }
 
     @Override

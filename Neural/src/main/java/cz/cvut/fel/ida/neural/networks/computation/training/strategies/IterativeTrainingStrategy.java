@@ -37,7 +37,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
- * Classical iterative optimization/learning
+ * Classic iterative optimization/learning
  */
 public class IterativeTrainingStrategy extends TrainingStrategy {
     private static final Logger LOG = Logger.getLogger(IterativeTrainingStrategy.class.getName());

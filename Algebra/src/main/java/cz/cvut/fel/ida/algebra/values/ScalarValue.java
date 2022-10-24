@@ -555,13 +555,11 @@ public class ScalarValue extends Value {
      */
     @Override
     protected boolean greaterThan(VectorValue maxValue) {
-        int greater = 0;
+        double otherSum = 0;
         for (int i = 0; i < maxValue.values.length; i++) {
-            if (maxValue.values[i] > this.value) {
-                greater++;
-            }
+            otherSum += maxValue.values[i];
         }
-        return greater > maxValue.values.length / 2;
+        return otherSum > this.value;
     }
 
     /**
@@ -572,27 +570,20 @@ public class ScalarValue extends Value {
      */
     @Override
     protected boolean greaterThan(MatrixValue maxValue) {
-        int greater = 0;
-        final double[] values = maxValue.values;
-
-        for (int i = 0; i < values.length; i++) {
-            if (values[i] > this.value) {
-                greater++;
-            }
+        double otherSum = 0;
+        for (int i = 0; i < maxValue.values.length; i++) {
+            otherSum += maxValue.values[i];
         }
-
-        return greater > maxValue.cols * maxValue.rows / 2;
+        return otherSum > this.value;
     }
 
     @Override
     protected boolean greaterThan(TensorValue maxValue) {
-        int greater = 0;
+        double otherSum = 0;
         for (int i = 0; i < maxValue.tensor.values.length; i++) {
-            if (maxValue.tensor.values[i] > this.value) {
-                greater++;
-            }
+            otherSum += maxValue.tensor.values[i];
         }
-        return greater > maxValue.tensor.values.length / 2;
+        return otherSum > this.value;
     }
 
     @Override
