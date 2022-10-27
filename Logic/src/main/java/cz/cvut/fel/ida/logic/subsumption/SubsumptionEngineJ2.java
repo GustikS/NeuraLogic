@@ -1796,23 +1796,31 @@ public class SubsumptionEngineJ2 {
          * @param index
          */
         public void add(int[] literals, int index) {
-            int arity = literals[index + 1];
-            if (arity <= maxArity) {
-                List<Integer> list = new ArrayList<Integer>();
-                for (int j = 0; j < arity; j++) {
-                    list.add(j);
+            final int arity = literals[index + 1];
+
+            if (arity > maxArity) {
+                return;
+            }
+
+            for (int i = 0; i < 1 << arity; i++){
+                ArrayList<Integer> temp = new ArrayList<>();
+
+                for (int j = 0; j < arity; j++){
+                    if ((i / (1 << j)) % 2 == 0)
+                        temp.add(j);
                 }
-                List<Tuple<Integer>> subsequences = Combinatorics.allSubsequences(list);
-                for (Tuple<Integer> t : subsequences) {
-                    int[] literal = new int[arity + 2];
-                    Arrays.fill(literal, -maxArity - 2);
-                    literal[0] = literals[index];
-                    literal[1] = literals[index + 1];
-                    for (int k = 0; k < t.size(); k++) {
-                        literal[t.get(k) + 2] = literals[index + 2 + t.get(k)];
-                    }
-                    set.add(literal);
+
+                int[] literal = new int[arity + 2];
+                Arrays.fill(literal, -maxArity - 2);
+
+                literal[0] = literals[index];
+                literal[1] = literals[index + 1];
+
+                for (int k : temp) {
+                    literal[k + 2] = literals[index + 2 + k];
                 }
+
+                set.add(literal);
             }
         }
 
