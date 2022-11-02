@@ -10,9 +10,9 @@ public class ArithmeticDecay extends LearnRateDecayStrategy {   //todo next cret
 
     ScalarValue diff = new ScalarValue(0);
 
-    public ArithmeticDecay(Settings settings, ScalarValue initialLearningRate) {
-        super(settings, initialLearningRate);
-        diff = (ScalarValue) initialLearningRate.times(new ScalarValue(-1.0 / settings.maxCumEpochCount));
+    public ArithmeticDecay(ScalarValue initialLearningRate, int epochCount) {
+        super(initialLearningRate);
+        diff = (ScalarValue) initialLearningRate.times(new ScalarValue(-1.0 / epochCount));
     }
 
     @Override

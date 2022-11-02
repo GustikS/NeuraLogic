@@ -11,10 +11,10 @@ public class GeometricDecay extends LearnRateDecayStrategy {
     Double ratio;
     int everyNepocha;
 
-    public GeometricDecay(Settings settings, ScalarValue initialLearningRate) {
-        super(settings, initialLearningRate);
-        this.ratio = settings.learnRateDecay;
-        this.everyNepocha = settings.decaySteps;
+    public GeometricDecay(ScalarValue initialLearningRate, double learnRateDecay, int decaySteps) {
+        super(initialLearningRate);
+        this.ratio = learnRateDecay;
+        this.everyNepocha = decaySteps;
     }
 
     @Override
