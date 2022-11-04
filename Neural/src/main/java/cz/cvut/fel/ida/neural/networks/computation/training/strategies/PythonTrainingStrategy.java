@@ -9,6 +9,7 @@ import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.weights.We
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
 import cz.cvut.fel.ida.neural.networks.computation.training.optimizers.Optimizer;
+import cz.cvut.fel.ida.neural.networks.computation.training.strategies.Hyperparameters.LearnRateDecayStrategy;
 import cz.cvut.fel.ida.neural.networks.computation.training.strategies.debugging.NeuralDebugging;
 import cz.cvut.fel.ida.neural.networks.computation.training.strategies.trainers.*;
 import cz.cvut.fel.ida.setup.Settings;
@@ -38,7 +39,11 @@ public class PythonTrainingStrategy extends TrainingStrategy {
 
     PythonEvaluation evaluation;
 
-    public PythonTrainingStrategy(Settings settings, NeuralModel model, Optimizer optimizer) {
+    LearnRateDecayStrategy learnRateDecay;
+
+    int epochCount = 0;
+
+    public PythonTrainingStrategy(Settings settings, NeuralModel model, Optimizer optimizer, LearnRateDecayStrategy learnRateDecay) {
         super(settings, model);
 
         this.trainer = new SequentialTrainer(settings, optimizer, currentModel);
@@ -50,6 +55,8 @@ public class PythonTrainingStrategy extends TrainingStrategy {
 
         this.miniBatchTrainer = new MiniBatchTrainer(settings, optimizer, currentModel, 0);
         this.minibatchListTrainer = this.miniBatchTrainer.new MinibatchListTrainer();
+
+        this.learnRateDecay = learnRateDecay;
     }
 
     public SequentialTrainer getTrainer() {
@@ -70,6 +77,11 @@ public class PythonTrainingStrategy extends TrainingStrategy {
     }
 
     public void resetParameters() {
+        if (learnRateDecay != null) {
+            learnRateDecay.restart();
+        }
+
+        epochCount = 0;
         listTrainer.restart(settings);
         currentModel.resetWeights(valueInitializer);
     }
@@ -101,6 +113,12 @@ public class PythonTrainingStrategy extends TrainingStrategy {
         }
 
         for (int i = 0; i < epochs; i++) {
+            epochCount++;
+
+            if (learnRateDecay != null) {
+                learnRateDecay.decay(epochCount);
+            }
+
             results = trainer.learnEpoch(currentModel, samples);
         }
 
