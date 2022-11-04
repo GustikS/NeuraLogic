@@ -26,7 +26,7 @@ public class Backpropagation {
     private static final Logger LOG = Logger.getLogger(Backpropagation.class.getName());
     private final Settings settings;
 
-    WeightUpdater weightUpdater;
+    public WeightUpdater weightUpdater;
 
     /**
      * Backproper is a StateVisitor, takes care of the action taken during iteration
