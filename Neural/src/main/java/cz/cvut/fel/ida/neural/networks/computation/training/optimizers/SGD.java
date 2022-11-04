@@ -4,7 +4,7 @@ import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.setup.Settings;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.logging.Logger;
 
 public class SGD implements Optimizer {
@@ -17,7 +17,7 @@ public class SGD implements Optimizer {
     }
 
     @Override
-    public void performGradientStep(List<Weight> updatedWeights, Value[] gradients, int iteration) {
+    public void performGradientStep(Collection<Weight> updatedWeights, Value[] gradients, int iteration) {
         for (Weight updatedWeight : updatedWeights) {
             Value weightUpdate = gradients[updatedWeight.index].times(learningRate);
             updatedWeight.value.incrementBy(weightUpdate);

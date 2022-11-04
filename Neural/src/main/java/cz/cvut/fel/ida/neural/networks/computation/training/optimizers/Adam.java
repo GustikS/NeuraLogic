@@ -5,7 +5,7 @@ import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.setup.Settings;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.logging.Logger;
 
 public class Adam implements Optimizer {
@@ -29,7 +29,7 @@ public class Adam implements Optimizer {
         this.epsilon = new ScalarValue(i_epsilon);
     }
 
-    public void performGradientStep(List<Weight> updatedWeights, Value[] gradients, int iteration) {
+    public void performGradientStep(Collection<Weight> updatedWeights, Value[] gradients, int iteration) {
         //correction
         final ScalarValue fix1 = new ScalarValue(1 / (1 - Math.pow(beta1.value, iteration)));
         final ScalarValue fix2 = new ScalarValue(1 / (1 - Math.pow(beta2.value, iteration)));

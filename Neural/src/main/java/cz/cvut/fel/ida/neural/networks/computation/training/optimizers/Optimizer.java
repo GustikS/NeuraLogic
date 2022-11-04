@@ -6,7 +6,7 @@ import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.weights.We
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
 import cz.cvut.fel.ida.setup.Settings;
 
-import java.util.List;
+import java.util.Collection;
 
 public interface Optimizer {
 
@@ -32,7 +32,7 @@ public interface Optimizer {
      * @param gradients
      * @param iteration
      */
-    void performGradientStep(List<Weight> updatedWeights, Value[] gradients, int iteration);
+    void performGradientStep(Collection<Weight> updatedWeights, Value[] gradients, int iteration);
 
     void restart(Settings settings);
 }
