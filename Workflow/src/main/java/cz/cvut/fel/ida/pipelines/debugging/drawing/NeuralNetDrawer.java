@@ -162,6 +162,12 @@ public class NeuralNetDrawer extends Drawer<NeuralSample> {
         }
 
         @Override
+        public void visit(NegationNeuron neuron) {
+            gv.addln(neuron.index + " [shape=ellipse, color=red, label=" + getNeuronLabel(neuron) + "]");
+            gv.addln(getEdges(neuron));
+        }
+
+        @Override
         public void visit(WeightedAtomNeuron neuron) {
             gv.addln(neuron.index + " [shape=ellipse, color=blue, label=" + getNeuronLabel(neuron) + "]");
             gv.addln(getEdges(neuron));
