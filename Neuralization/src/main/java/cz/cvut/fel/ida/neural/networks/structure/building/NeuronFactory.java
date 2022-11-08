@@ -138,7 +138,7 @@ public class NeuronFactory {
         FactNeuron result = neuronMaps.factNeurons.get(fact.literal);
         if (result == null) {    //fact neuron might have been created already and for them it is ok
             States.SimpleValue simpleValue = new States.SimpleValue(fact.getValue() == null ? this.defaultFactValue : fact.getValue());     //todo this is incompatible with ParentCounter state for Fact neurons...
-            FactNeuron factNeuron = new FactNeuron(fact.toString(), fact.weight, counter++, simpleValue);
+            FactNeuron factNeuron = new FactNeuron(fact.originalString, fact.weight, counter++, simpleValue);
             if (fact.weight != null && fact.weight.isLearnable()) {
                 factNeuron.hasLearnableValue = true;
                 simpleValue.isLearnable = true;
