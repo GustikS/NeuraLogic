@@ -59,6 +59,14 @@ public class StringValue extends Value {
     }
 
     @Override
+    public double[] getAsArray() {
+        return new double[0];
+    }
+
+    @Override
+    public void setAsArray(double[] value) {}
+
+    @Override
     public Value apply(DoubleUnaryOperator function) {
         return null;
     }

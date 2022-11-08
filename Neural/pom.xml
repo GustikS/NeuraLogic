@@ -29,6 +29,12 @@
             <artifactId>annotations</artifactId>
             <version>19.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>io.github.gustiks</groupId>
+            <artifactId>Resources</artifactId>
+            <version>0.3.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 

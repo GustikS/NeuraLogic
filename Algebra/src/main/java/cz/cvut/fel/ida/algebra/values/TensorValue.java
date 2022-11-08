@@ -63,6 +63,14 @@ public class TensorValue extends Value {
     }
 
     @Override
+    public double[] getAsArray() {
+        return new double[0];
+    }
+
+    @Override
+    public void setAsArray(double[] value) {}
+
+    @Override
     public TensorValue apply(DoubleUnaryOperator function) {
         throw new ArithmeticException("Higher dimension Tensor operations are not implemented yet");
     }

@@ -134,6 +134,16 @@ public class VectorValue extends Value {
     }
 
     @Override
+    public double[] getAsArray() {
+        return values;
+    }
+
+    @Override
+    public void setAsArray(double[] value) {
+        this.values = value;
+    }
+
+    @Override
     public Value apply(DoubleUnaryOperator function) {
         VectorValue result = new VectorValue(values.length, rowOrientation);
         double[] resultValues = result.values;

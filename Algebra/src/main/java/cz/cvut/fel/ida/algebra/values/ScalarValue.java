@@ -89,6 +89,16 @@ public class ScalarValue extends Value {
     }
 
     @Override
+    public double[] getAsArray() {
+        return new double[]{value};
+    }
+
+    @Override
+    public void setAsArray(double[] value) {
+        this.value = value[0];
+    }
+
+    @Override
     public Value apply(DoubleUnaryOperator function) {
         return new ScalarValue(function.applyAsDouble(value));
     }

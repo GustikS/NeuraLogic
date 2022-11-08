@@ -132,6 +132,16 @@ public class MatrixValue extends Value {
     }
 
     @Override
+    public double[] getAsArray() {
+        return values;
+    }
+
+    @Override
+    public void setAsArray(double[] value) {
+        this.values = value;
+    }
+
+    @Override
     public Value apply(DoubleUnaryOperator function) {
         final MatrixValue result = new MatrixValue(rows, cols);
         final double[] tmpValues = result.values;
