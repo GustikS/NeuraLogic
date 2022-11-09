@@ -1,7 +1,6 @@
 package cz.cvut.fel.ida.neural.networks.computation.training.optimizers;
 
-import cz.cvut.fel.ida.algebra.values.ScalarValue;
-import cz.cvut.fel.ida.algebra.values.Value;
+import cz.cvut.fel.ida.algebra.values.*;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.setup.Settings;
 
@@ -11,54 +10,47 @@ import java.util.logging.Logger;
 public class Adam implements Optimizer {
     private static final Logger LOG = Logger.getLogger(Adam.class.getName());
 
-    public Value learningRate;
-    public ScalarValue beta1;
-    public ScalarValue beta2;
-    public ScalarValue epsilon;
-
-    private ScalarValue minusOne = new ScalarValue(-1);
+    public ScalarValue learningRate;
+    public final double beta1;
+    public final double beta2;
+    public final double epsilon;
 
     public Adam(Value learningRate) {
         this(learningRate, 0.9, 0.999, 1e-8);
     }
 
     public Adam(Value learningRate, double i_beta1, double i_beta2, double i_epsilon) {
-        this.learningRate = learningRate;
-        this.beta1 = new ScalarValue(i_beta1);
-        this.beta2 = new ScalarValue(i_beta2);
-        this.epsilon = new ScalarValue(i_epsilon);
+        this.learningRate = (ScalarValue) learningRate;
+        this.beta1 = i_beta1;
+        this.beta2 = i_beta2;
+        this.epsilon = i_epsilon;
     }
 
     public void performGradientStep(Collection<Weight> updatedWeights, Value[] gradients, int iteration) {
         //correction
-        final ScalarValue fix1 = new ScalarValue(1 / (1 - Math.pow(beta1.value, iteration)));
-        final ScalarValue fix2 = new ScalarValue(1 / (1 - Math.pow(beta2.value, iteration)));
-
-        final Value oneBeta1 = Value.ONE.minus(beta1);
-        final Value oneBeta2 = Value.ONE.minus(beta2);
-        final double eps = this.epsilon.value;
+        final double fix1 = 1 / (1 - Math.pow(beta1, iteration));
+        final double fix2 = 1 / (1 - Math.pow(beta2, iteration));
+        final double lr = learningRate.value;
 
         for (Weight weight : updatedWeights) {
-            Value gradient = gradients[weight.index].times(minusOne);    //the gradient
+            final double[] value, momentum, velocity, gradient;
 
-            Value gradientPower = gradient.elementTimes(gradient);
-            gradientPower.elementMultiplyBy(oneBeta2);
+            value = weight.value.getAsArray();
+            momentum = weight.momentum.getAsArray();
+            velocity = weight.velocity.getAsArray();
+            gradient = gradients[weight.index].getAsArray();
 
-            weight.velocity.elementMultiplyBy(beta2);
-            weight.velocity.incrementBy(gradientPower);
+            for (int i = 0; i < value.length; i++) {
+                final double grad = gradient[i];
 
-            gradient.elementMultiplyBy(oneBeta1);
-            weight.momentum.elementMultiplyBy(beta1);
-            weight.momentum.incrementBy(gradient);
+                momentum[i] = (momentum[i] * beta1) - (grad * (1 - beta1));
+                velocity[i] = (velocity[i] * beta2) + (grad * grad * (1 - beta2));
+                value[i] += momentum[i] * fix1 * (-1 / (Math.sqrt(velocity[i] * fix2) + epsilon)) * lr;
+            }
 
-            Value v_corr = weight.momentum.times(fix1);
-            Value s_corr = weight.velocity.times(fix2);
-
-            //update
-            s_corr.applyInplace(val -> (-1 / (Math.sqrt(val) + eps)));
-            v_corr.elementMultiplyBy(s_corr);
-            v_corr.elementMultiplyBy(learningRate);
-            weight.value.incrementBy(v_corr);
+            weight.value.setAsArray(value);
+            weight.momentum.setAsArray(momentum);
+            weight.velocity.setAsArray(velocity);
         }
 
     }

@@ -70,6 +70,20 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
     public abstract int[] size();
 
     /**
+     * Get the value representation as double array
+     *
+     * @return
+     */
+    public abstract double[] getAsArray();
+
+    /**
+     * Set the value representation from double array
+     *
+     * @param value
+     */
+    public abstract void setAsArray(double[] value);
+
+    /**
      * Element-wise application of a given real function
      *
      * @param function
