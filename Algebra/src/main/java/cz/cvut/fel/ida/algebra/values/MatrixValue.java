@@ -132,6 +132,38 @@ public class MatrixValue extends Value {
     }
 
     @Override
+    public Value slice(int[] rows, int[] cols) {
+        final int rowsTo = rows == null ? this.rows : rows[1];
+        final int rowsFrom = rows == null ? 0 : rows[0];
+
+        final int colsTo = cols == null ? this.cols : cols[1];
+        final int colsFrom = cols == null ? 0 : cols[0];
+
+        if (rowsFrom < 0 || rowsTo > this.rows || rowsFrom >= rowsTo) {
+            String err = "Cannot slice MatrixValue with size " + Arrays.toString(this.size()) + " with row slice " + Arrays.toString(rows);
+            LOG.severe(err);
+            throw new ArithmeticException(err);
+        }
+
+        if (colsFrom < 0 || colsTo > this.cols || colsFrom >= colsTo) {
+            String err = "Cannot slice MatrixValue with size " + Arrays.toString(this.size()) + " with col slice " + Arrays.toString(cols);
+            LOG.severe(err);
+            throw new ArithmeticException(err);
+        }
+
+        final int colNum = colsTo - colsFrom;
+        final int rowNum = rowsTo - rowsFrom;
+
+        final double[] resValues = new double[rowNum * colNum];
+
+        for (int i = rowsFrom; i < rowsTo; i++) {
+            System.arraycopy(values, i * this.cols + colsFrom, resValues, (i - rowsFrom) * colNum, colNum);
+        }
+
+        return new MatrixValue(resValues, rowNum, colNum);
+    }
+
+    @Override
     public double[] getAsArray() {
         return values;
     }

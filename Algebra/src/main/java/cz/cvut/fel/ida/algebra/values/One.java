@@ -56,6 +56,11 @@ public class One extends Value {
     }
 
     @Override
+    public Value slice(int[] rows, int[] cols) {
+        return this.one.slice(rows, cols);
+    }
+
+    @Override
     public double[] getAsArray() {
         return new double[]{one.value};
     }

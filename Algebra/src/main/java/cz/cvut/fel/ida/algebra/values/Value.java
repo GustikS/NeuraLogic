@@ -69,6 +69,14 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
      */
     public abstract int[] size();
 
+    /** Get a slice of the value
+     *
+     * @param rows
+     * @param cols
+     * @return
+     */
+    public abstract Value slice(int[] rows, int[] cols);
+
     /**
      * Get the value representation as double array
      *
