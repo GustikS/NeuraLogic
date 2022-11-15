@@ -134,6 +134,47 @@ public class VectorValue extends Value {
     }
 
     @Override
+    public Value slice(int[] rows, int[] cols) {
+        int[] sliceCoords;
+
+        if (rowOrientation) {
+            if (rows != null && rows[0] != 0 && rows[1] != 1) {
+                String err = "Cannot slice VectorValue with size " + Arrays.toString(this.size()) + " with row slice " + Arrays.toString(rows);
+                LOG.severe(err);
+                throw new ArithmeticException(err);
+            }
+
+            sliceCoords = cols;
+        } else {
+            if (cols != null && cols[0] != 0 && cols[1] != 1) {
+                String err = "Cannot slice VectorValue with size " + Arrays.toString(this.size()) + " with col slice " + Arrays.toString(cols);
+                LOG.severe(err);
+                throw new ArithmeticException(err);
+            }
+
+            sliceCoords = rows;
+        }
+
+        if (sliceCoords == null) {
+            return new VectorValue(values, rowOrientation);
+        }
+
+        final int from = sliceCoords[0];
+        final int to = sliceCoords[1];
+
+        if (from < 0 || to > values.length || from >= to) {
+            String err = "Cannot slice VectorValue with size " + Arrays.toString(this.size()) + " with slice " + Arrays.toString(sliceCoords);
+            LOG.severe(err);
+            throw new ArithmeticException(err);
+        }
+
+        final double[] resValues = new double[to - from];
+        System.arraycopy(values, from, resValues, 0, resValues.length);
+
+        return new VectorValue(resValues, rowOrientation);
+    }
+
+    @Override
     public double[] getAsArray() {
         return values;
     }

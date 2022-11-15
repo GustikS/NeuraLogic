@@ -4,6 +4,7 @@ import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.logging.Logger;
@@ -86,6 +87,23 @@ public class ScalarValue extends Value {
     @Override
     public int[] size() {
         return new int[0];
+    }
+
+    @Override
+    public Value slice(int[] rows, int[] cols) {
+        if (cols != null && (cols[0] != 0 || cols[1] != 1)) {
+            String err = "Cannot slice ScalarValue " + this + " with col slice " + Arrays.toString(cols);
+            LOG.severe(err);
+            throw new ArithmeticException(err);
+        }
+
+        if (rows != null && (rows[0] != 0 || rows[1] != 1)) {
+            String err = "Cannot slice ScalarValue " + this + " with row slice " + Arrays.toString(cols);
+            LOG.severe(err);
+            throw new ArithmeticException(err);
+        }
+
+        return new ScalarValue(value);
     }
 
     @Override

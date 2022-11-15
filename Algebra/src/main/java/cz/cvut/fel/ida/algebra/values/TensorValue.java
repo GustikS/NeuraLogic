@@ -63,6 +63,11 @@ public class TensorValue extends Value {
     }
 
     @Override
+    public Value slice(int[] rows, int[] cols) {
+        return null;
+    }
+
+    @Override
     public double[] getAsArray() {
         return new double[0];
     }
