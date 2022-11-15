@@ -50,4 +50,8 @@ public abstract class Metadata<T> implements Exportable {
         else
             return null;
     }
+
+    public void put(Parameter parameter, ParameterValue parameterValue) {
+        this.metadata.put(parameter, parameterValue);
+    }
 }
