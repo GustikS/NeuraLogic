@@ -55,6 +55,11 @@ public class Slice implements Transformation {
         return new State(this);
     }
 
+    @Override
+    public boolean changesShape() {
+        return true;
+    }
+
     public static class State extends Transformation.State {
         private final Slice slice;
 

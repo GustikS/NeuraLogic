@@ -39,6 +39,15 @@ public interface Transformation extends ActivationFcn, Exportable {
      */
     public abstract Value differentiate(Value combinedInputs);
 
+    /**
+     * Checks whether the shape of the transformation function output value differs from the shape of its input value.
+     *
+     * @return
+     */
+    default boolean changesShape() {
+        return false;
+    }
+
     public static Transformation getFunction(Settings.TransformationFcn transformation) {
         ElementWise function = ElementWise.getFunction(transformation);
         if (function != null) {
