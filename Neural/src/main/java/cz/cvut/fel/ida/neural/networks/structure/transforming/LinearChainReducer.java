@@ -46,6 +46,10 @@ public class LinearChainReducer implements NetworkReducing {
             if (settings.pruneOnlyIdentities && !(neuron instanceof AggregationNeuron) && !(neuron.getTransformation() instanceof Identity)) {
                 continue;
             }
+            if (neuron.getTransformation() != null && neuron.getTransformation().changesShape()) {
+                continue;
+            }
+
             boolean pruned = prune(inet, neuron);
             if (pruned) {
                 prunings++;

@@ -107,6 +107,37 @@ public class ScalarValue extends Value {
     }
 
     @Override
+    public Value reshape(int[] shape) {
+        if (shape.length == 1 && shape[0] == 0) {
+            return this;
+        }
+
+        double[] data = new double[] { value };
+
+        if (shape.length == 2) {
+            if (shape[0] == 0 && shape[1] == 0) {
+                return this;
+            }
+
+            if (shape[0] == 0 && shape[1] == 1) {
+                return new VectorValue(data, false);
+            }
+
+            if (shape[0] == 1 && shape[1] == 0) {
+                return new VectorValue(data);
+            }
+
+            if (shape[0] == 1 && shape[1] == 1) {
+                return new MatrixValue(data, 1, 1);
+            }
+        }
+
+        String err = "Cannot reshape ScalarValue " + this + " to shape " + Arrays.toString(shape);
+        LOG.severe(err);
+        throw new ArithmeticException(err);
+    }
+
+    @Override
     public double[] getAsArray() {
         return new double[]{value};
     }

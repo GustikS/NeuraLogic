@@ -38,6 +38,11 @@ public class Transposition implements Transformation {
         return new State(Singletons.transposition);
     }
 
+    @Override
+    public boolean changesShape() {
+        return true;
+    }
+
     public static class State extends Transformation.State {
 
         public State(Transformation transformation) {

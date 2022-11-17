@@ -61,6 +61,11 @@ public class One extends Value {
     }
 
     @Override
+    public Value reshape(int[] shape) {
+        return this.one.reshape(shape).clone();
+    }
+
+    @Override
     public double[] getAsArray() {
         return new double[]{one.value};
     }
