@@ -68,6 +68,11 @@ public class TensorValue extends Value {
     }
 
     @Override
+    public Value reshape(int[] shape) {
+        return null;
+    }
+
+    @Override
     public double[] getAsArray() {
         return new double[0];
     }

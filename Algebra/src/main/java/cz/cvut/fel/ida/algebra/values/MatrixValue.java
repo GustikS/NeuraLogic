@@ -164,6 +164,49 @@ public class MatrixValue extends Value {
     }
 
     @Override
+    public Value reshape(int[] shape) {
+        final double[] data = values;
+
+        if (values.length == 1 && shape.length == 1 && shape[0] == 0) {
+            return new ScalarValue(values[0]);
+        }
+
+        if (shape.length == 1 && shape[0] == data.length) {
+            return new VectorValue(data);
+        }
+
+        if (shape.length == 2) {
+            if (shape[0] == 1 && shape[1] == data.length) {
+                return new MatrixValue(data, 1, data.length);
+            }
+
+            if (shape[0] == data.length && shape[1] == 1) {
+                return new MatrixValue(data, data.length, 1);
+            }
+
+            if (shape[0] == 0 && shape[1] == 0 && data.length == 1) {
+                return new ScalarValue(data[0]);
+            }
+
+            if (shape[0] == 0 && shape[1] == data.length) {
+                return new VectorValue(data);
+            }
+
+            if (shape[0] == data.length && shape[1] == 0) {
+                return new VectorValue(data, true);
+            }
+
+            if (data.length / shape[1] == shape[0]) {
+                return new MatrixValue(data, shape[0], shape[1]);
+            }
+        }
+
+        String err = "Cannot reshape MatrixValue of shape " + Arrays.toString(this.size()) + " to shape " + Arrays.toString(shape);
+        LOG.severe(err);
+        throw new ArithmeticException(err);
+    }
+
+    @Override
     public double[] getAsArray() {
         return values;
     }

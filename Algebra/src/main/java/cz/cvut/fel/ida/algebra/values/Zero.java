@@ -59,6 +59,11 @@ class Zero extends Value {
     }
 
     @Override
+    public Value reshape(int[] shape) {
+        return this.zero.reshape(shape).clone();
+    }
+
+    @Override
     public double[] getAsArray() {
         return new double[]{zero.value};
     }
