@@ -824,7 +824,7 @@ public class Settings implements Serializable {
             case "crosssum":
                 return CombinationFcn.CROSSSUM;
             case "concat":
-                return CombinationFcn.CONCAT;
+                return CombinationFcn.CONCAT;       // can also be aggregation now
             case "cossim":
                 return CombinationFcn.COSSIM;
             default:
@@ -1099,7 +1099,7 @@ public class Settings implements Serializable {
 
         if (cmd.hasOption("seed")) {
             String _seed = cmd.getOptionValue("seed", String.valueOf(seed));
-            settings.random = new Random(Integer.parseInt(_seed));
+            settings.seed = Integer.parseInt(_seed);
         }
 
         if (cmd.hasOption("groundingAlgorithm")) {

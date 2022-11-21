@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.algebra.functions;
 
 import cz.cvut.fel.ida.algebra.functions.aggregation.*;
+import cz.cvut.fel.ida.algebra.functions.combination.Concatenation;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
 
@@ -49,6 +50,8 @@ public interface Aggregation extends Combination, Transformation {
                 return Singletons.sum;
             case COUNT:
                 return Singletons.count;
+            case CONCAT:
+                return Singletons.concat;
             default:
 //                LOG.severe("Unimplemented aggregation function");
                 return null;
@@ -61,6 +64,7 @@ public interface Aggregation extends Combination, Transformation {
         public static Minimum minimum = new Minimum();
         public static Sum sum = new Sum();
         public static Count count = new Count();
+        public static Concatenation concat = new Concatenation();
     }
 
     public static abstract class State extends Combination.State {
@@ -79,37 +83,4 @@ public interface Aggregation extends Combination, Transformation {
         }
     }
 
-
-//    public static Aggregation.State getAggregationState(Aggregation aggregation) {
-//        if (aggregation instanceof CrossSum) {
-//            return new CombinationState.CrossSumState((Transformation) aggregation);
-//        } else if (aggregation instanceof ElementProduct) {
-//            return new CombinationState.ElementProductState((Activation) aggregation);
-//        } else if (aggregation instanceof Product) {
-//            return new CombinationState.ProductState((Activation) aggregation);
-//        } else if (aggregation instanceof Concatenation) {
-//            return new CombinationState.ConcatState((Activation) aggregation);
-//        } else if (aggregation instanceof Average) {
-//            return new Pooling.Avg();
-//        } else if (aggregation instanceof Maximum) {
-//            return new Pooling.Max();
-//        } else if (aggregation instanceof Minimum) {
-//            return new Pooling.Min();
-//        } else if (aggregation instanceof Sum) {
-//            return new Pooling.Sum();
-//        } else if (aggregation instanceof Softmax) {
-//            return new CombinationState.SoftmaxState((Transformation) aggregation);
-//        } else if (aggregation instanceof SharpMax) {
-//            return new TransformationState.SharpMaxState();
-//        } else if (aggregation instanceof SharpMin) {
-//            return new AggregationState.Pooling.AtomMin(((SharpMin) aggregation).activation);
-//        } else if (aggregation instanceof Transposition) {
-//            return new AggregationState.TranspositionState();
-//            return new TransformationState.SharpMinState();
-//        } else if (aggregation instanceof Activation) {
-//            return new AggregationState.SumState((Activation) aggregation);
-//        } else {
-//            throw new UnsupportedOperationException("unkown Aggregation function state");
-//        }
-//    }
 }

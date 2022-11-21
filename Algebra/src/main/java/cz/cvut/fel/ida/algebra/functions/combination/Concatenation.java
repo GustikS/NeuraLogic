@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.algebra.functions.combination;
 
 import cz.cvut.fel.ida.algebra.functions.ActivationFcn;
+import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.functions.Combination;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
@@ -13,13 +14,16 @@ import java.util.logging.Logger;
 /**
  * It flattens/linearizes the input Values, hence the result is always a VectorValue!
  * - to avoid the necessity to specify along which dimension to do the concat...       //todo make a parameterized version
+ * <p>
+ * Can be used also as an Aggregation now - i.e. combining variable-sized input sets - use with care,
+ * since this means generally not knowing the output dimensionality of the corresponding neuron (+random, but constant, order of elements)
  */
-public class Concatenation implements Combination {
+public class Concatenation implements Combination, Aggregation {
     private static final Logger LOG = Logger.getLogger(Concatenation.class.getName());
 
     @Override
     public Combination replaceWithSingleton() {
-        return Singletons.concatenation;
+        return Combination.Singletons.concatenation;
     }
 
     @Override
@@ -34,6 +38,24 @@ public class Concatenation implements Combination {
     }
 
     @Override
+    public Value differentiate(List<Value> inputs) {
+        LOG.warning("Directly calculating derivative of CONCAT fcn");
+        return Value.ONE;
+    }
+
+    @Override
+    public Value evaluate(Value combinedInputs) {
+        LOG.warning("Directly evaluating CONCAT fcn on a single input");
+        return combinedInputs;  // no effect
+    }
+
+    @Override
+    public Value differentiate(Value combinedInputs) {
+        LOG.warning("Directly calculating derivative of CONCAT on a single input");
+        return Value.ONE;
+    }
+
+    @Override
     public boolean isComplex() {
         return true;
     }
@@ -43,10 +65,9 @@ public class Concatenation implements Combination {
         return false;
     }
 
-
     @Override
     public ActivationFcn.State getState(boolean singleInput) {
-        return new State(Singletons.concatenation);
+        return new State(Combination.Singletons.concatenation);
     }
 
     public static class State extends Combination.InputArrayState {
@@ -57,7 +78,7 @@ public class Concatenation implements Combination {
 
         @Override
         public Value evaluate() {
-            return Singletons.concatenation.evaluate(accumulatedInputs);
+            return Combination.Singletons.concatenation.evaluate(accumulatedInputs);
         }
 
         @Override

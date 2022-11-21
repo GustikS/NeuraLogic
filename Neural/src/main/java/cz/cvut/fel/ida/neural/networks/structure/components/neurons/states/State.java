@@ -40,18 +40,18 @@ public interface State<V> extends Exportable {
         return visitor.visit(this);
     }
 
-    static Neural.Computation createBaseState(Settings settings, Combination combination, Transformation activationFunction) {
+    static Neural.Computation createBaseState(Settings settings, Combination combination, Transformation transformation) {
         switch (settings.neuralState) {
             case STANDARD:
-                return new States.ComputationStateStandard(combination, activationFunction);
+                return new States.ComputationStateStandard(combination, transformation);
             case PARENTS:
-                return new States.ParentCounter(combination, activationFunction);
+                return new States.ParentCounter(combination, transformation);
             case DROPOUT:
-                return new States.DropoutStore(settings, combination, activationFunction);
+                return new States.DropoutStore(settings, combination, transformation);
             case PAR_DROPOUT:
-                return new States.DropoutStore(settings, combination, activationFunction).new ParentsDropoutStore(combination, activationFunction);
+                return new States.DropoutStore(settings, combination, transformation).new ParentsDropoutStore(combination, transformation);
             default:
-                return new States.ComputationStateStandard(combination, activationFunction);
+                return new States.ComputationStateStandard(combination, transformation);
         }
     }
 
