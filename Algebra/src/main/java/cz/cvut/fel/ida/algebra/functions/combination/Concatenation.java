@@ -78,7 +78,7 @@ public class Concatenation implements Combination, Aggregation {
         double[] concatValues = concat.stream().mapToDouble(d -> d).toArray();
 
         if (colSize == 1) {
-            return new VectorValue(concatValues, true);
+            return new VectorValue(concatValues);
         }
 
         return new MatrixValue(concatValues, concatValues.length / colSize, colSize);
