@@ -6,16 +6,16 @@
 [![GitHub top language](https://img.shields.io/github/languages/top/gustiks/neuralogic)](https://adoptopenjdk.net/index.html?variant=openjdk8&jvmVariant=hotspot)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/gustiks/neuralogic)
 
-_NeuraLogic framework combines **relational** and **deep** learning via a form of **differentiable logic programming**._
+_Integrating **deep** and **relational** learning through **differentiable logic programming**._
 
-- This is an official implementation of the concept of [Lifted Relational Neural Networks](https://jair.org/index.php/jair/article/view/11203).
-- There is also a Python front-end [**PyNeuralogic**](https://github.com/LukasZahradnik/PyNeuraLogic) now!
+- This is the official implementation of the [Lifted Relational Neural Networks](https://jair.org/index.php/jair/article/view/11203) concept.
+- This is the (Java) backend, you can find Python frontend at [**PyNeuralogic**](https://github.com/LukasZahradnik/PyNeuraLogic) 
 
 ---
  
 ## About
 
-At the core of the framework, there is a custom [language](./Parsing/src/main/java/cz/cvut/fel/ida/logic/parsing/antlr/grammars/Neuralogic.g4) you can use to write differentiable programs encoding your learning scenarios, similarly to classic Deep Learning (DL) frameworks (e.g. TensorFlow). However, the language follows a [logic programming](https://en.wikipedia.org/wiki/Logic_programming) paradigm and is **declarative** in nature (it's similar to [Datalog](https://en.wikipedia.org/wiki/Datalog)). This means that instead of directly encoding the computational graph, you just _declare_:
+At the core of the framework, there is a custom [language](./Parsing/src/main/java/cz/cvut/fel/ida/logic/parsing/antlr/grammars/Neuralogic.g4) you can use to write differentiable programs encoding your learning scenarios, similarly to classic Deep Learning (DL) frameworks (e.g. TensorFlow). However, the language follows a [logic programming](https://en.wikipedia.org/wiki/Logic_programming) paradigm and is **declarative** in nature (it's similar to [Datalog](https://en.wikipedia.org/wiki/Datalog)). This means that instead of directly encoding the computation graph, you just _declare_:
 
 1. the _inputs_ (and their numeric values, if any)
     - i.e. the observed facts/data = objects, structures, knowledge graphs, relational databases, ...
