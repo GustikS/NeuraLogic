@@ -1,7 +1,10 @@
 package cz.cvut.fel.ida.neural.networks.structure.building;
 
+import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.weights.Weight;
+import cz.cvut.fel.ida.logic.Constant;
 import cz.cvut.fel.ida.logic.Literal;
+import cz.cvut.fel.ida.logic.Term;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
 import cz.cvut.fel.ida.logic.constructs.template.components.BodyAtom;
 import cz.cvut.fel.ida.logic.constructs.template.components.GroundHeadRule;
@@ -112,16 +115,66 @@ public class NeuralNetBuilder {
         //2) AggregationNeurons creation
         for (Map.Entry<GroundHeadRule, Collection<GroundRule>> rules2groundings : rules.entrySet()) {
             boolean newAggNeuron = false;
+            boolean connectToAggregation = true;
             AggregationNeuron aggNeuron;
+            BaseNeuron aggInputNeuron;
 
-            if ((aggNeuron = neuronMaps.aggNeurons.get(rules2groundings.getKey())) == null) {
+            GroundHeadRule groundHeadRule = rules2groundings.getKey();
+            Aggregation aggregation = groundHeadRule.weightedRule.getAggregationFcn();
+
+            if (aggregation != null && aggregation.isSplittable()) {
+                List<Term> terms = new ArrayList<>(groundHeadRule.groundHead.termList());
+                int[] aggregableTerms = aggregation.aggregableTerms();
+
+                for (int index : aggregableTerms) {
+                    if (!terms.get(index).name().equals("_")) {
+                        connectToAggregation = false;
+                    }
+
+                    terms.set(index, Constant.construct("_"));
+                }
+
+                Literal literal = new Literal(groundHeadRule.groundHead.predicate(), groundHeadRule.groundHead.isNegated(), terms);
+                groundHeadRule = new GroundHeadRule(groundHeadRule.weightedRule, literal);
                 newAggNeuron = true;
-                aggNeuron = neuralBuilder.neuronFactory.createAggNeuron(rules2groundings.getKey());
+
+                if (neuronMaps.aggNeurons.get(groundHeadRule) != null) {
+                    aggNeuron = neuronMaps.aggNeurons.get(groundHeadRule);
+                } else {
+                    aggNeuron = neuralBuilder.neuronFactory.createSplittableAggNeuron(groundHeadRule);
+                    if (aggNeuron.getComputationView(0).getFcnState().getInputMask() != null) { // the neuron will require input masking!
+                        neuronMaps.containsMasking = true;
+                    }
+                    createdNeurons.aggNeurons.add(aggNeuron);
+                }
+
+                aggInputNeuron = aggNeuron;
+                if (!connectToAggregation) {
+                    SplittableAggregationNeuron splitAggNeuron = (SplittableAggregationNeuron) aggNeuron;
+                    aggInputNeuron = (BaseNeuron) splitAggNeuron.inputOrder.get(rules2groundings.getKey());
+
+                    if (aggInputNeuron == null) {
+                        Literal groundLiteral = rules2groundings.getKey().groundHead;
+                        aggInputNeuron = neuralBuilder.neuronFactory.createSplittableAtomNeuron(splitAggNeuron.inputOrder.size(), groundLiteral);
+                        aggInputNeuron.addInput(aggNeuron);
+
+                        splitAggNeuron.inputOrder.put(rules2groundings.getKey(), aggInputNeuron);
+                    }
+                }
+
+            } else if ((aggNeuron = neuronMaps.aggNeurons.get(groundHeadRule)) == null) {
+                newAggNeuron = true;
+
+                aggNeuron = neuralBuilder.neuronFactory.createAggNeuron(groundHeadRule);
+                aggInputNeuron = aggNeuron;
+
                 if (aggNeuron.getComputationView(0).getFcnState().getInputMask() != null) { // the neuron will require input masking!
                     neuronMaps.containsMasking = true;
                 }
+
                 createdNeurons.aggNeurons.add(aggNeuron);
             } else {
+                aggInputNeuron = aggNeuron;
                 aggNeuron.isShared = true;
                 if (rules2groundings.getValue().size() > 0) {   //todo check
                     NeuronMapping<RuleNeuron> inputMapping;
@@ -132,11 +185,12 @@ public class NeuralNetBuilder {
                     }
                 }
             }
+
             if (newAtomNeuron) {
                 if (weightedAtomNeuron) {
-                    ((WeightedNeuron) headAtomNeuron).addInput(aggNeuron, rules2groundings.getKey().weightedRule.getWeight());
+                    ((WeightedNeuron) headAtomNeuron).addInput(aggInputNeuron, rules2groundings.getKey().weightedRule.getWeight());
                 } else {
-                    headAtomNeuron.addInput(aggNeuron);
+                    headAtomNeuron.addInput(aggInputNeuron);
                 }
             } else {
                 LOG.info("Warning-  modifying previous state - Creating input overmapping for this Atom neuron: " + headAtomNeuron);
@@ -165,7 +219,9 @@ public class NeuralNetBuilder {
                     LOG.severe("Inconsistency - Specific rule neuron already contained in neuronmap!! This should never happen...");
                 }
                 if (newAggNeuron) {
-                    aggNeuron.addInput(ruleNeuron);
+                    if (connectToAggregation) {
+                        aggNeuron.addInput(ruleNeuron);
+                    }
                 } else {
                     LOG.info("Warning-  modifying previous state - Creating input overmapping for this Agg neuron: " + aggNeuron);
                     NeuronMapping<RuleNeurons> inputMapping = (NeuronMapping<RuleNeurons>) neuronMaps.extraInputMapping.get(headAtomNeuron);

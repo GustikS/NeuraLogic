@@ -30,6 +30,9 @@ public interface Aggregation extends Combination, Transformation {
         return true;
     }
 
+    default boolean isSplittable() { return false; }
+
+    default int[] aggregableTerms() { return null; }
 
     /**
      * Given the symmetry, the gradient is a single Value here

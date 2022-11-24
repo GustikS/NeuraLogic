@@ -3,10 +3,12 @@ package cz.cvut.fel.ida.neural.networks.structure.building;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.functions.Combination;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
+import cz.cvut.fel.ida.algebra.functions.transformation.joint.Slice;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.logic.Literal;
+import cz.cvut.fel.ida.logic.Predicate;
 import cz.cvut.fel.ida.logic.constructs.building.factories.WeightFactory;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
 import cz.cvut.fel.ida.logic.constructs.template.components.GroundHeadRule;
@@ -95,6 +97,31 @@ public class NeuronFactory {
         LOG.finest(() -> "Created aggregation neuron: " + aggregationNeuron);
         return aggregationNeuron;
     }
+
+    public SplittableAggregationNeuron createSplittableAggNeuron(GroundHeadRule groundHeadRule) {
+        WeightedRule weightedRule = groundHeadRule.weightedRule;
+        Aggregation aggregation = weightedRule.getAggregationFcn() != null ? weightedRule.getAggregationFcn() : Aggregation.getFunction(settings.aggNeuronAggregation);
+
+        State.Neural.Computation state = State.createBaseState(settings, aggregation, null);
+        SplittableAggregationNeuron<State.Neural.Computation> aggregationNeuron = new SplittableAggregationNeuron<>(settings.fullAggNeuronStrings ? groundHeadRule.toFullString() : weightedRule.getOriginalString(), counter++, state);
+        neuronMaps.aggNeurons.put(groundHeadRule, aggregationNeuron);
+        LOG.finest(() -> "Created splittable aggregation neuron: " + aggregationNeuron);
+        return aggregationNeuron;
+    }
+
+    public AtomNeuron createSplittableAtomNeuron(int splitIndex, Literal groundHead) {
+        Combination combination = Combination.getFunction(settings.atomNeuronCombination);
+        Transformation transformation = new Slice(new int[] {splitIndex, splitIndex + 1}, new int[] {splitIndex, splitIndex + 1});
+
+        State.Neural.Computation state = State.createBaseState(settings, combination, transformation);
+        Literal head = new Literal(new Predicate("_" + groundHead.predicate().name, groundHead.predicate().arity), groundHead.isNegated(), groundHead.termList());
+
+        AtomNeuron<State.Neural.Computation> atomNeuron = new AtomNeuron<>(head.toString(), counter++, state);
+        neuronMaps.atomNeurons.put(head, atomNeuron);
+        LOG.finest(() -> "Created splittable atom neuron: " + atomNeuron);
+        return atomNeuron;
+    }
+
 
     public RuleNeuron createRuleNeuron(GroundRule groundRule) {
         WeightedRule weightedRule = groundRule.weightedRule;

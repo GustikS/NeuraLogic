@@ -1,17 +1,12 @@
 package cz.cvut.fel.ida.logic.grounding.bottomUp;
 
+import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.weights.Weight;
-import cz.cvut.fel.ida.logic.Clause;
-import cz.cvut.fel.ida.logic.HornClause;
-import cz.cvut.fel.ida.logic.Literal;
-import cz.cvut.fel.ida.logic.Term;
+import cz.cvut.fel.ida.logic.*;
 import cz.cvut.fel.ida.logic.constructs.example.LiftedExample;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
-import cz.cvut.fel.ida.logic.constructs.template.components.GroundHeadRule;
-import cz.cvut.fel.ida.logic.constructs.template.components.GroundRule;
-import cz.cvut.fel.ida.logic.constructs.template.components.HeadAtom;
-import cz.cvut.fel.ida.logic.constructs.template.components.WeightedRule;
+import cz.cvut.fel.ida.logic.constructs.template.components.*;
 import cz.cvut.fel.ida.logic.grounding.GroundTemplate;
 import cz.cvut.fel.ida.logic.grounding.Grounder;
 import cz.cvut.fel.ida.logic.grounding.constructs.GroundRulesCollection;
@@ -93,7 +88,6 @@ public class BottomUp extends Grounder {
             for (WeightedRule weightedRule : ruleEntry.getValue()) {
                 List<GroundRule> groundings = groundRules(weightedRule, groundingSubstitutions);
                 for (GroundRule grounding : groundings) {
-
                     grounding.internLiterals(allLiterals);
                     Map<GroundHeadRule, Collection<GroundRule>> rules2groundings = groundRules.computeIfAbsent(grounding.groundHead, k -> new LinkedHashMap<>()); //we still want unique rules at least
 
@@ -101,6 +95,27 @@ public class BottomUp extends Grounder {
                     GroundHeadRule groundHeadRule = weightedRule.groundHeadRule(grounding.groundHead);
 
                     Collection<GroundRule> ruleGroundings = rules2groundings.computeIfAbsent(groundHeadRule, k -> GroundRulesCollection.getGroundingCollection(weightedRule));    //here we choose whether we want only unique ground bodies or not
+                    ruleGroundings.add(grounding);
+
+                    Aggregation aggregation = groundHeadRule.weightedRule.getAggregationFcn();
+
+                    if (aggregation == null || !aggregation.isSplittable()) {
+                        continue;
+                    }
+
+                    List<Term> terms = new ArrayList<>(groundHeadRule.groundHead.termList());
+                    int[] aggregableTerms = aggregation.aggregableTerms();
+
+                    for (int index : aggregableTerms) {
+                        terms.set(index, Constant.construct("_"));
+                    }
+
+                    Literal literal = new Literal(groundHeadRule.groundHead.predicate(), groundHeadRule.groundHead.isNegated(), terms);
+                    groundHeadRule = new GroundHeadRule(groundHeadRule.weightedRule, literal);
+
+                    rules2groundings = groundRules.computeIfAbsent(groundHeadRule.groundHead, k -> new LinkedHashMap<>()); //we still want unique rules at least
+
+                    ruleGroundings = rules2groundings.computeIfAbsent(groundHeadRule, k -> GroundRulesCollection.getGroundingCollection(weightedRule));    //here we choose whether we want only unique ground bodies or not
                     ruleGroundings.add(grounding);
                 }
             }

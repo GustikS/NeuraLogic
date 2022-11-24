@@ -1,10 +1,13 @@
 package cz.cvut.fel.ida.neural.networks.structure.building;
 
+import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.learning.LearningSample;
 import cz.cvut.fel.ida.logic.Clause;
+import cz.cvut.fel.ida.logic.Constant;
 import cz.cvut.fel.ida.logic.Literal;
+import cz.cvut.fel.ida.logic.Term;
 import cz.cvut.fel.ida.logic.constructs.building.factories.WeightFactory;
 import cz.cvut.fel.ida.logic.constructs.example.LogicSample;
 import cz.cvut.fel.ida.logic.constructs.example.QueryAtom;
@@ -242,12 +245,28 @@ public class Neuralizer implements Exportable {
             neuralNetBuilder.loadNeuronsFromRules(literal, ruleMap, currentNeuralSets);
             groundRulesProcessed++;
 
-            for (Collection<GroundRule> groundings : ruleMap.values()) {
-                for (GroundRule grounding : groundings) {
-                    for (Literal bodyAtom : grounding.groundBody) {
-                        recursiveNeuronsCreation(bodyAtom, closedSet, neuronMaps, currentNeuralSets);
+            for (Map.Entry<GroundHeadRule, Collection<GroundRule>> entry : ruleMap.entrySet()) {
+                Aggregation aggregation = entry.getKey().weightedRule.getAggregationFcn();
+
+                if (aggregation == null || !aggregation.isSplittable()) {
+                    for (GroundRule grounding : entry.getValue()) {
+                        for (Literal bodyAtom : grounding.groundBody) {
+                            recursiveNeuronsCreation(bodyAtom, closedSet, neuronMaps, currentNeuralSets);
+                        }
                     }
+
+                    continue;
                 }
+
+                List<Term> terms = new ArrayList<>(entry.getKey().groundHead.termList());
+                int[] aggregableTerms = aggregation.aggregableTerms();
+
+                for (int index : aggregableTerms) {
+                    terms.set(index, Constant.construct("_"));
+                }
+
+                Literal lit = new Literal(entry.getKey().groundHead.predicate(), entry.getKey().groundHead.isNegated(), terms);
+                recursiveNeuronsCreation(lit, closedSet, neuronMaps, currentNeuralSets);
             }
         }
     }
