@@ -109,15 +109,17 @@ public class NeuronFactory {
         return aggregationNeuron;
     }
 
-    public AtomNeuron createSplittableAtomNeuron(int splitIndex, Literal groundHead) {
+    public AtomNeuron createSplittableAtomNeuron(Literal groundHead, SplittableAggregationNeuron splittableAggregationNeuron) {
         Combination combination = Combination.getFunction(settings.atomNeuronCombination);
-        Transformation transformation = new Slice(new int[] {splitIndex, splitIndex + 1}, new int[] {splitIndex, splitIndex + 1});
+        Transformation transformation = new Slice();
 
         State.Neural.Computation state = State.createBaseState(settings, combination, transformation);
         Literal head = new Literal(new Predicate("_" + groundHead.predicate().name, groundHead.predicate().arity), groundHead.isNegated(), groundHead.termList());
 
         AtomNeuron<State.Neural.Computation> atomNeuron = new AtomNeuron<>(head.toString(), counter++, state);
         neuronMaps.atomNeurons.put(head, atomNeuron);
+        atomNeuron.addInput(splittableAggregationNeuron);
+
         LOG.finest(() -> "Created splittable atom neuron: " + atomNeuron);
         return atomNeuron;
     }

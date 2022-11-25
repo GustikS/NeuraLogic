@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.neural.networks.structure.building;
 
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
+import cz.cvut.fel.ida.algebra.functions.transformation.joint.Slice;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.logic.Constant;
 import cz.cvut.fel.ida.logic.Literal;
@@ -151,14 +152,11 @@ public class NeuralNetBuilder {
                 aggInputNeuron = aggNeuron;
                 if (!connectToAggregation) {
                     SplittableAggregationNeuron splitAggNeuron = (SplittableAggregationNeuron) aggNeuron;
-                    aggInputNeuron = (BaseNeuron) splitAggNeuron.inputOrder.get(rules2groundings.getKey());
+                    aggInputNeuron = (BaseNeuron) splitAggNeuron.inputOrder.get(rules2groundings.getKey().groundHead);
 
                     if (aggInputNeuron == null) {
-                        Literal groundLiteral = rules2groundings.getKey().groundHead;
-                        aggInputNeuron = neuralBuilder.neuronFactory.createSplittableAtomNeuron(splitAggNeuron.inputOrder.size(), groundLiteral);
-                        aggInputNeuron.addInput(aggNeuron);
-
-                        splitAggNeuron.inputOrder.put(rules2groundings.getKey(), aggInputNeuron);
+                        aggInputNeuron = neuralBuilder.neuronFactory.createSplittableAtomNeuron(rules2groundings.getKey().groundHead, splitAggNeuron);
+                        splitAggNeuron.inputOrder.put(rules2groundings.getKey().groundHead, aggInputNeuron);
                     }
                 }
 
@@ -218,14 +216,36 @@ public class NeuralNetBuilder {
                     //ruleNeuron.isShared = true;
                     LOG.severe("Inconsistency - Specific rule neuron already contained in neuronmap!! This should never happen...");
                 }
-                if (newAggNeuron) {
-                    if (connectToAggregation) {
-                        aggNeuron.addInput(ruleNeuron);
-                    }
-                } else {
+
+                if (!newAggNeuron) {
                     LOG.info("Warning-  modifying previous state - Creating input overmapping for this Agg neuron: " + aggNeuron);
                     NeuronMapping<RuleNeurons> inputMapping = (NeuronMapping<RuleNeurons>) neuronMaps.extraInputMapping.get(headAtomNeuron);
                     inputMapping.addLink(ruleNeuron);
+
+                    continue;
+                }
+
+                if (!connectToAggregation) {
+                    continue;
+                }
+
+                aggNeuron.addInput(ruleNeuron);
+
+                if (aggregation.isSplittable()) {
+                    SplittableAggregationNeuron splitAggNeuron = (SplittableAggregationNeuron) aggNeuron;
+                    aggInputNeuron = (BaseNeuron) splitAggNeuron.inputOrder.get(grounding.groundHead);
+
+                    if (aggInputNeuron == null) {
+                        aggInputNeuron = neuralBuilder.neuronFactory.createSplittableAtomNeuron(grounding.groundHead, splitAggNeuron);
+                        splitAggNeuron.inputOrder.put(grounding.groundHead, aggInputNeuron);
+                    }
+
+                    final int index = aggNeuron.inputCount();
+                    final int[] sliceCoords = new int[] { index - 1, index };
+
+                    Slice slice = (Slice) aggInputNeuron.getTransformation();
+                    slice.setCols(sliceCoords);
+                    slice.setRows(sliceCoords);
                 }
             }
         }
