@@ -1,6 +1,5 @@
 package cz.cvut.fel.ida.neural.networks.structure.components.neurons.types;
 
-import cz.cvut.fel.ida.logic.constructs.template.components.GroundHeadRule;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
 
@@ -9,7 +8,7 @@ import java.util.Map;
 
 public class SplittableAggregationNeuron<S extends State.Neural> extends AggregationNeuron<S> {
 
-    public Map<GroundHeadRule, AtomNeuron> inputOrder = new HashMap<>();
+    public Map<String, AtomNeuron> inputOrder = new HashMap<>();
 
     public SplittableAggregationNeuron(String groundRule, int index, S state) {
         super(groundRule, index, state);

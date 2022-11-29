@@ -248,25 +248,17 @@ public class Neuralizer implements Exportable {
             for (Map.Entry<GroundHeadRule, Collection<GroundRule>> entry : ruleMap.entrySet()) {
                 Aggregation aggregation = entry.getKey().weightedRule.getAggregationFcn();
 
-                if (aggregation == null || !aggregation.isSplittable()) {
-                    for (GroundRule grounding : entry.getValue()) {
-                        for (Literal bodyAtom : grounding.groundBody) {
-                            recursiveNeuronsCreation(bodyAtom, closedSet, neuronMaps, currentNeuralSets);
-                        }
-                    }
-
+                if (aggregation != null && aggregation.isSplittable()) { // Process masked literal
+                    Literal maskedLiteral = entry.getKey().groundHead.maskTerms(aggregation.aggregableTerms());
+                    recursiveNeuronsCreation(maskedLiteral, closedSet, neuronMaps, currentNeuralSets);
                     continue;
                 }
 
-                List<Term> terms = new ArrayList<>(entry.getKey().groundHead.termList());
-                int[] aggregableTerms = aggregation.aggregableTerms();
-
-                for (int index : aggregableTerms) {
-                    terms.set(index, Constant.construct("_"));
+                for (GroundRule grounding : entry.getValue()) {
+                    for (Literal bodyAtom : grounding.groundBody) {
+                        recursiveNeuronsCreation(bodyAtom, closedSet, neuronMaps, currentNeuralSets);
+                    }
                 }
-
-                Literal lit = new Literal(entry.getKey().groundHead.predicate(), entry.getKey().groundHead.isNegated(), terms);
-                recursiveNeuronsCreation(lit, closedSet, neuronMaps, currentNeuralSets);
             }
         }
     }

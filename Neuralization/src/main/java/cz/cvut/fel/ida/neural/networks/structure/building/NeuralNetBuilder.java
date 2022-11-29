@@ -22,6 +22,7 @@ import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.LinkedMa
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.NeuronMapping;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.generic.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -116,72 +117,37 @@ public class NeuralNetBuilder {
         //2) AggregationNeurons creation
         for (Map.Entry<GroundHeadRule, Collection<GroundRule>> rules2groundings : rules.entrySet()) {
             boolean newAggNeuron = false;
-            boolean connectToAggregation = true;
             AggregationNeuron aggNeuron;
             BaseNeuron aggInputNeuron;
-
-            GroundHeadRule groundHeadRule = rules2groundings.getKey();
-            Aggregation aggregation = groundHeadRule.weightedRule.getAggregationFcn();
+            Aggregation aggregation = rules2groundings.getKey().weightedRule.getAggregationFcn();
 
             if (aggregation != null && aggregation.isSplittable()) {
-                List<Term> terms = new ArrayList<>(groundHeadRule.groundHead.termList());
-                int[] aggregableTerms = aggregation.aggregableTerms();
+                Pair<AggregationNeuron, BaseNeuron> aggregagtionNeurons = createAggregationNeuron(rules2groundings.getKey(), neuronMaps, createdNeurons);
 
-                for (int index : aggregableTerms) {
-                    if (!terms.get(index).name().equals("_")) {
-                        connectToAggregation = false;
-                    }
-
-                    terms.set(index, Constant.construct("_"));
-                }
-
-                Literal literal = new Literal(groundHeadRule.groundHead.predicate(), groundHeadRule.groundHead.isNegated(), terms);
-                groundHeadRule = new GroundHeadRule(groundHeadRule.weightedRule, literal);
+                aggNeuron = aggregagtionNeurons.r;
+                aggInputNeuron = aggregagtionNeurons.s;
                 newAggNeuron = true;
-
-                if (neuronMaps.aggNeurons.get(groundHeadRule) != null) {
-                    aggNeuron = neuronMaps.aggNeurons.get(groundHeadRule);
-                } else {
-                    aggNeuron = neuralBuilder.neuronFactory.createSplittableAggNeuron(groundHeadRule);
+            } else {
+                if ((aggNeuron = neuronMaps.aggNeurons.get(rules2groundings.getKey())) == null) {
+                    newAggNeuron = true;
+                    aggNeuron = neuralBuilder.neuronFactory.createAggNeuron(rules2groundings.getKey());
                     if (aggNeuron.getComputationView(0).getFcnState().getInputMask() != null) { // the neuron will require input masking!
                         neuronMaps.containsMasking = true;
                     }
                     createdNeurons.aggNeurons.add(aggNeuron);
-                }
-
-                aggInputNeuron = aggNeuron;
-                if (!connectToAggregation) {
-                    SplittableAggregationNeuron splitAggNeuron = (SplittableAggregationNeuron) aggNeuron;
-                    aggInputNeuron = (BaseNeuron) splitAggNeuron.inputOrder.get(rules2groundings.getKey().groundHead);
-
-                    if (aggInputNeuron == null) {
-                        aggInputNeuron = neuralBuilder.neuronFactory.createSplittableAtomNeuron(rules2groundings.getKey().groundHead, splitAggNeuron);
-                        splitAggNeuron.inputOrder.put(rules2groundings.getKey().groundHead, aggInputNeuron);
+                } else {
+                    aggNeuron.isShared = true;
+                    if (rules2groundings.getValue().size() > 0) {   //todo check
+                        NeuronMapping<RuleNeuron> inputMapping;
+                        if ((inputMapping = (NeuronMapping<RuleNeuron>) neuronMaps.extraInputMapping.get(aggNeuron)) != null) {    //if previously existing aggregation neuron already had input overmapping, create a new (incremental) one
+                            neuronMaps.extraInputMapping.put(aggNeuron, new NeuronMapping<>(inputMapping));
+                        } else {
+                            neuronMaps.extraInputMapping.put(aggNeuron, new NeuronMapping<>(aggNeuron.getInputs()));
+                        }
                     }
                 }
 
-            } else if ((aggNeuron = neuronMaps.aggNeurons.get(groundHeadRule)) == null) {
-                newAggNeuron = true;
-
-                aggNeuron = neuralBuilder.neuronFactory.createAggNeuron(groundHeadRule);
                 aggInputNeuron = aggNeuron;
-
-                if (aggNeuron.getComputationView(0).getFcnState().getInputMask() != null) { // the neuron will require input masking!
-                    neuronMaps.containsMasking = true;
-                }
-
-                createdNeurons.aggNeurons.add(aggNeuron);
-            } else {
-                aggInputNeuron = aggNeuron;
-                aggNeuron.isShared = true;
-                if (rules2groundings.getValue().size() > 0) {   //todo check
-                    NeuronMapping<RuleNeuron> inputMapping;
-                    if ((inputMapping = (NeuronMapping<RuleNeuron>) neuronMaps.extraInputMapping.get(aggNeuron)) != null) {    //if previously existing aggregation neuron already had input overmapping, create a new (incremental) one
-                        neuronMaps.extraInputMapping.put(aggNeuron, new NeuronMapping<>(inputMapping));
-                    } else {
-                        neuronMaps.extraInputMapping.put(aggNeuron, new NeuronMapping<>(aggNeuron.getInputs()));
-                    }
-                }
             }
 
             if (newAtomNeuron) {
@@ -225,27 +191,14 @@ public class NeuralNetBuilder {
                     continue;
                 }
 
-                if (!connectToAggregation) {
+                if (aggInputNeuron != aggNeuron) {
                     continue;
                 }
 
                 aggNeuron.addInput(ruleNeuron);
 
-                if (aggregation.isSplittable()) {
-                    SplittableAggregationNeuron splitAggNeuron = (SplittableAggregationNeuron) aggNeuron;
-                    aggInputNeuron = (BaseNeuron) splitAggNeuron.inputOrder.get(grounding.groundHead);
-
-                    if (aggInputNeuron == null) {
-                        aggInputNeuron = neuralBuilder.neuronFactory.createSplittableAtomNeuron(grounding.groundHead, splitAggNeuron);
-                        splitAggNeuron.inputOrder.put(grounding.groundHead, aggInputNeuron);
-                    }
-
-                    final int index = aggNeuron.inputCount();
-                    final int[] sliceCoords = new int[] { index - 1, index };
-
-                    Slice slice = (Slice) aggInputNeuron.getTransformation();
-                    slice.setCols(sliceCoords);
-                    slice.setRows(sliceCoords);
+                if (aggregation != null && aggregation.isSplittable()) {
+                    initSplittableAggregationNeuronIndex(aggNeuron, grounding.groundHead);
                 }
             }
         }
@@ -408,6 +361,73 @@ public class NeuralNetBuilder {
             }
         }
         return outputMapping;
+    }
+
+    /**
+     * Initializes splittable neuron index depending on the groundHead rule position
+     *
+     * @param aggregationNeuron
+     * @param groundHead
+     */
+    private void initSplittableAggregationNeuronIndex(AggregationNeuron aggregationNeuron, Literal groundHead) {
+        SplittableAggregationNeuron splitAggNeuron = (SplittableAggregationNeuron) aggregationNeuron;
+        BaseNeuron aggInputNeuron = (BaseNeuron) splitAggNeuron.inputOrder.get(groundHead);
+
+        if (aggInputNeuron == null) {
+            aggInputNeuron = neuralBuilder.neuronFactory.createSplittableAtomNeuron(groundHead, splitAggNeuron);
+            splitAggNeuron.inputOrder.put(groundHead, aggInputNeuron);
+        }
+
+        final int index = aggregationNeuron.inputCount();
+        final int[] sliceCoords = new int[] { index - 1, index };
+
+        Slice slice = (Slice) aggInputNeuron.getTransformation();
+        slice.setCols(sliceCoords);
+        slice.setRows(sliceCoords);
+    }
+
+    private Pair<AggregationNeuron, BaseNeuron> createAggregationNeuron(GroundHeadRule groundHeadRule, NeuronMaps neuronMaps, NeuralSets createdNeurons) {
+        boolean connectToAggregation = true;
+        AggregationNeuron aggNeuron;
+        BaseNeuron aggInputNeuron;
+
+        Aggregation aggregation = groundHeadRule.weightedRule.getAggregationFcn();
+        List<Term> terms = new ArrayList<>(groundHeadRule.groundHead.termList());
+        int[] aggregableTerms = aggregation.aggregableTerms();
+
+        for (int index : aggregableTerms) {
+            if (!terms.get(index).name().equals("_")) {
+                connectToAggregation = false;
+            }
+
+            terms.set(index, Constant.construct("_"));
+        }
+
+        Literal literal = new Literal(groundHeadRule.groundHead.predicate(), groundHeadRule.groundHead.isNegated(), terms);
+        GroundHeadRule newGroundHeadRule = new GroundHeadRule(groundHeadRule.weightedRule, literal);
+
+        if (neuronMaps.aggNeurons.get(newGroundHeadRule) != null) {
+            aggNeuron = neuronMaps.aggNeurons.get(newGroundHeadRule);
+        } else {
+            aggNeuron = neuralBuilder.neuronFactory.createSplittableAggNeuron(newGroundHeadRule);
+            if (aggNeuron.getComputationView(0).getFcnState().getInputMask() != null) { // the neuron will require input masking!
+                neuronMaps.containsMasking = true;
+            }
+            createdNeurons.aggNeurons.add(aggNeuron);
+        }
+
+        aggInputNeuron = aggNeuron;
+        if (!connectToAggregation) {
+            SplittableAggregationNeuron splitAggNeuron = (SplittableAggregationNeuron) aggNeuron;
+            aggInputNeuron = (BaseNeuron) splitAggNeuron.inputOrder.get(groundHeadRule.groundHead);
+
+            if (aggInputNeuron == null) {
+                aggInputNeuron = neuralBuilder.neuronFactory.createSplittableAtomNeuron(groundHeadRule.groundHead, splitAggNeuron);
+                splitAggNeuron.inputOrder.put(groundHeadRule.groundHead, aggInputNeuron);
+            }
+        }
+
+        return new Pair<>(aggNeuron, aggInputNeuron);
     }
 
 
