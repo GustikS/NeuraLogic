@@ -180,10 +180,6 @@ public class NeuralNetBuilder {
                 }
 
                 aggNeuron.addInput(ruleNeuron);
-
-                if (aggregation != null && aggregation.isSplittable()) {
-                    initSplittableAggregationNeuronIndex(aggNeuron, grounding.groundHead);
-                }
             }
         }
     }
