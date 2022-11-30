@@ -234,7 +234,7 @@ public class Neuralizer implements Exportable {
      * @param literal
      * @param closedSet
      */
-    private void recursiveNeuronsCreation(@NotNull Literal literal, Set<Literal> closedSet, NeuronMaps neuronMaps, NeuralSets currentNeuralSets) {
+    private void recursiveNeuronsCreation(@NotNull Literal literal, Set<Literal> closedSet, NeuronMaps neuronMaps, NeuralSets currentNeuralSets, boolean splittable) {
         if (closedSet.contains(literal)) {
             return;
         }
@@ -242,7 +242,12 @@ public class Neuralizer implements Exportable {
 
         LinkedHashMap<GroundHeadRule, Collection<GroundRule>> ruleMap = neuronMaps.groundRules.remove(literal);
         if (ruleMap != null) {
-            neuralNetBuilder.loadNeuronsFromRules(literal, ruleMap, currentNeuralSets);
+            if (splittable) {
+                neuralNetBuilder.loadSplittableNeuronsFromRules(literal, ruleMap, currentNeuralSets);
+            } else {
+                neuralNetBuilder.loadNeuronsFromRules(literal, ruleMap, currentNeuralSets);
+            }
+
             groundRulesProcessed++;
 
             for (Map.Entry<GroundHeadRule, Collection<GroundRule>> entry : ruleMap.entrySet()) {
@@ -250,13 +255,13 @@ public class Neuralizer implements Exportable {
 
                 if (aggregation != null && aggregation.isSplittable()) { // Process masked literal
                     Literal maskedLiteral = entry.getKey().groundHead.maskTerms(aggregation.aggregableTerms());
-                    recursiveNeuronsCreation(maskedLiteral, closedSet, neuronMaps, currentNeuralSets);
+                    recursiveNeuronsCreation(maskedLiteral, closedSet, neuronMaps, currentNeuralSets, true);
                     continue;
                 }
 
                 for (GroundRule grounding : entry.getValue()) {
                     for (Literal bodyAtom : grounding.groundBody) {
-                        recursiveNeuronsCreation(bodyAtom, closedSet, neuronMaps, currentNeuralSets);
+                        recursiveNeuronsCreation(bodyAtom, closedSet, neuronMaps, currentNeuralSets, false);
                     }
                 }
             }
@@ -293,7 +298,7 @@ public class Neuralizer implements Exportable {
         Set<Literal> closedSet = new HashSet<>();
 
         for (Literal queryLiteral : queryLiterals) {
-            recursiveNeuronsCreation(queryLiteral, closedSet, neuronMaps, currentNeuralSets);
+            recursiveNeuronsCreation(queryLiteral, closedSet, neuronMaps, currentNeuralSets, false);
             closedSet.add(queryLiteral);
         }
 
