@@ -119,17 +119,18 @@ public class NeuralNetBuilder {
 
             AggregationNeuron aggNeuron;
             BaseNeuron aggInputNeuron;
-            Aggregation aggregation = rules2groundings.getKey().weightedRule.getAggregationFcn();
+            GroundHeadRule groundHeadRule = rules2groundings.getKey();
+            Aggregation aggregation = groundHeadRule.weightedRule.getAggregationFcn();
 
             if (aggregation != null && aggregation.isSplittable()) {
-                Pair<AggregationNeuron, BaseNeuron> aggregagtionNeurons = createAggregationNeuron(rules2groundings.getKey(), neuronMaps, createdNeurons);
+                Pair<AggregationNeuron, BaseNeuron> aggregagtionNeurons = createAggregationNeuron(groundHeadRule, neuronMaps, createdNeurons);
 
                 aggNeuron = aggregagtionNeurons.r;
                 aggInputNeuron = aggregagtionNeurons.s;
             } else {
-                if ((aggNeuron = neuronMaps.aggNeurons.get(rules2groundings.getKey())) == null) {
+                if ((aggNeuron = neuronMaps.aggNeurons.get(groundHeadRule)) == null) {
                     newAggNeuron = true;
-                    aggNeuron = neuralBuilder.neuronFactory.createAggNeuron(rules2groundings.getKey());
+                    aggNeuron = neuralBuilder.neuronFactory.createAggNeuron(groundHeadRule);
                     if (aggNeuron.getComputationView(0).getFcnState().getInputMask() != null) { // the neuron will require input masking!
                         neuronMaps.containsMasking = true;
                     }
@@ -151,7 +152,7 @@ public class NeuralNetBuilder {
 
             if (newAtomNeuron) {
                 if (weightedAtomNeuron) {
-                    ((WeightedNeuron) headAtomNeuron).addInput(aggInputNeuron, rules2groundings.getKey().weightedRule.getWeight());
+                    ((WeightedNeuron) headAtomNeuron).addInput(aggInputNeuron, groundHeadRule.weightedRule.getWeight());
                 } else {
                     headAtomNeuron.addInput(aggInputNeuron);
                 }
@@ -358,7 +359,7 @@ public class NeuralNetBuilder {
             splitAggNeuron.inputOrder.put(groundHead, aggInputNeuron);
         }
 
-        ((AtIndex) aggInputNeuron.getTransformation()).setIndex(aggregationNeuron.inputCount());
+        ((AtIndex) aggInputNeuron.getTransformation()).setIndex(aggregationNeuron.inputCount() - 1);
     }
 
     private Pair<AggregationNeuron, BaseNeuron> createAggregationNeuron(GroundHeadRule groundHeadRule, NeuronMaps neuronMaps, NeuralSets createdNeurons) {
