@@ -1,6 +1,5 @@
 package cz.cvut.fel.ida.logic.grounding.bottomUp;
 
-import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.logic.*;
 import cz.cvut.fel.ida.logic.constructs.example.LiftedExample;

@@ -22,16 +22,6 @@ public class Concatenation implements Combination, Aggregation {
     private static final Logger LOG = Logger.getLogger(Concatenation.class.getName());
 
     @Override
-    public boolean isSplittable() {
-        return true;
-    }
-
-    @Override
-    public int[] aggregableTerms() {
-        return new int[] {1};
-    }
-
-    @Override
     public Combination replaceWithSingleton() {
         return Combination.Singletons.concatenation;
     }
