@@ -12,8 +12,8 @@ import java.util.logging.Logger;
 public class Slice implements Transformation {
     private static final Logger LOG = Logger.getLogger(Slice.class.getName());
 
-    private int[] cols;
-    private int[] rows;
+    private final int[] cols;
+    private final int[] rows;
 
     public Slice() {
         cols = null;
@@ -34,14 +34,6 @@ public class Slice implements Transformation {
         }
 
         this.cols = cols;
-        this.rows = rows;
-    }
-
-    public void setCols(int[] cols) { // Maybe add validation
-        this.cols = cols;
-    }
-
-    public void setRows(int[] rows) {
         this.rows = rows;
     }
 

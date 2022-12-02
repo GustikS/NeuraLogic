@@ -138,19 +138,19 @@ public class VectorValue extends Value {
         int[] sliceCoords;
 
         if (rowOrientation) {
-//            if (rows != null && rows[0] != 0 && rows[1] != 1) {
-//                String err = "Cannot slice VectorValue with size " + Arrays.toString(this.size()) + " with row slice " + Arrays.toString(rows);
-//                LOG.severe(err);
-//                throw new ArithmeticException(err);
-//            }
+            if (rows != null && rows[0] != 0 && rows[1] != 1) {
+                String err = "Cannot slice VectorValue with size " + Arrays.toString(this.size()) + " with row slice " + Arrays.toString(rows);
+                LOG.severe(err);
+                throw new ArithmeticException(err);
+            }
 
             sliceCoords = cols;
         } else {
-//            if (cols != null && cols[0] != 0 && cols[1] != 1) {
-//                String err = "Cannot slice VectorValue with size " + Arrays.toString(this.size()) + " with col slice " + Arrays.toString(cols);
-//                LOG.severe(err);
-//                throw new ArithmeticException(err);
-//            }
+            if (cols != null && cols[0] != 0 && cols[1] != 1) {
+                String err = "Cannot slice VectorValue with size " + Arrays.toString(this.size()) + " with col slice " + Arrays.toString(cols);
+                LOG.severe(err);
+                throw new ArithmeticException(err);
+            }
 
             sliceCoords = rows;
         }

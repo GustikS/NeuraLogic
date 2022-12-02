@@ -3,7 +3,7 @@ package cz.cvut.fel.ida.neural.networks.structure.building;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.functions.Combination;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
-import cz.cvut.fel.ida.algebra.functions.transformation.joint.Slice;
+import cz.cvut.fel.ida.algebra.functions.transformation.joint.AtIndex;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
@@ -111,7 +111,7 @@ public class NeuronFactory {
 
     public AtomNeuron createSplittableAtomNeuron(Literal groundHead, SplittableAggregationNeuron splittableAggregationNeuron) {
         Combination combination = Combination.getFunction(settings.atomNeuronCombination);
-        Transformation transformation = new Slice();
+        Transformation transformation = new AtIndex();
 
         State.Neural.Computation state = State.createBaseState(settings, combination, transformation);
         Literal head = new Literal(new Predicate("_" + groundHead.predicate().name, groundHead.predicate().arity), groundHead.isNegated(), groundHead.termList());

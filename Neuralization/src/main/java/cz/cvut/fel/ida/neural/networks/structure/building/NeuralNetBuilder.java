@@ -1,7 +1,7 @@
 package cz.cvut.fel.ida.neural.networks.structure.building;
 
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
-import cz.cvut.fel.ida.algebra.functions.transformation.joint.Slice;
+import cz.cvut.fel.ida.algebra.functions.transformation.joint.AtIndex;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
@@ -358,12 +358,7 @@ public class NeuralNetBuilder {
             splitAggNeuron.inputOrder.put(groundHead, aggInputNeuron);
         }
 
-        final int index = aggregationNeuron.inputCount();
-        final int[] sliceCoords = new int[] { index - 1, index };
-
-        Slice slice = (Slice) aggInputNeuron.getTransformation();
-        slice.setCols(sliceCoords);
-        slice.setRows(sliceCoords);
+        ((AtIndex) aggInputNeuron.getTransformation()).setIndex(aggregationNeuron.inputCount());
     }
 
     private Pair<AggregationNeuron, BaseNeuron> createAggregationNeuron(GroundHeadRule groundHeadRule, NeuronMaps neuronMaps, NeuralSets createdNeurons) {
