@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.algebra.functions.combination;
 
 import cz.cvut.fel.ida.algebra.functions.ActivationFcn;
+import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.functions.Combination;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.functions.transformation.joint.XMax;
@@ -17,8 +18,18 @@ import java.util.logging.Logger;
  * This is both Transformation (joint activation) and Combination...
  * todo test softmax as an combination fcn
  */
-public class Softmax implements Transformation, Combination, XMax {
+public class Softmax implements Transformation, Combination, XMax, Aggregation {
     private static final Logger LOG = Logger.getLogger(Softmax.class.getName());
+
+    private final int[] aggregableTerms;
+
+    public Softmax() {
+        this.aggregableTerms = null;
+    }
+
+    public Softmax(int[] aggregableTerms) {
+        this.aggregableTerms = aggregableTerms;
+    }
 
     @Override
     public Transformation replaceWithSingleton() {
@@ -132,6 +143,22 @@ public class Softmax implements Transformation, Combination, XMax {
     @Override
     public boolean isPermutationInvariant() {
         return false;
+    }
+
+    @Override
+    public boolean isSplittable() {
+        return aggregableTerms != null && aggregableTerms.length != 0;
+    }
+
+    @Override
+    public int[] aggregableTerms() {
+        return aggregableTerms;
+    }
+
+    @Override
+    public Value differentiate(List<Value> inputs) {
+        LOG.warning("Directly calculating derivative of SOFTMAX fcn");
+        return Value.ONE;
     }
 
     @Override

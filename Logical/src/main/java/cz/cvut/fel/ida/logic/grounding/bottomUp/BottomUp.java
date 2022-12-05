@@ -1,17 +1,11 @@
 package cz.cvut.fel.ida.logic.grounding.bottomUp;
 
 import cz.cvut.fel.ida.algebra.weights.Weight;
-import cz.cvut.fel.ida.logic.Clause;
-import cz.cvut.fel.ida.logic.HornClause;
-import cz.cvut.fel.ida.logic.Literal;
-import cz.cvut.fel.ida.logic.Term;
+import cz.cvut.fel.ida.logic.*;
 import cz.cvut.fel.ida.logic.constructs.example.LiftedExample;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
-import cz.cvut.fel.ida.logic.constructs.template.components.GroundHeadRule;
-import cz.cvut.fel.ida.logic.constructs.template.components.GroundRule;
-import cz.cvut.fel.ida.logic.constructs.template.components.HeadAtom;
-import cz.cvut.fel.ida.logic.constructs.template.components.WeightedRule;
+import cz.cvut.fel.ida.logic.constructs.template.components.*;
 import cz.cvut.fel.ida.logic.grounding.GroundTemplate;
 import cz.cvut.fel.ida.logic.grounding.Grounder;
 import cz.cvut.fel.ida.logic.grounding.constructs.GroundRulesCollection;
@@ -92,16 +86,17 @@ public class BottomUp extends Grounder {
             Pair<Term[], List<Term[]>> groundingSubstitutions = herbrandModel.groundingSubstitutions(ruleEntry.getKey());
             for (WeightedRule weightedRule : ruleEntry.getValue()) {
                 List<GroundRule> groundings = groundRules(weightedRule, groundingSubstitutions);
+                final boolean splittable = weightedRule.getAggregationFcn() != null && weightedRule.getAggregationFcn().isSplittable();
+
                 for (GroundRule grounding : groundings) {
-
                     grounding.internLiterals(allLiterals);
-                    Map<GroundHeadRule, Collection<GroundRule>> rules2groundings = groundRules.computeIfAbsent(grounding.groundHead, k -> new LinkedHashMap<>()); //we still want unique rules at least
 
-                    //aggregation neurons correspond to lifted rule with particular ground head
-                    GroundHeadRule groundHeadRule = weightedRule.groundHeadRule(grounding.groundHead);
+                    storeGrounding(groundRules, grounding, grounding.groundHead);
 
-                    Collection<GroundRule> ruleGroundings = rules2groundings.computeIfAbsent(groundHeadRule, k -> GroundRulesCollection.getGroundingCollection(weightedRule));    //here we choose whether we want only unique ground bodies or not
-                    ruleGroundings.add(grounding);
+                    if (splittable) { // if this rule has a special "splittable" aggregation
+                        Literal maskedHead = grounding.groundHead.maskTerms(weightedRule.getAggregationFcn().aggregableTerms()); // mask out the head w.r.t. aggregableTerms
+                        storeGrounding(groundRules, grounding, maskedHead); // and store the masked version, too
+                    }
                 }
             }
         }
@@ -202,5 +197,20 @@ public class BottomUp extends Grounder {
             groundRules.add(groundRule);
         }
         return groundRules;
+    }
+
+    /**
+     * Get the path to this "grounding" through the "groundRules" structure and store it.
+     * Initialize on the way, if necessary.
+     *
+     * @param groundRules
+     * @param grounding
+     * @param groundHead
+     */
+    private void storeGrounding(LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules, GroundRule grounding, Literal groundHead) {
+        GroundHeadRule groundHeadRule = grounding.weightedRule.groundHeadRule(groundHead);  // get groundHeadRule for this grounding and weightedRule (i.e. remove the body from this grounding)
+        Map<GroundHeadRule, Collection<GroundRule>> groundHeadRules2groundings = groundRules.computeIfAbsent(groundHead, k -> new LinkedHashMap<>());  // get all the GroundHeadRules with the same head as this one AND initialize new map if necessary (hence 2 steps)
+        Collection<GroundRule> ruleGroundings = groundHeadRules2groundings.computeIfAbsent(groundHeadRule, k -> GroundRulesCollection.getGroundingCollection(grounding.weightedRule));  // now get the list of groundings for this groundHeadRule only. Here we also choose whether we want only unique ground bodies or not
+        ruleGroundings.add(grounding);  // finally, add this particular grounding to the right place
     }
 }
