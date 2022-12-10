@@ -253,7 +253,7 @@ public class Neuralizer implements Exportable {
             for (Map.Entry<GroundHeadRule, Collection<GroundRule>> entry : ruleMap.entrySet()) {
                 Aggregation aggregation = entry.getKey().weightedRule.getAggregationFcn();
 
-                if (aggregation != null && aggregation.isSplittable()) { // Process masked literal
+                if (!splittable && aggregation != null && aggregation.isSplittable()) { // Process masked literal
                     Literal maskedLiteral = entry.getKey().groundHead.maskTerms(aggregation.aggregableTerms());
                     recursiveNeuronsCreation(maskedLiteral, closedSet, neuronMaps, currentNeuralSets, true);
                     continue;
