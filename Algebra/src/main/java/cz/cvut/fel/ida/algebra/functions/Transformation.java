@@ -73,7 +73,7 @@ public interface Transformation extends ActivationFcn, Exportable {
     public static class Singletons {
         public static Softmax softmax = new Softmax();
         public static Sparsemax sparsemax = new Sparsemax();
-        public static Normalization normalization;
+        public static Normalization normalization = new Normalization();
 
         public static Transposition transposition = new Transposition();
         public static Identity identity = new Identity();
