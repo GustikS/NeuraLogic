@@ -92,7 +92,8 @@ public class SubsumptionEngineJ2 {
     private Map<Integer, Number> numbers = new HashMap<Integer, Number>();
 
     //this is for speed - so that we could just be checking integer identifiers
-    private final static int alldiff = -1, neq = -2, eq = -3, leq = -4, lt = -5, geq = -6, gt = -7, maxcard = -8, in = -9, anypred = -10, truepred = -11, falsepred = -12, next = -13;
+    private final static int alldiff = -1, neq = -2, eq = -3, leq = -4, lt = -5, geq = -6, gt = -7, maxcard = -8, in = -9,
+            anypred = -10, truepred = -11, falsepred = -12, next = -13, add = -14, sub = -15, mod = -16;
 
     public SubsumptionEngineJ2() {
         this.predicatesToIntegers.put(alldiff, SpecialVarargPredicates.ALLDIFF);
@@ -108,6 +109,9 @@ public class SubsumptionEngineJ2 {
         this.predicatesToIntegers.put(anypred, SpecialVarargPredicates.ANYPRED);
         this.predicatesToIntegers.put(truepred, SpecialVarargPredicates.TRUE);
         this.predicatesToIntegers.put(falsepred, SpecialVarargPredicates.FALSE);
+        this.predicatesToIntegers.put(add, SpecialVarargPredicates.ADD);
+        this.predicatesToIntegers.put(sub, SpecialVarargPredicates.SUB);
+        this.predicatesToIntegers.put(mod, SpecialVarargPredicates.MOD);
         for (String specialBinaryPredicate : SpecialBinaryPredicates.SPECIAL_PREDICATES) {
             this.specialPredicateIds.add(this.predicatesToIntegers.valueToIndex(specialBinaryPredicate));
         }
@@ -1658,8 +1662,6 @@ public class SubsumptionEngineJ2 {
                     Term arg1 = termsToIntegers.indexToValue(grounding[cliterals[index + 3]]);
                     Term arg2 = termsToIntegers.indexToValue(grounding[cliterals[index + 4]]);
                     Constant c1, c2;
-                    String str1 = arg1.toString();
-                    String str2 = arg2.toString();
                     if (arg1 instanceof Constant && arg2 instanceof Constant && (c1 = (Constant) arg1).isNumeric() && (c2 = (Constant) arg2).isNumeric()) {
                         return c1.doubleValue() == c2.doubleValue() - 1;
                     } else {
@@ -1668,6 +1670,51 @@ public class SubsumptionEngineJ2 {
                 } else {
                     return true;
                 }
+            case add:
+                if (isGround(cliterals, grounding, index)) {
+                    Term arg1 = termsToIntegers.indexToValue(grounding[cliterals[index + 3]]);
+                    Term arg2 = termsToIntegers.indexToValue(grounding[cliterals[index + 4]]);
+                    Term arg3 = termsToIntegers.indexToValue(grounding[cliterals[index + 5]]);
+                    Constant c1, c2,c3;
+                    if (arg1 instanceof Constant && arg2 instanceof Constant && arg3 instanceof Constant &&
+                            (c1 = (Constant) arg1).isNumeric() && (c2 = (Constant) arg2).isNumeric() && (c3 = (Constant) arg3).isNumeric()) {
+                        return c1.doubleValue() + c2.doubleValue() == c3.doubleValue();
+                    }
+
+                    return false;
+                }
+
+                return true;
+            case sub:
+                if (isGround(cliterals, grounding, index)) {
+                    Term arg1 = termsToIntegers.indexToValue(grounding[cliterals[index + 3]]);
+                    Term arg2 = termsToIntegers.indexToValue(grounding[cliterals[index + 4]]);
+                    Term arg3 = termsToIntegers.indexToValue(grounding[cliterals[index + 5]]);
+                    Constant c1, c2,c3;
+                    if (arg1 instanceof Constant && arg2 instanceof Constant && arg3 instanceof Constant &&
+                            (c1 = (Constant) arg1).isNumeric() && (c2 = (Constant) arg2).isNumeric() && (c3 = (Constant) arg3).isNumeric()) {
+                        return c1.doubleValue() - c2.doubleValue() == c3.doubleValue();
+                    }
+
+                    return false;
+                }
+
+                return true;
+            case mod:
+                if (isGround(cliterals, grounding, index)) {
+                    Term arg1 = termsToIntegers.indexToValue(grounding[cliterals[index + 3]]);
+                    Term arg2 = termsToIntegers.indexToValue(grounding[cliterals[index + 4]]);
+                    Term arg3 = termsToIntegers.indexToValue(grounding[cliterals[index + 5]]);
+                    Constant c1, c2,c3;
+                    if (arg1 instanceof Constant && arg2 instanceof Constant && arg3 instanceof Constant &&
+                            (c1 = (Constant) arg1).isNumeric() && (c2 = (Constant) arg2).isNumeric() && (c3 = (Constant) arg3).isNumeric()) {
+                        return c1.doubleValue() % c2.doubleValue() == c3.doubleValue();
+                    }
+
+                    return false;
+                }
+
+                return true;
         }
         return matchCustomLiteral(cliterals, grounding, index);
     }

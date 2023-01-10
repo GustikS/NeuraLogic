@@ -27,8 +27,9 @@ public class SpecialVarargPredicates {
      * ANYPRED cannot be used in TheorySolver (so far)!
      */
     public final static String ALLDIFF = "@alldiff", ANYPRED = "@anypred", TRUE = "@true", IN = "@in", MAX_CARD = "@maxcard", FALSE = "@false";
+    public final static String ADD = "@add", SUB = "@sub", MOD = "@mod";
 
-    public final static Set<String> SPECIAL_PREDICATES = Sugar.<String>set(ALLDIFF, ANYPRED, TRUE, IN, MAX_CARD, FALSE);
+    public final static Set<String> SPECIAL_PREDICATES = Sugar.<String>set(ALLDIFF, ANYPRED, TRUE, IN, MAX_CARD, FALSE, ADD, SUB, MOD);
 
     public static Boolean isTrueGround(Literal l){
         if (l.predicateName().equals(ALLDIFF)) {
