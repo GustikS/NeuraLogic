@@ -905,9 +905,11 @@ public class VectorValue extends Value {
     @Override
     public boolean equals(Value obj) {
         if (obj instanceof VectorValue) {
-            if (Arrays.equals(values, ((VectorValue) obj).values)) {
-                return true;
+            if (rowOrientation != ((VectorValue) obj).rowOrientation) {
+                return false;
             }
+
+            return Arrays.equals(values, ((VectorValue) obj).values);
         }
         return false;
     }
