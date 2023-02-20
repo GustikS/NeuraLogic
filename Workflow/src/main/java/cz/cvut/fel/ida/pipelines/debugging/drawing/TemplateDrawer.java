@@ -81,7 +81,7 @@ public class TemplateDrawer extends Drawer<Template> {
     private String draw(WeightedRule rule, BodyAtom bodyAtom) {
         String edgeColor = bodyAtom.isNegated() ? "red" : "black";
         String weight = bodyAtom.getConjunctWeight() == null ? "" : bodyAtom.getConjunctWeight().toString(numberFormat);
-        return rule.hashCode() + " -> " + bodyAtom.literal.liftedHashCode() + "[label=" + GraphViz.sanitize(weight) + ", color=" + edgeColor + "]";
+        return bodyAtom.literal.liftedHashCode() + " -> " + rule.hashCode() + "[label=" + GraphViz.sanitize(weight) + ", color=" + edgeColor + "]";
     }
 
     private String draw(BodyAtom bodyAtom) {
@@ -89,11 +89,11 @@ public class TemplateDrawer extends Drawer<Template> {
     }
 
     private String draw(Literal literal, WeightedRule rule) {
-        return literal.liftedHashCode() + " -> " + rule.hashCode() + "[label=" + GraphViz.sanitize(rule.getWeight().toString(numberFormat)) + ", color=green, style=dashed]";
+        return rule.hashCode() + " -> " + literal.liftedHashCode() + "[label=" + GraphViz.sanitize(rule.getWeight().toString(numberFormat)) + ", color=green, style=dashed]";
     }
 
     private String draw(BodyAtom bodyAtom, ValuedFact matchedFact) {
-        return bodyAtom.literal.liftedHashCode() + " -> " + matchedFact.literal.liftedHashCode() + "[dir=both, style=dotted, color=blue]";
+        return matchedFact.literal.liftedHashCode() + " -> " + bodyAtom.literal.liftedHashCode() + "[dir=both, style=dotted, color=blue]";
     }
 
     private String draw(Literal literal) {

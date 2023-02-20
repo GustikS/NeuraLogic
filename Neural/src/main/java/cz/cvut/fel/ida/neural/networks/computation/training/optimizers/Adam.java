@@ -52,7 +52,6 @@ public class Adam implements Optimizer {
             weight.momentum.setAsArray(momentum);
             weight.velocity.setAsArray(velocity);
         }
-
     }
 
     @Override

@@ -71,6 +71,16 @@ public class MainStagesMutaBenchmarks {
     }
 
     @Benchmark
+    @TestAnnotations.Medium
+    public void mutagenesisParallelGrounding() throws Exception {
+        Settings settings = Settings.forMediumTest();
+        settings.parallelGrounding = true;
+        String[] args = getDatasetArgs(dataset, template, "-lim -1 -ts 0");
+        Pair<Pipeline, ?> main = Main.main(args, settings);
+        System.out.println(main.s);
+    }
+
+    @Benchmark
     public void mutagenesisFullTraining() throws Exception {
         Settings settings = Settings.forMediumTest();
         String[] args = getDatasetArgs(dataset, template, "-lim -1 -ts 100");

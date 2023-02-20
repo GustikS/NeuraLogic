@@ -125,7 +125,7 @@ public class NeuralNetDrawer extends Drawer<NeuralSample> {
             StringBuilder sb = new StringBuilder();
             while (inputs.hasNext()) {
                 input = inputs.next();
-                sb.append(neuron.index + " -> " + input.getIndex() + " [style=dashed] ").append("\n");
+                sb.append(input.getIndex() + " -> " + neuron.index + " [style=dashed] ").append("\n");
             }
             return sb.toString();
         }
@@ -140,7 +140,7 @@ public class NeuralNetDrawer extends Drawer<NeuralSample> {
             while (inputNeurons.hasNext()) {
                 input = inputNeurons.next();
                 weight = inputWeights.next();
-                sb.append(neuron.index + " -> " + input.getIndex() + getEdgeLabel(neuron.index, input.getIndex(), weight)).append("\n");
+                sb.append(input.getIndex() + " -> " + neuron.index + getEdgeLabel(neuron.index, input.getIndex(), weight)).append("\n");
             }
             return sb.toString();
         }
