@@ -1,0 +1,10 @@
+import ./embeddings.txt
+
+path(X, Y) <= bond(X, Y, B), {3,3} bond_embed(B).
+
+path(X, Y) <= bond(X, Z, B), {3,3} bond_embed(B), {3,3} path(Z, Y).
+
+{1,3} predict :- path(X, Y).
+
+predict/0 {1}
+predict/0 [transformation=sigm]

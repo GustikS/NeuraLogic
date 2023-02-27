@@ -163,4 +163,23 @@ public class Debug {
         System.out.println(results);
         assertNotNull(results);
     }
+
+    @TestAnnotations.Fast
+    public void cycles() throws Exception {
+        String dataset = "relational/molecules/mutagenesis";
+        Settings settings = Settings.forSlowTest();
+        settings.seed = 4;
+//        settings.debugPipeline = true;
+//        settings.drawing = true;
+        settings.squishLastLayer = false;
+        settings.inferOutputFcns = false;
+//        settings.plotProgress = 1;
+        settings.maxCumEpochCount = 2;
+//        settings.isoValueCompression = true;
+        settings.structuralIsoCompression = true;
+        settings.initLearningRate = 0.01;
+//        settings.debugAll = true;
+        Main.main(getDatasetArgs(dataset,"-t ./templates/template_cycle.txt"), settings);
+    }
+
 }

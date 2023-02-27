@@ -169,13 +169,11 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
                     inputWeights.next();
                     if (inputNeurons.next() == input){
                         inputWeights.remove();
-                        inputs.remove();
-                        return;
+                        break;  // removing single edge at a time (the first one w.r.t. the outer iteration)
                     }
                 }
-            } else {
-                inputs.remove();
             }
+            inputs.remove();
         }
     }
 }
