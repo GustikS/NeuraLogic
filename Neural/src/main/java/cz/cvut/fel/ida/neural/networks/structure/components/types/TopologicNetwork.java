@@ -168,8 +168,9 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
                 while (inputNeurons.hasNext()){
                     inputWeights.next();
                     if (inputNeurons.next() == input){
-                        inputNeurons.remove();
                         inputWeights.remove();
+                        inputs.remove();
+                        return;
                     }
                 }
             } else {
