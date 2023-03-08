@@ -83,7 +83,7 @@ public class HerbrandModel {
                 //may overwrite the previous ones which is actually what we want (?)
                 matching.getEngine().addCustomPredicate(new TupleNotIn(predicate, herbrand.get(predicate))); //predicate that evaluates to true if the head-mapping set does not containt such a literal yet
             }
-            for (Iterator<? extends HornClause> iterator = rules.iterator(); iterator.hasNext(); ) {
+            for (Iterator<? extends HornClause> iterator = rules.iterator(); iterator.hasNext(); ) {    //todo now follow the rule precedence/order from the GraphTemplate here, so that we can skip the upper layer rules in the first iterations...
                 HornClause rule = iterator.next();
                 Literal head = rule.head();
                 // solution consumer = automatically add all found valid substitutions of the head literal into the herbrand map
@@ -91,20 +91,17 @@ public class HerbrandModel {
                 matching.getEngine().addSolutionConsumer(solutionConsumer);
                 // if the rule head is already ground
                 if (LogicUtils.isGround(head)) {
-
 //                    Clause query = new Clause(LogicUtils.flipSigns(rule.body().literals()));
-                    Clause query = new Clause(rule.body().literals());  //todo next both versions work in non-ground bodies, but only this one in ground bodies, investigate why
+//                    Clause query = new Clause(rule.body().literals());  //todo next both versions work in non-ground bodies, but only this one in ground bodies, investigate why
 
                     // add the head to herbrand if the rule body is true
-                    if (matching.subsumption(query, 0)) {
+                    if (matching.subsumption(prepareClauseForGrounder(rule,true), 0)) {
                         herbrand.put(head.predicate(), head);
                         iterator.remove(); // if so, do not ever try this ground rule again
                     }
                 } else {
                     //if it is not ground, extend the rule with restriction that the head substitution solution must not be contained in the herbrand yet (for speedup instead of just adding them repetitively to the set)
-                    Clause query = new Clause(Sugar.union(rule.getNegatedLiterals(), new Literal(tupleNotInPredicateName(head.predicate()), false, head.arguments())));
-                    cz.cvut.fel.ida.utils.generic.tuples.Pair<Term[], List<Term[]>> listPair = matching.allSubstitutions(query, 0, Integer.MAX_VALUE);//then find (and through consumer add to herbrand) all NEW substitutions for the head literal - todo add version where these substitutions will be iteratively saved into some hashmap instead of repeating final substitutions
-//                    System.out.printf("");
+                    cz.cvut.fel.ida.utils.generic.tuples.Pair<Term[], List<Term[]>> listPair = matching.allSubstitutions(prepareClauseForGrounder(rule,false), 0, Integer.MAX_VALUE); //then find (and through consumer add to herbrand) all NEW substitutions for the head literal - todo add version where these substitutions will be iteratively saved into some hashmap instead of repeating final substitutions
                 }
                 matching.getEngine().removeSolutionConsumer(solutionConsumer); //the found substitutions should be applied only to the head of the currently solved rule
             }
@@ -163,13 +160,23 @@ public class HerbrandModel {
     }
 
     /**
-     * Name of the special predicate for binding within the substitution engine
-     *
-     * @param predicate
+     * Transform the input HornClause (may contain negated literals in body) into a general Clause suitable for {@link Matching}
+     * @param hc
      * @return
      */
-    private static String tupleNotInPredicateName(Predicate predicate) {
-        return "@tuplenotin-" + predicate.name + "/" + predicate.arity;
+    public Clause prepareClauseForGrounder(HornClause hc, boolean groundHead) {
+        Set<Literal> literalSet = new HashSet<>(hc.body().literals());
+
+        for (Literal l : hc.body().literals()) {
+            if (l.isNegated()) {
+                literalSet.add(new Literal(tupleNotInPredicateName(l.predicate()), false, l.arguments()));  //negated body literals will only be satified if not found YET (see @link TupleNotIn)
+            }
+        }
+        if (!groundHead) {
+            literalSet.add(hc.head().negation());
+            literalSet.add(new Literal(tupleNotInPredicateName(hc.head().predicate()), false, hc.head().arguments()));
+        }
+        return new Clause(literalSet);
     }
 
     public void clear() {
@@ -199,8 +206,18 @@ public class HerbrandModel {
     }
 
     /**
+     * Name of the special predicate for binding within the substitution engine
+     *
+     * @param predicate
+     * @return
+     */
+    public static String tupleNotInPredicateName(Predicate predicate) {
+        return "@tuplenotin-" + predicate.name + "/" + predicate.arity;
+    }
+
+    /**
      * For a given predicate stores all found substitutions and is only satisfiable for NEW solutions.
-     * To be added to the substitution engine for solution pruning.
+     * To be added to the substitution engine for solution pruning and stratified negation.
      */
     private static class TupleNotIn implements CustomPredicate {
 

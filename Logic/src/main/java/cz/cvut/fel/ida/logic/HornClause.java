@@ -45,6 +45,11 @@ public class HornClause {
         }
     }
 
+    /**
+     * Can pass negated literals in the body here (technically not a HornClause, so be careful, but the grounding will work)
+     * @param head
+     * @param body
+     */
     public HornClause(Literal head, Clause body) {
         this.head = head;
         this.body = body;
@@ -120,12 +125,6 @@ public class HornClause {
     public Set<Literal> getLiterals() {
         Set<Literal> literalSet = new HashSet<>(body.literals());
         literalSet.add(head);
-        return literalSet;
-    }
-
-    public Set<Literal> getNegatedLiterals() {
-        Set<Literal> literalSet = new HashSet<>(body.literals());
-        literalSet.add(head.negation());
         return literalSet;
     }
 
