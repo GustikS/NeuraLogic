@@ -1,0 +1,3 @@
+1.0 edge(a1, a2),
+1.0 node_feature(a1),
+1.0 node_feature(a2).
