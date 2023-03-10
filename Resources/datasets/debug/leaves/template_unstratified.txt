@@ -1,0 +1,3 @@
+not_leaf(X) :- edge(X, Z), leaf(Z).
+leaf(X) :- !*not_leaf(X), node_feature(X).
+predict :- leaf(X).

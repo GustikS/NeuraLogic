@@ -1006,6 +1006,10 @@ public class Settings implements Serializable {
     //----------------Template Transformations
 
     /**
+     * Check if the template is stratified w.r.t. negation (no cycles with a negated edge)
+     */
+    public boolean checkStratification = true;
+    /**
      * Apply all metadata taken from sources
      */
     public boolean processMetadata = true;

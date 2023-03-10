@@ -88,6 +88,7 @@ public class TemplateBuilder extends LogicSourceBuilder<PlainTemplateParseTree, 
             template.templateMetadata = new TemplateMetadata(settings, templateMetadata);
         template.predicatesMetadata = predicatesMetadata.stream().map(pair -> new Pair<>(pair.r, new PredicateMetadata(settings, pair.s))).collect(Collectors.toList());
         template.weightsMetadata = weightsMetadata.stream().map(pair -> new Pair<>(pair.r, new WeightMetadata(settings, pair.s))).collect(Collectors.toList());
+        template.containsNegation = negationDetected;
 
 //        settings.inferred.maxWeightCount = weightFactory.getIndex();    //remember the max weight index (to possibly add more valid weights later in the process)
 

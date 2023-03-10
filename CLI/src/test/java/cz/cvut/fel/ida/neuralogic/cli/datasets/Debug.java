@@ -175,13 +175,24 @@ public class Debug {
     }
 
     @TestAnnotations.Fast
-    public void treeLeaves() throws Exception {
+    public void treeLeavesNegation() throws Exception {
         String dataset = "debug/leaves";
         Settings settings = Settings.forFastTest();
         settings.squishLastLayer = false;
         settings.inferOutputFcns = false;
         settings.structuralIsoCompression = true;
         Main.main(getDatasetArgs(dataset), settings);
+    }
+
+    @TestAnnotations.Interactive
+    public void treeLeavesNegationUnstratified() throws Exception {
+        String dataset = "debug/leaves";
+        Settings settings = Settings.forFastTest();
+        settings.squishLastLayer = false;
+        settings.inferOutputFcns = false;
+        settings.structuralIsoCompression = true;
+        settings.debugAll = true;
+        Main.main(getDatasetArgs(dataset,"-t ./template_unstratified.txt"), settings);
     }
 
 }

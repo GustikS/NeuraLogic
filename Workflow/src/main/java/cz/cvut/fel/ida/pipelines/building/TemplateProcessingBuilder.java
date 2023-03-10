@@ -62,6 +62,11 @@ public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, 
                 sourcesTemplatePipe.connectAfter(nextPipe);
             }
             Pipe<?, Template> nextPipe1 = nextPipe;
+            if (settings.checkStratification){
+                Pipe<Template, Template> stratificationPipe = pipeline.registerEnd(checkStratificationPipe());
+                nextPipe1.connectAfter(stratificationPipe);
+                nextPipe1 = stratificationPipe;
+            }
             if (settings.reduceTemplate) {
                 Pipe<Template, GraphTemplate> graphTemplatePipe = pipeline.register(buildTemplateGraph());
                 nextPipe.connectAfter(graphTemplatePipe);
@@ -82,6 +87,20 @@ public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, 
             return null;
         }
         return pipeline;
+    }
+
+    private Pipe<Template, Template> checkStratificationPipe() {
+        return new Pipe<Template, Template>("CheckStratificationPipe") {
+            @Override
+            public Template apply(Template template) {
+                if (template.containsNegation) {
+                    GraphTemplate graphTemplate = new GraphTemplate(template);
+                    graphTemplate.new Stratification(graphTemplate).check();
+                    return graphTemplate;
+                }
+                return template;
+            }
+        };
     }
 
     protected Pipe<Template, Template> inferFacts() {

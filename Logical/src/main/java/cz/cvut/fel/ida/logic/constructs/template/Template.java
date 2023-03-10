@@ -37,6 +37,8 @@ public class Template implements Model<QueryAtom>, Exportable {
     @Nullable
     public transient Set<Literal> inferredLiterals;
 
+    public boolean containsNegation = false;
+
     /**
      * This is merely for computational reuse (it can be computed any time from the rules).
      */
@@ -55,6 +57,7 @@ public class Template implements Model<QueryAtom>, Exportable {
         this.rules = other.rules;
         this.facts = other.facts;
         this.constraints = other.constraints;
+        this.containsNegation = other.containsNegation;
     }
 
     public Template(List<WeightedRule> rules, List<ValuedFact> facts) {

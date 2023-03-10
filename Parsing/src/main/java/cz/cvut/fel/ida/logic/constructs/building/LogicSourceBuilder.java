@@ -17,6 +17,11 @@ public abstract class LogicSourceBuilder<I extends PlainParseTree<? extends Pars
     public Settings settings;
 
     /**
+     * check whether there is a logical (hard) negation in the source
+     */
+    public boolean negationDetected = false;
+
+    /**
      * Call this to rebuild a specific pipeline if an inconsistency with settings is detected at runtime
      */
     public Function<String, Boolean> rebuildCallback;

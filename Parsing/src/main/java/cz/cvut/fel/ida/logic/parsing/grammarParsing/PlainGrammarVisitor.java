@@ -134,6 +134,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
                 }
                 else if (ctx.negation().NEGATION() != null) {
                     hardNegation = true;
+                    builder.negationDetected = true;
                 }
             }
 

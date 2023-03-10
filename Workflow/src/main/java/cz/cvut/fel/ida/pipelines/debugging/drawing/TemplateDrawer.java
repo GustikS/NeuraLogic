@@ -97,7 +97,11 @@ public class TemplateDrawer extends Drawer<Template> {
     }
 
     private String draw(Literal literal) {
-        return literal.liftedHashCode() + "[label=" + GraphViz.sanitize(literal.toString()) + "]";
+        String name = literal.toString();
+        if (literal.isNegated()) {
+            name = name.substring(1);
+        }
+        return literal.liftedHashCode() + "[label=" + GraphViz.sanitize(name) + "]";
     }
 
     private String draw(WeightedRule rule) {
