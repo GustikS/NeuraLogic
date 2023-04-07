@@ -10,7 +10,7 @@ public abstract class Distribution implements Exportable {
     private static final Logger LOG = Logger.getLogger(Distribution.class.getName());
 
     transient Settings setting;
-    Random rg;
+    transient Random rg;
     /**
      * this is either limit for uniform or STD for normal
      */

@@ -1,9 +1,9 @@
 package cz.cvut.fel.ida.setup;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
 import org.apache.commons.cli.CommandLine;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.Reader;
 import java.util.List;
@@ -255,8 +255,15 @@ public class Sources {
     }
 
     public String exportToJson() {
+        JsonSerializer<File> serializer = (file, type, jsonSerializationContext) -> {
+            JsonObject jsonFile = new JsonObject();
+            jsonFile.addProperty("path", file.getPath());
+            return jsonFile;
+        };
+
         Gson gson = new GsonBuilder()
                 .setPrettyPrinting()
+                .registerTypeAdapter(File.class, serializer)
                 .serializeSpecialFloatingPointValues()
                 .create();
         String json = gson.toJson(this);
