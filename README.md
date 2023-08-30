@@ -8,7 +8,8 @@
 
 _Integrating **deep** and **relational** learning through **differentiable logic programming**._
 
-- This is the official implementation of the [Lifted Relational Neural Networks](https://jair.org/index.php/jair/article/view/11203) concept.
+- This is the official implementation of the [Deep Learning with Relational Logic Representations](https://www.iospress.com/catalog/books/deep-learning-with-relational-logic-representations) concept
+   - instantiated through the framework of [Lifted Relational Neural Networks](https://jair.org/index.php/jair/article/view/11203)
 - This is the (Java) backend, you can find Python frontend at [**PyNeuralogic**](https://github.com/LukasZahradnik/PyNeuraLogic) 
 
 ---
@@ -49,7 +50,7 @@ The parameters `W_*` in the program are then automatically optimized to reflect 
 
 ---
 
-For detailed syntax and semantics, please check out the concept of "[*Lifted Relational Neural Networks*](https://arxiv.org/abs/2007.06286)". For a deep dive into the principles in full (scientific) context, please see my [dissertation thesis](https://gustiks.github.io/files/dissertation.pdf).
+For detailed syntax and semantics, please check out the concept of "[*Lifted Relational Neural Networks*](https://arxiv.org/abs/2007.06286)". For a deep dive into the principles in full context, please see my [dissertation thesis](https://gustiks.github.io/files/dissertation.pdf) or the book on [Deep learning with relational logic representations](https://www.iospress.com/catalog/books/deep-learning-with-relational-logic-representations).
 
 ---
 
@@ -218,10 +219,9 @@ Note that this is a multi-module [Maven project](https://maven.apache.org/guides
 
 [Lifted Relational Neural Networks (short version)](http://ceur-ws.org/Vol-1583/CoCoNIPS_2015_paper_7.pdf) Cognitive Computing workshop @NIPS, 2015
 
----
+### Books
 
-[Deep Learning with Relational Logic Representations.](https://gustiks.github.io/publication/dissertation) A dissertation thesis providing full context for the framework.
-
+[Deep Learning with Relational Logic Representations](https://www.iospress.com/catalog/books/deep-learning-with-relational-logic-representations) A book providing full context for the framework, based on my (freely available) [dissertation thesis](https://gustiks.github.io/publication/dissertation)
 
 
 <!--
