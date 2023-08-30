@@ -8,7 +8,7 @@
 
 _Integrating **deep** and **relational** learning through **differentiable logic programming**._
 
-- This is the official implementation of the [Deep Learning with Relational Logic Representations](https://www.iospress.com/catalog/books/deep-learning-with-relational-logic-representations) concept
+- This is the official implementation of the concept of [Deep Learning with Relational Logic Representations](https://www.iospress.com/catalog/books/deep-learning-with-relational-logic-representations)
 - instantiated through the framework of [Lifted Relational Neural Networks](https://jair.org/index.php/jair/article/view/11203)
 - This is the (Java) backend, you can find Python frontend at [**PyNeuralogic**](https://github.com/LukasZahradnik/PyNeuraLogic) 
 
