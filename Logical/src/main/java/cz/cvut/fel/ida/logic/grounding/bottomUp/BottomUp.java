@@ -104,7 +104,9 @@ public class BottomUp extends Grounder {
                         } else if (weightedRule.getHead().getOffset() != null){
                             weight = weightedRule.getHead().getOffset();
                         }
-                        groundFacts.put(grounding.groundHead, new ValuedFact(weightedRule.getHead().offsettedPredicate, grounding.groundHead.termList(), false, weight));
+                        ValuedFact valuedFact = new ValuedFact(weightedRule.getHead().offsettedPredicate, grounding.groundHead.termList(), false, weight);
+                        valuedFact.originalString = grounding.groundHead.toString();
+                        groundFacts.put(grounding.groundHead, valuedFact);
                         continue;   // if there are no literals in the body left, turn the rule into a mere fact
                     }
 

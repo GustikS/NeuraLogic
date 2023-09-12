@@ -137,6 +137,10 @@ public class WeightedRule implements Exportable {
         return hashCode;
     }
 
+    public void setHashCode(int hashCode){
+        this.hashCode = hashCode;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {   //this should catch absolute majority of all calls (due to factory creation and unique hash)

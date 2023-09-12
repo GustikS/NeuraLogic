@@ -9,6 +9,7 @@ import cz.cvut.fel.ida.logic.constructs.Conjunction;
 import cz.cvut.fel.ida.logic.constructs.example.QueryAtom;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
 import cz.cvut.fel.ida.logic.constructs.template.components.BodyAtom;
+import cz.cvut.fel.ida.logic.constructs.template.components.HeadAtom;
 import cz.cvut.fel.ida.logic.constructs.template.components.WeightedRule;
 import cz.cvut.fel.ida.logic.constructs.template.types.GraphTemplate;
 import cz.cvut.fel.ida.logic.subsumption.HerbrandModel;
@@ -148,6 +149,22 @@ public class Template implements Model<QueryAtom>, Exportable {
     public Set<Literal> inferTemplateFacts() {
         if (facts == null || facts.isEmpty())
             return null;
+
+        for (Iterator<ValuedFact> iterator = facts.iterator(); iterator.hasNext(); ) {
+            ValuedFact fact = iterator.next();
+            if (fact.literal.containsVariable()) {
+                iterator.remove();
+                WeightedRule weightedRule = new WeightedRule();
+                weightedRule.setOriginalString(fact.originalString);
+                HeadAtom headAtom = new HeadAtom(fact.offsettedPredicate, fact.literal.termList());
+                weightedRule.setHead(headAtom);
+                weightedRule.setWeight(fact.weight);
+                weightedRule.setHashCode(headAtom.hashCode());
+                weightedRule.setBody(new LinkedList<>());
+                rules.add(weightedRule);
+            }
+        }
+
         if (inferredLiterals == null)
             inferredLiterals = new HashSet<>();
 

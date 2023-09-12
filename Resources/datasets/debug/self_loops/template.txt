@@ -1,4 +1,8 @@
-<2.0> edge(X, X) :- @true.
+<2.0> edge(X, X).
+% <2.0> edge(1, 1).
+% <2.0> edge(X, X) :- feature(X).
+% <2.0> edge(X, X) :- @true.
+% edge(X, X) {1}
 
 node_deg(X) :- edge(Y, X). [transformation=identity, aggregation=sum]
 node_deg/1 [transformation=identity]
