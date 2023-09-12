@@ -1,4 +1,5 @@
-edge(X, X) :- feature(X).
+<2.0> edge(X, X) :- @true.
+
 node_deg(X) :- edge(Y, X). [transformation=identity, aggregation=sum]
 node_deg/1 [transformation=identity]
 edge_norm(I, J) :- node_deg(I), edge(I,J), node_deg(J). [transformation=sqrt, combination=product]

@@ -1,11 +1,17 @@
 package cz.cvut.fel.ida.logic.grounding.bottomUp;
 
 import cz.cvut.fel.ida.algebra.weights.Weight;
-import cz.cvut.fel.ida.logic.*;
+import cz.cvut.fel.ida.logic.Clause;
+import cz.cvut.fel.ida.logic.HornClause;
+import cz.cvut.fel.ida.logic.Literal;
+import cz.cvut.fel.ida.logic.Term;
 import cz.cvut.fel.ida.logic.constructs.example.LiftedExample;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
-import cz.cvut.fel.ida.logic.constructs.template.components.*;
+import cz.cvut.fel.ida.logic.constructs.template.components.GroundHeadRule;
+import cz.cvut.fel.ida.logic.constructs.template.components.GroundRule;
+import cz.cvut.fel.ida.logic.constructs.template.components.HeadAtom;
+import cz.cvut.fel.ida.logic.constructs.template.components.WeightedRule;
 import cz.cvut.fel.ida.logic.grounding.GroundTemplate;
 import cz.cvut.fel.ida.logic.grounding.Grounder;
 import cz.cvut.fel.ida.logic.grounding.constructs.GroundRulesCollection;
@@ -90,6 +96,17 @@ public class BottomUp extends Grounder {
 
                 for (GroundRule grounding : groundings) {
                     grounding.internLiterals(allLiterals);
+
+                    if (grounding.groundBody.length == 0) {
+                        Weight weight = null;
+                        if (weightedRule.getWeight() != Weight.unitWeight) {
+                            weight = weightedRule.getWeight();
+                        } else if (weightedRule.getHead().getOffset() != null){
+                            weight = weightedRule.getHead().getOffset();
+                        }
+                        groundFacts.put(grounding.groundHead, new ValuedFact(weightedRule.getHead().offsettedPredicate, grounding.groundHead.termList(), false, weight));
+                        continue;   // if there are no literals in the body left, turn the rule into a mere fact
+                    }
 
                     storeGrounding(groundRules, grounding, grounding.groundHead);
 

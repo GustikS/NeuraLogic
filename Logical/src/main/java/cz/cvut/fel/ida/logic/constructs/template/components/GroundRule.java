@@ -51,7 +51,7 @@ public class GroundRule extends GroundHeadRule {
 
     /**
      * Replace literals that have been created via the rule grounding with their original versions from the Herbrand model
-     * inferred before (saves some memory if the examples are retained, these literal can still be immediately GC'ed)
+     * inferred before (saves some memory if the examples are retained, these literals can still be immediately GC'ed)
      * @param herbrand
      */
     public void internLiterals(Map<Literal, Literal> herbrand) {

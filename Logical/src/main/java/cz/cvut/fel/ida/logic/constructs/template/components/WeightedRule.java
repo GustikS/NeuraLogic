@@ -89,7 +89,7 @@ public class WeightedRule implements Exportable {
             if (!literal.predicate().hidden) {     //remove special and purely logical (hidden) predicates from the grounded bodies!
                 groundBody.add(literal.subsCopy(terms));
             } else {
-//                System.out.println();
+//                System.out.println("removing special body literal");
             }
         }
 
