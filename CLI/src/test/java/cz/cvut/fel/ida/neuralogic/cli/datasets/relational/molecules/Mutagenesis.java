@@ -71,6 +71,8 @@ public class Mutagenesis {
         settings.chainPruning = true;
         settings.maxCumEpochCount = 1000;
 
+        settings.parallelGrounding = true;
+
         Pair<Pipeline, ?> results = Main.main(args, settings);
         Benchmarking.assertDispersionAndTime(WorkflowUtils.getDisperionAndTime(results), referenceDispersion, referenceTime);
     }

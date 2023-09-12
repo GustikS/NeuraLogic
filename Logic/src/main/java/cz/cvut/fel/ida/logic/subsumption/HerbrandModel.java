@@ -1,10 +1,10 @@
 package cz.cvut.fel.ida.logic.subsumption;
 
 import cz.cvut.fel.ida.logic.*;
+import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.utils.math.Sugar;
 import cz.cvut.fel.ida.utils.math.VectorUtils;
 import cz.cvut.fel.ida.utils.math.collections.MultiMap;
-import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -67,7 +67,9 @@ public class HerbrandModel {
         Set<Predicate> headSignatures = new LinkedHashSet<>();  //for faster iteration
         for (HornClause rule : rules) {
             headSignatures.add(rule.head().predicate());
-            herbrand.set(rule.head().predicate(), new HashSet<>());
+            if (!herbrand.containsKey(rule.head().predicate())) {   //a rule head predicate might have been in the facts already!
+                herbrand.set(rule.head().predicate(), new HashSet<>());
+            }
         }
 
         boolean changed;
@@ -95,13 +97,13 @@ public class HerbrandModel {
 //                    Clause query = new Clause(rule.body().literals());  //todo next both versions work in non-ground bodies, but only this one in ground bodies, investigate why
 
                     // add the head to herbrand if the rule body is true
-                    if (matching.subsumption(prepareClauseForGrounder(rule,true), 0)) {
+                    if (matching.subsumption(prepareClauseForGrounder(rule, true), 0)) {
                         herbrand.put(head.predicate(), head);
                         iterator.remove(); // if so, do not ever try this ground rule again
                     }
                 } else {
                     //if it is not ground, extend the rule with restriction that the head substitution solution must not be contained in the herbrand yet (for speedup instead of just adding them repetitively to the set)
-                    cz.cvut.fel.ida.utils.generic.tuples.Pair<Term[], List<Term[]>> listPair = matching.allSubstitutions(prepareClauseForGrounder(rule,false), 0, Integer.MAX_VALUE); //then find (and through consumer add to herbrand) all NEW substitutions for the head literal - todo add version where these substitutions will be iteratively saved into some hashmap instead of repeating final substitutions
+                    cz.cvut.fel.ida.utils.generic.tuples.Pair<Term[], List<Term[]>> listPair = matching.allSubstitutions(prepareClauseForGrounder(rule, false), 0, Integer.MAX_VALUE); //then find (and through consumer add to herbrand) all NEW substitutions for the head literal - todo add version where these substitutions will be iteratively saved into some hashmap instead of repeating final substitutions
                 }
                 matching.getEngine().removeSolutionConsumer(solutionConsumer); //the found substitutions should be applied only to the head of the currently solved rule
             }
@@ -161,6 +163,7 @@ public class HerbrandModel {
 
     /**
      * Transform the input HornClause (may contain negated literals in body) into a general Clause suitable for {@link Matching}
+     *
      * @param hc
      * @return
      */

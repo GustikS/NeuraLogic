@@ -81,11 +81,15 @@ public class GroundingDrawer extends Drawer<GroundingSample> {
     }
 
     public String draw(Literal groundHead) {
-        return GraphViz.sanitize(groundHead.toString()) + "[color=blue, fontcolor=blue]";
+        String name = "null";
+        if (groundHead != null){
+            name = groundHead.toString();
+        }
+        return GraphViz.sanitize(name) + "[color=blue, fontcolor=blue]";
     }
 
     private String drawEdge(GroundRule bodyGrounding, Literal literal) {
-        return GraphViz.sanitize(literal.toString()) + " -> " + bodyGrounding.hashCode() + "[color=red, fontcolor=red]";
+        return GraphViz.sanitize(literal == null ? "null" : literal.toString()) + " -> " + bodyGrounding.hashCode() + "[color=red, fontcolor=red]";
     }
 
     public String drawEdge(GroundHeadRule groundHeadRule, GroundRule bodyGrounding) {

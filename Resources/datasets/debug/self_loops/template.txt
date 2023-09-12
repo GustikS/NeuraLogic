@@ -1,0 +1,7 @@
+edge(X, X) :- feature(X).
+node_deg(X) :- edge(Y, X). [transformation=identity, aggregation=sum]
+node_deg/1 [transformation=identity]
+edge_norm(I, J) :- node_deg(I), edge(I,J), node_deg(J). [transformation=sqrt, combination=product]
+edge_norm/2 [transformation=inverse]
+{3, 1} layer_1(X) :- edge(Y, X), edge_norm(Y, X), feature(Y). [transformation=identity, combination=product, aggregation=sum]
+{1, 3} predict :- layer_1(X). [transformation=tanh, aggregation=sum]

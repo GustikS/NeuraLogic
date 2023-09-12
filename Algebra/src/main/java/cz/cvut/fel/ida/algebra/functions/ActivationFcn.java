@@ -169,6 +169,7 @@ public interface ActivationFcn {
         static State getState(State fcnState, List<Value> inputValues) {
             if (inputValues.size() == 0){
                 LOG.severe("No neuron input values collected at initialization, cannot infer the State update.");
+//                inputValues.add(new ScalarValue(1));
             }
             ActivationFcn.State transformationState = fcnState;
             if (inputValues.size() == 1 && !(fcnState instanceof Transformation.State)) {    // if there is just a single input value, this should be a pure Transformation.State (No combination involved)

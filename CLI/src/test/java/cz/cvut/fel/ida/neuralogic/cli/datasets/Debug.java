@@ -195,4 +195,16 @@ public class Debug {
         Main.main(getDatasetArgs(dataset,"-t ./template_unstratified.txt"), settings);
     }
 
+
+    @TestAnnotations.Interactive
+    public void selfLoops() throws Exception {
+        String dataset = "debug/self_loops";
+        Settings settings = Settings.forFastTest();
+        settings.squishLastLayer = false;
+        settings.inferOutputFcns = false;
+        settings.isoValueCompression = false;
+        settings.debugAll = true;
+        Main.main(getDatasetArgs(dataset,"-t ./template.txt"), settings);
+    }
+
 }
