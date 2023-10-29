@@ -6,15 +6,10 @@ import cz.cvut.fel.ida.logic.constructs.template.Template;
 import cz.cvut.fel.ida.logic.grounding.GroundingSample;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
-import cz.cvut.fel.ida.neural.networks.structure.export.NeuralSerializer;
 import cz.cvut.fel.ida.pipelines.Pipe;
 import cz.cvut.fel.ida.pipelines.Pipeline;
 import cz.cvut.fel.ida.pipelines.bulding.AbstractPipelineBuilder;
-import cz.cvut.fel.ida.pipelines.pipes.generic.DuplicateBranch;
-import cz.cvut.fel.ida.pipelines.pipes.generic.FirstFromPairExtractionBranch;
-import cz.cvut.fel.ida.pipelines.pipes.generic.LambdaPipe;
-import cz.cvut.fel.ida.pipelines.pipes.generic.PairMerge;
-import cz.cvut.fel.ida.pipelines.pipes.specific.NeuralSerializerPipe;
+import cz.cvut.fel.ida.pipelines.pipes.generic.*;
 import cz.cvut.fel.ida.pipelines.pipes.specific.TemplateToNeuralPipe;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.setup.Sources;
@@ -26,7 +21,7 @@ import java.util.function.IntConsumer;
 import java.util.stream.Stream;
 
 
-public class PythonBuilder extends AbstractPipelineBuilder<Sources, Pair<NeuralModel, Stream<NeuralSample>>> {
+public class PythonBuilder extends AbstractPipelineBuilder<Sources, Pair<Stream<GroundingSample>, Stream<NeuralSample>>> {
     private final WeightFactory weightFactory;
 
     private DuplicateBranch<Template> templateDuplicateBranch;
@@ -61,16 +56,15 @@ public class PythonBuilder extends AbstractPipelineBuilder<Sources, Pair<NeuralM
         return templateSamplesBuilder.getSourcesTemplatePipeline(sources, settings).execute(sources).s;
     }
 
-    public Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> buildPipeline(
+    public Pipeline<Sources, Pair<Stream<GroundingSample>, Stream<NeuralSample>>> buildPipeline(
             Template template,
             Stream<LogicSample> logicSamples,
             IntConsumer progressCallback
     ) {
-        Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> pipeline = new Pipeline<>("PythonNNbuilding", this);
+        Pipeline<Sources, Pair<Stream<GroundingSample>, Stream<NeuralSample>>> pipeline = new Pipeline<>("PythonNNbuilding", this);
 
         //simple pipes
         FirstFromPairExtractionBranch<Template, Stream<LogicSample>> templateSamplesBranch = pipeline.register(new FirstFromPairExtractionBranch<>());
-        templateDuplicateBranch = pipeline.register(new DuplicateBranch<>());
 
         //pipelines
         LambdaPipe<Sources, Pair<Template, Stream<LogicSample>>> templateIdentityPipe = pipeline.registerStart(
@@ -80,61 +74,62 @@ public class PythonBuilder extends AbstractPipelineBuilder<Sources, Pair<NeuralM
         Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> groundingPipeline = pipeline.register(buildGrounding(settings, weightFactory));
         Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> neuralizationPipeline = pipeline.register(buildNeuralNets(settings, weightFactory));
 
+        IdentityGenPipe<Stream<GroundingSample>> helperPipe = pipeline.register(new IdentityGenPipe<>());
+        StreamTeeBranch<GroundingSample, Stream<GroundingSample>> groundingBranch = pipeline.register(new StreamTeeBranch<>());
+
+        groundingBranch.connectAfterL(neuralizationPipeline);
+        groundingBranch.connectAfterR(helperPipe);
+
         //connecting the execution graph
         templateIdentityPipe.connectAfter(templateSamplesBranch);
-        templateSamplesBranch.connectAfterL(groundingPipeline).connectAfter(neuralizationPipeline);
-        templateSamplesBranch.connectAfterR(templateDuplicateBranch);
+        templateSamplesBranch.connectAfterL(groundingPipeline).connectAfter(groundingBranch);
 
-        PairMerge<NeuralModel, Stream<NeuralSample>> neuralMerge = attachProgressCallback(progressCallback, pipeline);
+        PairMerge<Stream<GroundingSample>, Stream<NeuralSample>> neuralMerge = attachProgressCallback(progressCallback, pipeline);
 
-        //prepare for training
-        Pipe<Template, NeuralModel> template2NeuralModelPipe = pipeline.register(convertModel());
-        templateDuplicateBranch.connectAfterL(template2NeuralModelPipe);
-
-        neuralMerge.connectBeforeL(template2NeuralModelPipe);
+        neuralMerge.connectBeforeL(helperPipe);
         neuralMerge.connectBeforeR(neuralizationPipeline);
 
         return pipeline;
     }
 
-    public Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> buildPipeline(
+    public Pipeline<Sources, Pair<Stream<GroundingSample>, Stream<NeuralSample>>> buildPipeline(
             Template template,
             Sources sources,
             IntConsumer progressCallback
     ) {
-        Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> pipeline = new Pipeline<>("PythonNNbuilding", this);
+        Pipeline<Sources, Pair<Stream<GroundingSample>, Stream<NeuralSample>>> pipeline = new Pipeline<>("PythonNNbuilding", this);
 
         //simple pipes
         FirstFromPairExtractionBranch<Template, Stream<LogicSample>> templateSamplesBranch = pipeline.register(new FirstFromPairExtractionBranch<>());
-        templateDuplicateBranch = pipeline.register(new DuplicateBranch<>());
 
         //pipelines
         Pipeline<Sources, Pair<Template, Stream<LogicSample>>> sourcesPairPipeline = pipeline.registerStart(buildFromSources(template, sources, settings));
         Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> groundingPipeline = pipeline.register(buildGrounding(settings, weightFactory));
         Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> neuralizationPipeline = pipeline.register(buildNeuralNets(settings, weightFactory));
 
+        IdentityGenPipe<Stream<GroundingSample>> helperPipe = pipeline.register(new IdentityGenPipe<>());
+        StreamTeeBranch<GroundingSample, Stream<GroundingSample>> groundingBranch = pipeline.register(new StreamTeeBranch<>());
+
+        groundingBranch.connectAfterL(neuralizationPipeline);
+        groundingBranch.connectAfterR(helperPipe);
+
         //connecting the execution graph
         sourcesPairPipeline.connectAfter(templateSamplesBranch);
-        templateSamplesBranch.connectAfterL(groundingPipeline).connectAfter(neuralizationPipeline);
-        templateSamplesBranch.connectAfterR(templateDuplicateBranch);
+        templateSamplesBranch.connectAfterL(groundingPipeline).connectAfter(groundingBranch);
 
-        PairMerge<NeuralModel, Stream<NeuralSample>> neuralMerge = attachProgressCallback(progressCallback, pipeline);
+        PairMerge<Stream<GroundingSample>, Stream<NeuralSample>> neuralMerge = attachProgressCallback(progressCallback, pipeline);
 
-        //prepare for training
-        Pipe<Template, NeuralModel> template2NeuralModelPipe = pipeline.register(convertModel());
-        templateDuplicateBranch.connectAfterL(template2NeuralModelPipe);
-
-        neuralMerge.connectBeforeL(template2NeuralModelPipe);
+        neuralMerge.connectBeforeL(helperPipe);
         neuralMerge.connectBeforeR(neuralizationPipeline);
 
         return pipeline;
     }
 
-    private PairMerge<NeuralModel, Stream<NeuralSample>> attachProgressCallback(
+    private PairMerge<Stream<GroundingSample>, Stream<NeuralSample>> attachProgressCallback(
             IntConsumer callback,
-            Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> pipeline
+            Pipeline<Sources, Pair<Stream<GroundingSample>, Stream<NeuralSample>>> pipeline
     ) {
-        PairMerge<NeuralModel, Stream<NeuralSample>> neuralMerge;
+        PairMerge<Stream<GroundingSample>, Stream<NeuralSample>> neuralMerge;
 
         if (callback == null) {
             return pipeline.registerEnd(new PairMerge<>());
@@ -143,7 +138,7 @@ public class PythonBuilder extends AbstractPipelineBuilder<Sources, Pair<NeuralM
         AtomicInteger counter = new AtomicInteger();
         neuralMerge = pipeline.register(new PairMerge<>());
 
-        LambdaPipe<Pair<NeuralModel, Stream<NeuralSample>>, Pair<NeuralModel, Stream<NeuralSample>>> progressCallbackPipe = pipeline.registerEnd(
+        LambdaPipe<Pair<Stream<GroundingSample>, Stream<NeuralSample>>, Pair<Stream<GroundingSample>, Stream<NeuralSample>>> progressCallbackPipe = pipeline.registerEnd(
                 new LambdaPipe<>("ProgressCallbackPipe", pair -> {
                     Stream<NeuralSample> stream = pair.s.peek(sample -> callback.accept(counter.incrementAndGet()));
 
@@ -156,14 +151,7 @@ public class PythonBuilder extends AbstractPipelineBuilder<Sources, Pair<NeuralM
     }
 
     @Override
-    public Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> buildPipeline() {
+    public Pipeline<Sources, Pair<Stream<GroundingSample>, Stream<NeuralSample>>> buildPipeline() {
         return null;
-    }
-
-    public Pair<List<NeuralSerializer.SerializedWeight>, Stream<NeuralSerializer.SerializedSample>> getSerializedNNs() throws Exception {
-        Pipeline<Sources, Pair<NeuralModel, Stream<NeuralSample>>> buildNNsPipeline = buildPipeline();
-        NeuralSerializerPipe neuralSerializerPipe = new NeuralSerializerPipe();
-        Pipe<Pair<NeuralModel, Stream<NeuralSample>>, Pair<List<NeuralSerializer.SerializedWeight>, Stream<NeuralSerializer.SerializedSample>>> serializationPipe = buildNNsPipeline.connectAfter(neuralSerializerPipe);
-        return serializationPipe.get();
     }
 }
