@@ -131,8 +131,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             if (ctx.negation() != null) {
                 if (ctx.negation().SOFTNEGATION() != null) {
                     softNegation = Transformation.getFunction(builder.settings.softNegation);
-                }
-                else if (ctx.negation().NEGATION() != null) {
+                } else if (ctx.negation().NEGATION() != null) {
                     hardNegation = true;
                     builder.negationDetected = true;
                 }
@@ -228,7 +227,7 @@ public class PlainGrammarVisitor extends GrammarVisitor {
             Weight weight = null;
             if (ctx.weight() != null) {
                 weight = ctx.weight().accept(new WeightVisitor());
-                if (builder.settings.parentCounting && weight.isLearnable()){
+                if (builder.settings.parentCounting && weight.isLearnable()) {
                     LOG.warning("Detected learnable fact values with a parentCounting mode setup - not supported!");
                 }
             }
@@ -337,7 +336,9 @@ public class PlainGrammarVisitor extends GrammarVisitor {
 //                        ((VectorValue) value).rowOrientation = true;    //we treat vector in the template as row vectors (i.e. as 1xN matrices) so that they can be multiplied with normal (column) vectors   -WRONG
                     }
                 } else if (dims.size() == 2) {
-                    if (dims.get(0) == 1) {
+                    if (dims.get(0) == 1 && dims.get(1) == 1) {
+                        value = new ScalarValue();
+                    } else if (dims.get(0) == 1) {
                         value = new VectorValue(dims.get(1));
                         ((VectorValue) value).rowOrientation = true;
                     } else if (dims.get(1) == 1) {
