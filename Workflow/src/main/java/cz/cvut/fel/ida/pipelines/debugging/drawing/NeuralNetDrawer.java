@@ -46,7 +46,7 @@ public class NeuralNetDrawer extends Drawer<NeuralSample> {
         this.graphviz.start_graph();
         iterateNetwork();
         if (sample.query.neuron != null) {
-            this.graphviz.addln(sample.query.neuron.getIndex() + " [shape = tripleoctagon]");
+            this.graphviz.addln(sample.query.neuron.getIndex() + "[shape = tripleoctagon, xlabel=\"\n\n\ntarget = " + sample.target + "  \"]");
         }
         this.graphviz.end_graph();
     }
