@@ -108,9 +108,9 @@ public class NeuralNetDrawer extends Drawer<NeuralSample> {
             StringBuilder sb = new StringBuilder();
             sb.append(" [label=");
             sb.append("\"");
-            sb.append(weight.index).append(":");
+//            sb.append(weight.index).append(":");
             sb.append(weight.name).append(":");
-            sb.append(Arrays.toString(weight.value.size())).append(":");
+//            sb.append(Arrays.toString(weight.value.size())).append(":");
             sb.append(weight.value.toString(NeuralNetDrawer.this.numberFormat));
             sb.append("\"");
             if (weight.isFixed)

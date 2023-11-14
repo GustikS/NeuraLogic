@@ -113,7 +113,9 @@ public class Weight implements Exportable {
     public String toString(NumberFormat nf) {
         StringBuilder sb = new StringBuilder();
         if (manualInitialization || isFixed || isShared) {
-            sb.append("<" + name + "> ");
+            sb.append("<" + name + ">:");
+        } else {
+            sb.append(name + ":");
         }
         sb.append(value.toString(nf));
         return sb.toString();
