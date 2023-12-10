@@ -208,6 +208,7 @@ Note that this is a multi-module [Maven project](https://maven.apache.org/guides
 ## Papers
 
 [Beyond Graph Neural Networks with Lifted Relational Neural Networks](https://arxiv.org/abs/2007.06286) Machine Learning Journal, 2021
+ - also presented at [IJCLR 2021](http://lr2020.iit.demokritos.gr/accepted/index.html) and [AAAI 2023](https://underline.io/lecture/69510-beyond-graph-neural-networks-with-lifted-relational-neural-networks)
 
 [Lossless compression of structured convolutional models via lifting](https://arxiv.org/abs/2007.06567) ICLR, 2021
 
