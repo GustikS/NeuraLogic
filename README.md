@@ -221,8 +221,13 @@ Note that this is a multi-module [Maven project](https://maven.apache.org/guides
 
 ### Books
 
-[Deep Learning with Relational Logic Representations](https://www.iospress.com/catalog/books/deep-learning-with-relational-logic-representations) A book providing full context for the framework, based on my (freely available) [dissertation thesis](https://gustiks.github.io/publication/dissertation)
+[Deep Learning with Relational Logic Representations](https://www.iospress.com/catalog/books/deep-learning-with-relational-logic-representations) 
+- A book providing full context for the framework, based on my (freely available) [dissertation thesis](https://gustiks.github.io/publication/dissertation)
 
+#### Chapters
+
+[Lifted Relational Neural Networks: From Graphs to Deep Relational Learning](https://ebooks.iospress.nl/doi/10.3233/FAIA230147) 
+- A book chapter about the framework in the [Compendium of Neurosymbolic Artificial Intelligence](https://www.iospress.com/catalog/books/compendium-of-neurosymbolic-artificial-intelligence)
 
 <!--
 Googling "**Lifted Relational Neural Networks**" should give you a [short paper](http://ceur-ws.org/Vol-1583/CoCoNIPS_2015_paper_7.pdf) from a NIPS workshop on cognitive computation 2015,
