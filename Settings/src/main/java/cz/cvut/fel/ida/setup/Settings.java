@@ -675,6 +675,8 @@ public class Settings implements Serializable {
 
     public double dropoutRate = 0.0;    //todo test
 
+    public boolean computeNeuronLayerIndices = false;
+
     private OptimizerSet optimizer = OptimizerSet.ADAM;
 
     public enum OptimizerSet {
