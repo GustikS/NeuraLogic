@@ -13,6 +13,8 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static cz.cvut.fel.ida.neural.networks.structure.components.neurons.topology.TopologicalTraversalState.*;
+
 /**
  * A class with an explicitly stored (topological) ordering of neurons.
  */
@@ -117,14 +119,10 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
 
         LinkedList<Neurons> topoList = new LinkedList<>();
 
-        static final int OPEN = 1;
-        static final int CLOSED = -1;
-        static final int DEFAULT = 0;
-
         public List<BaseNeuron<Neurons, State.Neural>> topologicSort(List<? extends Neurons> startNeurons) {
 
             for (Neurons neuron : startNeurons) {
-                if (neuron.getLayer() == DEFAULT) {  // it should never be OPEN here...
+                if (neuron.getTopoTraversalState() == DEFAULT) {  // it should never be OPEN here...
                     topoSortRecursive(neuron);
                 }
             }
@@ -134,20 +132,20 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
             Iterator<Neurons> descendingIterator = topoList.descendingIterator();
             while (descendingIterator.hasNext()) {
                 BaseNeuron<Neurons, State.Neural> next = (BaseNeuron<Neurons, State.Neural>) descendingIterator.next();
-                next.setLayer(DEFAULT);
+                next.setTopoTraversalState(DEFAULT);
                 reverse.add(next);
             }
             return reverse;
         }
 
         private void topoSortRecursive(Neurons neuron) {
-            neuron.setLayer(OPEN);
+            neuron.setTopoTraversalState(OPEN);
 
             Iterator<Neurons> inputs = getInputs(neuron);
             while (inputs.hasNext()) {
                 Neurons input = inputs.next();
-                if (input.getLayer() != OPEN) {
-                    if (input.getLayer() != CLOSED) {
+                if (input.getTopoTraversalState() != OPEN) {
+                    if (input.getTopoTraversalState() != CLOSED) {
                         topoSortRecursive(input);
                     }
                 } else {
@@ -156,7 +154,7 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
                 }
             }
 
-            neuron.setLayer(CLOSED);
+            neuron.setTopoTraversalState(CLOSED);
             topoList.addFirst(neuron);
         }
 

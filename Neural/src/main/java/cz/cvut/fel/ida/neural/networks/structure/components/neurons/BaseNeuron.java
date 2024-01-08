@@ -5,6 +5,7 @@ import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.NeuronVisiting;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.neurons.NeuronVisitor;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.topology.TopologicalTraversalState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,6 +69,11 @@ public abstract class BaseNeuron<T extends Neurons, S extends State.Neural> impl
      * Depth of this neuron. Might be useful e.g. for Dropout or some transformations. todo unused
      */
     public int layer;
+
+    /**
+     * Traversal state of topological sorting
+     */
+    private TopologicalTraversalState topoTraversalState = TopologicalTraversalState.DEFAULT;
 
     public BaseNeuron(int index, String id, S state) {
         this.index = index;
@@ -134,6 +140,16 @@ public abstract class BaseNeuron<T extends Neurons, S extends State.Neural> impl
     @Override
     public int getLayer() {
         return this.layer;
+    }
+
+    @Override
+    public void setTopoTraversalState(TopologicalTraversalState state) {
+        this.topoTraversalState = state;
+    }
+
+    @Override
+    public TopologicalTraversalState getTopoTraversalState() {
+        return this.topoTraversalState;
     }
 
     public void visit(NeuronVisitor.Weighted visitor) {
