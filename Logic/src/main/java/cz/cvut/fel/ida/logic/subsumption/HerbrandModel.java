@@ -102,6 +102,7 @@ public class HerbrandModel {
                         iterator.remove(); // if so, do not ever try this ground rule again
                     }
                 } else {
+                    //todo next - PRECALCULATE ClauseE for all examples and clauseC for all rules!!
                     //if it is not ground, extend the rule with restriction that the head substitution solution must not be contained in the herbrand yet (for speedup instead of just adding them repetitively to the set)
                     cz.cvut.fel.ida.utils.generic.tuples.Pair<Term[], List<Term[]>> listPair = matching.allSubstitutions(prepareClauseForGrounder(rule, false), 0, Integer.MAX_VALUE); //then find (and through consumer add to herbrand) all NEW substitutions for the head literal - todo add version where these substitutions will be iteratively saved into some hashmap instead of repeating final substitutions
                 }
