@@ -8,6 +8,7 @@ import cz.cvut.fel.ida.logic.subsumption.SubsumptionEngineJ2;
 import cz.cvut.fel.ida.utils.generic.tuples.Pair;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -17,7 +18,7 @@ public class Instance {
     Domain domain;
 
     List<Action> actions;
-    Set<Literal> staticFacts;
+    List<Literal> staticFacts;
 
     State initState;
     Clause goal;
@@ -30,10 +31,14 @@ public class Instance {
 
     private SubsumptionEngineJ2.ClauseC goalC;
 
-    public Instance(Set<Literal> staticFacts, State initState, Set<Literal> goalState) {
+    public Instance(String name, List<Literal> staticFacts, List<Literal> initState, List<Literal> goalState, List<Action> actions) {
+        this.name = name;
         this.staticFacts = staticFacts;
-        this.initState = initState;
+        initState.addAll(staticFacts);
+        this.initState = new State(initState);
+        goalState.addAll(staticFacts);
         this.goal = new Clause(goalState);
+        this.actions = actions;
     }
 
     public SubsumptionEngineJ2.ClauseC getGoalC(Matching matching) {
@@ -45,7 +50,7 @@ public class Instance {
     }
 
     public boolean isGoal(State state, Matching matching) {
-        final Pair<Term[], List<Term[]>> listPair = matching.getEngine().allSolutions(goalC, state.getClauseE(matching), 1);
+        final Pair<Term[], List<Term[]>> listPair = matching.getEngine().allSolutions(getGoalC(matching), state.getClauseE(matching), 1);
         if (listPair.s.isEmpty()) {
             return false;
         }

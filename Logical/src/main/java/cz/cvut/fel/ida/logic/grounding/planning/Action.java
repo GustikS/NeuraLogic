@@ -3,14 +3,13 @@ package cz.cvut.fel.ida.logic.grounding.planning;
 import cz.cvut.fel.ida.logic.Clause;
 import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.logic.Term;
-import cz.cvut.fel.ida.logic.constructs.template.components.WeightedRule;
+import cz.cvut.fel.ida.logic.Variable;
 import cz.cvut.fel.ida.logic.subsumption.Matching;
 import cz.cvut.fel.ida.logic.subsumption.SubsumptionEngineJ2;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
-public class Action extends WeightedRule {
+public class Action {
 
     String name;
 
@@ -22,18 +21,29 @@ public class Action extends WeightedRule {
     /**
      * An auxiliary literal representing the action, to be added
      */
-    Literal applicable = new Literal(name, terms);
+    Literal applicable;
 
     private SubsumptionEngineJ2.ClauseC preconditionsC;
 
-    public Action(List<Literal> preconditions, List<Literal> addEffects, List<Literal> deleteEffects){
+    public Action(String name, List<Literal> preconditions, List<Literal> addEffects, List<Literal> deleteEffects) {
+        this.name = name;
         this.preconditions = preconditions;
         this.addEffects = addEffects;
         this.deleteEffects = deleteEffects;
+
+        Set<Variable> vars = new HashSet<>();
+        for (Literal precondition : preconditions) {
+            for (Term term : precondition.termList()) {
+                if (term instanceof Variable) {
+                    vars.add((Variable) term);
+                }
+            }
+        }
+        this.applicable = new Literal(name, new ArrayList<>(vars));
     }
 
     public SubsumptionEngineJ2.ClauseC getClauseC(Matching matching) {
-        if (preconditionsC != null){
+        if (preconditionsC != null) {
             return preconditionsC;
         }
         final Clause clause = new Clause(preconditions);
@@ -50,14 +60,22 @@ public class Action extends WeightedRule {
         List<Literal> addEffects;
         List<Literal> deleteEffects;
 
-        public GroundAction(Term[] variables, Term[] substitution){
+        public GroundAction(Action lifted, Term[] variables, Term[] substitution) {
+            this.lifted = lifted;
             for (int i = 0; i < variables.length; i++) {
                 variables[i].setIndexWithinSubstitution(i);
             }
             this.applicable = lifted.applicable.subsCopy(substitution);
         }
 
-        public void computeEffects(Term[] substitution){
+        public void groundPreconditions(Term[] substitution) {
+            preconditions = new LinkedList<>();
+            for (Literal precondition : lifted.preconditions) {
+                preconditions.add(precondition.subsCopy(substitution));
+            }
+        }
+
+        public void computeEffects(Term[] substitution) {
             addEffects = new LinkedList<>();
             for (Literal addEffect : lifted.addEffects) {
                 addEffects.add(addEffect.subsCopy(substitution));

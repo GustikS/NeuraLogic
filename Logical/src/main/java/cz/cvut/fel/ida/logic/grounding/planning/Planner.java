@@ -43,7 +43,11 @@ public class Planner {
     }
 
     private List<Pair<Action.GroundAction, Double>> scoreActions(State state, Set<Action.GroundAction> groundActions) {
-        return null;
+        List<Pair<Action.GroundAction, Double>> scores = new ArrayList<>();
+        for (Action.GroundAction groundAction : groundActions) {
+            scores.add(new Pair<>(groundAction, 0.0));  // todo no scoring just yet
+        }
+        return scores;
     }
 
     public Pair<Term[], List<Term[]>> getSubstitutions(State state, Action action) {
@@ -55,7 +59,8 @@ public class Planner {
     public Set<Action.GroundAction> groundActions(Action action, Pair<Term[], List<Term[]>> substitutions) {
         Set<Action.GroundAction> groundActions = new HashSet<>();
         for (Term[] terms : substitutions.s) {
-            final Action.GroundAction groundAction = action.new GroundAction(substitutions.r, terms);
+            final Action.GroundAction groundAction = action.new GroundAction(action, substitutions.r, terms);
+            groundAction.computeEffects(terms);
             groundActions.add(groundAction);
         }
         return groundActions;
