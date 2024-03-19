@@ -14,13 +14,13 @@ import java.util.Set;
 
 public class Instance {
 
-    String name;
-    Domain domain;
+    public String name;
+    public Domain domain;
 
-    List<Action> actions;
-    List<Literal> staticFacts;
+    public List<Action> actions;
+    public List<Literal> staticFacts;
 
-    State initState;
+    public State initState;
     Clause goal;
 
     /**
@@ -45,7 +45,7 @@ public class Instance {
         if (goalC != null) {
             return goalC;
         }
-        goalC = matching.getEngine().createCluaseC(goal);
+        this.goalC = matching.getEngine().createCluaseC(goal);
         return goalC;
     }
 

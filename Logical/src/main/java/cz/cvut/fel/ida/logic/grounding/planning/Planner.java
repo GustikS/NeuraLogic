@@ -14,7 +14,7 @@ public class Planner {
     /**
      * The grounding (theta-subsumption) engine
      */
-    Matching matching = new Matching();
+    public Matching matching = new Matching();
 
     public List<Pair<Action.GroundAction, State>> solveGreedy(Instance instance) {
         List<Pair<Action.GroundAction, State>> plan = new LinkedList<>();
