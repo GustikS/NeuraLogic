@@ -7,6 +7,7 @@ import cz.cvut.fel.ida.logic.subsumption.Matching;
 import cz.cvut.fel.ida.logic.subsumption.SubsumptionEngineJ2;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class State implements Example {

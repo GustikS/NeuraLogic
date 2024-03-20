@@ -11,17 +11,17 @@ import java.util.*;
 
 public class Action {
 
-    String name;
+    public String name;
 
-    List<Literal> preconditions;
-    List<Literal> addEffects;
-    List<Literal> deleteEffects;
+    public List<Literal> preconditions;
+    public List<Literal> addEffects;
+    public List<Literal> deleteEffects;
 
-    List<Term> terms;
+    public List<Term> terms;
     /**
      * An auxiliary literal representing the action, to be added
      */
-    Literal applicable;
+    public Literal applicable;
 
     private SubsumptionEngineJ2.ClauseC preconditionsC;
 
@@ -52,13 +52,13 @@ public class Action {
     }
 
     public class GroundAction {
-        Action lifted;
+        public Action lifted;
 
-        Literal applicable;
+        public Literal applicable;
 
-        List<Literal> preconditions;
-        List<Literal> addEffects;
-        List<Literal> deleteEffects;
+        public List<Literal> preconditions;
+        public List<Literal> addEffects;
+        public List<Literal> deleteEffects;
 
         public GroundAction(Action lifted, Term[] variables, Term[] substitution) {
             this.lifted = lifted;
