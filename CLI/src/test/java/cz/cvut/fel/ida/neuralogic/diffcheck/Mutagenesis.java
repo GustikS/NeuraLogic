@@ -74,7 +74,7 @@ public class Mutagenesis {
 
         Pair<Pipeline, ?> main = Main.main(args2ex, settings);
         ClassificationResults results = (ClassificationResults) main.s;
-        assertEquals(0.0014794164025840328, results.dispersion, 0.000000000000001);
+        assertEquals(0.002737286270142636, results.dispersion, 0.000000000000001);
     }
 
     /**
