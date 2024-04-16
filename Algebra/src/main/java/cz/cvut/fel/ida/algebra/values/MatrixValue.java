@@ -260,9 +260,9 @@ public class MatrixValue extends Value {
             for (int i = 0; i < cols; i++) {
                 sb.append(numberFormat.format(values[j * cols + i])).append(",");
             }
-            sb.replace(sb.length()-1, sb.length(), "],\n");
+            sb.replace(sb.length() - 1, sb.length(), "],\n");
         }
-        sb.replace(sb.length()-2, sb.length(), "\n]");
+        sb.replace(sb.length() - 2, sb.length(), "\n]");
         return sb.toString();
     }
 
@@ -302,7 +302,7 @@ public class MatrixValue extends Value {
             throw new ArithmeticException("Column vector times matrix, try transposition. Vector size = " + value.values.length);
         }
 
-        final VectorValue result = new VectorValue(cols,true);
+        final VectorValue result = new VectorValue(cols, true);
         final double[] resultValues = result.values;
         final double[] origValues = value.values;
 
@@ -453,7 +453,7 @@ public class MatrixValue extends Value {
         if (value.rowOrientation) {
             throw new ArithmeticException("Row vector transposedTimes matrix, try transposition. Vector size = " + value.values.length);
         }
-        VectorValue result = new VectorValue(cols,true);
+        VectorValue result = new VectorValue(cols, true);
         double[] resultValues = result.values;
         double[] origValues = value.values;
 
@@ -760,9 +760,13 @@ public class MatrixValue extends Value {
      */
     @Override
     protected void incrementBy(ScalarValue value) {
-        String err = "Incompatible dimensions of algebraic operation - scalar incrementBy by matrix";
-        LOG.severe(err);
-        throw new ArithmeticException(err);
+        if (rows == 1 && cols == 1) {
+            value.value += values[0];
+        } else {
+            String err = "Incompatible dimensions of algebraic operation - scalar incrementBy by matrix";
+            LOG.severe(err);
+            throw new ArithmeticException(err);
+        }
     }
 
     /**

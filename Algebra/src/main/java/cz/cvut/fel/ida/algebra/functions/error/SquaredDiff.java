@@ -10,6 +10,7 @@ public class SquaredDiff implements ErrorFcn {
     private static final Logger LOG = Logger.getLogger(SquaredDiff.class.getName());
 
     static Value oneHalf = new ScalarValue(0.5);
+    static Value two = new ScalarValue(2);
 
     public static SquaredDiff singleton = new SquaredDiff();
 
@@ -33,7 +34,7 @@ public class SquaredDiff implements ErrorFcn {
 
     @Override
     public Value differentiate(Value output, Value target)   {
-        return target.minus(output);
+        return target.minus(output).times(two);
     }
 
     @Override

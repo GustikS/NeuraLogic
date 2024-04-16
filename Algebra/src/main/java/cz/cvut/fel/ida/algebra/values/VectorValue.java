@@ -778,7 +778,11 @@ public class VectorValue extends Value {
      */
     @Override
     protected void incrementBy(ScalarValue value) {
-        throw new ArithmeticException("Incompatible dimensions of algebraic operation - scalar increment by vector");
+        if (values.length == 1) {
+            value.value += values[0];
+        } else {
+            throw new ArithmeticException("Incompatible dimensions of algebraic operation - scalar increment by vector");
+        }
     }
 
     /**
