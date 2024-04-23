@@ -259,6 +259,8 @@ public class Mutagenesis {
         settings.isoValueCompression = true;
         settings.storeNotShow = true;
 
+//        settings.groundingMode = Settings.GroundingMode.GLOBAL;
+
         Pair<Pipeline, ?> main = Main.main(argsNew, settings);
         DetailedClassificationResults results = (DetailedClassificationResults) main.s;
         assertEquals(0.6109891807533523, results.dispersion, 0.01);
