@@ -54,9 +54,10 @@ public class ParsingTests {
         PlainTemplateParseTreeExtractor plainTemplateParseTreeExtractor = new PlainTemplateParseTreeExtractor(new PlainGrammarVisitor(new TemplateBuilder(new Settings())));
         List<WeightedRule> weightedRules = plainTemplateParseTreeExtractor.getWeightedRules(template_fileContext);
         assertNotNull(weightedRules);
-        assertEquals(weightedRules.size(),3);
+        assertEquals(weightedRules.size(), 3);
         for (WeightedRule weightedRule : weightedRules) {
             LOG.fine(weightedRule.getOriginalString());
         }
     }
+
 }

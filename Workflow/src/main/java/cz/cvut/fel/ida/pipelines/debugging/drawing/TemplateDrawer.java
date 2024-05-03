@@ -89,7 +89,7 @@ public class TemplateDrawer extends Drawer<Template> {
     }
 
     private String draw(Literal literal, WeightedRule rule) {
-        String weight = rule.getWeight() != null ? GraphViz.sanitize(rule.getWeight().toString(numberFormat)) : " 1 ";
+        String weight = rule.getWeight() != null ? GraphViz.sanitize(rule.getWeight().toString(numberFormat)) : "null : 1";
         return rule.hashCode() + " -> " + literal.liftedHashCode() + "[label=" + weight + ", color=green, style=dashed]";
     }
 

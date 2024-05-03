@@ -29,7 +29,30 @@ public class ConstantFactory { //todo - add a common abstract factory with gener
         const2const = vars.stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
     }
 
+    /**
+     * Names are expected to be unique across different types
+     *
+     * @param name
+     * @param type
+     * @return
+     */
+    public Constant construct(String name, String type) {
+        Constant result = str2const.get(name);
+        if (result == null) {
+            result = Constant.construct(name, type);
+            str2const.put(name, result);
+            const2const.put(result, result);
+        } else {
+            result.setType(type);
+        }
+        return result;
+    }
+
     public Constant construct(String from) {
+        if (from.contains(":")) {
+            final String[] split = from.split(":");
+            return construct(split[1], split[0]);
+        }
         Constant result = str2const.get(from);
         if (result == null) {
             result = Constant.construct(from);
@@ -41,7 +64,7 @@ public class ConstantFactory { //todo - add a common abstract factory with gener
 
     public Constant construct(Constant from) {
         Constant result = const2const.get(from);
-        if (result == null){
+        if (result == null) {
             str2const.put(result.toString(), result);
             const2const.put(result, result);
         }

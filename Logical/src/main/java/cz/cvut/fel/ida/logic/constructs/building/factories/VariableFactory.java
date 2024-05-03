@@ -29,7 +29,31 @@ public class VariableFactory {
         var2var = vars.stream().collect(Collectors.toMap(Function.identity(), Function.identity()));
     }
 
+    /**
+     * Variable types are not part of its unique signature
+     * - i.e. use different variable names for different types
+     *
+     * @param name
+     * @param type
+     * @return
+     */
+    public Variable construct(String name, String type) {
+        Variable result = str2var.get(name);
+        if (result == null) {
+            result = Variable.construct(name, type);
+            str2var.put(name, result);
+            var2var.put(result, result);
+        } else {
+            result.setType(type);   // for mixing-up typed and untyped variables, the typed version wins
+        }
+        return result;
+    }
+
     public Variable construct(String from) {
+        if (from.contains(":")) {
+            final String[] split = from.split(":");
+            return construct(split[1], split[0]);
+        }
         Variable result = str2var.get(from);
         if (result == null) {
             result = Variable.construct(from);
@@ -41,7 +65,7 @@ public class VariableFactory {
 
     public Variable construct(Variable from) {
         Variable result = var2var.get(from);
-        if (result == null){
+        if (result == null) {
             str2var.put(result.toString(), result);
             var2var.put(result, result);
         }

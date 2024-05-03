@@ -26,7 +26,7 @@ import cz.cvut.fel.ida.utils.generic.tuples.Pair;
 /**
  * Class for representing logical constants. It uses caching so if there are constants with long names
  * which appear iterable many literals or even iterable many clauses, the consumed memory will not be too big.
- * 
+ *
  * @author Ondra
  */
 public class Constant implements Term {
@@ -41,25 +41,27 @@ public class Constant implements Term {
 
     private String type;
 
-    private String name;
+    private final String name;
 
     private String toString;
-    
-    private int hashCode = Integer.MIN_VALUE;
-    
-    private static Cache<String,Constant> cache = new Cache<String,Constant>();
 
-    private static Cache<Pair<String,String>,Constant> cache2 = new Cache<Pair<String,String>,Constant>();
-    
-    /** Creates a new instance of Constant */
+    private int hashCode = Integer.MIN_VALUE;
+
+    private static final Cache<String, Constant> cache = new Cache<String, Constant>();
+
+    private static final Cache<Pair<String, String>, Constant> cache2 = new Cache<Pair<String, String>, Constant>();
+
+    /**
+     * Creates a new instance of Constant
+     */
     private Constant(String name) {
         this.name = name.trim().intern();
-        if (StringUtils.isNumeric(this.name())){
-            if (StringUtils.isInteger(this.name())){
+        if (StringUtils.isNumeric(this.name())) {
+            if (StringUtils.isInteger(this.name())) {
                 this.intValue = Integer.parseInt(this.name());
                 this.doubleValue = Double.parseDouble(this.name());
                 this.constantType = INTEGER;
-            } else if (StringUtils.isDouble(this.name())){
+            } else if (StringUtils.isDouble(this.name())) {
                 this.doubleValue = Double.parseDouble(this.name());
                 this.constantType = DOUBLE;
             }
@@ -68,20 +70,21 @@ public class Constant implements Term {
         }
     }
 
-    private Constant(String name, String type){
+    private Constant(String name, String type) {
         this(name);
         this.type = type;
-        this.toString = type+":"+name;
+        this.toString = type + ":" + name;
     }
 
     /**
      * Creates an instance of class Constant. before constructing a new instance,
      * it checks if it had not been constructed yet - if it had been constructed then
      * it returns the old instance, otherwise it returns a new instance.
+     *
      * @param name
      * @return
      */
-    public static Constant construct(String name){
+    public static Constant construct(String name) {
         Constant retVal = cache.get(name);
         if (retVal == null) {
             retVal = new Constant(name);
@@ -90,8 +93,8 @@ public class Constant implements Term {
         return retVal;
     }
 
-    public static Constant construct(String name, String type){
-        if (type == null){
+    public static Constant construct(String name, String type) {
+        if (type == null) {
             return construct(name);
         } else {
             Pair<String, String> queryPair = new Pair<String, String>(name, type);
@@ -103,21 +106,24 @@ public class Constant implements Term {
             return retVal;
         }
     }
-    
+
     /**
-     * 
      * @return string representation of the constant
      */
-    public String name(){
+    public String name() {
         return this.name;
     }
 
-    public String type(){
+    public String type() {
         return this.type;
     }
-    
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     @Override
-    public String toString(){
+    public String toString() {
         if (this.type == null) {
             return name;
         } else {
@@ -126,50 +132,50 @@ public class Constant implements Term {
     }
 
     @Override
-    public boolean equals(Object o){
-        if (o instanceof Constant){
-            Constant c = (Constant)o;
+    public boolean equals(Object o) {
+        if (o instanceof Constant) {
+            Constant c = (Constant) o;
             return o == this ||
                     (c.name.equals(this.name) &&
-                        !((c.type == null && this.type != null) || (c.type != null && this.type == null)) &&
-                        (c.type == this.type || c.type.equals(this.type)));
+                            !((c.type == null && this.type != null) || (c.type != null && this.type == null)) &&
+                            (c.type == this.type || c.type.equals(this.type)));
         }
         return false;
     }
-    
+
     @Override
-    public int hashCode(){
+    public int hashCode() {
         if (hashCode != Integer.MIN_VALUE)
             return hashCode;
         return this.type == null ? (hashCode = name.hashCode()) : (hashCode = toString.hashCode());
     }
-    
+
     /**
      * Clears the cache of Constants - the cache is implemented using soft-references so
      * it is not necessary to call this method manually but it may be useful at some occasions.
      */
-    public static void clearCache(){
+    public static void clearCache() {
         cache.clear();
         cache2.clear();
     }
 
-    public boolean isInteger(){
+    public boolean isInteger() {
         return this.constantType == INTEGER;
     }
 
-    public boolean isDouble(){
+    public boolean isDouble() {
         return this.constantType == DOUBLE;
     }
 
-    public boolean isNumeric(){
+    public boolean isNumeric() {
         return isInteger() || isDouble();
     }
 
-    public int intValue(){
+    public int intValue() {
         return this.intValue;
     }
 
-    public double doubleValue(){
+    public double doubleValue() {
         return this.doubleValue;
     }
 

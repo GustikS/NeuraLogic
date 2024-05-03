@@ -24,7 +24,7 @@ import cz.cvut.fel.ida.utils.generic.tuples.Pair;
 
 /**
  * Class for representing first-order-logic variables.
- * 
+ *
  * @author Ondra
  */
 public class Variable implements Term {
@@ -36,32 +36,35 @@ public class Variable implements Term {
     private String toString;
 
     private int indexWithinSubstitution = -1;
-    
-    private int hashCode = Integer.MIN_VALUE;
-    
-    private static Cache<String,Variable> cache = new Cache<String,Variable>();
 
-    private static Cache<Pair<String,String>,Variable> cache2 = new Cache<Pair<String,String>,Variable>();
-    
-    /** Creates a new instance of Constant */
+    private int hashCode = Integer.MIN_VALUE;
+
+    private static Cache<String, Variable> cache = new Cache<String, Variable>();
+
+    private static Cache<Pair<String, String>, Variable> cache2 = new Cache<Pair<String, String>, Variable>();
+
+    /**
+     * Creates a new instance of Variable
+     */
     protected Variable(String name) {
         this.name = name.trim().intern();
         this.toString = this.name;
     }
 
-    private Variable(String name, String type){
+    private Variable(String name, String type) {
         this(name);
         this.type = type;
-        this.toString = type+":"+name;
+        this.toString = type + ":" + name;
     }
 
     /**
      * Creates a new variable - it uses caching so that variables of the same name would be
      * represented by one object.
+     *
      * @param name name of the variable to be constructed
      * @return constructed variable (either cached or created as new)
      */
-    public static Variable construct(String name){
+    public static Variable construct(String name) {
         Variable retVal = cache.get(name);
         if (retVal == null) {
             retVal = new Variable(name);
@@ -70,8 +73,8 @@ public class Variable implements Term {
         return retVal;
     }
 
-    public static Variable construct(String name, String type){
-        if (type == null){
+    public static Variable construct(String name, String type) {
+        if (type == null) {
             return construct(name);
         } else {
             Pair<String, String> queryPair = new Pair<String, String>(name, type);
@@ -84,23 +87,27 @@ public class Variable implements Term {
         }
     }
 
-    public String name(){
+    public String name() {
         return this.name;
     }
 
-    public String type(){
+    public String type() {
         return this.type;
     }
-    
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     @Override
-    public String toString(){
+    public String toString() {
         return this.toString;
     }
 
     @Override
-    public boolean equals(Object o){
-        if (o instanceof Variable){
-            Variable v = (Variable)o;
+    public boolean equals(Object o) {
+        if (o instanceof Variable) {
+            Variable v = (Variable) o;
             return o == this ||
                     (v.name.equals(this.name) &&
                             !((v.type == null && this.type != null) || (v.type != null && this.type == null)) &&
@@ -108,20 +115,20 @@ public class Variable implements Term {
         }
         return false;
     }
-    
+
     @Override
-    public int hashCode(){
+    public int hashCode() {
         if (hashCode != Integer.MIN_VALUE)
             return hashCode;
         return this.type == null ? (hashCode = name.hashCode()) : (hashCode = toString.hashCode());
     }
-    
+
     /**
      * Clears the cache of variables. This method does not have to be called because
      * the caching mechanism uses soft-references therefore the cache should be cleared
      * automatically by the garbage collector if neccessary.
      */
-    public static void clearCache(){
+    public static void clearCache() {
         cache.clear();
         cache2.clear();
     }

@@ -1,0 +1,2 @@
+sister(woman:Y) :- siblings(X, woman:Y).
+predict :- sister(X).

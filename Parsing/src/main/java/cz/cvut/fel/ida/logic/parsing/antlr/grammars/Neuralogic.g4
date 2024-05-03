@@ -29,8 +29,8 @@ termList: LPAREN (term (COMMA term)*)? RPAREN;
 //no function symbols support just yet
 term: constant | variable;
 
-variable: VARIABLE;
-constant: ATOMIC_NAME | INT | FLOAT;
+variable: TYPE? VARIABLE;
+constant: TYPE? ATOMIC_NAME | TYPE? INT | TYPE? FLOAT;
 // on the level of the syntactic parser, predicates are indistinguishible from constants
 predicate: PRIVATE? SPECIAL? ATOMIC_NAME (SLASH INT)?; //predicates also begin with lower-case letter!
 
@@ -68,6 +68,8 @@ negation: NEGATION | SOFTNEGATION;
 impliedBy: IMPLIED_BY | IMPLIED_BY2;
 
 VARIABLE: UCASE_LETTER ALPHANUMERIC* | '_' ALPHANUMERIC+ | '_';
+
+TYPE: ALPHA ALPHANUMERIC* ':';
 
 // numbers
 INT: [+-]? DIGIT+;

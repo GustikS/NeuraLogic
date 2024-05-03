@@ -1,0 +1,1 @@
+human(woman:a1),human(woman:a2),human(woman:a3),human(man:a4), siblings(a1, a2), siblings(a1, a3), siblings(a1, a4).
