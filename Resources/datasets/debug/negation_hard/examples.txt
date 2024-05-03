@@ -1,0 +1,1 @@
+1 predict :- edge(a,b), edge(a,c), blue(b), red(c).

@@ -1,0 +1,4 @@
+n_red(X) :- red(X).
+indirect_not_red(Y) :- edge(a, Y), !n_red(Y).
+direct_not_red(Y) :- edge(a, Y), !red(Y).
+predict :- indirect_not_red(X), direct_not_red(X).

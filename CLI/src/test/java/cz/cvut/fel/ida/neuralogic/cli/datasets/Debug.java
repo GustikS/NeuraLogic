@@ -33,7 +33,7 @@ public class Debug {
         settings.structuralIsoCompression = true;
         settings.initLearningRate = 0.01;
 //        settings.debugAll = true;
-        Main.main(getDatasetArgs(dataset,"-t ./template.txt"), settings);
+        Main.main(getDatasetArgs(dataset, "-t ./template.txt"), settings);
     }
 
     @TestAnnotations.Fast
@@ -76,8 +76,8 @@ public class Debug {
     }
 
     @TestAnnotations.Fast
-    public void negation() throws Exception {
-        String dataset = "debug/negation";
+    public void negationSoft() throws Exception {
+        String dataset = "debug/negation_soft";
         Settings settings = Settings.forSlowTest();
         settings.squishLastLayer = false;   //turn off both of these to avoid applying sigmoid on top
         settings.inferOutputFcns = false;
@@ -90,6 +90,20 @@ public class Debug {
         DetailedClassificationResults classificationResults = (DetailedClassificationResults) results.s;
         ScalarValue output = (ScalarValue) classificationResults.evaluations.get(0).getOutput();
         assertEquals(0.9, output.value, 0.00000001);
+    }
+
+    @TestAnnotations.Fast
+    public void negationHard() throws Exception {
+        String dataset = "debug/negation_hard";
+        Settings settings = Settings.forSlowTest();
+        settings.squishLastLayer = false;   //turn off both of these to avoid applying sigmoid on top
+        settings.inferOutputFcns = false;
+//        settings.isoValueCompression = false;
+//        settings.chainPruning = false;
+        settings.pruneOnlyIdentities = true;
+
+        settings.maxCumEpochCount = 1;
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs(dataset, "-t ./template.txt"), settings);
     }
 
     @TestAnnotations.Interactive
@@ -171,7 +185,7 @@ public class Debug {
         settings.squishLastLayer = false;
         settings.inferOutputFcns = false;
         settings.structuralIsoCompression = true;
-        Main.main(getDatasetArgs(dataset,"-t ./templates/template_cycle.txt"), settings);
+        Main.main(getDatasetArgs(dataset, "-t ./templates/template_cycle.txt"), settings);
     }
 
     @TestAnnotations.Fast
@@ -192,7 +206,7 @@ public class Debug {
         settings.inferOutputFcns = false;
         settings.structuralIsoCompression = true;
         settings.debugAll = true;
-        Main.main(getDatasetArgs(dataset,"-t ./template_unstratified.txt"), settings);
+        Main.main(getDatasetArgs(dataset, "-t ./template_unstratified.txt"), settings);
     }
 
 
@@ -204,7 +218,7 @@ public class Debug {
         settings.inferOutputFcns = false;
         settings.isoValueCompression = false;
         settings.debugAll = true;
-        Main.main(getDatasetArgs(dataset,"-t ./template.txt"), settings);
+        Main.main(getDatasetArgs(dataset, "-t ./template.txt"), settings);
     }
 
 }

@@ -155,8 +155,7 @@ public class HerbrandModel {
                 groundFacts.add(Sugar.chooseOne(c.literals()));
             } else {
                 HornClause hc = new HornClause(c);
-                if (hc.body() != null)
-                    rest.add(hc);
+                if (hc.body() != null) rest.add(hc);
             }
         }
         return new Pair<>(rest, groundFacts);
@@ -174,6 +173,7 @@ public class HerbrandModel {
         for (Literal l : hc.body().literals()) {
             if (l.isNegated()) {
                 literalSet.add(new Literal(tupleNotInPredicateName(l.predicate()), false, l.arguments()));  //negated body literals will only be satified if not found YET (see @link TupleNotIn)
+                matching.getEngine().addCustomPredicate(new TupleNotIn(l.predicate(), herbrand.get(l.predicate())));
             }
         }
         if (!groundHead) {
