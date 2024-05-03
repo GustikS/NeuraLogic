@@ -52,4 +52,15 @@ public class TrainingDebuggerTest {
         settings.debugAll = true;
         Pair<Pipeline, ?> results = Main.main(getDatasetArgs("debug/drawing/noquery"), settings);
     }
+
+    @TestAnnotations.Interactive
+    public void drawingCompact() throws Exception {
+        Settings settings = Settings.forInteractiveTest();
+        settings.maxCumEpochCount = 1;
+        settings.isoValueCompression = false;
+        settings.chainPruning = false;
+        settings.debugAll = true;
+        settings.drawingDetail = Settings.Detail.LOW;
+        Pair<Pipeline, ?> results = Main.main(getDatasetArgs("simple/visual", "-t ./template2.txt"), settings);
+    }
 }

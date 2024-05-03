@@ -38,8 +38,13 @@ public abstract class Drawer<S> {   //todo next replace hashcodes (which collide
             }
         }
 
-        this.numberFormat = settings.defaultNumberFormat;
+
         this.drawingDetail = settings.drawingDetail;
+        if (drawingDetail == Settings.Detail.LOW){
+            this.numberFormat = null;
+        } else {
+            this.numberFormat = settings.defaultNumberFormat;
+        }
         this.storeNotShow = settings.storeNotShow;
     }
 

@@ -253,6 +253,9 @@ public class MatrixValue extends Value {
 
     @Override
     public String toString(NumberFormat numberFormat) {
+        if (numberFormat == null) {
+            return "dim:" + Arrays.toString(size());
+        }
         StringBuilder sb = new StringBuilder();
         sb.append("[\n");
         for (int j = 0; j < rows; j++) {

@@ -25,6 +25,7 @@ public class MainStagesMutaBenchmarks {
 
     static String dataset = "relational/molecules/mutagenesis";
     static String template = "-t ./templates/template_gnnW10.txt";
+//    static String template = "-t ./templates/template_rings_gnn.txt";
 
 
     @TestAnnotations.PreciseBenchmark

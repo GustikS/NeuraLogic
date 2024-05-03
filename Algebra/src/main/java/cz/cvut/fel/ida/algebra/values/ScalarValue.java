@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.algebra.values;
 
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
+import cz.cvut.fel.ida.setup.Settings;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.NumberFormat;
@@ -183,6 +184,9 @@ public class ScalarValue extends Value {
 
     @Override
     public String toString(NumberFormat numberFormat) {
+        if (numberFormat == null) {
+            return Settings.shortNumberFormat.format(value);
+        }
         return numberFormat.format(value);
     }
 

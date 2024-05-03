@@ -46,6 +46,7 @@ public class HerbrandModel {
      * todo somehow change this to incrementally pass only NEW facts to existing ClauseE without reindexing from scratch?
      * <p>
      * todo follow the rule precedence/order from the GraphTemplate here, so that we can skip the upper layer rules in the first iterations...
+     *      - not a big speedup, as there is a fast initial check whether the ClauseE contains all the predicates from ClauseC at the very beginning
      *
      * @param irules
      * @param facts
@@ -99,7 +100,7 @@ public class HerbrandModel {
      * @return
      */
     public Pair<Term[], List<Term[]>> groundingSubstitutions(HornClause rule) {
-        Clause clause = new Clause(rule.getLiterals()); //todo check negations here
+        Clause clause = new Clause(rule.getLiterals()); //todo check negations here?
         final SubsumptionEngineJ2.ClauseC clauseC = matching.createClauseC(clause);
         cz.cvut.fel.ida.utils.generic.tuples.Pair<Term[], List<Term[]>> listPair = matching.allSubstitutions(clauseC, clauseE, Integer.MAX_VALUE);
 

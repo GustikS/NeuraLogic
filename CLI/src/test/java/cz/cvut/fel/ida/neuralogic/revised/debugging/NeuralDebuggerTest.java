@@ -5,6 +5,7 @@ import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
 import cz.cvut.fel.ida.neuralogic.cli.utils.Runner;
 import cz.cvut.fel.ida.pipelines.debugging.NeuralDebugger;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.setup.Sources;
 import cz.cvut.fel.ida.utils.exporting.JavaExporter;
 import cz.cvut.fel.ida.utils.generic.TestAnnotations;
 
@@ -20,6 +21,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class NeuralDebuggerTest {
 
     private static final java.util.logging.Logger LOG = Logger.getLogger(NeuralDebuggerTest.class.getName());
+
+    @TestAnnotations.Interactive
+    public void simpleGNNNeural() throws Exception {
+        Settings settings = Settings.forInteractiveTest();
+        settings.drawingDetail = Settings.Detail.LOW;
+        Sources sources = Runner.getSources(getDatasetArgs("simple/visual", "-t ./template2.txt"), settings);
+        NeuralDebugger neuralDebugger = new NeuralDebugger(sources, settings);
+        neuralDebugger.executeDebug();
+    }
 
     @TestAnnotations.Fast
     public void family() throws Exception {

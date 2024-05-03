@@ -69,8 +69,8 @@ public class NeuralNetDrawer extends Drawer<NeuralSample> {
         }
 
         private String getNeuronLabel(BaseNeuron neuron) {
-
-            String name = neuron.getClass().getSimpleName() + ":" + neuron.index + ":" + neuron.name;
+            String typeName = numberFormat != null ? neuron.getClass().getSimpleName() : "n";
+            String name = typeName + ":" + neuron.index + ":" + neuron.name;
             State.Neural.Computation state = neuron.getComputationView(stateVisitor.stateIndex);
             String value = state.getValue().toString(NeuralNetDrawer.this.numberFormat);
             Value stateGradient = state.getGradient();

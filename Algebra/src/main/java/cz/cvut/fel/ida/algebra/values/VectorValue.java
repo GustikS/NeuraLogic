@@ -261,6 +261,9 @@ public class VectorValue extends Value {
 
     @Override
     public String toString(NumberFormat numberFormat) {
+        if (numberFormat == null) {
+            return "dim:" + Arrays.toString(size());
+        }
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < values.length; i++) {
             sb.append(",").append(numberFormat.format(values[i]));

@@ -46,8 +46,8 @@ public class Weight implements Exportable {
 
     public WeightMetadata metadata;
 
-    public static Weight unitWeight = new Weight(-1, "unitWeight", Value.ONE, true, true);
-    public static Weight zeroWeight = new Weight(-2, "zeroWeight", Value.ZERO, true, true);
+    public static Weight unitWeight = new Weight(-1, "one", Value.ONE, true, true);
+    public static Weight zeroWeight = new Weight(-2, "zero", Value.ZERO, true, true);
 
     public Weight(int index, String name, Value value, boolean fixed, boolean isInitialized) {
         this.index = index;

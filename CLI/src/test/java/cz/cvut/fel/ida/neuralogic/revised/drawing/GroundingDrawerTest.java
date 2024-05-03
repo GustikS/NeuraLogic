@@ -2,6 +2,8 @@ package cz.cvut.fel.ida.neuralogic.revised.drawing;
 
 import cz.cvut.fel.ida.neuralogic.cli.utils.Runner;
 import cz.cvut.fel.ida.pipelines.debugging.GroundingDebugger;
+import cz.cvut.fel.ida.pipelines.debugging.NeuralDebugger;
+import cz.cvut.fel.ida.pipelines.debugging.TemplateDebugger;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.setup.Sources;
 import cz.cvut.fel.ida.utils.generic.TestAnnotations;
