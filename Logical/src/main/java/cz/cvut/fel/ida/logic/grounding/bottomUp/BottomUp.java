@@ -122,7 +122,7 @@ public class BottomUp extends Grounder {
         LOG.fine(groundRules.size() + " ground rules created.");
         totalGroundRules += groundRules.size();
         GroundTemplate groundTemplate = new GroundTemplate(groundRules, groundFacts);
-        herbrandModel.clear();
+        herbrandModel.herbrand.clear();
 
         timing.toc();
         return groundTemplate;
@@ -143,8 +143,8 @@ public class BottomUp extends Grounder {
         if (memory == null) {
             memory = new GroundTemplate();
         }
-        herbrandModel.populateHerbrand(memory.groundFacts.keySet());    //add what was known before
-        herbrandModel.populateHerbrand(memory.derivedGroundFacts);  //also add what has been previously derived!
+        herbrandModel.storeFacts(memory.groundFacts.keySet());    //add what was known before
+        herbrandModel.storeFacts(memory.derivedGroundFacts);  //also add what has been previously derived!
         GroundTemplate bigger = groundRulesAndFacts(example, template);
         GroundTemplate diff = bigger.diffAgainst(memory);
         memory.groundRules = bigger.groundRules;

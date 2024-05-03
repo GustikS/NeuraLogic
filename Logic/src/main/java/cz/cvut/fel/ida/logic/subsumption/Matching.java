@@ -25,9 +25,10 @@ import cz.cvut.fel.ida.utils.generic.tuples.Pair;
 import cz.cvut.fel.ida.utils.generic.tuples.Triple;
 
 import java.util.*;
+
 /**
  * Class Matching encapsulates engines for computing theta-subsumption, namely ReSumEr1 and ReSumEr2 (Kuzelka, Zelezny, Fundamenta Informaticae, 2008)
- * 
+ *
  * @author ondra
  */
 public class Matching {
@@ -285,7 +286,7 @@ public class Matching {
      * @return the representation of Clause c as SubsumptionEngineJ2.ClauseC
      */
     public SubsumptionEngineJ2.ClauseC createClauseC(Clause c) {
-        return engine.createCluaseC(c);
+        return engine.createClauseC(c);
         //return engine.createCluaseC(preprocessHypothesis(c));
     }
 
@@ -362,7 +363,7 @@ public class Matching {
      * @param c        hypothesis
      * @param e        example
      * @param maxCount maximum number of solutions that we want to get
-     * @param depth        depth (in the search tree - counted by variables) beyond which only one solution is given insetad of all solutions
+     * @param depth    depth (in the search tree - counted by variables) beyond which only one solution is given insetad of all solutions
      * @return pair: the first element is an array of variables, the second element is a list
      * of arrays of terms - each such array represents one solution of the subsumption problem.
      * The terms iterable the arrays are substitutions to the respective variables listed iterable the array which
@@ -398,7 +399,7 @@ public class Matching {
      * is the first element iterable the pair.
      */
     public Pair<Term[], List<Term[]>> allSubstitutions(Clause c, int exampleIndex, int maxCount) {
-        SubsumptionEngineJ2.ClauseC clauseC = this.engine.createCluaseC(c);
+        SubsumptionEngineJ2.ClauseC clauseC = this.engine.createClauseC(c);
         return engine.allSolutions(clauseC, this.examples.get(exampleIndex), maxCount);
     }
 
@@ -415,7 +416,7 @@ public class Matching {
      * is the first element iterable the pair.
      */
     public Pair<Term[], List<Term[]>> allSubstitutions(Clause c, int exampleIndex, int maxCount, int depth) {
-        SubsumptionEngineJ2.ClauseC clauseC = this.engine.createCluaseC(c);
+        SubsumptionEngineJ2.ClauseC clauseC = this.engine.createClauseC(c);
         return engine.allSolutions(clauseC, this.examples.get(exampleIndex), maxCount, depth);
     }
 
@@ -616,50 +617,50 @@ public class Matching {
     /**
      * Roughly based on Ermon, Gomes, Selman: Uniform Solution Sampling Using a Constraint Solver As an Oracle
      *
-     * @param query conjunctive query
-     * @param exampleIndex index of the database (possible world - example) stored in the Matching object
+     * @param query         conjunctive query
+     * @param exampleIndex  index of the database (possible world - example) stored in the Matching object
      * @param subsampleSize maximal number of sampled solutions (in each iteration)
-     * @param l size of the step
+     * @param l             size of the step
      */
-    public Triple<Term[],List<Term[]>,Double> searchTreeSampler(Clause query, int exampleIndex, int subsampleSize, int l){
+    public Triple<Term[], List<Term[]>, Double> searchTreeSampler(Clause query, int exampleIndex, int subsampleSize, int l) {
         return this.searchTreeSampler(query, this.examples.get(exampleIndex), subsampleSize, l);
     }
 
     /**
      * Roughly based on Ermon, Gomes, Selman: Uniform Solution Sampling Using a Constraint Solver As an Oracle
      *
-     * @param query conjunctive query
-     * @param db the database (possible world)
+     * @param query         conjunctive query
+     * @param db            the database (possible world)
      * @param subsampleSize maximal number of sampled solutions (in each iteration)
-     * @param l size of the step
+     * @param l             size of the step
      */
-    public Triple<Term[],List<Term[]>,Double> searchTreeSampler(Clause query, Clause db, int subsampleSize, int l){
+    public Triple<Term[], List<Term[]>, Double> searchTreeSampler(Clause query, Clause db, int subsampleSize, int l) {
         return this.searchTreeSampler(query, this.createClauseE(db), subsampleSize, l);
     }
 
     /**
      * Roughly based on Ermon, Gomes, Selman: Uniform Solution Sampling Using a Constraint Solver As an Oracle
      *
-     * @param query conjunctive query
-     * @param example the database (possible world)
+     * @param query         conjunctive query
+     * @param example       the database (possible world)
      * @param subsampleSize maximal number of sampled solutions (in each iteration)
-     * @param l size of the step
+     * @param l             size of the step
      */
-    private Triple<Term[],List<Term[]>,Double> searchTreeSampler(Clause query, SubsumptionEngineJ2.ClauseE example, int subsampleSize, int l){
-        if (!subsumption(createClauseC(query), example)){
+    private Triple<Term[], List<Term[]>, Double> searchTreeSampler(Clause query, SubsumptionEngineJ2.ClauseE example, int subsampleSize, int l) {
+        if (!subsumption(createClauseC(query), example)) {
             Term[] template = new Term[query.variables().size()];
             int i = 0;
-            for (Variable v : query.variables()){
+            for (Variable v : query.variables()) {
                 template[i] = v;
                 i++;
             }
-            return new Triple<Term[],List<Term[]>,Double>(template, new ArrayList<Term[]>(1), Double.NEGATIVE_INFINITY);
+            return new Triple<Term[], List<Term[]>, Double>(template, new ArrayList<Term[]>(1), Double.NEGATIVE_INFINITY);
         }
-        Triple<Term[],List<Term[]>,Double> retVal = new Triple<Term[],List<Term[]>,Double>(new Term[0], Sugar.<Term[]>list(new Term[0]), null);
+        Triple<Term[], List<Term[]>, Double> retVal = new Triple<Term[], List<Term[]>, Double>(new Term[0], Sugar.<Term[]>list(new Term[0]), null);
         int i = 0;
         int numVars = query.variables().size();
         double logEstModelCount = 0;
-        while (i < numVars){
+        while (i < numVars) {
             retVal = blackBoxSampler(query, example, retVal.r, retVal.s, subsampleSize, l);
             logEstModelCount += Math.log(retVal.t);
             i += l;
@@ -668,24 +669,24 @@ public class Matching {
         if (retVal.s.size() > subsampleSize) {
             retVal.s = retVal.s.subList(0, subsampleSize);
         }
-        return new Triple<Term[],List<Term[]>,Double>(retVal.r, retVal.s, logEstModelCount);
+        return new Triple<Term[], List<Term[]>, Double>(retVal.r, retVal.s, logEstModelCount);
     }
 
     /**
      * Roughly based on Ermon, Gomes, Selman: "Uniform Solution Sampling Using a Constraint Solver As an Oracle"
      */
-    private Triple<Term[],List<Term[]>,Double> blackBoxSampler(Clause query, SubsumptionEngineJ2.ClauseE example, Term[] substitutionTemplate, List<Term[]> sampledSolutions, int k, int l){
+    private Triple<Term[], List<Term[]>, Double> blackBoxSampler(Clause query, SubsumptionEngineJ2.ClauseE example, Term[] substitutionTemplate, List<Term[]> sampledSolutions, int k, int l) {
         Term[] variableOrder = null;
         Collections.shuffle(sampledSolutions, this.random);
         List<Term[]> retValList = new ArrayList<Term[]>();
-        Term[] retValSubsTemplate = new Term[Math.min(query.variables().size(), substitutionTemplate.length+l)];
-        for (int j = 0; j < Math.min(k, sampledSolutions.size()); j++){
+        Term[] retValSubsTemplate = new Term[Math.min(query.variables().size(), substitutionTemplate.length + l)];
+        for (int j = 0; j < Math.min(k, sampledSolutions.size()); j++) {
             Term[] substitution = sampledSolutions.get(j);
             Clause restrictedQuery = LogicUtils.substitute(query, substitutionTemplate, substitution);
             //System.out.println(restrictedQuery+" -- "+Sugar.objectArrayToString(substitutionTemplate)+":"+Sugar.objectArrayToString(substitution));
             SubsumptionEngineJ2.ClauseC queryC = this.createClauseC(restrictedQuery);
-            Pair<Term[],List<Term[]>> sols;
-            if (j == 0){
+            Pair<Term[], List<Term[]>> sols;
+            if (j == 0) {
                 sols = engine.allSolutions(queryC, example, Integer.MAX_VALUE, l);
                 variableOrder = engine.lastVariableOrder(queryC);
                 System.arraycopy(substitutionTemplate, 0, retValSubsTemplate, 0, substitutionTemplate.length);
@@ -694,46 +695,46 @@ public class Matching {
                 sols = engine.allSolutions(queryC, example, Integer.MAX_VALUE, l, variableOrder);
             }
 
-            for (Term[] s : sols.s){
-                Term[] pseudoSol = new Term[substitution.length+Math.min(l, variableOrder.length)];
+            for (Term[] s : sols.s) {
+                Term[] pseudoSol = new Term[substitution.length + Math.min(l, variableOrder.length)];
                 System.arraycopy(substitution, 0, pseudoSol, 0, substitution.length);
                 System.arraycopy(s, 0, pseudoSol, substitution.length, Math.min(l, variableOrder.length));
                 retValList.add(pseudoSol);
             }
         }
-        double avgSols = retValList.size()/(double)Math.min(k, sampledSolutions.size());
-        return new Triple<Term[],List<Term[]>,Double>(retValSubsTemplate, retValList, avgSols);
+        double avgSols = retValList.size() / (double) Math.min(k, sampledSolutions.size());
+        return new Triple<Term[], List<Term[]>, Double>(retValSubsTemplate, retValList, avgSols);
     }
 
-    public Set<Set<Term>> allImages(Clause query, int exampleIndex, int maxCard){
+    public Set<Set<Term>> allImages(Clause query, int exampleIndex, int maxCard) {
         return this.allImages(query, this.examples.get(exampleIndex), maxCard);
     }
 
-    public Set<Set<Term>> allImages(Clause query, Clause db, int maxCard){
+    public Set<Set<Term>> allImages(Clause query, Clause db, int maxCard) {
         return this.allImages(query, createClauseE(db), maxCard);
     }
 
-    private Set<Set<Term>> allImages(Clause query, SubsumptionEngineJ2.ClauseE clauseE, int maxCard){
+    private Set<Set<Term>> allImages(Clause query, SubsumptionEngineJ2.ClauseE clauseE, int maxCard) {
         List<Variable> varsInQuery = Sugar.listFromCollections(query.variables());
-        if (!subsumption(createClauseC(query), clauseE)){
+        if (!subsumption(createClauseC(query), clauseE)) {
             return new HashSet<Set<Term>>();
         }
-        Literal cardLiteral = new Literal(SpecialVarargPredicates.MAX_CARD, varsInQuery.size()+1);
+        Literal cardLiteral = new Literal(SpecialVarargPredicates.MAX_CARD, varsInQuery.size() + 1);
         cardLiteral.set(Constant.construct(String.valueOf(maxCard)), 0);
-        for (int i = 1; i < cardLiteral.arity(); i++){
-            cardLiteral.set(varsInQuery.get(i-1), i);
+        for (int i = 1; i < cardLiteral.arity(); i++) {
+            cardLiteral.set(varsInQuery.get(i - 1), i);
         }
         query = new Clause(Sugar.union(query.literals(), cardLiteral));
 
         SubsumptionEngineJ2.ClauseC queryC = createClauseC(query);
-        if (!this.engine.solveWithResumer(queryC, clauseE, 2)){
+        if (!this.engine.solveWithResumer(queryC, clauseE, 2)) {
             return new HashSet<Set<Term>>();
         }
         Term[] termOrder = this.engine.lastVariableOrder(queryC);
         List<Variable> variableList = new ArrayList<Variable>();
-        for (int i = 0; i < termOrder.length; i++){
-            if (termOrder[i] instanceof Variable){
-                variableList.add((Variable)termOrder[i]);
+        for (int i = 0; i < termOrder.length; i++) {
+            if (termOrder[i] instanceof Variable) {
+                variableList.add((Variable) termOrder[i]);
             }
         }
         System.out.println(variableList);
@@ -741,7 +742,7 @@ public class Matching {
         Set<Set<Term>> partial = new HashSet<Set<Term>>();
         partial.add(new HashSet<Term>());
 
-        for (int i = 0; i < variableList.size(); i++){
+        for (int i = 0; i < variableList.size(); i++) {
             //System.out.println("size: "+partial.size());
             Set<Set<Term>> newPartial = new HashSet<Set<Term>>();
             for (Set<Term> set : partial) {
@@ -761,13 +762,13 @@ public class Matching {
                 Clause extendedQuery = new Clause(extendedLits);
                 long m1 = System.nanoTime();
                 SubsumptionEngineJ2.ClauseC clauseC = createClauseC(extendedQuery);
-                Pair<Term[],List<Term[]>> sol = engine.allSolutions(clauseC, clauseE, Integer.MAX_VALUE, 1, variableList.get(i));
+                Pair<Term[], List<Term[]>> sol = engine.allSolutions(clauseC, clauseE, Integer.MAX_VALUE, 1, variableList.get(i));
                 long m2 = System.nanoTime();
                 //System.out.println("t: "+(m2-m1)/1e6+", "+sol.s.size());
 
                 for (Term[] ts : sol.s) {
                     Term term = ts[0];
-                    if (this.engine.subsumptionMode() == THETA_SUBSUMPTION || !set.contains(term)){
+                    if (this.engine.subsumptionMode() == THETA_SUBSUMPTION || !set.contains(term)) {
                         Set<Term> extendedSet = Sugar.setFromCollections(set);
                         extendedSet.add(term);
                         if (extendedSet.size() <= maxCard) {
@@ -781,35 +782,35 @@ public class Matching {
         return partial;
     }
 
-    public Set<Set<Term>> allImages(Clause query, Clause db, int maxCard, double epsilon, double delta){
+    public Set<Set<Term>> allImages(Clause query, Clause db, int maxCard, double epsilon, double delta) {
         return this.allImages(query, createClauseE(db), maxCard, epsilon, delta);
     }
 
-    private Set<Set<Term>> allImages(Clause query, SubsumptionEngineJ2.ClauseE clauseE, int maxCard, double epsilon, double delta){
+    private Set<Set<Term>> allImages(Clause query, SubsumptionEngineJ2.ClauseE clauseE, int maxCard, double epsilon, double delta) {
         return null;
     }
 
-    private Set<Set<Term>> allImages(Clause query, SubsumptionEngineJ2.ClauseE clauseE, int maxCard, boolean[][] xors){
+    private Set<Set<Term>> allImages(Clause query, SubsumptionEngineJ2.ClauseE clauseE, int maxCard, boolean[][] xors) {
         List<Variable> varsInQuery = Sugar.listFromCollections(query.variables());
-        if (!subsumption(createClauseC(query), clauseE)){
+        if (!subsumption(createClauseC(query), clauseE)) {
             return new HashSet<Set<Term>>();
         }
-        Literal cardLiteral = new Literal(SpecialVarargPredicates.MAX_CARD, varsInQuery.size()+1);
+        Literal cardLiteral = new Literal(SpecialVarargPredicates.MAX_CARD, varsInQuery.size() + 1);
         cardLiteral.set(Constant.construct(String.valueOf(maxCard)), 0);
-        for (int i = 1; i < cardLiteral.arity(); i++){
-            cardLiteral.set(varsInQuery.get(i-1), i);
+        for (int i = 1; i < cardLiteral.arity(); i++) {
+            cardLiteral.set(varsInQuery.get(i - 1), i);
         }
         query = new Clause(Sugar.union(query.literals(), cardLiteral));
 
         SubsumptionEngineJ2.ClauseC queryC = createClauseC(query);
-        if (!this.engine.solveWithResumer(queryC, clauseE, 2)){
+        if (!this.engine.solveWithResumer(queryC, clauseE, 2)) {
             return new HashSet<Set<Term>>();
         }
         Term[] termOrder = this.engine.lastVariableOrder(queryC);
         List<Variable> variableList = new ArrayList<Variable>();
-        for (int i = 0; i < termOrder.length; i++){
-            if (termOrder[i] instanceof Variable){
-                variableList.add((Variable)termOrder[i]);
+        for (int i = 0; i < termOrder.length; i++) {
+            if (termOrder[i] instanceof Variable) {
+                variableList.add((Variable) termOrder[i]);
             }
         }
         System.out.println(variableList);
@@ -817,8 +818,8 @@ public class Matching {
         Set<Set<Term>> partial = new HashSet<Set<Term>>();
         partial.add(new HashSet<Term>());
 
-        for (int i = 0; i < variableList.size(); i++){
-            System.out.println("size: "+partial.size());
+        for (int i = 0; i < variableList.size(); i++) {
+            System.out.println("size: " + partial.size());
             Set<Set<Term>> newPartial = new HashSet<Set<Term>>();
             for (Set<Term> set : partial) {
 
@@ -837,13 +838,13 @@ public class Matching {
                 Clause extendedQuery = new Clause(extendedLits);
                 long m1 = System.nanoTime();
                 SubsumptionEngineJ2.ClauseC clauseC = createClauseC(extendedQuery);
-                Pair<Term[],List<Term[]>> sol = engine.allSolutions(clauseC, clauseE, Integer.MAX_VALUE, 1, variableList.get(i));
+                Pair<Term[], List<Term[]>> sol = engine.allSolutions(clauseC, clauseE, Integer.MAX_VALUE, 1, variableList.get(i));
                 long m2 = System.nanoTime();
                 //System.out.println("t: "+(m2-m1)/1e6+", "+sol.s.size());
 
                 for (Term[] ts : sol.s) {
                     Term term = ts[0];
-                    if (this.engine.subsumptionMode() == THETA_SUBSUMPTION || !set.contains(term)){
+                    if (this.engine.subsumptionMode() == THETA_SUBSUMPTION || !set.contains(term)) {
                         Set<Term> extendedSet = Sugar.setFromCollections(set);
                         extendedSet.add(term);
                         if (extendedSet.size() <= maxCard) {
@@ -857,13 +858,19 @@ public class Matching {
         return partial;
     }
 
-    protected List<SubsumptionEngineJ2.ClauseE> examples(){
+    protected List<SubsumptionEngineJ2.ClauseE> examples() {
         return this.examples;
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         Clause c1 = Clause.parse("Year_1(c)");
         Clause c2 = Clause.parse("Year_1(b)");
-        System.out.println(new Matching().subsumption(c1,c2));
+        System.out.println(new Matching().subsumption(c1, c2));
+
+        HornClause rule = new HornClause(Clause.parse("~head,b1(c),b2(c)"));
+        Clause example = Clause.parse("b1(c),b2(c)");
+        Clause query1 = new Clause(LogicUtils.flipSigns(rule.body().literals()));
+        Clause query2 = new Clause(rule.body().literals());  //todo next both versions work in non-ground bodies, but only this one in ground bodies, investigate why
+        new Matching().subsumption(query1, example);
     }
 }

@@ -8,9 +8,7 @@ import cz.cvut.fel.ida.logic.subsumption.SubsumptionEngineJ2;
 import cz.cvut.fel.ida.utils.generic.tuples.Pair;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class Instance {
 
@@ -45,7 +43,7 @@ public class Instance {
         if (goalC != null) {
             return goalC;
         }
-        this.goalC = matching.getEngine().createCluaseC(goal);
+        this.goalC = matching.getEngine().createClauseC(goal);
         return goalC;
     }
 

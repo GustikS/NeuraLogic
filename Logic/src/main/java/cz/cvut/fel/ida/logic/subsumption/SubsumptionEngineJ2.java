@@ -18,7 +18,6 @@ package cz.cvut.fel.ida.logic.subsumption;
 
 import cz.cvut.fel.ida.logic.*;
 import cz.cvut.fel.ida.setup.Settings;
-import cz.cvut.fel.ida.utils.math.Combinatorics;
 import cz.cvut.fel.ida.utils.math.IntegerFunction;
 import cz.cvut.fel.ida.utils.math.Sugar;
 import cz.cvut.fel.ida.utils.math.VectorUtils;
@@ -26,7 +25,6 @@ import cz.cvut.fel.ida.utils.math.collections.*;
 import cz.cvut.fel.ida.utils.math.random.CustomRandomGenerator;
 import cz.cvut.fel.ida.utils.generic.tuples.Pair;
 import cz.cvut.fel.ida.utils.generic.tuples.Triple;
-import cz.cvut.fel.ida.utils.generic.tuples.Tuple;
 
 import java.util.*;
 
@@ -1964,7 +1962,7 @@ public class SubsumptionEngineJ2 {
      * @param c
      * @return
      */
-    public ClauseC createCluaseC(Clause c) {
+    public ClauseC createClauseC(Clause c) {
         return new ClauseC(c);
     }
 

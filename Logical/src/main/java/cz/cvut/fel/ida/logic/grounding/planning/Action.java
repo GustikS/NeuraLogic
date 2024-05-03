@@ -47,7 +47,7 @@ public class Action {
             return preconditionsC;
         }
         final Clause clause = new Clause(preconditions);
-        preconditionsC = matching.getEngine().createCluaseC(clause);
+        preconditionsC = matching.getEngine().createClauseC(clause);
         return preconditionsC;
     }
 
