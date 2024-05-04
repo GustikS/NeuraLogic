@@ -1,6 +1,5 @@
 package cz.cvut.fel.ida.logic.subsumption;
 
-import com.sun.istack.internal.Nullable;
 import cz.cvut.fel.ida.logic.*;
 import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.utils.math.Sugar;
@@ -29,7 +28,6 @@ public class HerbrandModel {
     /**
      * The current Herbrand model processed as an indexed structure
      */
-    @Nullable
     private SubsumptionEngineJ2.ClauseE clauseE;
 
     /**
