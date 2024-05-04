@@ -74,8 +74,8 @@ public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, 
                 graphTemplatePipe.connectAfter(pipeline.registerEnd(reduceTemplatePipe));
                 nextPipe1 = reduceTemplatePipe;
             }
-            if (settings.inferTemplateFacts) {
-                Pipe<Template, Template> inferencePipe = pipeline.registerEnd(inferFacts());
+            if (settings.preprocessTemplateInference) {
+                Pipe<Template, Template> inferencePipe = pipeline.registerEnd(preprocessInference());
                 nextPipe1.connectAfter(inferencePipe);
                 nextPipe1 = inferencePipe;
             }
@@ -103,11 +103,11 @@ public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, 
         };
     }
 
-    protected Pipe<Template, Template> inferFacts() {
+    protected Pipe<Template, Template> preprocessInference() {
         return new Pipe<Template, Template>("TemplateInferencePipe") {
             @Override
             public Template apply(Template template) {
-                template.inferTemplateFacts();
+                template.preprocessInference();
                 return template;
             }
         };

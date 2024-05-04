@@ -3,9 +3,9 @@ package cz.cvut.fel.ida.neuralogic.revised.unsorted;
 import cz.cvut.fel.ida.logic.*;
 import cz.cvut.fel.ida.logic.subsumption.HerbrandModel;
 import cz.cvut.fel.ida.utils.generic.TestAnnotations;
-import cz.cvut.fel.ida.utils.math.collections.MultiMap;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class SpecialVarargPredicatesTest {
 
     @TestAnnotations.Fast
-    void alldiff(){
+    void alldiff() {
 
         Clause example = Clause.parse(" bond(d1, d2), bond(d2, d1), bond(d2, d3), bond(d3, d2), bond(d3,d4), bond(d4, d1).");
         LinkedHashSet<Literal> facts = example.literals();
@@ -30,7 +30,7 @@ class SpecialVarargPredicatesTest {
     }
 
     @TestAnnotations.Fast
-    void leq(){
+    void leq() {
 
         Clause example = Clause.parse(" bond(d1, d2), num(1), num(2), num(3).");
         LinkedHashSet<Literal> facts = example.literals();
@@ -43,7 +43,7 @@ class SpecialVarargPredicatesTest {
     }
 
     @TestAnnotations.Fast
-    void le(){
+    void le() {
 
         Clause example = Clause.parse(" bond(d1, d2), num(1), num(2), num(3).");
         LinkedHashSet<Literal> facts = example.literals();
@@ -56,7 +56,7 @@ class SpecialVarargPredicatesTest {
     }
 
     @TestAnnotations.Fast
-    void eq(){
+    void eq() {
 
         Clause example = Clause.parse(" bond(d1, d2), num(1), num(2), num(3).");
         LinkedHashSet<Literal> facts = example.literals();
@@ -69,7 +69,7 @@ class SpecialVarargPredicatesTest {
     }
 
     @TestAnnotations.Fast
-    void neq(){
+    void neq() {
 
         Clause example = Clause.parse(" bond(d1, d2), num(1), num(2), num(3).");
         LinkedHashSet<Literal> facts = example.literals();
@@ -82,7 +82,7 @@ class SpecialVarargPredicatesTest {
     }
 
     @TestAnnotations.Fast
-    void next(){
+    void next() {
 
         Clause example = Clause.parse(" bond(d1, d2), num(1), num(2), num(3).");
         LinkedHashSet<Literal> facts = example.literals();
@@ -94,10 +94,10 @@ class SpecialVarargPredicatesTest {
         test(facts, template, finalRule, 2);       // (1,2) (2,3)
     }
 
-    private void test(LinkedHashSet<Literal> facts, List<HornClause> template, HornClause finalRule, int number) {
-        HerbrandModel herbrandModel = new HerbrandModel();
-        MultiMap<Predicate, Literal> predicateLiteralMultiMap = herbrandModel.inferModel(template, facts);
-        cz.cvut.fel.ida.utils.generic.Pair<Term[], List<Term[]>> groundingSubstitutions = herbrandModel.groundingSubstitutions(finalRule);
+    private void test(LinkedHashSet<Literal> facts, List<HornClause> rules, HornClause finalRule, int number) {
+        HerbrandModel herbrandModel = new HerbrandModel(facts, rules);
+        final Collection<Literal> inferedAtoms = herbrandModel.inferAtoms();
+        cz.cvut.fel.ida.utils.generic.Pair<Term[], List<Term[]>> groundingSubstitutions = herbrandModel.groundingSubstitutions(new Clause(finalRule.getLiterals()));
         assertEquals(number, groundingSubstitutions.s.size());
     }
 

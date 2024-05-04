@@ -1,11 +1,14 @@
 package cz.cvut.fel.ida.logic.constructs.example;
 
+import cz.cvut.fel.ida.logic.HornClause;
 import cz.cvut.fel.ida.logic.constructs.Conjunction;
 import cz.cvut.fel.ida.logic.constructs.template.components.WeightedRule;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Lifted trainExamples are structures that share common template part through learning (just like the regular trainExamples),
@@ -26,7 +29,10 @@ public class LiftedExample extends GroundExample {
         super(conjunctions);
         rules = new LinkedHashSet<>();
         rules.addAll(irules);
+    }
 
+    public List<HornClause> getRules() {
+        return rules.stream().map(WeightedRule::toHornClause).collect(Collectors.toList());
     }
 
     public void addAllFrom(@Nullable LiftedExample evidence) {

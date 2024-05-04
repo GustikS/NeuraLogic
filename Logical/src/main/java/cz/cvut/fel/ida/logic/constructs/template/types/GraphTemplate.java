@@ -54,8 +54,8 @@ public class GraphTemplate extends Template {
         Map<Predicate, List<WeightedRule>> predicate2heads = new LinkedHashMap<>();
         atom2rules = new LinkedHashMap<>();
         closedAtoms = template.facts.stream().map(f -> f.literal).collect(Collectors.toSet());
-        if (template.inferredLiterals != null) {
-            closedAtoms.addAll(template.inferredLiterals);
+        if (template.inferredAtoms != null) {
+            closedAtoms.addAll(template.inferredAtoms);
         }
         openAtoms = new HashSet<>();
 

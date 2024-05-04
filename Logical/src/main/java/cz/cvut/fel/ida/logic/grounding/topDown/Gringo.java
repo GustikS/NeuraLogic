@@ -63,7 +63,7 @@ public class Gringo extends Grounder {
             Term[] terms = l.arguments();
 
             if (terms.length <= 1) {
-               return;
+                return;
             }
 
             for (int i = 0; i < terms.length - 1; i++) {
@@ -181,10 +181,10 @@ public class Gringo extends Grounder {
     }
 
     private GroundTemplate getGroundTemplate(
-        Map<HornClause, List<WeightedRule>> ruleMap,
-        Map<Integer, List<List<String>>> groundedHeads,
-        Map<Integer, List<List<List<String>>>> groundedBodies,
-        Map<Literal, ValuedFact> groundFacts
+            Map<HornClause, List<WeightedRule>> ruleMap,
+            Map<Integer, List<List<String>>> groundedHeads,
+            Map<Integer, List<List<List<String>>>> groundedBodies,
+            Map<Literal, ValuedFact> groundFacts
     ) {
         Set<Map.Entry<HornClause, List<WeightedRule>>> ruleEntries = ruleMap.entrySet();
         LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules = new LinkedHashMap<>();
@@ -273,21 +273,13 @@ public class Gringo extends Grounder {
     public GroundTemplate groundRulesAndFacts(LiftedExample example, Template template) {
         timing.tic();
 
-        Map<HornClause, List<WeightedRule>> ruleMap = template.hornClauses;
+        final Set<ValuedFact> templateFacts = template.facts.isEmpty() ? Collections.emptySet() : new LinkedHashSet<>(template.facts);
+        final Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> templateRulesAndFacts = mapToLogic(new Pair<>(template.rules, templateFacts));
+        final Map<Literal, ValuedFact> allFacts = templateRulesAndFacts.s;
 
-        final Set<ValuedFact> flatFacts = template.facts.isEmpty() ? Collections.emptySet() : new LinkedHashSet<>(template.facts);
-        final Set<WeightedRule> rules = template.rules;
-        final Pair<Set<WeightedRule>, Set<ValuedFact>> templateRulesAndFacts = new Pair<>(rules, flatFacts);
-
-        final Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> rulesAndFacts = mapToLogic(templateRulesAndFacts);
-        final Map<Literal, ValuedFact> groundFacts = rulesAndFacts.s;
-
-        if (ruleMap == null || templateStr.isEmpty()) {
-            ruleMap = rulesAndFacts.r;
-            template.hornClauses = ruleMap;
-
+        if (templateStr.isEmpty()) {
             // cache the template string
-            templateStr = buildProgram(ruleMap.entrySet(), groundFacts.keySet()).toString();
+            templateStr = buildProgram(templateRulesAndFacts.r.entrySet(), allFacts.keySet()).toString();
         }
 
         final Map<Integer, List<List<List<String>>>> groundedBodies = new HashMap<>();
@@ -301,7 +293,7 @@ public class Gringo extends Grounder {
             }
 
             final Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> exampleRulesAndFacts = mapToLogic(new Pair<>(example.rules, exampleFacts));
-            groundFacts.putAll(exampleRulesAndFacts.s);
+            allFacts.putAll(exampleRulesAndFacts.s);
 
             final Path temp = Files.createTempFile("", ".lp");
 
@@ -335,7 +327,7 @@ public class Gringo extends Grounder {
             throw new RuntimeException(e);
         }
 
-        final GroundTemplate groundTemplate = getGroundTemplate(ruleMap, groundedHeads, groundedBodies, groundFacts);
+        final GroundTemplate groundTemplate = getGroundTemplate(templateRulesAndFacts.r, groundedHeads, groundedBodies, allFacts);
 
         timing.toc();
         return groundTemplate;

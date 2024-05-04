@@ -5,6 +5,7 @@ import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.logic.HornClause;
 import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.logic.constructs.building.factories.WeightFactory;
+import cz.cvut.fel.ida.logic.constructs.example.GroundExample;
 import cz.cvut.fel.ida.logic.constructs.example.LiftedExample;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
@@ -16,10 +17,12 @@ import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.utils.generic.Timing;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Class responsible for logical inference/grounding, creating GroundTemplate (set of ground rules and facts) from lifted Template and Example
@@ -83,7 +86,10 @@ public abstract class Grounder implements Exportable {
      * @param template
      * @return
      */
-    public Pair<Set<WeightedRule>, Set<ValuedFact>> rulesAndFacts(LiftedExample example, Template template) {
+    public Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> rulesAndFacts(LiftedExample example, Template template) {
+        Map<HornClause, List<WeightedRule>> ruleMap;
+        Map<Literal, ValuedFact> atomMap;
+
         LinkedHashSet<ValuedFact> flatFacts;
         if (!template.facts.isEmpty() || !example.conjunctions.isEmpty()) {
             flatFacts = new LinkedHashSet<>(example.flatFacts);
@@ -92,16 +98,24 @@ public abstract class Grounder implements Exportable {
         } else {
             flatFacts = example.flatFacts;
         }
+        atomMap = mapToLogic(flatFacts);
 
-        LinkedHashSet<WeightedRule> rules;
         if (example.rules.isEmpty()) {
-            rules = template.rules;
+            if (template.hornClauses == null){
+                template.hornClauses = rulesToHornClauses(template.rules);
+            }
+            ruleMap = template.hornClauses;
             //rules.addAll(template.constraints) todo what to do with constraints?
         } else {
-            rules = new LinkedHashSet<>(template.rules);
+            LinkedHashSet<WeightedRule> rules = new LinkedHashSet<>(template.rules);
             rules.addAll(example.rules);
+            ruleMap = rulesToHornClauses(rules);
         }
-        return new Pair<>(rules, flatFacts);
+        return new Pair<>(ruleMap, atomMap);
+    }
+
+    private LinkedHashMap<HornClause, List<WeightedRule>> rulesToHornClauses(Set<WeightedRule> rules) {
+        return rules.stream().collect(Collectors.toMap(WeightedRule::toHornClause, k -> new ArrayList<>(Collections.singletonList(k)), this::merge2rules, LinkedHashMap::new));
     }
 
     /**
@@ -109,7 +123,7 @@ public abstract class Grounder implements Exportable {
      * @return
      */
     public Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> mapToLogic(Pair<Set<WeightedRule>, Set<ValuedFact>> raf) {
-        Map<HornClause, List<WeightedRule>> ruleMap = raf.r.stream().collect(Collectors.toMap(WeightedRule::toHornClause, k -> new ArrayList<>(Collections.singletonList(k)), this::merge2rules, LinkedHashMap::new));
+        Map<HornClause, List<WeightedRule>> ruleMap = rulesToHornClauses(raf.r);
         Map<Literal, ValuedFact> factMap = mapToLogic(raf.s);
         return new Pair<>(ruleMap, factMap);
     }
@@ -120,6 +134,12 @@ public abstract class Grounder implements Exportable {
      */
     public Map<Literal, ValuedFact> mapToLogic(Set<ValuedFact> facts) {
         return facts.stream().collect(Collectors.toMap(ValuedFact::getLiteral, vf -> vf, this::merge2facts));
+    }
+
+    public Set<Literal> getAllFacts(GroundExample example) {
+        final Set<ValuedFact> collect = example.conjunctions.stream().flatMap(conj -> conj.facts.stream()).collect(Collectors.toSet());
+        collect.addAll(example.flatFacts);
+        return collect.stream().map(l -> l.literal).collect(Collectors.toSet());
     }
 
     /**

@@ -127,7 +127,7 @@ public class MultiMap<R,S> {
      * @param value the new values
      */
     public void set(R key, Set<S> value){
-        map.remove(key);
+        map.remove(key);    // todo safe to skip?
         map.put(key, value);
     }
 

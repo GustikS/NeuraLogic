@@ -1023,8 +1023,9 @@ public class Settings implements Serializable {
     public boolean reduceTemplate = false;
     /**
      * If the template contains facts, infer all other possible true facts as a preprocessing step (to save some time inferring the same things over and over later)
+     * AND also preprocess rules into more efficient (ClauseC) indexed structures and store for later
      */
-    public boolean inferTemplateFacts = true;
+    public boolean preprocessTemplateInference = true;
     /**
      * In advance of grounding (theorem proving), remove rules that are irrelevant to the given query (with no chance to be in support)
      */

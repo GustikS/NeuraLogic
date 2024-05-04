@@ -2,11 +2,14 @@ package cz.cvut.fel.ida.logic.constructs.example;
 
 
 import cz.cvut.fel.ida.learning.Example;
+import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.logic.constructs.Conjunction;
+import cz.cvut.fel.ida.logic.grounding.Grounder;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -28,10 +31,12 @@ public class GroundExample implements Example {
         flatFacts = new LinkedHashSet<>();
     }
 
-    public GroundExample(List<Conjunction> body) {
+    public GroundExample(List<Conjunction> conjunctions) {
         this();
-        conjunctions.addAll(body);
-        flatFacts.addAll(body.stream().flatMap(conj -> conj.facts.stream()).collect(Collectors.toList()));
+        if (conjunctions.size() > 1) {  // only add conjunctions if there is more than one!
+            this.conjunctions.addAll(conjunctions);
+        }
+        flatFacts.addAll(conjunctions.stream().flatMap(conj -> conj.facts.stream()).collect(Collectors.toList()));
     }
 
     @Override
