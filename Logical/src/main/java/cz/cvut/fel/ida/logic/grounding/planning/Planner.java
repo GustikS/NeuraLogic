@@ -1,10 +1,7 @@
 package cz.cvut.fel.ida.logic.grounding.planning;
 
-import cz.cvut.fel.ida.logic.Clause;
 import cz.cvut.fel.ida.logic.Literal;
-import cz.cvut.fel.ida.logic.Term;
 import cz.cvut.fel.ida.logic.subsumption.Matching;
-import cz.cvut.fel.ida.logic.subsumption.SubsumptionEngineJ2;
 import cz.cvut.fel.ida.utils.generic.tuples.Pair;
 
 import java.util.*;
@@ -25,7 +22,7 @@ public class Planner {
         while (!instance.isGoal(state, matching)) {
             Set<Action.GroundAction> possibleActions = new HashSet<>();
             for (Action action : instance.actions) {
-                final Pair<Term[], List<Term[]>> substitutions = getSubstitutions(state, action);
+                final Action.Substitutions substitutions = getSubstitutions(state, action);
                 possibleActions.addAll(groundActions(action, substitutions));
             }
             List<Pair<Action.GroundAction, Double>> actionScores = scoreActions(state, possibleActions);
@@ -50,20 +47,12 @@ public class Planner {
         return scores;
     }
 
-    public Pair<Term[], List<Term[]>> getSubstitutions(State state, Action action) {
-        final SubsumptionEngineJ2.ClauseE clauseE = state.getClauseE(matching);
-        final SubsumptionEngineJ2.ClauseC clauseC = action.getClauseC(matching);
-        return matching.allSubstitutions(clauseC, clauseE, Integer.MAX_VALUE);
+    public Action.Substitutions getSubstitutions(State state, Action action) {
+        return action.substitutions(state);
     }
 
-    public Set<Action.GroundAction> groundActions(Action action, Pair<Term[], List<Term[]>> substitutions) {
-        Set<Action.GroundAction> groundActions = new HashSet<>();
-        for (Term[] terms : substitutions.s) {
-            final Action.GroundAction groundAction = action.new GroundAction(action, substitutions.r, terms);
-            groundAction.computeEffects(terms);
-            groundActions.add(groundAction);
-        }
-        return groundActions;
+    public Set<Action.GroundAction> groundActions(Action action, Action.Substitutions substitutions) {
+        return action.groundings(substitutions);
     }
 
     /**
@@ -74,11 +63,7 @@ public class Planner {
      * @return
      */
     public State nextState(State state, Action.GroundAction action) {
-        Set<Literal> next = new HashSet<>();
-        next.addAll(state.clause.literals());
-        next.addAll(action.addEffects);
-        action.deleteEffects.forEach(next::remove);
-        return new State(new Clause(next));
+        return action.successor(state);
     }
 
     /**

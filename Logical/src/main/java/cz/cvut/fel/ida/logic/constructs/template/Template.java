@@ -161,6 +161,10 @@ public class Template implements Model<QueryAtom>, Exportable {
         this.facts = facts;
     }
 
+    public void inferTemplateFacts() {
+        preprocessInference();
+    }
+
     public void preprocessInference() {
         if (inferredAtoms == null) {
             inferredAtoms = new HashSet<>();

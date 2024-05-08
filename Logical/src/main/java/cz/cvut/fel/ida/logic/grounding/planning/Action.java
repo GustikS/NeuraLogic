@@ -1,15 +1,17 @@
 package cz.cvut.fel.ida.logic.grounding.planning;
 
-import cz.cvut.fel.ida.logic.Clause;
-import cz.cvut.fel.ida.logic.Literal;
-import cz.cvut.fel.ida.logic.Term;
-import cz.cvut.fel.ida.logic.Variable;
+import cz.cvut.fel.ida.logic.*;
 import cz.cvut.fel.ida.logic.subsumption.Matching;
 import cz.cvut.fel.ida.logic.subsumption.SubsumptionEngineJ2;
+import cz.cvut.fel.ida.utils.generic.tuples.Pair;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Action {
+
+    public static Matching matching = new Matching();
 
     public String name;
 
@@ -17,7 +19,7 @@ public class Action {
     public List<Literal> addEffects;
     public List<Literal> deleteEffects;
 
-    public List<Term> terms;
+    public List<Term> variables;
     /**
      * An auxiliary literal representing the action, to be added
      */
@@ -25,12 +27,34 @@ public class Action {
 
     private SubsumptionEngineJ2.ClauseC preconditionsC;
 
+    public Action(String name, List<String> parameters, List<String> preconditions, List<String> addEffects, List<String> deleteEffects) {
+        this.name = name;
+
+        HashMap<Variable, Variable> variables = new HashMap<>();
+        HashMap<Constant, Constant> constants = new HashMap<>();
+
+        this.preconditions = preconditions.stream().map(lit -> Literal.parseLiteral(lit, variables, constants)).collect(Collectors.toList());
+        this.addEffects = addEffects.stream().map(lit -> Literal.parseLiteral(lit, variables, constants)).collect(Collectors.toList());
+        this.deleteEffects = deleteEffects.stream().map(lit -> Literal.parseLiteral(lit, variables, constants)).collect(Collectors.toList());
+
+        Set<Variable> vars = getVariables(this.preconditions);
+        this.variables = new ArrayList<>(vars);
+        this.applicable = new Literal(name, this.variables);
+    }
+
     public Action(String name, List<Literal> preconditions, List<Literal> addEffects, List<Literal> deleteEffects) {
         this.name = name;
         this.preconditions = preconditions;
         this.addEffects = addEffects;
         this.deleteEffects = deleteEffects;
 
+        Set<Variable> vars = getVariables(preconditions);
+        this.variables = new ArrayList<>(vars);
+        this.applicable = new Literal(name, this.variables);
+    }
+
+    @NotNull
+    private Set<Variable> getVariables(List<Literal> preconditions) {
         Set<Variable> vars = new HashSet<>();
         for (Literal precondition : preconditions) {
             for (Term term : precondition.termList()) {
@@ -39,7 +63,7 @@ public class Action {
                 }
             }
         }
-        this.applicable = new Literal(name, new ArrayList<>(vars));
+        return vars;
     }
 
     public SubsumptionEngineJ2.ClauseC getClauseC(Matching matching) {
@@ -51,7 +75,47 @@ public class Action {
         return preconditionsC;
     }
 
-    public class GroundAction {
+    public Substitutions substitutions(State state) {
+        final SubsumptionEngineJ2.ClauseE clauseE = state.getClauseE(matching);
+        final SubsumptionEngineJ2.ClauseC clauseC = this.getClauseC(matching);
+        return new Substitutions(matching.allSubstitutions(clauseC, clauseE, Integer.MAX_VALUE));
+    }
+
+    public static class Substitutions {
+        public Term[] variables;
+        public List<Term[]> constants;
+
+        public Substitutions(Pair<Term[], List<Term[]>> substitutions) {
+            this.variables = substitutions.r;
+            this.constants = substitutions.s;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < constants.size(); i++) {
+                sb.append(i + ") ");
+                Term[] consts = constants.get(i);
+                for (int j = 0; j < consts.length; j++) {
+                    sb.append(variables[j]).append("->").append(consts[j]).append("; ");
+                }
+                sb.append("\n");
+            }
+            return sb.toString();
+        }
+    }
+
+    public Set<GroundAction> groundings(Substitutions substitutions) {
+        Set<GroundAction> groundActions = new HashSet<>();
+        for (Term[] terms : substitutions.constants) {
+            final GroundAction groundAction = new Action.GroundAction(this, substitutions.variables, terms);
+            groundAction.computeEffects(terms);
+            groundActions.add(groundAction);
+        }
+        return groundActions;
+    }
+
+    public static class GroundAction {
         public Action lifted;
 
         public Literal applicable;
@@ -84,6 +148,25 @@ public class Action {
             for (Literal deleteEffect : lifted.deleteEffects) {
                 deleteEffects.add(deleteEffect.subsCopy(substitution));
             }
+        }
+
+        /**
+         * Non-destructive creation of a new State
+         *
+         * @param state
+         * @return
+         */
+        public State successor(State state) {
+            Set<Literal> next = new HashSet<>();
+            next.addAll(state.clause.literals());
+            next.addAll(this.addEffects);
+            this.deleteEffects.forEach(next::remove);
+            return new State(new Clause(next));
+        }
+
+        @Override
+        public String toString() {
+            return applicable.toString();
         }
     }
 }

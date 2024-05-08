@@ -100,10 +100,17 @@ public class HerbrandModel {
      * @return
      */
     public Pair<Term[], List<Term[]>> groundingSubstitutions(Clause clause) {
+        return groundingSubstitutions(matching.createClauseC(clause));
+    }
+
+    public Pair<Term[], List<Term[]>> groundingSubstitutions(SubsumptionEngineJ2.ClauseC clauseC) {
         if (clauseE == null) {
             clauseE = matching.createClauseE(new Clause(Sugar.flatten(herbrand.values())));
         }
-        final SubsumptionEngineJ2.ClauseC clauseC = matching.createClauseC(clause);
+        return groundingSubstitutions(clauseE, clauseC);
+    }
+
+    public Pair<Term[], List<Term[]>> groundingSubstitutions(SubsumptionEngineJ2.ClauseE clauseE, SubsumptionEngineJ2.ClauseC clauseC) {
         cz.cvut.fel.ida.utils.generic.tuples.Pair<Term[], List<Term[]>> listPair = matching.allSubstitutions(clauseC, clauseE, Integer.MAX_VALUE);
 
         Term[] variables = listPair.r;
@@ -236,7 +243,7 @@ public class HerbrandModel {
             headGroundings.add(ruleHead.subsCopy(solution));
         }
 
-        public void clear(){
+        public void clear() {
             headGroundings.clear();
         }
     }

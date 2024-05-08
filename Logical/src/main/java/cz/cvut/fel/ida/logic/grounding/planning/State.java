@@ -16,6 +16,10 @@ public class State implements Example {
 
     private SubsumptionEngineJ2.ClauseE clauseE;
 
+    public State(String literals) {
+        this.clause = Clause.parse(literals);
+    }
+
     public State(List<Literal> literals) {
         this.clause = new Clause(literals);
     }
