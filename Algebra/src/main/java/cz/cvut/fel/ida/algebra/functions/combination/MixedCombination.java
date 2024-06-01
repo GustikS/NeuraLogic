@@ -127,7 +127,7 @@ public class MixedCombination implements Combination {
                 nextInputGradient(root, processedGradient);
             }
 
-            return processedGradients.get(processedGradients.size() - 1 - i++);
+            return processedGradients.get(i++);
         }
 
         private void nextInputGradient(MixedCombinationNode node, Value grad) {
