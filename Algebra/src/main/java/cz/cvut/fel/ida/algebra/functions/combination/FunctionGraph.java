@@ -166,7 +166,7 @@ public class FunctionGraph implements Combination {
         }
 
         private Value initEval(FunctionGraphNode node, List<Value> values) {
-            List<Value> nextValues = new ArrayList<>(2);
+            List<Value> nextValues = new ArrayList<>(node.indices.length);
 
             for (int i = 0; i < node.indices.length; i++) {
                 if (node.nodes[i] == null) {
