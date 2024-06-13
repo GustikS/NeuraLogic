@@ -58,7 +58,7 @@ public class StatesBuilder {
 
 
     /**
-     * Sets individual dropout rates and ALSO computes depth of each neuron (since this is the only place where it is necessary).
+     * Sets individual dropout rates
      *
      * @param detailedNetwork
      */
@@ -70,6 +70,20 @@ public class StatesBuilder {
                 neuron.layer = 1;
             }
             dropoutRateStrategy.setDropout(neuron);
+        }
+    }
+
+    /**
+     * Computes depth (layer index) of each neuron
+     *
+     * @param detailedNetwork
+     */
+    public void setupNeuronLayerIndices(DetailedNetwork<State.Neural.Structure> detailedNetwork) {
+        for (int i = detailedNetwork.allNeuronsTopologic.size() - 1; i > 0; i--) {
+            BaseNeuron<Neurons, State.Neural> neuron = detailedNetwork.allNeuronsTopologic.get(i);
+            if (neuron.layer == 0) {
+                neuron.layer = 1;
+            }
             Iterator<Neurons> inputs = detailedNetwork.getInputs(neuron);
             while (inputs.hasNext()) {
                 Neurons next = inputs.next();

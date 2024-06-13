@@ -304,6 +304,10 @@ public class NeuralNetBuilder {
             statesBuilder.setupDropoutStates(neuralNetwork);  //setup individual dropout rates for each neuron
         }
 
+        if (settings.dropoutRate > 0 || settings.computeNeuronLayerIndices) {
+            statesBuilder.setupNeuronLayerIndices(neuralNetwork);
+        }
+
         if (getNeuronMaps().containsMasking) {
             neuralNetwork.containsInputMasking = true;
         }
