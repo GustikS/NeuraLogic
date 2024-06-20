@@ -11,6 +11,7 @@ import cz.cvut.fel.ida.logic.Term;
 import cz.cvut.fel.ida.logic.constructs.building.factories.WeightFactory;
 import cz.cvut.fel.ida.logic.constructs.example.LogicSample;
 import cz.cvut.fel.ida.logic.constructs.example.QueryAtom;
+import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
 import cz.cvut.fel.ida.logic.constructs.template.components.GroundHeadRule;
 import cz.cvut.fel.ida.logic.constructs.template.components.GroundRule;
 import cz.cvut.fel.ida.logic.grounding.GroundTemplate;
@@ -90,7 +91,7 @@ public class Neuralizer implements Exportable {
         List<LogicSample> origSamples = new ArrayList<>();  //these two lists are aligned
 
         for (LogicSample sample : samples) {
-            List<Literal> foundQueries = getQueryMatchingLiterals(sample.query, groundTemplate.groundRules);
+            List<Literal> foundQueries = getQueryMatchingLiterals(sample.query, groundTemplate);
             for (Literal foundQuery : foundQueries) {
                 queryMatchingLiterals.add(foundQuery);
                 origSamples.add(sample);    //these two lists are aligned
@@ -180,11 +181,12 @@ public class Neuralizer implements Exportable {
         QueryAtom queryAtom = groundingSample.query;
         GroundTemplate groundTemplate = groundingSample.groundingWrap.getGroundTemplate();
 
-        List<Literal> queryMatchingLiterals = getQueryMatchingLiterals(queryAtom, groundTemplate.groundRules);
+        List<Literal> queryMatchingLiterals = getQueryMatchingLiterals(queryAtom, groundTemplate);
         if (queryMatchingLiterals.isEmpty()) {
             String err = "Query [" + queryAtom.headAtom + "] not matched anywhere in the template. Cannot perform neural training.";
             LOG.severe(err);
-            throw new RuntimeException(err);
+//            throw new RuntimeException(err);
+            return new ArrayList<>();
         }
         LOG.finer("Obtained QueryMatchingLiterals: " + queryMatchingLiterals);
 
@@ -269,7 +271,7 @@ public class Neuralizer implements Exportable {
     }
 
     @NotNull
-    protected List<Literal> getQueryMatchingLiterals(QueryAtom queryAtom, @NotNull LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules) {
+    protected List<Literal> getQueryMatchingLiterals(QueryAtom queryAtom, @NotNull GroundTemplate groundTemplate) {
 
         if (queryAtom.headAtom == null) {
             return new ArrayList<>(0);
@@ -286,11 +288,17 @@ public class Neuralizer implements Exportable {
         Matching matching = new Matching();
         List<Literal> queryLiterals = new ArrayList<>();
 
-        for (Map.Entry<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> entry : groundRules.entrySet()) {  //find rules the head of which matches the query
+        for (Map.Entry<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> entry : groundTemplate.groundRules.entrySet()) {  //find rules the head of which matches the query
             if (queryAtom.headAtom.literal.predicate().equals(entry.getKey().predicate()) && matching.subsumption(new Clause(queryAtom.headAtom.literal), new Clause(entry.getKey()))) { //todo check this method, also for speed
                 queryLiterals.add(entry.getKey());
             }
         }
+//        for (Map.Entry<Literal, ValuedFact> entry : groundTemplate.groundFacts.entrySet()) {
+//            if (queryAtom.headAtom.literal.predicate().equals(entry.getKey().predicate()) && matching.subsumption(new Clause(queryAtom.headAtom.literal), new Clause(entry.getKey()))) { //todo check this method, also for speed
+//                queryLiterals.add(entry.getKey());
+//            }
+//        }
+
         return queryLiterals;
     }
 
