@@ -184,6 +184,10 @@ public class PlainGrammarVisitor extends GrammarVisitor {
     public class FactConjunctionVisitor extends NeuralogicBaseVisitor<Conjunction> {
         public VariableFactory variableFactory;
 
+        public FactConjunctionVisitor() {
+            variableFactory = new VariableFactory();
+        }
+
         @Override
         public Conjunction visitConjunction(@NotNull NeuralogicParser.ConjunctionContext ctx) {
             FactVisitor factVisitor = new FactVisitor();

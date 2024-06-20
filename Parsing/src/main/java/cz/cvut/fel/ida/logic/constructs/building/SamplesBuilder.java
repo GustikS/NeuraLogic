@@ -100,6 +100,7 @@ public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRu
                 Pair<LiftedExample, List<LogicSample>> pair = map.get(ls.getId());
                 ls.query.evidence = pair.r;
                 List<LogicSample> qs = pair.s;
+                qs.add(ls);
                 LOG.fine("Extracted Sample: " + ls);
             });
         }

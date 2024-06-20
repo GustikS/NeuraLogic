@@ -185,8 +185,12 @@ public class Neuralizer implements Exportable {
         if (queryMatchingLiterals.isEmpty()) {
             String err = "Query [" + queryAtom.headAtom + "] not matched anywhere in the template. Cannot perform neural training.";
             LOG.severe(err);
-//            throw new RuntimeException(err);
-            return new ArrayList<>();
+            if (!settings.queriesAlignedWithExamples) {
+                return new ArrayList<>();   // if there are multiple queries per example, an unmatched query can be OK
+            } else {
+                throw new RuntimeException(err);
+            }
+
         }
         LOG.finer("Obtained QueryMatchingLiterals: " + queryMatchingLiterals);
 

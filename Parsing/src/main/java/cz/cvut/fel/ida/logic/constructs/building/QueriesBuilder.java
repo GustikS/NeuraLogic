@@ -94,6 +94,7 @@ public class QueriesBuilder extends SamplesBuilder<PlainQueriesParseTree, Pair<V
         if (queriesFileContext.conjunction(0).atom().size() > 1) {   //todo this is just a heuristic
             LOG.info("Detecting multiple individual queries per example.");
             settings.oneQueryPerExample = false;
+//            settings.forceFullNetworks = true;  // this means we will have to avoid supervised building of the networks!
         } else {
             LOG.info("Heuristically detecting atomic queries (=no batch queries)");
             settings.oneQueryPerExample = true;

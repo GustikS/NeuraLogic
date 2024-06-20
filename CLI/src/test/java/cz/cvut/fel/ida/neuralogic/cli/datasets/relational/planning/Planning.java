@@ -16,7 +16,22 @@ public class Planning {
     @TestAnnotations.Slow
     public void blocksworld() throws Exception {
 
-        String dataset = "relational/planning/blocksworld";
+        String dataset = "relational/planning/blocksworld/multi/separate";
+        String[] args = Utilities.getDatasetArgs(dataset, "");
+
+        Settings settings = Settings.forSlowTest();
+        settings.shuffleBeforeTraining = false;
+        settings.chainPruning = false;
+        settings.isoValueCompression = false;
+        settings.neuralNetsPostProcessing = false;
+
+        Pair<Pipeline, ?> results = Main.main(args, settings);
+    }
+
+    @TestAnnotations.Slow
+    public void dillon() throws Exception {
+
+        String dataset = "relational/planning/blocksworld/dillon";
         String[] args = Utilities.getDatasetArgs(dataset, "");
 
         Settings settings = Settings.forSlowTest();
