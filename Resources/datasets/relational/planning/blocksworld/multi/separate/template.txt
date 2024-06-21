@@ -1,0 +1,48 @@
+clear(X0) :- $ag={1} ag_clear(X0).
+clear(X0) :- $ap={1} ap_clear(X0).
+on-table(X0) :- $ag={1} ag_on-table(X0).
+on-table(X0) :- $ap={1} ap_on-table(X0).
+arm-empty :- $ag={1} ag_arm-empty.
+arm-empty :- $ap={1} ap_arm-empty.
+holding(X0) :- $ag={1} ag_holding(X0).
+holding(X0) :- $ap={1} ap_holding(X0).
+on(X0, X1) :- $ag={1} ag_on(X0, X1).
+on(X0, X1) :- $ap={1} ap_on(X0, X1).
+putdown(Ob) :- holding(Ob).
+stack(Ob, Underob) :- clear(Underob), holding(Ob).
+pickup(Ob) :- clear(Ob), on-table(Ob), arm-empty.
+unstack(Ob, Underob) :- on(Ob, Underob), clear(Ob), arm-empty.
+{3, 3} n1-ary_0(X0) :- {3, 1} ag_clear(X0).
+{3, 3} n1-ary_0(X0) :- {3, 1} ap_clear(X0).
+{3, 3} n1-ary_0(X0) :- {3, 1} ug_clear(X0).
+{3, 3} n1-ary_0(X0) :- {3, 1} ag_on-table(X0).
+{3, 3} n1-ary_0(X0) :- {3, 1} ap_on-table(X0).
+{3, 3} n1-ary_0(X0) :- {3, 1} ug_on-table(X0).
+{3, 3} n0-ary_0 :- {3, 1} ag_arm-empty.
+{3, 3} n0-ary_0 :- {3, 1} ap_arm-empty.
+{3, 3} n0-ary_0 :- {3, 1} ug_arm-empty.
+{3, 3} n1-ary_0(X0) :- {3, 1} ag_holding(X0).
+{3, 3} n1-ary_0(X0) :- {3, 1} ap_holding(X0).
+{3, 3} n1-ary_0(X0) :- {3, 1} ug_holding(X0).
+{3, 3} n2-ary_0(X0, X1) :- {3, 1} ag_on(X0, X1).
+{3, 3} n2-ary_0(X0, X1) :- {3, 1} ap_on(X0, X1).
+{3, 3} n2-ary_0(X0, X1) :- {3, 1} ug_on(X0, X1).
+{3, 3} n1-ary_0(X0) :- {3, 1} putdown(X0).
+{3, 3} n2-ary_0(X0, X1) :- {3, 1} stack(X0, X1).
+{3, 3} n1-ary_0(X0) :- {3, 1} pickup(X0).
+{3, 3} n2-ary_0(X0, X1) :- {3, 1} unstack(X0, X1).
+{3, 3} h_1(X0) :- {3, 3} n0-ary_0.
+{3, 3} h_1(X0) :- {3, 3} n1-ary_0(X0).
+{3, 3} h_1(X0) :- {3, 3} n2-ary_0(X0, X1).
+{3, 3} h_1(X1) :- {3, 3} n2-ary_0(X0, X1).
+{3, 3} edge(X0, X1) :- {3, 3} n2-ary_0(X0, X1).
+{3, 3} edge(X1, X0) :- {3, 3} n2-ary_0(X0, X1).
+{3, 3} h_2(I) :- h_1(J), edge(J, I). [transformation=identity, aggregation=avg]
+{3, 3} h_2(I) :- h_1(I). [transformation=identity, aggregation=avg]
+h_2/1 [transformation=identity]
+{3, 3} h_3(I) :- h_2(J), edge(J, I). [transformation=identity, aggregation=avg]
+{3, 3} h_3(I) :- h_2(I). [transformation=identity, aggregation=avg]
+h_3/1 [transformation=identity]
+{3, 3} h_4(I) :- h_3(J), edge(J, I). [transformation=identity, aggregation=avg]
+{3, 3} h_4(I) :- h_3(I). [transformation=identity, aggregation=avg]
+h_4/1 [transformation=identity]

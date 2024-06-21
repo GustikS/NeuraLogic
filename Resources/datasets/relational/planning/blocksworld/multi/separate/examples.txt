@@ -1,0 +1,3 @@
+s1 :- ag_on-table(b2), ag_clear(b1), ap_on-table(b1), ap_clear(b2), ap_arm-empty(), ug_on(b1, b2).
+s2 :- ag_on-table(b2), ap_clear(b2), ap_holding(b1), ug_on(b1, b2), ug_clear(b1).
+s3 :- ag_on-table(b1), ag_clear(b2), ap_on-table(b2), ap_arm-empty(), ap_clear(b1), ug_on(b2, b1).
