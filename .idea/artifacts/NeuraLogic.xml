@@ -1,10 +1,7 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="NeuraLogic:jar">
+  <artifact type="jar" name="NeuraLogic">
     <output-path>$PROJECT_DIR$/target/artifacts/</output-path>
     <root id="archive" name="NeuraLogic.jar">
-      <element id="directory" name="META-INF">
-        <element id="file-copy" path="$PROJECT_DIR$/CLI/src/main/resources/META-INF/MANIFEST.MF" />
-      </element>
       <element id="module-output" name="CLI" />
       <element id="module-output" name="Settings" />
       <element id="module-output" name="Utilities" />
@@ -19,10 +16,10 @@
       <element id="module-output" name="Neuralization" />
       <element id="module-output" name="Parsing" />
       <element id="module-output" name="Logic" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/antlr/antlr4-runtime/4.13.1/antlr4-runtime-4.13.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/google/code/gson/gson/2.8.9/gson-2.8.9.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/commons-cli/commons-cli/1.4/commons-cli-1.4.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/antlr/antlr4-runtime/4.8-1/antlr4-runtime-4.8-1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/jetbrains/annotations/19.0.0/annotations-19.0.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/google/code/gson/gson/2.8.6/gson-2.8.6.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
