@@ -23,7 +23,7 @@ public class StandardGroundingPipe extends Pipe<Stream<GroundingSample>, Stream<
             if (gs.groundingWrap.getGroundTemplate() == null || !gs.groundingComplete) {
                 gs.groundingWrap.setGroundTemplate(grounder.groundRulesAndFacts(gs.query.evidence, gs.template));
             }
-//            else if (!gs.groundingComplete) {     // this is in the sequentiallyShared pipe!
+//            else if (!gs.groundingComplete) {     // this is in the sequentiallyShared pipe?!
 //                gs.groundingWrap.setGroundTemplate(grounder.groundRulesAndFacts(gs.query.evidence, gs.template, gs.groundingWrap.getGroundTemplate()));
 ////                gs.groundingWrap.setNeuronMaps(gs.cache.copy());    //todo next check in some sequentially or partially shared setting
 //                return gs;

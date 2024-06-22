@@ -21,9 +21,9 @@ public class Planning {
 
         Settings settings = Settings.forSlowTest();
         settings.shuffleBeforeTraining = false;
-        settings.chainPruning = false;
-        settings.isoValueCompression = false;
-        settings.neuralNetsPostProcessing = false;
+        settings.chainPruning = true;
+        settings.isoValueCompression = true;
+        settings.neuralNetsPostProcessing = true;
 
         Pair<Pipeline, ?> results = Main.main(args, settings);
     }

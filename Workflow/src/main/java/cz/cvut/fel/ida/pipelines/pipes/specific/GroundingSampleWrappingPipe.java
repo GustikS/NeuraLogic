@@ -7,6 +7,8 @@ import cz.cvut.fel.ida.pipelines.Pipe;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -26,7 +28,8 @@ public class GroundingSampleWrappingPipe extends Pipe<Pair<Template, Stream<Logi
             if (!settings.oneQueryPerExample)
                 templateStreamPair.s = templateStreamPair.s.sequential();
         }
-        final GroundingSample.Wrap lastGroundingWrap = new GroundingSample.Wrap(null);
+        StreamMemory memory = new StreamMemory(new GroundingSample.Wrap(null)); // just a hack round the final closure requirement
+
         Stream<GroundingSample> groundingSampleStream = templateStreamPair.s.map(sample -> {
             if (sample.query.evidence == null) {
                 String err = "Query-Example mismatch: No example evidence was matched for this query: #" + sample.query.position + ":" + sample.query;
@@ -34,19 +37,30 @@ public class GroundingSampleWrappingPipe extends Pipe<Pair<Template, Stream<Logi
                 throw new RuntimeException(err);
             }
             GroundingSample groundingSample = new GroundingSample(sample, templateStreamPair.r);
-//            if (settings.groundingMode == Settings.GroundingMode.GLOBAL || settings.groundingMode == Settings.GroundingMode.SEQUENTIAL || lastGroundingWrap.getExample() == null) {
-            groundingSample.groundingWrap = lastGroundingWrap;
-//            }
-            if (sample.query.evidence.equals(lastGroundingWrap.getExample())) {
-//                groundingSample.groundingWrap = lastGroundingWrap;
+
+            if (sample.query.evidence.equals(memory.wrap.getExample())) {
                 groundingSample.groundingComplete = true;
+                settings.oneQueryPerExample = false;
             } else {
-                lastGroundingWrap.setExample(sample.query.evidence);    // setup the new example
-                lastGroundingWrap.setNeuronMaps(null);  // remove the old neurons - they will need to be built again
+                if (settings.groundingMode == Settings.GroundingMode.INDEPENDENT) {
+                    memory.wrap = new GroundingSample.Wrap(sample.query.evidence);    // setup a completely new wrap with new example/groundigns/neuronmaps
+                } else {
+                    memory.wrap.setExample(sample.query.evidence);  // keep the previous neuronmaps and groundings, just change example
+                }
                 groundingSample.groundingComplete = false;
             }
+            groundingSample.groundingWrap = memory.wrap;
+
             return groundingSample;
         });
         return groundingSampleStream;
+    }
+
+    private class StreamMemory {
+        GroundingSample.Wrap wrap = null;
+
+        public StreamMemory(GroundingSample.Wrap wrap) {
+            this.wrap = wrap;
+        }
     }
 }

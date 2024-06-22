@@ -12,6 +12,7 @@ public class SequentiallySharedGroundingPipe extends Pipe<Stream<GroundingSample
     private static final Logger LOG = Logger.getLogger(SequentiallySharedGroundingPipe.class.getName());
 
     Grounder grounder;
+    GroundTemplate stored = null;
 
     public SequentiallySharedGroundingPipe(Grounder grounder) {
         super("SequentiallySharedGroundingPipe");
@@ -26,7 +27,7 @@ public class SequentiallySharedGroundingPipe extends Pipe<Stream<GroundingSample
         }
         return groundingSampleStream.map(gs -> {
             if (gs.groundingWrap.getGroundTemplate() == null || !gs.groundingComplete) {
-                gs.groundingWrap.setGroundTemplate(grounder.groundRulesAndFacts(gs.query.evidence, gs.template, gs.groundingWrap.getGroundTemplate()));  //todo test for case with multiple queries on 1 example with sequential sharing (do we still increment against the last query here?)
+                gs.groundingWrap.setGroundTemplate(grounder.groundRulesAndFacts(gs.query.evidence, gs.template, stored));  //todo test for case with multiple queries on 1 example with sequential sharing (do we still increment against the last query here?)
 //                gs.groundingWrap.setNeuronMaps(gs.cache.copy());    //todo next check in some sequentially or partially shared setting
             }
             return gs;

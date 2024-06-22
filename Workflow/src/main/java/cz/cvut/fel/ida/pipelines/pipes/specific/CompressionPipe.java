@@ -7,9 +7,14 @@ import cz.cvut.fel.ida.neural.networks.structure.components.types.DetailedNetwor
 import cz.cvut.fel.ida.neural.networks.structure.transforming.NetworkReducing;
 import cz.cvut.fel.ida.pipelines.Pipe;
 import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.utils.generic.Utilities;
+import cz.cvut.fel.ida.utils.math.collections.MultiList;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static cz.cvut.fel.ida.utils.generic.Utilities.terminateSampleStream;
@@ -39,6 +44,25 @@ public class CompressionPipe extends Pipe<Stream<NeuralProcessingSample>, Stream
                 s.query.evidence = reducedNetwork;
                 return s;
             });
+        } else if (!settings.oneQueryPerExample) {
+            List<NeuralProcessingSample> processingSamples = Utilities.terminateSampleStream(neuralProcessingSampleStream);
+            List<NeuralProcessingSample> allProcessingSamples = new LinkedList<>();
+            MultiList<DetailedNetwork, NeuralProcessingSample> sampleMap = new MultiList<>();
+            for (NeuralProcessingSample processingSample : processingSamples) {  // merge samples with the same example
+                sampleMap.put(processingSample.detailedNetwork, processingSample);
+            }
+            for (Map.Entry<DetailedNetwork, List<NeuralProcessingSample>> entry : sampleMap.entrySet()) {
+                DetailedNetwork detailedNetwork = entry.getKey();
+                List<NeuralProcessingSample> samples = entry.getValue();
+                List<QueryNeuron> queryNeurons = samples.stream().map(s -> s.query).collect(Collectors.toList());
+                NeuralNetwork reducedNetwork = compressor.reduce(detailedNetwork, queryNeurons);
+                for (NeuralProcessingSample sample : samples) {
+                    sample.query.evidence = reducedNetwork;
+                }
+                allProcessingSamples.addAll(samples);
+            }
+            trueExport();
+            return allProcessingSamples.stream();
         }
 
         if (this.exporter != null)

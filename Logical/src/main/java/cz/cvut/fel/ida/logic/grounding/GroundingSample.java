@@ -43,7 +43,7 @@ public class GroundingSample extends LogicSample {
         /**
          * Memory for created neurons
          */
-        transient private  Object neuronMaps;
+        transient private Object neuronMaps;
 
         public synchronized LiftedExample getExample() {
             return example;
@@ -51,6 +51,7 @@ public class GroundingSample extends LogicSample {
 
         /**
          * Shared example in this wrap may be accessed by multiple Threads
+         *
          * @param example
          */
         public synchronized void setExample(LiftedExample example) {
@@ -71,6 +72,12 @@ public class GroundingSample extends LogicSample {
 
         public synchronized void setNeuronMaps(Object neuronMaps) {
             this.neuronMaps = neuronMaps;
+        }
+
+        public void copyFrom(Wrap other) {
+            this.example = other.example;
+            this.groundTemplate = other.groundTemplate;
+            this.neuronMaps = other.neuronMaps;
         }
     }
 

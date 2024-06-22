@@ -92,6 +92,10 @@ public class Neuralizer implements Exportable {
 
         for (LogicSample sample : samples) {
             List<Literal> foundQueries = getQueryMatchingLiterals(sample.query, groundTemplate);
+            if (foundQueries.isEmpty()) {
+                String err = "Query [" + sample.query.headAtom + "] not matched anywhere in the template - skipping this query!";
+                LOG.warning(err);
+            }
             for (Literal foundQuery : foundQueries) {
                 queryMatchingLiterals.add(foundQuery);
                 origSamples.add(sample);    //these two lists are aligned
@@ -103,7 +107,6 @@ public class Neuralizer implements Exportable {
             neuralNetwork = blindNeuralization(groundTemplate, neuronMaps, createdNeurons);
         } else {
             neuralNetBuilder = loadAllNeuronsStartingFromQueryLiterals(groundTemplate, queryMatchingLiterals, neuronMaps, createdNeurons);
-
             neuralNetwork = getDetailedNetwork(neuronMaps, createdNeurons, groundTemplate, queryMatchingLiterals);
         }
 
