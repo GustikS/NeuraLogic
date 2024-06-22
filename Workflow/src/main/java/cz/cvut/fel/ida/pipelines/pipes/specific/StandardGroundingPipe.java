@@ -20,13 +20,14 @@ public class StandardGroundingPipe extends Pipe<Stream<GroundingSample>, Stream<
     @Override
     public Stream<GroundingSample> apply(Stream<GroundingSample> groundingSampleStream) {
         return groundingSampleStream.map(gs -> {
-            if (gs.groundingWrap.getGroundTemplate() == null) {
+            if (gs.groundingWrap.getGroundTemplate() == null || !gs.groundingComplete) {
                 gs.groundingWrap.setGroundTemplate(grounder.groundRulesAndFacts(gs.query.evidence, gs.template));
-            } else if (!gs.groundingComplete) {
-                gs.groundingWrap.setGroundTemplate(grounder.groundRulesAndFacts(gs.query.evidence, gs.template, gs.groundingWrap.getGroundTemplate()));
-//                gs.groundingWrap.setNeuronMaps(gs.cache.copy());    //todo next check in some sequentially or partially shared setting
-                return gs;
             }
+//            else if (!gs.groundingComplete) {     // this is in the sequentiallyShared pipe!
+//                gs.groundingWrap.setGroundTemplate(grounder.groundRulesAndFacts(gs.query.evidence, gs.template, gs.groundingWrap.getGroundTemplate()));
+////                gs.groundingWrap.setNeuronMaps(gs.cache.copy());    //todo next check in some sequentially or partially shared setting
+//                return gs;
+//            }
             return gs;
         });
     }

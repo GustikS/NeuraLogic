@@ -1430,6 +1430,7 @@ public class Settings implements Serializable {
         if (groundingMode == GroundingMode.SEQUENTIAL) {
             forceFullNetworks = true;   //if we sequentially add new facts/rules, and then after grounding we take just the diff, the rules might not be connected, i.e. we need to turn them all blindly to neurons.
             possibleNeuronSharing = true;
+            neuralNetsSupervisedPruning = false;
         }
         if (groundingMode == GroundingMode.GLOBAL) {
             possibleNeuronSharing = true;

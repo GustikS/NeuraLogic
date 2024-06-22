@@ -34,13 +34,15 @@ public class GroundingSampleWrappingPipe extends Pipe<Pair<Template, Stream<Logi
                 throw new RuntimeException(err);
             }
             GroundingSample groundingSample = new GroundingSample(sample, templateStreamPair.r);
-            if (settings.groundingMode == Settings.GroundingMode.GLOBAL || settings.groundingMode == Settings.GroundingMode.SEQUENTIAL) {
-                groundingSample.groundingWrap = lastGroundingWrap;
-            }
+//            if (settings.groundingMode == Settings.GroundingMode.GLOBAL || settings.groundingMode == Settings.GroundingMode.SEQUENTIAL || lastGroundingWrap.getExample() == null) {
+            groundingSample.groundingWrap = lastGroundingWrap;
+//            }
             if (sample.query.evidence.equals(lastGroundingWrap.getExample())) {
+//                groundingSample.groundingWrap = lastGroundingWrap;
                 groundingSample.groundingComplete = true;
             } else {
-                lastGroundingWrap.setExample(sample.query.evidence);
+                lastGroundingWrap.setExample(sample.query.evidence);    // setup the new example
+                lastGroundingWrap.setNeuronMaps(null);  // remove the old neurons - they will need to be built again
                 groundingSample.groundingComplete = false;
             }
             return groundingSample;
