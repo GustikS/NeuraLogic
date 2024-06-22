@@ -365,6 +365,10 @@ public class Settings implements Serializable {
 
     //-----------------Neural nets creation
     /**
+     * When two queries reference the same output neuron in the same example but with possibly different target values
+     */
+    public boolean aggregateConflictingQueries = true;
+    /**
      * Prune out ground rules with no support for a given query EXPLICITLY in advance (even though in a supervised pipeline, only support will be taken recursively)
      */
     public boolean explicitSupervisedGroundTemplatePruning = false;

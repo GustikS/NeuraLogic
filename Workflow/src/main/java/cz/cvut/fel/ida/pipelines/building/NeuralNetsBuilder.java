@@ -87,6 +87,12 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
 
         ConnectAfter<Stream<NeuralProcessingSample>> nextPipe = pipeline.registerStart(new IdentityGenPipe<>("NNBuildingInit"));
 
+        if (settings.aggregateConflictingQueries){
+            Pipe<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> pipe = pipeline.registerEnd(new SameQueryAggregationPipe(settings));
+            nextPipe.connectAfter(pipe);
+            nextPipe = pipe;
+        }
+
         if (settings.neuralNetsSupervisedPruning) {
             //todo
         }
