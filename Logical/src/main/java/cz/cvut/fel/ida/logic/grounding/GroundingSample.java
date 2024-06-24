@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.logic.grounding;
 import cz.cvut.fel.ida.logic.constructs.example.LiftedExample;
 import cz.cvut.fel.ida.logic.constructs.example.LogicSample;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
+import cz.cvut.fel.ida.logic.subsumption.SubsumptionEngineJ2;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 public class GroundingSample extends LogicSample {
@@ -35,7 +36,7 @@ public class GroundingSample extends LogicSample {
         /**
          * Duplicate reference (to GroundingSample.Query.Evidence) but with synchronized access
          */
-        private LiftedExample example;
+        public LiftedExample example;
         /**
          * Memory for Herbrand models
          */

@@ -60,10 +60,9 @@ public class HerbrandModel {
         int herbrandSize0 = VectorUtils.sum(herbrand.sizes());
         LOG.finer("herbrand size before round " + round + " = " + herbrandSize0);
         do {
-            //get all valid literals from the CURRENT herbrand model/map into a newly indexed ClauseE structure
-            final Clause exampleClause = new Clause(Sugar.flatten(herbrand.values()));
-            clauseE = matching.createClauseE(exampleClause);
-
+            if (clauseE == null || round > 0) {    // it is initialized outside, but needs to be rebuilt incrementally
+                setupClause();
+            }
             LinkedList<Map.Entry<HornClause, PreparedRule>> entries = new LinkedList<>(preparedRules.entrySet()); // a copy for removing
             for (Iterator<Map.Entry<HornClause, PreparedRule>> iterator = entries.iterator(); iterator.hasNext(); ) {
                 final Map.Entry<HornClause, PreparedRule> next = iterator.next();
@@ -130,6 +129,20 @@ public class HerbrandModel {
         for (Literal groundLiteral : facts) {
             herbrand.put(groundLiteral.predicate(), groundLiteral);
         }
+    }
+
+    /**
+     * Get all valid literals from the CURRENT herbrand model/map into a newly indexed ClauseE structure
+     * @return
+     */
+    public Clause setupClause() {
+        final Clause exampleClause = new Clause(Sugar.flatten(herbrand.values()));
+        clauseE = matching.createClauseE(exampleClause);
+        return exampleClause;
+    }
+
+    public SubsumptionEngineJ2.ClauseE getClauseE() {
+        return clauseE;
     }
 
     /**

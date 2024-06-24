@@ -2,9 +2,11 @@ package cz.cvut.fel.ida.logic.constructs.example;
 
 
 import cz.cvut.fel.ida.learning.Example;
+import cz.cvut.fel.ida.logic.Clause;
 import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.logic.constructs.Conjunction;
 import cz.cvut.fel.ida.logic.grounding.Grounder;
+import cz.cvut.fel.ida.logic.subsumption.SubsumptionEngineJ2;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashSet;
@@ -20,6 +22,16 @@ public class GroundExample implements Example {
     public LinkedHashSet<Conjunction> conjunctions;
 
     public LinkedHashSet<ValuedFact> flatFacts;
+
+    /**
+     * Storing also the efficient ClauseE structure of the original example for potential reuse after grounding
+     */
+    public SubsumptionEngineJ2.ClauseE clauseE;
+
+    /**
+     * And the Clause of the example for the same reason, although they can be both created from the facts anytime
+     */
+    public Clause clause;
 
     String id;
 

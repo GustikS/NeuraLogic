@@ -1,3 +1,3 @@
-s1 :- 1 pickup(b1), 0 pickup(X0), 0 putdown(X0), 0 stack(X0,X1), 0 unstack(X0,X1).
+s1 :- 1 pickup(b1), 1 pickup(b2), 0 pickup(X0), 0 putdown(X0), 0 stack(X0,X1), 0 unstack(X0,X1).
 s2 :- 1 stack(b1,b2), 0 pickup(X0), 0 putdown(X0), 0 stack(X0,X1), 0 unstack(X0,X1).
 s3 :- 1 pickup(b2), 0 pickup(X0), 0 putdown(X0), 0 stack(X0,X1), 0 unstack(X0,X1).

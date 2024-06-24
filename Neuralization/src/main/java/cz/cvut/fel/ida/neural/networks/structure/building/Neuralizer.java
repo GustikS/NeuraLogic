@@ -101,6 +101,10 @@ public class Neuralizer implements Exportable {
                 origSamples.add(sample);    //these two lists are aligned
             }
         }
+        if (queryMatchingLiterals.isEmpty()){
+            String err = "Not a single query was matched anywhere in the template!";
+            throw new RuntimeException(err);
+        }
 
         DetailedNetwork neuralNetwork;
         if (settings.forceFullNetworks) {   //we can possibly still be forced to create the whole network, even if parts of it are not connected to the query, e.g. if the rules are not connected

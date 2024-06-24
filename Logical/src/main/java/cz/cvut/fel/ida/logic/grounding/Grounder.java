@@ -187,13 +187,16 @@ public abstract class Grounder implements Exportable {
         }
         liftedExample.addAllFrom(sampleList.get(0).query.evidence);
         for (int i = 1; i < sampleList.size(); i++) {
-            if (sampleList.get(i).query.evidence != sampleList.get(i - 1).query.evidence)   //also marge all the example data (should be the same in most cases, however)
+            if (sampleList.get(i).query.evidence != sampleList.get(i - 1).query.evidence)   //also merge all the example data (should be the same in most cases, however)
                 liftedExample.addAllFrom(sampleList.get(i).query.evidence);
         }
 
         GroundTemplate groundTemplate = groundRulesAndFacts(liftedExample, template);
 
-        sampleList.forEach(sample -> sample.groundingWrap.setGroundTemplate(groundTemplate));
+        for (GroundingSample sample : sampleList) {
+            sample.groundingWrap.setGroundTemplate(groundTemplate);
+            sample.groundingWrap.example = liftedExample;
+        }
         return sampleList;
     }
 

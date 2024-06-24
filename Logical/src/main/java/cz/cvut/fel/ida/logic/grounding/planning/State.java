@@ -28,6 +28,11 @@ public class State implements Example {
         this.clause = clause;
     }
 
+    public State(Clause clause, SubsumptionEngineJ2.ClauseE clauseE) {
+        this.clause = clause;
+        this.clauseE = clauseE;
+    }
+
     public SubsumptionEngineJ2.ClauseE getClauseE(Matching matching) {
         if (this.clauseE != null) {
             return this.clauseE;

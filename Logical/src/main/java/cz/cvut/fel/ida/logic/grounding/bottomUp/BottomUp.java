@@ -16,6 +16,7 @@ import cz.cvut.fel.ida.logic.grounding.GroundTemplate;
 import cz.cvut.fel.ida.logic.grounding.Grounder;
 import cz.cvut.fel.ida.logic.grounding.constructs.GroundRulesCollection;
 import cz.cvut.fel.ida.logic.subsumption.HerbrandModel;
+import cz.cvut.fel.ida.logic.subsumption.SubsumptionEngineJ2;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.generic.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -60,6 +61,10 @@ public class BottomUp extends Grounder {
         herbrandModel.addRules(exampleRules);
         herbrandModel.addFacts(template.getAllAtoms());
         herbrandModel.addFacts(getAllFacts(example));
+
+        Clause clause = herbrandModel.setupClause();
+        example.clause = clause;  // storing the efficient ClauseE structure of the original example for potential reuse
+        example.clauseE = herbrandModel.getClauseE();
 
         Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> rulesAndFacts = rulesAndFacts(example, template);
         Map<HornClause, List<WeightedRule>> ruleMap = rulesAndFacts.r;

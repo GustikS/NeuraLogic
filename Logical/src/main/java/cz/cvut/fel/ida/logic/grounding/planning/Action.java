@@ -1,6 +1,7 @@
 package cz.cvut.fel.ida.logic.grounding.planning;
 
 import cz.cvut.fel.ida.logic.*;
+import cz.cvut.fel.ida.logic.constructs.building.factories.ConstantFactory;
 import cz.cvut.fel.ida.logic.subsumption.Matching;
 import cz.cvut.fel.ida.logic.subsumption.SubsumptionEngineJ2;
 import cz.cvut.fel.ida.utils.generic.tuples.Pair;
@@ -13,13 +14,15 @@ public class Action {
 
     public static Matching matching = new Matching();
 
+    public static ConstantFactory constantFactory = new ConstantFactory();
+
     public String name;
 
     public List<Literal> preconditions;
     public List<Literal> addEffects;
     public List<Literal> deleteEffects;
 
-    public List<Term> variables;
+    public Term[] variables;
     /**
      * An auxiliary literal representing the action, to be added
      */
@@ -38,7 +41,7 @@ public class Action {
         this.deleteEffects = deleteEffects.stream().map(lit -> Literal.parseLiteral(lit, variables, constants)).collect(Collectors.toList());
 
         Set<Variable> vars = getVariables(this.preconditions);
-        this.variables = new ArrayList<>(vars);
+        this.variables = vars.toArray(new Variable[0]);
         this.applicable = new Literal(name, this.variables);
     }
 
@@ -49,7 +52,7 @@ public class Action {
         this.deleteEffects = deleteEffects;
 
         Set<Variable> vars = getVariables(preconditions);
-        this.variables = new ArrayList<>(vars);
+        this.variables = vars.toArray(new Variable[0]);
         this.applicable = new Literal(name, this.variables);
     }
 
@@ -113,6 +116,17 @@ public class Action {
             groundActions.add(groundAction);
         }
         return groundActions;
+    }
+
+    public GroundAction grounding(String constants) {
+        final String[] split = constants.split(",");
+        Constant[] consts = new Constant[this.variables.length];
+        for (int i = 0; i < split.length; i++) {
+            consts[i] = constantFactory.construct(split[i]);
+        }
+        GroundAction groundAction = new GroundAction(this, this.variables, consts);
+        groundAction.computeEffects(consts);
+        return groundAction;
     }
 
     public static class GroundAction {
