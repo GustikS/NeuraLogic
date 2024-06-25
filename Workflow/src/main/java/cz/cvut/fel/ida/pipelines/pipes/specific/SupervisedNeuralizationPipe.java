@@ -45,7 +45,7 @@ public class SupervisedNeuralizationPipe extends Pipe<Stream<GroundingSample>, S
             for (Map.Entry<GroundTemplate, List<GroundingSample>> entry : sampleMap.entrySet()) {
                 GroundTemplate groundTemplate = entry.getKey();
                 List<GroundingSample> samples = entry.getValue();
-                LOG.info("Neuralizing sample with mutliple quereis " + groundTemplate.toString());
+                LOG.info("Neuralizing sample with multiple queries " + groundTemplate.toString());
                 List<NeuralProcessingSample> neuralizedSamples = neuralizer.neuralize(groundTemplate, samples);
                 LOG.info("SHARED NeuralNet created: " + neuralizedSamples.get(0).detailedNetwork.toString());
                 allSamples.addAll(neuralizedSamples);

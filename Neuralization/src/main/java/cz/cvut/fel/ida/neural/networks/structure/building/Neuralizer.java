@@ -101,9 +101,15 @@ public class Neuralizer implements Exportable {
                 origSamples.add(sample);    //these two lists are aligned
             }
         }
-        if (queryMatchingLiterals.isEmpty()){
-            String err = "Not a single query was matched anywhere in the template!";
-            throw new RuntimeException(err);
+        if (queryMatchingLiterals.isEmpty()) {
+            if (groundingSample.query.headAtom == null) {
+                DetailedNetwork neuralNetwork = blindNeuralization(groundingSample.groundingWrap.getGroundTemplate(), neuronMaps, createdNeurons);
+                NeuralProcessingSample neuralProcessingSample = new NeuralProcessingSample(new ScalarValue(0), new QueryNeuron(groundingSample.getId(), 0, 0, null, neuralNetwork), groundingSample.type, settings);
+                return Collections.singletonList(neuralProcessingSample);
+            } else {
+                String err = "Not a single query was matched anywhere in the template!";
+                throw new RuntimeException(err);
+            }
         }
 
         DetailedNetwork neuralNetwork;

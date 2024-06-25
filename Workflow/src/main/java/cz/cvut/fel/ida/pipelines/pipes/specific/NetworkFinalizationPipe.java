@@ -32,10 +32,12 @@ public class NetworkFinalizationPipe extends Pipe<Stream<NeuralProcessingSample>
         //if we do Global (KB) mode with a single Shared network, and we require topologic iteration for each query, extract many small networks then
         if (settings.groundingMode == Settings.GroundingMode.GLOBAL && settings.iterationMode == Settings.IterationMode.TOPOLOGIC) {
             neuralProcessingSampleStream = neuralProcessingSampleStream.map(sample -> {
-                DetailedNetwork emptyCopy = sample.detailedNetwork.emptyCopy(sample.getId());
-                NetworkReducing.supervisedNetReconstruction(emptyCopy, Collections.singletonList(sample.query.neuron));
-                sample.detailedNetwork = emptyCopy;
-                sample.query.evidence = emptyCopy;
+                if (sample.query.neuron != null) {
+                    DetailedNetwork emptyCopy = sample.detailedNetwork.emptyCopy(sample.getId());
+                    NetworkReducing.supervisedNetReconstruction(emptyCopy, Collections.singletonList(sample.query.neuron));
+                    sample.detailedNetwork = emptyCopy;
+                    sample.query.evidence = emptyCopy;
+                }
                 return sample;
             });
         }
