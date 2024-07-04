@@ -40,6 +40,9 @@ public interface NetworkReducing extends Exportable {
      * @param allQueryNeurons
      */
     static void supervisedNetReconstruction(DetailedNetwork<State.Neural.Structure> inet, List<Neurons> allQueryNeurons){
+        if (allQueryNeurons == null || allQueryNeurons.isEmpty() || allQueryNeurons.get(0) == null){
+            allQueryNeurons = new ArrayList<>(inet.allNeuronsTopologic);
+        }
         inet.allNeuronsTopologic = inet.new TopoSorting().topologicSort(allQueryNeurons);
     }
 

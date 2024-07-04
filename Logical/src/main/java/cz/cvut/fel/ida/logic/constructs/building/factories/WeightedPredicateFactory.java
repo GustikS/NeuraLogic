@@ -36,14 +36,16 @@ public class WeightedPredicateFactory {
         WeightedPredicate result = str2pred.get(from + "/" + arity);
         if (result == null) {
             result = WeightedPredicate.construct(from, arity, special, hidden);
-            str2pred.put(from + "/" + arity, result);
-            pred2pred.put(result, result);
+            if (!hidden) {  // store it for reuse only if it is not hidden!
+                str2pred.put(from + "/" + arity, result);
+                pred2pred.put(result, result);
+            }
         } else {
-            if (special && !result.predicate.special){  // a correction if a user states the predicate as special only in some places -> the predicate is made globally special
+            if (special && !result.predicate.special) {     // a correction if a user states the predicate as special only in some places -> the predicate is made globally special
                 result.predicate.special = true;
             }
-            if (hidden && !result.predicate.hidden){
-                result.predicate.hidden = true;
+            if (hidden && !result.predicate.hidden){    // BUT predicates can be used differently as hidden (e.g. negated) in different places
+                return WeightedPredicate.construct(from, arity, special, hidden);   // hidden predicates are not shared, since they will go away anyway...
             }
         }
         return result;

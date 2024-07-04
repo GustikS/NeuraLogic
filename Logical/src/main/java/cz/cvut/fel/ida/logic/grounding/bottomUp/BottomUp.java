@@ -89,6 +89,7 @@ public class BottomUp extends Grounder {
                 continue;
             }
 
+            // todo remember/recal the ClauseC here?
             Pair<Term[], List<Term[]>> groundingSubstitutions = herbrandModel.groundingSubstitutions(new Clause(ruleEntry.getKey().getLiterals()));
             for (WeightedRule weightedRule : ruleEntry.getValue()) {
                 List<GroundRule> groundings = groundRules(weightedRule, groundingSubstitutions);

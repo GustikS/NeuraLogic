@@ -264,20 +264,21 @@ public class NeuralNetBuilder {
             for (Literal queryMatchingLiteral : queryMatchingLiterals) {
                 AtomNeurons qn = neuralBuilder.neuronFactory.neuronMaps.atomNeurons.get(queryMatchingLiteral);
                 if (qn == null) {
-                    if (neuralBuilder.neuronFactory.neuronMaps.factNeurons.containsKey(queryMatchingLiteral)){
+                    if (neuralBuilder.neuronFactory.neuronMaps.factNeurons.containsKey(queryMatchingLiteral)) {
                         String err = "Quering directly facts, rather than inferred atoms - there is no learning possible for this sample query: " + queryMatchingLiteral;
                         LOG.warning(err);
                         throw new InputMismatchException(err);
                     } else {
                         String err = "Query: [" + queryMatchingLiteral + "] was not matched anywhere in the ground network - Cannot calculate its output!";
-                        LOG.warning(err);
+                        LOG.severe(err);
                         LOG.warning(" -> This most likely means that the template is wrong as there is no proof-path from the example to the query");
                         LOG.warning("   -> Check all the predicate signatures etc. to make sure the template matches your examples and that there is at least 1 inference chain to the query");
 //                    System.exit(5);
-                        throw new InputMismatchException(err);
+//                        throw new InputMismatchException(err);
                     }
+                } else {
+                    queryNeurons.add(qn);
                 }
-                queryNeurons.add(qn);
             }
 
 //            queryNeurons = queryMatchingLiterals.stream().map(key -> {
@@ -399,7 +400,7 @@ public class NeuralNetBuilder {
      * @param createdNeurons
      * @return
      */
-    private RuleNeurons createRuleNeuron(GroundRule grounding, NeuronMaps neuronMaps, NeuralSets  createdNeurons) {
+    private RuleNeurons createRuleNeuron(GroundRule grounding, NeuronMaps neuronMaps, NeuralSets createdNeurons) {
         RuleNeurons ruleNeuron = neuronMaps.ruleNeurons.get(grounding);
 
         if (ruleNeuron != null) {
@@ -456,7 +457,7 @@ public class NeuralNetBuilder {
             }
 
             //3) Attach rules (+ create mid aggregation neurons)
-            for (Map.Entry<Literal, List<GroundRule>> entry: ruleGroups.entrySet()) {
+            for (Map.Entry<Literal, List<GroundRule>> entry : ruleGroups.entrySet()) {
                 List<GroundRule> ruleGroundings = entry.getValue();
                 Literal literal = entry.getKey();
 
