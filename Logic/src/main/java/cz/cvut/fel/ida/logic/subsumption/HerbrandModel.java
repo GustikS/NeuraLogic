@@ -31,6 +31,11 @@ public class HerbrandModel {
     private SubsumptionEngineJ2.ClauseE clauseE;
 
     /**
+     * The same as above but readable - merely for checking/debugging purposes
+     */
+    private Clause derivedClause;
+
+    /**
      * The rules used to create the current Herbrand model pre-processed as an indexed structure
      */
     public LinkedHashMap<HornClause, PreparedRule> preparedRules;
@@ -69,6 +74,10 @@ public class HerbrandModel {
                 final HornClause rule = next.getKey();
                 final PreparedRule preparedRule = next.getValue();
 
+                if (!preparedRule.isGroundSatisfiable(this.derivedClause)) {
+                    continue;   // if the rule contains ground atoms that are directly dissatisfied, skip it
+                }
+
                 matching.getEngine().addSolutionConsumer(preparedRule.solutionConsumer);
                 // if the rule head is already ground
                 if (preparedRule.isGroundHead) {
@@ -78,7 +87,8 @@ public class HerbrandModel {
                         iterator.remove(); // if so, do not ever try this ground rule again
                     }
                 } else {  //if it is not ground, find (and in the background through the solutionConsumer add to herbrand) all NEW substitutions for the head literal
-                    matching.allSubstitutions(preparedRule.clauseC, clauseE, Integer.MAX_VALUE);
+                    final cz.cvut.fel.ida.utils.generic.tuples.Pair<Term[], List<Term[]>> listPair = matching.allSubstitutions(preparedRule.clauseC, clauseE, Integer.MAX_VALUE);
+                    int num = listPair.s.size();
                 }
                 //remove the consumer as the found substitutions should be applied only to the head of the currently solved rule
                 matching.getEngine().removeSolutionConsumer(preparedRule.solutionConsumer);
@@ -102,9 +112,26 @@ public class HerbrandModel {
         return groundingSubstitutions(matching.createClauseC(clause));
     }
 
+    /**
+     * ...- except for ground/nullary atoms! Their negations are ignored by the matching engine!!
+     *
+     * @param clause
+     * @return
+     */
+    public Pair<Term[], List<Term[]>> groundingSubstitutions(HornClause clause) {
+        final PreparedRule preparedRule = preparedRules.get(clause);
+        if (this.derivedClause == null) {
+            this.derivedClause = new Clause(Sugar.flatten(herbrand.values()));
+        }
+        if (!preparedRule.isGroundSatisfiable(this.derivedClause)) {
+            return new Pair<>(new Term[0], new ArrayList<>(0)); // empty solution
+        }
+        return groundingSubstitutions(preparedRule.groundingClause);
+    }
+
     public Pair<Term[], List<Term[]>> groundingSubstitutions(SubsumptionEngineJ2.ClauseC clauseC) {
         if (clauseE == null) {
-            clauseE = matching.createClauseE(new Clause(Sugar.flatten(herbrand.values())));
+            clauseE = matching.createClauseE(this.derivedClause);
         }
         return groundingSubstitutions(clauseE, clauseC);
     }
@@ -133,12 +160,13 @@ public class HerbrandModel {
 
     /**
      * Get all valid literals from the CURRENT herbrand model/map into a newly indexed ClauseE structure
+     *
      * @return
      */
     public Clause setupClause() {
-        final Clause exampleClause = new Clause(Sugar.flatten(herbrand.values()));
-        clauseE = matching.createClauseE(exampleClause);
-        return exampleClause;
+        derivedClause = new Clause(Sugar.flatten(herbrand.values()));
+        clauseE = matching.createClauseE(derivedClause);
+        return derivedClause;
     }
 
     public SubsumptionEngineJ2.ClauseE getClauseE() {
@@ -159,11 +187,12 @@ public class HerbrandModel {
                 herbrand.set(headPredicate, Collections.synchronizedSet(new HashSet<>()));
             }
             final boolean isGroundHead = LogicUtils.isGround(rule.head());
-            final SubsumptionEngineJ2.ClauseC clauseC = prepareClauseForGrounder(rule, isGroundHead);
+            final Clause clause = prepareClauseForGrounder(rule, isGroundHead);
+            SubsumptionEngineJ2.ClauseC clauseC = matching.createClauseC(clause);
             // solution consumer = automatically add all found valid substitutions of the head literal into the herbrand map
             PredicateSolutionConsumer solutionConsumer = new PredicateSolutionConsumer(rule.head(), herbrand.get(headPredicate));
 
-            preparedRules.put(rule, new PreparedRule(clauseC, isGroundHead, solutionConsumer));
+            preparedRules.put(rule, new PreparedRule(rule, clauseC, isGroundHead, solutionConsumer));
         }
     }
 
@@ -181,7 +210,7 @@ public class HerbrandModel {
      * @param hc
      * @return
      */
-    public SubsumptionEngineJ2.ClauseC prepareClauseForGrounder(HornClause hc, boolean groundHead) {
+    public Clause prepareClauseForGrounder(HornClause hc, boolean groundHead) {
         final Predicate headPredicate = hc.head().predicate();
         Set<Literal> literalSet = new HashSet<>(hc.body().literals());
 
@@ -199,7 +228,7 @@ public class HerbrandModel {
             literalSet.add(new Literal(tupleNotInPredicateName(headPredicate), false, hc.head().arguments()));
         }
         final Clause clause = new Clause(literalSet);
-        return matching.createClauseC(clause);
+        return clause;
     }
 
 
@@ -224,14 +253,42 @@ public class HerbrandModel {
     }
 
     public class PreparedRule {
+        final HornClause hornClause;
+        List<Literal> groundLiterals;
+        final SubsumptionEngineJ2.ClauseC groundingClause;
         final SubsumptionEngineJ2.ClauseC clauseC;
         final boolean isGroundHead;
         final PredicateSolutionConsumer solutionConsumer;
 
-        public PreparedRule(SubsumptionEngineJ2.ClauseC clauseC, boolean isGroundHead, PredicateSolutionConsumer solutionConsumer) {
+        public PreparedRule(HornClause hornClause, SubsumptionEngineJ2.ClauseC clauseC, boolean isGroundHead, PredicateSolutionConsumer solutionConsumer) {
+            this.hornClause = hornClause;
+            this.groundingClause = matching.createClauseC(new Clause(hornClause.getLiterals()));
             this.clauseC = clauseC;
             this.isGroundHead = isGroundHead;
             this.solutionConsumer = solutionConsumer;
+            loadGroundLiterals();
+        }
+
+        private void loadGroundLiterals() {
+            groundLiterals = new ArrayList<>();
+            for (Literal l : hornClause.body().literals()) {
+                if (!l.containsVariable()) {
+                    groundLiterals.add(l);
+                }
+            }
+        }
+
+        public boolean isGroundSatisfiable(Clause derivedClause) {
+            for (Literal l : groundLiterals) {
+                if (l.isNegated()) {
+                    if (derivedClause.predicates().contains(l.predicateName())) {
+                        return false;
+                    }
+                } else if (!derivedClause.predicates().contains(l.predicateName())) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 

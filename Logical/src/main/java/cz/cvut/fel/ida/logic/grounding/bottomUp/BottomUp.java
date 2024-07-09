@@ -89,8 +89,8 @@ public class BottomUp extends Grounder {
                 continue;
             }
 
-            // todo remember/recal the ClauseC here?
-            Pair<Term[], List<Term[]>> groundingSubstitutions = herbrandModel.groundingSubstitutions(new Clause(ruleEntry.getKey().getLiterals()));
+//            Pair<Term[], List<Term[]>> groundingSubstitutions = herbrandModel.groundingSubstitutions(new Clause(ruleEntry.getKey().getLiterals()));
+            Pair<Term[], List<Term[]>> groundingSubstitutions = herbrandModel.groundingSubstitutions(ruleEntry.getKey());
             for (WeightedRule weightedRule : ruleEntry.getValue()) {
                 List<GroundRule> groundings = groundRules(weightedRule, groundingSubstitutions);
                 final boolean splittable = weightedRule.getAggregationFcn() != null && weightedRule.getAggregationFcn().isSplittable();

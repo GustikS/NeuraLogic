@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.neuralogic.revised.unsorted;
 import cz.cvut.fel.ida.logic.*;
 import cz.cvut.fel.ida.logic.subsumption.HerbrandModel;
 import cz.cvut.fel.ida.logic.subsumption.Matching;
+import cz.cvut.fel.ida.logic.subsumption.SubsumptionEngineJ2;
 import cz.cvut.fel.ida.utils.generic.TestAnnotations;
 import cz.cvut.fel.ida.utils.generic.tuples.Pair;
 import cz.cvut.fel.ida.utils.math.Sugar;
@@ -29,7 +30,7 @@ public class HerbrandModelTest {
         LOG.fine(hc.toString());
 
         Pair<Term[], List<Term[]>> substA = m.allSubstitutions(hc.toClause(), 0, Integer.MAX_VALUE);
-        assertEquals(substA.s.size(),0);
+        assertEquals(substA.s.size(), 0);
         LOG.fine(substA.s.size() + "\thc.toClause()\t" + hc.toClause());
         for (Term[] img : substA.s) {
             LOG.finer(LogicUtils.substitute(hc.toClause(), substA.r, img).toString());
@@ -37,10 +38,25 @@ public class HerbrandModelTest {
 
         Pair<Term[], List<Term[]>> substB = m.allSubstitutions(LogicUtils.flipSigns(hc.toClause()), 0, Integer.MAX_VALUE);
         LOG.fine(substB.s.size() + "\tLogicUtils.flipSings(hc.toClause())\t" + LogicUtils.flipSigns(hc.toClause()));
-        assertEquals(substB.s.size(),1);
+        assertEquals(substB.s.size(), 1);
         for (Term[] img : substB.s) {
             LOG.fine(LogicUtils.substitute(LogicUtils.flipSigns(hc.toClause()), substB.r, img).toString());
         }
+    }
+
+    /**
+     * The subsumption engine ignores ground negations!
+     */
+    @TestAnnotations.Fast
+    public void testGroundNegations() {
+        Matching m = new Matching();
+//        final Clause example = Clause.parse("body(d1), exists(d1)");
+//        final Clause rule = Clause.parse("body(A), !exists(A)");
+        final Clause example = Clause.parse("body(d1), exists()");
+        final Clause rule = Clause.parse("body(A), exists()");
+
+        Pair<Term[], List<Term[]>> substB = m.allSubstitutions(rule, example, Integer.MAX_VALUE);
+        System.out.printf(substB.toString());
     }
 
     @TestAnnotations.Medium
@@ -66,7 +82,7 @@ public class HerbrandModelTest {
         Collection<RunResult> newResults = benchmarkFast(getClass().getName() + ".testSubstitutionSpeedNEW");
         long newTime = getMeanTime(newResults, TimeUnit.MILLISECONDS);
 
-        LOG.fine("old= "+ oldTime + "ms vs " + newTime + "ms =new");
+        LOG.fine("old= " + oldTime + "ms vs " + newTime + "ms =new");
         assertTrue(oldTime > newTime);
     }
 
@@ -149,7 +165,6 @@ public class HerbrandModelTest {
             groundingSubstitutions = testData.getGroundingSubstitutions();
         }
     }
-
 
 
     private static class CreateTestData {
