@@ -220,9 +220,16 @@ public class NeuralNetBuilder {
                 continue;   //this rule neuron is already connected (was created and taken from previous sample), connect only the newly created RuleNeurons
             }
 
+            int j = 0;
             for (int i = 0; i < entry.getKey().groundBody.length; i++) {
-                BodyAtom liftedBodyAtom = entry.getKey().weightedRule.getBody().get(i);
+                BodyAtom liftedBodyAtom = entry.getKey().weightedRule.getBody().get(j++);
                 Literal literal = entry.getKey().groundBody[i];
+                if (liftedBodyAtom.isNegated() && liftedBodyAtom.getPredicate() != literal.predicate()) {
+                    liftedBodyAtom = entry.getKey().weightedRule.getBody().get(j++);  // if it is negated we skip it!
+                    if (liftedBodyAtom.getPredicate() != literal.predicate()) {
+                        throw new InputMismatchException("A mismatch between predicates when connecting rule neuron inputs!");
+                    }
+                }
 
                 Weight weight = liftedBodyAtom.getConjunctWeight();
 
