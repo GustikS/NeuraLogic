@@ -284,7 +284,8 @@ public class HerbrandModel {
                     if (derivedClause.predicates().contains(l.predicateName())) {
                         return false;
                     }
-                } else if (!derivedClause.predicates().contains(l.predicateName())) {
+                }
+                else if (!l.predicate().special && !derivedClause.predicates().contains(l.predicateName())) {
                     return false;
                 }
             }

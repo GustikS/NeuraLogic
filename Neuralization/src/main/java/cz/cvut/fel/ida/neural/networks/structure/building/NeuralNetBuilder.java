@@ -225,9 +225,11 @@ public class NeuralNetBuilder {
                 BodyAtom liftedBodyAtom = entry.getKey().weightedRule.getBody().get(j++);
                 Literal literal = entry.getKey().groundBody[i];
                 if (liftedBodyAtom.isNegated() && liftedBodyAtom.getPredicate() != literal.predicate()) {
-                    liftedBodyAtom = entry.getKey().weightedRule.getBody().get(j++);  // if it is negated we skip it!
-                    if (!liftedBodyAtom.getPredicate().name.equals(literal.predicate().name)) {
-                        throw new InputMismatchException("A mismatch between predicates when connecting rule neuron inputs!");
+                    while (!liftedBodyAtom.getPredicate().name.equals(literal.predicate().name)) {
+                        if (j == entry.getKey().weightedRule.getBody().size()) {
+                            throw new InputMismatchException("A mismatch between predicates when connecting rule neuron inputs!");
+                        }
+                        liftedBodyAtom = entry.getKey().weightedRule.getBody().get(j++);  // if it is negated we skip it!
                     }
                 }
 
