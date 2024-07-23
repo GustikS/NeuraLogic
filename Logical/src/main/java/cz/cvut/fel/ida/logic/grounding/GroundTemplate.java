@@ -19,7 +19,7 @@ import java.util.*;
  */
 public class GroundTemplate extends GraphTemplate implements Example {
 
-    static int counter = 0;
+    public static int counter = 0;
 
     /**
      * Temp (for current pair of Template+Example) structure (head -> rules -> ground bodies) for traversing the graph of groundings

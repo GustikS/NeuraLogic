@@ -96,7 +96,7 @@ public class QueriesBuilder extends SamplesBuilder<PlainQueriesParseTree, Pair<V
             settings.oneQueryPerExample = false;
         } else {
             LOG.info("Heuristically detecting atomic queries (=no batch queries)");
-            settings.oneQueryPerExample = true;
+//            settings.oneQueryPerExample = true;   // this is not safe to deduce - only the opposite is
         }
     }
 }

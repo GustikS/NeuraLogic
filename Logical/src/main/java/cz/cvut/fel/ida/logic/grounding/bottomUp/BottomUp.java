@@ -53,13 +53,13 @@ public class BottomUp extends Grounder {
     public GroundTemplate groundRulesAndFacts(LiftedExample example, Template template) {
         timing.tic();
         if (template.herbrandModel == null) {    // first run with skipped template inference (in non-standard pipelines)
-            template.preprocessInference();
+            template.preprocessInference(settings.preprocessTemplateInference);
         }
         HerbrandModel herbrandModel = template.herbrandModel;
 
         final List<HornClause> exampleRules = example.getRules();
         herbrandModel.addRules(exampleRules);
-        herbrandModel.addFacts(template.getAllAtoms());
+        herbrandModel.addFacts(template.getAllAtoms(settings.preprocessTemplateInference));
         herbrandModel.addFacts(getAllFacts(example));
 
         Clause clause = herbrandModel.setupClause();

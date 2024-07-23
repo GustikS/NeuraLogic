@@ -107,7 +107,7 @@ public class TemplateProcessingBuilder extends AbstractPipelineBuilder<Sources, 
         return new Pipe<Template, Template>("TemplateInferencePipe") {
             @Override
             public Template apply(Template template) {
-                template.preprocessInference();
+                template.preprocessInference(true);
                 return template;
             }
         };

@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.pipelines.pipes.specific;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.neural.networks.structure.building.NeuralProcessingSample;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.AtomNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.AtomNeurons;
 import cz.cvut.fel.ida.neural.networks.structure.components.types.DetailedNetwork;
 import cz.cvut.fel.ida.pipelines.Pipe;
@@ -44,7 +45,12 @@ public class SameQueryAggregationPipe extends Pipe<Stream<NeuralProcessingSample
             List<NeuralProcessingSample> samples = entry.getValue();
             MultiList<AtomNeurons, NeuralProcessingSample> singleExampleMap = new MultiList<>();
             for (NeuralProcessingSample sample : samples) {
-                singleExampleMap.put(sample.query.neuron, sample);
+                AtomNeurons neuron = sample.query.neuron;
+                if (neuron == null) {
+                    LOG.info("Samples without query neurons encountered during SameQueryAggregation");
+                    neuron = new AtomNeuron(sample.query.ID, sample.query.position, null);
+                }
+                singleExampleMap.put(neuron, sample);
             }
             for (Map.Entry<AtomNeurons, List<NeuralProcessingSample>> atomNeuronsListEntry : singleExampleMap.entrySet()) {
                 outputProcessingSamples.add(mergeSamples(atomNeuronsListEntry.getValue()));

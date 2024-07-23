@@ -4,6 +4,7 @@ import cz.cvut.fel.ida.algebra.functions.ActivationFcn;
 import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.functions.combination.Softmax;
+import cz.cvut.fel.ida.algebra.functions.transformation.elementwise.ReLu;
 import cz.cvut.fel.ida.algebra.functions.transformation.elementwise.Sigmoid;
 import cz.cvut.fel.ida.algebra.functions.transformation.joint.Identity;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
@@ -34,10 +35,13 @@ public class NeuralProcessingSample extends NeuralSample {
             }
         }
 
-        if (settings.inferOutputFcns && settings.trainOnlineResultsType != Settings.ResultsType.REGRESSION) {
+        if (settings.inferOutputFcns && q.neuron != null) {
             State.Neural.Computation computationState = q.neuron.getRawState().getComputationView(-1);
             ActivationFcn.State newFcnState = computationState.getFcnState();
-            if (settings.errorFunction == Settings.ErrorFcn.SOFTENTROPY && !(q.neuron.getTransformation() == null || q.neuron.getTransformation() instanceof Identity)) {
+            if (settings.trainOnlineResultsType == Settings.ResultsType.REGRESSION && !(q.neuron.getTransformation() == null ||
+                    q.neuron.getTransformation() instanceof Identity || q.neuron.getTransformation() instanceof ReLu)) {
+                newFcnState = computationState.getFcnState().changeTransformationState(Transformation.Singletons.identity);
+            } else if (settings.errorFunction == Settings.ErrorFcn.SOFTENTROPY && !(q.neuron.getTransformation() == null || q.neuron.getTransformation() instanceof Identity)) {
                 newFcnState = computationState.getFcnState().changeTransformationState(Transformation.Singletons.identity);
             } else if (settings.errorFunction == Settings.ErrorFcn.CROSSENTROPY && !(q.neuron.getTransformation() instanceof Softmax || q.neuron.getTransformation() instanceof Sigmoid)) {
                 if (v instanceof VectorValue) {

@@ -145,13 +145,13 @@ public class Template implements Model<QueryAtom>, Exportable {
         }
     }
 
-    public Set<Literal> getAllAtoms() {
+    public Set<Literal> getAllAtoms(boolean inferAtoms) {
         if (allAtoms != null) {
             return allAtoms;
         }
         allAtoms = facts.stream().map(ValuedFact::getLiteral).collect(Collectors.toSet());
         if (inferredAtoms == null) {
-            preprocessInference();
+            preprocessInference(inferAtoms);
         }
         allAtoms.addAll(inferredAtoms);
         return allAtoms;
@@ -161,11 +161,7 @@ public class Template implements Model<QueryAtom>, Exportable {
         this.facts = facts;
     }
 
-    public void inferTemplateFacts() {
-        preprocessInference();
-    }
-
-    public void preprocessInference() {
+    public void preprocessInference(boolean inferAtoms) {
         if (inferredAtoms == null) {
             inferredAtoms = new HashSet<>();
         }
@@ -188,8 +184,10 @@ public class Template implements Model<QueryAtom>, Exportable {
         LinkedHashSet<HornClause> rules = this.rules.stream().map(WeightedRule::toHornClause).collect(Collectors.toCollection(LinkedHashSet::new));
 
         herbrandModel = new HerbrandModel(facts, rules);
-        Collection<Literal> atoms = herbrandModel.inferAtoms();
-        inferredAtoms.addAll(atoms);
+        if (inferAtoms) {
+            Collection<Literal> atoms = herbrandModel.inferAtoms();
+            inferredAtoms.addAll(atoms);
+        }
     }
 
     public GraphTemplate prune(QueryAtom query) {

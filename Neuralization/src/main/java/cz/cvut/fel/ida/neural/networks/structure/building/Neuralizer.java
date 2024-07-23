@@ -97,6 +97,9 @@ public class Neuralizer implements Exportable {
                 LOG.warning(err);
             }
             for (Literal foundQuery : foundQueries) {
+                if (foundQuery == null) {
+                    throw new InputMismatchException("Null query matched for this sample: " + sample);
+                }
                 queryMatchingLiterals.add(foundQuery);
                 origSamples.add(sample);    //these two lists are aligned
             }
@@ -121,17 +124,28 @@ public class Neuralizer implements Exportable {
         }
 
         List<NeuralProcessingSample> neuralSamples = new ArrayList<>();
+        boolean noMatch = true;
         for (int i = 0; i < queryMatchingLiterals.size(); i++) {
             LogicSample logicSample = origSamples.get(i);
             QueryAtom queryAtom = logicSample.query;
             AtomNeurons atomNeuron = neuralNetBuilder.getNeuronMaps().atomNeurons.get(queryMatchingLiterals.get(i));
             if (atomNeuron == null) {
-                LOG.severe("No inference network created for " + queryAtom);
+                if (queryMatchingLiterals.size() <= 1) {
+                    LOG.severe("No inference network created for " + queryAtom.toString());
+                    throw new InputMismatchException("No inference network created for " + queryAtom);
+                } else if (logicSample.target.greaterThan(Value.ZERO) && settings.trainOnlineResultsType != Settings.ResultsType.REGRESSION) {
+                    LOG.warning("Unable to infer a positively labeled sample " + logicSample);
+                }
+            } else {
+                noMatch = false;
             }
             QueryNeuron queryNeuron = new QueryNeuron(queryAtom.ID + ":" + queryAtom.headAtom.toString(), queryAtom.position, queryAtom.importance, atomNeuron, neuralNetwork);
 
             NeuralProcessingSample neuralProcessingSample = new NeuralProcessingSample(logicSample.target, queryNeuron, logicSample.type, settings);
             neuralSamples.add(neuralProcessingSample);
+        }
+        if (noMatch) {
+            throw new InputMismatchException("No inference network created for any of " + neuralSamples);
         }
 
 //        groundTemplate.neuronMaps = neuralNetBuilder.getNeuronMaps(); //storing the context back again
@@ -280,6 +294,9 @@ public class Neuralizer implements Exportable {
 
                 for (GroundRule grounding : entry.getValue()) {
                     for (Literal bodyAtom : grounding.groundBody) {
+                        if (bodyAtom == null) {
+                            throw new RuntimeException("Encoutered a null ground body atom in " + grounding);
+                        }
                         recursiveNeuronsCreation(bodyAtom, closedSet, neuronMaps, currentNeuralSets, false);
                     }
                 }
@@ -295,9 +312,12 @@ public class Neuralizer implements Exportable {
         }
 
         // ground query (simple, standard)?
-        if (!queryAtom.headAtom.literal.containsVariable()) {
+        Literal queryLiteral = queryAtom.headAtom.literal;
+        if (!queryLiteral.containsVariable()) {
             ArrayList<Literal> queries = new ArrayList<>();
-            queries.add(queryAtom.headAtom.literal);
+//            if (groundTemplate.groundRules.containsKey(queryLiteral)) {   // add it even if not matched (not to lose samples)
+            queries.add(queryLiteral);
+//            }
             return queries;
         }
 

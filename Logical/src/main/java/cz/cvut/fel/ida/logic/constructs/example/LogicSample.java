@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.logic.constructs.example;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.learning.LearningSample;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Logger;
 

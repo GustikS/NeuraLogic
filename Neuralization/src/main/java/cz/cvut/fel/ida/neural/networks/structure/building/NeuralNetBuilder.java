@@ -240,6 +240,7 @@ public class NeuralNetBuilder {
                     FactNeuron factNeuron = neuronMaps.factNeurons.get(literal);
                     if (factNeuron == null) {
                         LOG.severe("Error: no input found for this neuron!!: " + literal);
+                        LOG.severe("This is likely due to unstable use of negation in the template...");
                     } else {
                         //factNeuron.isShared = true; //they might not be shared as all the fact neurons are created in advance
                     }
@@ -278,12 +279,15 @@ public class NeuralNetBuilder {
                         LOG.warning(err);
                         throw new InputMismatchException(err);
                     } else {
-                        String err = "Query: [" + queryMatchingLiteral + "] was not matched anywhere in the ground network - Cannot calculate its output!";
+                        if (queryMatchingLiterals.size() > 1) {
+                            continue; // if there are multiple queries, it is fine if some is not derived
+                        }
+                        String err = "Query: [" + queryMatchingLiteral + "] was not matched anywhere in the neural network " + id + " - Cannot calculate its output!";
                         LOG.severe(err);
                         LOG.warning(" -> This most likely means that the template is wrong as there is no proof-path from the example to the query");
                         LOG.warning("   -> Check all the predicate signatures etc. to make sure the template matches your examples and that there is at least 1 inference chain to the query");
 //                    System.exit(5);
-//                        throw new InputMismatchException(err);
+                        throw new InputMismatchException(err);
                     }
                 } else {
                     queryNeurons.add(qn);

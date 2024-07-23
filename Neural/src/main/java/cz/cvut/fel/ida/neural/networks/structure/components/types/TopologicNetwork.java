@@ -124,6 +124,9 @@ public class TopologicNetwork<N extends State.Neural.Structure> extends NeuralNe
         public List<BaseNeuron<Neurons, State.Neural>> topologicSort(List<? extends Neurons> startNeurons) {
 
             for (Neurons neuron : startNeurons) {
+                if (neuron == null){
+                    continue;   // we can ignore missing output query neurons - they correspond to unmatched samples
+                }
                 if (neuron.getLayer() == DEFAULT) {  // it should never be OPEN here...
                     topoSortRecursive(neuron);
                 }

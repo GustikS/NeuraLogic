@@ -73,7 +73,7 @@ public class SequentialTrainer extends Trainer {
             List<Result> resultList = new ArrayList<>(sampleList.size());
             for (NeuralSample neuralSample : sampleList) {
                 if (neuralSample.query.neuron == null) {
-                    LOG.severe("No query neuron - skipping backprop for this sample.");
+                    LOG.warning("No query neuron - skipping backprop for this sample:" + neuralSample.toString());
                     continue;
                 }
                 Result result = learnFromSample(neuralModel, neuralSample, dropout, invalidation, evaluation, backpropagation);

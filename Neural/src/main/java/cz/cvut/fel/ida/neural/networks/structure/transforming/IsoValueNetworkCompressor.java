@@ -64,6 +64,10 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
     public NeuralNetwork reduce(DetailedNetwork<State.Structure> inet, List<QueryNeuron> outputs) {
         timing.tic();
 
+//        if (inet.allNeuronsTopologic.isEmpty()){
+//            return inet;    // cannot compress an empty network
+//        }
+
         Map<Neurons, ValueList> isoValues = new LinkedHashMap<>();
         List<Weight> allWeights = inet.getAllWeights();
 
