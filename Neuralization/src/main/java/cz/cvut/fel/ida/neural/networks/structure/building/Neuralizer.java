@@ -79,7 +79,7 @@ public class Neuralizer implements Exportable {
         NeuronMaps neuronMaps = (NeuronMaps) groundingSample.groundingWrap.getNeuronMaps();  //neuronmaps should be same for all samples
         if (neuronMaps == null) {
             neuronMaps = new NeuronMaps(groundingSample.groundingWrap.getGroundTemplate().groundRules, groundingSample.groundingWrap.getGroundTemplate().groundFacts);
-            NeuronMaps finalNeuronMaps = neuronMaps;
+            final NeuronMaps finalNeuronMaps = neuronMaps;
             samples.forEach(s -> s.groundingWrap.setNeuronMaps(finalNeuronMaps));
         }
         neuralNetBuilder.setNeuronMaps(neuronMaps); //loading stored context from previous neural nets building
@@ -87,30 +87,35 @@ public class Neuralizer implements Exportable {
 
 //        List<QueryNeuron> queryNeurons = supervisedNeuralization(groundingSample, currentNeuronSets);
 
-        List<Literal> queryMatchingLiterals = new ArrayList<>();
+        List<Literal> queryExpandedLiterals = new ArrayList<>();
         List<LogicSample> origSamples = new ArrayList<>();  //these two lists are aligned
 
+        boolean noMatch = true;
         for (LogicSample sample : samples) {
             List<Literal> foundQueries = getQueryMatchingLiterals(sample.query, groundTemplate);
             if (foundQueries.isEmpty()) {
-                String err = "Query [" + sample.query.headAtom + "] not matched anywhere in the template - skipping this query!";
+                String err = "Query [" + sample.query.headAtom + "] not matched anywhere in the template!";
                 LOG.warning(err);
-            }
-            for (Literal foundQuery : foundQueries) {
-                if (foundQuery == null) {
-                    throw new InputMismatchException("Null query matched for this sample: " + sample);
+                queryExpandedLiterals.add(sample.query.headAtom.literal);   // we add it anyway not to lose the unentailed samples (they still can count e.g. towards accuracy)
+                origSamples.add(sample);
+            } else {
+                noMatch = false;
+                for (Literal foundQuery : foundQueries) {
+                    if (foundQuery == null) {
+                        throw new InputMismatchException("Null query matched for this sample: " + sample);
+                    }
+                    queryExpandedLiterals.add(foundQuery);
+                    origSamples.add(sample);    //these two lists are aligned
                 }
-                queryMatchingLiterals.add(foundQuery);
-                origSamples.add(sample);    //these two lists are aligned
             }
         }
-        if (queryMatchingLiterals.isEmpty()) {
+        if (noMatch) {
             if (groundingSample.query.headAtom == null) {
                 DetailedNetwork neuralNetwork = blindNeuralization(groundingSample.groundingWrap.getGroundTemplate(), neuronMaps, createdNeurons);
                 NeuralProcessingSample neuralProcessingSample = new NeuralProcessingSample(new ScalarValue(0), new QueryNeuron(groundingSample.getId(), 0, 0, null, neuralNetwork), groundingSample.type, settings);
                 return Collections.singletonList(neuralProcessingSample);
             } else {
-                String err = "Not a single query was matched anywhere in the template!";
+                String err = "Not a single query was matched anywhere in the template for any of: " + samples;
                 throw new RuntimeException(err);
             }
         }
@@ -119,19 +124,19 @@ public class Neuralizer implements Exportable {
         if (settings.forceFullNetworks) {   //we can possibly still be forced to create the whole network, even if parts of it are not connected to the query, e.g. if the rules are not connected
             neuralNetwork = blindNeuralization(groundTemplate, neuronMaps, createdNeurons);
         } else {
-            neuralNetBuilder = loadAllNeuronsStartingFromQueryLiterals(groundTemplate, queryMatchingLiterals, neuronMaps, createdNeurons);
-            neuralNetwork = getDetailedNetwork(neuronMaps, createdNeurons, groundTemplate, queryMatchingLiterals);
+            neuralNetBuilder = loadAllNeuronsStartingFromQueryLiterals(groundTemplate, queryExpandedLiterals, neuronMaps, createdNeurons);
+            neuralNetwork = getDetailedNetwork(neuronMaps, createdNeurons, groundTemplate, queryExpandedLiterals);
         }
 
         List<NeuralProcessingSample> neuralSamples = new ArrayList<>();
-        boolean noMatch = true;
-        for (int i = 0; i < queryMatchingLiterals.size(); i++) {
-            LogicSample logicSample = origSamples.get(i);
+        noMatch = true;
+        for (int i = 0; i < queryExpandedLiterals.size(); i++) {
+            LogicSample logicSample = origSamples.get(i);   //these two lists are aligned
             QueryAtom queryAtom = logicSample.query;
-            AtomNeurons atomNeuron = neuralNetBuilder.getNeuronMaps().atomNeurons.get(queryMatchingLiterals.get(i));
+            AtomNeurons atomNeuron = neuralNetBuilder.getNeuronMaps().atomNeurons.get(queryExpandedLiterals.get(i));
             if (atomNeuron == null) {
-                if (queryMatchingLiterals.size() <= 1) {
-                    LOG.severe("No inference network created for " + queryAtom.toString());
+                if (queryExpandedLiterals.size() <= 1) {
+                    LOG.severe("No neural inference network created for " + queryAtom.toString());
                     throw new InputMismatchException("No inference network created for " + queryAtom);
                 } else if (logicSample.target.greaterThan(Value.ZERO) && settings.trainOnlineResultsType != Settings.ResultsType.REGRESSION) {
                     LOG.warning("Unable to infer a positively labeled sample " + logicSample);
@@ -145,7 +150,7 @@ public class Neuralizer implements Exportable {
             neuralSamples.add(neuralProcessingSample);
         }
         if (noMatch) {
-            throw new InputMismatchException("No inference network created for any query of the sample " + neuralSamples);
+            throw new InputMismatchException("No neural inference network created for any query of the sample " + neuralSamples);
         }
 
 //        groundTemplate.neuronMaps = neuralNetBuilder.getNeuronMaps(); //storing the context back again
@@ -190,9 +195,7 @@ public class Neuralizer implements Exportable {
 
 //        groundingSample.cache = neuralNetBuilder.getNeuronMaps(); //storing the context back again
 
-        List<NeuralProcessingSample> samples = queryNeurons.stream()
-                .map(queryNeuron -> new NeuralProcessingSample(groundingSample.target, queryNeuron, groundingSample.type, settings))
-                .collect(Collectors.toList());
+        List<NeuralProcessingSample> samples = queryNeurons.stream().map(queryNeuron -> new NeuralProcessingSample(groundingSample.target, queryNeuron, groundingSample.type, settings)).collect(Collectors.toList());
 
         neuronCounts = createdNeurons.getCounts();
         timing.toc();
@@ -212,7 +215,7 @@ public class Neuralizer implements Exportable {
         if (queryMatchingLiterals.isEmpty()) {
             String err = "Query [" + queryAtom.headAtom + "] not matched anywhere in the template. Cannot perform neural training.";
             LOG.severe(err);
-            if (!settings.queriesAlignedWithExamples) {
+            if (queryAtom.headAtom == null || !settings.queriesAlignedWithExamples) {
                 return new ArrayList<>();   // if there are multiple queries per example, an unmatched query can be OK
             } else {
                 throw new RuntimeException(err);
@@ -222,7 +225,7 @@ public class Neuralizer implements Exportable {
         LOG.finer("Obtained QueryMatchingLiterals: " + queryMatchingLiterals);
 
         DetailedNetwork neuralNetwork;
-        if (settings.forceFullNetworks) {   //we can possibly still be forced to create the whole network, even if parts of it are not connected to the query, e.g. if the rules are not connected
+        if (settings.forceFullNetworks || queryMatchingLiterals.isEmpty()) {   //we can possibly still be forced to create the whole network, even if parts of it are not connected to the query, e.g. if the rules are not connected
             neuralNetwork = blindNeuralization(groundTemplate, neuronMaps, createdNeurons);
         } else {
             neuralNetBuilder = loadAllNeuronsStartingFromQueryLiterals(groundTemplate, queryMatchingLiterals, neuronMaps, createdNeurons);
@@ -311,13 +314,16 @@ public class Neuralizer implements Exportable {
             return new ArrayList<>(0);
         }
 
-        // ground query (simple, standard)?
+        // ground query (simple standard) - return if directly found as a head in some rule
         Literal queryLiteral = queryAtom.headAtom.literal;
         if (!queryLiteral.containsVariable()) {
             ArrayList<Literal> queries = new ArrayList<>();
-//            if (groundTemplate.groundRules.containsKey(queryLiteral)) {   // add it even if not matched (not to lose samples)
-            queries.add(queryLiteral);
-//            }
+            if (groundTemplate.groundRules.containsKey(queryLiteral)) {
+                queries.add(queryLiteral);
+            } else if (groundTemplate.groundFacts.containsKey(queryLiteral)) {
+                LOG.severe("Quering directly facts with " + queryLiteral);
+                queries.add(queryLiteral);
+            }
             return queries;
         }
 
