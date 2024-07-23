@@ -22,6 +22,11 @@ public class GroundTemplate extends GraphTemplate implements Example {
     public static int counter = 0;
 
     /**
+     * for outside callback
+     */
+    public static java.util.function.IntConsumer progressBar;
+
+    /**
      * Temp (for current pair of Template+Example) structure (head -> rules -> ground bodies) for traversing the graph of groundings
      */
     @NotNull
@@ -42,9 +47,11 @@ public class GroundTemplate extends GraphTemplate implements Example {
      * Linking between logic literals and rules and neurons - can be possibly reused between different GroundTemplates, so it is saved here.
      */
 //    public NeuronMaps neuronMaps;   //now move to grounding.GroundingSample for clarity   -> moved
-
     public GroundTemplate() {
         this.name = "g" + counter++;
+        if (progressBar != null) {
+            progressBar.accept(counter);
+        }
     }
 
     public GroundTemplate(LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules, Map<Literal, ValuedFact> groundFacts) {
