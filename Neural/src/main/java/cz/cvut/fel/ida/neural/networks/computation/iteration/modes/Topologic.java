@@ -83,11 +83,10 @@ public class Topologic {
                 actualNeuron.index = i;
                 actualNeuron.visit(neuronVisitor);    //skips 1 function call as opposed to actualNeuron.visit(this);
                 actualNeuron.index = index;
-                if (actualNeuron == outputNeuron)
-                    break;
+                if (actualNeuron == outputNeuron) break;
 
             }
-            if (outputNeuron == null){
+            if (outputNeuron == null) {
                 LOG.warning("No output neuron detected, don't know which Value to return from evaluation (returning dummy 0).");
                 return new ScalarValue(0);
             }
@@ -147,11 +146,13 @@ public class Topologic {
 
         @Override
         public boolean hasNext() {
+            if (Topologic.this.network.allNeuronsTopologic.isEmpty()) {
+                return false;
+            }
             if (i == 0) {
                 return true;
             }
-            return i < Topologic.this.network.allNeuronsTopologic.size() &&
-                    Topologic.this.network.allNeuronsTopologic.get(i - 1) != outputNeuron; //we need the output neuron to be processed, too!
+            return i < Topologic.this.network.allNeuronsTopologic.size() && Topologic.this.network.allNeuronsTopologic.get(i - 1) != outputNeuron; //we need the output neuron to be processed, too!
         }
 
         @Override

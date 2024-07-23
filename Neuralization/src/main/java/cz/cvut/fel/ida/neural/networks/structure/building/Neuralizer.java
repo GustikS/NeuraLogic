@@ -96,8 +96,10 @@ public class Neuralizer implements Exportable {
             if (foundQueries.isEmpty()) {
                 String err = "Query [" + sample.query.headAtom + "] not matched anywhere in the template!";
                 LOG.warning(err);
-                queryExpandedLiterals.add(sample.query.headAtom.literal);   // we add it anyway not to lose the unentailed samples (they still can count e.g. towards accuracy)
-                origSamples.add(sample);
+                if (sample.query.headAtom != null) {
+                    queryExpandedLiterals.add(sample.query.headAtom.literal);   // we add it anyway not to lose the unentailed samples (they still can count e.g. towards accuracy)
+                    origSamples.add(sample);
+                }
             } else {
                 noMatch = false;
                 for (Literal foundQuery : foundQueries) {
@@ -116,7 +118,8 @@ public class Neuralizer implements Exportable {
                 return Collections.singletonList(neuralProcessingSample);
             } else {
                 String err = "Not a single query was matched anywhere in the template for any of: " + samples;
-                throw new RuntimeException(err);
+                LOG.severe(err);
+//                throw new RuntimeException(err);
             }
         }
 
@@ -150,7 +153,9 @@ public class Neuralizer implements Exportable {
             neuralSamples.add(neuralProcessingSample);
         }
         if (noMatch) {
-            throw new InputMismatchException("No neural inference network created for any query of the sample " + neuralSamples);
+            String err = "No neural inference network created for any query of the sample " + neuralSamples;
+            LOG.severe(err);
+//            throw new InputMismatchException(err);
         }
 
 //        groundTemplate.neuronMaps = neuralNetBuilder.getNeuronMaps(); //storing the context back again

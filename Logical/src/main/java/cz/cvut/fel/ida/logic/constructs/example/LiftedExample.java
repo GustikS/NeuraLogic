@@ -42,6 +42,10 @@ public class LiftedExample extends GroundExample {
 
     @Override
     public String toString() {
-        return "ex:" + getId() + " [facts:" + flatFacts.size() + ", (in conjunctions:" + conjunctions.size() + ", rules:" + rules.size() + ")]";
+        StringBuilder sizes = new StringBuilder("facts:" + flatFacts.size());
+        if (!conjunctions.isEmpty() || !rules.isEmpty()) {
+            sizes.append(", (in conjunctions:" + conjunctions.size() + ", rules:" + rules.size() + ")");
+        }
+        return "ex:" + getId() + " [" + sizes + "]";
     }
 }

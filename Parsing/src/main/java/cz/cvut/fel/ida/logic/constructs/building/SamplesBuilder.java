@@ -26,6 +26,8 @@ import java.util.stream.Stream;
 public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRuleContext>, O> extends LogicSourceBuilder<I, Stream<O>> {
     private static final Logger LOG = Logger.getLogger(SamplesBuilder.class.getName());
 
+    public static int counter = 0;
+
     final String prefix;
     int queryCounter = 0;
 
@@ -104,6 +106,8 @@ public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRu
 
         examples.close();
         queries.close();
+
+        counter = map.size(); // just store/expose it for outside access (e.g. FileDataset progress-bar reading)
 
 //        settings.inferred.maxWeightCount = weightFactory.getIndex();
 
