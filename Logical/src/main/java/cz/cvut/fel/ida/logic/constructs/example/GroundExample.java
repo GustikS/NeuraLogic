@@ -35,7 +35,7 @@ public class GroundExample implements Example {
 
     String id;
 
-    static int exampleCounter = 0;
+    public static int exampleCounter = 0;
 
     public GroundExample() {
         id = "#" + exampleCounter++;

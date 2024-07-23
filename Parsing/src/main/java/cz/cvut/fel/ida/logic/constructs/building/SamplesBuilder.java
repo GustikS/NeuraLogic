@@ -13,10 +13,7 @@ import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.utils.generic.Utilities;
 import org.antlr.v4.runtime.ParserRuleContext;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
@@ -75,7 +72,7 @@ public abstract class SamplesBuilder<I extends PlainParseTree<? extends ParserRu
                 queries.close();
                 return getSortedLogicSampleStream(sampleMap);
             }
-            map = new HashMap<>();
+            map = new TreeMap<>();
         }
         //the remaining 1 example to Many queries solution
         examples.forEach(

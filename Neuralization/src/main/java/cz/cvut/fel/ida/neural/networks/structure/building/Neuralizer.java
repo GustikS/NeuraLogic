@@ -145,7 +145,7 @@ public class Neuralizer implements Exportable {
             neuralSamples.add(neuralProcessingSample);
         }
         if (noMatch) {
-            throw new InputMismatchException("No inference network created for any of " + neuralSamples);
+            throw new InputMismatchException("No inference network created for any query of the sample " + neuralSamples);
         }
 
 //        groundTemplate.neuronMaps = neuralNetBuilder.getNeuronMaps(); //storing the context back again

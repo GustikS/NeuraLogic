@@ -7,6 +7,7 @@ import cz.cvut.fel.ida.utils.math.VectorUtils;
 import cz.cvut.fel.ida.utils.math.collections.MultiMap;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 /**
@@ -39,6 +40,11 @@ public class HerbrandModel {
      * The rules used to create the current Herbrand model pre-processed as an indexed structure
      */
     public LinkedHashMap<HornClause, PreparedRule> preparedRules;
+
+    /**
+     * For outside (python) debugging of the inference
+     */
+    public static Consumer<MultiMap<Predicate, Literal>> callBack;
 
     public HerbrandModel(Collection<Literal> facts, Collection<HornClause> rules) {
         herbrand = new MultiMap<>();
@@ -98,6 +104,11 @@ public class HerbrandModel {
             LOG.finer("herbrand size after round " + round++ + " = " + herbrandSize1);
             changed = herbrandSize1 > herbrandSize0;
             herbrandSize0 = herbrandSize1;  //reset to next round
+
+            if (callBack != null){
+                callBack.accept(herbrand);
+            }
+
         } while (changed);
         return Sugar.flatten(herbrand.values());
     }

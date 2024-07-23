@@ -4,6 +4,7 @@ import cz.cvut.fel.ida.learning.Query;
 import cz.cvut.fel.ida.learning.crossvalidation.splitting.StratifiedSplitter;
 import cz.cvut.fel.ida.logic.constructs.building.ExamplesBuilder;
 import cz.cvut.fel.ida.logic.constructs.building.QueriesBuilder;
+import cz.cvut.fel.ida.logic.constructs.example.GroundExample;
 import cz.cvut.fel.ida.logic.constructs.example.LiftedExample;
 import cz.cvut.fel.ida.logic.constructs.example.LogicSample;
 import cz.cvut.fel.ida.pipelines.Pipe;
@@ -67,6 +68,8 @@ public class SamplesProcessingBuilder extends AbstractPipelineBuilder<Source, St
 
 
     public Pipe<Source, Stream<LogicSample>> extractSamplesPipe(Source source, Pipeline<Source, Stream<LogicSample>> samplesProcessingPipeline) {
+
+        GroundExample.exampleCounter = 0;
 
         if (source.ExamplesReader == null && source.QueriesReader == null) {
             String err = "No sources found to assemble Samples at construction";
