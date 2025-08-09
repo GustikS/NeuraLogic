@@ -48,6 +48,9 @@ public class Result implements Comparable<Result> {
     }
 
     public void setOutput(Value output) {
+        if (output.isNaN()) {
+            throw new RuntimeException("NaN value encountered as an output result from sample " + sampleId + " - check for value/gradient exploding problems (or decrease learning rate)");
+        }
         this.output = output;
     }
 

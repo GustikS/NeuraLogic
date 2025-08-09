@@ -113,7 +113,7 @@ public class ScalarValue extends Value {
             return this;
         }
 
-        double[] data = new double[] { value };
+        double[] data = new double[]{value};
 
         if (shape.length == 2) {
             if (shape[0] == 0 && shape[1] == 0) {
@@ -180,6 +180,12 @@ public class ScalarValue extends Value {
             LOG.severe("Scalar value: asking for i-th element!");
         }
         this.value += value;
+    }
+
+    @Override
+    public boolean isNaN() {
+//        return Double.isFinite(value);
+        return Double.isNaN(value);
     }
 
     @Override
@@ -371,14 +377,14 @@ public class ScalarValue extends Value {
 
     @Override
     protected ScalarValue elementDivideBy(ScalarValue value) {
-        return new ScalarValue(value.value / this.value);
+        return new ScalarValue(safeDivide(value.value, this.value));
     }
 
     @Override
     protected Value elementDivideBy(VectorValue vector) {
         VectorValue clone = vector.clone();
         for (int i = 0; i < vector.values.length; i++) {
-            clone.values[i] /= this.value;
+            clone.values[i] = safeDivide(clone.values[i], this.value);
         }
         return clone;
     }
@@ -389,7 +395,7 @@ public class ScalarValue extends Value {
         final double[] values = clone.values;
 
         for (int i = 0; i < values.length; i++) {
-            values[i] /= this.value;
+            values[i] = safeDivide(values[i], this.value);
         }
         return clone;
     }
@@ -398,7 +404,7 @@ public class ScalarValue extends Value {
     protected Value elementDivideBy(TensorValue value) {
         TensorValue clone = value.clone();
         for (int i = 0; i < clone.tensor.values.length; i++) {
-            clone.tensor.values[i] /= this.value;
+            clone.tensor.values[i] = safeDivide(clone.tensor.values[i], this.value);
         }
         return clone;
     }

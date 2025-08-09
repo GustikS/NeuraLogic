@@ -271,23 +271,6 @@ public class IterativeTrainingStrategy extends TrainingStrategy {
         }
     }
 
-    private void saturationCheck(List<NeuralSample> samples) {
-        ScalarValue percentage = new ScalarValue(settings.saturationPercentage);
-        Accumulating accumulating = new Accumulating(settings, new SaturationChecker());
-        List<Pair<Value, Value>> pairs = accumulating.accumulateStats(samples);
-        int saturatedNetworks = 0;
-        for (Pair<Value, Value> pair : pairs) {
-            Value saturated = pair.r;
-            Value all = pair.s;
-            if (saturated.greaterThan(all.times(percentage))) {
-                saturatedNetworks++;
-            }
-        }
-        if (saturatedNetworks > 0) {
-            LOG.warning("There are saturated networks: #" + saturatedNetworks + " / " + samples.size());
-        }
-    }
-
     private void exportProgress(Exportable results) {
         results.export(exporter);
         exporter.delimitNext();

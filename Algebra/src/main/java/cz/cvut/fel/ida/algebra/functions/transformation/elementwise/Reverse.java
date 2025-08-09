@@ -31,6 +31,6 @@ public class Reverse extends ElementWise {
 
     @Override
     public Pair<Double, Double> getSaturationRange() {
-        return new Pair<>(Double.MIN_VALUE, Double.MAX_VALUE);
+        return new Pair<>(-1000.0, 1000.0);
     }
 }

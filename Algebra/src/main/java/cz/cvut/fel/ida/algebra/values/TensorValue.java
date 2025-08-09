@@ -19,7 +19,7 @@ public class TensorValue extends Value {
     Tensor tensor;
     int[] dimensions;
 
-    public TensorValue(int[] dimensions){
+    public TensorValue(int[] dimensions) {
         tensor = new Tensor(dimensions);
         this.dimensions = dimensions;
     }
@@ -78,7 +78,8 @@ public class TensorValue extends Value {
     }
 
     @Override
-    public void setAsArray(double[] value) {}
+    public void setAsArray(double[] value) {
+    }
 
     @Override
     public TensorValue apply(DoubleUnaryOperator function) {
@@ -103,6 +104,14 @@ public class TensorValue extends Value {
     @Override
     public void increment(int i, double value) {
 
+    }
+
+    @Override
+    public boolean isNaN() {
+        for (double value : tensor.values) {
+            if (Double.isNaN(value)) return true;
+        }
+        return false;
     }
 
 

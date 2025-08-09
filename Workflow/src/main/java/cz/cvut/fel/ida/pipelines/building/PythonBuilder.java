@@ -120,7 +120,7 @@ public class PythonBuilder {
                 Stream<GroundingSample> groundings,
                 IntConsumer callback
         ) {
-            Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> pipeline = new Pipeline<>("PythonGroundingbBilding", this);
+            Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> pipeline = new Pipeline<>("PythonGroundingbBuilding", this);
 
             //pipelines
             LambdaPipe<Stream<GroundingSample>, Stream<GroundingSample>> groundingIdentityPipe = pipeline.registerStart(

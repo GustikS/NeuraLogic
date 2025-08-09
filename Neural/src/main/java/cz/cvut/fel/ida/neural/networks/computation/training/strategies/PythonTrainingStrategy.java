@@ -92,7 +92,8 @@ public class PythonTrainingStrategy extends TrainingStrategy {
     }
 
     @Override
-    public void setupDebugger(NeuralDebugging neuralDebugger) { }
+    public void setupDebugger(NeuralDebugging neuralDebugger) {
+    }
 
     public String learnSamples(int epochs, int minibatchSize) {
         return learnSamples(samplesSet, epochs, minibatchSize);
@@ -120,6 +121,10 @@ public class PythonTrainingStrategy extends TrainingStrategy {
             }
 
             results = trainer.learnEpoch(currentModel, samples);
+
+//            if (settings.checkNeuronSaturation) {
+//                saturationCheck(samples);
+//            }
         }
 
         List<String> output = new ArrayList<>(samples.size());
@@ -179,7 +184,8 @@ public class PythonTrainingStrategy extends TrainingStrategy {
     }
 
     @Override
-    public void export(Exporter exporter) { }
+    public void export(Exporter exporter) {
+    }
 
     @Override
     public String exportToJson() {

@@ -15,6 +15,10 @@ public class SaturationChecker extends StateVisiting.Computation {
     public Value visit(State.Neural.Computation state) {
         Value value = state.getValue();
 
+        if (value.isNaN()) {
+            throw new RuntimeException("NaN value " + value.toDetailedString() + "  encountered during saturation check at neuron state " + state.toString());
+        }
+
         if (state.getTransformation() == null) {
             return Value.ZERO;
         }

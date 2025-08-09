@@ -28,7 +28,7 @@ public class ReLu extends ElementWise {
 
     @Override
     public Pair<Double, Double> getSaturationRange() {
-        return new Pair<>(0.01, Double.MAX_VALUE);
+        return new Pair<>(0.01, 1000.0);
     }
 
 }

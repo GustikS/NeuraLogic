@@ -19,7 +19,7 @@ import java.util.Iterator;
  * Down = propagating some values from actual neuron's State to its inputs - e.g. for ({@link Backpropagation}
  * <p>
  * These visitors DO NOT support input masking - they just propagate through all the inputs
- *
+ * <p>
  * todo now now check offsets and their gradients
  */
 public class Down extends NeuronVisitor.Weighted {

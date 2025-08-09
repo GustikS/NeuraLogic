@@ -69,7 +69,8 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
      */
     public abstract int[] size();
 
-    /** Get a slice of the value
+    /**
+     * Get a slice of the value
      *
      * @param rows
      * @param cols
@@ -77,7 +78,8 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
      */
     public abstract Value slice(int[] rows, int[] cols);
 
-    /** Reshapes the value
+    /**
+     * Reshapes the value
      *
      * @param shape
      * @return
@@ -138,6 +140,11 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
     public abstract void increment(int i, double value);
 
     /**
+     * Checks for a NaN problem
+     */
+    public abstract boolean isNaN();
+
+    /**
      * Print out values with certain decimal precision
      *
      * @param numberFormat
@@ -147,6 +154,7 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
 
     /**
      * Printout values with default (short) number precision
+     *
      * @return
      */
     @Override
@@ -335,6 +343,25 @@ public abstract class Value implements Iterable<Double>, Comparable<Value>, Seri
     public abstract int hashCode();
 
     public abstract boolean equals(Value obj);
+
+    public static double epsilon = 1e-30;
+
+    public static double safeDivide(double numerator, double denominator) {
+        double result = numerator / denominator;
+
+        // Replace NaN with 0.0
+        if (result != result) { // true only for NaN
+            return 1.0;
+//            return 0.0;
+        }
+
+        // Clamp infinities to ±maxAbsValue
+        if (Double.isInfinite(result)) {
+            return Math.copySign(1000, result);
+        }
+
+        return result;
+    }
 
     @Override
     public int compareTo(Value o) {

@@ -141,10 +141,16 @@ public abstract class States implements State {
         }
 
         public void cumulateValue(Value value) {
+            if (value.isNaN()) {
+                throw new RuntimeException("NaN value " + value.toDetailedString() + " obtained during forward pass at neuron state " + this);
+            }
             fcnState.cumulate(value);
         }
 
         public void storeGradient(Value value) {
+            if (value.isNaN()) {
+                throw new RuntimeException("NaN gradient " + value.toDetailedString() + " obtained during backward pass at neuron state " + this);
+            }
             acumGradient.incrementBy(value);
         }
 
@@ -155,7 +161,7 @@ public abstract class States implements State {
 
         @Override
         public Value initEval(List<Value> inputValues) {
-            if (fcnState == null){
+            if (fcnState == null) {
                 LOG.severe("No fcnState created (initialized) in Neuron State.");
             }
             Value value = fcnState.initEval(inputValues);

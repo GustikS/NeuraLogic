@@ -1,10 +1,13 @@
 package cz.cvut.fel.ida.neural.networks.computation.training.strategies;
 
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
+import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.learning.results.Progress;
 import cz.cvut.fel.ida.learning.results.Result;
 import cz.cvut.fel.ida.learning.results.Results;
+import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.Accumulating;
+import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.neurons.SaturationChecker;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
 import cz.cvut.fel.ida.neural.networks.computation.training.strategies.debugging.NeuralDebugging;
@@ -123,6 +126,23 @@ public abstract class TrainingStrategy implements Exportable {
         public TrainVal(List<Result> train, List<Result> val) {
             this.training = train;
             this.validation = val;
+        }
+    }
+
+    protected void saturationCheck(List<NeuralSample> samples) {
+        ScalarValue percentage = new ScalarValue(settings.saturationPercentage);
+        Accumulating accumulating = new Accumulating(settings, new SaturationChecker());
+        List<Pair<Value, Value>> pairs = accumulating.accumulateStats(samples);
+        int saturatedNetworks = 0;
+        for (Pair<Value, Value> pair : pairs) {
+            Value saturated = pair.r;
+            Value all = pair.s;
+            if (saturated.greaterThan(all.times(percentage))) {
+                saturatedNetworks++;
+            }
+        }
+        if (saturatedNetworks > 0) {
+            LOG.warning("There are saturated networks: #" + saturatedNetworks + " / " + samples.size());
         }
     }
 }

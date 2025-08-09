@@ -98,6 +98,11 @@ public class StringValue extends Value {
     }
 
     @Override
+    public boolean isNaN() {
+        return true;
+    }
+
+    @Override
     public String toString(NumberFormat numberFormat) {
         return value;
     }

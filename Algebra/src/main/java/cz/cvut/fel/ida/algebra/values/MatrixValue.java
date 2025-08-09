@@ -250,6 +250,14 @@ public class MatrixValue extends Value {
         values[i] += value;
     }
 
+    @Override
+    public boolean isNaN() {
+        for (double value : values) {
+            if (Double.isNaN(value)) return true;
+        }
+        return false;
+    }
+
 
     @Override
     public String toString(NumberFormat numberFormat) {
@@ -592,9 +600,8 @@ public class MatrixValue extends Value {
         final double[] values = clone.values;
 
         for (int i = 0; i < values.length; i++) {
-            values[i] /= value1;
+            values[i] = safeDivide(values[i], value1);
         }
-
         return clone;
     }
 
@@ -611,7 +618,7 @@ public class MatrixValue extends Value {
         final double[] resultValues = result.values;
 
         for (int i = 0; i < resultValues.length; i++) {
-            resultValues[i] = value.values[i % cols] / values[i];
+            resultValues[i] = safeDivide(value.values[i % cols], values[i]);
         }
 
         return result;
@@ -629,9 +636,8 @@ public class MatrixValue extends Value {
         final double[] lhs = result.values;
 
         for (int i = 0; i < lhs.length; i++) {
-            lhs[i] /= values[i];
+            lhs[i] = safeDivide(lhs[i], values[i]);
         }
-
         return result;
     }
 

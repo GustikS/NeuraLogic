@@ -260,6 +260,17 @@ public class VectorValue extends Value {
     }
 
     @Override
+    public boolean isNaN() {
+        for (double value : values) {
+            if (Double.isNaN(value)) {
+                return true;
+            }
+        }
+        return false;
+//        return Double.isNaN(values[0]); // simplified approximation for speedup
+    }
+
+    @Override
     public String toString(NumberFormat numberFormat) {
         if (numberFormat == null) {
             return "dim:" + Arrays.toString(size());
@@ -614,7 +625,7 @@ public class VectorValue extends Value {
         double[] resultValues = result.values;
         double otherValue = value.value;
         for (int i = 0; i < values.length; i++) {
-            resultValues[i] = otherValue / values[i];
+            resultValues[i] = safeDivide(otherValue, values[i]);
         }
         return result;
     }
@@ -630,7 +641,7 @@ public class VectorValue extends Value {
         double[] resultValues = result.values;
         double[] otherValues = value.values;
         for (int i = 0; i < values.length; i++) {
-            resultValues[i] = otherValues[i] / values[i];
+            resultValues[i] = safeDivide(otherValues[i], values[i]);
         }
         return result;
     }
@@ -651,7 +662,7 @@ public class VectorValue extends Value {
             final int tmpIndex = i * value.cols;
 
             for (int j = 0; j < value.cols; j++) {
-                resultValues[tmpIndex + j] = matrixValues[tmpIndex + j] / values[j];
+                resultValues[tmpIndex + j] = safeDivide(matrixValues[tmpIndex + j], values[j]);
             }
         }
         return result;
@@ -936,12 +947,10 @@ public class VectorValue extends Value {
             return false;
         }
         VectorValue vectorValue = (VectorValue) obj;
-        if (vectorValue.values.length != values.length)
-            return false;
+        if (vectorValue.values.length != values.length) return false;
 
         for (int i = 0; i < values.length; i++) {
-            if (values[i] != vectorValue.values[i])
-                return false;
+            if (values[i] != vectorValue.values[i]) return false;
         }
         return true;
     }

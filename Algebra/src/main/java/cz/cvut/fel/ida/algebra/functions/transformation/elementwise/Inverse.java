@@ -29,7 +29,7 @@ public class Inverse extends ElementWise {
 
     @Override
     public Pair<Double, Double> getSaturationRange() {
-        return new Pair<>(-5.0, 5.0);
+        return new Pair<>(-100.0, 100.0);
     }
 
 }

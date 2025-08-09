@@ -117,7 +117,7 @@ public class PythonEvaluation extends Evaluation {
             }
 
             Value value = stateVisitor.visit(state);
-
+            
             if (hooks.contains(neuron.name)) {
                 hookHandler.handleHook(neuron.name, value.toString());
             }

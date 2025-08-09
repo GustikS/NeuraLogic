@@ -276,8 +276,8 @@ public class NeuralNetBuilder {
                 if (qn == null) {
                     if (neuralBuilder.neuronFactory.neuronMaps.factNeurons.containsKey(queryMatchingLiteral)) {
                         String err = "Quering directly facts, rather than inferred atoms - there is no learning possible for this sample query: " + queryMatchingLiteral;
-                        LOG.warning(err);
-                        throw new InputMismatchException(err);
+                        LOG.severe(err);
+//                        throw new InputMismatchException(err);
                     } else {
                         if (queryMatchingLiterals.size() > 1) {
                             continue; // if there are multiple queries, it is fine if some is not derived
@@ -287,7 +287,7 @@ public class NeuralNetBuilder {
                         LOG.warning(" -> This most likely means that the template is wrong as there is no proof-path from the example to the query");
                         LOG.warning("   -> Check all the predicate signatures etc. to make sure the template matches your examples and that there is at least 1 inference chain to the query");
 //                    System.exit(5);
-                        throw new InputMismatchException(err);
+//                        throw new InputMismatchException(err);
                     }
                 } else {
                     queryNeurons.add(qn);
@@ -306,13 +306,13 @@ public class NeuralNetBuilder {
 //            }).collect(Collectors.toList());
         }
         DetailedNetwork neuralNetwork = neuralBuilder.networkFactory.createDetailedNetwork(queryNeurons, createdNeurons, id, neuralBuilder.neuronFactory.neuronMaps.extraInputMapping);
-        LOG.info("DetailedNetwork created.");
+        LOG.fine("DetailedNetwork created.");
 
         StatesBuilder statesBuilder = neuralBuilder.statesBuilder;
         //fill all the states with correct dimension values
         statesBuilder.initializeStates(neuralNetwork);   // somehow iterate only over the created neurons (but in topological order) -> this is done by skipping neurons with non-null outputValues
 
-        LOG.info("Neuron dimensions inferred.");
+        LOG.fine("Neuron dimensions inferred.");
 
         if (settings.dropoutRate > 0) {
             statesBuilder.setupDropoutStates(neuralNetwork);  //setup individual dropout rates for each neuron

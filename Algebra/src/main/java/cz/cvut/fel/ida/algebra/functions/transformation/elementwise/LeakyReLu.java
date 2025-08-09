@@ -35,7 +35,7 @@ public class LeakyReLu extends ElementWise {
 
     @Override
     public Pair<Double, Double> getSaturationRange() {
-        return new Pair<>(Double.MIN_VALUE, Double.MAX_VALUE);
+        return new Pair<>(-100.0, 1000.0);
     }
 
 }

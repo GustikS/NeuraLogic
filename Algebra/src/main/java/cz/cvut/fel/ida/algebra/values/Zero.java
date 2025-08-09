@@ -108,6 +108,11 @@ class Zero extends Value {
     }
 
     @Override
+    public boolean isNaN() {
+        return false;
+    }
+
+    @Override
     public String toString(NumberFormat numberFormat) {
         return "0";
     }

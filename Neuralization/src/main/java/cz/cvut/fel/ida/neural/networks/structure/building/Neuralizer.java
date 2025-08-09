@@ -140,7 +140,7 @@ public class Neuralizer implements Exportable {
             if (atomNeuron == null) {
                 if (queryExpandedLiterals.size() <= 1) {
                     LOG.severe("No neural inference network created for " + queryAtom.toString());
-                    throw new InputMismatchException("No inference network created for " + queryAtom);
+//                    throw new InputMismatchException("No inference network created for " + queryAtom);
                 } else if (logicSample.target.greaterThan(Value.ZERO) && settings.trainOnlineResultsType != Settings.ResultsType.REGRESSION) {
                     LOG.warning("Unable to infer a positively labeled sample " + logicSample);
                 }

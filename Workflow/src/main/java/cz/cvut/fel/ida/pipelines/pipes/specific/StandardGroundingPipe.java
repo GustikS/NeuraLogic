@@ -20,6 +20,7 @@ public class StandardGroundingPipe extends Pipe<Stream<GroundingSample>, Stream<
     @Override
     public Stream<GroundingSample> apply(Stream<GroundingSample> groundingSampleStream) {
         return groundingSampleStream.map(gs -> {
+            LOG.info("Grounding of sample " + gs.toString());
             if (gs.groundingWrap.getGroundTemplate() == null || !gs.groundingComplete) {
                 gs.groundingWrap.setGroundTemplate(grounder.groundRulesAndFacts(gs.query.evidence, gs.template));
             }
