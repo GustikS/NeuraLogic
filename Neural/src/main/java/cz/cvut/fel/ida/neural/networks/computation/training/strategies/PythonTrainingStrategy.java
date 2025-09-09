@@ -3,8 +3,7 @@ package cz.cvut.fel.ida.neural.networks.computation.training.strategies;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
 import cz.cvut.fel.ida.learning.results.Progress;
 import cz.cvut.fel.ida.learning.results.Result;
-import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.PythonEvaluation;
-import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.PythonHookHandler;
+import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.Evaluation;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.weights.WeightUpdater;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
@@ -20,7 +19,6 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 
 public class PythonTrainingStrategy extends TrainingStrategy {
@@ -37,7 +35,7 @@ public class PythonTrainingStrategy extends TrainingStrategy {
 
     ValueInitializer valueInitializer;
 
-    PythonEvaluation evaluation;
+    Evaluation evaluation;
 
     LearnRateDecayStrategy learnRateDecay;
 
@@ -49,9 +47,7 @@ public class PythonTrainingStrategy extends TrainingStrategy {
         this.trainer = new SequentialTrainer(settings, optimizer, currentModel);
         this.listTrainer = this.trainer.new SequentialListTrainer();
         this.valueInitializer = ValueInitializer.getInitializer(settings);
-
-        evaluation = new PythonEvaluation(settings, -1);
-        this.trainer.setEvaluation(evaluation);
+        this.evaluation = this.trainer.getEvaluation();
 
         this.miniBatchTrainer = new MiniBatchTrainer(settings, optimizer, currentModel, 0);
         this.minibatchListTrainer = this.miniBatchTrainer.new MinibatchListTrainer();
@@ -65,11 +61,6 @@ public class PythonTrainingStrategy extends TrainingStrategy {
 
     public NeuralModel getCurrentModel() {
         return this.currentModel;
-    }
-
-    public void setHooks(Set<String> hooks, PythonHookHandler callback) {
-        evaluation.hooks = hooks;
-        evaluation.hookHandler = callback;
     }
 
     public void setSamples(List<NeuralSample> samples) {
