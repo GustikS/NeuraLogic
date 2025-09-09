@@ -73,7 +73,8 @@ public class PythonBuilder {
 
         public Pipeline<Sources, Stream<GroundingSample>> buildPipeline(
                 Template template,
-                Stream<LogicSample> logicSamples
+                Stream<LogicSample> logicSamples,
+                IntConsumer callback
         ) {
             Pipeline<Sources, Stream<GroundingSample>> pipeline = new Pipeline<>("PythonGroundingBuilding", this);
 
@@ -82,7 +83,20 @@ public class PythonBuilder {
                     new LambdaPipe<>("TemplateIdentityPipe", s -> new Pair<>(template, logicSamples), settings)
             );
 
-            Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> groundingPipeline = pipeline.registerEnd(buildGrounding(settings, weightFactory));
+            Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> groundingPipeline;
+
+            if (callback != null) {
+                groundingPipeline = pipeline.register(buildGrounding(settings, weightFactory));
+                AtomicInteger counter = new AtomicInteger();
+
+                LambdaPipe<Stream<GroundingSample>, Stream<GroundingSample>> progressCallbackPipe = pipeline.registerEnd(
+                        new LambdaPipe<>("ProgressCallbackPipe", samples -> samples.peek(sample -> callback.accept(counter.incrementAndGet())), settings)
+                );
+
+                groundingPipeline.connectAfter(progressCallbackPipe);
+            } else {
+                groundingPipeline = pipeline.registerEnd(buildGrounding(settings, weightFactory));
+            }
 
             //connecting the execution graph
             templateIdentityPipe.connectAfter(groundingPipeline);
@@ -92,13 +106,27 @@ public class PythonBuilder {
 
         public Pipeline<Sources, Stream<GroundingSample>> buildPipeline(
                 Template template,
-                Sources sources
+                Sources sources,
+                IntConsumer callback
         ) {
             Pipeline<Sources, Stream<GroundingSample>> pipeline = new Pipeline<>("PythonGroundingBuilding", this);
 
             //pipelines
             Pipeline<Sources, Pair<Template, Stream<LogicSample>>> sourcesPairPipeline = pipeline.registerStart(buildFromSources(template, sources, settings));
-            Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> groundingPipeline = pipeline.registerEnd(buildGrounding(settings, weightFactory));
+            Pipeline<Pair<Template, Stream<LogicSample>>, Stream<GroundingSample>> groundingPipeline;
+
+            if (callback != null) {
+                groundingPipeline = pipeline.register(buildGrounding(settings, weightFactory));
+                AtomicInteger counter = new AtomicInteger();
+
+                LambdaPipe<Stream<GroundingSample>, Stream<GroundingSample>> progressCallbackPipe = pipeline.registerEnd(
+                        new LambdaPipe<>("ProgressCallbackPipe", samples -> samples.peek(sample -> callback.accept(counter.incrementAndGet())), settings)
+                );
+
+                groundingPipeline.connectAfter(progressCallbackPipe);
+            } else {
+                groundingPipeline = pipeline.registerEnd(buildGrounding(settings, weightFactory));
+            }
 
             //connecting the execution graph
             sourcesPairPipeline.connectAfter(groundingPipeline);
@@ -150,16 +178,18 @@ public class PythonBuilder {
 
     public Pipeline<Sources, Stream<GroundingSample>> buildGroundings(
             Template template,
-            Stream<LogicSample> logicSamples
+            Stream<LogicSample> logicSamples,
+            IntConsumer progressCallback
     ) {
-        return this.groundingPipeline.buildPipeline(template, logicSamples);
+        return this.groundingPipeline.buildPipeline(template, logicSamples, progressCallback);
     }
 
     public Pipeline<Sources, Stream<GroundingSample>> buildGroundings(
             Template template,
-            Sources sources
+            Sources sources,
+            IntConsumer progressCallback
     ) {
-        return this.groundingPipeline.buildPipeline(template, sources);
+        return this.groundingPipeline.buildPipeline(template, sources, progressCallback);
     }
 
     public Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> neuralize(
