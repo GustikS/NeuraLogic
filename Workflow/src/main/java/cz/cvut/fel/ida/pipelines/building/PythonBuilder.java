@@ -15,6 +15,7 @@ import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.setup.Sources;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntConsumer;
@@ -135,42 +136,47 @@ public class PythonBuilder {
         }
     }
 
-    class PythonNeuralizationPipeline extends AbstractPipelineBuilder<Stream<GroundingSample>, Stream<NeuralSample>> {
+    class PythonNeuralizationPipeline extends AbstractPipelineBuilder<Stream<GroundingSample>, Pair<Stream<NeuralSample>, List<GroundingSample>>> {
         public PythonNeuralizationPipeline(Settings settings) {
             super(settings);
         }
 
-        public Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> buildPipeline() {
+        public Pipeline<Stream<GroundingSample>, Pair<Stream<NeuralSample>, List<GroundingSample>>> buildPipeline() {
             return null;
         }
 
-        public Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> buildPipeline(
+        public Pipeline<Stream<GroundingSample>, Pair<Stream<NeuralSample>, List<GroundingSample>>> buildPipeline(
                 Stream<GroundingSample> groundings,
                 IntConsumer callback
         ) {
-            Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> pipeline = new Pipeline<>("PythonGroundingbBuilding", this);
+            List<GroundingSample> samples = new ArrayList<>();
+            Pipeline<Stream<GroundingSample>, Pair<Stream<NeuralSample>, List<GroundingSample>>> pipeline = new Pipeline<>("PythonGroundingbBuilding", this);
 
             //pipelines
             LambdaPipe<Stream<GroundingSample>, Stream<GroundingSample>> groundingIdentityPipe = pipeline.registerStart(
-                    new LambdaPipe<>("NeuralizationIdentityPipe", s -> groundings, settings)
+                    new LambdaPipe<>("NeuralizationIdentityPipe", s -> groundings.peek(samples::add), settings)
             );
 
-            Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> neuralizationPipeline;
+            Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> neuralizationPipeline = pipeline.register(buildNeuralNets(settings, weightFactory));
+            groundingIdentityPipe.connectAfter(neuralizationPipeline);
+
+            LambdaPipe<Stream<NeuralSample>, Pair<Stream<NeuralSample>, List<GroundingSample>>> mergeWithGroundings = pipeline.registerEnd(
+                    new LambdaPipe<>("MergeWithGroundingsPipe", s -> new Pair<>(s, samples), settings)
+            );
 
             if (callback != null) {
-                neuralizationPipeline = pipeline.register(buildNeuralNets(settings, weightFactory));
                 AtomicInteger counter = new AtomicInteger();
 
-                LambdaPipe<Stream<NeuralSample>, Stream<NeuralSample>> progressCallbackPipe = pipeline.registerEnd(
-                        new LambdaPipe<>("ProgressCallbackPipe", samples -> samples.peek(sample -> callback.accept(counter.incrementAndGet())), settings)
+                LambdaPipe<Stream<NeuralSample>, Stream<NeuralSample>> progressCallbackPipe = pipeline.register(
+                        new LambdaPipe<>("ProgressCallbackPipe", s -> s.peek(sample -> callback.accept(counter.incrementAndGet())), settings)
                 );
 
                 neuralizationPipeline.connectAfter(progressCallbackPipe);
+                progressCallbackPipe.connectAfter(mergeWithGroundings);
             } else {
-                neuralizationPipeline = pipeline.registerEnd(buildNeuralNets(settings, weightFactory));
+                neuralizationPipeline.connectAfter(mergeWithGroundings);
             }
 
-            groundingIdentityPipe.connectAfter(neuralizationPipeline);
             return pipeline;
         }
     }
@@ -192,7 +198,7 @@ public class PythonBuilder {
         return this.groundingPipeline.buildPipeline(template, sources, progressCallback);
     }
 
-    public Pipeline<Stream<GroundingSample>, Stream<NeuralSample>> neuralize(
+    public Pipeline<Stream<GroundingSample>, Pair<Stream<NeuralSample>, List<GroundingSample>>> neuralize(
             Stream<GroundingSample> groundings,
             IntConsumer progressCallback
     ) {
