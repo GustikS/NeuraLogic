@@ -1,5 +1,6 @@
 package cz.cvut.fel.ida.neural.networks.computation.training.strategies;
 
+import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
 import cz.cvut.fel.ida.learning.results.Progress;
 import cz.cvut.fel.ida.learning.results.Result;
@@ -15,9 +16,7 @@ import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exporter;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -86,15 +85,15 @@ public class PythonTrainingStrategy extends TrainingStrategy {
     public void setupDebugger(NeuralDebugging neuralDebugger) {
     }
 
-    public String learnSamples(int epochs, int minibatchSize) {
+    public List<Result> learnSamples(int epochs, int minibatchSize) {
         return learnSamples(samplesSet, epochs, minibatchSize);
     }
 
-    public String learnSamples(List<NeuralSample> samples, int epochs, int minibatchSize) {
+    public List<Result> learnSamples(List<NeuralSample> samples, int epochs, int minibatchSize) {
         List<Result> results = null;
 
         if (epochs <= 0) {
-            return "[]";
+            return new ArrayList<>();
         }
 
         ListTrainer trainer = listTrainer;
@@ -118,60 +117,43 @@ public class PythonTrainingStrategy extends TrainingStrategy {
 //            }
         }
 
-        List<String> output = new ArrayList<>(samples.size());
-        NumberFormat format = Settings.superDetailedNumberFormat;
-
-        for (Result result : results) {
-            output.add(Arrays.toString(new String[]{
-                    result.getTarget().toString(format),
-                    result.getOutput().toString(format),
-                    result.errorValue().toString(format),
-            }));
-        }
-
-        return output.toString();
+        return results;
     }
 
-    public String learnSample(NeuralSample sample) {
+    public Result learnSample(NeuralSample sample) {
         trainer.invalidateSample(trainer.getInvalidation(), sample);
         Result result = trainer.evaluateSample(trainer.getEvaluation(), sample);
 
         WeightUpdater weightUpdater = trainer.backpropSample(trainer.getBackpropagation(), result, sample);
         trainer.updateWeights(currentModel, weightUpdater);
-        NumberFormat format = Settings.superDetailedNumberFormat;
 
-        return Arrays.toString(new String[]{
-                result.getTarget().toString(format),
-                result.getOutput().toString(format),
-                result.errorValue().toString(format),
-        });
+        return result;
     }
 
-    public String evaluateSample(NeuralSample sample) {
+    public Value evaluateSample(NeuralSample sample) {
         trainer.invalidateSample(trainer.getInvalidation(), sample);
-        return evaluation.evaluate(sample.query).toString(Settings.superDetailedNumberFormat);
+        return evaluation.evaluate(sample.query);
     }
 
-    public String evaluateSamples(List<NeuralSample> samples, int minibatchSize) {
-        List<String> output = new ArrayList<>(samples.size());
-        NumberFormat format = Settings.superDetailedNumberFormat;
+    public List<Value> evaluateSamples(List<NeuralSample> samples, int minibatchSize) {
+        List<Value> output = new ArrayList<>(samples.size());
 
         if (minibatchSize > 1) {
             miniBatchTrainer.setMinibatchSize(minibatchSize);
 
             for (Result result : minibatchListTrainer.evaluate(samples)) {
-                output.add(result.getOutput().toString(format));
+                output.add(result.getOutput());
             }
 
-            return output.toString();
+            return output;
         }
 
         for (NeuralSample sample : samples) {
             trainer.invalidateSample(trainer.getInvalidation(), sample);
-            output.add(evaluation.evaluate(sample.query).toString(format));
+            output.add(evaluation.evaluate(sample.query));
         }
 
-        return output.toString();
+        return output;
     }
 
     @Override
