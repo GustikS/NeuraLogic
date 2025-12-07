@@ -346,6 +346,8 @@ public class HerbrandModel {
      */
     private static class TupleNotIn implements CustomPredicate {
 
+        private static final Literal lit = new Literal();
+
         private Set<Literal> literals; //mildly optimize this by storing set of Term[] instead? Probably not
 
         private String name;
@@ -365,12 +367,11 @@ public class HerbrandModel {
 
         @Override
         public boolean isSatisfiable(Term... arguments) {
-            for (Term arg : arguments) {
-                if (arg == null) {
-                    return true;
-                }
-            }
-            return !literals.contains(new Literal(predicate, arguments));
+            lit.predicate().name = predicate;
+            lit.predicate().arity = arguments.length;
+            lit.setTerms(arguments);
+
+            return !literals.contains(lit);
         }
     }
 
