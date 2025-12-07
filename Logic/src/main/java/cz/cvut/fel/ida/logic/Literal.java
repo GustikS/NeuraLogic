@@ -51,7 +51,8 @@ public class Literal implements Serializable {
 
     private static Map<Constant, Constant> fakeMapConst = new FakeMap<Constant, Constant>();
 
-    private Literal() {
+    public Literal() {
+        this.predicate = new Predicate("", 0);
     }
 
     public Literal(Predicate predicate) {
@@ -165,6 +166,10 @@ public class Literal implements Serializable {
         for (int i = 0; i < terms.length; i++) {
             set(terms[i], i);
         }
+    }
+
+    public void setTerms(Term[] terms) {
+        this.terms = terms;
     }
 
     /**
