@@ -8,11 +8,6 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package cz.cvut.fel.ida.utils.math.collections;
 
 import cz.cvut.fel.ida.utils.generic.tuples.Tuple;
@@ -20,6 +15,7 @@ import cz.cvut.fel.ida.utils.math.Combinatorics;
 import cz.cvut.fel.ida.utils.math.VectorUtils;
 
 import java.util.*;
+
 /**
  * Class for representing sets of numbers of type int
  * .
@@ -35,21 +31,13 @@ public class IntegerSet {
      * The unique empty set
      */
     public final static EmptySet emptySet = new EmptySet();
-    
+
     private IntegerSet(){}
-    
+
     private IntegerSet(int[] values){
-        this(values, false);
+        this.values = values;
     }
-    
-    private IntegerSet(int[] values, boolean sort){
-        this.values = new int[values.length];
-        System.arraycopy(values, 0, this.values, 0, values.length);
-        if (sort){
-            Arrays.sort(this.values);
-        }
-    }
-    
+
     /**
      * 
      * @return minimum value in the set
@@ -57,7 +45,7 @@ public class IntegerSet {
     public int min(){
         return this.values[0];
     }
-    
+
     /**
      * 
      * @return maximum value in the set
@@ -65,7 +53,7 @@ public class IntegerSet {
     public int max(){
         return this.values[values.length-1];
     }
-    
+
     /**
      * Creates a new instance of class IntegerSet from the given array of numbers.
      * 
@@ -73,14 +61,13 @@ public class IntegerSet {
      * @return new instance of class IntegerSet from the given array of numbers
      */
     public static IntegerSet createIntegerSet(int ...values){
-        Arrays.sort(values);
         if (values.length == 0){
             return emptySet;
-        } else {
-            return createIntegerSetFromSortedArray(values);
         }
+        Arrays.sort(values);
+        return createIntegerSetFromSortedArray(values);
     }
-    
+
     /**
      * Creates a new instance of class IntegerSet from the given sorted array of numbers.
      * 
@@ -88,49 +75,55 @@ public class IntegerSet {
      * @return new instance of class IntegerSet from the given sorted array of numbers
      */
     public static IntegerSet createIntegerSetFromSortedArray(int[] values){
+        if (values.length == 0){
+            return emptySet;
+        }
+
+        // Count duplicates in single pass
         int duplicates = 0;
-        for (int i = 0; i < values.length-1; i++){
+        for (int i = 0; i < values.length - 1; i++){
             if (values[i] == values[i+1]){
                 duplicates++;
             }
         }
-        if (duplicates > 0){
-            int[] newValues = new int[values.length-duplicates];
-            int j = 0;
-            for (int i = 0; i < values.length; i++){
-                if (i == values.length-1 || values[i] != values[i+1]){
-                    newValues[j] = values[i];
-                    j++;
-                }
-            }
-            values = newValues;
-        }
-        if (values.length == 0){
-            return emptySet;
-        } else {
-            //return new IntegerSet(values, false);
+
+        if (duplicates == 0){
             IntegerSet retVal = new IntegerSet();
             retVal.values = values;
             return retVal;
         }
+
+        // Remove duplicates
+        int[] newValues = new int[values.length - duplicates];
+        int j = 0;
+        for (int i = 0; i < values.length; i++){
+            if (i == values.length - 1 || values[i] != values[i+1]){
+                newValues[j++] = values[i];
+            }
+        }
+
+        IntegerSet retVal = new IntegerSet();
+        retVal.values = newValues;
+        return retVal;
     }
-    
+
     /**
      * Creates a new instance of class IntegerSet from the given set of numbers.
-     * 
      * @param set the set of numbers
      * @return new instance of class IntegerSet from the given set of numbers
      */
     public static IntegerSet createIntegerSet(Set<Integer> set){
-        int values[] = new int[set.size()];
+        if (set.isEmpty()){
+            return emptySet;
+        }
+        int[] values = new int[set.size()];
         int index = 0;
         for (int integer : set){
-            values[index] = integer;
-            index++;
+            values[index++] = integer;
         }
         return createIntegerSet(values);
     }
-    
+
     /**
      * Creates a new instance of class IntegerSet which contains
      * numbers start, start+1, ..., end-1.
@@ -140,12 +133,16 @@ public class IntegerSet {
      * numbers start, start+1, ..., end-1.
      */
     public static IntegerSet createIntegerSetFromRange(int start, int end){
-        int[] v = new int[end-start];
-        for (int i = start, index = 0; i < end; i++){
-            v[index] = i;
-            index++;
+        if (start >= end){
+            return emptySet;
         }
-        return createIntegerSet(v);
+        int[] v = new int[end - start];
+        for (int i = 0; i < v.length; i++){
+            v[i] = start + i;
+        }
+        IntegerSet retVal = new IntegerSet();
+        retVal.values = v;
+        return retVal;
     }
 
     /**
@@ -160,7 +157,7 @@ public class IntegerSet {
     public static IntegerSet createRandomIntegerSet(int start, int end, int k){
         return createRandomIntegerSet(start, end, k, new Random());
     }
-    
+
     /**
      * Creates a new instance of class IntegerSet which contains
      * a random subset of size k drawn from the numbers start, start+1, ..., end-1.
@@ -179,7 +176,7 @@ public class IntegerSet {
         }
         return createIntegerSet(randomArray);
     }
-    
+
     /**
      * Computes intersection of the given sets.
      * @param a the first set
@@ -187,24 +184,39 @@ public class IntegerSet {
      * @return the intersection of the given sets
      */
     public static IntegerSet intersection(IntegerSet a, IntegerSet b){
-        if (a.isEmpty() || b.isEmpty() || a.values[0] > b.values[b.values.length-1] || b.values[0] > a.values[a.values.length-1]){
+        if (a.isEmpty() || b.isEmpty()){
             return emptySet;
         }
+
+        int[] aValues = a.values;
+        int[] bValues = b.values;
+
+        // Quick bounds check
+        if (aValues[0] > bValues[bValues.length - 1] || bValues[0] > aValues[aValues.length - 1]){
+            return emptySet;
+        }
+
+        // First pass: count intersecting elements
         int count = 0;
-        int indexA = 0;
-        int indexB = 0;
-        int aLength = a.values.length;
-        int bLength = b.values.length;
+        int indexA = 0, indexB = 0;
+        int aLength = aValues.length, bLength = bValues.length;
+
         while (indexA < aLength && indexB < bLength){
-            if (a.values[indexA] == b.values[indexB]){
+            int aVal = aValues[indexA];
+            int bVal = bValues[indexB];
+            if (aVal == bVal){
                 count++;
                 indexA++;
                 indexB++;
-            } else if (a.values[indexA] < b.values[indexB]){
+            } else if (aVal < bVal){
                 indexA++;
-            } else if (a.values[indexA] > b.values[indexB]){
+            } else {
                 indexB++;
             }
+        }
+
+        if (count == 0){
+            return emptySet;
         }
         if (count == aLength){
             return a;
@@ -212,33 +224,34 @@ public class IntegerSet {
         if (count == bLength){
             return b;
         }
+
+        // Second pass: build result
         int[] newValues = new int[count];
         indexA = 0;
         indexB = 0;
         int index = 0;
+
         while (indexA < aLength && indexB < bLength){
-            if (a.values[indexA] == b.values[indexB]){
-                newValues[index] = a.values[indexA];
+            int aVal = aValues[indexA];
+            int bVal = bValues[indexB];
+            if (aVal == bVal){
+                newValues[index++] = aVal;
                 indexA++;
                 indexB++;
-                index++;
-            } else if (a.values[indexA] < b.values[indexB]){
+            } else if (aVal < bVal){
                 indexA++;
-            } else if (a.values[indexA] > b.values[indexB]){
+            } else {
                 indexB++;
             }
         }
-        if (count == 0){
-            return emptySet;
-        } else {
-            IntegerSet set = new IntegerSet();
-            set.values = newValues;
-            return set;
-        }
+
+        IntegerSet result = new IntegerSet();
+        result.values = newValues;
+        return result;
     }
 
     /**
-     * Computes union of the given sets.
+     * Computes union of the given sets with optimized memory usage.
      * @param a the first set
      * @param b the second set
      * @return the union of the given sets
@@ -246,89 +259,100 @@ public class IntegerSet {
     public static IntegerSet union(IntegerSet a, IntegerSet b){
         if (a instanceof EmptySet){
             return b;
-        } else if (b instanceof EmptySet){
+        }
+        if (b instanceof EmptySet){
             return a;
         }
-        int aLength = a.values.length;
-        int bLength = b.values.length;
-        int[] aValues = a.values;
-        int[] bValues = b.values;
         if (a == b){
             return a;
-        } else if (aValues[aLength-1] < bValues[0]){
-            int[] values = VectorUtils.concat(aValues, bValues);
-            return new IntegerSet(values);
-        } else if (aValues[0] > bValues[bLength-1]){
-            int[] values = VectorUtils.concat(bValues, aValues);
-            return new IntegerSet(values);
         }
+
+        int[] aValues = a.values;
+        int[] bValues = b.values;
+        int aLength = aValues.length;
+        int bLength = bValues.length;
+
+        // Handle non-overlapping ranges
+        if (aValues[aLength - 1] < bValues[0]){
+            int[] values = new int[aLength + bLength];
+            System.arraycopy(aValues, 0, values, 0, aLength);
+            System.arraycopy(bValues, 0, values, aLength, bLength);
+            IntegerSet result = new IntegerSet();
+            result.values = values;
+            return result;
+        }
+        if (bValues[bLength - 1] < aValues[0]){
+            int[] values = new int[aLength + bLength];
+            System.arraycopy(bValues, 0, values, 0, bLength);
+            System.arraycopy(aValues, 0, values, bLength, aLength);
+            IntegerSet result = new IntegerSet();
+            result.values = values;
+            return result;
+        }
+
+        // Count union size (first pass)
         int count = 0;
-        int indexA = 0;
-        int indexB = 0;
+        int indexA = 0, indexB = 0;
+
         while (indexA < aLength || indexB < bLength){
             if (indexA < aLength && indexB < bLength){
-                int aValue = aValues[indexA];
-                int bValue = bValues[indexB];
-                if (aValue == bValue){
+                int aVal = aValues[indexA];
+                int bVal = bValues[indexB];
+                if (aVal == bVal){
                     indexA++;
                     indexB++;
-                    count++;
-                } else if (aValue < bValue){
+                } else if (aVal < bVal){
                     indexA++;
-                    count++;
-                } else if (aValue > bValue){
+                } else {
                     indexB++;
-                    count++;
                 }
             } else if (indexA < aLength){
                 indexA++;
-                count++;
-            } else if (indexB < bLength){
+            } else {
                 indexB++;
-                count++;
             }
+            count++;
         }
+
+        // Return original sets if union equals one of them
         if (count == aLength){
             return a;
         }
         if (count == bLength){
             return b;
         }
+
+        // Build union (second pass)
         int[] newValues = new int[count];
         indexA = 0;
         indexB = 0;
         int index = 0;
+
         while (indexA < aLength || indexB < bLength){
             if (indexA < aLength && indexB < bLength){
-                int aValue = aValues[indexA];
-                int bValue = bValues[indexB];
-                if (aValue == bValue){
-                    newValues[index] = aValue;
+                int aVal = aValues[indexA];
+                int bVal = bValues[indexB];
+                if (aVal == bVal){
+                    newValues[index++] = aVal;
                     indexA++;
                     indexB++;
-                    index++;
-                } else if (aValue < bValue){
-                    newValues[index] = aValue;
+                } else if (aVal < bVal){
+                    newValues[index++] = aVal;
                     indexA++;
-                    index++;
-                } else if (aValue > bValue){
-                    newValues[index] = bValue;
+                } else {
+                    newValues[index++] = bVal;
                     indexB++;
-                    index++;
                 }
             } else if (indexA < aLength){
-                newValues[index] = aValues[indexA];
-                indexA++;
-                index++;
-            } else if (indexB < bLength){
-                newValues[index] = bValues[indexB];
-                indexB++;
-                index++;
+                newValues[index++] = aValues[indexA++];
+            } else {
+                newValues[index++] = bValues[indexB++];
             }
         }
-        IntegerSet set = new IntegerSet();
-        set.values = newValues;
-        return set;
+
+        IntegerSet result = new IntegerSet();
+        result.values = newValues;
+        return result;
     }
 
     /**
@@ -338,59 +362,70 @@ public class IntegerSet {
      * @return the difference of the given sets
      */
     public static IntegerSet difference(IntegerSet a, IntegerSet b){
-        if (a == b){
+        if (a == b || a.isEmpty()){
             return emptySet;
-        } else if (a instanceof EmptySet){
-            return emptySet;
-        } else if (b instanceof EmptySet){
+        }
+        if (b.isEmpty()){
             return a;
         }
-        int indexA = 0;
-        int indexB = 0;
+
+        int[] aValues = a.values;
+        int[] bValues = b.values;
+
+        // Quick bounds check
+        if (aValues[aValues.length - 1] < bValues[0] || aValues[0] > bValues[bValues.length - 1]){
+            return a;
+        }
+
+        // Count elements in difference (first pass)
         int count = 0;
-        while (indexA < a.values.length){
-            while (indexB < b.values.length && b.values[indexB] < a.values[indexA]){
+        int indexB = 0;
+        int bLength = bValues.length;
+
+        for (int indexA = 0; indexA < aValues.length; indexA++){
+            int aVal = aValues[indexA];
+            while (indexB < bLength && bValues[indexB] < aVal){
                 indexB++;
             }
-            if (indexB < b.values.length && b.values[indexB] > a.values[indexA]){
-                count++;
-            } else if (indexB >= b.values.length){
+            if (indexB >= bLength || bValues[indexB] != aVal){
                 count++;
             }
-            indexA++;
         }
-        int[] newValues = new int[count];
-        indexA = 0;
-        indexB = 0;
-        count = 0;
-        while (indexA < a.values.length){
-            while (indexB < b.values.length && b.values[indexB] < a.values[indexA]){
-                indexB++;
-            }
-            if (indexB < b.values.length && b.values[indexB] > a.values[indexA]){
-                newValues[count] = a.values[indexA];
-                count++;
-            } else if (indexB >= b.values.length){
-                newValues[count] = a.values[indexA];
-                count++;
-            }
-            indexA++;
-        }
-        if (newValues.length == 0){
+
+        if (count == 0){
             return emptySet;
         }
-        IntegerSet set = new IntegerSet();
-        set.values = newValues;
-        return set;
+        if (count == aValues.length){
+            return a;
+        }
+
+        // Build result (second pass)
+        int[] newValues = new int[count];
+        indexB = 0;
+        int index = 0;
+
+        for (int indexA = 0; indexA < aValues.length; indexA++){
+            int aVal = aValues[indexA];
+            while (indexB < bLength && bValues[indexB] < aVal){
+                indexB++;
+            }
+            if (indexB >= bLength || bValues[indexB] != aVal){
+                newValues[index++] = aVal;
+            }
+        }
+
+        IntegerSet result = new IntegerSet();
+        result.values = newValues;
+        return result;
     }
-    
+
     /**
      * Checks if all sets stored in the first list are subsets of the respective sets
      * in the second list (i-th set from the first list is checked only w.r.t. the i-th set from the second list).
      * @param a the first list of sets
      * @param b the second list of sets
      * @return true if all sets stored in the first list are subsets of the respective sets
-     * in the second list, fase otherwise
+     * in the second list, false otherwise
      */
     public static boolean allAreSubsets(List<IntegerSet> a, List<IntegerSet> b){
         for (int i = 0; i < a.size(); i++){
@@ -407,7 +442,7 @@ public class IntegerSet {
      * @param a the first array of sets
      * @param b the second array of sets
      * @return true if all sets stored in the array list are subsets of the respective sets
-     * in the second array, fase otherwise
+     * in the second array, false otherwise
      */
     public static boolean allAreSubsets(IntegerSet[] a, IntegerSet[] b){
         for (int i = 0; i < a.length; i++){
@@ -481,12 +516,10 @@ public class IntegerSet {
      * @return true if all sets in the given array w.r.t. the mask are empty, false otherwise
      */
     public static boolean allAreEmpty(IntegerSet[] a, boolean[] mask){
-        int i = 0;
-        for (IntegerSet is : a){
-            if (mask[i] && !is.isEmpty()){
+        for (int i = 0; i < a.length; i++){
+            if (mask[i] && !a[i].isEmpty()){
                 return false;
             }
-            i++;
         }
         return true;
     }
@@ -498,12 +531,10 @@ public class IntegerSet {
      * @return true if at least one set in the given array w.r.t. the mask is empty, false otherwise
      */
     public static boolean someAreEmpty(IntegerSet[] a, boolean[] mask){
-        int i = 0;
-        for (IntegerSet is : a){
-            if (mask[i] && is.isEmpty()){
+        for (int i = 0; i < a.length; i++){
+            if (mask[i] && a[i].isEmpty()){
                 return true;
             }
-            i++;
         }
         return false;
     }
@@ -514,7 +545,7 @@ public class IntegerSet {
      * @param a the first list of sets
      * @param b the second list of sets
      * @return true if at least some sets stored in the first list are subsets of the respective sets
-     * in the second list, fase otherwise
+     * in the second list, false otherwise
      */
     public static boolean someAreSubsets(List<IntegerSet> a, List<IntegerSet> b){
         for (int i = 0; i < a.size(); i++){
@@ -531,7 +562,7 @@ public class IntegerSet {
      * @param a the first array of sets
      * @param b the second array of sets
      * @return true if at least some sets stored in the first array are subsets of the respective sets
-     * in the second array, fase otherwise
+     * in the second array, false otherwise
      */
     public static boolean someAreSubsets(IntegerSet[] a, IntegerSet[] b){
         for (int i = 0; i < a.length; i++){
@@ -541,7 +572,7 @@ public class IntegerSet {
         }
         return false;
     }
-    
+
     /**
      * Checks if all sets stored in the first array w.r.t. the given mask are subsets of the respective sets
      * in the second list (i-th set from the first array is checked only w.r.t. the i-th set from the second array).
@@ -549,7 +580,7 @@ public class IntegerSet {
      * @param b the second array of sets
      * @param mask the mask denoting which sets should be checked for "being subset"
      * @return true if all sets stored in the first array w.r.t. the given mask are subsets of the respective sets
-     * in the second array, fase otherwise
+     * in the second array, false otherwise
      */
     public static boolean allAreSubsets(IntegerSet[] a, IntegerSet[] b, boolean[] mask){
         for (int i = 0; i < a.length; i++){
@@ -559,7 +590,7 @@ public class IntegerSet {
         }
         return true;
     }
-    
+
     /**
      * Checks if at least some sets stored in the first array w.r.t. the given mask are subsets of the respective sets
      * in the second list (i-th set from the first array is checked only w.r.t. the i-th set from the second array).
@@ -567,7 +598,7 @@ public class IntegerSet {
      * @param b the second array of sets
      * @param mask the mask denoting which sets should be checked for "being subset"
      * @return true if at least some sets stored in the first array w.r.t. the given mask are subsets of the respective sets
-     * in the second array, fase otherwise
+     * in the second array, false otherwise
      */
     public static boolean someAreSubsets(IntegerSet[] a, IntegerSet[] b, boolean[] mask){
         for (int i = 0; i < a.length; i++){
@@ -695,32 +726,34 @@ public class IntegerSet {
                     result = set;
                 } else {
                     result = intersection(result, set);
+                    if (result.isEmpty()){
+                        return emptySet;
+                    }
                 }
             }
         }
-        return result;
+        return result == null ? emptySet : result;
     }
-    
+
     /**
      * Computes intersection of the sets in the given array.
+     * Optimized by sorting sets by size (smallest first) to reduce computation.
      * @param sets the array of sets
      * @return the intersection of the sets in the given array
      */
     public static IntegerSet intersection(IntegerSet ...sets){
-        Arrays.sort(sets, new Comparator<IntegerSet>() {
-            @Override
-            public int compare(IntegerSet o1, IntegerSet o2) {
-                return o1.size()-o2.size();
-            }
-        });
-        IntegerSet result = null;
-        for (IntegerSet set : sets){
-            if (set != null){
-                if (result == null){
-                    result = set;
-                } else {
-                    result = intersection(result, set);
-                }
+        if (sets.length == 0){
+            return emptySet;
+        }
+
+        // Sort by size (smallest first) for performance
+        Arrays.sort(sets, (o1, o2) -> Integer.compare(o1.size(), o2.size()));
+
+        IntegerSet result = sets[0];
+        for (int i = 1; i < sets.length; i++){
+            result = intersection(result, sets[i]);
+            if (result.isEmpty()){
+                return emptySet;
             }
         }
         return result;
@@ -751,7 +784,7 @@ public class IntegerSet {
      * of sets
      */
     public static List<IntegerSet> intersection(List<IntegerSet> a, List<IntegerSet> b){
-        List<IntegerSet> retVal = new ArrayList<IntegerSet>(a.size());
+        List<IntegerSet> retVal = new ArrayList<>(a.size());
         Iterator<IntegerSet> iter1 = a.iterator();
         Iterator<IntegerSet> iter2 = b.iterator();
         while (iter1.hasNext() && iter2.hasNext()){
@@ -766,19 +799,30 @@ public class IntegerSet {
      * @return the union of the sets in the given collection
      */
     public static IntegerSet union(Collection<IntegerSet> sets){
-        if (sets.size() > 2){
-            int sumOfSizes = 0;
-            for (IntegerSet is : sets){
-                sumOfSizes += is.size();
-            }
-            int[] aux = new int[sumOfSizes];
-            int index = 0;
-            for (IntegerSet is : sets){
-                System.arraycopy(is.values, 0, aux, index, is.values.length);
-                index += is.size();
-            }
-            return IntegerSet.createIntegerSet(aux);
+        if (sets.isEmpty()){
+            return emptySet;
         }
+
+        if (sets.size() > 2){
+            // Fast path: concatenate all arrays and sort once
+            int totalSize = 0;
+            for (IntegerSet is : sets){
+                totalSize += is.size();
+            }
+
+            if (totalSize == 0){
+                return emptySet;
+            }
+
+            int[] combined = new int[totalSize];
+            int offset = 0;
+            for (IntegerSet is : sets){
+                System.arraycopy(is.values, 0, combined, offset, is.size());
+                offset += is.size();
+            }
+            return createIntegerSet(combined);
+        }
+
         IntegerSet result = null;
         for (IntegerSet set : sets){
             if (set != null){
@@ -789,37 +833,42 @@ public class IntegerSet {
                 }
             }
         }
-        return result;
+        return result == null ? emptySet : result;
     }
-    
+
     /**
      * Computes union of the sets in the given array.
      * @param sets the array of sets
      * @return the union of the sets in the given array
      */
     public static IntegerSet union(IntegerSet ...sets){
-        if (sets.length > 2){
-            int sumOfSizes = 0;
-            for (IntegerSet is : sets){
-                sumOfSizes += is.size();
-            }
-            int[] aux = new int[sumOfSizes];
-            int index = 0;
-            for (IntegerSet is : sets){
-                System.arraycopy(is.values, 0, aux, index, is.values.length);
-                index += is.size();
-            }
-            return IntegerSet.createIntegerSet(aux);
+        if (sets.length == 0){
+            return emptySet;
         }
-        IntegerSet result = null;
-        for (IntegerSet set : sets){
-            if (set != null){
-                if (result == null){
-                    result = set;
-                } else {
-                    result = union(result, set);
-                }
+
+        if (sets.length > 2){
+            // Fast path: concatenate all arrays and sort once
+            int totalSize = 0;
+            for (IntegerSet is : sets){
+                totalSize += is.size();
             }
+
+            if (totalSize == 0){
+                return emptySet;
+            }
+
+            int[] combined = new int[totalSize];
+            int offset = 0;
+            for (IntegerSet is : sets){
+                System.arraycopy(is.values, 0, combined, offset, is.size());
+                offset += is.size();
+            }
+            return createIntegerSet(combined);
+        }
+
+        IntegerSet result = sets[0];
+        for (int i = 1; i < sets.length; i++){
+            result = union(result, sets[i]);
         }
         return result;
     }
@@ -849,7 +898,7 @@ public class IntegerSet {
      * of sets
      */
     public static List<IntegerSet> union(List<IntegerSet> a, List<IntegerSet> b){
-        List<IntegerSet> retVal = new ArrayList<IntegerSet>(a.size());
+        List<IntegerSet> retVal = new ArrayList<>(a.size());
         Iterator<IntegerSet> iter1 = a.iterator();
         Iterator<IntegerSet> iter2 = b.iterator();
         while (iter1.hasNext() && iter2.hasNext()){
@@ -926,12 +975,10 @@ public class IntegerSet {
      */
     public static int countNonEmpty(IntegerSet[] sets, boolean[] mask){
         int count = 0;
-        int i = 0;
-        for (IntegerSet is : sets){
-            if (mask[i] && !is.isEmpty()){
+        for (int i = 0; i < sets.length; i++){
+            if (mask[i] && !sets[i].isEmpty()){
                 count++;
             }
-            i++;
         }
         return count;
     }
@@ -944,12 +991,10 @@ public class IntegerSet {
      */
     public static int countEmpty(IntegerSet[] sets, boolean[] mask){
         int count = 0;
-        int i = 0;
-        for (IntegerSet is : sets){
-            if (mask[i] && is.isEmpty()){
+        for (int i = 0; i < sets.length; i++){
+            if (mask[i] && sets[i].isEmpty()){
                 count++;
             }
-            i++;
         }
         return count;
     }
@@ -975,12 +1020,10 @@ public class IntegerSet {
      */
     public static int sumSizes(IntegerSet[] sets, boolean[] mask){
         int sum = 0;
-        int i = 0;
-        for (IntegerSet is : sets){
+        for (int i = 0; i < sets.length; i++){
             if (mask[i]){
-                sum += is.size();
+                sum += sets[i].size();
             }
-            i++;
         }
         return sum;
     }
@@ -999,10 +1042,11 @@ public class IntegerSet {
                     return false;
                 }
             }
+            return false;
         }
-        return Arrays.binarySearch(this.values, integer) > -1;
+        return Arrays.binarySearch(this.values, integer) >= 0;
     }
-    
+
     /**
      * Checks if this IntegerSet contains at least one of the integers contained in the
      * given IntegerSet <em>b</em>.
@@ -1015,82 +1059,110 @@ public class IntegerSet {
             return false;
         }
         int i2 = 0;
+        int bLength = b.values.length;
         for (int i = 0; i < this.values.length; i++){
-            while (i2 < b.values.length && b.values[i2] < this.values[i]){
+            while (i2 < bLength && b.values[i2] < this.values[i]){
                 i2++;
             }
-            if (i2 != b.values.length && this.values[i] == b.values[i2]){
+            if (i2 != bLength && this.values[i] == b.values[i2]){
                 return true;
             }
         }
         return false;
     }
-    
+
     /**
      * Checks if this set is subset of the given set <em>b</em>.
      * @param b the set for which we want to check if it is a super-set of this set.
      * @return true if this set is subset of the given set <em>b</em>
      */
     public boolean isSubsetOf(IntegerSet b){
-        if (b.isEmpty() || b.size() < this.size() || this.values[0] < b.values[0] || this.values[this.values.length-1] > b.values[b.values.length-1]){
+        if (this.isEmpty()){
+            return true;
+        }
+        if (b.isEmpty() || b.size() < this.size()){
             return false;
         }
+
+        int[] aValues = this.values;
+        int[] bValues = b.values;
+
+        if (aValues[0] < bValues[0] || aValues[aValues.length - 1] > bValues[bValues.length - 1]){
+            return false;
+        }
+
         int i2 = 0;
-        for (int i = 0; i < this.values.length; i++){
-            while (i2 < b.values.length && b.values[i2] < this.values[i]){
+        int bLength = bValues.length;
+        for (int i = 0; i < aValues.length; i++){
+            while (i2 < bLength && bValues[i2] < aValues[i]){
                 i2++;
             }
-            if (i2 == b.values.length || b.values[i2] > this.values[i]){
+            if (i2 == bLength || bValues[i2] > aValues[i]){
                 return false;
             }
         }
         return true;
     }
-    
+
     /**
      * Checks if this set is strict subset of the given set <em>b</em>. "Strict subset"
      * means that it is a subset but it is not equal.
      * @param b the set for which we want to check if it is a strict super-set of this set.
-     * @return true if this set is strict subset of the given set <em>b</em>t
+     * @return true if this set is strict subset of the given set <em>b</em>
      */
     public boolean isStrictSubsetOf(IntegerSet b){
         return !this.equals(b) && this.isSubsetOf(b);
     }
-    
+
     @Override
     public boolean equals(Object o){
-        if (o instanceof IntegerSet){
-            IntegerSet cis = (IntegerSet)o;
-            if (this.isEmpty() != cis.isEmpty()){
-                return false;
-            }
-            if ((cis.hashCode != -1 && this.hashCode != -1 && cis.hashCode != this.hashCode) || cis.values.length != this.values.length)
-                return false;
-            if (cis.values[cis.values.length-1] != this.values[this.values.length-1]){
-                return false;
-            }
-            for (int i = 0; i < this.values.length-1; i++){
-                if (this.values[i] != cis.values[i])
-                    return false;
-            }
+        if (!(o instanceof IntegerSet)){
+            return false;
+        }
+
+        IntegerSet other = (IntegerSet) o;
+        if (this.isEmpty() && other.isEmpty()){
             return true;
         }
-        return false;
+        if (this.isEmpty() || other.isEmpty()){
+            return false;
+        }
+        if (this.values.length != other.values.length){
+            return false;
+        }
+
+        // Quick check: compare last element and hash
+        if (this.values[this.values.length - 1] != other.values[other.values.length - 1]){
+            return false;
+        }
+
+        // Compare hash codes if computed
+        if (this.hashCode != -1 && other.hashCode != -1 && this.hashCode != other.hashCode){
+            return false;
+        }
+
+        // Full comparison
+        for (int i = 0; i < this.values.length; i++){
+            if (this.values[i] != other.values[i]){
+                return false;
+            }
+        }
+        return true;
     }
-    
+
     private void computeHashCode(){
         int hash = 1;
         for (int i = 0; i < this.values.length; i++){
-            //hash += (i+1)*this.values[i];
-            hash = ((hash+1)*(1+this.values[i]*i*i)) % (Integer.MAX_VALUE/128);
+            hash = ((hash + 1) * (1 + this.values[i] * i * i)) % (Integer.MAX_VALUE / 128);
         }
         this.hashCode = hash;
     }
-    
+
     @Override
     public int hashCode(){
-        if (hashCode == -1)
+        if (hashCode == -1){
             computeHashCode();
+        }
         return hashCode;
     }
 
@@ -1099,7 +1171,7 @@ public class IntegerSet {
      * @return set with the elements of the IntegerSet
      */
     public Set<Integer> toSet(){
-        LinkedHashSet<Integer> retVal = new LinkedHashSet<Integer>();
+        LinkedHashSet<Integer> retVal = new LinkedHashSet<>(this.values.length);
         for (int i : this.values){
             retVal.add(i);
         }
@@ -1111,13 +1183,13 @@ public class IntegerSet {
      * @return list with the elements of the IntegerSet
      */
     public List<Integer> toList(){
-        List<Integer> retVal = new ArrayList<Integer>();
+        List<Integer> retVal = new ArrayList<>(this.values.length);
         for (int i : this.values){
             retVal.add(i);
         }
         return retVal;
     }
-    
+
     /**
      * 
      * @return true if the IntegerSet is empty, false otherwise
@@ -1125,27 +1197,26 @@ public class IntegerSet {
     public boolean isEmpty(){
         return false;
     }
-    
+
     @Override
     public String toString(){
-        return "IntegerSet"+ VectorUtils.intArrayToString(values);
+        return "IntegerSet" + VectorUtils.intArrayToString(values);
     }
-    
+
     /**
-     * @return the elements of the DoubleSet
+     * @return the elements of the IntegerSet
      */
     public int[] values(){
         return this.values;
     }
-    
+
     /**
-     * 
-     * @return number of elements in the DoubleSet
+     * @return number of elements in the IntegerSet
      */
     public int size(){
         return this.values.length;
     }
-    
+
     private static class EmptySet extends IntegerSet {
         
         /**
@@ -1185,22 +1256,22 @@ public class IntegerSet {
         public boolean isEmpty(){
             return true;
         }
-        
+
         @Override
         public int hashCode(){
             return 0;
         }
-        
+
         @Override
         public boolean equals(Object o){
             return o instanceof EmptySet;
         }
-        
+
         @Override
         public String toString(){
             return "EmptySet[]";
         }
-        
+
         @Override
         public int[] values(){
             return new int[0];
@@ -1208,7 +1279,7 @@ public class IntegerSet {
 
         @Override
         public Set<Integer> toSet(){
-            return new HashSet<Integer>(1);
+            return new HashSet<>(0);
         }
     }
 }
