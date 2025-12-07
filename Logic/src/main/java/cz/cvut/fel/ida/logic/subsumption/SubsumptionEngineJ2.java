@@ -36,6 +36,12 @@ import java.util.*;
  * @author ondra
  */
 public class SubsumptionEngineJ2 {
+    private static final Term[] cacheTerm1 = new Term[1];
+    private static final Term[] cacheTerm2 = new Term[2];
+    private static final Term[] cacheTerm3 = new Term[3];
+
+    private int cacheIndex = Integer.MAX_VALUE;
+    private CustomPredicate cachePredicate = null;
 
     public static int countFC = 0;
 
@@ -79,7 +85,7 @@ public class SubsumptionEngineJ2 {
 
     private long timeout = Long.MAX_VALUE;
 
-    protected ValueToIndex<Term> termsToIntegers = new ValueToIndex<Term>();
+    protected FixedValueToIndex<Term> termsToIntegers = new FixedValueToIndex<Term>();
 
     protected ValueToIndex<String> typesToIntegers = new ValueToIndex<String>();
 
@@ -561,11 +567,7 @@ public class SubsumptionEngineJ2 {
             this.lastVariableOrder = ret;
             return ret;
         }
-        //todo - move to ClausE, this is unnecessarily slow
-        Counters<Integer> predicateCounts = new Counters<Integer>();
-        for (int i = 0; i < e.literals.length; i += e.literals[i + 1] + 2) {
-            predicateCounts.increment(e.literals[i]);
-        }
+
         List<Integer> variableOrder = new ArrayList<Integer>();
         double[] weights = new double[c.containedIn.length];
         int index = 0;
@@ -585,7 +587,7 @@ public class SubsumptionEngineJ2 {
         for (int ci : c.containedIn[variableOrder.get(0)].values()) {
             for (int i = 0; i < c.literals[ci + 1]; i++) {
                 if (heuristic1[c.literals[ci + 3 + i]] != -1) {
-                    heuristic1[c.literals[ci + 3 + i]] += 1.0 * weights[c.literals[ci + 3 + i]];
+                    heuristic1[c.literals[ci + 3 + i]] += weights[c.literals[ci + 3 + i]];
                 }
             }
         }
@@ -597,14 +599,15 @@ public class SubsumptionEngineJ2 {
                 variableOrder.add(selected);
             }
             for (int ci : c.containedIn[selected].values()) {
+                double count = e.getPredicateCount(c.literals[ci]);
+                if (count == 0) {
+                    //todo - handle separately special predicateNames and negations
+                    count = 1e8;
+                }
+
                 for (int j = 0; j < c.literals[ci + 1]; j++) {
                     if (heuristic1[c.literals[ci + 3 + j]] != -1) {
-                        double count = predicateCounts.get(c.literals[ci]);
-                        if (count == 0) {
-                            //todo - handle separately special predicateNames and negations
-                            count = 1e8;
-                        }
-                        heuristic1[c.literals[ci + 3 + j]] += 1.0 * weights[c.literals[ci + 3 + j]] / count;
+                        heuristic1[c.literals[ci + 3 + j]] += weights[c.literals[ci + 3 + j]] / count;
                     }
                 }
             }
@@ -1310,19 +1313,19 @@ public class SubsumptionEngineJ2 {
 
         protected int[] literals;
 
-        private IntegerSet allTerms;
+        private Counters<Integer> predicateCounts;
 
-        private IntegerSet predicates;
+        private final IntegerSet allTerms;
+
+        private final IntegerSet predicates;
 
         protected IntegerSet[] domainsByPredicates;
 
-        private LowArityLiterals lal;
+        private final LowArityLiterals lal;
 
-        private HighArityLiterals hal;
+        private final HighArityLiterals hal;
 
-        private CompletelySymmetricLiterals csl;
-
-        private Map<Term, Integer> numbers = new HashMap<Term, Integer>();
+        private final CompletelySymmetricLiterals csl;
 
         /**
          * Creates a new instance of class ClauseE which serves as an efficient data-structure
@@ -1331,68 +1334,148 @@ public class SubsumptionEngineJ2 {
          * @param clause the clause which should be compiled into the efficient representation
          */
         public ClauseE(Clause clause) {
-            MultiMap<Integer, Integer> integerMultiMap = new MultiMap<Integer, Integer>();
-            Set<Integer> predicates = new HashSet<Integer>();
-            int literalIndex = 0;
-            for (Literal l : clause.literals()) {
+            // Pre-calculate clause structure to avoid redundant iterations
+            Set<Literal> clauseLiterals = clause.literals();
+            Collection<Term> clauseTerms = clause.terms();
+
+            // First pass: collect predicates and calculate array sizes
+            Set<Integer> predicateSet = new HashSet<>(clauseLiterals.size());
+            int literalArraySize = 0;
+            int termCount = clauseTerms.size();
+
+            for (Literal l : clauseLiterals) {
                 if (!l.isNegated()) {
-                    integerMultiMap.put(predicatesToIntegers.valueToIndex(l.predicateName()), literalIndex);
-                    literalIndex += 2 + l.arity();
-                    predicates.add(predicatesToIntegers.valueToIndex(l.predicateName()));
+                    predicateSet.add(predicatesToIntegers.valueToIndex(l.predicateName()));
+                    literalArraySize += 2 + l.arity();
                 }
             }
-            this.predicates = IntegerSet.createIntegerSet(predicates);
-            domainsByPredicates = new IntegerSet[predicatesToIntegers.max() + 1];
-            for (Map.Entry<Integer, Set<Integer>> entry : integerMultiMap.entrySet()) {
-                //negative values are for special predicateNames
-                if (entry.getKey() >= 0) {
-                    domainsByPredicates[entry.getKey()] = IntegerSet.createIntegerSet(entry.getValue());
-                }
-            }
-            literals = new int[literalIndex];
-            Map<Literal, Integer> intLitMap = new HashMap<Literal, Integer>();
-            Map<Integer, Literal> litIntMap = new HashMap<Integer, Literal>();
+
+            this.predicates = IntegerSet.createIntegerSet(predicateSet);
+
+            // Initialize domainsByPredicates with exact size
+            int maxPredicateId = predicatesToIntegers.max();
+            domainsByPredicates = new IntegerSet[maxPredicateId + 1];
+
+            // Second pass: build literals array and collect domains
+            literals = new int[literalArraySize];
+            Map<Pair<Integer, Integer>, List<Integer>> varDomainsMap = new HashMap<>(literalArraySize);
+            Map<Integer, List<Integer>> domainsByPredMap = new HashMap<>(predicateSet.size());
+
             int index = 0;
-            MultiMap<Pair<Integer, Integer>, Integer> varDomains = new MultiMap<Pair<Integer, Integer>, Integer>();
-            for (Literal l : clause.literals()) {
+            for (Literal l : clauseLiterals) {
                 if (!l.isNegated()) {
-                    literals[index] = predicatesToIntegers.valueToIndex(l.predicateName());
-                    literals[index + 1] = l.arity();
-                    intLitMap.put(l, index);
-                    litIntMap.put(index, l);
+                    int predicateId = predicatesToIntegers.valueToIndex(l.predicateName());
+                    int arity = l.arity();
+
+                    literals[index] = predicateId;
+                    literals[index + 1] = arity;
+
+                    // Track domain for this predicate
+                    List<Integer> predDomain = domainsByPredMap.computeIfAbsent(predicateId, k -> new ArrayList<>(8));
+                    predDomain.add(index);
+
                     index += 2;
-                    if (l.predicateName().startsWith(SymmetricPredicates.PREFIX)) {
-                        for (int i = 0; i < l.arity(); i++) {
-                            for (int j = 0; j < l.arity(); j++) {
-                                literals[index + j] = termsToIntegers.valueToIndex(l.get(j));
-                                varDomains.put(new Pair<Integer, Integer>(literals[index - 2], i), literals[index + j]);
+
+                    // Check once if symmetric
+                    boolean isSymmetric = l.predicateName().startsWith(SymmetricPredicates.PREFIX);
+
+                    if (isSymmetric) {
+                        // Symmetric predicate: collect all position/term pairs
+                        for (int i = 0; i < arity; i++) {
+                            for (int j = 0; j < arity; j++) {
+                                int termId = termsToIntegers.valueToIndex(l.get(j));
+                                literals[index + j] = termId;
+
+                                // Collect domain for position i
+                                Pair<Integer, Integer> key = new Pair<>(predicateId, i);
+                                varDomainsMap.computeIfAbsent(key, k -> new ArrayList<>(8))
+                                        .add(termId);
                             }
                         }
                     } else {
-                        for (int j = 0; j < l.arity(); j++) {
-                            literals[index + j] = termsToIntegers.valueToIndex(l.get(j));
-                            varDomains.put(new Pair<Integer, Integer>(literals[index - 2], j), literals[index + j]);
+                        // Normal predicate: position j maps to argument j
+                        for (int j = 0; j < arity; j++) {
+                            int termId = termsToIntegers.valueToIndex(l.get(j));
+                            literals[index + j] = termId;
+
+                            // Collect domain for position j
+                            Pair<Integer, Integer> key = new Pair<>(predicateId, j);
+                            varDomainsMap.computeIfAbsent(key, k -> new ArrayList<>(8))
+                                    .add(termId);
                         }
                     }
-                    index += l.arity();
+                    index += arity;
                 }
             }
-            for (Map.Entry<Pair<Integer, Integer>, Set<Integer>> entry : varDomains.entrySet()) {
-                this.variableDomains.put(entry.getKey(), IntegerSet.createIntegerSet(entry.getValue()));
+
+            // Convert domainsByPredMap to domainsByPredicates array
+            for (Map.Entry<Integer, List<Integer>> entry : domainsByPredMap.entrySet()) {
+                if (entry.getKey() >= 0) {
+                    List<Integer> indices = entry.getValue();
+                    int[] indicesArray = new int[indices.size()];
+                    for (int i = 0; i < indices.size(); i++) {
+                        indicesArray[i] = indices.get(i);
+                    }
+                    domainsByPredicates[entry.getKey()] = IntegerSet.createIntegerSet(indicesArray);
+                }
             }
+
+            // Convert varDomainsMap to variableDomains in single pass
+            this.variableDomains = new HashMap<>(varDomainsMap.size());
+            for (Map.Entry<Pair<Integer, Integer>, List<Integer>> entry : varDomainsMap.entrySet()) {
+                List<Integer> termsList = entry.getValue();
+                int[] termsArray = new int[termsList.size()];
+                for (int i = 0; i < termsList.size(); i++) {
+                    termsArray[i] = termsList.get(i);
+                }
+                this.variableDomains.put(entry.getKey(), IntegerSet.createIntegerSet(termsArray));
+            }
+
+            // Initialize literal matchers
             lal = new LowArityLiterals(literals, lowArity);
             hal = new HighArityLiterals(literals, lowArity);
             csl = new CompletelySymmetricLiterals(literals);
-            Set<Integer> allTermsHere = new HashSet<Integer>();
-            MultiMap<Integer, Integer> typedTermsMM = new MultiMap<Integer, Integer>();
-            for (Term t : clause.terms()) {
-                allTermsHere.add(termsToIntegers.valueToIndex(t));
-                if (t.type() != null) {
-                    typedTermsMM.put(typesToIntegers.valueToIndex(t.type()), termsToIntegers.valueToIndex(t));
+
+            // Single pass: collect all terms and typed terms
+            Set<Integer> allTermsSet = new HashSet<>(termCount);
+            Map<Integer, List<Integer>> typedTermsMap = new HashMap<>(termCount);
+
+            for (Term t : clauseTerms) {
+                int termId = termsToIntegers.valueToIndex(t);
+                allTermsSet.add(termId);
+
+                // Collect typed terms without null check overhead
+                String typeStr = t.type() != null ? t.type() : null;
+                if (typeStr != null) {
+                    int typeId = typesToIntegers.valueToIndex(typeStr);
+                    typedTermsMap.computeIfAbsent(typeId, k -> new ArrayList<>(8))
+                            .add(termId);
                 }
             }
-            allTerms = IntegerSet.createIntegerSet(allTermsHere);
-            typedTerms = IntegerMultiMap.createIntegerMultiMap(typedTermsMM);
+
+            this.allTerms = IntegerSet.createIntegerSet(allTermsSet);
+
+            IntegerMultiMap<Integer> typedTermMM = new IntegerMultiMap<>();
+            for (Map.Entry<Integer, List<Integer>> entry : typedTermsMap.entrySet()) {
+                Set<Integer> termSet = new HashSet<>(entry.getValue());
+                typedTermMM.add(entry.getKey(), IntegerSet.createIntegerSet(termSet));
+            }
+
+            this.typedTerms = typedTermMM;
+            this.predicateCounts = null;
+        }
+
+        public int getPredicateCount(int predicateId) {
+            if (this.predicateCounts == null) {
+                Counters<Integer> predicateCounts = new Counters<>(this.literals.length);
+                for (int i = 0; i < this.literals.length; i += this.literals[i + 1] + 2) {
+                    predicateCounts.increment(this.literals[i]);
+                }
+
+                this.predicateCounts = predicateCounts;
+            }
+
+            return this.predicateCounts.get(predicateId);
         }
 
         public IntegerSet typedTerms(int type) {
@@ -1472,18 +1555,42 @@ public class SubsumptionEngineJ2 {
     }
 
     private boolean matchCustomLiteral(int[] cliterals, int[] grounding, int index) {
-        String predicate = predicatesToIntegers.indexToValue(cliterals[index]);
-        CustomPredicate cs;
-        if ((cs = this.customPredicates.get(predicate)) != null) {
-            Term[] args = new Term[cliterals[index + 1]];
+        if (cliterals[index] != cacheIndex) {
+            String predicate = predicatesToIntegers.indexToValue(cliterals[index]);
+
+            this.cachePredicate = this.customPredicates.get(predicate);
+            this.cacheIndex = cliterals[index];
+        }
+
+        if (this.cachePredicate != null) {
+            Term[] args;
+            switch (cliterals[index + 1]) {
+                case 1:
+                    args = cacheTerm1;
+                    break;
+                case 2:
+                    args = cacheTerm2;
+                    break;
+                case 3:
+                    args = cacheTerm3;
+                    break;
+                default:
+                    args = new Term[cliterals[index + 1]];
+            }
+
             int j = 0;
             for (int i = index + 3; i < index + cliterals[index + 1] + 3; i++) {
                 if (grounding[cliterals[i]] != -1) {
                     args[j] = termsToIntegers.indexToValue(grounding[cliterals[i]]);
+                    if (args[j] == null) {
+                        return true;
+                    }
+                } else {
+                    return true;
                 }
                 j++;
             }
-            return cs.isSatisfiable(args);
+            return this.cachePredicate.isSatisfiable(args);
         }
         return true;
     }
@@ -1847,22 +1954,21 @@ public class SubsumptionEngineJ2 {
                 return;
             }
 
-            for (int i = 0; i < 1 << arity; i++){
-                ArrayList<Integer> temp = new ArrayList<>();
+            final int predicateId = literals[index];
+            final int maskIterations = 1 << arity;
+            final int wildcardValue = -maxArity - 2;
+
+            for (int i = 0; i < maskIterations; i++){
+                int[] literal = new int[arity + 2];
+                literal[0] = predicateId;
+                literal[1] = arity;
 
                 for (int j = 0; j < arity; j++){
-                    if ((i / (1 << j)) % 2 == 0)
-                        temp.add(j);
-                }
-
-                int[] literal = new int[arity + 2];
-                Arrays.fill(literal, -maxArity - 2);
-
-                literal[0] = literals[index];
-                literal[1] = literals[index + 1];
-
-                for (int k : temp) {
-                    literal[k + 2] = literals[index + 2 + k];
+                    if (((i >> j) & 1) == 0) {
+                        literal[j + 2] = literals[index + 2 + j];
+                    } else {
+                        literal[j + 2] = wildcardValue;
+                    }
                 }
 
                 set.add(literal);
