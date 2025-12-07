@@ -18,79 +18,113 @@ package cz.cvut.fel.ida.utils.math.collections;
 import cz.cvut.fel.ida.setup.Settings;
 
 import java.util.*;
-import java.math.*;
+
 /**
  * A simple but fast class for storing sets of int[] arrays.
- * 
+ *
  * @author ondra
  */
 public class VectorSet {
-    
-    private static Random random = new Random(Settings.seed);
-    
-    private int startTwoPow = 5;
-    
-    private int capacity = BigInteger.probablePrime(startTwoPow, random).intValue();
-    
+
+    private static final float LOAD_FACTOR = 0.667f;
+
+    private int capacity;
     private int size;
-    
     private int[][] data;
-    
     private List<int[]>[] collisions;
-    
+    private int resizeThreshold;
+
     /**
      * Creates a new instance of class VectorSet
      */
-    public VectorSet(){
+    public VectorSet() {
+        this(32);
+    }
+
+    public VectorSet(int initialCapacity) {
+        this.capacity = findNextPrime(initialCapacity);
+        this.resizeThreshold = (int) (this.capacity * LOAD_FACTOR);
         this.data = new int[capacity][];
         this.collisions = new List[capacity];
+        this.size = 0;
     }
-    
+
     /**
      * Adds the given int[] array to the set.
      * @param vector the array
      */
-    public final void add(int[] vector){
+    public final void add(int[] vector) {
         int hash = hash(vector);
-        if (data[hash] == null){
+        int[] existing = data[hash];
+
+        if (existing == null) {
             data[hash] = vector;
-            this.size++;
+            size++;
+        } else if (Arrays.equals(existing, vector)) {
+            return; // Already exists
         } else {
-            if (collisions[hash] == null){
-                collisions[hash] = new ArrayList<int[]>(1);
-                //collisions[hash] = new LinkedList<int[]>();
-            }
-            for (int[] array : collisions[hash]){
-                if (Arrays.equals(array, vector)){
-                    return;
+            List<int[]> collisionList = collisions[hash];
+            if (collisionList == null) {
+                collisionList = new ArrayList<>(2);
+                collisions[hash] = collisionList;
+            } else {
+                // Check if vector already exists in collision list
+                for (int[] array : collisionList) {
+                    if (Arrays.equals(array, vector)) {
+                        return;
+                    }
                 }
             }
-            collisions[hash].add(vector);
-            this.size++;
+            collisionList.add(vector);
+            size++;
         }
-        if (this.size >= this.capacity/1.5+1){
+
+        if (size >= resizeThreshold) {
             resize();
         }
     }
-    
-    private void resize(){
-        this.startTwoPow++;
-        this.capacity = BigInteger.probablePrime(this.startTwoPow, random).intValue();
-        int[][] oldData = this.data;
-        List<int[]>[] oldCollisions = this.collisions;
-        this.data = new int[capacity][];
-        this.collisions = new List[capacity];//new ArrayList[capacity];
-        for (int i = 0; i < oldData.length; i++){
-            if (oldData[i] != null){
-                this.add(oldData[i]);
+
+    private void resize() {
+        int oldCapacity = capacity;
+        int[][] oldData = data;
+        List<int[]>[] oldCollisions = collisions;
+
+        capacity = findNextPrime(oldCapacity * 2);
+        resizeThreshold = (int) (capacity * LOAD_FACTOR);
+        data = new int[capacity][];
+        collisions = new List[capacity];
+        size = 0;
+
+        // Rehash primary entries
+        for (int[] vector : oldData) {
+            if (vector != null) {
+                addToNewTable(vector);
             }
         }
-        for (List<int[]> list : oldCollisions){
-            if (list != null){
-                for (int[] array : list){
-                    this.add(array);
+
+        // Rehash collision entries
+        for (List<int[]> list : oldCollisions) {
+            if (list != null) {
+                for (int[] vector : list) {
+                    addToNewTable(vector);
                 }
             }
+        }
+    }
+
+    private void addToNewTable(int[] vector) {
+        int hash = hash(vector);
+        if (data[hash] == null) {
+            data[hash] = vector;
+            size++;
+        } else {
+            List<int[]> collisionList = collisions[hash];
+            if (collisionList == null) {
+                collisionList = new ArrayList<>(2);
+                collisions[hash] = collisionList;
+            }
+            collisionList.add(vector);
+            size++;
         }
     }
 
@@ -99,41 +133,23 @@ public class VectorSet {
      * @param vector the array
      * @return true if the VectorSet contains the given array of integers
      */
-    public final boolean contains(int[] vector){
+    public final boolean contains(int[] vector) {
         int hash = hash(vector);
-        int[] array0 = this.data[hash];
-//        if (array0 != null){
-//            if (array0.length == vector.length){
-//                boolean equal = true;
-//                for (int i = 0; i < vector.length; i++){
-//                    if (array0[i] != vector[i]){
-//                        equal = false;
-//                        break;
-//                    }
-//                }
-//                if (equal){
-//                    return true;
-//                }
-//            }
-            if (Arrays.equals(array0, vector)){
-                return true;
-            }
-            if (this.collisions[hash] != null){
-                outerLoop: for (int[] array : this.collisions[hash]){
-//                    if (array.length == vector.length){
-//                        for (int i = 0; i < array.length; i++){
-//                            if (array[i] != vector[i]){
-//                                continue outerLoop;
-//                            }
-//                        }
-//                        return true;
-//                    }
-                    if (Arrays.equals(array, vector)){
-                        return true;
-                    }
+        int[] existing = data[hash];
+
+        if (existing != null && Arrays.equals(existing, vector)) {
+            return true;
+        }
+
+        List<int[]> collisionList = collisions[hash];
+        if (collisionList != null) {
+            for (int[] array : collisionList) {
+                if (Arrays.equals(array, vector)) {
+                    return true;
                 }
             }
-//        }
+        }
+
         return false;
     }
 
@@ -148,18 +164,34 @@ public class VectorSet {
         }
         System.out.println("size: "+this.size+", capacity: "+this.capacity+", num collisions: "+num+", max: "+max);
     }
-    
-    private int hash(int[] vector){
-        int ret = 0;
-        int cap = this.capacity;
-        for (int i = 0; i < vector.length; i++){
-            ret = ((ret+1) * (vector[i] + 1+i*i*i)) % cap;
+
+    private int hash(int[] vector) {
+        int hash = 0;
+        for (int i = 0; i < vector.length; i++) {
+            hash = 31 * hash + vector[i];
         }
-        if (ret < 0){
-            ret = (cap-ret) % cap;
-        }
-        return ret;
-//        return Arrays.hashCode(vector) % this.capacity;
+        hash = hash ^ (hash >>> 16);
+        return (hash & Integer.MAX_VALUE) % capacity;
     }
-    
+
+    private static int findNextPrime(int n) {
+        if (n < 2) return 2;
+        if (n == 2) return 2;
+        if ((n & 1) == 0) n++;
+
+        while (!isPrime(n)) {
+            n += 2;
+        }
+        return n;
+    }
+
+    private static boolean isPrime(int n) {
+        if (n < 2) return false;
+        if (n == 2) return true;
+        if ((n & 1) == 0) return false;
+        for (int i = 3; i * i <= n; i += 2) {
+            if (n % i == 0) return false;
+        }
+        return true;
+    }
 }
