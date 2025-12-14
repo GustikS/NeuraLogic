@@ -60,7 +60,6 @@ public class IsoClauseWrapper {
     }
 
     private static Clause preprocess(Clause clause){
-        Set<Literal> newLiterals = new HashSet<Literal>();
         Set<Literal> preprocessedLiterals = transformLiterals(clause.literals());
         Set<Literal> fingerPrints = initialFingerPrints(clause.literals());
         List<Integer> oldUnique = null;
@@ -71,7 +70,8 @@ public class IsoClauseWrapper {
             unique = uniquenessSpectrum(newFingerprints);
             fingerPrints = newFingerprints;
         } while (!oldUnique.equals(unique));
-        return new Clause(Sugar.iterable(preprocessedLiterals, fingerPrints));
+
+        return new Clause(preprocessedLiterals, fingerPrints);
     }
 
     private static List<Integer> uniquenessSpectrum(Set<Literal> fingerPrints){

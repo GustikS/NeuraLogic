@@ -17,7 +17,6 @@ package cz.cvut.fel.ida.utils.math.collections;
 
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -34,14 +33,14 @@ public class MultiMap<R,S> {
 
     private final Set<?> emptySet = new LinkedHashSet<>();
 
-    private final ConcurrentHashMap<R, Set<S>> map;
+    private final Map<R, Set<S>> map;
 
     public MultiMap() {
         this(DEFAULT_CAPACITY);
     }
 
     public MultiMap(int initialCapacity) {
-        this.map = new ConcurrentHashMap<>(initialCapacity, LOAD_FACTOR, 1);
+        this.map = new HashMap<>(initialCapacity, LOAD_FACTOR);
     }
 
     public int size() {
@@ -61,7 +60,7 @@ public class MultiMap<R,S> {
      * @param key the key
      * @return true if the MultiMap contains the given key
      */
-    public boolean containsKey(Object key) {
+    public boolean containsKey(R key) {
         return map.containsKey(key);
     }
 
@@ -71,7 +70,7 @@ public class MultiMap<R,S> {
      * @param key the key
      * @return list of elements associated to <em>key</em>.
      */
-    public Set<S> get(Object key) {
+    public Set<S> get(R key) {
         Set<S> result = map.get(key);
         return result != null ? result : (Set<S>) emptySet;
     }
@@ -160,7 +159,7 @@ public class MultiMap<R,S> {
      * @param key the key
      * @param value the value to be removed
      */
-    public void remove(Object key, Object value) {
+    public void remove(R key, S value) {
         Set<S> set = map.get(key);
         if (set != null && set.remove(value) && set.isEmpty()) {
             map.remove(key);
@@ -171,7 +170,7 @@ public class MultiMap<R,S> {
      * Removes all values associated with the given key.
      * @param key the key
      */
-    public Set<S> remove(Object key) {
+    public Set<S> remove(R key) {
         Set<S> removed = map.remove(key);
         return removed != null ? removed : (Set<S>) emptySet;
     }
@@ -181,7 +180,7 @@ public class MultiMap<R,S> {
      * @param keys the keys for which the associated values should be removed
      * from the MultiMap
      */
-    public void removeAll(Collection<?> keys) {
+    public void removeAll(Collection<R> keys) {
         if (keys != null) {
             keys.forEach(map::remove);
         }

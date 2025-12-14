@@ -95,18 +95,23 @@ public class VectorSet {
         collisions = new List[capacity];
         size = 0;
 
-        // Rehash primary entries
-        for (int[] vector : oldData) {
+        // Rehash primary entries - cache length
+        final int oldDataLength = oldData.length;
+        for (int i = 0; i < oldDataLength; i++) {
+            int[] vector = oldData[i];
             if (vector != null) {
                 addToNewTable(vector);
             }
         }
 
-        // Rehash collision entries
-        for (List<int[]> list : oldCollisions) {
+        // Rehash collision entries - cache length
+        final int oldCollisionsLength = oldCollisions.length;
+        for (int i = 0; i < oldCollisionsLength; i++) {
+            List<int[]> list = oldCollisions[i];
             if (list != null) {
-                for (int[] vector : list) {
-                    addToNewTable(vector);
+                final int listSize = list.size();
+                for (int j = 0; j < listSize; j++) {
+                    addToNewTable(list.get(j));
                 }
             }
         }
@@ -143,8 +148,9 @@ public class VectorSet {
 
         List<int[]> collisionList = collisions[hash];
         if (collisionList != null) {
-            for (int[] array : collisionList) {
-                if (Arrays.equals(array, vector)) {
+            final int collisionSize = collisionList.size();
+            for (int i = 0; i < collisionSize; i++) {
+                if (Arrays.equals(collisionList.get(i), vector)) {
                     return true;
                 }
             }

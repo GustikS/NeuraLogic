@@ -404,11 +404,7 @@ public class Literal implements Serializable {
      * @return the arguments of the literal iterable the form of a set
      */
     public Set<Term> terms() {
-        Set<Term> set = new HashSet<Term>();
-        for (Term t : terms) {
-            set.add(t);
-        }
-        return set;
+        return new HashSet<>(Arrays.asList(terms));
     }
 
     public Term[] arguments() {

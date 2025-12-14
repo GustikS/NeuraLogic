@@ -1565,9 +1565,7 @@ public class Sugar {
     public static <T> Collection<T> flatten(Collection<? extends Collection<T>> coll){
         List<T> retVal = new ArrayList<T>();
         for (Collection<T> l : coll){
-            for (T t : l){
-                retVal.add(t);
-            }
+            retVal.addAll(l);
         }
         return retVal;
     }

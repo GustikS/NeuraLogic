@@ -168,7 +168,7 @@ public class Constant implements Term {
     }
 
     public boolean isNumeric() {
-        return isInteger() || isDouble();
+        return this.constantType  != GENERIC;
     }
 
     public int intValue() {

@@ -1336,12 +1336,10 @@ public class SubsumptionEngineJ2 {
         public ClauseE(Clause clause) {
             // Pre-calculate clause structure to avoid redundant iterations
             Set<Literal> clauseLiterals = clause.literals();
-            Collection<Term> clauseTerms = clause.terms();
 
             // First pass: collect predicates and calculate array sizes
             Set<Integer> predicateSet = new HashSet<>(clauseLiterals.size());
             int literalArraySize = 0;
-            int termCount = clauseTerms.size();
 
             for (Literal l : clauseLiterals) {
                 if (!l.isNegated()) {
@@ -1382,14 +1380,13 @@ public class SubsumptionEngineJ2 {
                     if (isSymmetric) {
                         // Symmetric predicate: collect all position/term pairs
                         for (int i = 0; i < arity; i++) {
+                            Pair<Integer, Integer> key = new Pair<>(predicateId, i);
+                            List<Integer> list = varDomainsMap.computeIfAbsent(key, k -> new ArrayList<>(8));
+
                             for (int j = 0; j < arity; j++) {
                                 int termId = termsToIntegers.valueToIndex(l.get(j));
                                 literals[index + j] = termId;
-
-                                // Collect domain for position i
-                                Pair<Integer, Integer> key = new Pair<>(predicateId, i);
-                                varDomainsMap.computeIfAbsent(key, k -> new ArrayList<>(8))
-                                        .add(termId);
+                                list.add(termId);
                             }
                         }
                     } else {
@@ -1437,28 +1434,31 @@ public class SubsumptionEngineJ2 {
             csl = new CompletelySymmetricLiterals(literals);
 
             // Single pass: collect all terms and typed terms
-            Set<Integer> allTermsSet = new HashSet<>(termCount);
-            Map<Integer, List<Integer>> typedTermsMap = new HashMap<>(termCount);
+            Set<Integer> allTermsSet = new HashSet<>(clauseLiterals.size() * 2);
+            Map<Integer, Set<Integer>> typedTermsMap = new HashMap<>(clauseLiterals.size() * 2);
 
-            for (Term t : clauseTerms) {
-                int termId = termsToIntegers.valueToIndex(t);
-                allTermsSet.add(termId);
+            for (Literal l : clauseLiterals) {
+                final Term[] terms = l.arguments();
+                final int size = terms.length;
 
-                // Collect typed terms without null check overhead
-                String typeStr = t.type() != null ? t.type() : null;
-                if (typeStr != null) {
-                    int typeId = typesToIntegers.valueToIndex(typeStr);
-                    typedTermsMap.computeIfAbsent(typeId, k -> new ArrayList<>(8))
-                            .add(termId);
+                for (int i = 0; i < size; i++) {
+                    int termId = termsToIntegers.valueToIndex(terms[i]);
+                    allTermsSet.add(termId);
+
+                    final String typeStr = terms[i].type();
+                    if (typeStr != null) {
+                        int typeId = typesToIntegers.valueToIndex(typeStr);
+                        typedTermsMap.computeIfAbsent(typeId, k -> new HashSet<>(8))
+                                .add(termId);
+                    }
                 }
             }
 
             this.allTerms = IntegerSet.createIntegerSet(allTermsSet);
 
             IntegerMultiMap<Integer> typedTermMM = new IntegerMultiMap<>();
-            for (Map.Entry<Integer, List<Integer>> entry : typedTermsMap.entrySet()) {
-                Set<Integer> termSet = new HashSet<>(entry.getValue());
-                typedTermMM.add(entry.getKey(), IntegerSet.createIntegerSet(termSet));
+            for (Map.Entry<Integer, Set<Integer>> entry : typedTermsMap.entrySet()) {
+                typedTermMM.add(entry.getKey(), IntegerSet.createIntegerSet(entry.getValue()));
             }
 
             this.typedTerms = typedTermMM;
@@ -1546,8 +1546,9 @@ public class SubsumptionEngineJ2 {
     }
 
     private boolean isGround(int[] cliterals, int[] grounding, int index) {
-        for (int i = index + 3, j = 0; i < index + cliterals[index + 1] + 3; i++, j++) {
-            if (grounding[cliterals[i]] == -1) {
+        final int arity = cliterals[index + 1];
+        for (int j = 0; j < arity; j++) {
+            if (grounding[cliterals[index + 3 + j]] == -1) {
                 return false;
             }
         }
@@ -1562,9 +1563,12 @@ public class SubsumptionEngineJ2 {
             this.cacheIndex = cliterals[index];
         }
 
+        final int arity = cliterals[index + 1];
+        final int offset = index + 3;
+
         if (this.cachePredicate != null) {
             Term[] args;
-            switch (cliterals[index + 1]) {
+            switch (arity) {
                 case 1:
                     args = cacheTerm1;
                     break;
@@ -1575,31 +1579,36 @@ public class SubsumptionEngineJ2 {
                     args = cacheTerm3;
                     break;
                 default:
-                    args = new Term[cliterals[index + 1]];
+                    args = new Term[arity];
             }
 
-            int j = 0;
-            for (int i = index + 3; i < index + cliterals[index + 1] + 3; i++) {
-                if (grounding[cliterals[i]] != -1) {
-                    args[j] = termsToIntegers.indexToValue(grounding[cliterals[i]]);
-                    if (args[j] == null) {
-                        return true;
-                    }
-                } else {
+            for (int j = 0; j < arity; j++) {
+                final int termId = grounding[cliterals[j + offset]];
+                if (termId == -1) {
                     return true;
                 }
-                j++;
+
+                args[j] = termsToIntegers.indexToValue(termId);
+                if (args[j] == null) {
+                    return true;
+                }
             }
+
             return this.cachePredicate.isSatisfiable(args);
         }
         return true;
     }
 
     private boolean matchSpecialLiteral(ClauseC c, int index, ClauseE e) {
-        int[] cliterals = c.literals;
-        int[] grounding = c.groundedValues;
-        int predicate = cliterals[index];
-        int arity = cliterals[index + 1];
+        final int[] cliterals = c.literals;
+        final int[] grounding = c.groundedValues;
+        final int predicate = cliterals[index];
+
+        if (predicate >= 0) {
+            return matchCustomLiteral(cliterals, grounding, index);
+        }
+
+        final int arity = cliterals[index + 1];
         switch (predicate) {
             case alldiff:
                 //fast pre-check for alldiff
@@ -1821,7 +1830,7 @@ public class SubsumptionEngineJ2 {
 
                 return true;
         }
-        return matchCustomLiteral(cliterals, grounding, index);
+        return false;
     }
 
     private class HighArityLiterals {
@@ -1927,9 +1936,9 @@ public class SubsumptionEngineJ2 {
      */
     private class LowArityLiterals {
 
-        private VectorSet set = new VectorSet();
+        private final VectorSet set = new VectorSet();
 
-        private int maxArity;
+        private final int maxArity;
 
         /**
          * @param literals
@@ -1982,18 +1991,23 @@ public class SubsumptionEngineJ2 {
          * @return
          */
         public boolean match(ClauseC c, int index, ClauseE e, int[] auxBuffer) {
-            int[] cliterals = c.literals;
+            final int[] cliterals = c.literals;
             if ((cliterals[index + 2] & SPECIAL_PREDICATE) != 0/*specialPredicateIds.contains(cliterals[index])*/) {
                 return matchSpecialLiteral(c, index, e);
             }
-            //auxBuffer = new int[cliterals[index + 1] + 2];
+
+            final int arity = cliterals[index + 1];
+            final int wildCard = -maxArity - 2;
+
             auxBuffer[0] = cliterals[index];
-            auxBuffer[1] = cliterals[index + 1];
-            for (int i = index + 3, j = 0; i < index + cliterals[index + 1] + 3; i++, j++) {
-                if (c.groundedValues[cliterals[i]] == -1) {
-                    auxBuffer[j + 2] = -maxArity - 2;
+            auxBuffer[1] = arity;
+
+            for (int j = 2; j < arity + 2; j++) {
+                final int tmp = c.groundedValues[cliterals[j + index + 1]];
+                if (tmp  == -1) {
+                    auxBuffer[j] = wildCard;
                 } else {
-                    auxBuffer[j + 2] = c.groundedValues[cliterals[i]];
+                    auxBuffer[j] = tmp;
                 }
             }
             return set.contains(auxBuffer);

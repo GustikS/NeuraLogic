@@ -4,10 +4,7 @@ import cz.cvut.fel.ida.logic.*;
 import cz.cvut.fel.ida.logic.subsumption.HerbrandModel;
 import cz.cvut.fel.ida.utils.generic.TestAnnotations;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -17,7 +14,7 @@ class SpecialVarargPredicatesTest {
     void alldiff() {
 
         Clause example = Clause.parse(" bond(d1, d2), bond(d2, d1), bond(d2, d3), bond(d3, d2), bond(d3,d4), bond(d4, d1).");
-        LinkedHashSet<Literal> facts = example.literals();
+        Set<Literal> facts = example.literals();
 
         List<HornClause> template = new ArrayList<>();
         HornClause finalRule;
@@ -33,7 +30,7 @@ class SpecialVarargPredicatesTest {
     void leq() {
 
         Clause example = Clause.parse(" bond(d1, d2), num(1), num(2), num(3).");
-        LinkedHashSet<Literal> facts = example.literals();
+        Set<Literal> facts = example.literals();
 
         List<HornClause> template = new ArrayList<>();
         HornClause finalRule;
@@ -46,7 +43,7 @@ class SpecialVarargPredicatesTest {
     void le() {
 
         Clause example = Clause.parse(" bond(d1, d2), num(1), num(2), num(3).");
-        LinkedHashSet<Literal> facts = example.literals();
+        Set<Literal> facts = example.literals();
 
         List<HornClause> template = new ArrayList<>();
         HornClause finalRule;
@@ -59,7 +56,7 @@ class SpecialVarargPredicatesTest {
     void eq() {
 
         Clause example = Clause.parse(" bond(d1, d2), num(1), num(2), num(3).");
-        LinkedHashSet<Literal> facts = example.literals();
+        Set<Literal> facts = example.literals();
 
         List<HornClause> template = new ArrayList<>();
         HornClause finalRule;
@@ -72,7 +69,7 @@ class SpecialVarargPredicatesTest {
     void neq() {
 
         Clause example = Clause.parse(" bond(d1, d2), num(1), num(2), num(3).");
-        LinkedHashSet<Literal> facts = example.literals();
+        Set<Literal> facts = example.literals();
 
         List<HornClause> template = new ArrayList<>();
         HornClause finalRule;
@@ -85,7 +82,7 @@ class SpecialVarargPredicatesTest {
     void next() {
 
         Clause example = Clause.parse(" bond(d1, d2), num(1), num(2), num(3).");
-        LinkedHashSet<Literal> facts = example.literals();
+        Set<Literal> facts = example.literals();
 
         List<HornClause> template = new ArrayList<>();
         HornClause finalRule;
@@ -94,7 +91,7 @@ class SpecialVarargPredicatesTest {
         test(facts, template, finalRule, 2);       // (1,2) (2,3)
     }
 
-    private void test(LinkedHashSet<Literal> facts, List<HornClause> rules, HornClause finalRule, int number) {
+    private void test(Set<Literal> facts, List<HornClause> rules, HornClause finalRule, int number) {
         HerbrandModel herbrandModel = new HerbrandModel(facts, rules);
         final Collection<Literal> inferedAtoms = herbrandModel.inferAtoms();
         cz.cvut.fel.ida.utils.generic.Pair<Term[], List<Term[]>> groundingSubstitutions = herbrandModel.groundingSubstitutions(new Clause(finalRule.getLiterals()));
