@@ -116,12 +116,16 @@ public class IntegerSet {
         if (set.isEmpty()){
             return emptySet;
         }
-        int[] values = new int[set.size()];
-        int index = 0;
-        for (int integer : set){
-            values[index++] = integer;
+
+        int[] array = new int[set.size()];
+        int i = 0;
+
+        for (final int value : set) {
+            array[i++] = value;
         }
-        return createIntegerSet(values);
+        Arrays.sort(array);
+
+        return new IntegerSet(array);
     }
 
     /**

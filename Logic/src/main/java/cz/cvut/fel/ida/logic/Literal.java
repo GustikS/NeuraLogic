@@ -328,6 +328,7 @@ public class Literal implements Serializable {
             if (!other.predicate.name.equals(this.predicate.name)) {
                 return false;
             }
+
             for (int i = 0; i < this.terms.length; i++) {
                 if (!terms[i].equals(other.terms[i])) {
                     return false;
@@ -339,15 +340,16 @@ public class Literal implements Serializable {
 
     @Override
     public int hashCode() {
-        if (hashCode != -1) {
-            return hashCode;
+        if (hashCode != -1) return hashCode;
+
+        int hash = predicate.name.hashCode();
+        final int len = terms.length;
+
+        for (int i = 0; i < len; i++) {
+            hash = hash * 0x1d1d1d1d + terms[i].hashCode();
         }
-        int hash = this.predicate.name.hashCode();
-        for (int i = 0; i < terms.length; i++) {
-            hash = (int) ((long) terms[i].hashCode() * (long) hash);
-        }
-        hash *= (this.negated ? -1 : 1);
-        return (hashCode = hash);
+
+        return hashCode = negated ? ~hash : hash;
     }
 
     public int liftedHashCode() {

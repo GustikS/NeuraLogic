@@ -20,23 +20,36 @@ import java.util.*;
  */
 public class ValueToIndex<T> {
 
-    private int lastIndex = 0;
-    private int max = 0;
-
     private final HashMap<T, Integer> valueToIndex;
-    private final HashMap<Integer, T> indexToValue;
+    private Object[] indexToValue;
+
+    private int nextIndex;
+    private int maxIndex;
+    private int minIndex;
+    private int size = 0;
 
     private static final int INITIAL_CAPACITY = 16;
+    private static final float LOAD_FACTOR = 0.75f;
+    private static final int MIN_ALLOWED_INDEX = -16;
+    private static final int ARRAY_OFFSET = -MIN_ALLOWED_INDEX;  // 16
 
     public ValueToIndex() {
         this(0);
     }
 
     public ValueToIndex(int startIndex) {
-        this.lastIndex = startIndex;
-        this.max = startIndex - 1;
+        if (startIndex < MIN_ALLOWED_INDEX) {
+            throw new IllegalArgumentException(
+                    "startIndex must be >= " + MIN_ALLOWED_INDEX + ", got " + startIndex);
+        }
+
+        this.nextIndex = startIndex;
+        this.minIndex = startIndex;
+        this.maxIndex = startIndex - 1;
         this.valueToIndex = new HashMap<>(INITIAL_CAPACITY);
-        this.indexToValue = new HashMap<>(INITIAL_CAPACITY);
+
+        int initialArraySize = Math.max(startIndex + ARRAY_OFFSET + 16, INITIAL_CAPACITY + ARRAY_OFFSET);
+        this.indexToValue = new Object[initialArraySize];
     }
 
     /**
@@ -44,17 +57,25 @@ public class ValueToIndex<T> {
      * @param t the object
      * @return the unique integer representing the object
      */
-    public int valueToIndex(T t) {
-        Integer index = valueToIndex.get(t);
-        if (index != null) {
-            return index;
+    public int valueToIndex(T value) {
+        Integer cachedIndex = valueToIndex.putIfAbsent(value, nextIndex);
+        if (cachedIndex != null) {
+            return cachedIndex;
         }
 
-        int newIndex = lastIndex++;
-        valueToIndex.put(t, newIndex);
-        indexToValue.put(newIndex, t);
-        max = newIndex;
-        return newIndex;
+        int arrayPos = nextIndex + ARRAY_OFFSET;
+        if (arrayPos >= indexToValue.length) {
+            Object[] newArray = new Object[(int)(indexToValue.length * 1.5f) + 1];
+            System.arraycopy(indexToValue, 0, newArray, 0, indexToValue.length);
+            indexToValue = newArray;
+        }
+
+        indexToValue[arrayPos] = value;
+        maxIndex = Math.max(maxIndex, nextIndex);
+        minIndex = Math.min(minIndex, nextIndex);
+        size++;
+
+        return nextIndex++;
     }
 
     /**
@@ -64,12 +85,19 @@ public class ValueToIndex<T> {
      * @param index the unique identifier of the object
      * @return the object corresponding to the given unique identifier or null if there is no such object
      */
+    @SuppressWarnings("unchecked")
     public T indexToValue(int index) {
-        return indexToValue.get(index);
+        int arrayPos = index + ARRAY_OFFSET;
+        if (arrayPos < 0 || arrayPos >= indexToValue.length || indexToValue[arrayPos] == null) {
+            return null;
+        }
+        return (T) indexToValue[arrayPos];
     }
 
+    @SuppressWarnings("unchecked")
     public T getValue(int index) {
-        return indexToValue.get(index);
+        int arrayPos = index + ARRAY_OFFSET;
+        return arrayPos >= 0 && arrayPos < indexToValue.length ? (T) indexToValue[arrayPos] : null;
     }
 
     public int getIndex(T value) {
@@ -82,24 +110,55 @@ public class ValueToIndex<T> {
     }
 
     public boolean containsIndex(int index) {
-        return indexToValue.containsKey(index);
+        if (index < MIN_ALLOWED_INDEX || index >= nextIndex) {
+            return false;
+        }
+        int arrayPos = index + ARRAY_OFFSET;
+        return arrayPos >= 0 && arrayPos < indexToValue.length && indexToValue[arrayPos] != null;
     }
 
     /**
      * Adds the given pair unique identifier - object
-     * @param key the unique identifier
+     * @param index the unique identifier
      * @param value the object
      */
-    public void put(int key, T value) {
-        valueToIndex.put(value, key);
-        indexToValue.put(key, value);
-
-        if (key >= lastIndex) {
-            lastIndex = key + 1;
-            max = key;
-        } else if (key > max) {
-            max = key;
+    public void put(int index, T value) {
+        if (index < MIN_ALLOWED_INDEX) {
+            throw new IllegalArgumentException(
+                    "Index must be >= " + MIN_ALLOWED_INDEX + ", got " + index);
         }
+
+        Integer oldIndex = valueToIndex.get(value);
+        if (oldIndex != null && oldIndex == index) {
+            return;  // No change
+        }
+
+        int arrayPos = index + ARRAY_OFFSET;
+
+        // Grow array if necessary
+        while (arrayPos >= indexToValue.length) {
+            Object[] newArray = new Object[(int)(indexToValue.length * 1.5f) + 1];
+            System.arraycopy(indexToValue, 0, newArray, 0, indexToValue.length);
+            indexToValue = newArray;
+        }
+
+        // Remove old mapping if exists
+        if (oldIndex != null) {
+            int oldArrayPos = oldIndex + ARRAY_OFFSET;
+            if (oldArrayPos >= 0 && oldArrayPos < indexToValue.length) {
+                indexToValue[oldArrayPos] = null;
+            }
+        } else {
+            size++;
+        }
+
+        // Insert new mapping
+        valueToIndex.put(value, index);
+        indexToValue[arrayPos] = value;
+
+        nextIndex = Math.max(nextIndex, index + 1);
+        maxIndex = Math.max(maxIndex, index);
+        minIndex = Math.min(minIndex, index);
     }
 
     /**
@@ -108,11 +167,11 @@ public class ValueToIndex<T> {
      * @return the set of unique identifiers for the objects iterable the collection <em>coll</em>
      */
     public Set<Integer> valuesToIndices(Collection<T> coll) {
-        Set<Integer> retVal = new HashSet<>(coll.size());
-        for (T t : coll) {
-            retVal.add(valueToIndex(t));
+        Set<Integer> result = new HashSet<>((int)(coll.size() / LOAD_FACTOR) + 1);
+        for (T value : coll) {
+            result.add(valueToIndex(value));
         }
-        return retVal;
+        return result;
     }
 
     /**
@@ -121,22 +180,32 @@ public class ValueToIndex<T> {
      * @return the set of objects for the unique identifiers iterable the collection <em>coll</em>
      */
     public Set<T> indicesToValues(Collection<Integer> coll) {
-        Set<T> retVal = new HashSet<>(coll.size());
-        for (Integer i : coll) {
-            T value = indexToValue.get(i);
-            if (value != null) {
-                retVal.add(value);
+        Set<T> result = new HashSet<>((int)(coll.size() / LOAD_FACTOR) + 1);
+        for (Integer index : coll) {
+            int arrayPos = index + ARRAY_OFFSET;
+            if (arrayPos >= 0 && arrayPos < indexToValue.length) {
+                T value = (T) indexToValue[arrayPos];
+                if (value != null) {
+                    result.add(value);
+                }
             }
         }
-        return retVal;
+        return result;
     }
 
-    public Map<T,Integer> valuesToIndicesMap(){
-        return this.valueToIndex;
+    public Map<T, Integer> valuesToIndicesMap() {
+        return Collections.unmodifiableMap(valueToIndex);
     }
 
-    public Map<Integer,T> indicesToValuesMap(){
-        return this.indexToValue;
+    @SuppressWarnings("unchecked")
+    public Map<Integer, T> indicesToValuesMap() {
+        Map<Integer, T> result = new HashMap<>();
+        for (int arrayPos = 0; arrayPos < indexToValue.length; arrayPos++) {
+            if (indexToValue[arrayPos] != null) {
+                result.put(arrayPos - ARRAY_OFFSET, (T) indexToValue[arrayPos]);
+            }
+        }
+        return result;
     }
 
     /**
@@ -144,7 +213,7 @@ public class ValueToIndex<T> {
      * @return number of elements for which there are the unique IDs
      */
     public int size() {
-        return valueToIndex.size();
+        return size;
     }
 
     /**
@@ -160,7 +229,13 @@ public class ValueToIndex<T> {
      * @return the unique IDs
      */
     public Set<Integer> indices() {
-        return indexToValue.keySet();
+        Set<Integer> result = new HashSet<>();
+        for (int arrayPos = 0; arrayPos < indexToValue.length; arrayPos++) {
+            if (indexToValue[arrayPos] != null) {
+                result.add(arrayPos - ARRAY_OFFSET);
+            }
+        }
+        return result;
     }
 
     /**
@@ -168,11 +243,19 @@ public class ValueToIndex<T> {
      * @return the max index
      */
     public int max() {
-        return max;
+        return maxIndex;
+    }
+
+    public int min() {
+        return minIndex;
+    }
+
+    public int minAllowedIndex() {
+        return MIN_ALLOWED_INDEX;
     }
 
     @Override
     public String toString() {
-        return valueToIndex.toString();
+        return "ValueToIndex[size=" + size + ", range=[" + minIndex + ", " + maxIndex + "]]";
     }
 }

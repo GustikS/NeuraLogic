@@ -19,12 +19,14 @@ public class HerbrandModel {
     /**
      * Map predicates to SETs of ground atoms
      */
-    private MultiMap<Predicate, Literal> herbrand;
+    private final MultiMap<Predicate, Literal> herbrand;
+
+    private final MultiMap<Predicate, Literal> additionsToHerbrand;
 
     /**
      * Use the subsumption engine wrapper
      */
-    private Matching matching;
+    private final Matching matching;
 
     /**
      * The current Herbrand model processed as an indexed structure
@@ -48,6 +50,7 @@ public class HerbrandModel {
 
     public HerbrandModel(Collection<Literal> facts, Collection<HornClause> rules) {
         herbrand = new MultiMap<>();
+        additionsToHerbrand = new MultiMap<>();
         preparedRules = new LinkedHashMap<>();
         matching = new Matching();
         addFacts(facts);
@@ -72,7 +75,11 @@ public class HerbrandModel {
         LOG.finer("herbrand size before round " + round + " = " + herbrandSize0);
         do {
             if (clauseE == null || round > 0) {    // it is initialized outside, but needs to be rebuilt incrementally
-                setupClause();
+                setupClause(herbrand, additionsToHerbrand);
+
+                for (Map.Entry<Predicate, Set<Literal>> predicateSetEntry : additionsToHerbrand.entrySet()) {
+                    predicateSetEntry.getValue().clear();
+                }
             }
             LinkedList<Map.Entry<HornClause, PreparedRule>> entries = new LinkedList<>(preparedRules.entrySet()); // a copy for removing
             for (Iterator<Map.Entry<HornClause, PreparedRule>> iterator = entries.iterator(); iterator.hasNext(); ) {
@@ -89,12 +96,12 @@ public class HerbrandModel {
                 if (preparedRule.isGroundHead) {
                     // add the head to herbrand iff the rule body is true
                     if (matching.subsumption(preparedRule.clauseC, clauseE)) {
+                        additionsToHerbrand.put(rule.head().predicate(), rule.head());
                         herbrand.put(rule.head().predicate(), rule.head());
                         iterator.remove(); // if so, do not ever try this ground rule again
                     }
                 } else {  //if it is not ground, find (and in the background through the solutionConsumer add to herbrand) all NEW substitutions for the head literal
-                    final cz.cvut.fel.ida.utils.generic.tuples.Pair<Term[], List<Term[]>> listPair = matching.allSubstitutions(preparedRule.clauseC, clauseE, Integer.MAX_VALUE);
-                    int num = listPair.s.size();
+                    matching.allSubstitutions(preparedRule.clauseC, clauseE, Integer.MAX_VALUE);
                 }
                 //remove the consumer as the found substitutions should be applied only to the head of the currently solved rule
                 matching.getEngine().removeSolutionConsumer(preparedRule.solutionConsumer);
@@ -166,6 +173,7 @@ public class HerbrandModel {
     public void addFacts(Collection<Literal> facts) {
         for (Literal groundLiteral : facts) {
             herbrand.put(groundLiteral.predicate(), groundLiteral);
+            additionsToHerbrand.put(groundLiteral.predicate(), groundLiteral);
         }
     }
 
@@ -175,8 +183,22 @@ public class HerbrandModel {
      * @return
      */
     public Clause setupClause() {
-        derivedClause = new Clause(Sugar.flatten(herbrand.values()));
-        clauseE = matching.createClauseE(derivedClause);
+        return setupClause(herbrand, null);
+    }
+
+    public Clause setupClause(MultiMap<Predicate, Literal> herbrand, MultiMap<Predicate, Literal> newAdditions) {
+        if (derivedClause == null || newAdditions == null) {
+            derivedClause = new Clause(Sugar.flatten(herbrand.values()));
+        } else if (!newAdditions.isEmpty()){
+            derivedClause.addLiterals(Sugar.flatten(newAdditions.values()));
+        }
+
+        if (clauseE == null || newAdditions == null) {
+            clauseE = matching.createClauseE(derivedClause);
+        } else if (!newAdditions.isEmpty()){
+            clauseE.expand(Sugar.flattenToSet(newAdditions.values()));
+        }
+
         return derivedClause;
     }
 
@@ -195,13 +217,14 @@ public class HerbrandModel {
         for (HornClause rule : rules) {
             final Predicate headPredicate = rule.head().predicate();
             if (!herbrand.containsKey(headPredicate)) {   //a rule head predicate might have been in the facts already!
-                herbrand.set(headPredicate, Collections.synchronizedSet(new HashSet<>()));
+                herbrand.set(headPredicate, new HashSet<>());
+                additionsToHerbrand.set(headPredicate, new HashSet<>());
             }
             final boolean isGroundHead = LogicUtils.isGround(rule.head());
             final Clause clause = prepareClauseForGrounder(rule, isGroundHead);
             SubsumptionEngineJ2.ClauseC clauseC = matching.createClauseC(clause);
             // solution consumer = automatically add all found valid substitutions of the head literal into the herbrand map
-            PredicateSolutionConsumer solutionConsumer = new PredicateSolutionConsumer(rule.head(), herbrand.get(headPredicate));
+            PredicateSolutionConsumer solutionConsumer = new PredicateSolutionConsumer(rule.head(), herbrand.get(headPredicate), additionsToHerbrand.get(headPredicate));
 
             preparedRules.put(rule, new PreparedRule(rule, clauseC, isGroundHead, solutionConsumer));
         }
@@ -290,13 +313,20 @@ public class HerbrandModel {
         }
 
         public boolean isGroundSatisfiable(Clause derivedClause) {
-            for (Literal l : groundLiterals) {
+            if (groundLiterals.isEmpty()) {
+                return true;
+            }
+
+            final Set<String> predicates = derivedClause.predicates();
+            final int size = groundLiterals.size();
+            for (int i = 0; i < size; i++) {
+                Literal l = groundLiterals.get(i);
                 if (l.isNegated()) {
-                    if (derivedClause.predicates().contains(l.predicateName())) {
+                    if (predicates.contains(l.predicateName())) {
                         return false;
                     }
                 }
-                else if (!l.predicate().special && !derivedClause.predicates().contains(l.predicateName())) {
+                else if (!l.predicate().special && !predicates.contains(l.predicateName())) {
                     return false;
                 }
             }
@@ -310,11 +340,13 @@ public class HerbrandModel {
     private static class PredicateSolutionConsumer implements SolutionConsumer {
 
         Literal ruleHead;
-        private Set<Literal> headGroundings;
+        private final Set<Literal> headGroundings;
+        private final Set<Literal> headGroundings2;
 
-        private PredicateSolutionConsumer(Literal head, Set<Literal> groundHeads) {
+        private PredicateSolutionConsumer(Literal head, Set<Literal> groundHeads, Set<Literal> groundHeads2) {
             this.ruleHead = head;
             this.headGroundings = groundHeads;
+            this.headGroundings2 = groundHeads2;
         }
 
         @Override
@@ -323,6 +355,7 @@ public class HerbrandModel {
                 template[i].setIndexWithinSubstitution(i);
             }
             headGroundings.add(ruleHead.subsCopy(solution));
+            headGroundings2.add(ruleHead.subsCopy(solution));
         }
 
         public void clear() {
@@ -348,11 +381,11 @@ public class HerbrandModel {
 
         private static final Literal lit = new Literal();
 
-        private Set<Literal> literals; //mildly optimize this by storing set of Term[] instead? Probably not
+        private final Set<Literal> literals; //mildly optimize this by storing set of Term[] instead? Probably not
 
-        private String name;
+        private final String name;
 
-        private String predicate;
+        private final String predicate;
 
         TupleNotIn(Predicate predicate, Set<Literal> literals) {
             this.predicate = predicate.name;
@@ -367,8 +400,14 @@ public class HerbrandModel {
 
         @Override
         public boolean isSatisfiable(Term... arguments) {
-            lit.predicate().name = predicate;
-            lit.predicate().arity = arguments.length;
+            if (literals.isEmpty()) {
+                return true;
+            }
+
+            final Predicate pred = lit.predicate();
+
+            pred.name = predicate;
+            pred.arity = arguments.length;
             lit.setTerms(arguments);
 
             return !literals.contains(lit);

@@ -69,12 +69,17 @@ public class Clause {
 
     public void addLiterals(Collection<Literal> c) {
         this.hashCode = -1;
-        // Invalidate all caches when adding literals
+        this.literals.addAll(c);
+
+        this.literalsByName = null;
+        this.literalsByTerms = null;
+
         this.variablesCache = null;
         this.termsCache = null;
+        this.predicateCache = null;
 
-        for (Literal l : c) {
-            this.addLiteral(l);
+        for (Literal literal : c) {
+            literal.allowModifications(false);
         }
     }
 
@@ -215,7 +220,7 @@ public class Clause {
             return predicateCache;
         }
 
-        Set<String> predicateCache = new HashSet<>();
+        Set<String> predicateCache = new HashSet<>(literals.size(), 1f);
         for (Literal literal : literals) {
             predicateCache.add(literal.predicateName());
         }

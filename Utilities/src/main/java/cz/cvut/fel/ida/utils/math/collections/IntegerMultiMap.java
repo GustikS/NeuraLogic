@@ -28,7 +28,7 @@ import java.util.Map.Entry;
  */
 public class IntegerMultiMap<R> {
     
-    private Map<R,IntegerSet> map = new HashMap<R,IntegerSet>();
+    private final Map<R,IntegerSet> map = new HashMap<R,IntegerSet>();
 
     /**
      * Creates a new instance of IntegerMulttiMap from an instance of class MultiMap<R,Integer>
@@ -76,10 +76,7 @@ public class IntegerMultiMap<R> {
      * IntegerSet.emptySet is returned.
      */
     public IntegerSet get(R key) {
-        if (map.containsKey(key))
-            return map.get(key);
-        else
-            return IntegerSet.emptySet;
+        return map.getOrDefault(key, IntegerSet.emptySet);
     }
 
     /**
@@ -88,11 +85,7 @@ public class IntegerMultiMap<R> {
      * @param value the value
      */
     public void add(R key, IntegerSet value) {
-        if (!map.containsKey(key)){
-            map.put(key, value);
-        } else {
-            map.put(key, IntegerSet.union(value, map.get(key)));
-        }
+        map.merge(key, value, IntegerSet::union);
     }
     
     /**

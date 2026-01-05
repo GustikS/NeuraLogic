@@ -1570,6 +1570,19 @@ public class Sugar {
         return retVal;
     }
 
+    public static <T> Set<T> flattenToSet(Collection<? extends Collection<T>> coll){
+        int size = 0;
+        for (Collection<T> l : coll) {
+            size += l.size();
+        }
+
+        Set<T> retVal = new HashSet<>(size);
+        for (Collection<T> l : coll){
+            retVal.addAll(l);
+        }
+        return retVal;
+    }
+
     public static int countRecursively(Collection coll){
         int retVal = 0;
         for (Object o : coll){
