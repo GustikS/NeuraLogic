@@ -330,14 +330,20 @@ public class VectorValue extends Value {
             final MatrixValue result = new MatrixValue(value.values.length, values.length);
             final double[] resultValues = result.values;
             final double[] tempValues = value.values;
+            final double[] thisValues = this.values;
+
+            final int tempLen = tempValues.length;
+            final int thisLen = thisValues.length;
 
             int index = 0;
 
-            for (final double tmpValue : tempValues) {
-                for (final double v : values) {
-                    resultValues[index++] = tmpValue * v;
+            for (int i = 0; i < tempLen; i++) {
+                final double tmpValue = tempValues[i];
+                for (int j = 0; j < thisLen; j++) {
+                    resultValues[index++] = tmpValue * thisValues[j];
                 }
             }
+
             return result;
         } else {
             String err = "Incompatible dimensions for vector multiplication: " + Arrays.toString(value.size()) + " vs " + Arrays.toString(this.size()) + " (try transposition)";
