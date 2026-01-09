@@ -1324,11 +1324,11 @@ public class SubsumptionEngineJ2 {
 
         private IntegerSet predicates;
 
-        private LowArityLiterals lal;
+        private final LowArityLiterals lal = new LowArityLiterals(lowArity);
 
-        private HighArityLiterals hal;
+        private final HighArityLiterals hal = new HighArityLiterals(lowArity);
 
-        private CompletelySymmetricLiterals csl;
+        private final CompletelySymmetricLiterals csl = new CompletelySymmetricLiterals();
 
         private int minPredicateCounter = Integer.MAX_VALUE;
 
@@ -1362,14 +1362,12 @@ public class SubsumptionEngineJ2 {
 
             // Second pass: build literals array and collect domains
             int index = 0;
-            int startIndex = 0;
             int[] newLiterals = null;
 
             if (literals == null) {
                 newLiterals = new int[literalArraySize];
             } else {
                 index = literals.length;
-                startIndex = index;
                 newLiterals = new int[index + literalArraySize];
                 System.arraycopy(literals, 0, newLiterals, 0, index);
             }
@@ -1435,6 +1433,8 @@ public class SubsumptionEngineJ2 {
                             allTermsSet.add(termId);
                         }
                     }
+
+                    csl.add(newLiterals, index - 2);
                 } else {
                     // Normal predicate: position j maps to argument j
                     for (int j = 0; j < arity; j++) {
@@ -1457,6 +1457,12 @@ public class SubsumptionEngineJ2 {
                             allTermsSet.add(termId);
                         }
                     }
+
+                    if (arity <= lowArity) {
+                        lal.add(newLiterals, index - 2);
+                    } else {
+                        hal.add(newLiterals, index - 2);
+                    }
                 }
                 index += arity;
             }
@@ -1468,19 +1474,6 @@ public class SubsumptionEngineJ2 {
             }
 
             this.variableDomains = variableDomains;
-
-            // Initialize literal matchers
-            if (lal == null) {
-                lal = new LowArityLiterals(newLiterals, lowArity);
-            } else {
-                for (int i = startIndex; i < newLiterals.length; i += newLiterals[i + 1] + 2) {
-                    lal.add(newLiterals, i);
-                }
-            }
-
-            hal = new HighArityLiterals(newLiterals, lowArity);
-            csl = new CompletelySymmetricLiterals(newLiterals);
-
             IntegerSet newAllTerms = IntegerSet.createIntegerSet(allTermsSet);
             this.allTerms = this.allTerms == null ? newAllTerms : IntegerSet.union(this.allTerms, newAllTerms);
 
@@ -1488,6 +1481,10 @@ public class SubsumptionEngineJ2 {
             for (Map.Entry<Integer, Set<Integer>> entry : typedTermsMap.entrySet()) {
                 typedTermMM.add(entry.getKey(), IntegerSet.createIntegerSet(entry.getValue()));
             }
+
+            // Process newly added literals to matchers
+            csl.flush();
+            hal.flush(newLiterals);
 
             this.typedTerms = typedTermMM;
             this.predicateCounts = null;
@@ -1922,52 +1919,81 @@ public class SubsumptionEngineJ2 {
 
     private class HighArityLiterals {
 
-        private Map<Triple<Integer, Integer, Integer>, Integer> lower;
+        private final Map<Triple<Integer, Integer, Integer>, Integer> lower = new HashMap<>();
 
-        private Map<Triple<Integer, Integer, Integer>, Integer> upper;
+        private final Map<Triple<Integer, Integer, Integer>, Integer> upper = new HashMap<>();
 
         private int[] literals;
 
-        private int maxArity;
+        private final List<Integer> indices = new ArrayList<>();
+
+        private int newSize = 0;
+
+        private final int maxArity;
 
         /**
-         * @param lits
          * @param maxArity
          */
-        public HighArityLiterals(int[] lits, int maxArity) {
+        public HighArityLiterals(int maxArity) {
             this.maxArity = maxArity;
-            List<Integer> tempLiterals = new ArrayList<Integer>();
-            //[predicate,argument,term] -> position iterable literals array
-            MultiMap<Triple<Integer, Integer, Integer>, Integer> bag = new MultiMap<Triple<Integer, Integer, Integer>, Integer>();
-            for (int i = 0; i < lits.length; i += lits[i + 1] + 2) {
-                if (lits[i + 1] > this.maxArity) {
-                    for (int j = 0; j < lits[i + 1] + 2; j++) {
-                        tempLiterals.add(lits[i + j]);
-                    }
+        }
+
+        public void add(int[] literals, int index) {
+            this.indices.add(index);
+            this.newSize += literals[index + 1];
+        }
+
+        public void flush(int[] literals) {
+            int startIndex = 0;
+
+            if (this.literals == null) {
+                this.literals = new int[this.newSize];
+            } else {
+                startIndex = this.literals.length;
+
+                int[] newArray = new int[startIndex + this.newSize];
+                System.arraycopy(this.literals, 0, newArray, 0, startIndex);
+
+                this.literals = newArray;
+            }
+
+            if (this.indices.isEmpty()) {
+                return;
+            }
+
+            final int size = this.indices.size();
+            MultiMap<Triple<Integer, Integer, Integer>, Integer> bag = new MultiMap<>();
+
+            for (int i = 0; i < size; i++) {
+                final int index = this.indices.get(i);
+
+                for (int j = 0; j < literals[index + 1] + 2; j++) {
+                    bag.put(new Triple<>(this.literals[index], j, this.literals[index + 2 + j]), index);
+                    this.literals[startIndex++] = literals[index + j];
                 }
             }
-            this.literals = VectorUtils.toIntegerArray(tempLiterals);
-            for (int i = 0; i < this.literals.length; i += this.literals[i + 1] + 2) {
-                for (int j = 0; j < this.literals[i + 1]; j++) {
-                    bag.put(new Triple<Integer, Integer, Integer>(this.literals[i], j, this.literals[i + 2 + j]), i);
-                }
-            }
-            this.lower = new HashMap<Triple<Integer, Integer, Integer>, Integer>();
-            this.upper = new HashMap<Triple<Integer, Integer, Integer>, Integer>();
+
             for (Map.Entry<Triple<Integer, Integer, Integer>, Set<Integer>> entry : bag.entrySet()) {
-                this.lower.put(entry.getKey(), Sugar.findBest(entry.getValue(), new Sugar.MyComparator<Integer>() {
+                int bestLower = Sugar.findBest(entry.getValue(), new Sugar.MyComparator<Integer>() {
                     @Override
                     public boolean isABetterThanB(Integer a, Integer b) {
                         return a < b;
                     }
-                }));
-                this.upper.put(entry.getKey(), Sugar.findBest(entry.getValue(), new Sugar.MyComparator<Integer>() {
+                });
+
+                int bestUpper = Sugar.findBest(entry.getValue(), new Sugar.MyComparator<Integer>() {
                     @Override
                     public boolean isABetterThanB(Integer a, Integer b) {
                         return a >= b;
                     }
-                }));
+                });
+
+                this.lower.merge(entry.getKey(), bestLower, (a, b) -> a < b ? a : b);
+                this.upper.merge(entry.getKey(), bestUpper, (a, b) -> a >= b ? a : b);
             }
+
+            this.indices.clear();
+            this.newSize = 0;
         }
 
         /**
@@ -2029,15 +2055,10 @@ public class SubsumptionEngineJ2 {
         private final int maxArity;
 
         /**
-         * @param literals
          * @param maxArity
          */
-        public LowArityLiterals(int[] literals, int maxArity) {
+        public LowArityLiterals(int maxArity) {
             this.maxArity = maxArity;
-            for (int i = 0; i < literals.length; i += literals[i + 1] + 2) {
-                add(literals, i);
-            }
-            //set.printStats();
         }
 
         /**
@@ -2114,25 +2135,28 @@ public class SubsumptionEngineJ2 {
     private class CompletelySymmetricLiterals {
 
 
-        private Map<Integer, IntegerMultiMap<Integer>> termsToLiterals = new HashMap<Integer, IntegerMultiMap<Integer>>();
+        private final Map<Integer, IntegerMultiMap<Integer>> termsToLiterals = new HashMap<Integer, IntegerMultiMap<Integer>>();
 
-        /**
-         * @param literals
-         */
-        public CompletelySymmetricLiterals(int[] literals) {
-            Map<Integer, MultiMap<Integer, Integer>> ttl = new HashMap<Integer, MultiMap<Integer, Integer>>();
-            for (int index = 0; index < literals.length; index += literals[index + 1] + 2) {
-                if (predicatesToIntegers.indexToValue(literals[index]).startsWith(SymmetricPredicates.PREFIX)) {
-                    final int arity = literals[index + 1];
-                    MultiMap<Integer, Integer> mm = ttl.computeIfAbsent(literals[index], k -> new MultiMap<>());
-                    for (int i = 0; i < arity; i++) {
-                        mm.put(literals[index + i + 2], index);
-                    }
-                }
+        private final Map<Integer, MultiMap<Integer, Integer>> ttl = new HashMap<>();
+
+        public void add(int[] literals, int index) {
+            final int arity = literals[index + 1];
+            MultiMap<Integer, Integer> mm = ttl.computeIfAbsent(literals[index], k -> new MultiMap<>());
+            for (int i = 0; i < arity; i++) {
+                mm.put(literals[index + i + 2], index);
             }
+        }
+
+        public void flush() {
+            if (ttl.isEmpty()) {
+                return;
+            }
+
             for (Map.Entry<Integer, MultiMap<Integer, Integer>> entry : ttl.entrySet()) {
-                termsToLiterals.put(entry.getKey(), IntegerMultiMap.createIntegerMultiMap(entry.getValue()));
+                termsToLiterals.merge(entry.getKey(), IntegerMultiMap.createIntegerMultiMap(entry.getValue()), IntegerMultiMap::merge);
             }
+
+            ttl.clear();
         }
 
         /**
