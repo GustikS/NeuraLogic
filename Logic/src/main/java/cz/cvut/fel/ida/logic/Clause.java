@@ -61,7 +61,7 @@ public class Clause {
     }
 
     public Clause(Literal... literals) {
-        this.literals = new HashSet<>(List.of(literals));
+        this.literals = new HashSet<>(Arrays.asList(literals));
         for (Literal literal : literals) {
             literal.allowModifications(false);
         }
