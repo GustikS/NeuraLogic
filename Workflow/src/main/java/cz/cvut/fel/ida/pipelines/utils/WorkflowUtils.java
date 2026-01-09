@@ -24,7 +24,7 @@ public class WorkflowUtils {
 
     public static <T> Iterator<List<T>> consecutiveGroupsIterator(
             Iterator<T> source, Function<T, ?> classifier) {
-        return new Iterator<>() {
+        return new Iterator<List<T>>() {
             private List<T> currentGroup = null;
             private T nextElement = null;
 
