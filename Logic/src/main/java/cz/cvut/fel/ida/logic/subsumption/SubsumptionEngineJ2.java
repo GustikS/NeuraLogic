@@ -1940,7 +1940,7 @@ public class SubsumptionEngineJ2 {
 
         public void add(int[] literals, int index) {
             this.indices.add(index);
-            this.newSize += literals[index + 1];
+            this.newSize += literals[index + 1] + 2;
         }
 
         public void flush(int[] literals) {
@@ -1966,10 +1966,14 @@ public class SubsumptionEngineJ2 {
 
             for (int i = 0; i < size; i++) {
                 final int index = this.indices.get(i);
+                final int sindex = startIndex;
 
-                for (int j = 0; j < literals[index + 1] + 2; j++) {
-                    bag.put(new Triple<>(this.literals[index], j, this.literals[index + 2 + j]), index);
-                    this.literals[startIndex++] = literals[index + j];
+                this.literals[startIndex++] = literals[index];
+                this.literals[startIndex++] = literals[index + 1];
+
+                for (int j = 0; j < literals[index + 1]; j++) {
+                    bag.put(new Triple<>(literals[index], j, literals[index + 2 + j]), sindex);
+                    this.literals[startIndex++] = literals[index + j + 2];
                 }
             }
 
