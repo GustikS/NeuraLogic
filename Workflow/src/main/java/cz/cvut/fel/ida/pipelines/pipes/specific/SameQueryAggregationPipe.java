@@ -49,8 +49,20 @@ public class SameQueryAggregationPipe extends Pipe<Stream<NeuralProcessingSample
                 }
                 singleExampleMap.put(neuron, sample);
             }
-            for (Map.Entry<AtomNeurons, List<NeuralProcessingSample>> atomNeuronsListEntry : singleExampleMap.entrySet()) {
-                outputProcessingSamples.add(mergeSamples(atomNeuronsListEntry.getValue()));
+
+            for (NeuralProcessingSample sample : list) {
+                AtomNeurons neuron = sample.query.neuron;
+                if (neuron == null) {
+                    neuron = new AtomNeuron(sample.query.ID, sample.query.position, null);
+                }
+
+                List<NeuralProcessingSample> samples =  singleExampleMap.get(neuron);
+                if (samples.isEmpty()) {
+                    continue;
+                }
+
+                outputProcessingSamples.add(mergeSamples(samples));
+                singleExampleMap.remove(neuron);
             }
 
             return outputProcessingSamples.stream();
