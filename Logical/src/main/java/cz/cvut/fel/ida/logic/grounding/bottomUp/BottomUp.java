@@ -55,14 +55,23 @@ public class BottomUp extends Grounder {
         if (template.herbrandModel == null) {    // first run with skipped template inference (in non-standard pipelines)
             template.preprocessInference(settings.preprocessTemplateInference);
         }
+
+        template.herbrandModel.addFacts(template.getAllAtoms(settings.preprocessTemplateInference));
+        if (template.clause == null) {
+            template.clause = template.herbrandModel.setupClause();
+            template.clauseE = template.herbrandModel.getClauseE();
+        }
+        template.herbrandModel.clearAdditions();
+
         HerbrandModel herbrandModel = template.herbrandModel;
+        herbrandModel.setClause(template.clause.copy());
+        herbrandModel.setClauseE(template.clauseE.copy());
 
         final List<HornClause> exampleRules = example.getRules();
         herbrandModel.addRules(exampleRules);
-        herbrandModel.addFacts(template.getAllAtoms(settings.preprocessTemplateInference));
         herbrandModel.addFacts(getAllFacts(example));
 
-        Clause clause = herbrandModel.setupClause();
+        Clause clause = herbrandModel.updateClause();
         example.clause = clause;  // storing the efficient ClauseE structure of the original example for potential reuse
         example.clauseE = herbrandModel.getClauseE();
 

@@ -546,6 +546,20 @@ public class Clause {
         return new Pair<Clause, Set<? extends Term>>(new Clause(lits), closed);
     }
 
+    public Clause copy() {
+        Clause res = new Clause();
+
+        res.literals = new HashSet<>(this.literals);
+        res.literalsByTerms = this.literalsByTerms == null ? null : this.literalsByTerms.copy();
+        res.literalsByName = this.literalsByName == null ? null : this.literalsByName.copy();
+        res.predicateCache = this.predicateCache == null ? null : new HashSet<>(this.predicateCache);
+        res.termsCache = this.termsCache == null ? null : new HashSet<>(this.termsCache);
+        res.variablesCache = this.variablesCache == null ? null : new HashSet<>(this.variablesCache);
+        res.hashCode = this.hashCode;
+
+        return res;
+    }
+
     public static void main(String[] args) {
         Clause c = Clause.parse("professor(a1) v !taughtBy(a2,a1,a3) v !courseLevel(a2,Level_500)", 'v');
         for (Clause comp : c.connectedComponents(false, Sugar.<Term>set(Constant.construct("a1")))) {

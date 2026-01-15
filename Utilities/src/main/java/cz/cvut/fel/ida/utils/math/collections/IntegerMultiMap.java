@@ -28,7 +28,7 @@ import java.util.Map.Entry;
  */
 public class IntegerMultiMap<R> {
     
-    private final Map<R,IntegerSet> map = new HashMap<R,IntegerSet>();
+    private final Map<R,IntegerSet> map;
 
     /**
      * Creates a new instance of IntegerMulttiMap from an instance of class MultiMap<R,Integer>
@@ -50,6 +50,14 @@ public class IntegerMultiMap<R> {
         }
 
         return a;
+    }
+
+    public IntegerMultiMap() {
+        this.map = new HashMap<>();
+    }
+
+    private IntegerMultiMap(Map<R, IntegerSet> map) {
+        this.map = new HashMap<>(map);
     }
     
     /**
@@ -151,5 +159,9 @@ public class IntegerMultiMap<R> {
             return this.map.equals(((IntegerMultiMap)o).map);
         }
         return false;
+    }
+
+    public IntegerMultiMap<R> copy() {
+        return new IntegerMultiMap<>(this.map);
     }
 }

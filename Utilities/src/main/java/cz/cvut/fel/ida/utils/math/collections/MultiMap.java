@@ -253,6 +253,16 @@ public class MultiMap<R,S> {
         return sb.toString();
     }
 
+    public MultiMap<R, S> copy() {
+        MultiMap<R, S> res = new MultiMap<>(this.map.size());
+
+        for (Entry<R, Set<S>> entry : this.map.entrySet()) {
+            res.map.put(entry.getKey(), new LinkedHashSet<>(entry.getValue()));
+        }
+
+        return res;
+    }
+
     /**
      * 
      * @return int[] array with numbers of elements associated to particular keys

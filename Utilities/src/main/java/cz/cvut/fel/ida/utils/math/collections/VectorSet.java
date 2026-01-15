@@ -159,6 +159,24 @@ public class VectorSet {
         return false;
     }
 
+    public VectorSet copy() {
+        VectorSet res = new VectorSet();
+
+        res.capacity = this.capacity;
+        res.data = this.data.clone();
+        res.size = this.size;
+        res.resizeThreshold = this.resizeThreshold;
+
+        res.collisions = new List[this.collisions.length];
+        for (int i = 0; i < res.collisions.length; i++) {
+            if (this.collisions[i] != null) {
+                res.collisions[i] = new ArrayList<>(this.collisions[i]);
+            }
+        }
+
+        return res;
+    }
+
     public void printStats(){
         double num = 0;
         double max = 0;

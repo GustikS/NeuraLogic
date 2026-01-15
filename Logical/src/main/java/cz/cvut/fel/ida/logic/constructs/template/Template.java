@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.logic.constructs.template;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.learning.Model;
+import cz.cvut.fel.ida.logic.Clause;
 import cz.cvut.fel.ida.logic.HornClause;
 import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.logic.constructs.Conjunction;
@@ -13,6 +14,7 @@ import cz.cvut.fel.ida.logic.constructs.template.components.HeadAtom;
 import cz.cvut.fel.ida.logic.constructs.template.components.WeightedRule;
 import cz.cvut.fel.ida.logic.constructs.template.types.GraphTemplate;
 import cz.cvut.fel.ida.logic.subsumption.HerbrandModel;
+import cz.cvut.fel.ida.logic.subsumption.SubsumptionEngineJ2;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,6 +48,10 @@ public class Template implements Model<QueryAtom>, Exportable {
      * Template's own inference engine, storing preprocessed structures
      */
     public transient HerbrandModel herbrandModel;
+
+    public SubsumptionEngineJ2.ClauseE clauseE;
+
+    public Clause clause;
 
     /**
      * Atoms inferred on top of the given {@link #facts} using the {@link #herbrandModel}

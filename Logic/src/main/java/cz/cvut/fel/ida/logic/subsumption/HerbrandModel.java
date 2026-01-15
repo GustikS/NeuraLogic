@@ -186,6 +186,10 @@ public class HerbrandModel {
         return setupClause(herbrand, null);
     }
 
+    public Clause updateClause() {
+       return setupClause(herbrand, additionsToHerbrand);
+    }
+
     public Clause setupClause(MultiMap<Predicate, Literal> herbrand, MultiMap<Predicate, Literal> newAdditions) {
         if (derivedClause == null || newAdditions == null) {
             derivedClause = new Clause(Sugar.flatten(herbrand.values()));
@@ -419,6 +423,20 @@ public class HerbrandModel {
      */
     public void removeAllAtoms() {
         for (Map.Entry<Predicate, Set<Literal>> predicateSetEntry : herbrand.entrySet()) {
+            predicateSetEntry.getValue().clear();
+        }
+    }
+
+    public void setClauseE(SubsumptionEngineJ2.ClauseE clauseE) {
+        this.clauseE = clauseE;
+    }
+
+    public void setClause(Clause clause) {
+        this.derivedClause = clause;
+    }
+
+    public void clearAdditions() {
+        for (Map.Entry<Predicate, Set<Literal>> predicateSetEntry : additionsToHerbrand.entrySet()) {
             predicateSetEntry.getValue().clear();
         }
     }
