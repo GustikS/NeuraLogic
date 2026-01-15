@@ -1324,11 +1324,11 @@ public class SubsumptionEngineJ2 {
 
         private IntegerSet predicates;
 
-        private final LowArityLiterals lal = new LowArityLiterals(lowArity);
+        private final LowArityLiterals lal;
 
-        private final HighArityLiterals hal = new HighArityLiterals(lowArity);
+        private final HighArityLiterals hal;
 
-        private final CompletelySymmetricLiterals csl = new CompletelySymmetricLiterals();
+        private final CompletelySymmetricLiterals csl;
 
         private int minPredicateCounter = Integer.MAX_VALUE;
 
@@ -1341,8 +1341,24 @@ public class SubsumptionEngineJ2 {
          * @param clause the clause which should be compiled into the efficient representation
          */
         public ClauseE(Clause clause) {
+            this.lal = new LowArityLiterals(lowArity);
+            this.hal = new HighArityLiterals(lowArity);
+            this.csl = new CompletelySymmetricLiterals();
+
             // Pre-calculate clause structure to avoid redundant iterations
             this.expand(clause.literals());
+        }
+
+        private ClauseE() {
+            this.lal = new LowArityLiterals(lowArity);
+            this.hal = new HighArityLiterals(lowArity);
+            this.csl = new CompletelySymmetricLiterals();
+        }
+
+        private ClauseE(LowArityLiterals lal, HighArityLiterals hal, CompletelySymmetricLiterals csl) {
+            this.lal = lal;
+            this.hal = hal;
+            this.csl = csl;
         }
 
         public void expand(Set<Literal> clauseLiterals) {
@@ -1575,6 +1591,21 @@ public class SubsumptionEngineJ2 {
 
         public IntegerSet allTerms() {
             return this.allTerms;
+        }
+
+        public ClauseE copy() {
+            ClauseE res = new ClauseE(this.lal.copy(), this.hal.copy(), this.csl.copy());
+
+            res.allTerms = this.allTerms;
+            res.literals = this.literals.clone();
+            res.predicates = this.predicates;
+            res.typedTerms = this.typedTerms.copy();
+            res.variableDomains = new HashMap<>(this.variableDomains);
+            res.predicateCounts = this.predicateCounts == null ? null : this.predicateCounts.clone();
+            res.minPredicateCounter = this.minPredicateCounter;
+            res.maxPredicateCounter = this.maxPredicateCounter;
+
+            return res;
         }
     }
 
@@ -1919,13 +1950,13 @@ public class SubsumptionEngineJ2 {
 
     private class HighArityLiterals {
 
-        private final Map<Triple<Integer, Integer, Integer>, Integer> lower = new HashMap<>();
+        private final Map<Triple<Integer, Integer, Integer>, Integer> lower;
 
-        private final Map<Triple<Integer, Integer, Integer>, Integer> upper = new HashMap<>();
+        private final Map<Triple<Integer, Integer, Integer>, Integer> upper;
 
         private int[] literals;
 
-        private final List<Integer> indices = new ArrayList<>();
+        private final List<Integer> indices;
 
         private int newSize = 0;
 
@@ -1936,12 +1967,29 @@ public class SubsumptionEngineJ2 {
          */
         public HighArityLiterals(int maxArity) {
             this.maxArity = maxArity;
+
+            this.indices = new ArrayList<>();
+            this.lower = new HashMap<>();
+            this.upper = new HashMap<>();
+        }
+
+        private HighArityLiterals(
+                Map<Triple<Integer, Integer, Integer>, Integer> lower,
+                Map<Triple<Integer, Integer, Integer>, Integer> upper,
+                List<Integer> indices,
+                int maxArity
+        ) {
+            this.maxArity = maxArity;
+            this.lower = lower;
+            this.upper = upper;
+            this.indices = indices;
         }
 
         public void add(int[] literals, int index) {
             this.indices.add(index);
             this.newSize += literals[index + 1] + 2;
         }
+
 
         public void flush(int[] literals) {
             int startIndex = 0;
@@ -2047,6 +2095,17 @@ public class SubsumptionEngineJ2 {
             }
             return false;
         }
+
+        public HighArityLiterals copy() {
+            HighArityLiterals res = new HighArityLiterals(
+                new HashMap<>(this.lower), new HashMap<>(this.upper), new ArrayList<>(this.indices), this.maxArity
+            );
+
+            res.newSize = this.newSize;
+            res.literals = this.literals.clone();
+
+            return res;
+        }
     }
 
     /**
@@ -2054,7 +2113,7 @@ public class SubsumptionEngineJ2 {
      */
     private class LowArityLiterals {
 
-        private final VectorSet set = new VectorSet();
+        private final VectorSet set;
 
         private final int maxArity;
 
@@ -2063,6 +2122,12 @@ public class SubsumptionEngineJ2 {
          */
         public LowArityLiterals(int maxArity) {
             this.maxArity = maxArity;
+            this.set = new VectorSet();
+        }
+
+        private LowArityLiterals(int maxArity, VectorSet set) {
+            this.maxArity = maxArity;
+            this.set = set;
         }
 
         /**
@@ -2131,6 +2196,10 @@ public class SubsumptionEngineJ2 {
 
             return set.contains(auxBuffer);
         }
+
+        public LowArityLiterals copy() {
+            return new LowArityLiterals(this.maxArity, this.set.copy());
+        }
     }
 
     /**
@@ -2138,10 +2207,19 @@ public class SubsumptionEngineJ2 {
      */
     private class CompletelySymmetricLiterals {
 
+        private final Map<Integer, IntegerMultiMap<Integer>> termsToLiterals;
 
-        private final Map<Integer, IntegerMultiMap<Integer>> termsToLiterals = new HashMap<Integer, IntegerMultiMap<Integer>>();
+        private final Map<Integer, MultiMap<Integer, Integer>> ttl;
 
-        private final Map<Integer, MultiMap<Integer, Integer>> ttl = new HashMap<>();
+        public CompletelySymmetricLiterals() {
+            this.termsToLiterals = new HashMap<>();
+            this.ttl = new HashMap<>();
+        }
+
+        private CompletelySymmetricLiterals(Map<Integer, IntegerMultiMap<Integer>> termsToLiterals, Map<Integer, MultiMap<Integer, Integer>> ttl) {
+            this.termsToLiterals = termsToLiterals;
+            this.ttl = ttl;
+        }
 
         public void add(int[] literals, int index) {
             final int arity = literals[index + 1];
@@ -2194,6 +2272,15 @@ public class SubsumptionEngineJ2 {
                 }
             }
             return domain != null;
+        }
+
+        public CompletelySymmetricLiterals copy() {
+            HashMap<Integer, IntegerMultiMap<Integer>> termsToLiters = new HashMap<>(this.termsToLiterals.size());
+            for (Map.Entry<Integer, IntegerMultiMap<Integer>> entry : termsToLiterals.entrySet()) {
+                termsToLiterals.put(entry.getKey(), entry.getValue().copy());
+            }
+
+            return new CompletelySymmetricLiterals(termsToLiterals, new HashMap<>());
         }
     }
 
