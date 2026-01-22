@@ -43,27 +43,44 @@ public class Clause {
 
 
     public Clause() {
+        this.predicateCache = new HashSet<>();
     }
 
     public Clause(Collection<? extends Literal> literals) {
         this.literals = new HashSet<>(literals);
+        final int total = this.literals.size();
+        this.predicateCache = new HashSet<>(total, 1f);
+
         for (Literal l : literals) {
             l.allowModifications(false);
+            predicateCache.add(l.predicateName());
         }
     }
 
     public Clause(Collection<? extends Literal> literals1, Collection<? extends Literal> literals2) {
-        this.literals = new HashSet<>(literals1);
+        this.literals = new HashSet<>((int) ((literals1.size() + literals2.size()) / 0.75 + 1), 0.75f);
+
+        this.literals.addAll(literals1);
         this.literals.addAll(literals2);
-        for (Literal l : this.literals) {
-            l.allowModifications(false);
+
+        final int total = this.literals.size();
+        this.predicateCache = new HashSet<>(total, 1f);
+
+        for (Literal literal : literals) {
+            literal.allowModifications(false);
+            predicateCache.add(literal.predicateName());
         }
     }
 
     public Clause(Literal... literals) {
         this.literals = new HashSet<>(Arrays.asList(literals));
+
+        final int total = literals.length;
+        this.predicateCache = new HashSet<>(total, 1f);
+
         for (Literal literal : literals) {
             literal.allowModifications(false);
+            predicateCache.add(literal.predicateName());
         }
     }
 
@@ -76,11 +93,16 @@ public class Clause {
 
         this.variablesCache = null;
         this.termsCache = null;
-        this.predicateCache = null;
+
+        final Set<String> predicateTemp = new HashSet<>(this.predicateCache.size() + c.size(), 1f);
+        predicateTemp.addAll(predicateCache);
 
         for (Literal literal : c) {
             literal.allowModifications(false);
+            predicateTemp.add(literal.predicateName());
         }
+
+        this.predicateCache = predicateTemp;
     }
 
     public void addLiteral(Literal literal) {
@@ -216,16 +238,6 @@ public class Clause {
      * @return set of all predicate names used in the Clause
      */
     public Set<String> predicates() {
-        if (predicateCache != null) {
-            return predicateCache;
-        }
-
-        Set<String> predicateCache = new HashSet<>(literals.size(), 1f);
-        for (Literal literal : literals) {
-            predicateCache.add(literal.predicateName());
-        }
-
-        this.predicateCache = predicateCache;
         return this.predicateCache;
     }
 
