@@ -18,7 +18,7 @@ public class NeuronMaps {
      * Ground rules that are NOT yet in the neuronmaps
      */
     @NotNull
-    public LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules;
+    public Map<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules;
 
     /**
      * Facts that are NOT yet in the neuronmaps
@@ -44,8 +44,8 @@ public class NeuronMaps {
     public boolean containsMasking;
 
     public NeuronMaps(LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules, Map<Literal, ValuedFact> groundFacts) {
-        this.groundRules = new LinkedHashMap<>(groundRules);
-        this.groundFacts = new HashMap<>(groundFacts);
+        this.groundRules = groundRules;
+        this.groundFacts = groundFacts;
     }
 
     public void addAllFrom(NeuronMaps neuronMaps) {

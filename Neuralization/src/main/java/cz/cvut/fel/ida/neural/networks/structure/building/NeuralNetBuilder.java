@@ -197,11 +197,10 @@ public class NeuralNetBuilder {
      * @return
      */
     public void loadNeuronsFromFacts(Map<Literal, ValuedFact> groundFacts, NeuralSets createdNeurons) {
-        for (Map.Entry<Literal, ValuedFact> factEntry : groundFacts.entrySet()) {
-            neuralBuilder.neuronFactory.createFactNeuron(factEntry.getValue());
+        for (ValuedFact fact : groundFacts.values()) {
+            neuralBuilder.neuronFactory.createFactNeuron(fact);
         }
         createdNeurons.factNeurons.addAll(neuralBuilder.neuronFactory.neuronMaps.factNeurons.values());
-        groundFacts.clear();  //remove facts that will already have corresponding neurons with them
     }
 
     /**

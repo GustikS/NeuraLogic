@@ -3,15 +3,11 @@ package cz.cvut.fel.ida.neural.networks.structure.building;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
-import cz.cvut.fel.ida.learning.LearningSample;
 import cz.cvut.fel.ida.logic.Clause;
-import cz.cvut.fel.ida.logic.Constant;
 import cz.cvut.fel.ida.logic.Literal;
-import cz.cvut.fel.ida.logic.Term;
 import cz.cvut.fel.ida.logic.constructs.building.factories.WeightFactory;
 import cz.cvut.fel.ida.logic.constructs.example.LogicSample;
 import cz.cvut.fel.ida.logic.constructs.example.QueryAtom;
-import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
 import cz.cvut.fel.ida.logic.constructs.template.components.GroundHeadRule;
 import cz.cvut.fel.ida.logic.constructs.template.components.GroundRule;
 import cz.cvut.fel.ida.logic.grounding.GroundTemplate;
@@ -252,14 +248,16 @@ public class Neuralizer implements Exportable {
         for (Map.Entry<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> entry : neuronMaps.groundRules.entrySet()) {
             neuralNetBuilder.loadNeuronsFromRules(entry.getKey(), entry.getValue(), currentNeuralSets);
         }
-        neuronMaps.groundRules.clear();   //remove rules that will have their neurons already created
+        neuronMaps.groundRules = Collections.EMPTY_MAP;   //remove rules that will have their neurons already created
 
         return getDetailedNetwork(neuronMaps, currentNeuralSets, groundTemplate, null);
     }
 
     private DetailedNetwork getDetailedNetwork(NeuronMaps neuronMaps, NeuralSets createdNeurons, GroundTemplate groundTemplate, List<Literal> queryMatchingLiterals) throws RuntimeException {
-        if (neuralNetBuilder.neuralBuilder.neuronFactory.neuronMaps.factNeurons.isEmpty() || settings.groundingMode == Settings.GroundingMode.SEQUENTIAL)
+        if (neuralNetBuilder.neuralBuilder.neuronFactory.neuronMaps.factNeurons.isEmpty() || settings.groundingMode == Settings.GroundingMode.SEQUENTIAL) {
             neuralNetBuilder.loadNeuronsFromFacts(neuronMaps.groundFacts, createdNeurons);   //global sharing mode transfers facts   - todo check after changes
+            neuronMaps.groundFacts = Collections.EMPTY_MAP; //remove facts that will already have corresponding neurons with them
+        }
 
         LOG.fine("Neurons created: " + neuralNetBuilder.getNeuronMaps());
         neuralNetBuilder.connectAllNeurons(createdNeurons);
