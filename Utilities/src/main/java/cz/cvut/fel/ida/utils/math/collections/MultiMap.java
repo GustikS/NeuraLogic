@@ -253,8 +253,14 @@ public class MultiMap<R,S> {
         return sb.toString();
     }
 
+    public void copyFrom(MultiMap<R, S> map) {
+        for (Entry<R, Set<S>> entry : map.entrySet()) {
+            this.map.get(entry.getKey()).addAll(entry.getValue());
+        }
+    }
+
     public MultiMap<R, S> copy() {
-        MultiMap<R, S> res = new MultiMap<>(this.map.size());
+        MultiMap<R, S> res = new MultiMap<>((int) (this.map.size() / LOAD_FACTOR + 1));
 
         for (Entry<R, Set<S>> entry : this.map.entrySet()) {
             res.map.put(entry.getKey(), new LinkedHashSet<>(entry.getValue()));

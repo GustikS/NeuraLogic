@@ -23,6 +23,8 @@ public class HerbrandModel {
 
     private final MultiMap<Predicate, Literal> additionsToHerbrand;
 
+    private final MultiMap<Predicate, Literal> templateCache;
+
     /**
      * Use the subsumption engine wrapper
      */
@@ -51,6 +53,7 @@ public class HerbrandModel {
     public HerbrandModel(Collection<Literal> facts, Collection<HornClause> rules) {
         herbrand = new MultiMap<>();
         additionsToHerbrand = new MultiMap<>();
+        templateCache = new MultiMap<>();
         preparedRules = new LinkedHashMap<>();
         matching = new Matching();
         addFacts(facts);
@@ -174,6 +177,13 @@ public class HerbrandModel {
         for (Literal groundLiteral : facts) {
             herbrand.put(groundLiteral.predicate(), groundLiteral);
             additionsToHerbrand.put(groundLiteral.predicate(), groundLiteral);
+        }
+    }
+
+    public void addFactsWithoutAdditions(Collection<Literal> facts) {
+        for (Literal groundLiteral : facts) {
+            herbrand.put(groundLiteral.predicate(), groundLiteral);
+            templateCache.put(groundLiteral.predicate(), groundLiteral);
         }
     }
 
@@ -435,9 +445,7 @@ public class HerbrandModel {
         this.derivedClause = clause;
     }
 
-    public void clearAdditions() {
-        for (Map.Entry<Predicate, Set<Literal>> predicateSetEntry : additionsToHerbrand.entrySet()) {
-            predicateSetEntry.getValue().clear();
-        }
+    public void syncWithCache() {
+        this.herbrand.copyFrom(this.templateCache);
     }
 }

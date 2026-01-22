@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 public class BottomUp extends Grounder {
     private static final Logger LOG = Logger.getLogger(BottomUp.class.getName());
 
-    long herbrandCumSize = 0;
     int totalRules = 0;
     long totalGroundRules = 0;
 
@@ -56,12 +55,13 @@ public class BottomUp extends Grounder {
             template.preprocessInference(settings.preprocessTemplateInference);
         }
 
-        template.herbrandModel.addFacts(template.getAllAtoms(settings.preprocessTemplateInference));
         if (template.clause == null) {
+            template.herbrandModel.addFactsWithoutAdditions(template.getAllAtoms(settings.preprocessTemplateInference));
             template.clause = template.herbrandModel.setupClause();
             template.clauseE = template.herbrandModel.getClauseE();
+        } else {
+            template.herbrandModel.syncWithCache();
         }
-        template.herbrandModel.clearAdditions();
 
         HerbrandModel herbrandModel = template.herbrandModel;
         herbrandModel.setClause(template.clause.copy());
@@ -71,8 +71,7 @@ public class BottomUp extends Grounder {
         herbrandModel.addRules(exampleRules);
         herbrandModel.addFacts(getAllFacts(example));
 
-        Clause clause = herbrandModel.updateClause();
-        example.clause = clause;  // storing the efficient ClauseE structure of the original example for potential reuse
+        example.clause = herbrandModel.updateClause();  // storing the efficient ClauseE structure of the original example for potential reuse
         example.clauseE = herbrandModel.getClauseE();
 
         Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> rulesAndFacts = rulesAndFacts(example, template);
@@ -83,9 +82,13 @@ public class BottomUp extends Grounder {
 
         LOG.fine("Infering Herbrand model...");
         Collection<Literal> literals = herbrandModel.inferAtoms();
-        Map<Literal, Literal> allLiterals = literals.stream().collect(Collectors.toMap(l -> l, l -> l));
+
+        Map<Literal, Literal> allLiterals = new HashMap<>((int) Math.ceil(literals.size() / 0.75));
+        for (Literal lit : literals) {
+            allLiterals.put(lit, lit);
+        }
+
         LOG.fine("...HerbrandModel inferred with " + allLiterals.size() + " facts");
-        herbrandCumSize += allLiterals.size();
 
         LOG.fine("Grounding of " + ruleMap.size() + " rules...");
         totalRules += ruleMap.size();
