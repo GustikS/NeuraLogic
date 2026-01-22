@@ -80,7 +80,7 @@ public class Down extends NeuronVisitor.Weighted {
             Value transpInputValue = inputComputationView.getValue().transposedView();
             Value inputGradient = fcnState.nextInputGradient();
 
-            if (weight.isLearnable) {
+            if (weight.isLearnable()) {
                 weightUpdater.visit(weight, inputGradient.times(transpInputValue));
             }
 
