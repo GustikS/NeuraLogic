@@ -18,10 +18,9 @@ import java.util.stream.Collectors;
  * Ground example is simply a collection of facts, potentially separated into conjunctions
  */
 public class GroundExample implements Example {
-    @Nullable
-    public LinkedHashSet<Conjunction> conjunctions;
+    public final LinkedHashSet<Conjunction> conjunctions = new LinkedHashSet<>();
 
-    public LinkedHashSet<ValuedFact> flatFacts;
+    public final LinkedHashSet<ValuedFact> flatFacts = new LinkedHashSet<>();
 
     /**
      * Storing also the efficient ClauseE structure of the original example for potential reuse after grounding
@@ -39,8 +38,6 @@ public class GroundExample implements Example {
 
     public GroundExample() {
         id = "#" + exampleCounter++;
-        conjunctions = new LinkedHashSet<>();
-        flatFacts = new LinkedHashSet<>();
     }
 
     public GroundExample(List<Conjunction> conjunctions) {
