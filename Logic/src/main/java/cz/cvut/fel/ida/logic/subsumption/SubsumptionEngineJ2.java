@@ -98,7 +98,8 @@ public class SubsumptionEngineJ2 {
 
     //this is for speed - so that we could just be checking integer identifiers
     private final static int alldiff = -1, neq = -2, eq = -3, leq = -4, lt = -5, geq = -6, gt = -7, maxcard = -8, in = -9,
-            anypred = -10, truepred = -11, falsepred = -12, next = -13, add = -14, sub = -15, mod = -16;
+            anypred = -10, truepred = -11, falsepred = -12, next = -13, add = -14, sub = -15, mod = -16,
+            addeval = -17, subeval = -18, modeval = -19, muleval = -20, diveval = -21, maxeval = -22, mineval = -23;
 
     public SubsumptionEngineJ2() {
         this.predicatesToIntegers.put(alldiff, SpecialVarargPredicates.ALLDIFF);
@@ -117,6 +118,14 @@ public class SubsumptionEngineJ2 {
         this.predicatesToIntegers.put(add, SpecialVarargPredicates.ADD);
         this.predicatesToIntegers.put(sub, SpecialVarargPredicates.SUB);
         this.predicatesToIntegers.put(mod, SpecialVarargPredicates.MOD);
+        this.predicatesToIntegers.put(addeval, SpecialBinaryPredicates.ADD_EVAL);
+        this.predicatesToIntegers.put(subeval, SpecialBinaryPredicates.SUB_EVAL);
+        this.predicatesToIntegers.put(modeval, SpecialBinaryPredicates.MOD_EVAL);
+        this.predicatesToIntegers.put(muleval, SpecialBinaryPredicates.MUL_EVAL);
+        this.predicatesToIntegers.put(diveval, SpecialBinaryPredicates.DIV_EVAL);
+        this.predicatesToIntegers.put(maxeval, SpecialBinaryPredicates.MAX_EVAL);
+        this.predicatesToIntegers.put(mineval, SpecialBinaryPredicates.MIN_EVAL);
+
         for (String specialBinaryPredicate : SpecialBinaryPredicates.SPECIAL_PREDICATES) {
             this.specialPredicateIds.add(this.predicatesToIntegers.valueToIndex(specialBinaryPredicate));
         }
@@ -830,7 +839,7 @@ public class SubsumptionEngineJ2 {
         //predicate, arity, terms
         protected int[] literals;
 
-        private IntegerSet predicates;
+        private IntegerSet predicates = IntegerSet.createIntegerSet(addeval);
 
         protected int[] variableTypes;
 
@@ -1696,6 +1705,10 @@ public class SubsumptionEngineJ2 {
             return checkComparison(predicate, cliterals, grounding, offset);
         }
 
+        if (predicate <= addeval && predicate >= mineval) {
+            return checkEval(cliterals, grounding, offset);
+        }
+
         if (predicate == truepred) return true;
         if (predicate == falsepred) return false;
 
@@ -1709,6 +1722,25 @@ public class SubsumptionEngineJ2 {
         if (predicate == next) return checkNext(cliterals, grounding, offset, isGround);
         if (predicate == maxcard) return checkMaxCard(cliterals, grounding, offset, arity);
         if (predicate == anypred) return checkAnyPred(c, e, cliterals, index, arity);
+
+        return false;
+    }
+
+    private boolean checkEval(int[] cliterals, int[] grounding, int offset) {
+        final int gid1 = grounding[cliterals[offset]];
+        if (gid1 == -1) return true;
+        final int gid2 = grounding[cliterals[offset + 1]];
+        if (gid2 == -1) return true;
+
+        final Term arg1 = termsToIntegers.indexToValue(gid1);
+        final Term arg2 = termsToIntegers.indexToValue(gid2);
+
+        if (arg1 instanceof Constant && arg2 instanceof Constant) {
+            final Constant c1 = (Constant) arg1;
+            final Constant c2 = (Constant) arg2;
+
+            return c1.isNumeric() && c2.isNumeric();
+        }
 
         return false;
     }

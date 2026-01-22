@@ -340,7 +340,7 @@ public class HerbrandModel {
                         return false;
                     }
                 }
-                else if (!l.predicate().special && !predicates.contains(l.predicateName())) {
+                else if ((l.predicate().flags & 0x01) == 0 && !predicates.contains(l.predicateName())) {
                     return false;
                 }
             }

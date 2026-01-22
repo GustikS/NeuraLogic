@@ -86,7 +86,7 @@ public class Gringo extends Grounder {
     }
 
     private void addLiteralToProgram(Literal literal, StringBuilder builder) {
-        if (literal.predicate().special) {
+        if ((literal.predicate().flags & 0x01) != 0) {
             specialPredicateMap.get(literal.predicateName()).accept(literal, builder);
             return;
         }
@@ -217,7 +217,7 @@ public class Gringo extends Grounder {
                         BodyAtom atom = body.get(j);
 
                         Literal literal = atom.literal;
-                        if (literal.predicate().hidden) {
+                        if ((literal.predicate().flags & 0x02) != 0) {
                             continue;
                         }
 

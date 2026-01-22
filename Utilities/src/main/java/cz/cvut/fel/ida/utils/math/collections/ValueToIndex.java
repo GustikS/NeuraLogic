@@ -30,7 +30,7 @@ public class ValueToIndex<T> {
 
     private static final int INITIAL_CAPACITY = 16;
     private static final float LOAD_FACTOR = 0.75f;
-    private static final int MIN_ALLOWED_INDEX = -16;
+    private static final int MIN_ALLOWED_INDEX = -23;
     private static final int ARRAY_OFFSET = -MIN_ALLOWED_INDEX;  // 16
 
     public ValueToIndex() {
