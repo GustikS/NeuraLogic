@@ -57,7 +57,7 @@ public class IntegerMultiMap<R> {
     }
 
     private IntegerMultiMap(Map<R, IntegerSet> map) {
-        this.map = new HashMap<>(map);
+        this.map = (HashMap<R, IntegerSet>) ((HashMap<R, IntegerSet>) map).clone();
     }
     
     /**

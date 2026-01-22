@@ -261,15 +261,8 @@ public class IntegerSet {
      * @return the union of the given sets
      */
     public static IntegerSet union(IntegerSet a, IntegerSet b){
-        if (a instanceof EmptySet){
-            return b;
-        }
-        if (b instanceof EmptySet){
-            return a;
-        }
-        if (a == b){
-            return a;
-        }
+        if (a.size() == 0) return b;
+        if (b.size() == 0) return a;
 
         int[] aValues = a.values;
         int[] bValues = b.values;
@@ -277,7 +270,7 @@ public class IntegerSet {
         int bLength = bValues.length;
 
         // Handle non-overlapping ranges
-        if (aValues[aLength - 1] < bValues[0]){
+        if (aValues[aLength - 1] < bValues[0]) {
             int[] values = new int[aLength + bLength];
             System.arraycopy(aValues, 0, values, 0, aLength);
             System.arraycopy(bValues, 0, values, aLength, bLength);
@@ -285,7 +278,7 @@ public class IntegerSet {
             result.values = values;
             return result;
         }
-        if (bValues[bLength - 1] < aValues[0]){
+        if (bValues[bLength - 1] < aValues[0]) {
             int[] values = new int[aLength + bLength];
             System.arraycopy(bValues, 0, values, 0, bLength);
             System.arraycopy(aValues, 0, values, bLength, aLength);
@@ -294,63 +287,56 @@ public class IntegerSet {
             return result;
         }
 
-        // Count union size (first pass)
         int count = 0;
         int indexA = 0, indexB = 0;
+        boolean isSubsetOfA = true;  // Track if b is subset of a
+        boolean isSubsetOfB = true;  // Track if a is subset of b
 
-        while (indexA < aLength || indexB < bLength){
-            if (indexA < aLength && indexB < bLength){
-                int aVal = aValues[indexA];
-                int bVal = bValues[indexB];
-                if (aVal == bVal){
-                    indexA++;
-                    indexB++;
-                } else if (aVal < bVal){
-                    indexA++;
-                } else {
-                    indexB++;
-                }
-            } else if (indexA < aLength){
+        while (indexA < aLength || indexB < bLength) {
+            int aVal = (indexA < aLength) ? aValues[indexA] : Integer.MAX_VALUE;
+            int bVal = (indexB < bLength) ? bValues[indexB] : Integer.MAX_VALUE;
+
+            if (aVal == bVal) {
+                count++;
                 indexA++;
-            } else {
                 indexB++;
+            } else if (aVal < bVal) {
+                count++;
+                indexA++;
+                isSubsetOfB = false;  // a has element not in b
+            } else {
+                count++;
+                indexB++;
+                isSubsetOfA = false;  // b has element not in a
             }
-            count++;
         }
 
-        // Return original sets if union equals one of them
-        if (count == aLength){
-            return a;
-        }
-        if (count == bLength){
+        if (isSubsetOfB) {
             return b;
         }
+        if (isSubsetOfA) {
+            return a;
+        }
 
-        // Build union (second pass)
         int[] newValues = new int[count];
         indexA = 0;
         indexB = 0;
         int index = 0;
 
-        while (indexA < aLength || indexB < bLength){
-            if (indexA < aLength && indexB < bLength){
-                int aVal = aValues[indexA];
-                int bVal = bValues[indexB];
-                if (aVal == bVal){
-                    newValues[index++] = aVal;
-                    indexA++;
-                    indexB++;
-                } else if (aVal < bVal){
-                    newValues[index++] = aVal;
-                    indexA++;
-                } else {
-                    newValues[index++] = bVal;
-                    indexB++;
-                }
-            } else if (indexA < aLength){
-                newValues[index++] = aValues[indexA++];
+        while (indexA < aLength || indexB < bLength) {
+            int aVal = (indexA < aLength) ? aValues[indexA] : Integer.MAX_VALUE;
+            int bVal = (indexB < bLength) ? bValues[indexB] : Integer.MAX_VALUE;
+
+            if (aVal == bVal) {
+                newValues[index++] = aVal;
+                indexA++;
+                indexB++;
+            } else if (aVal < bVal) {
+                newValues[index++] = aVal;
+                indexA++;
             } else {
-                newValues[index++] = bValues[indexB++];
+                newValues[index++] = bVal;
+                indexB++;
             }
         }
 
