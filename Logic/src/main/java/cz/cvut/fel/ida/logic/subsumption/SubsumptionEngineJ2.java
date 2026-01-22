@@ -563,6 +563,7 @@ public class SubsumptionEngineJ2 {
         if (c.containedIn.length == 0) {
             return new int[]{};
         }
+
         if (this.learnVariableOrder && this.firstVariableOrder != null) {
             int[] ret = this.firstVariableOrder;
             this.firstVariableOrder = null;
@@ -570,46 +571,60 @@ public class SubsumptionEngineJ2 {
             return ret;
         }
 
-        List<Integer> variableOrder = new ArrayList<Integer>();
-        double[] weights = new double[c.containedIn.length];
-        int index = 0;
-        for (IntegerSet containedIn : c.containedIn) {
-            weights[index] = containedIn.size();
-            weights[index] /= (double) c.variableDomains[index].size();
-            index++;
+        final List<Integer> variableOrder = new ArrayList<>();
+        final IntegerSet[] containedIns = c.containedIn;
+        final double[] weights = new double[containedIns.length];
+        final double[] heuristic1 = new double[containedIns.length];
+        final int[] occurrences = c.occurrences;
+
+        for (int index = 0; index < containedIns.length; index++) {
+            IntegerSet containedIn = containedIns[index];
+            weights[index] = containedIn.size() / (double) c.variableDomains[index].size();
         }
-        double[] heuristic1 = new double[c.containedIn.length];
+
         if (fv == -1) {
             CustomRandomGenerator crg = new CustomRandomGenerator(weights, random);
             variableOrder.add(crg.nextInt());
         } else {
             variableOrder.add(fv);
         }
-        heuristic1[variableOrder.get(0)] = -1;
-        for (int ci : c.containedIn[variableOrder.get(0)].values()) {
-            for (int i = 0; i < c.literals[ci + 1]; i++) {
-                if (heuristic1[c.literals[ci + 3 + i]] != -1) {
-                    heuristic1[c.literals[ci + 3 + i]] += weights[c.literals[ci + 3 + i]];
+
+        final int vOrderIdx = variableOrder.get(0);
+        final int[] values = containedIns[vOrderIdx].values();
+        final int[] literals = c.literals;
+
+        heuristic1[vOrderIdx] = -1;
+
+        for (int j = 0; j < values.length; j++) {
+            final int ci = values[j];
+
+            for (int i = ci + 3; i < literals[ci + 1] + ci + 3; i++) {
+                if (heuristic1[literals[i]] != -1) {
+                    heuristic1[literals[i]] += weights[literals[i]];
                 }
             }
         }
+
         for (int i = 1; i < heuristic1.length; i++) {
-            //System.out.println(VectorUtils.doubleArrayToString(heuristic1));
-            int selected = maxIndexWithTieBreaking(heuristic1);
+            final int selected = maxIndexWithTieBreaking(heuristic1);
             heuristic1[selected] = -1;
-            if (!ignoreSingletons || c.occurrences[selected] > 1) {
+
+            if (!ignoreSingletons || occurrences[selected] > 1) {
                 variableOrder.add(selected);
             }
-            for (int ci : c.containedIn[selected].values()) {
-                double count = e.getPredicateCount(c.literals[ci]);
+
+            int[] vals = containedIns[selected].values();
+            for (int k = 0; k < vals.length; k++) {
+                final int ci = vals[k];
+                double count = e.getPredicateCount(literals[ci]);
                 if (count == 0) {
                     //todo - handle separately special predicateNames and negations
                     count = 1e8;
                 }
 
-                for (int j = 0; j < c.literals[ci + 1]; j++) {
-                    if (heuristic1[c.literals[ci + 3 + j]] != -1) {
-                        heuristic1[c.literals[ci + 3 + j]] += weights[c.literals[ci + 3 + j]] / count;
+                for (int j = ci + 3; j < literals[ci + 1] + 3 + ci; j++) {
+                    if (heuristic1[literals[j]] != -1) {
+                        heuristic1[literals[j]] += weights[literals[j]] / count;
                     }
                 }
             }
@@ -635,7 +650,7 @@ public class SubsumptionEngineJ2 {
         this.firstVariableOrder = order;
     }
 
-    private int maxIndexWithTieBreaking(double values[]) {
+    private int maxIndexWithTieBreaking(double[] values) {
         double max = Double.NEGATIVE_INFINITY;
         int maxIndex = 0;
         int index = 0;
@@ -839,7 +854,7 @@ public class SubsumptionEngineJ2 {
 
         private int numActualConstants;
 
-        private ValueToIndex<Term> variablesToIntegers = new ValueToIndex<Term>();
+        private final ValueToIndex<Term> variablesToIntegers = new ValueToIndex<Term>();
 
         private int[] auxBuffer1;
 
@@ -847,7 +862,7 @@ public class SubsumptionEngineJ2 {
 
         private boolean useFirstSuccessFC = true;
 
-        private ArrayList<GlobalConstraint> globalConstraints = new ArrayList<GlobalConstraint>();
+        private final ArrayList<GlobalConstraint> globalConstraints = new ArrayList<GlobalConstraint>();
 
         /**
          * Creates a new empty ClauseC
@@ -875,7 +890,6 @@ public class SubsumptionEngineJ2 {
             this.predicates = IntegerSet.createIntegerSet(predicateSet);
             this.literals = new int[literalsArrayLength];
             Map<Literal, Integer> intLitMap = new HashMap<Literal, Integer>();
-            Map<Integer, Literal> litIntMap = new HashMap<Integer, Literal>();
             int index = 0;
             for (Literal l : c.literals()) {
                 if (l.isNegated()) {
@@ -895,7 +909,6 @@ public class SubsumptionEngineJ2 {
                     }
                 }
                 intLitMap.put(l, index);
-                litIntMap.put(index, l);
                 index += 3;
                 for (int j = 0; j < l.arity(); j++) {
                     literals[index + j] = variablesToIntegers.valueToIndex(l.get(j));
@@ -966,88 +979,83 @@ public class SubsumptionEngineJ2 {
         public boolean initialize(ClauseE e) {
             Arrays.fill(this.variableDomains, null);
             //simple propagation of "@in" literals
-            int k = 0;
-            while (k < this.literals.length) {
-                if (predicatesToIntegers.indexToValue(this.literals[k]).equals(SpecialVarargPredicates.IN)) {
-                    boolean groundRightPart = true;
-                    int arity = this.literals[k + 1];
-                    for (int j = 1; j < arity; j++) {
-                        if (!this.isConstant(this.literals[k + j + 3])) {
-                            groundRightPart = false;
-                            break;
-                        }
-                    }
-                    if (groundRightPart) {
-                        int varIndex = this.literals[k + 3];
-                        int[] groundValues = new int[arity - 1];
-                        for (int j = 0; j < groundValues.length; j++) {
-                            groundValues[j] = termsToIntegers.valueToIndex(variablesToIntegers.indexToValue(this.literals[k + j + 3 + 1]));
-                        }
-                        IntegerSet dom = IntegerSet.createIntegerSet(groundValues);
-                        if (this.negations.contains(k)) {
-                            dom = IntegerSet.difference(e.allTerms, dom);
-                        }
-                        if (this.variableDomains[varIndex] == null) {
-                            this.variableDomains[varIndex] = dom;
-                        } else {
-                            this.variableDomains[varIndex] = IntegerSet.intersection(this.variableDomains[varIndex], dom);
-                        }
+
+            for (int k = 0; k < this.literals.length; k += this.literals[k + 1] + 3) {
+                if (this.literals[k] != in) {
+                    continue;
+                }
+
+                boolean groundRightPart = true;
+
+                final int arity = this.literals[k + 1];
+                for (int j = 1; j < arity; j++) {
+                    if (!this.isConstant(this.literals[k + j + 3])) {
+                        groundRightPart = false;
+                        break;
                     }
                 }
-                k += this.literals[k + 1] + 3;
+
+                if (groundRightPart) {
+                    final int varIndex = this.literals[k + 3];
+                    final int[] groundValues = new int[arity - 1];
+
+                    for (int j = 0; j < groundValues.length; j++) {
+                        groundValues[j] = termsToIntegers.valueToIndex(variablesToIntegers.indexToValue(this.literals[k + j + 3 + 1]));
+                    }
+
+                    IntegerSet dom = IntegerSet.createIntegerSet(groundValues);
+                    if (this.negations.contains(k)) {
+                        dom = IntegerSet.difference(e.allTerms, dom);
+                    }
+
+                    this.variableDomains[varIndex] = this.variableDomains[varIndex] == null ? dom : IntegerSet.intersection(this.variableDomains[varIndex], dom);
+                }
             }
             //
             for (int i = 0; i < this.variableDomains.length; i++) {
-                if (variablesToIntegers.indexToValue(i) instanceof Variable) {
+                final Term term = variablesToIntegers.indexToValue(i);
+
+                if (term instanceof Variable) {
                     for (int ciLit : this.containedIn[i].values()) {
                         for (int j = 0; j < literals[ciLit + 1]; j++) {
-                            if (this.literals[ciLit + j + 3] == i) {
-                                if (this.variableDomains[i] == null) {
-                                    if (this.negations.contains(ciLit) || specialPredicateIds.contains(this.literals[ciLit])) {
-                                        if (this.variableTypes[i] == -1) {
-                                            this.variableDomains[i] = e.allTerms;
-                                        } else {
-                                            this.variableDomains[i] = e.typedTerms(this.variableTypes[i]);
-                                        }
-                                    } else {
-                                        if (this.variableTypes[i] == -1) {
-                                            this.variableDomains[i] = e.variableDomains.get(((long) this.literals[ciLit] << 32) | (j & 0xFFFFFFFFL));
-                                        } else {
-                                            this.variableDomains[i] = IntegerSet.intersection(
-                                                    e.variableDomains.get(((long) this.literals[ciLit] << 32) | (j & 0xFFFFFFFFL)),
-                                                    e.typedTerms(this.variableTypes[i]));
-                                        }
-                                    }
+                            if (this.literals[ciLit + j + 3] != i) {
+                                continue;
+                            }
+
+                            if (this.variableDomains[i] == null) {
+                                if (this.negations.contains(ciLit) || specialPredicateIds.contains(this.literals[ciLit])) {
+                                    this.variableDomains[i] = this.variableTypes[i] == -1 ? e.allTerms : e.typedTerms(this.variableTypes[i]);
                                 } else {
-                                    if (!this.negations.contains(ciLit) && !specialPredicateIds.contains(this.literals[ciLit])) {
-                                        IntegerSet varDomain = e.variableDomains.get(((long) this.literals[ciLit] << 32) | (j & 0xFFFFFFFFL));
-                                        if (varDomain != null) {
-                                            this.variableDomains[i] = IntegerSet.intersection(varDomain, this.variableDomains[i]);
-                                        } else {
-                                            return false;
-                                        }
-                                    }
+                                    final long hashKey = ((long) this.literals[ciLit] << 32) | (j & 0xFFFFFFFFL);
+                                    final IntegerSet dom = e.variableDomains.get(hashKey);
+
+                                    this.variableDomains[i] = this.variableTypes[i] == -1 ? dom : IntegerSet.intersection(dom, e.typedTerms(this.variableTypes[i]));;
                                 }
+                            } else if (!this.negations.contains(ciLit) && !specialPredicateIds.contains(this.literals[ciLit])) {
+                                IntegerSet varDomain = e.variableDomains.get(((long) this.literals[ciLit] << 32) | (j & 0xFFFFFFFFL));
+                                if (varDomain == null) {
+                                    return false;
+                                }
+
+                                this.variableDomains[i] = IntegerSet.intersection(varDomain, this.variableDomains[i]);
                             }
                         }
                     }
                 } else {
-                    int termId = termsToIntegers.valueToIndex(variablesToIntegers.indexToValue(i));
-                    this.variableDomains[i] = IntegerSet.createIntegerSet(termId);
-                    if (variableTypes[i] != -1 && !e.typedTerms(variableTypes[i]).contains(termId)) {
-                        this.variableDomains[i] = IntegerSet.emptySet;
-                    }
+                    final int termId = termsToIntegers.valueToIndex(term);
+                    this.variableDomains[i] = variableTypes[i] != -1 && !e.typedTerms(variableTypes[i]).contains(termId) ? IntegerSet.emptySet : IntegerSet.createIntegerSet(termId);
                 }
                 if (this.variableDomains[i] == null || this.variableDomains[i].isEmpty()) {
                     return false;
                 }
             }
+
             Arrays.fill(groundedValues, -1);
             for (int i = 0; i < groundedValues.length; i++) {
-                if (variablesToIntegers.indexToValue(i) instanceof Constant) {
-                    if (!ground(i, termsToIntegers.valueToIndex(variablesToIntegers.indexToValue(i)), e)) {
-                        return false;
-                    }
+                final Term term = variablesToIntegers.indexToValue(i);
+
+                if (term instanceof Constant && !ground(i, termsToIntegers.valueToIndex(term), e)) {
+                    return false;
                 }
             }
             return true;
@@ -2098,7 +2106,10 @@ public class SubsumptionEngineJ2 {
 
         public HighArityLiterals copy() {
             HighArityLiterals res = new HighArityLiterals(
-                new HashMap<>(this.lower), new HashMap<>(this.upper), new ArrayList<>(this.indices), this.maxArity
+                (HashMap<Triple<Integer, Integer, Integer>, Integer>) ((HashMap<Triple<Integer, Integer, Integer>, Integer>) this.lower).clone(),
+                (HashMap<Triple<Integer, Integer, Integer>, Integer>) ((HashMap<Triple<Integer, Integer, Integer>, Integer>) this.upper).clone(),
+                new ArrayList<>(this.indices),
+                this.maxArity
             );
 
             res.newSize = this.newSize;
@@ -2275,7 +2286,7 @@ public class SubsumptionEngineJ2 {
         }
 
         public CompletelySymmetricLiterals copy() {
-            HashMap<Integer, IntegerMultiMap<Integer>> termsToLiters = new HashMap<>(this.termsToLiterals.size());
+            HashMap<Integer, IntegerMultiMap<Integer>> termsToLiterals = new HashMap<>(this.termsToLiterals.size());
             for (Map.Entry<Integer, IntegerMultiMap<Integer>> entry : termsToLiterals.entrySet()) {
                 termsToLiterals.put(entry.getKey(), entry.getValue().copy());
             }
