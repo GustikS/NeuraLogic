@@ -1333,9 +1333,7 @@ public class SubsumptionEngineJ2 {
 
         private IntegerMultiMap<Integer> typedTerms;
 
-        protected int[] literals;
-
-        private int[] predicateCounts;
+        private int[] predicateCounts = new int[]{};
 
         private IntegerSet allTerms;
 
@@ -1347,9 +1345,7 @@ public class SubsumptionEngineJ2 {
 
         private final CompletelySymmetricLiterals csl;
 
-        private int minPredicateCounter = Integer.MAX_VALUE;
-
-        private int maxPredicateCounter = Integer.MIN_VALUE;
+        private final int minPredicateCounter = mineval;
 
         /**
          * Creates a new instance of class ClauseE which serves as an efficient data-structure
@@ -1395,15 +1391,7 @@ public class SubsumptionEngineJ2 {
 
             // Second pass: build literals array and collect domains
             int index = 0;
-            int[] newLiterals = null;
-
-            if (literals == null) {
-                newLiterals = new int[literalArraySize];
-            } else {
-                index = literals.length;
-                newLiterals = new int[index + literalArraySize];
-                System.arraycopy(literals, 0, newLiterals, 0, index);
-            }
+            int[] newLiterals = new int[literalArraySize];
 
             Map<Long, Set<Integer>> varDomainsMap = new HashMap<>(literalArraySize);
 
@@ -1436,8 +1424,16 @@ public class SubsumptionEngineJ2 {
                 newLiterals[index + 1] = arity;
                 index += 2;
 
-                maxPredicateCounter = Integer.max(predicateId, maxPredicateCounter);
-                minPredicateCounter = Integer.min(predicateId, minPredicateCounter);
+                final int predicateCountsIdx = predicateId - minPredicateCounter;
+                if (this.predicateCounts.length == 0) {
+                    this.predicateCounts = new int[predicateCountsIdx + 20];
+                } else if (predicateCountsIdx >= this.predicateCounts.length) {
+                    int[] newPredicateCounts = new int[predicateCountsIdx + 20];
+                    System.arraycopy(this.predicateCounts, 0, newPredicateCounts, 0, this.predicateCounts.length);
+                    this.predicateCounts = newPredicateCounts;
+                }
+
+                this.predicateCounts[predicateCountsIdx]++;
 
                 // Check once if symmetric
                 boolean isSymmetric = l.predicateName().startsWith(SymmetricPredicates.PREFIX);
@@ -1520,19 +1516,9 @@ public class SubsumptionEngineJ2 {
             hal.flush(newLiterals);
 
             this.typedTerms = typedTermMM;
-            this.predicateCounts = null;
-            this.literals = newLiterals;
         }
 
         public int getPredicateCount(int predicateId) {
-            if (this.predicateCounts == null) {
-                this.predicateCounts = new int[maxPredicateCounter - minPredicateCounter + 1];
-
-                for (int i = 0; i < this.literals.length; i += this.literals[i + 1] + 2) {
-                    this.predicateCounts[this.literals[i] - minPredicateCounter]++;
-                }
-            }
-
             int index = predicateId - minPredicateCounter;
             if (index < 0 || index >= this.predicateCounts.length) {
                 return 0;
@@ -1580,24 +1566,6 @@ public class SubsumptionEngineJ2 {
             return negated ? !result : result;
         }
 
-        /**
-         * @param literal the integer representation of the literal for which we want the string representation
-         * @return string representation of literal represented by integer <em>literal</em>
-         */
-        public String literalToString(int literal) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(predicatesToIntegers.indexToValue(literals[literal]));
-            sb.append("(");
-            for (int i = 0; i < literals[literal + 1]; i++) {
-                sb.append(termsToIntegers.indexToValue(literals[literal + 2 + i]));
-                if (i < literals[literal + 1] - 1) {
-                    sb.append(", ");
-                }
-            }
-            sb.append(")");
-            return sb.toString();
-        }
-
         public Set<Term> terms() {
             Set<Term> retVal = new HashSet<Term>();
             for (int termID : allTerms.values()) {
@@ -1614,13 +1582,10 @@ public class SubsumptionEngineJ2 {
             ClauseE res = new ClauseE(this.lal.copy(), this.hal.copy(), this.csl.copy());
 
             res.allTerms = this.allTerms;
-            res.literals = this.literals.clone();
             res.predicates = this.predicates;
             res.typedTerms = this.typedTerms.copy();
             res.variableDomains = new HashMap<>(this.variableDomains);
             res.predicateCounts = this.predicateCounts == null ? null : this.predicateCounts.clone();
-            res.minPredicateCounter = this.minPredicateCounter;
-            res.maxPredicateCounter = this.maxPredicateCounter;
 
             return res;
         }
@@ -2029,7 +1994,6 @@ public class SubsumptionEngineJ2 {
             this.indices.add(index);
             this.newSize += literals[index + 1] + 2;
         }
-
 
         public void flush(int[] literals) {
             int startIndex = 0;
