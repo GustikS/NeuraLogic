@@ -220,13 +220,19 @@ public class BottomUp extends Grounder {
             }
 
             atomMap.computeIfAbsent(lit, (l) -> {
+                final String name = l.toString();
+                final Predicate predicate = l.predicate();
+
                 final Term[] terms = l.arguments();
                 final Constant a = (Constant) terms[0];
                 final Constant b = (Constant) terms[1];
-                final double result = SpecialBinaryPredicates.getEvalValue(pred.name, a.doubleValue(), b.doubleValue());
+                final double result = SpecialBinaryPredicates.getEvalValue(predicate.name, a.doubleValue(), b.doubleValue());
 
-                Weight weight = weightFactory.construct(lit.toString(), new ScalarValue(result) ,true, true);
-                return new ValuedFact(new WeightedPredicate(l.predicate(), null), l.termList(), false, weight);
+                Weight weight = weightFactory.construct(name, new ScalarValue(result) ,true, true);
+                ValuedFact vf = new ValuedFact(new WeightedPredicate(predicate, null), l.termList(), false, weight);
+                vf.originalString = name;
+
+                return vf;
             });
         }
     }
