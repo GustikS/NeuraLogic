@@ -22,6 +22,8 @@ package cz.cvut.fel.ida.logic;
 import cz.cvut.fel.ida.utils.math.Cache;
 import cz.cvut.fel.ida.utils.generic.tuples.Pair;
 
+import java.util.Objects;
+
 /**
  * Class for representing first-order-logic variables.
  *
@@ -106,14 +108,10 @@ public class Variable implements Term {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof Variable) {
-            Variable v = (Variable) o;
-            return o == this ||
-                    (v.name.equals(this.name) &&
-                            !((v.type == null && this.type != null) || (v.type != null && this.type == null)) &&
-                            (v.type == this.type || v.type.equals(this.type)));
-        }
-        return false;
+        if (o == this) return true;
+        if (!(o instanceof Variable)) return false;
+        Variable v = (Variable) o;
+        return name.equals(v.name) && Objects.equals(type, v.type);
     }
 
     @Override

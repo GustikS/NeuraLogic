@@ -23,6 +23,8 @@ import cz.cvut.fel.ida.utils.math.Cache;
 import cz.cvut.fel.ida.utils.math.StringUtils;
 import cz.cvut.fel.ida.utils.generic.tuples.Pair;
 
+import java.util.Objects;
+
 /**
  * Class for representing logical constants. It uses caching so if there are constants with long names
  * which appear iterable many literals or even iterable many clauses, the consumed memory will not be too big.
@@ -133,14 +135,10 @@ public class Constant implements Term {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof Constant) {
-            Constant c = (Constant) o;
-            return o == this ||
-                    (c.name.equals(this.name) &&
-                            !((c.type == null && this.type != null) || (c.type != null && this.type == null)) &&
-                            (c.type == this.type || c.type.equals(this.type)));
-        }
-        return false;
+        if (o == this) return true;
+        if (!(o instanceof Constant)) return false;
+        Constant c = (Constant) o;
+        return name.equals(c.name) && Objects.equals(type, c.type);
     }
 
     @Override
