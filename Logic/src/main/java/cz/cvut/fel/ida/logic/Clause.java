@@ -22,6 +22,7 @@ package cz.cvut.fel.ida.logic;
 import cz.cvut.fel.ida.utils.math.Sugar;
 import cz.cvut.fel.ida.utils.math.collections.MultiMap;
 import cz.cvut.fel.ida.utils.generic.tuples.Pair;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 import java.util.*;
 
@@ -43,13 +44,13 @@ public class Clause {
 
 
     public Clause() {
-        this.predicateCache = new HashSet<>();
+        this.predicateCache = new ObjectOpenHashSet<>();
     }
 
     public Clause(Collection<? extends Literal> literals) {
-        this.literals = new HashSet<>(literals);
+        this.literals = new ObjectOpenHashSet<>(literals);
         final int total = this.literals.size();
-        this.predicateCache = new HashSet<>(total, 1f);
+        this.predicateCache = new ObjectOpenHashSet<>(total, 0.999f);
 
         for (Literal l : literals) {
             l.allowModifications(false);
@@ -58,13 +59,13 @@ public class Clause {
     }
 
     public Clause(Collection<? extends Literal> literals1, Collection<? extends Literal> literals2) {
-        this.literals = new HashSet<>((int) ((literals1.size() + literals2.size()) / 0.75 + 1), 0.75f);
+        this.literals = new ObjectOpenHashSet<>((int) ((literals1.size() + literals2.size()) / 0.75 + 1), 0.75f);
 
         this.literals.addAll(literals1);
         this.literals.addAll(literals2);
 
         final int total = this.literals.size();
-        this.predicateCache = new HashSet<>(total, 1f);
+        this.predicateCache = new ObjectOpenHashSet<>(total + 1, 0.999f);
 
         for (Literal literal : literals) {
             literal.allowModifications(false);
@@ -73,10 +74,10 @@ public class Clause {
     }
 
     public Clause(Literal... literals) {
-        this.literals = new HashSet<>(Arrays.asList(literals));
+        this.literals = new ObjectOpenHashSet<>(Arrays.asList(literals));
 
         final int total = literals.length;
-        this.predicateCache = new HashSet<>(total, 1f);
+        this.predicateCache = new ObjectOpenHashSet<>(total + 1, 0.999f);
 
         for (Literal literal : literals) {
             literal.allowModifications(false);
@@ -94,7 +95,7 @@ public class Clause {
         this.variablesCache = null;
         this.termsCache = null;
 
-        final Set<String> predicateTemp = new HashSet<>(this.predicateCache.size() + c.size(), 1f);
+        final Set<String> predicateTemp = new ObjectOpenHashSet<>(this.predicateCache.size() + c.size(), 0.999f);
         predicateTemp.addAll(predicateCache);
 
         for (Literal literal : c) {
@@ -292,7 +293,7 @@ public class Clause {
             initLiteralsByTerms();
         }
 
-        HashSet<Variable> set = new HashSet<>();
+        ObjectOpenHashSet<Variable> set = new ObjectOpenHashSet<>();
         for (Map.Entry<Term, Set<Literal>> entry : literalsByTerms.entrySet()) {
             Term key = entry.getKey();
             if (key instanceof Variable && !entry.getValue().isEmpty()) {
@@ -312,7 +313,7 @@ public class Clause {
             return termsCache;
         }
 
-        Set<Term> terms = new HashSet<>();
+        Set<Term> terms = new ObjectOpenHashSet<>();
         for (Literal literal : literals) {
             terms.addAll(literal.termList());
         }
@@ -561,12 +562,12 @@ public class Clause {
     public Clause copy() {
         Clause res = new Clause();
 
-        res.literals = new HashSet<>(this.literals);
+        res.literals = ((ObjectOpenHashSet) this.literals).clone();
         res.literalsByTerms = this.literalsByTerms == null ? null : this.literalsByTerms.copy();
         res.literalsByName = this.literalsByName == null ? null : this.literalsByName.copy();
-        res.predicateCache = this.predicateCache == null ? null : new HashSet<>(this.predicateCache);
-        res.termsCache = this.termsCache == null ? null : new HashSet<>(this.termsCache);
-        res.variablesCache = this.variablesCache == null ? null : new HashSet<>(this.variablesCache);
+        res.predicateCache = this.predicateCache == null ? null : ((ObjectOpenHashSet) this.predicateCache).clone();
+        res.termsCache = this.termsCache == null ? null : ((ObjectOpenHashSet) this.termsCache).clone();
+        res.variablesCache = this.variablesCache == null ? null : ((ObjectOpenHashSet) this.variablesCache).clone();
         res.hashCode = this.hashCode;
 
         return res;

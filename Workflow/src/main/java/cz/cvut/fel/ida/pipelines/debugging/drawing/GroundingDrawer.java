@@ -41,7 +41,6 @@ public class GroundingDrawer extends Drawer<GroundingSample> {
     public void nodeGraph(GroundingSample obj) {
         GroundTemplate groundTemplate = obj.groundingWrap.getGroundTemplate();
         LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules = groundTemplate.groundRules;
-        Map<Literal, ValuedFact> groundFacts = groundTemplate.groundFacts;
 
         for (Map.Entry<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> mapEntry : groundRules.entrySet()) {
             Literal groundHead = mapEntry.getKey();

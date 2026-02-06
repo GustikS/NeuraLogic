@@ -18,6 +18,7 @@ import cz.cvut.fel.ida.logic.subsumption.HerbrandModel;
 import cz.cvut.fel.ida.logic.subsumption.SpecialBinaryPredicates;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.generic.Pair;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -72,7 +73,12 @@ public class BottomUp extends Grounder {
         example.clause = herbrandModel.updateClause();  // storing the efficient ClauseE structure of the original example for potential reuse
         example.clauseE = herbrandModel.getClauseE();
 
-        Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> rulesAndFacts = rulesAndFacts(example, template);
+        if (template.atomMapCache == null) {
+            template.atomMapCache = templateFacts(template);
+        }
+
+        Map<Literal, ValuedFact> templateAtomMapCopy = ((Object2ObjectOpenHashMap) template.atomMapCache).clone();
+        Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> rulesAndFacts = rulesAndFacts(example, template, templateAtomMapCopy);
         Map<HornClause, List<WeightedRule>> ruleMap = rulesAndFacts.r;
         Map<Literal, ValuedFact> atomMap = rulesAndFacts.s;
 
@@ -81,7 +87,7 @@ public class BottomUp extends Grounder {
         LOG.fine("Infering Herbrand model...");
         Collection<Literal> literals = herbrandModel.inferAtoms();
 
-        Map<Literal, Literal> allLiterals = new HashMap<>((int) Math.ceil(literals.size() / 0.75));
+        Map<Literal, Literal> allLiterals = new Object2ObjectOpenHashMap<>((int) Math.ceil(literals.size() / 0.75));
         for (Literal lit : literals) {
             allLiterals.put(lit, lit);
         }

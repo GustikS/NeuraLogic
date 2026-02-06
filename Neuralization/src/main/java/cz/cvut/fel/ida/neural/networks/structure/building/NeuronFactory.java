@@ -165,20 +165,18 @@ public class NeuronFactory {
     }
 
     public FactNeuron createFactNeuron(ValuedFact fact) {
-        return neuronMaps.factNeurons.computeIfAbsent(fact.literal, literal -> {
-            final Value value = fact.getValue();
-            States.SimpleValue simpleValue = new States.SimpleValue(value == null ? defaultFactValue : value);
+        final Value value = fact.getValue();
+        States.SimpleValue simpleValue = new States.SimpleValue(value == null ? defaultFactValue : value);
 
-            FactNeuron neuron = new FactNeuron(fact.originalString, fact.weight, counter++, simpleValue);
+        FactNeuron neuron = new FactNeuron(fact.originalString, fact.weight, counter++, simpleValue);
 
-            if (fact.weight != null && fact.weight.isLearnable()) {
-                neuron.hasLearnableValue = true;
-                simpleValue.isLearnable = true;
-            }
+        if (fact.weight != null && fact.weight.isLearnable()) {
+            neuron.hasLearnableValue = true;
+            simpleValue.isLearnable = true;
+        }
 
-            if (LOG.isLoggable(Level.FINEST)) LOG.finest(() -> "Created fact neuron: " + neuron);
-            return neuron;
-        });
+        if (LOG.isLoggable(Level.FINEST)) LOG.finest(() -> "Created fact neuron: " + neuron);
+        return neuronMaps.factNeurons.put(fact.literal, neuron);
     }
 
     public NegationNeuron createNegationNeuron(AtomFact atomFact, Transformation negation) {

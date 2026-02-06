@@ -22,6 +22,7 @@ import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.NeuronMa
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.generic.Pair;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -197,10 +198,14 @@ public class NeuralNetBuilder {
      * @return
      */
     public void loadNeuronsFromFacts(Map<Literal, ValuedFact> groundFacts, NeuralSets createdNeurons) {
+        if (neuralBuilder.neuronFactory.neuronMaps.factNeurons.isEmpty()) {
+            neuralBuilder.neuronFactory.neuronMaps.factNeurons = new Object2ObjectOpenHashMap<>((int) (groundFacts.size() / 0.75f + 1));
+        }
+
         for (ValuedFact fact : groundFacts.values()) {
             neuralBuilder.neuronFactory.createFactNeuron(fact);
         }
-        createdNeurons.factNeurons.addAll(neuralBuilder.neuronFactory.neuronMaps.factNeurons.values());
+//        createdNeurons.factNeurons.addAll(neuralBuilder.neuronFactory.neuronMaps.factNeurons.values());
     }
 
     /**

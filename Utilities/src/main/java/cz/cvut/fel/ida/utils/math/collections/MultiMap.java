@@ -18,6 +18,10 @@ package cz.cvut.fel.ida.utils.math.collections;
 import java.util.*;
 import java.util.Map.Entry;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+
+
 /**
  *
  * Class for datastructure which roughly coprresponds to java.util.Map<R,java.util.Set<S>>.
@@ -31,7 +35,7 @@ public class MultiMap<R,S> {
     private static final int DEFAULT_CAPACITY = 16;
     private static final float LOAD_FACTOR = 0.75f;
 
-    private final Set<?> emptySet = new LinkedHashSet<>();
+    private final Set<?> emptySet = new ObjectOpenHashSet<>();
 
     private final Map<R, Set<S>> map;
 
@@ -40,7 +44,7 @@ public class MultiMap<R,S> {
     }
 
     public MultiMap(int initialCapacity) {
-        this.map = new HashMap<>(initialCapacity, LOAD_FACTOR);
+        this.map = new Object2ObjectOpenHashMap<>(initialCapacity, LOAD_FACTOR);
     }
 
     public int size() {
@@ -104,7 +108,7 @@ public class MultiMap<R,S> {
      * @param value the value
      */
     public void put(R key, S value) {
-        map.computeIfAbsent(key, k -> new LinkedHashSet<>()).add(value);
+        map.computeIfAbsent(key, k -> new ObjectOpenHashSet<>()).add(value);
     }
 
     /**
@@ -117,7 +121,7 @@ public class MultiMap<R,S> {
         if (values == null || values.isEmpty()) {
             return;
         }
-        map.computeIfAbsent(key, k -> new LinkedHashSet<>()).addAll(values);
+        map.computeIfAbsent(key, k -> new ObjectOpenHashSet<>()).addAll(values);
     }
 
     /**
@@ -129,7 +133,7 @@ public class MultiMap<R,S> {
             return;
         }
         for (Entry<R, Set<S>> entry : multiMap.map.entrySet()) {
-            Set<S> targetSet = map.computeIfAbsent(entry.getKey(), k -> new LinkedHashSet<>());
+            Set<S> targetSet = map.computeIfAbsent(entry.getKey(), k -> new ObjectOpenHashSet<>());
             targetSet.addAll(entry.getValue());
         }
     }
@@ -149,7 +153,7 @@ public class MultiMap<R,S> {
      * @param value the new values
      */
     public void set(R key, Collection<S> value) {
-        Set<S> targetSet = map.computeIfAbsent(key, k -> new LinkedHashSet<>(value.size()));
+        Set<S> targetSet = map.computeIfAbsent(key, k -> new ObjectOpenHashSet<>(value.size()));
         targetSet.clear();
         targetSet.addAll(value);
     }
@@ -194,7 +198,7 @@ public class MultiMap<R,S> {
     }
 
     /**
-     * 
+     *
      * @return the set of all key-elements
      */
     public Set<R> keySet() {
@@ -202,7 +206,7 @@ public class MultiMap<R,S> {
     }
 
     /**
-     * 
+     *
      * @return a collection containing all the values
      */
     public Collection<Set<S>> values() {
@@ -210,8 +214,8 @@ public class MultiMap<R,S> {
     }
 
     /**
-     * 
-     * @return the backing entry-set 
+     *
+     * @return the backing entry-set
      */
     public Set<Entry<R, Set<S>>> entrySet() {
         return map.entrySet();
@@ -236,7 +240,7 @@ public class MultiMap<R,S> {
     }
 
     /**
-     * 
+     *
      * @return string with the numbers of elements associated to particular keys
      */
     public String sizesToString() {
@@ -255,7 +259,7 @@ public class MultiMap<R,S> {
 
     public void copyFrom(MultiMap<R, S> map) {
         for (Entry<R, Set<S>> entry : map.entrySet()) {
-            this.map.get(entry.getKey()).addAll(entry.getValue());
+            this.map.put(entry.getKey(), ((ObjectOpenHashSet) entry.getValue()).clone());
         }
     }
 
@@ -263,14 +267,14 @@ public class MultiMap<R,S> {
         MultiMap<R, S> res = new MultiMap<>((int) (this.map.size() / LOAD_FACTOR + 1));
 
         for (Entry<R, Set<S>> entry : this.map.entrySet()) {
-            res.map.put(entry.getKey(), new LinkedHashSet<>(entry.getValue()));
+            res.map.put(entry.getKey(), ((ObjectOpenHashSet) entry.getValue()).clone());
         }
 
         return res;
     }
 
     /**
-     * 
+     *
      * @return int[] array with numbers of elements associated to particular keys
      */
     public int[] sizes() {

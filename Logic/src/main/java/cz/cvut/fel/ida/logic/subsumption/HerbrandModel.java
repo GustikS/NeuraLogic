@@ -354,7 +354,7 @@ public class HerbrandModel {
     private static class PredicateSolutionConsumer implements SolutionConsumer {
 
         Literal ruleHead;
-        private final Set<Literal> headGroundings;
+        private Set<Literal> headGroundings;
         private final Set<Literal> headGroundings2;
 
         private PredicateSolutionConsumer(Literal head, Set<Literal> groundHeads, Set<Literal> groundHeads2) {
@@ -447,5 +447,9 @@ public class HerbrandModel {
 
     public void syncWithCache() {
         this.herbrand.copyFrom(this.templateCache);
+
+        for (PreparedRule rule : preparedRules.values()) {
+            rule.solutionConsumer.headGroundings = herbrand.get(rule.solutionConsumer.ruleHead.predicate());
+        }
     }
 }

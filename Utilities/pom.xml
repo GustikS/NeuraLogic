@@ -24,6 +24,12 @@
             <version>0.3.0</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>it.unimi.dsi</groupId>
+            <artifactId>fastutil-core</artifactId>
+            <version>8.5.18</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 

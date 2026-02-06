@@ -39,6 +39,12 @@ public class GroundTemplate extends GraphTemplate implements Example {
     public Map<Literal, ValuedFact> groundFacts;
 
     /**
+     * Temp (for current pair of Template+Example) set of true ground facts
+     */
+    @NotNull
+    public Map<Literal, ValuedFact> templateFacts;
+
+    /**
      * Inferred ground facts from heads of the inferred ground rules
      */
     public Set<Literal> derivedGroundFacts; //todo next where are these useful?
@@ -68,6 +74,7 @@ public class GroundTemplate extends GraphTemplate implements Example {
         this.groundRules = other.groundRules;
         this.groundFacts = other.groundFacts;
         this.derivedGroundFacts = other.derivedGroundFacts;
+        this.templateFacts = other.templateFacts;
 //        this.neuronMaps = other.neuronMaps;
     }
 

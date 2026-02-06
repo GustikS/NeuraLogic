@@ -504,10 +504,7 @@ public class SubsumptionEngineJ2 {
         if (c.contradiction()) {
             return false;
         }
-        if (!c.predicates().isSubsetOf(e.predicates)) {
-            return false;
-        }
-        return true;
+        return c.predicates().isSubsetOf(e.predicates);
     }
 
     private Boolean solveR(ClauseC c, ClauseE e, int varIndex, int[] variableOrder, int restart, Set<Integer> oiSet, Term[] template, long deadline) {

@@ -313,28 +313,25 @@ public class Literal implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (o == this) {
-            return true;
-        } else if (!(o instanceof Literal)) {
+        if (o == this) return true;
+        if (!(o instanceof Literal)) return false;
+        Literal other = (Literal) o;
+
+        if (hashCode() != other.hashCode()) {
             return false;
-        } else {
-            Literal other = (Literal) o;
-            if (other.negated != this.negated) {
-                return false;
-            }
-            if (other.terms.length != this.terms.length) {
-                return false;
-            }
-            if (!other.predicate.name.equals(this.predicate.name)) {
-                return false;
-            }
-            for (int i = 0; i < this.terms.length; i++) {
-                if (!terms[i].equals(other.terms[i])) {
-                    return false;
-                }
-            }
-            return true;
         }
+
+        if (other.negated != negated || other.terms.length != terms.length
+                || !other.predicate.name.equals(predicate.name)) {
+            return false;
+        }
+
+        for (int i = 0; i < terms.length; i++) {
+            if (!terms[i].equals(other.terms[i])) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
