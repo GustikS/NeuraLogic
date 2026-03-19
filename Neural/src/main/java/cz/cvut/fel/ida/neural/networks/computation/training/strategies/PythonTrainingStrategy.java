@@ -156,6 +156,32 @@ public class PythonTrainingStrategy extends TrainingStrategy {
         return output;
     }
 
+    public Result validateSample(NeuralSample sample) {
+        trainer.invalidateSample(trainer.getInvalidation(), sample);
+        return trainer.evaluateSample(evaluation, sample);
+    }
+
+    public List<Result> validateSamples(List<NeuralSample> samples, int minibatchSize) {
+        List<Result> output = new ArrayList<>(samples.size());
+
+        if (minibatchSize > 1) {
+            miniBatchTrainer.setMinibatchSize(minibatchSize);
+
+            for (Result result : minibatchListTrainer.evaluate(samples)) {
+                output.add(result);
+            }
+
+            return output;
+        }
+
+        for (NeuralSample sample : samples) {
+            trainer.invalidateSample(trainer.getInvalidation(), sample);
+            output.add(trainer.evaluateSample(evaluation, sample));
+        }
+
+        return output;
+    }
+
     @Override
     public void export(Exporter exporter) {
     }
