@@ -22,6 +22,7 @@ package cz.cvut.fel.ida.logic;
 import cz.cvut.fel.ida.utils.math.Sugar;
 import cz.cvut.fel.ida.utils.math.collections.MultiMap;
 import cz.cvut.fel.ida.utils.generic.tuples.Pair;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 import java.util.*;
 
@@ -30,59 +31,87 @@ import java.util.*;
  */
 public class Clause {
 
-    private LinkedHashSet<Literal> literals = new LinkedHashSet<Literal>();
+    private Set<Literal> literals;
 
     private MultiMap<String, Literal> literalsByName;
-
     private MultiMap<Term, Literal> literalsByTerms;
 
     private int hashCode = -1;
 
+    private Set<Variable> variablesCache;
+    private Set<Term> termsCache;
+    private Set<String> predicateCache;
+
+
     public Clause() {
+        this.predicateCache = new ObjectOpenHashSet<>();
     }
 
-    /**
-     * Creates a new instance of class Clause. All literals in the collection "literals"
-     * are locked for changes.
-     *
-     * @param literals a collection of literals to be stored in this object.
-     */
-    public Clause(Iterable<? extends Literal> literals) {
+    public Clause(Collection<? extends Literal> literals) {
+        this.literals = new ObjectOpenHashSet<>(literals);
+        final int total = this.literals.size();
+        this.predicateCache = new ObjectOpenHashSet<>(total, 0.999f);
+
         for (Literal l : literals) {
             l.allowModifications(false);
-            this.addLiteral(l);
+            predicateCache.add(l.predicateName());
+        }
+    }
+
+    public Clause(Collection<? extends Literal> literals1, Collection<? extends Literal> literals2) {
+        this.literals = new ObjectOpenHashSet<>((int) ((literals1.size() + literals2.size()) / 0.75 + 1), 0.75f);
+
+        this.literals.addAll(literals1);
+        this.literals.addAll(literals2);
+
+        final int total = this.literals.size();
+        this.predicateCache = new ObjectOpenHashSet<>(total + 1, 0.999f);
+
+        for (Literal literal : literals) {
+            literal.allowModifications(false);
+            predicateCache.add(literal.predicateName());
         }
     }
 
     public Clause(Literal... literals) {
+        this.literals = new ObjectOpenHashSet<>(Arrays.asList(literals));
+
+        final int total = literals.length;
+        this.predicateCache = new ObjectOpenHashSet<>(total + 1, 0.999f);
+
         for (Literal literal : literals) {
             literal.allowModifications(false);
-            this.addLiteral(literal);
+            predicateCache.add(literal.predicateName());
         }
     }
 
-    /**
-     * Adds literals from collection c.
-     *
-     * @param c the collection of literals to be added.
-     */
     public void addLiterals(Collection<Literal> c) {
         this.hashCode = -1;
-        for (Literal l : c) {
-            this.addLiteral(l);
+        this.literals.addAll(c);
+
+        this.literalsByName = null;
+        this.literalsByTerms = null;
+
+        this.variablesCache = null;
+        this.termsCache = null;
+
+        final Set<String> predicateTemp = new ObjectOpenHashSet<>(this.predicateCache.size() + c.size(), 0.999f);
+        predicateTemp.addAll(predicateCache);
+
+        for (Literal literal : c) {
+            literal.allowModifications(false);
+            predicateTemp.add(literal.predicateName());
         }
+
+        this.predicateCache = predicateTemp;
     }
 
-    /**
-     * Adds literal l.
-     *
-     * @param literal the literal to be added.
-     */
     public void addLiteral(Literal literal) {
         this.hashCode = -1;
-        if (!this.literals.contains(literal)) {
-            this.literals.add(literal);
-        }
+        this.variablesCache = null;
+        this.termsCache = null;
+
+        this.literals.add(literal);
         if (this.literalsByName != null) {
             this.literalsByName.put(literal.predicateName(), literal);
         }
@@ -100,9 +129,10 @@ public class Clause {
      */
     public void removeLiteral(Literal literal) {
         this.hashCode = -1;
-        if (this.literals.contains(literal)) {
-            this.literals.remove(literal);
-        }
+        this.variablesCache = null;
+        this.termsCache = null;
+
+        this.literals.remove(literal);
         if (this.literalsByName != null) {
             this.literalsByName.remove(literal.predicateName(), literal);
         }
@@ -114,16 +144,17 @@ public class Clause {
     }
 
     private void initLiteralsByTerms() {
-        this.literalsByTerms = new MultiMap<Term, Literal>();
+        this.literalsByTerms = new MultiMap<>(literals.size() * 2);
         for (Literal literal : literals) {
-            for (int i = 0; i < literal.arity(); i++) {
+            final int arity = literal.arity();
+            for (int i = 0; i < arity; i++) {
                 literalsByTerms.put(literal.get(i), literal);
             }
         }
     }
 
     private void initLiteralsByName() {
-        this.literalsByName = new MultiMap<String, Literal>();
+        this.literalsByName = new MultiMap<>(literals.size());
         for (Literal literal : literals) {
             this.literalsByName.put(literal.predicateName(), literal);
         }
@@ -136,10 +167,12 @@ public class Clause {
      * @return
      */
     public boolean isSubsetOf(Clause clause) {
-        HashSet<Literal> set = new HashSet<Literal>();
-        set.addAll(clause.literals);
+        if (this.literals.size() > clause.literals.size()) {
+            return false; // Early exit optimization
+        }
+
         for (Literal l : literals) {
-            if (!set.contains(l)) {
+            if (!clause.literals.contains(l)) {
                 return false;
             }
         }
@@ -164,8 +197,8 @@ public class Clause {
         if (literalsByTerms == null) {
             initLiteralsByTerms();
         }
-        HashMap<Term, Integer> frequencies = new HashMap<Term, Integer>();
-        for (Map.Entry<Term, Set<Literal>> entry : this.literalsByTerms.entrySet()) {
+        HashMap<Term, Integer> frequencies = new HashMap<>(literalsByTerms.size());
+        for (Map.Entry<Term, ObjectOpenHashSet<Literal>> entry : this.literalsByTerms.entrySet()) {
             frequencies.put(entry.getKey(), entry.getValue().size());
         }
         return frequencies;
@@ -182,10 +215,12 @@ public class Clause {
         if (literalsByTerms == null) {
             initLiteralsByTerms();
         }
-        HashMap<Variable, Integer> frequencies = new HashMap<Variable, Integer>();
-        for (Map.Entry<Term, Set<Literal>> entry : this.literalsByTerms.entrySet()) {
-            if (entry.getKey() instanceof Variable)
-                frequencies.put((Variable) entry.getKey(), entry.getValue().size());
+        HashMap<Variable, Integer> frequencies = new HashMap<>();
+        for (Map.Entry<Term, ObjectOpenHashSet<Literal>> entry : this.literalsByTerms.entrySet()) {
+            Term key = entry.getKey();
+            if (key instanceof Variable) {
+                frequencies.put((Variable) key, entry.getValue().size());
+            }
         }
         return frequencies;
     }
@@ -193,7 +228,7 @@ public class Clause {
     /**
      * @return literals in the Clause
      */
-    public LinkedHashSet<Literal> literals() {
+    public Set<Literal> literals() {
         return literals;
     }
 
@@ -204,10 +239,7 @@ public class Clause {
      * @return set of all predicate names used in the Clause
      */
     public Set<String> predicates() {
-        if (literalsByName == null) {
-            initLiteralsByName();
-        }
-        return literalsByName.keySet();
+        return this.predicateCache;
     }
 
     /**
@@ -253,15 +285,23 @@ public class Clause {
      * @return the set of all variables contained in the Clause.
      */
     public Set<Variable> variables() {
+        if (variablesCache != null) {
+            return variablesCache;
+        }
+
         if (literalsByTerms == null) {
             initLiteralsByTerms();
         }
-        HashSet<Variable> set = new HashSet<Variable>();
-        for (Map.Entry<Term, Set<Literal>> entry : literalsByTerms.entrySet()) {
-            if (entry.getKey() instanceof Variable && entry.getValue().size() > 0) {
-                set.add((Variable) entry.getKey());
+
+        ObjectOpenHashSet<Variable> set = new ObjectOpenHashSet<>();
+        for (Map.Entry<Term, ObjectOpenHashSet<Literal>> entry : literalsByTerms.entrySet()) {
+            Term key = entry.getKey();
+            if (key instanceof Variable && !entry.getValue().isEmpty()) {
+                set.add((Variable) key);
             }
         }
+
+        this.variablesCache = set;
         return set;
     }
 
@@ -269,10 +309,17 @@ public class Clause {
      * @return the set of all terms (i.e. constants, variables and function symbols) contained in the Clause.
      */
     public Set<Term> terms() {
-        if (literalsByTerms == null) {
-            initLiteralsByTerms();
+        if (termsCache != null) {
+            return termsCache;
         }
-        return literalsByTerms.keySet();
+
+        Set<Term> terms = new ObjectOpenHashSet<>();
+        for (Literal literal : literals) {
+            terms.addAll(literal.termList());
+        }
+
+        this.termsCache = terms;
+        return termsCache;
     }
 
     /**
@@ -376,6 +423,7 @@ public class Clause {
         return new Clause(parsedLiterals);
     }
 
+
     @Override
     public String toString() {
         return this.toPrologLikeString(", ");
@@ -386,18 +434,18 @@ public class Clause {
     }
 
     private String toPrologLikeString(String separator) {
-        if (this.literals.size() == 0) {
+        if (this.literals.isEmpty()) {
             return "#EmptyClause";
         }
         StringBuilder sb = new StringBuilder();
-        int i = 0;
         int numLiterals = this.literals.size();
+        int i = 0;
+
         for (Literal l : this.literals) {
             sb.append(l.toString());
-            if (i < numLiterals - 1) {
+            if (i++ < numLiterals - 1) {
                 sb.append(separator);
             }
-            i++;
         }
         return sb.toString();
     }
@@ -412,12 +460,15 @@ public class Clause {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof Clause) {
-            Clause c = (Clause) o;
-            return this.isSubsetOf(c) && c.isSubsetOf(this);
-        } else {
-            return false;
+        if (this == o) return true; // Identity check
+        if (!(o instanceof Clause)) return false;
+
+        Clause c = (Clause) o;
+        if (this.literals.size() != c.literals.size()) {
+            return false; // Quick size check
         }
+
+        return this.isSubsetOf(c) && c.isSubsetOf(this);
     }
 
     /**
@@ -454,7 +505,7 @@ public class Clause {
             remainingTerms = Sugar.collectionDifference(literalsByTerms.keySet(), ignoredTerms);
         }
         List<Clause> components = new ArrayList<Clause>();
-        while (remainingTerms.size() > 0) {
+        while (!remainingTerms.isEmpty()) {
             Pair<Clause, Set<? extends Term>> pair = connectedComponent(Sugar.chooseOne(remainingTerms), ignoredTerms, justVariables);
             components.add(pair.r);
             allLiteralsInSomeComponent.addAll(pair.r.literals());
@@ -506,6 +557,20 @@ public class Clause {
             }
         }
         return new Pair<Clause, Set<? extends Term>>(new Clause(lits), closed);
+    }
+
+    public Clause copy() {
+        Clause res = new Clause();
+
+        res.literals = ((ObjectOpenHashSet) this.literals).clone();
+        res.literalsByTerms = this.literalsByTerms == null ? null : this.literalsByTerms.copy();
+        res.literalsByName = this.literalsByName == null ? null : this.literalsByName.copy();
+        res.predicateCache = this.predicateCache == null ? null : ((ObjectOpenHashSet) this.predicateCache).clone();
+        res.termsCache = this.termsCache == null ? null : ((ObjectOpenHashSet) this.termsCache).clone();
+        res.variablesCache = this.variablesCache == null ? null : ((ObjectOpenHashSet) this.variablesCache).clone();
+        res.hashCode = this.hashCode;
+
+        return res;
     }
 
     public static void main(String[] args) {

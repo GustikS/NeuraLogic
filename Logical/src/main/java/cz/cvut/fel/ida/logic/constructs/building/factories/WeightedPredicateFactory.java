@@ -41,10 +41,10 @@ public class WeightedPredicateFactory {
                 pred2pred.put(result, result);
             }
         } else {
-            if (special && !result.predicate.special) {     // a correction if a user states the predicate as special only in some places -> the predicate is made globally special
-                result.predicate.special = true;
+            if (special && (result.predicate.flags & 0x01) == 0) {     // a correction if a user states the predicate as special only in some places -> the predicate is made globally special
+                result.predicate.flags |= 0x01;
             }
-            if (hidden && !result.predicate.hidden){    // BUT predicates can be used differently as hidden (e.g. negated) in different places
+            if (hidden && (result.predicate.flags & 0x02) == 0) {    // BUT predicates can be used differently as hidden (e.g. negated) in different places
                 return WeightedPredicate.construct(from, arity, special, hidden);   // hidden predicates are not shared, since they will go away anyway...
             }
         }

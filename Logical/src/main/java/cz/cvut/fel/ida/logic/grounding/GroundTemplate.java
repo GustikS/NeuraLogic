@@ -10,6 +10,9 @@ import cz.cvut.fel.ida.logic.constructs.template.components.GroundRule;
 import cz.cvut.fel.ida.logic.constructs.template.types.GraphTemplate;
 import cz.cvut.fel.ida.logic.grounding.constructs.GroundRulesCollection;
 import cz.cvut.fel.ida.logic.subsumption.Matching;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.FactNeuron;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -39,6 +42,15 @@ public class GroundTemplate extends GraphTemplate implements Example {
     public Map<Literal, ValuedFact> groundFacts;
 
     /**
+     * Temp (for current pair of Template+Example) set of true ground facts
+     */
+    @NotNull
+    public Map<Literal, ValuedFact> templateFacts;
+
+    public Map<Literal, FactNeuron> templateFactNeurons;
+    public List<FactNeuron> createdFactNeuronCache = new ObjectArrayList<>(0);
+
+    /**
      * Inferred ground facts from heads of the inferred ground rules
      */
     public Set<Literal> derivedGroundFacts; //todo next where are these useful?
@@ -54,10 +66,15 @@ public class GroundTemplate extends GraphTemplate implements Example {
         }
     }
 
-    public GroundTemplate(LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules, Map<Literal, ValuedFact> groundFacts) {
+    public GroundTemplate(
+            @NotNull LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules,
+            @NotNull Map<Literal, ValuedFact> groundFacts,
+            @NotNull Map<Literal, ValuedFact> templateGroundFacts
+    ) {
         this();
         this.groundRules = groundRules;
         this.groundFacts = groundFacts;
+        this.templateFacts = templateGroundFacts;
         this.derivedGroundFacts = getFactsFromGroundRules(groundRules);
 //        this.neuronMaps = new NeuronMaps(groundRules, groundFacts);
 
@@ -68,6 +85,7 @@ public class GroundTemplate extends GraphTemplate implements Example {
         this.groundRules = other.groundRules;
         this.groundFacts = other.groundFacts;
         this.derivedGroundFacts = other.derivedGroundFacts;
+        this.templateFacts = other.templateFacts;
 //        this.neuronMaps = other.neuronMaps;
     }
 
@@ -115,6 +133,8 @@ public class GroundTemplate extends GraphTemplate implements Example {
         //2) copy all ground facts into new diff
         diff.groundFacts = new HashMap<>();
         diff.groundFacts.putAll(this.groundFacts);
+
+        diff.templateFacts = ((Object2ObjectOpenHashMap) this.groundFacts).clone();
 
         //forget repetitive ground rules
         for (Map.Entry<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> entry : memory.groundRules.entrySet()) {

@@ -18,8 +18,6 @@ public class FactNeuron extends WeightedNeuron<BaseNeuron, States.SimpleValue> i
 
     public FactNeuron(String fact, Weight offset, int index, States.SimpleValue state) {
         super(fact, index, state, offset);
-        inputs = new ArrayList<>(0);
-        weights = new ArrayList<>(0);
     }
 
     public void visit(NeuronVisitor.Weighted visitor) {

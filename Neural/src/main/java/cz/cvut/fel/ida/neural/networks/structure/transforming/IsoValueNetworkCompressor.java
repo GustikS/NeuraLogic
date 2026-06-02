@@ -315,13 +315,11 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
 
         public Value roundUp(Value value) {
             Value clone = value.getForm();
-            Iterator<Double> iterator = value.iterator();
-            int i = 0;
-            while (iterator.hasNext()) {
-                Double next = iterator.next();
-                BigDecimal bigDecimal = new BigDecimal(next).setScale(decimals, BigDecimal.ROUND_HALF_UP);    // 10 decimal digits are about max precision, 15 are already not deterministic mess!
-                clone.set(i, bigDecimal.doubleValue());
-                i++;
+            double[]  values = value.getAsArray();
+
+            for (int i = 0; i < values.length; i++) {
+                final double rounded = new BigDecimal(values[i]).setScale(decimals, BigDecimal.ROUND_HALF_UP).doubleValue();
+                clone.set(i, rounded);
             }
             return clone;
         }

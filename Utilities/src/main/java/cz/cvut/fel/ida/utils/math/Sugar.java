@@ -23,6 +23,8 @@ import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.math.collections.MultiMap;
 import cz.cvut.fel.ida.utils.generic.tuples.Pair;
 import cz.cvut.fel.ida.utils.generic.tuples.Tuple;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -1565,9 +1567,20 @@ public class Sugar {
     public static <T> Collection<T> flatten(Collection<? extends Collection<T>> coll){
         List<T> retVal = new ArrayList<T>();
         for (Collection<T> l : coll){
-            for (T t : l){
-                retVal.add(t);
-            }
+            retVal.addAll(l);
+        }
+        return retVal;
+    }
+
+    public static <T> Set<T> flattenToSet(Collection<? extends Collection<T>> coll){
+        int size = 0;
+        for (Collection<T> l : coll) {
+            size += l.size();
+        }
+
+        Set<T> retVal = new ObjectOpenHashSet<>(size);
+        for (Collection<T> l : coll){
+            retVal.addAll(l);
         }
         return retVal;
     }

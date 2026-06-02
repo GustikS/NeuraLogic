@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.logic.constructs.template;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.learning.Model;
+import cz.cvut.fel.ida.logic.Clause;
 import cz.cvut.fel.ida.logic.HornClause;
 import cz.cvut.fel.ida.logic.Literal;
 import cz.cvut.fel.ida.logic.constructs.Conjunction;
@@ -13,7 +14,11 @@ import cz.cvut.fel.ida.logic.constructs.template.components.HeadAtom;
 import cz.cvut.fel.ida.logic.constructs.template.components.WeightedRule;
 import cz.cvut.fel.ida.logic.constructs.template.types.GraphTemplate;
 import cz.cvut.fel.ida.logic.subsumption.HerbrandModel;
+import cz.cvut.fel.ida.logic.subsumption.SubsumptionEngineJ2;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.FactNeuron;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -37,6 +42,9 @@ public class Template implements Model<QueryAtom>, Exportable {
     @Nullable
     public LinkedHashSet<Conjunction> constraints;  //todo how to handle these?
 
+    public Map<Literal, ValuedFact> atomMapCache;
+    public List<FactNeuron> createdFactNeuronCache = new ObjectArrayList<>(0);
+    public Map<Literal, FactNeuron> factNeuronCache = new Object2ObjectOpenHashMap<>(0);
     /**
      * Good to know for stratification checking
      */
@@ -46,6 +54,10 @@ public class Template implements Model<QueryAtom>, Exportable {
      * Template's own inference engine, storing preprocessed structures
      */
     public transient HerbrandModel herbrandModel;
+
+    public SubsumptionEngineJ2.ClauseE clauseE;
+
+    public Clause clause;
 
     /**
      * Atoms inferred on top of the given {@link #facts} using the {@link #herbrandModel}
@@ -185,8 +197,7 @@ public class Template implements Model<QueryAtom>, Exportable {
 
         herbrandModel = new HerbrandModel(facts, rules);
         if (inferAtoms) {
-            Collection<Literal> atoms = herbrandModel.inferAtoms();
-            inferredAtoms.addAll(atoms);
+            inferredAtoms = herbrandModel.toSet();
         }
     }
 

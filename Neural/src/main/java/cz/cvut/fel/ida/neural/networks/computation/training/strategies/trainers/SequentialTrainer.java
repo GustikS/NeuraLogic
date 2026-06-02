@@ -70,8 +70,11 @@ public class SequentialTrainer extends Trainer {
 
         @Override
         public List<Result> learnEpoch(NeuralModel neuralModel, List<NeuralSample> sampleList) {
-            List<Result> resultList = new ArrayList<>(sampleList.size());
-            for (NeuralSample neuralSample : sampleList) {
+            final int size = sampleList.size();
+            final List<Result> resultList = new ArrayList<>(sampleList.size());
+
+            for (int i = 0; i < size; i++) {
+                NeuralSample neuralSample = sampleList.get(i);
                 if (neuralSample.query.neuron == null) {
                     LOG.warning("No query neuron - skipping backprop for this sample:" + neuralSample.toString());
                     continue;

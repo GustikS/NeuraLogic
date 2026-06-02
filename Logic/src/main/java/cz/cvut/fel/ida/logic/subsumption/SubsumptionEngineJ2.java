@@ -25,6 +25,7 @@ import cz.cvut.fel.ida.utils.math.collections.*;
 import cz.cvut.fel.ida.utils.math.random.CustomRandomGenerator;
 import cz.cvut.fel.ida.utils.generic.tuples.Pair;
 import cz.cvut.fel.ida.utils.generic.tuples.Triple;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 import java.util.*;
 
@@ -36,6 +37,13 @@ import java.util.*;
  * @author ondra
  */
 public class SubsumptionEngineJ2 {
+    private static final Term[] cacheTerm0 = new Term[0];
+    private static final Term[] cacheTerm1 = new Term[1];
+    private static final Term[] cacheTerm2 = new Term[2];
+    private static final Term[] cacheTerm3 = new Term[3];
+
+    private int cacheIndex = Integer.MAX_VALUE;
+    private CustomPredicate cachePredicate = null;
 
     public static int countFC = 0;
 
@@ -79,7 +87,7 @@ public class SubsumptionEngineJ2 {
 
     private long timeout = Long.MAX_VALUE;
 
-    protected ValueToIndex<Term> termsToIntegers = new ValueToIndex<Term>();
+    protected FixedValueToIndex<Term> termsToIntegers = new FixedValueToIndex<Term>();
 
     protected ValueToIndex<String> typesToIntegers = new ValueToIndex<String>();
 
@@ -91,7 +99,8 @@ public class SubsumptionEngineJ2 {
 
     //this is for speed - so that we could just be checking integer identifiers
     private final static int alldiff = -1, neq = -2, eq = -3, leq = -4, lt = -5, geq = -6, gt = -7, maxcard = -8, in = -9,
-            anypred = -10, truepred = -11, falsepred = -12, next = -13, add = -14, sub = -15, mod = -16;
+            anypred = -10, truepred = -11, falsepred = -12, next = -13, add = -14, sub = -15, mod = -16,
+            addeval = -17, subeval = -18, modeval = -19, muleval = -20, diveval = -21, maxeval = -22, mineval = -23;
 
     public SubsumptionEngineJ2() {
         this.predicatesToIntegers.put(alldiff, SpecialVarargPredicates.ALLDIFF);
@@ -110,6 +119,14 @@ public class SubsumptionEngineJ2 {
         this.predicatesToIntegers.put(add, SpecialVarargPredicates.ADD);
         this.predicatesToIntegers.put(sub, SpecialVarargPredicates.SUB);
         this.predicatesToIntegers.put(mod, SpecialVarargPredicates.MOD);
+        this.predicatesToIntegers.put(addeval, SpecialBinaryPredicates.ADD_EVAL);
+        this.predicatesToIntegers.put(subeval, SpecialBinaryPredicates.SUB_EVAL);
+        this.predicatesToIntegers.put(modeval, SpecialBinaryPredicates.MOD_EVAL);
+        this.predicatesToIntegers.put(muleval, SpecialBinaryPredicates.MUL_EVAL);
+        this.predicatesToIntegers.put(diveval, SpecialBinaryPredicates.DIV_EVAL);
+        this.predicatesToIntegers.put(maxeval, SpecialBinaryPredicates.MAX_EVAL);
+        this.predicatesToIntegers.put(mineval, SpecialBinaryPredicates.MIN_EVAL);
+
         for (String specialBinaryPredicate : SpecialBinaryPredicates.SPECIAL_PREDICATES) {
             this.specialPredicateIds.add(this.predicatesToIntegers.valueToIndex(specialBinaryPredicate));
         }
@@ -313,6 +330,7 @@ public class SubsumptionEngineJ2 {
                     gc.undoPropagation();
                 }
             }
+
             c.unground(variableOrder[varIndex]);
             c.restoreDomains(oldDomains);
             if (result != null && result.booleanValue() && numActualVarsProcessed >= maxDepth) {
@@ -487,10 +505,7 @@ public class SubsumptionEngineJ2 {
         if (c.contradiction()) {
             return false;
         }
-        if (!c.predicates().isSubsetOf(e.predicates)) {
-            return false;
-        }
-        return true;
+        return c.predicates().isSubsetOf(e.predicates);
     }
 
     private Boolean solveR(ClauseC c, ClauseE e, int varIndex, int[] variableOrder, int restart, Set<Integer> oiSet, Term[] template, long deadline) {
@@ -555,56 +570,68 @@ public class SubsumptionEngineJ2 {
         if (c.containedIn.length == 0) {
             return new int[]{};
         }
+
         if (this.learnVariableOrder && this.firstVariableOrder != null) {
             int[] ret = this.firstVariableOrder;
             this.firstVariableOrder = null;
             this.lastVariableOrder = ret;
             return ret;
         }
-        //todo - move to ClausE, this is unnecessarily slow
-        Counters<Integer> predicateCounts = new Counters<Integer>();
-        for (int i = 0; i < e.literals.length; i += e.literals[i + 1] + 2) {
-            predicateCounts.increment(e.literals[i]);
+
+        final List<Integer> variableOrder = new ArrayList<>();
+        final IntegerSet[] containedIns = c.containedIn;
+        final double[] weights = new double[containedIns.length];
+        final double[] heuristic1 = new double[containedIns.length];
+        final int[] occurrences = c.occurrences;
+
+        for (int index = 0; index < containedIns.length; index++) {
+            IntegerSet containedIn = containedIns[index];
+            weights[index] = containedIn.size() / (double) c.variableDomains[index].size();
         }
-        List<Integer> variableOrder = new ArrayList<Integer>();
-        double[] weights = new double[c.containedIn.length];
-        int index = 0;
-        for (IntegerSet containedIn : c.containedIn) {
-            weights[index] = containedIn.size();
-            weights[index] /= (double) c.variableDomains[index].size();
-            index++;
-        }
-        double[] heuristic1 = new double[c.containedIn.length];
+
         if (fv == -1) {
             CustomRandomGenerator crg = new CustomRandomGenerator(weights, random);
             variableOrder.add(crg.nextInt());
         } else {
             variableOrder.add(fv);
         }
-        heuristic1[variableOrder.get(0)] = -1;
-        for (int ci : c.containedIn[variableOrder.get(0)].values()) {
-            for (int i = 0; i < c.literals[ci + 1]; i++) {
-                if (heuristic1[c.literals[ci + 3 + i]] != -1) {
-                    heuristic1[c.literals[ci + 3 + i]] += 1.0 * weights[c.literals[ci + 3 + i]];
+
+        final int vOrderIdx = variableOrder.get(0);
+        final int[] values = containedIns[vOrderIdx].values();
+        final int[] literals = c.literals;
+
+        heuristic1[vOrderIdx] = -1;
+
+        for (int j = 0; j < values.length; j++) {
+            final int ci = values[j];
+
+            for (int i = ci + 3; i < literals[ci + 1] + ci + 3; i++) {
+                if (heuristic1[literals[i]] != -1) {
+                    heuristic1[literals[i]] += weights[literals[i]];
                 }
             }
         }
+
         for (int i = 1; i < heuristic1.length; i++) {
-            //System.out.println(VectorUtils.doubleArrayToString(heuristic1));
-            int selected = maxIndexWithTieBreaking(heuristic1);
+            final int selected = maxIndexWithTieBreaking(heuristic1);
             heuristic1[selected] = -1;
-            if (!ignoreSingletons || c.occurrences[selected] > 1) {
+
+            if (!ignoreSingletons || occurrences[selected] > 1) {
                 variableOrder.add(selected);
             }
-            for (int ci : c.containedIn[selected].values()) {
-                for (int j = 0; j < c.literals[ci + 1]; j++) {
-                    if (heuristic1[c.literals[ci + 3 + j]] != -1) {
-                        double count = predicateCounts.get(c.literals[ci]);
-                        if (count == 0) {
-                            //todo - handle separately special predicateNames and negations
-                            count = 1e8;
-                        }
-                        heuristic1[c.literals[ci + 3 + j]] += 1.0 * weights[c.literals[ci + 3 + j]] / count;
+
+            int[] vals = containedIns[selected].values();
+            for (int k = 0; k < vals.length; k++) {
+                final int ci = vals[k];
+                double count = e.getPredicateCount(literals[ci]);
+                if (count == 0) {
+                    //todo - handle separately special predicateNames and negations
+                    count = 1e8;
+                }
+
+                for (int j = ci + 3; j < literals[ci + 1] + 3 + ci; j++) {
+                    if (heuristic1[literals[j]] != -1) {
+                        heuristic1[literals[j]] += weights[literals[j]] / count;
                     }
                 }
             }
@@ -630,7 +657,7 @@ public class SubsumptionEngineJ2 {
         this.firstVariableOrder = order;
     }
 
-    private int maxIndexWithTieBreaking(double values[]) {
+    private int maxIndexWithTieBreaking(double[] values) {
         double max = Double.NEGATIVE_INFINITY;
         int maxIndex = 0;
         int index = 0;
@@ -810,7 +837,7 @@ public class SubsumptionEngineJ2 {
         //predicate, arity, terms
         protected int[] literals;
 
-        private IntegerSet predicates;
+        private IntegerSet predicates = IntegerSet.createIntegerSet(addeval);
 
         protected int[] variableTypes;
 
@@ -834,7 +861,7 @@ public class SubsumptionEngineJ2 {
 
         private int numActualConstants;
 
-        private ValueToIndex<Term> variablesToIntegers = new ValueToIndex<Term>();
+        private final ValueToIndex<Term> variablesToIntegers = new ValueToIndex<Term>();
 
         private int[] auxBuffer1;
 
@@ -842,7 +869,7 @@ public class SubsumptionEngineJ2 {
 
         private boolean useFirstSuccessFC = true;
 
-        private ArrayList<GlobalConstraint> globalConstraints = new ArrayList<GlobalConstraint>();
+        private final ArrayList<GlobalConstraint> globalConstraints = new ArrayList<GlobalConstraint>();
 
         /**
          * Creates a new empty ClauseC
@@ -870,7 +897,6 @@ public class SubsumptionEngineJ2 {
             this.predicates = IntegerSet.createIntegerSet(predicateSet);
             this.literals = new int[literalsArrayLength];
             Map<Literal, Integer> intLitMap = new HashMap<Literal, Integer>();
-            Map<Integer, Literal> litIntMap = new HashMap<Integer, Literal>();
             int index = 0;
             for (Literal l : c.literals()) {
                 if (l.isNegated()) {
@@ -890,7 +916,6 @@ public class SubsumptionEngineJ2 {
                     }
                 }
                 intLitMap.put(l, index);
-                litIntMap.put(index, l);
                 index += 3;
                 for (int j = 0; j < l.arity(); j++) {
                     literals[index + j] = variablesToIntegers.valueToIndex(l.get(j));
@@ -914,7 +939,7 @@ public class SubsumptionEngineJ2 {
 //                    }
                 }
             }
-            for (Map.Entry<Integer, Set<Integer>> entry : containedInBag.entrySet()) {
+            for (Map.Entry<Integer, ObjectOpenHashSet<Integer>> entry : containedInBag.entrySet()) {
                 int term = entry.getKey();
                 containedIn[term] = IntegerSet.createIntegerSet(entry.getValue());
             }
@@ -961,88 +986,83 @@ public class SubsumptionEngineJ2 {
         public boolean initialize(ClauseE e) {
             Arrays.fill(this.variableDomains, null);
             //simple propagation of "@in" literals
-            int k = 0;
-            while (k < this.literals.length) {
-                if (predicatesToIntegers.indexToValue(this.literals[k]).equals(SpecialVarargPredicates.IN)) {
-                    boolean groundRightPart = true;
-                    int arity = this.literals[k + 1];
-                    for (int j = 1; j < arity; j++) {
-                        if (!this.isConstant(this.literals[k + j + 3])) {
-                            groundRightPart = false;
-                            break;
-                        }
-                    }
-                    if (groundRightPart) {
-                        int varIndex = this.literals[k + 3];
-                        int[] groundValues = new int[arity - 1];
-                        for (int j = 0; j < groundValues.length; j++) {
-                            groundValues[j] = termsToIntegers.valueToIndex(variablesToIntegers.indexToValue(this.literals[k + j + 3 + 1]));
-                        }
-                        IntegerSet dom = IntegerSet.createIntegerSet(groundValues);
-                        if (this.negations.contains(k)) {
-                            dom = IntegerSet.difference(e.allTerms, dom);
-                        }
-                        if (this.variableDomains[varIndex] == null) {
-                            this.variableDomains[varIndex] = dom;
-                        } else {
-                            this.variableDomains[varIndex] = IntegerSet.intersection(this.variableDomains[varIndex], dom);
-                        }
+
+            for (int k = 0; k < this.literals.length; k += this.literals[k + 1] + 3) {
+                if (this.literals[k] != in) {
+                    continue;
+                }
+
+                boolean groundRightPart = true;
+
+                final int arity = this.literals[k + 1];
+                for (int j = 1; j < arity; j++) {
+                    if (!this.isConstant(this.literals[k + j + 3])) {
+                        groundRightPart = false;
+                        break;
                     }
                 }
-                k += this.literals[k + 1] + 3;
+
+                if (groundRightPart) {
+                    final int varIndex = this.literals[k + 3];
+                    final int[] groundValues = new int[arity - 1];
+
+                    for (int j = 0; j < groundValues.length; j++) {
+                        groundValues[j] = termsToIntegers.valueToIndex(variablesToIntegers.indexToValue(this.literals[k + j + 3 + 1]));
+                    }
+
+                    IntegerSet dom = IntegerSet.createIntegerSet(groundValues);
+                    if (this.negations.contains(k)) {
+                        dom = IntegerSet.difference(e.allTerms, dom);
+                    }
+
+                    this.variableDomains[varIndex] = this.variableDomains[varIndex] == null ? dom : IntegerSet.intersection(this.variableDomains[varIndex], dom);
+                }
             }
             //
             for (int i = 0; i < this.variableDomains.length; i++) {
-                if (variablesToIntegers.indexToValue(i) instanceof Variable) {
+                final Term term = variablesToIntegers.indexToValue(i);
+
+                if (term instanceof Variable) {
                     for (int ciLit : this.containedIn[i].values()) {
                         for (int j = 0; j < literals[ciLit + 1]; j++) {
-                            if (this.literals[ciLit + j + 3] == i) {
-                                if (this.variableDomains[i] == null) {
-                                    if (this.negations.contains(ciLit) || specialPredicateIds.contains(this.literals[ciLit])) {
-                                        if (this.variableTypes[i] == -1) {
-                                            this.variableDomains[i] = e.allTerms;
-                                        } else {
-                                            this.variableDomains[i] = e.typedTerms(this.variableTypes[i]);
-                                        }
-                                    } else {
-                                        if (this.variableTypes[i] == -1) {
-                                            this.variableDomains[i] = e.variableDomains.get(new Pair<Integer, Integer>(this.literals[ciLit], j));
-                                        } else {
-                                            this.variableDomains[i] = IntegerSet.intersection(
-                                                    e.variableDomains.get(new Pair<Integer, Integer>(this.literals[ciLit], j)),
-                                                    e.typedTerms(this.variableTypes[i]));
-                                        }
-                                    }
+                            if (this.literals[ciLit + j + 3] != i) {
+                                continue;
+                            }
+
+                            if (this.variableDomains[i] == null) {
+                                if (this.negations.contains(ciLit) || specialPredicateIds.contains(this.literals[ciLit])) {
+                                    this.variableDomains[i] = this.variableTypes[i] == -1 ? e.allTerms : e.typedTerms(this.variableTypes[i]);
                                 } else {
-                                    if (!this.negations.contains(ciLit) && !specialPredicateIds.contains(this.literals[ciLit])) {
-                                        IntegerSet varDomain = e.variableDomains.get(new Pair<Integer, Integer>(this.literals[ciLit], j));
-                                        if (varDomain != null) {
-                                            this.variableDomains[i] = IntegerSet.intersection(varDomain, this.variableDomains[i]);
-                                        } else {
-                                            return false;
-                                        }
-                                    }
+                                    final long hashKey = ((long) this.literals[ciLit] << 32) | (j & 0xFFFFFFFFL);
+                                    final IntegerSet dom = e.variableDomains.get(hashKey);
+
+                                    this.variableDomains[i] = this.variableTypes[i] == -1 ? dom : IntegerSet.intersection(dom, e.typedTerms(this.variableTypes[i]));;
                                 }
+                            } else if (!this.negations.contains(ciLit) && !specialPredicateIds.contains(this.literals[ciLit])) {
+                                IntegerSet varDomain = e.variableDomains.get(((long) this.literals[ciLit] << 32) | (j & 0xFFFFFFFFL));
+                                if (varDomain == null) {
+                                    return false;
+                                }
+
+                                this.variableDomains[i] = IntegerSet.intersection(varDomain, this.variableDomains[i]);
                             }
                         }
                     }
                 } else {
-                    int termId = termsToIntegers.valueToIndex(variablesToIntegers.indexToValue(i));
-                    this.variableDomains[i] = IntegerSet.createIntegerSet(termId);
-                    if (variableTypes[i] != -1 && !e.typedTerms(variableTypes[i]).contains(termId)) {
-                        this.variableDomains[i] = IntegerSet.emptySet;
-                    }
+                    final int termId = termsToIntegers.valueToIndex(term);
+                    this.variableDomains[i] = variableTypes[i] != -1 && !e.typedTerms(variableTypes[i]).contains(termId) ? IntegerSet.emptySet : IntegerSet.createIntegerSet(termId);
                 }
                 if (this.variableDomains[i] == null || this.variableDomains[i].isEmpty()) {
                     return false;
                 }
             }
+
             Arrays.fill(groundedValues, -1);
             for (int i = 0; i < groundedValues.length; i++) {
-                if (variablesToIntegers.indexToValue(i) instanceof Constant) {
-                    if (!ground(i, termsToIntegers.valueToIndex(variablesToIntegers.indexToValue(i)), e)) {
-                        return false;
-                    }
+                final Term term = variablesToIntegers.indexToValue(i);
+
+                if (term instanceof Constant && !ground(i, termsToIntegers.valueToIndex(term), e)) {
+                    return false;
                 }
             }
             return true;
@@ -1076,7 +1096,10 @@ public class SubsumptionEngineJ2 {
             if (!useFirstSuccessFC) {
                 this.variableDomains[variable] = IntegerSet.createIntegerSet(value);
             }
-            for (int ciLit : containedIn[variable].values()) {
+
+            final int[] values = containedIn[variable].values();
+            for (int i = 0; i < values.length; i++) {
+                final int ciLit = values[i];
                 if (!e.checkLiteral(this, ciLit, this.negations.contains(ciLit))) {
                     return false;
                 }
@@ -1102,27 +1125,27 @@ public class SubsumptionEngineJ2 {
                 return false;
             }
             if (this.useFirstSuccessFC) {
-                Arrays.fill(this.auxBuffer1, 0);
                 outerLoop:
                 for (int neighb : this.neighbours[variable].values()) {
+                    this.auxBuffer1[neighb] = 0;
                     if (this.groundedValues[neighb] == -1 && this.containedIn[neighb].size() > 1) {
                         for (int val : this.variableDomains[neighb].values()) {
                             boolean succ = ground(neighb, val, e);
                             unground(neighb);
                             if (succ) {
+                                if (this.auxBuffer1[neighb] > 0) {
+                                    this.variableDomains[neighb] = IntegerSet.createIntegerSetFromSortedArray(Arrays.copyOfRange(this.variableDomains[neighb].values(), this.auxBuffer1[neighb], this.variableDomains[neighb].size()));
+                                }
+
                                 continue outerLoop;
-                            } else {
-                                this.auxBuffer1[neighb]++;
                             }
+
+                            this.auxBuffer1[neighb]++;
                         }
                         return false;
                     }
                 }
-                for (int neighb : this.neighbours[variable].values()) {
-                    if (this.auxBuffer1[neighb] > 0) {
-                        this.variableDomains[neighb] = IntegerSet.createIntegerSetFromSortedArray(Arrays.copyOfRange(this.variableDomains[neighb].values(), this.auxBuffer1[neighb], this.variableDomains[neighb].size()));
-                    }
-                }
+
                 return true;
             } else {
                 //todo
@@ -1304,25 +1327,23 @@ public class SubsumptionEngineJ2 {
      */
     public class ClauseE {
 
-        protected Map<Pair<Integer, Integer>, IntegerSet> variableDomains = new HashMap<Pair<Integer, Integer>, IntegerSet>();
+        protected Map<Long, IntegerSet> variableDomains;
 
-        private IntegerMultiMap<Integer> typedTerms = new IntegerMultiMap<Integer>();
+        private IntegerMultiMap<Integer> typedTerms;
 
-        protected int[] literals;
+        private int[] predicateCounts = new int[]{};
 
         private IntegerSet allTerms;
 
         private IntegerSet predicates;
 
-        protected IntegerSet[] domainsByPredicates;
+        private final LowArityLiterals lal;
 
-        private LowArityLiterals lal;
+        private final HighArityLiterals hal;
 
-        private HighArityLiterals hal;
+        private final CompletelySymmetricLiterals csl;
 
-        private CompletelySymmetricLiterals csl;
-
-        private Map<Term, Integer> numbers = new HashMap<Term, Integer>();
+        private final int minPredicateCounter = mineval;
 
         /**
          * Creates a new instance of class ClauseE which serves as an efficient data-structure
@@ -1331,68 +1352,177 @@ public class SubsumptionEngineJ2 {
          * @param clause the clause which should be compiled into the efficient representation
          */
         public ClauseE(Clause clause) {
-            MultiMap<Integer, Integer> integerMultiMap = new MultiMap<Integer, Integer>();
-            Set<Integer> predicates = new HashSet<Integer>();
-            int literalIndex = 0;
-            for (Literal l : clause.literals()) {
+            this.lal = new LowArityLiterals(lowArity);
+            this.hal = new HighArityLiterals(lowArity);
+            this.csl = new CompletelySymmetricLiterals();
+
+            // Pre-calculate clause structure to avoid redundant iterations
+            this.expand(clause.literals());
+        }
+
+        private ClauseE() {
+            this.lal = new LowArityLiterals(lowArity);
+            this.hal = new HighArityLiterals(lowArity);
+            this.csl = new CompletelySymmetricLiterals();
+        }
+
+        private ClauseE(LowArityLiterals lal, HighArityLiterals hal, CompletelySymmetricLiterals csl) {
+            this.lal = lal;
+            this.hal = hal;
+            this.csl = csl;
+        }
+
+        public void expand(Set<Literal> clauseLiterals) {
+            // First pass: collect predicates and calculate array sizes
+            Set<Integer> predicateSet = new HashSet<>(clauseLiterals.size());
+            int literalArraySize = 0;
+
+            for (Literal l : clauseLiterals) {
                 if (!l.isNegated()) {
-                    integerMultiMap.put(predicatesToIntegers.valueToIndex(l.predicateName()), literalIndex);
-                    literalIndex += 2 + l.arity();
-                    predicates.add(predicatesToIntegers.valueToIndex(l.predicateName()));
+                    predicateSet.add(predicatesToIntegers.valueToIndex(l.predicateName()));
+                    literalArraySize += 2 + l.arity();
                 }
             }
-            this.predicates = IntegerSet.createIntegerSet(predicates);
-            domainsByPredicates = new IntegerSet[predicatesToIntegers.max() + 1];
-            for (Map.Entry<Integer, Set<Integer>> entry : integerMultiMap.entrySet()) {
-                //negative values are for special predicateNames
-                if (entry.getKey() >= 0) {
-                    domainsByPredicates[entry.getKey()] = IntegerSet.createIntegerSet(entry.getValue());
-                }
-            }
-            literals = new int[literalIndex];
-            Map<Literal, Integer> intLitMap = new HashMap<Literal, Integer>();
-            Map<Integer, Literal> litIntMap = new HashMap<Integer, Literal>();
+
+            IntegerSet newPredicates = IntegerSet.createIntegerSet(predicateSet);
+            this.predicates = this.predicates == null ? newPredicates : IntegerSet.union(this.predicates, newPredicates);
+
+            // Second pass: build literals array and collect domains
             int index = 0;
-            MultiMap<Pair<Integer, Integer>, Integer> varDomains = new MultiMap<Pair<Integer, Integer>, Integer>();
-            for (Literal l : clause.literals()) {
-                if (!l.isNegated()) {
-                    literals[index] = predicatesToIntegers.valueToIndex(l.predicateName());
-                    literals[index + 1] = l.arity();
-                    intLitMap.put(l, index);
-                    litIntMap.put(index, l);
-                    index += 2;
-                    if (l.predicateName().startsWith(SymmetricPredicates.PREFIX)) {
-                        for (int i = 0; i < l.arity(); i++) {
-                            for (int j = 0; j < l.arity(); j++) {
-                                literals[index + j] = termsToIntegers.valueToIndex(l.get(j));
-                                varDomains.put(new Pair<Integer, Integer>(literals[index - 2], i), literals[index + j]);
-                            }
-                        }
-                    } else {
-                        for (int j = 0; j < l.arity(); j++) {
-                            literals[index + j] = termsToIntegers.valueToIndex(l.get(j));
-                            varDomains.put(new Pair<Integer, Integer>(literals[index - 2], j), literals[index + j]);
+            int[] newLiterals = new int[literalArraySize];
+
+            Map<Long, Set<Integer>> varDomainsMap = new HashMap<>(literalArraySize);
+
+            // Single pass: collect all terms and typed terms
+            Set<Integer> allTermsSet = new HashSet<>(clauseLiterals.size() * 2);
+            Map<Integer, Set<Integer>> typedTermsMap = new HashMap<>(clauseLiterals.size() * 2);
+
+            for (Literal l : clauseLiterals) {
+                final Term[] terms = l.arguments();
+                final int arity = terms.length;
+
+                if (l.isNegated()) {
+                    for (int i = 0; i < arity; i++) {
+                        int termId = termsToIntegers.valueToIndex(terms[i]);
+                        allTermsSet.add(termId);
+
+                        final String typeStr = terms[i].type();
+                        if (typeStr != null) {
+                            int typeId = typesToIntegers.valueToIndex(typeStr);
+                            typedTermsMap.computeIfAbsent(typeId, k -> new HashSet<>(8))
+                                    .add(termId);
                         }
                     }
-                    index += l.arity();
+
+                    continue;
                 }
-            }
-            for (Map.Entry<Pair<Integer, Integer>, Set<Integer>> entry : varDomains.entrySet()) {
-                this.variableDomains.put(entry.getKey(), IntegerSet.createIntegerSet(entry.getValue()));
-            }
-            lal = new LowArityLiterals(literals, lowArity);
-            hal = new HighArityLiterals(literals, lowArity);
-            csl = new CompletelySymmetricLiterals(literals);
-            Set<Integer> allTermsHere = new HashSet<Integer>();
-            MultiMap<Integer, Integer> typedTermsMM = new MultiMap<Integer, Integer>();
-            for (Term t : clause.terms()) {
-                allTermsHere.add(termsToIntegers.valueToIndex(t));
-                if (t.type() != null) {
-                    typedTermsMM.put(typesToIntegers.valueToIndex(t.type()), termsToIntegers.valueToIndex(t));
+
+                final int predicateId = predicatesToIntegers.valueToIndex(l.predicateName());
+                newLiterals[index] = predicateId;
+                newLiterals[index + 1] = arity;
+                index += 2;
+
+                final int predicateCountsIdx = predicateId - minPredicateCounter;
+                if (this.predicateCounts.length == 0) {
+                    this.predicateCounts = new int[predicateCountsIdx + 20];
+                } else if (predicateCountsIdx >= this.predicateCounts.length) {
+                    int[] newPredicateCounts = new int[predicateCountsIdx + 20];
+                    System.arraycopy(this.predicateCounts, 0, newPredicateCounts, 0, this.predicateCounts.length);
+                    this.predicateCounts = newPredicateCounts;
                 }
+
+                this.predicateCounts[predicateCountsIdx]++;
+
+                // Check once if symmetric
+                boolean isSymmetric = l.predicateName().startsWith(SymmetricPredicates.PREFIX);
+
+                if (isSymmetric) {
+                    // Symmetric predicate: collect all position/term pairs
+                    for (int i = 0; i < arity; i++) {
+                        final long key = ((long) predicateId << 32) | (i & 0xFFFFFFFFL);
+                        Set<Integer> set = varDomainsMap.computeIfAbsent(key, k -> new HashSet<>(8));
+
+                        for (int j = 0; j < arity; j++) {
+                            int termId = termsToIntegers.valueToIndex(terms[j]);
+                            newLiterals[index + j] = termId;
+                            set.add(termId);
+                        }
+
+                        int termId = termsToIntegers.valueToIndex(terms[i]);
+//                        allTermsSet.add(termId);
+
+                        final String typeStr = terms[i].type();
+                        if (typeStr != null) {
+                            int typeId = typesToIntegers.valueToIndex(typeStr);
+                            typedTermsMap.computeIfAbsent(typeId, k -> new HashSet<>(8))
+                                    .add(termId);
+                        } else {
+                            allTermsSet.add(termId);
+                        }
+                    }
+
+                    csl.add(newLiterals, index - 2);
+                } else {
+                    // Normal predicate: position j maps to argument j
+                    for (int j = 0; j < arity; j++) {
+                        int termId = termsToIntegers.valueToIndex(terms[j]);
+                        newLiterals[index + j] = termId;
+
+                        // Collect domain for position j
+                        final long key = ((long) predicateId << 32) | (j & 0xFFFFFFFFL);
+                        varDomainsMap.computeIfAbsent(key, k -> new HashSet<>())
+                                .add(termId);
+
+//                        allTermsSet.add(termId);
+
+                        final String typeStr = terms[j].type();
+                        if (typeStr != null) {
+                            int typeId = typesToIntegers.valueToIndex(typeStr);
+                            typedTermsMap.computeIfAbsent(typeId, k -> new HashSet<>())
+                                    .add(termId);
+                        } else {
+                            allTermsSet.add(termId);
+                        }
+                    }
+
+                    if (arity <= lowArity) {
+                        lal.add(newLiterals, index - 2);
+                    } else {
+                        hal.add(newLiterals, index - 2);
+                    }
+                }
+                index += arity;
             }
-            allTerms = IntegerSet.createIntegerSet(allTermsHere);
-            typedTerms = IntegerMultiMap.createIntegerMultiMap(typedTermsMM);
+
+            // Convert varDomainsMap to variableDomains in single pass
+            Map<Long, IntegerSet> variableDomains = this.variableDomains == null ? new HashMap<>(varDomainsMap.size()) : this.variableDomains;
+            for (Map.Entry<Long, Set<Integer>> entry : varDomainsMap.entrySet()) {
+                variableDomains.merge(entry.getKey(), IntegerSet.createIntegerSet(entry.getValue()), IntegerSet::union);
+            }
+
+            this.variableDomains = variableDomains;
+            IntegerSet newAllTerms = IntegerSet.createIntegerSet(allTermsSet);
+            this.allTerms = this.allTerms == null ? newAllTerms : IntegerSet.union(this.allTerms, newAllTerms);
+
+            IntegerMultiMap<Integer> typedTermMM = this.typedTerms == null ? new IntegerMultiMap<>() : this.typedTerms;
+            for (Map.Entry<Integer, Set<Integer>> entry : typedTermsMap.entrySet()) {
+                typedTermMM.add(entry.getKey(), IntegerSet.createIntegerSet(entry.getValue()));
+            }
+
+            // Process newly added literals to matchers
+            csl.flush();
+            hal.flush(newLiterals);
+
+            this.typedTerms = typedTermMM;
+        }
+
+        public int getPredicateCount(int predicateId) {
+            int index = predicateId - minPredicateCounter;
+            if (index < 0 || index >= this.predicateCounts.length) {
+                return 0;
+            }
+
+            return this.predicateCounts[index];
         }
 
         public IntegerSet typedTerms(int type) {
@@ -1408,45 +1538,30 @@ public class SubsumptionEngineJ2 {
          * @return true of the literal can be extended so that it would be equal to some literal from this ClauseE, false otherwise
          */
         public boolean checkLiteral(ClauseC c, int index, boolean negated) {
-            int[] cliterals = c.literals;
-            if (negated) {
-                if (isGround(cliterals, c.groundedValues, index)) {
-                    if ((cliterals[index + 2] & COMPLETELY_SYMMETRIC_PREDICATE) > 0) {
-                        return !this.csl.match(c, index, this);
-                    } else if (cliterals[index + 1] <= lowArity) {
-                        return !this.lal.match(c, index, this, c.lowArityAuxBuffers[cliterals[index + 1]]);
-                    } else {
-                        return !this.hal.match(c, index, this);
-                    }
-                }
-                return true;
-            } else {
-                if ((cliterals[index + 2] & COMPLETELY_SYMMETRIC_PREDICATE) > 0) {
-                    return this.csl.match(c, index, this);
-                } else if (cliterals[index + 1] <= lowArity) {
-                    return this.lal.match(c, index, this, c.lowArityAuxBuffers[cliterals[index + 1]]);
-                } else {
-                    return this.hal.match(c, index, this);
-                }
-            }
-        }
+            final int[] cliterals = c.literals;
 
-        /**
-         * @param literal the integer representation of the literal for which we want the string representation
-         * @return string representation of literal represented by integer <em>literal</em>
-         */
-        public String literalToString(int literal) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(predicatesToIntegers.indexToValue(literals[literal]));
-            sb.append("(");
-            for (int i = 0; i < literals[literal + 1]; i++) {
-                sb.append(termsToIntegers.indexToValue(literals[literal + 2 + i]));
-                if (i < literals[literal + 1] - 1) {
-                    sb.append(", ");
-                }
+            final boolean ground = isGround(cliterals, c.groundedValues, index);
+            if (negated && !ground) {
+                return true;
             }
-            sb.append(")");
-            return sb.toString();
+
+            final int flags = cliterals[index + 2];
+            final int arity = cliterals[index + 1];
+
+            final boolean isSymmetric = (flags & COMPLETELY_SYMMETRIC_PREDICATE) > 0;
+            final boolean isLowArity = arity <= lowArity;
+
+            boolean result;
+
+            if (isSymmetric) {
+                result = this.csl.match(c, index, this, ground);
+            } else if (isLowArity) {
+                result = this.lal.match(c, index, this, c.lowArityAuxBuffers[arity], ground);
+            } else {
+                result = this.hal.match(c, index, this, ground);
+            }
+
+            return negated ? !result : result;
         }
 
         public Set<Term> terms() {
@@ -1460,323 +1575,492 @@ public class SubsumptionEngineJ2 {
         public IntegerSet allTerms() {
             return this.allTerms;
         }
+
+        public ClauseE copy() {
+            ClauseE res = new ClauseE(this.lal.copy(), this.hal.copy(), this.csl.copy());
+
+            res.allTerms = this.allTerms;
+            res.predicates = this.predicates;
+            res.typedTerms = this.typedTerms.copy();
+            res.variableDomains = new HashMap<>(this.variableDomains);
+            res.predicateCounts = this.predicateCounts == null ? null : this.predicateCounts.clone();
+
+            return res;
+        }
     }
 
     private boolean isGround(int[] cliterals, int[] grounding, int index) {
-        for (int i = index + 3, j = 0; i < index + cliterals[index + 1] + 3; i++, j++) {
-            if (grounding[cliterals[i]] == -1) {
-                return false;
-            }
+        final int arity = cliterals[index + 1];
+        final int base  = index + 3;
+
+        if (arity == 0) return true;
+        for (int j = base; j < arity + base; j++) {
+            if (grounding[cliterals[j]] == -1) return false;
         }
         return true;
     }
 
     private boolean matchCustomLiteral(int[] cliterals, int[] grounding, int index) {
-        String predicate = predicatesToIntegers.indexToValue(cliterals[index]);
-        CustomPredicate cs;
-        if ((cs = this.customPredicates.get(predicate)) != null) {
-            Term[] args = new Term[cliterals[index + 1]];
-            int j = 0;
-            for (int i = index + 3; i < index + cliterals[index + 1] + 3; i++) {
-                if (grounding[cliterals[i]] != -1) {
-                    args[j] = termsToIntegers.indexToValue(grounding[cliterals[i]]);
-                }
-                j++;
+        if (cliterals[index] != cacheIndex) {
+            String predicate = predicatesToIntegers.indexToValue(cliterals[index]);
+            this.cachePredicate = this.customPredicates.get(predicate);
+            this.cacheIndex = cliterals[index];
+        }
+
+        if (this.cachePredicate == null) return true;
+
+        final int arity = cliterals[index + 1];
+        final int offset = index + 3;
+
+        if (arity == 0) {
+            return this.cachePredicate.isSatisfiable(cacheTerm0);
+        }
+
+        if (arity == 1) {
+            final int termId = grounding[cliterals[offset]];
+            final Term arg = termsToIntegers.indexToValue(termId);
+
+            cacheTerm1[0] = arg;
+            return this.cachePredicate.isSatisfiable(cacheTerm1);
+        }
+
+        if (arity == 2) {
+            final int termId0 = grounding[cliterals[offset]];
+            final Term arg0 = termsToIntegers.indexToValue(termId0);
+            cacheTerm2[0] = arg0;
+
+            final int termId1 = grounding[cliterals[offset + 1]];
+            final Term arg1 = termsToIntegers.indexToValue(termId1);
+            cacheTerm2[1] = arg1;
+            return this.cachePredicate.isSatisfiable(cacheTerm2);
+        }
+
+        final int termId0 = grounding[cliterals[offset]];
+        final Term arg0 = termsToIntegers.indexToValue(termId0);
+        cacheTerm3[0] = arg0;
+
+        final int termId1 = grounding[cliterals[offset + 1]];
+        final Term arg1 = termsToIntegers.indexToValue(termId1);
+        cacheTerm3[1] = arg1;
+
+        final int termId2 = grounding[cliterals[offset + 2]];
+        final Term arg2 = termsToIntegers.indexToValue(termId2);
+        cacheTerm3[2] = arg2;
+        return this.cachePredicate.isSatisfiable(cacheTerm3);
+    }
+
+    private boolean matchSpecialLiteral(ClauseC c, int index, ClauseE e, boolean isGround) {
+        final int[] cliterals = c.literals;
+        final int[] grounding = c.groundedValues;
+        final int predicate = cliterals[index];
+
+        if (predicate >= 0) {
+            if (!isGround) {
+                return true;
             }
-            return cs.isSatisfiable(args);
+            return matchCustomLiteral(cliterals, grounding, index);
+        }
+
+        final int arity = cliterals[index + 1];
+        final int offset = index + 3;
+
+        if (predicate <= leq && predicate >= gt) {
+            return checkComparison(predicate, cliterals, grounding, offset);
+        }
+
+        if (predicate <= addeval && predicate >= mineval) {
+            return checkEval(cliterals, grounding, offset);
+        }
+
+        if (predicate == truepred) return true;
+        if (predicate == falsepred) return false;
+
+        if (predicate == eq) return checkComparison(predicate, cliterals, grounding, offset);
+        if (predicate == neq) return checkComparison(predicate, cliterals, grounding, offset);
+        if (predicate == add) return checkAdd(cliterals, grounding, offset);
+        if (predicate == alldiff) return checkAlldiff(cliterals, grounding, offset, arity, index);
+        if (predicate == in) return checkIn(cliterals, grounding, offset, arity);
+        if (predicate == sub) return checkSub(cliterals, grounding, offset);
+        if (predicate == mod) return checkMod(cliterals, grounding, offset);
+        if (predicate == next) return checkNext(cliterals, grounding, offset, isGround);
+        if (predicate == maxcard) return checkMaxCard(cliterals, grounding, offset, arity);
+        if (predicate == anypred) return checkAnyPred(c, e, cliterals, index, arity);
+
+        return false;
+    }
+
+    private boolean checkEval(int[] cliterals, int[] grounding, int offset) {
+        final int gid1 = grounding[cliterals[offset]];
+        if (gid1 == -1) return true;
+        final int gid2 = grounding[cliterals[offset + 1]];
+        if (gid2 == -1) return true;
+
+        final Term arg1 = termsToIntegers.indexToValue(gid1);
+        final Term arg2 = termsToIntegers.indexToValue(gid2);
+
+        if (arg1 instanceof Constant && arg2 instanceof Constant) {
+            final Constant c1 = (Constant) arg1;
+            final Constant c2 = (Constant) arg2;
+
+            return c1.isNumeric() && c2.isNumeric();
+        }
+
+        return false;
+    }
+
+    private boolean checkComparison(int predicate, int[] cliterals, int[] grounding, int offset) {
+        final int gid1 = grounding[cliterals[offset]];
+        if (gid1 == -1) return true;
+        final int gid2 = grounding[cliterals[offset + 1]];
+        if (gid2 == -1) return true;
+
+        final Term arg1 = termsToIntegers.indexToValue(gid1);
+        final Term arg2 = termsToIntegers.indexToValue(gid2);
+
+        if (arg1 instanceof Constant && arg2 instanceof Constant) {
+            final Constant c1 = (Constant) arg1;
+            final Constant c2 = (Constant) arg2;
+            if (c1.isNumeric() && c2.isNumeric()) {
+                final double d1 = c1.doubleValue();
+                final double d2 = c2.doubleValue();
+                switch (predicate) {
+                    case neq: return d1 != d2;
+                    case eq: return d1 == d2;
+                    case gt: return d1 > d2;
+                    case geq: return d1 >= d2;
+                    case lt: return d1 < d2;
+                    case leq: return d1 <= d2;
+                }
+            }
+        }
+
+        if (predicate == eq) return gid1 == gid2;
+        if (predicate == neq) return gid1 != gid2;
+
+        final String str1 = arg1.toString();
+        final String str2 = arg2.toString();
+        final int cmp = str1.compareTo(str2);
+        switch (predicate) {
+            case gt: return cmp > 0;
+            case geq: return cmp >= 0;
+            case lt: return cmp < 0;
+            case leq: return cmp <= 0;
+        }
+        return false;
+    }
+
+    private boolean checkAdd(int[] cliterals, int[] grounding, int offset) {
+        final int gid1 = grounding[cliterals[offset]];
+        if (gid1 == -1) return true;
+        final int gid2 = grounding[cliterals[offset + 1]];
+        if (gid2 == -1) return true;
+        final int gid3 = grounding[cliterals[offset + 2]];
+        if (gid3 == -1) return true;
+
+        final Term arg1 = termsToIntegers.indexToValue(gid1);
+        final Term arg2 = termsToIntegers.indexToValue(gid2);
+        final Term arg3 = termsToIntegers.indexToValue(gid3);
+
+        if (arg1 instanceof Constant && arg2 instanceof Constant && arg3 instanceof Constant) {
+            final Constant c1 = (Constant) arg1;
+            final Constant c2 = (Constant) arg2;
+            final Constant c3 = (Constant) arg3;
+            if (c1.isNumeric() && c2.isNumeric() && c3.isNumeric()) {
+                return c1.doubleValue() + c2.doubleValue() == c3.doubleValue();
+            }
+        }
+        return false;
+    }
+
+    private boolean checkSub(int[] cliterals, int[] grounding, int offset) {
+        final int gid1 = grounding[cliterals[offset]];
+        if (gid1 == -1) return true;
+        final int gid2 = grounding[cliterals[offset + 1]];
+        if (gid2 == -1) return true;
+        final int gid3 = grounding[cliterals[offset + 2]];
+        if (gid3 == -1) return true;
+
+        final Term arg1 = termsToIntegers.indexToValue(gid1);
+        final Term arg2 = termsToIntegers.indexToValue(gid2);
+        final Term arg3 = termsToIntegers.indexToValue(gid3);
+
+        if (arg1 instanceof Constant && arg2 instanceof Constant && arg3 instanceof Constant) {
+            final Constant c1 = (Constant) arg1;
+            final Constant c2 = (Constant) arg2;
+            final Constant c3 = (Constant) arg3;
+            if (c1.isNumeric() && c2.isNumeric() && c3.isNumeric()) {
+                return c1.doubleValue() - c2.doubleValue() == c3.doubleValue();
+            }
+        }
+        return false;
+    }
+
+    private boolean checkMod(int[] cliterals, int[] grounding, int offset) {
+        final int gid1 = grounding[cliterals[offset]];
+        if (gid1 == -1) return true;
+        final int gid2 = grounding[cliterals[offset + 1]];
+        if (gid2 == -1) return true;
+        final int gid3 = grounding[cliterals[offset + 2]];
+        if (gid3 == -1) return true;
+
+        final Term arg1 = termsToIntegers.indexToValue(gid1);
+        final Term arg2 = termsToIntegers.indexToValue(gid2);
+        final Term arg3 = termsToIntegers.indexToValue(gid3);
+
+        if (arg1 instanceof Constant && arg2 instanceof Constant && arg3 instanceof Constant) {
+            final Constant c1 = (Constant) arg1;
+            final Constant c2 = (Constant) arg2;
+            final Constant c3 = (Constant) arg3;
+            if (c1.isNumeric() && c2.isNumeric() && c3.isNumeric()) {
+                return c1.doubleValue() % c2.doubleValue() == c3.doubleValue();
+            }
+        }
+        return false;
+    }
+
+    private boolean checkNext(int[] cliterals, int[] grounding, int offset, boolean isGround) {
+        if (!isGround) {
+            return true;
+        }
+
+        final int gid1 = grounding[cliterals[offset]];
+        final int gid2 = grounding[cliterals[offset + 1]];
+
+        Constant c1;
+        Constant c2;
+
+        final Term arg1 = termsToIntegers.indexToValue(gid1);
+        if (!(arg1 instanceof Constant) || !(c1 = (Constant) arg1).isNumeric()) {
+            return false;
+        }
+
+        final Term arg2 = termsToIntegers.indexToValue(gid2);
+        if (!(arg2 instanceof Constant) || !(c2 = (Constant) arg2).isNumeric()) {
+            return false;
+        }
+
+        return c1.doubleValue() == c2.doubleValue() - 1.0;
+    }
+
+    private boolean checkAlldiff(int[] cliterals, int[] grounding, int offset, int arity, int index) {
+        long pc = 0;
+        boolean hasDuplicate = false;
+
+        for (int i = offset; i < offset + arity; i++) {
+            final int gid = grounding[cliterals[i]];
+            if (gid != -1) {
+                final int x = (gid + 1) * (gid + 1) * (gid + 1);
+                if ((pc & x) == x) {
+                    hasDuplicate = true;
+                    break;
+                }
+                pc |= x;
+            }
+        }
+
+        if (hasDuplicate) {
+            if (arity <= 3) {
+                return checkAlldiffSmall(cliterals, grounding, offset, arity);
+            } else {
+                return checkAlldiffSet(cliterals, grounding, offset, arity);
+            }
         }
         return true;
     }
 
-    private boolean matchSpecialLiteral(ClauseC c, int index, ClauseE e) {
-        int[] cliterals = c.literals;
-        int[] grounding = c.groundedValues;
-        int predicate = cliterals[index];
-        int arity = cliterals[index + 1];
-        switch (predicate) {
-            case alldiff:
-                //fast pre-check for alldiff
-                long pc = 0;
-                boolean precheckSucceeded = false;
-                for (int i = index + 3; i < index + arity + 3; i++) {
-                    if (grounding[cliterals[i]] != -1) {
-                        //todo something smarter that evenly distributes bits
-                        int x = grounding[cliterals[i]] + 1;
-                        x = x * x * x;
-                        if ((pc & x) == x) {
-                            precheckSucceeded = true;
-                            break;
-                        } else {
-                            pc = pc | x;
-                        }
-                    }
-                }
-                //proper check
-                if (precheckSucceeded) {
-                    //for small arities, this should be faster than using Set
-                    if (arity < 16) {
-                        for (int i = index + 3; i < index + arity + 3; i++) {
-                            if (grounding[cliterals[i]] != -1) {
-                                for (int j = i + 1; j < index + arity + 3; j++) {
-                                    if (grounding[cliterals[j]] != -1) {
-                                        if (grounding[cliterals[i]] == grounding[cliterals[j]]) {
-                                            return false;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        Set<Integer> values = new HashSet<Integer>();
-                        for (int i = index + 3; i < index + arity + 3; i++) {
-                            if (grounding[cliterals[i]] != -1) {
-                                if (values.contains(grounding[cliterals[i]])) {
-                                    return false;
-                                } else {
-                                    values.add(grounding[cliterals[i]]);
-                                }
-                            }
-                        }
-                    }
-                }
-                return true;
-            case anypred:
-                int[] cliteral = new int[cliterals[index + 1] + 3];
-                System.arraycopy(cliterals, index, cliteral, 0, cliterals[index + 1] + 3);
-                for (int predE : e.predicates.values()) {
-                    cliteral[0] = predE;
-                    if (e.checkLiteral(c, 0, false)) {
-                        return true;
-                    }
-                }
-                return false;
-            case truepred:
-                return true;
-            case falsepred:
-                return false;
-            case in:
-                if (grounding[cliterals[index + 3]] == -1) {
-                    return true;
-                }
-                for (int i = index + 4; i < index + cliterals[index + 1] + 3; i++) {
-                    if (grounding[cliterals[i]] != -1) {
-                        if (grounding[cliterals[index + 3]] == grounding[cliterals[i]]) {
-                            return true;
-                        }
-                    } else {
-                        return true;
-                    }
-                }
-                return false;
-            case maxcard:
-                if (grounding[cliterals[index + 3]] == -1) {
-                    return true;
-                }
-                Term firstArg = termsToIntegers.indexToValue(grounding[cliterals[index + 3]]);
-                if (firstArg instanceof Constant) {
-                    Constant constant = (Constant) firstArg;
-                    int cardinality;
-                    if (constant.isNumeric()) {
-                        cardinality = constant.intValue();
-                    } else {
-                        return false;
-                    }
-                    if (cardinality >= arity - 1) {
-                        return true;
-                    }
-                    int numGround = 0;
-                    for (int i = index + 4; i < index + arity + 3; i++) {
-                        if (grounding[cliterals[i]] != -1) {
-                            numGround++;
-                        }
-                    }
-                    if (numGround > cardinality) {
-                        Set<Integer> values = new HashSet<Integer>();
-                        for (int i = index + 4; i < index + arity + 3; i++) {
-                            if (grounding[cliterals[i]] != -1) {
-                                values.add(grounding[cliterals[i]]);
-                                if (values.size() > cardinality) {
-                                    return false;
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    return true;
-                }
-                return true;
-            case neq:
-            case eq:
-            case gt:
-            case geq:
-            case lt:
-            case leq:
-                if (isGround(cliterals, grounding, index)) {
-                    Term arg1 = termsToIntegers.indexToValue(grounding[cliterals[index + 3]]);
-                    Term arg2 = termsToIntegers.indexToValue(grounding[cliterals[index + 4]]);
-                    Constant c1, c2;
-                    Comparable comparable1;
-                    Comparable comparable2;
-                    String str1 = arg1.toString();
-                    String str2 = arg2.toString();
-                    if (arg1 instanceof Constant && arg2 instanceof Constant && (c1 = (Constant) arg1).isNumeric() && (c2 = (Constant) arg2).isNumeric()) {
-                        switch (predicate) {
-                            case neq:
-                                return c1.doubleValue() != c2.doubleValue();
-                            case eq:
-                                return c1.doubleValue() == c2.doubleValue();
-                            case gt:
-                                return c1.doubleValue() > c2.doubleValue();
-                            case geq:
-                                return c1.doubleValue() >= c2.doubleValue();
-                            case lt:
-                                return c1.doubleValue() < c2.doubleValue();
-                            case leq:
-                                return c1.doubleValue() <= c2.doubleValue();
-                        }
-                    } else {
-                        comparable1 = str1;
-                        comparable2 = str2;
-                        switch (predicate) {
-                            case neq:
-                                return grounding[cliterals[index + 3]] != grounding[cliterals[index + 4]];
-                            case eq:
-                                return grounding[cliterals[index + 3]] == grounding[cliterals[index + 4]];
-                            case gt:
-                                return comparable1.compareTo(comparable2) > 0;
-                            case geq:
-                                return comparable1.compareTo(comparable2) >= 0;
-                            case lt:
-                                return comparable1.compareTo(comparable2) < 0;
-                            case leq:
-                                return comparable1.compareTo(comparable2) <= 0;
-                        }
-                    }
-                } else {
-                    return true;
-                }
-            case next:
-                if (isGround(cliterals, grounding, index)) {
-                    Term arg1 = termsToIntegers.indexToValue(grounding[cliterals[index + 3]]);
-                    Term arg2 = termsToIntegers.indexToValue(grounding[cliterals[index + 4]]);
-                    Constant c1, c2;
-                    if (arg1 instanceof Constant && arg2 instanceof Constant && (c1 = (Constant) arg1).isNumeric() && (c2 = (Constant) arg2).isNumeric()) {
-                        return c1.doubleValue() == c2.doubleValue() - 1;
-                    } else {
-                        return false;
-                    }
-                } else {
-                    return true;
-                }
-            case add:
-                if (isGround(cliterals, grounding, index)) {
-                    Term arg1 = termsToIntegers.indexToValue(grounding[cliterals[index + 3]]);
-                    Term arg2 = termsToIntegers.indexToValue(grounding[cliterals[index + 4]]);
-                    Term arg3 = termsToIntegers.indexToValue(grounding[cliterals[index + 5]]);
-                    Constant c1, c2,c3;
-                    if (arg1 instanceof Constant && arg2 instanceof Constant && arg3 instanceof Constant &&
-                            (c1 = (Constant) arg1).isNumeric() && (c2 = (Constant) arg2).isNumeric() && (c3 = (Constant) arg3).isNumeric()) {
-                        return c1.doubleValue() + c2.doubleValue() == c3.doubleValue();
-                    }
-
-                    return false;
-                }
-
-                return true;
-            case sub:
-                if (isGround(cliterals, grounding, index)) {
-                    Term arg1 = termsToIntegers.indexToValue(grounding[cliterals[index + 3]]);
-                    Term arg2 = termsToIntegers.indexToValue(grounding[cliterals[index + 4]]);
-                    Term arg3 = termsToIntegers.indexToValue(grounding[cliterals[index + 5]]);
-                    Constant c1, c2,c3;
-                    if (arg1 instanceof Constant && arg2 instanceof Constant && arg3 instanceof Constant &&
-                            (c1 = (Constant) arg1).isNumeric() && (c2 = (Constant) arg2).isNumeric() && (c3 = (Constant) arg3).isNumeric()) {
-                        return c1.doubleValue() - c2.doubleValue() == c3.doubleValue();
-                    }
-
-                    return false;
-                }
-
-                return true;
-            case mod:
-                if (isGround(cliterals, grounding, index)) {
-                    Term arg1 = termsToIntegers.indexToValue(grounding[cliterals[index + 3]]);
-                    Term arg2 = termsToIntegers.indexToValue(grounding[cliterals[index + 4]]);
-                    Term arg3 = termsToIntegers.indexToValue(grounding[cliterals[index + 5]]);
-                    Constant c1, c2,c3;
-                    if (arg1 instanceof Constant && arg2 instanceof Constant && arg3 instanceof Constant &&
-                            (c1 = (Constant) arg1).isNumeric() && (c2 = (Constant) arg2).isNumeric() && (c3 = (Constant) arg3).isNumeric()) {
-                        return c1.doubleValue() % c2.doubleValue() == c3.doubleValue();
-                    }
-
-                    return false;
-                }
-
-                return true;
+    private boolean checkAlldiffSmall(int[] cliterals, int[] grounding, int offset, int arity) {
+        switch (arity) {
+            case 1: return true;
+            case 2: {
+                final int gid0 = grounding[cliterals[offset]];
+                final int gid1 = grounding[cliterals[offset + 1]];
+                return gid0 == -1 || gid1 == -1 || gid0 != gid1;
+            }
+            case 3: {
+                final int gid0 = grounding[cliterals[offset]];
+                final int gid1 = grounding[cliterals[offset + 1]];
+                final int gid2 = grounding[cliterals[offset + 2]];
+                return (gid0 == -1 || gid1 == -1 || gid0 != gid1) &&
+                        (gid0 == -1 || gid2 == -1 || gid0 != gid2) &&
+                        (gid1 == -1 || gid2 == -1 || gid1 != gid2);
+            }
         }
-        return matchCustomLiteral(cliterals, grounding, index);
+        return true;
+    }
+
+    private boolean checkAlldiffSet(int[] cliterals, int[] grounding, int offset, int arity) {
+        final Set<Integer> values = new HashSet<>(arity);
+        for (int i = offset; i < offset + arity; i++) {
+            final int gid = grounding[cliterals[i]];
+            if (gid != -1) {
+                if (!values.add(gid)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean checkIn(int[] cliterals, int[] grounding, int offset, int arity) {
+        final int gid = grounding[cliterals[offset]];
+        if (gid == -1) return true;
+
+        for (int i = offset + 1; i < offset + arity; i++) {
+            final int gidCheck = grounding[cliterals[i]];
+            if (gidCheck == -1) return true;
+            if (gid == gidCheck) return true;
+        }
+        return false;
+    }
+
+    private boolean checkMaxCard(int[] cliterals, int[] grounding, int offset, int arity) {
+        final int gidCard = grounding[cliterals[offset]];
+        if (gidCard == -1) return true;
+
+        final Term cardTerm = termsToIntegers.indexToValue(gidCard);
+        if (!(cardTerm instanceof Constant)) return true;
+
+        final Constant constant = (Constant) cardTerm;
+        if (!constant.isNumeric()) return false;
+
+        final int cardinality = constant.intValue();
+        if (cardinality >= arity - 1) return true;
+
+        final Set<Integer> values = new HashSet<>(arity);
+        for (int i = offset + 1; i < offset + arity; i++) {
+            final int gid = grounding[cliterals[i]];
+            if (gid != -1) {
+                values.add(gid);
+                if (values.size() > cardinality) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean checkAnyPred(ClauseC c, ClauseE e, int[] cliterals, int index, int arity) {
+        final int[] cliteral = new int[arity + 3];
+        System.arraycopy(cliterals, index, cliteral, 0, arity + 3);
+        for (final int predE : e.predicates.values()) {
+            cliteral[0] = predE;
+            if (e.checkLiteral(c, 0, false)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private class HighArityLiterals {
 
-        private Map<Triple<Integer, Integer, Integer>, Integer> lower;
+        private final Map<Triple<Integer, Integer, Integer>, Integer> lower;
 
-        private Map<Triple<Integer, Integer, Integer>, Integer> upper;
+        private final Map<Triple<Integer, Integer, Integer>, Integer> upper;
 
         private int[] literals;
 
-        private int maxArity;
+        private final List<Integer> indices;
+
+        private int newSize = 0;
+
+        private final int maxArity;
 
         /**
-         * @param lits
          * @param maxArity
          */
-        public HighArityLiterals(int[] lits, int maxArity) {
+        public HighArityLiterals(int maxArity) {
             this.maxArity = maxArity;
-            List<Integer> tempLiterals = new ArrayList<Integer>();
-            //[predicate,argument,term] -> position iterable literals array
-            MultiMap<Triple<Integer, Integer, Integer>, Integer> bag = new MultiMap<Triple<Integer, Integer, Integer>, Integer>();
-            for (int i = 0; i < lits.length; i += lits[i + 1] + 2) {
-                if (lits[i + 1] > this.maxArity) {
-                    for (int j = 0; j < lits[i + 1] + 2; j++) {
-                        tempLiterals.add(lits[i + j]);
-                    }
+
+            this.indices = new ArrayList<>();
+            this.lower = new HashMap<>();
+            this.upper = new HashMap<>();
+        }
+
+        private HighArityLiterals(
+                Map<Triple<Integer, Integer, Integer>, Integer> lower,
+                Map<Triple<Integer, Integer, Integer>, Integer> upper,
+                List<Integer> indices,
+                int maxArity
+        ) {
+            this.maxArity = maxArity;
+            this.lower = lower;
+            this.upper = upper;
+            this.indices = indices;
+        }
+
+        public void add(int[] literals, int index) {
+            this.indices.add(index);
+            this.newSize += literals[index + 1] + 2;
+        }
+
+        public void flush(int[] literals) {
+            int startIndex = 0;
+
+            if (this.literals == null) {
+                this.literals = new int[this.newSize];
+            } else {
+                startIndex = this.literals.length;
+
+                int[] newArray = new int[startIndex + this.newSize];
+                System.arraycopy(this.literals, 0, newArray, 0, startIndex);
+
+                this.literals = newArray;
+            }
+
+            if (this.indices.isEmpty()) {
+                return;
+            }
+
+            final int size = this.indices.size();
+            MultiMap<Triple<Integer, Integer, Integer>, Integer> bag = new MultiMap<>();
+
+            for (int i = 0; i < size; i++) {
+                final int index = this.indices.get(i);
+                final int sindex = startIndex;
+
+                this.literals[startIndex++] = literals[index];
+                this.literals[startIndex++] = literals[index + 1];
+
+                for (int j = 0; j < literals[index + 1]; j++) {
+                    bag.put(new Triple<>(literals[index], j, literals[index + 2 + j]), sindex);
+                    this.literals[startIndex++] = literals[index + j + 2];
                 }
             }
-            this.literals = VectorUtils.toIntegerArray(tempLiterals);
-            for (int i = 0; i < this.literals.length; i += this.literals[i + 1] + 2) {
-                for (int j = 0; j < this.literals[i + 1]; j++) {
-                    bag.put(new Triple<Integer, Integer, Integer>(this.literals[i], j, this.literals[i + 2 + j]), i);
-                }
-            }
-            this.lower = new HashMap<Triple<Integer, Integer, Integer>, Integer>();
-            this.upper = new HashMap<Triple<Integer, Integer, Integer>, Integer>();
-            for (Map.Entry<Triple<Integer, Integer, Integer>, Set<Integer>> entry : bag.entrySet()) {
-                this.lower.put(entry.getKey(), Sugar.findBest(entry.getValue(), new Sugar.MyComparator<Integer>() {
+
+            for (Map.Entry<Triple<Integer, Integer, Integer>, ObjectOpenHashSet<Integer>> entry : bag.entrySet()) {
+                int bestLower = Sugar.findBest(entry.getValue(), new Sugar.MyComparator<Integer>() {
                     @Override
                     public boolean isABetterThanB(Integer a, Integer b) {
                         return a < b;
                     }
-                }));
-                this.upper.put(entry.getKey(), Sugar.findBest(entry.getValue(), new Sugar.MyComparator<Integer>() {
+                });
+
+                int bestUpper = Sugar.findBest(entry.getValue(), new Sugar.MyComparator<Integer>() {
                     @Override
                     public boolean isABetterThanB(Integer a, Integer b) {
                         return a >= b;
                     }
-                }));
+                });
+
+                this.lower.merge(entry.getKey(), bestLower, (a, b) -> a < b ? a : b);
+                this.upper.merge(entry.getKey(), bestUpper, (a, b) -> a >= b ? a : b);
             }
+
+            this.indices.clear();
+            this.newSize = 0;
         }
 
         /**
          * @param c
          * @param index
          * @param e
+         * @param isGround
          * @return
          */
-        public boolean match(ClauseC c, int index, ClauseE e) {
+        public boolean match(ClauseC c, int index, ClauseE e, boolean isGround) {
             int[] cliterals = c.literals;
             if ((cliterals[index + 2] & SPECIAL_PREDICATE) != 0/*specialPredicateIds.contains(cliterals[index])*/) {
-                return matchSpecialLiteral(c, index, e);
+                return matchSpecialLiteral(c, index, e, isGround);
             }
             int lowerBound = 0;
             int upperBound = this.literals.length;
@@ -1813,6 +2097,20 @@ public class SubsumptionEngineJ2 {
             }
             return false;
         }
+
+        public HighArityLiterals copy() {
+            HighArityLiterals res = new HighArityLiterals(
+                (HashMap<Triple<Integer, Integer, Integer>, Integer>) ((HashMap<Triple<Integer, Integer, Integer>, Integer>) this.lower).clone(),
+                (HashMap<Triple<Integer, Integer, Integer>, Integer>) ((HashMap<Triple<Integer, Integer, Integer>, Integer>) this.upper).clone(),
+                new ArrayList<>(this.indices),
+                this.maxArity
+            );
+
+            res.newSize = this.newSize;
+            res.literals = this.literals.clone();
+
+            return res;
+        }
     }
 
     /**
@@ -1820,20 +2118,21 @@ public class SubsumptionEngineJ2 {
      */
     private class LowArityLiterals {
 
-        private VectorSet set = new VectorSet();
+        private final VectorSet set;
 
-        private int maxArity;
+        private final int maxArity;
 
         /**
-         * @param literals
          * @param maxArity
          */
-        public LowArityLiterals(int[] literals, int maxArity) {
+        public LowArityLiterals(int maxArity) {
             this.maxArity = maxArity;
-            for (int i = 0; i < literals.length; i += literals[i + 1] + 2) {
-                add(literals, i);
-            }
-            //set.printStats();
+            this.set = new VectorSet();
+        }
+
+        private LowArityLiterals(int maxArity, VectorSet set) {
+            this.maxArity = maxArity;
+            this.set = set;
         }
 
         /**
@@ -1847,22 +2146,17 @@ public class SubsumptionEngineJ2 {
                 return;
             }
 
-            for (int i = 0; i < 1 << arity; i++){
-                ArrayList<Integer> temp = new ArrayList<>();
+            final int predicateId = literals[index];
+            final int maskIterations = 1 << arity;
+            final int wildcardValue = -maxArity - 2;
 
-                for (int j = 0; j < arity; j++){
-                    if ((i / (1 << j)) % 2 == 0)
-                        temp.add(j);
-                }
-
+            for (int i = 0; i < maskIterations; i++){
                 int[] literal = new int[arity + 2];
-                Arrays.fill(literal, -maxArity - 2);
+                literal[0] = predicateId;
+                literal[1] = arity;
 
-                literal[0] = literals[index];
-                literal[1] = literals[index + 1];
-
-                for (int k : temp) {
-                    literal[k + 2] = literals[index + 2 + k];
+                for (int j = 0; j < arity; j++) {
+                    literal[j + 2] = ((i >> j) & 1) == 0 ? literals[index + 2 + j] : wildcardValue;
                 }
 
                 set.add(literal);
@@ -1873,24 +2167,43 @@ public class SubsumptionEngineJ2 {
          * @param c
          * @param index
          * @param e
+         * @param isGround
          * @return
          */
-        public boolean match(ClauseC c, int index, ClauseE e, int[] auxBuffer) {
-            int[] cliterals = c.literals;
-            if ((cliterals[index + 2] & SPECIAL_PREDICATE) != 0/*specialPredicateIds.contains(cliterals[index])*/) {
-                return matchSpecialLiteral(c, index, e);
+        public boolean match(ClauseC c, int index, ClauseE e, int[] auxBuffer, boolean isGround) {
+            final int[] cliterals = c.literals;
+            if ((cliterals[index + 2] & SPECIAL_PREDICATE) != 0) {
+                return matchSpecialLiteral(c, index, e, isGround);
             }
-            //auxBuffer = new int[cliterals[index + 1] + 2];
+
+            final int arity = cliterals[index + 1];
+            final int wildCard = -maxArity - 2;
+
             auxBuffer[0] = cliterals[index];
-            auxBuffer[1] = cliterals[index + 1];
-            for (int i = index + 3, j = 0; i < index + cliterals[index + 1] + 3; i++, j++) {
-                if (c.groundedValues[cliterals[i]] == -1) {
-                    auxBuffer[j + 2] = -maxArity - 2;
-                } else {
-                    auxBuffer[j + 2] = c.groundedValues[cliterals[i]];
-                }
+            auxBuffer[1] = arity;
+
+            switch (arity) {
+                case 0:
+                    break;
+                case 1:
+                    auxBuffer[2] = c.groundedValues[cliterals[index + 3]] == -1 ? wildCard : c.groundedValues[cliterals[index + 3]];
+                    break;
+                case 2:
+                    auxBuffer[2] = c.groundedValues[cliterals[index + 3]] == -1 ? wildCard : c.groundedValues[cliterals[index + 3]];
+                    auxBuffer[3] = c.groundedValues[cliterals[index + 4]] == -1 ? wildCard : c.groundedValues[cliterals[index + 4]];
+                    break;
+                case 3:
+                    auxBuffer[2] = c.groundedValues[cliterals[index + 3]] == -1 ? wildCard : c.groundedValues[cliterals[index + 3]];
+                    auxBuffer[3] = c.groundedValues[cliterals[index + 4]] == -1 ? wildCard : c.groundedValues[cliterals[index + 4]];
+                    auxBuffer[4] = c.groundedValues[cliterals[index + 5]] == -1 ? wildCard : c.groundedValues[cliterals[index + 5]];
+                    break;
             }
+
             return set.contains(auxBuffer);
+        }
+
+        public LowArityLiterals copy() {
+            return new LowArityLiterals(this.maxArity, this.set.copy());
         }
     }
 
@@ -1899,42 +2212,51 @@ public class SubsumptionEngineJ2 {
      */
     private class CompletelySymmetricLiterals {
 
+        private final Map<Integer, IntegerMultiMap<Integer>> termsToLiterals;
 
-        private Map<Integer, IntegerMultiMap<Integer>> termsToLiterals = new HashMap<Integer, IntegerMultiMap<Integer>>();
+        private final Map<Integer, MultiMap<Integer, Integer>> ttl;
 
-        /**
-         * @param literals
-         */
-        public CompletelySymmetricLiterals(int[] literals) {
-            Map<Integer, MultiMap<Integer, Integer>> ttl = new HashMap<Integer, MultiMap<Integer, Integer>>();
-            for (int index = 0; index < literals.length; index += literals[index + 1] + 2) {
-                if (predicatesToIntegers.indexToValue(literals[index]).startsWith(SymmetricPredicates.PREFIX)) {
-                    int arity = literals[index + 1];
-                    MultiMap<Integer, Integer> mm = null;
-                    if ((mm = ttl.get(literals[index])) == null) {
-                        mm = new MultiMap<Integer, Integer>();
-                        ttl.put(literals[index], mm);
-                    }
-                    for (int i = 0; i < arity; i++) {
-                        mm.put(literals[index + i + 2], index);
-                    }
-                }
+        public CompletelySymmetricLiterals() {
+            this.termsToLiterals = new HashMap<>();
+            this.ttl = new HashMap<>();
+        }
+
+        private CompletelySymmetricLiterals(Map<Integer, IntegerMultiMap<Integer>> termsToLiterals, Map<Integer, MultiMap<Integer, Integer>> ttl) {
+            this.termsToLiterals = termsToLiterals;
+            this.ttl = ttl;
+        }
+
+        public void add(int[] literals, int index) {
+            final int arity = literals[index + 1];
+            MultiMap<Integer, Integer> mm = ttl.computeIfAbsent(literals[index], k -> new MultiMap<>());
+            for (int i = 0; i < arity; i++) {
+                mm.put(literals[index + i + 2], index);
             }
+        }
+
+        public void flush() {
+            if (ttl.isEmpty()) {
+                return;
+            }
+
             for (Map.Entry<Integer, MultiMap<Integer, Integer>> entry : ttl.entrySet()) {
-                termsToLiterals.put(entry.getKey(), IntegerMultiMap.createIntegerMultiMap(entry.getValue()));
+                termsToLiterals.merge(entry.getKey(), IntegerMultiMap.createIntegerMultiMap(entry.getValue()), IntegerMultiMap::merge);
             }
+
+            ttl.clear();
         }
 
         /**
          * @param c
          * @param index
          * @param e
+         * @param isGround
          * @return
          */
-        public boolean match(ClauseC c, int index, ClauseE e) {
+        public boolean match(ClauseC c, int index, ClauseE e, boolean isGround) {
             int[] cliterals = c.literals;
             if ((cliterals[index + 2] & SPECIAL_PREDICATE) != 0/*specialPredicateIds.contains(cliterals[index])*/) {
-                return matchSpecialLiteral(c, index, e);
+                return matchSpecialLiteral(c, index, e, isGround);
             }
             int[] cliteral = new int[cliterals[index + 1] + 2];
             cliteral[0] = cliterals[index];
@@ -1955,6 +2277,15 @@ public class SubsumptionEngineJ2 {
                 }
             }
             return domain != null;
+        }
+
+        public CompletelySymmetricLiterals copy() {
+            HashMap<Integer, IntegerMultiMap<Integer>> termsToLiterals = new HashMap<>(this.termsToLiterals.size());
+            for (Map.Entry<Integer, IntegerMultiMap<Integer>> entry : termsToLiterals.entrySet()) {
+                termsToLiterals.put(entry.getKey(), entry.getValue().copy());
+            }
+
+            return new CompletelySymmetricLiterals(termsToLiterals, new HashMap<>());
         }
     }
 

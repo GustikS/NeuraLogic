@@ -13,6 +13,7 @@ package cz.cvut.fel.ida.utils.math.hypergraphs;
 import cz.cvut.fel.ida.utils.math.Sugar;
 import cz.cvut.fel.ida.utils.math.collections.Counters;
 import cz.cvut.fel.ida.utils.math.collections.MultiMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -53,7 +54,7 @@ public class Hypergraph {
 
     public Hypergraph copy(){
         Hypergraph h = new Hypergraph();
-        for (Map.Entry<Integer,Set<Integer>> entry : this.edges.entrySet()){
+        for (Map.Entry<Integer, ObjectOpenHashSet<Integer>> entry : this.edges.entrySet()){
             h.addEdge(entry.getKey(), entry.getValue());
         }
         return h;

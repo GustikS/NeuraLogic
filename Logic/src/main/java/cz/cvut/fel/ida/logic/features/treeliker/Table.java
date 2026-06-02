@@ -10,6 +10,7 @@ import cz.cvut.fel.ida.utils.math.StringUtils;
 import cz.cvut.fel.ida.utils.math.Sugar;
 import cz.cvut.fel.ida.utils.math.collections.MultiList;
 import cz.cvut.fel.ida.utils.math.collections.MultiMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 import java.io.*;
 import java.util.*;
@@ -154,7 +155,7 @@ public class Table<E,A> {
      */
     public Set<A> filteredAttributes(){
         MultiMap<Set<Pair<E,String>>,A> filter = new MultiMap<Set<Pair<E,String>>,A>();
-        for (Map.Entry<A,Set<Pair<E,String>>> entry : this.attributes.entrySet()){
+        for (Map.Entry<A, ObjectOpenHashSet<Pair<E,String>>> entry : this.attributes.entrySet()){
             filter.put(entry.getValue(), entry.getKey());
         }
         Set<A> retVal = new HashSet<A>();
@@ -461,7 +462,7 @@ public class Table<E,A> {
      */
     public <U,V> Table<U,V> transform(Sugar.Fun<E,U> exampleTransformer, Sugar.Fun<A,V> attributeTransformer, Sugar.Fun<String,String> valueTransformer){
         Table<U,V> newTable = new Table<U,V>();
-        for (Map.Entry<A,Set<Pair<E,String>>> entry : attributes.entrySet()){
+        for (Map.Entry<A, ObjectOpenHashSet<Pair<E,String>>> entry : attributes.entrySet()){
             for (Pair<E,String> exampleValuePair : entry.getValue()){
                 newTable.add(exampleTransformer.apply(exampleValuePair.r), 
                         attributeTransformer.apply(entry.getKey()), 
@@ -469,7 +470,7 @@ public class Table<E,A> {
                         sizes.get(entry.getKey()));
             }
         }
-        for (Map.Entry<A,Set<String>> additValue : additionalUnseenValues.entrySet()){
+        for (Map.Entry<A, ObjectOpenHashSet<String>> additValue : additionalUnseenValues.entrySet()){
             for (String val : additValue.getValue()){
                 newTable.addAdditionalUnseenValue(attributeTransformer.apply(additValue.getKey()), valueTransformer.apply(val));
             }

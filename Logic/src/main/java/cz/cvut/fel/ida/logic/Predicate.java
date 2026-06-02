@@ -1,5 +1,7 @@
 package cz.cvut.fel.ida.logic;
 
+import cz.cvut.fel.ida.logic.subsumption.SpecialBinaryPredicates;
+
 import java.io.Serializable;
 import java.util.logging.Logger;
 
@@ -11,8 +13,10 @@ public class Predicate implements Serializable {
 
     public String name;
     public int arity;
-    public boolean special;
-    public boolean hidden;
+
+    // 0x01 special, 0x02 hidden, 0x04 eval pred
+    public byte flags = 0;
+
     private static CharSequence specialSign = "@";
     private static CharSequence hiddenSign = "*";
 
@@ -48,13 +52,19 @@ public class Predicate implements Serializable {
         Predicate predicate = new Predicate();
         predicate.name = name.intern();
         predicate.arity = arity;
-        predicate.special = special != null ? special : false;
-        predicate.hidden = hidden != null ? hidden : false;
-        if (predicate.special) {
-            if (name.startsWith("embed")){
-                predicate.hidden = false;   // embedding predicates are NOT to be removed from the neural nets!
+
+        predicate.flags |= special != null && special ? 0x01 : 0x00;
+        predicate.flags |= hidden != null && hidden ? 0x02 : 0x00;
+
+        if ((predicate.flags & 0x01) != 0) {
+            if (SpecialBinaryPredicates.isEvalSpecial(name)) {
+                predicate.flags &= ~0x02;
+                predicate.flags |= 0x04;
+                predicate.name = specialSign + predicate.name;
+            } else if (name.startsWith("embed")) {
+                predicate.flags &= ~0x02;   // embedding predicates are NOT to be removed from the neural nets!
             } else {
-                predicate.hidden = true;    // other special predicates like alldiff etc. are to be removed from neural computations
+                predicate.flags |= 0x02;    // other special predicates like alldiff etc. are to be removed from neural computations
                 predicate.name = specialSign + predicate.name;
             }
         }

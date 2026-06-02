@@ -37,7 +37,7 @@ public class QueryAtom extends Query<LiftedExample, Template> {
         Grounder grounder = Grounder.getGrounder(settings);
         GroundTemplate groundTemplate = grounder.groundRulesAndFacts(example, template);
         ScalarValue present;
-        if (groundTemplate.groundFacts.containsKey(headAtom.literal) || groundTemplate.groundRules.keySet().contains(headAtom.literal)) {
+        if (groundTemplate.groundFacts.containsKey(headAtom.literal) || groundTemplate.templateFacts.containsKey(headAtom.literal) || groundTemplate.groundRules.keySet().contains(headAtom.literal)) {
             present = new ScalarValue(1);
         } else {
             present = new ScalarValue(0);

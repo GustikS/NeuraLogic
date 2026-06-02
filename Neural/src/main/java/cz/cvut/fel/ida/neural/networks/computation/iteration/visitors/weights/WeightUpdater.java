@@ -44,7 +44,7 @@ public class WeightUpdater implements WeightVisitor {
             if (index > maxWeightIndex) {
                 LOG.severe("Weight index exceeding number of all extracted allWeights!");
             }
-            if (weight.isLearnable) {
+            if (weight.isLearnable()) {
 //                weightUpdates[index] = weight.value.getForm();    //not necessary anymore
             } else {
                 LOG.severe("Fixed weights leaking through into WeightUpdater!! (should have been filtered before)");
@@ -58,7 +58,7 @@ public class WeightUpdater implements WeightVisitor {
 
     @Override
     public void visit(Weight weight, Value value) {
-        if (weight.isLearnable) {   //faster access version
+        if (weight.isLearnable()) {   //faster access version
             int index = weight.index;
 
             Value weightUpdate = weightUpdates[index];

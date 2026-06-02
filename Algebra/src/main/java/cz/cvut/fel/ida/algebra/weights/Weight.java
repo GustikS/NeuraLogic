@@ -25,8 +25,9 @@ public class Weight implements Exportable {
     public final String name;
 
     public Value value;
-    public boolean isFixed = false;
-    public Boolean isLearnable;
+    public final boolean isFixed;
+    public boolean isLearnable = true;
+    public boolean learnableSet = false;
     public boolean manualInitialization = false;   //todo add the init weight value to weight metadata
 
     public boolean isShared;
@@ -35,10 +36,6 @@ public class Weight implements Exportable {
      * The flag needs to be set by an external routine.
      */
     public boolean dropout = false;
-
-    @Nullable
-    double learningRate;
-    //public String originalString;
 
     public boolean isOffset;
     public Value momentum;  //todo move these to some map within Adam?
@@ -59,7 +56,7 @@ public class Weight implements Exportable {
             this.metadata = new WeightMetadata(value);
         }
         if (isFixed || index < 0) {
-            isLearnable = false;
+            this.isLearnable = false;
         }
     }
 
@@ -122,18 +119,20 @@ public class Weight implements Exportable {
     }
 
     public boolean isLearnable() {
-        if (isLearnable != null) {
+        if (learnableSet) {
             return isLearnable;
         }
-        if (isFixed) {
-            isLearnable = false;
-        } else if (index < 0) {
-            isLearnable = false;
-        } else if (value == Value.ONE || value == Value.ZERO) {
-            isLearnable = false;
-        } else {
-            isLearnable = true;
+
+        if (!isLearnable) {
+            learnableSet = true;
+            return false;
         }
+
+        if (value == Value.ONE || value == Value.ZERO) {
+            isLearnable = false;
+        }
+
+        learnableSet = true;
         return isLearnable;
     }
 }

@@ -22,6 +22,7 @@ import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.NeuronMa
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.WeightedNeuronMapping;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.generic.Pair;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -197,12 +198,25 @@ public class NeuralNetBuilder {
      * @return
      */
     public void loadNeuronsFromFacts(Map<Literal, ValuedFact> groundFacts, NeuralSets createdNeurons) {
-        for (Map.Entry<Literal, ValuedFact> factEntry : groundFacts.entrySet()) {
-            neuralBuilder.neuronFactory.createFactNeuron(factEntry.getValue());
+        if (neuralBuilder.neuronFactory.neuronMaps.factNeurons.isEmpty()) {
+            neuralBuilder.neuronFactory.neuronMaps.factNeurons = new Object2ObjectOpenHashMap<>((int) (groundFacts.size() / 0.75f + 1));
+        }
+
+        for (ValuedFact fact : groundFacts.values()) {
+            neuralBuilder.neuronFactory.createFactNeuron(fact);
         }
         createdNeurons.factNeurons.addAll(neuralBuilder.neuronFactory.neuronMaps.factNeurons.values());
-        groundFacts.clear();  //remove facts that will already have corresponding neurons with them
     }
+
+    public void loadNeuronsFromTemplateFacts(Map<Literal, ValuedFact> groundFacts, NeuralSets createdNeurons) {
+        ((Object2ObjectOpenHashMap) neuralBuilder.neuronFactory.neuronMaps.templateFacts).ensureCapacity(groundFacts.size());
+
+        for (ValuedFact fact : groundFacts.values()) {
+            neuralBuilder.neuronFactory.createTemplateFactNeuron(fact);
+        }
+        createdNeurons.factNeurons.addAll(neuralBuilder.neuronFactory.neuronMaps.templateFactNeurons.values());
+    }
+
 
     /**
      * Given all existing neurons (either newly created or reused), connect RuleNeurons -> AtomNeurons (or FactNeurons).
@@ -239,6 +253,10 @@ public class NeuralNetBuilder {
                 if (input == null) { //input is a fact neuron!
                     FactNeuron factNeuron = neuronMaps.factNeurons.get(literal);
                     if (factNeuron == null) {
+                        factNeuron = neuronMaps.templateFactNeurons.get(literal);
+                    }
+
+                    if (factNeuron == null) {
                         LOG.severe("Error: no input found for this neuron!!: " + literal);
                         LOG.severe("This is likely due to unstable use of negation in the template...");
                     } else {
@@ -274,7 +292,7 @@ public class NeuralNetBuilder {
             for (Literal queryMatchingLiteral : queryMatchingLiterals) {
                 AtomNeurons qn = neuralBuilder.neuronFactory.neuronMaps.atomNeurons.get(queryMatchingLiteral);
                 if (qn == null) {
-                    if (neuralBuilder.neuronFactory.neuronMaps.factNeurons.containsKey(queryMatchingLiteral)) {
+                    if (neuralBuilder.neuronFactory.neuronMaps.factNeurons.containsKey(queryMatchingLiteral) || neuralBuilder.neuronFactory.neuronMaps.templateFactNeurons.containsKey(queryMatchingLiteral)) {
                         String err = "Quering directly facts, rather than inferred atoms - there is no learning possible for this sample query: " + queryMatchingLiteral;
                         LOG.severe(err);
 //                        throw new InputMismatchException(err);
