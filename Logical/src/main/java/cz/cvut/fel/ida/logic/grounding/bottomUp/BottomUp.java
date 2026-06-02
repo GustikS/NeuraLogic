@@ -77,21 +77,16 @@ public class BottomUp extends Grounder {
             template.atomMapCache = templateFacts(template);
         }
 
-        Map<Literal, ValuedFact> templateAtomMapCopy = ((Object2ObjectOpenHashMap) template.atomMapCache).clone();
-        Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> rulesAndFacts = rulesAndFacts(example, template, templateAtomMapCopy);
+        Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> rulesAndFacts = rulesAndFacts(example, template);
         Map<HornClause, List<WeightedRule>> ruleMap = rulesAndFacts.r;
         Map<Literal, ValuedFact> atomMap = rulesAndFacts.s;
 
         LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules = new LinkedHashMap<>();  //todo test optimize access by further aggregating literals with the same predicate for subsumption testing?
 
         LOG.fine("Infering Herbrand model...");
-        Collection<Literal> literals = herbrandModel.inferAtoms();
+        herbrandModel.inferAtoms();
 
-        Map<Literal, Literal> allLiterals = new Object2ObjectOpenHashMap<>((int) Math.ceil(literals.size() / 0.75));
-        for (Literal lit : literals) {
-            allLiterals.put(lit, lit);
-        }
-
+        Map<Literal, Literal> allLiterals = herbrandModel.toIdentityMap();
         LOG.fine("...HerbrandModel inferred with " + allLiterals.size() + " facts");
 
         LOG.fine("Grounding of " + ruleMap.size() + " rules...");
@@ -107,7 +102,6 @@ public class BottomUp extends Grounder {
             }
 
             final boolean hasEvalPredicates = hasEvalPredicates(ruleEntry.getKey());
-//            Pair<Term[], List<Term[]>> groundingSubstitutions = herbrandModel.groundingSubstitutions(new Clause(ruleEntry.getKey().getLiterals()));
             Pair<Term[], List<Term[]>> groundingSubstitutions = herbrandModel.groundingSubstitutions(ruleEntry.getKey());
             for (WeightedRule weightedRule : ruleEntry.getValue()) {
                 List<GroundRule> groundings = groundRules(weightedRule, groundingSubstitutions);
@@ -136,7 +130,9 @@ public class BottomUp extends Grounder {
         }
         LOG.fine(groundRules.size() + " ground rules created.");
         totalGroundRules += groundRules.size();
-        GroundTemplate groundTemplate = new GroundTemplate(groundRules, atomMap);
+        GroundTemplate groundTemplate = new GroundTemplate(groundRules, atomMap, template.atomMapCache);
+        groundTemplate.templateFactNeurons = template.factNeuronCache;
+        groundTemplate.createdFactNeuronCache = template.createdFactNeuronCache;
 
         herbrandModel.removeRules(exampleRules);
         herbrandModel.removeAllAtoms();
@@ -161,6 +157,8 @@ public class BottomUp extends Grounder {
         if (memory == null) {
             memory = new GroundTemplate();
         }
+
+        template.herbrandModel.addFacts(memory.templateFacts.keySet());
         template.herbrandModel.addFacts(memory.groundFacts.keySet());   //add what was known before
         template.herbrandModel.addFacts(memory.derivedGroundFacts);  //also add what has been previously derived!
         GroundTemplate bigger = groundRulesAndFacts(example, template);
@@ -168,6 +166,8 @@ public class BottomUp extends Grounder {
         memory.groundRules = bigger.groundRules;
         memory.groundFacts = bigger.groundFacts;
         memory.derivedGroundFacts = bigger.derivedGroundFacts;
+        memory.templateFactNeurons = bigger.templateFactNeurons;
+        memory.createdFactNeuronCache = bigger.createdFactNeuronCache;
         return diff;
     }
 

@@ -15,6 +15,8 @@
 
 package cz.cvut.fel.ida.utils.math.collections;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -38,7 +40,7 @@ public class IntegerMultiMap<R> {
      */
     public static <R> IntegerMultiMap<R> createIntegerMultiMap(MultiMap<R,Integer> multiMap){
         IntegerMultiMap<R> ib = new IntegerMultiMap<R>();
-        for (Map.Entry<R,Set<Integer>> entry : multiMap.entrySet()){
+        for (Map.Entry<R, ObjectOpenHashSet<Integer>> entry : multiMap.entrySet()){
             ib.add(entry.getKey(), IntegerSet.createIntegerSet(entry.getValue()));
         }
         return ib;

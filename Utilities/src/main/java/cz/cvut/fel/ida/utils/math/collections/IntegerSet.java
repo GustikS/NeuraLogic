@@ -192,66 +192,107 @@ public class IntegerSet {
             return emptySet;
         }
 
-        int[] aValues = a.values;
-        int[] bValues = b.values;
+        IntegerSet larger = a.size() > b.size() ? a : b;
+        IntegerSet smaller = a.size() > b.size() ? b : a;
 
-        // Quick bounds check
+        final int[] aValues = larger.values;
+        final int[] bValues = smaller.values;
+
         if (aValues[0] > bValues[bValues.length - 1] || bValues[0] > aValues[aValues.length - 1]){
             return emptySet;
         }
 
-        // First pass: count intersecting elements
-        int count = 0;
-        int indexA = 0, indexB = 0;
-        int aLength = aValues.length, bLength = bValues.length;
+        final int aLength = aValues.length;
+        final int bLength = bValues.length;
 
-        while (indexA < aLength && indexB < bLength){
-            int aVal = aValues[indexA];
-            int bVal = bValues[indexB];
-            if (aVal == bVal){
-                count++;
-                indexA++;
-                indexB++;
-            } else if (aVal < bVal){
-                indexA++;
+        if (aLength == bLength && aValues[0] == bValues[0] && aValues[aLength - 1] == bValues[bLength - 1] && Arrays.equals(aValues, bValues)) {
+            return a;
+        }
+
+        if (aLength > bLength * 32) {
+            return intersectionBinary(larger, smaller);
+        }
+
+        return intersectionBranchless(larger, smaller);
+    }
+
+    public static IntegerSet intersectionBinary(IntegerSet larger, IntegerSet smaller) {
+        final int[] aValues = larger.values;
+        final int[] bValues = smaller.values;
+
+        int lastFoundIndex = 0;
+        int k = 0;
+        int[] temp = new int[bValues.length];
+
+        for (int i = 0; i < bValues.length; i++) {
+            final int value = bValues[i];
+
+            int found =  Arrays.binarySearch(aValues, lastFoundIndex, aValues.length, value);
+            if (found >= 0) {
+                temp[k++] = value;
+                lastFoundIndex = found + 1;
             } else {
-                indexB++;
+                lastFoundIndex = -(found + 1);
             }
         }
 
-        if (count == 0){
+        if (temp.length == k) {
+            return smaller;
+        }
+
+        IntegerSet s = new IntegerSet();
+        if (temp.length > k) {
+            temp = Arrays.copyOf(temp, k);
+        }
+
+        s.values = temp;
+        return s;
+    }
+
+    public static IntegerSet intersectionBranchless(IntegerSet a, IntegerSet b){
+        final int[] aValues = a.values;
+        final int[] bValues = b.values;
+
+        final int aLength = aValues.length;
+        final int bLength = bValues.length;
+
+        int indexA = 0;
+        int indexB = 0;
+        int k = 0;
+
+        final int[] result = new int[Math.min(aLength, bLength)];
+
+        while (indexA < aLength && indexB < bLength) {
+            int valA = aValues[indexA];
+            int valB = bValues[indexB];
+
+            int isMatch = valA == valB ? 1 : 0;
+
+            int moveA = valA <= valB ? 1 : 0;
+            int moveB = valB <= valA ? 1 : 0;
+
+            result[k] = valA;
+            k += isMatch;
+
+            indexA += moveA;
+            indexB += moveB;
+        }
+
+        if (k == 0) {
             return emptySet;
         }
-        if (count == aLength){
-            return a;
-        }
-        if (count == bLength){
+
+        if (k == bLength) {
             return b;
         }
 
-        // Second pass: build result
-        int[] newValues = new int[count];
-        indexA = 0;
-        indexB = 0;
-        int index = 0;
-
-        while (indexA < aLength && indexB < bLength){
-            int aVal = aValues[indexA];
-            int bVal = bValues[indexB];
-            if (aVal == bVal){
-                newValues[index++] = aVal;
-                indexA++;
-                indexB++;
-            } else if (aVal < bVal){
-                indexA++;
-            } else {
-                indexB++;
-            }
+        IntegerSet s = new IntegerSet();
+        s.values = result;
+        if (result.length > k) {
+            s.values = Arrays.copyOf(result, k);
         }
 
-        IntegerSet result = new IntegerSet();
-        result.values = newValues;
-        return result;
+        return s;
     }
 
     /**
@@ -260,89 +301,132 @@ public class IntegerSet {
      * @param b the second set
      * @return the union of the given sets
      */
-    public static IntegerSet union(IntegerSet a, IntegerSet b){
-        if (a.size() == 0) return b;
-        if (b.size() == 0) return a;
+    public static IntegerSet union(IntegerSet a, IntegerSet b) {
+        if (a.isEmpty()) return b;
+        if (b.isEmpty()) return a;
 
-        int[] aValues = a.values;
-        int[] bValues = b.values;
-        int aLength = aValues.length;
-        int bLength = bValues.length;
+        int[] aVal = a.values;
+        int[] bVal = b.values;
+        int aLen = aVal.length;
+        int bLen = bVal.length;
 
-        // Handle non-overlapping ranges
-        if (aValues[aLength - 1] < bValues[0]) {
-            int[] values = new int[aLength + bLength];
-            System.arraycopy(aValues, 0, values, 0, aLength);
-            System.arraycopy(bValues, 0, values, aLength, bLength);
-            IntegerSet result = new IntegerSet();
-            result.values = values;
-            return result;
-        }
-        if (bValues[bLength - 1] < aValues[0]) {
-            int[] values = new int[aLength + bLength];
-            System.arraycopy(bValues, 0, values, 0, bLength);
-            System.arraycopy(aValues, 0, values, bLength, aLength);
-            IntegerSet result = new IntegerSet();
-            result.values = values;
-            return result;
+        // 2. Non-overlapping ranges (Extremely fast)
+        if (aVal[aLen - 1] < bVal[0]) return combine(aVal, bVal);
+        if (bVal[bLen - 1] < aVal[0]) return combine(bVal, aVal);
+
+        // 3. Size-based strategy selection
+        // Threshold: If one array is > 16x larger than the other, use Galloping
+        if (aLen > bLen * 16) {
+            return gallopingUnion(b, a); // b is small, a is large
+        } else if (bLen > aLen * 16) {
+            return gallopingUnion(a, b); // a is small, b is large
         }
 
-        int count = 0;
-        int indexA = 0, indexB = 0;
-        boolean isSubsetOfA = true;  // Track if b is subset of a
-        boolean isSubsetOfB = true;  // Track if a is subset of b
+        // 4. Default: Standard Linear Merge
+        return linearUnion(a, b);
+    }
 
-        while (indexA < aLength || indexB < bLength) {
-            int aVal = (indexA < aLength) ? aValues[indexA] : Integer.MAX_VALUE;
-            int bVal = (indexB < bLength) ? bValues[indexB] : Integer.MAX_VALUE;
+    private static IntegerSet linearUnion(IntegerSet a, IntegerSet b) {
+        int[] aVal = a.values;
+        int[] bVal = b.values;
+        int[] temp = new int[aVal.length + bVal.length];
+        int i = 0, j = 0, k = 0;
+        boolean isSubsetA = true, isSubsetB = true;
 
-            if (aVal == bVal) {
-                count++;
-                indexA++;
-                indexB++;
-            } else if (aVal < bVal) {
-                count++;
-                indexA++;
-                isSubsetOfB = false;  // a has element not in b
+        while (i < aVal.length && j < bVal.length) {
+            if (aVal[i] < bVal[j]) {
+                temp[k++] = aVal[i++];
+                isSubsetB = false;
+            } else if (aVal[i] > bVal[j]) {
+                temp[k++] = bVal[j++];
+                isSubsetA = false;
             } else {
-                count++;
-                indexB++;
-                isSubsetOfA = false;  // b has element not in a
+                temp[k++] = aVal[i++];
+                j++;
             }
         }
 
-        if (isSubsetOfB) {
-            return b;
+        if (i < aVal.length) {
+            isSubsetB = false;
+            System.arraycopy(aVal, i, temp, k, aVal.length - i);
+            k += (aVal.length - i);
+        } else if (j < bVal.length) {
+            isSubsetA = false;
+            System.arraycopy(bVal, j, temp, k, bVal.length - j);
+            k += (bVal.length - j);
         }
-        if (isSubsetOfA) {
-            return a;
-        }
 
-        int[] newValues = new int[count];
-        indexA = 0;
-        indexB = 0;
-        int index = 0;
+        if (isSubsetA) return a;
+        if (isSubsetB) return b;
 
-        while (indexA < aLength || indexB < bLength) {
-            int aVal = (indexA < aLength) ? aValues[indexA] : Integer.MAX_VALUE;
-            int bVal = (indexB < bLength) ? bValues[indexB] : Integer.MAX_VALUE;
+        return createSet(Arrays.copyOf(temp, k));
+    }
 
-            if (aVal == bVal) {
-                newValues[index++] = aVal;
-                indexA++;
-                indexB++;
-            } else if (aVal < bVal) {
-                newValues[index++] = aVal;
-                indexA++;
+    private static IntegerSet gallopingUnion(IntegerSet small, IntegerSet large) {
+        int[] sVal = small.values;
+        int[] lVal = large.values;
+        int[] temp = new int[sVal.length + lVal.length];
+
+        int sIdx = 0, lIdx = 0, k = 0;
+        boolean isSmallSubsetOfLarge = true;
+
+        for (int val : sVal) {
+            int foundIdx = gallopingSearch(lVal, lIdx, lVal.length, val);
+
+            int elementsToCopy = (foundIdx < 0) ? (-foundIdx - 1) - lIdx : foundIdx - lIdx;
+            if (elementsToCopy > 0) {
+                System.arraycopy(lVal, lIdx, temp, k, elementsToCopy);
+                k += elementsToCopy;
+                lIdx += elementsToCopy;
+            }
+
+            temp[k++] = val;
+
+            if (foundIdx >= 0) {
+                lIdx++;
             } else {
-                newValues[index++] = bVal;
-                indexB++;
+                isSmallSubsetOfLarge = false;
             }
         }
 
-        IntegerSet result = new IntegerSet();
-        result.values = newValues;
-        return result;
+        if (lIdx < lVal.length) {
+            System.arraycopy(lVal, lIdx, temp, k, lVal.length - lIdx);
+            k += (lVal.length - lIdx);
+        }
+
+        if (isSmallSubsetOfLarge) return large;
+        return createSet(Arrays.copyOf(temp, k));
+    }
+
+    private static int gallopingSearch(int[] arr, int from, int to, int key) {
+        if (from >= to) return -1 - from;
+
+        int step = 1;
+        int last = from;
+        int curr = from + step;
+
+        // 1. "Jump" exponentially
+        while (curr < to && arr[curr] < key) {
+            last = curr;
+            step <<= 1;
+            curr = from + step;
+        }
+
+        // 2. Binary search within the narrowed range
+        return Arrays.binarySearch(arr, last, Math.min(curr + 1, to), key);
+    }
+
+    private static IntegerSet combine(int[] first, int[] second) {
+        int[] res = new int[first.length + second.length];
+        System.arraycopy(first, 0, res, 0, first.length);
+        System.arraycopy(second, 0, res, first.length, second.length);
+        return createSet(res);
+    }
+
+    private static IntegerSet createSet(int[] vals) {
+        IntegerSet s = new IntegerSet();
+        s.values = vals;
+        return s;
     }
 
     /**

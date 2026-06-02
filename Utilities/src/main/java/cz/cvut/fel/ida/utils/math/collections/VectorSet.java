@@ -15,207 +15,118 @@
 
 package cz.cvut.fel.ida.utils.math.collections;
 
-import cz.cvut.fel.ida.setup.Settings;
+import java.util.Arrays;
 
-import java.util.*;
-
-/**
- * A simple but fast class for storing sets of int[] arrays.
- *
- * @author ondra
- */
 public class VectorSet {
-
-    private static final float LOAD_FACTOR = 0.667f;
-
+    private static final float LOAD_FACTOR = 0.5f;
     private int capacity;
     private int size;
+    private int mask;
     private int[][] data;
-    private List<int[]>[] collisions;
     private int resizeThreshold;
 
     /**
-     * Creates a new instance of class VectorSet
+     * Standard constructor
      */
     public VectorSet() {
         this(32);
     }
 
     public VectorSet(int initialCapacity) {
-        this.capacity = findNextPrime(initialCapacity);
-        this.resizeThreshold = (int) (this.capacity * LOAD_FACTOR);
-        this.data = new int[capacity][];
-        this.collisions = new List[capacity];
+        int cap = 1;
+        while (cap < initialCapacity) cap <<= 1;
+        init(cap);
+    }
+
+    /**
+     * Private dummy constructor used exclusively for super-fast cloning.
+     * Prevents any array allocation during the cloning process.
+     */
+    private VectorSet(boolean dummy) {}
+
+    private void init(int cap) {
+        this.capacity = cap;
+        this.mask = cap - 1;
+        this.data = new int[cap][];
+        this.resizeThreshold = (int) (cap * LOAD_FACTOR);
         this.size = 0;
     }
 
-    /**
-     * Adds the given int[] array to the set.
-     * @param vector the array
-     */
     public final void add(int[] vector) {
-        int hash = hash(vector);
-        int[] existing = data[hash];
-
-        if (existing == null) {
-            data[hash] = vector;
-            size++;
-        } else if (Arrays.equals(existing, vector)) {
-            return; // Already exists
-        } else {
-            List<int[]> collisionList = collisions[hash];
-            if (collisionList == null) {
-                collisionList = new ArrayList<>(2);
-                collisions[hash] = collisionList;
-            } else {
-                // Check if vector already exists in collision list
-                for (int[] array : collisionList) {
-                    if (Arrays.equals(array, vector)) {
-                        return;
-                    }
-                }
-            }
-            collisionList.add(vector);
-            size++;
-        }
-
         if (size >= resizeThreshold) {
-            resize();
+            rehash();
         }
+
+        int index = mix(Arrays.hashCode(vector)) & mask;
+        int[] curr;
+
+        while ((curr = data[index]) != null) {
+            // Primitive length check is the fastest way to skip deep equality
+            if (curr.length == vector.length && Arrays.equals(curr, vector)) {
+                return;
+            }
+            index = (index + 1) & mask;
+        }
+
+        data[index] = vector;
+        size++;
     }
 
-    private void resize() {
-        int oldCapacity = capacity;
-        int[][] oldData = data;
-        List<int[]>[] oldCollisions = collisions;
-
-        capacity = findNextPrime(oldCapacity * 2);
-        resizeThreshold = (int) (capacity * LOAD_FACTOR);
-        data = new int[capacity][];
-        collisions = new List[capacity];
-        size = 0;
-
-        // Rehash primary entries - cache length
-        final int oldDataLength = oldData.length;
-        for (int i = 0; i < oldDataLength; i++) {
-            int[] vector = oldData[i];
-            if (vector != null) {
-                addToNewTable(vector);
-            }
-        }
-
-        // Rehash collision entries - cache length
-        final int oldCollisionsLength = oldCollisions.length;
-        for (int i = 0; i < oldCollisionsLength; i++) {
-            List<int[]> list = oldCollisions[i];
-            if (list != null) {
-                final int listSize = list.size();
-                for (int j = 0; j < listSize; j++) {
-                    addToNewTable(list.get(j));
-                }
-            }
-        }
-    }
-
-    private void addToNewTable(int[] vector) {
-        int hash = hash(vector);
-        if (data[hash] == null) {
-            data[hash] = vector;
-            size++;
-        } else {
-            List<int[]> collisionList = collisions[hash];
-            if (collisionList == null) {
-                collisionList = new ArrayList<>(2);
-                collisions[hash] = collisionList;
-            }
-            collisionList.add(vector);
-            size++;
-        }
-    }
-
-    /**
-     * Checks if the VectorSet contains the given array of integers.
-     * @param vector the array
-     * @return true if the VectorSet contains the given array of integers
-     */
     public final boolean contains(int[] vector) {
-        int hash = hash(vector);
-        int[] existing = data[hash];
+        int index = mix(Arrays.hashCode(vector)) & mask;
+        int[] curr;
 
-        if (existing != null && Arrays.equals(existing, vector)) {
-            return true;
-        }
-
-        List<int[]> collisionList = collisions[hash];
-        if (collisionList != null) {
-            final int collisionSize = collisionList.size();
-            for (int i = 0; i < collisionSize; i++) {
-                if (Arrays.equals(collisionList.get(i), vector)) {
-                    return true;
-                }
+        while ((curr = data[index]) != null) {
+            if (curr.length == vector.length && Arrays.equals(curr, vector)) {
+                return true;
             }
+            index = (index + 1) & mask;
         }
-
         return false;
     }
 
+    /**
+     * SUPER FAST COPY
+     * Uses dummy constructor to skip initialization and native clone for the array.
+     */
     public VectorSet copy() {
-        VectorSet res = new VectorSet();
+        VectorSet copy = new VectorSet(true); // Allocate object only, no arrays
+        copy.capacity = this.capacity;
+        copy.mask = this.mask;
+        copy.size = this.size;
+        copy.resizeThreshold = this.resizeThreshold;
+        copy.data = this.data.clone(); // Shallow clone of reference array (O(1) pointers)
+        return copy;
+    }
 
-        res.capacity = this.capacity;
-        res.data = this.data.clone();
-        res.size = this.size;
-        res.resizeThreshold = this.resizeThreshold;
+    private void rehash() {
+        int[][] oldData = data;
+        int oldCap = capacity;
+        init(oldCap << 1); // Double the capacity
 
-        res.collisions = new List[this.collisions.length];
-        for (int i = 0; i < res.collisions.length; i++) {
-            if (this.collisions[i] != null) {
-                res.collisions[i] = new ArrayList<>(this.collisions[i]);
+        for (int i = 0; i < oldCap; i++) {
+            int[] vector = oldData[i];
+            if (vector != null) {
+                // Simplified insertion for rehash (we know elements are unique)
+                int index = mix(Arrays.hashCode(vector)) & mask;
+                while (data[index] != null) {
+                    index = (index + 1) & mask;
+                }
+                data[index] = vector;
+                size++;
             }
         }
-
-        return res;
     }
 
-    public void printStats(){
-        double num = 0;
-        double max = 0;
-        for (List<int[]> c : collisions){
-            if (c != null) {
-                num += c.size();
-                max = Math.max(max, c.size());
-            }
-        }
-        System.out.println("size: "+this.size+", capacity: "+this.capacity+", num collisions: "+num+", max: "+max);
+    // MurmurHash3-style mixer to prevent clustering in Linear Probing
+    private static int mix(int h) {
+        h ^= h >>> 16;
+        h *= 0x85ebca6b;
+        h ^= h >>> 13;
+        h *= 0xc2b2ae35;
+        h ^= h >>> 16;
+        return h;
     }
 
-    private int hash(int[] vector) {
-        int hash = 0;
-        for (int i = 0; i < vector.length; i++) {
-            hash = 31 * hash + vector[i];
-        }
-        hash = hash ^ (hash >>> 16);
-        return (hash & Integer.MAX_VALUE) % capacity;
-    }
-
-    private static int findNextPrime(int n) {
-        if (n < 2) return 2;
-        if (n == 2) return 2;
-        if ((n & 1) == 0) n++;
-
-        while (!isPrime(n)) {
-            n += 2;
-        }
-        return n;
-    }
-
-    private static boolean isPrime(int n) {
-        if (n < 2) return false;
-        if (n == 2) return true;
-        if ((n & 1) == 0) return false;
-        for (int i = 3; i * i <= n; i += 2) {
-            if (n % i == 0) return false;
-        }
-        return true;
-    }
+    public int size() { return size; }
 }

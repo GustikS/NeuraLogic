@@ -179,6 +179,21 @@ public class NeuronFactory {
         return neuronMaps.factNeurons.put(fact.literal, neuron);
     }
 
+    public FactNeuron createTemplateFactNeuron(ValuedFact fact) {
+        final Value value = fact.getValue();
+        States.SimpleValue simpleValue = new States.SimpleValue(value == null ? defaultFactValue : value);
+
+        FactNeuron neuron = new FactNeuron(fact.originalString, fact.weight, counter++, simpleValue);
+
+        if (fact.weight != null && fact.weight.isLearnable()) {
+            neuron.hasLearnableValue = true;
+            simpleValue.isLearnable = true;
+        }
+
+        if (LOG.isLoggable(Level.FINEST)) LOG.finest(() -> "Created fact neuron: " + neuron);
+        return neuronMaps.templateFactNeurons.put(fact.literal, neuron);
+    }
+
     public NegationNeuron createNegationNeuron(AtomFact atomFact, Transformation negation) {
         Transformation transformation = negation != null ? negation : Transformation.getFunction(settings.softNegation);
         State.Neural.Computation state = State.createBaseState(settings, null, transformation);

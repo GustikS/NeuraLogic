@@ -10,6 +10,7 @@ import cz.cvut.fel.ida.logic.features.treeliker.utils.graphs.DirectedVertex;
 import cz.cvut.fel.ida.logic.features.treeliker.utils.graphs.GraphAlgorithms;
 import cz.cvut.fel.ida.logic.features.treeliker.PredicateDefinition;
 import cz.cvut.fel.ida.utils.math.collections.*;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 import java.util.*;
 /**
@@ -46,7 +47,7 @@ public class FeatureSearchUtils {
     static List<PredicateDefinition> topologicalOrderOnTypes(MultiMap<PredicateDefinition,PredicateDefinition> prerequisities){
         ValueToIndex<PredicateDefinition> definitions = new ValueToIndex<PredicateDefinition>();
         HashMap<Integer, DirectedVertex> map = new HashMap<Integer,DirectedVertex>();
-        for (Map.Entry<PredicateDefinition,Set<PredicateDefinition>> entry : prerequisities.entrySet()){
+        for (Map.Entry<PredicateDefinition, ObjectOpenHashSet<PredicateDefinition>> entry : prerequisities.entrySet()){
             int startVertexID = definitions.valueToIndex(entry.getKey());
             if (!map.containsKey(startVertexID)){
                 map.put(startVertexID, new DirectedVertex(startVertexID));

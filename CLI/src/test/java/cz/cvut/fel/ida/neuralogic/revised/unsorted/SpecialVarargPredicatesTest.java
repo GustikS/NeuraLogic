@@ -93,7 +93,7 @@ class SpecialVarargPredicatesTest {
 
     private void test(Set<Literal> facts, List<HornClause> rules, HornClause finalRule, int number) {
         HerbrandModel herbrandModel = new HerbrandModel(facts, rules);
-        final Collection<Literal> inferedAtoms = herbrandModel.inferAtoms();
+        herbrandModel.inferAtoms();
         cz.cvut.fel.ida.utils.generic.Pair<Term[], List<Term[]>> groundingSubstitutions = herbrandModel.groundingSubstitutions(new Clause(finalRule.getLiterals()));
         assertEquals(number, groundingSubstitutions.s.size());
     }

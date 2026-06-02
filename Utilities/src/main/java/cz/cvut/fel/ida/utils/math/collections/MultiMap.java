@@ -37,7 +37,7 @@ public class MultiMap<R,S> {
 
     private final Set<?> emptySet = new ObjectOpenHashSet<>();
 
-    private final Map<R, Set<S>> map;
+    private final Map<R, ObjectOpenHashSet<S>> map;
 
     public MultiMap() {
         this(DEFAULT_CAPACITY);
@@ -132,7 +132,7 @@ public class MultiMap<R,S> {
         if (multiMap == null || multiMap.isEmpty()) {
             return;
         }
-        for (Entry<R, Set<S>> entry : multiMap.map.entrySet()) {
+        for (Entry<R, ObjectOpenHashSet<S>> entry : multiMap.map.entrySet()) {
             Set<S> targetSet = map.computeIfAbsent(entry.getKey(), k -> new ObjectOpenHashSet<>());
             targetSet.addAll(entry.getValue());
         }
@@ -143,7 +143,7 @@ public class MultiMap<R,S> {
      * @param key the key
      * @param value the new values
      */
-    public void set(R key, Set<S> value) {
+    public void set(R key, ObjectOpenHashSet<S> value) {
         map.put(key, value);
     }
 
@@ -209,7 +209,7 @@ public class MultiMap<R,S> {
      *
      * @return a collection containing all the values
      */
-    public Collection<Set<S>> values() {
+    public Collection<ObjectOpenHashSet<S>> values() {
         return map.values();
     }
 
@@ -217,7 +217,7 @@ public class MultiMap<R,S> {
      *
      * @return the backing entry-set
      */
-    public Set<Entry<R, Set<S>>> entrySet() {
+    public Set<Entry<R, ObjectOpenHashSet<S>>> entrySet() {
         return map.entrySet();
     }
 
@@ -247,7 +247,7 @@ public class MultiMap<R,S> {
         StringBuilder sb = new StringBuilder();
         sb.append("MultiMap[");
         int index = 0;
-        for (Entry<R, Set<S>> entry : this.map.entrySet()) {
+        for (Entry<R, ObjectOpenHashSet<S>> entry : this.map.entrySet()) {
             sb.append(entry.getKey()).append(" ~ ").append(entry.getValue().size());
             if (index++ < this.map.size() - 1) {
                 sb.append(", ");
@@ -258,7 +258,7 @@ public class MultiMap<R,S> {
     }
 
     public void copyFrom(MultiMap<R, S> map) {
-        for (Entry<R, Set<S>> entry : map.entrySet()) {
+        for (Entry<R, ObjectOpenHashSet<S>> entry : map.entrySet()) {
             this.map.put(entry.getKey(), ((ObjectOpenHashSet) entry.getValue()).clone());
         }
     }
@@ -266,7 +266,7 @@ public class MultiMap<R,S> {
     public MultiMap<R, S> copy() {
         MultiMap<R, S> res = new MultiMap<>((int) (this.map.size() / LOAD_FACTOR + 1));
 
-        for (Entry<R, Set<S>> entry : this.map.entrySet()) {
+        for (Entry<R, ObjectOpenHashSet<S>> entry : this.map.entrySet()) {
             res.map.put(entry.getKey(), ((ObjectOpenHashSet) entry.getValue()).clone());
         }
 

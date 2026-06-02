@@ -198,7 +198,7 @@ public class Clause {
             initLiteralsByTerms();
         }
         HashMap<Term, Integer> frequencies = new HashMap<>(literalsByTerms.size());
-        for (Map.Entry<Term, Set<Literal>> entry : this.literalsByTerms.entrySet()) {
+        for (Map.Entry<Term, ObjectOpenHashSet<Literal>> entry : this.literalsByTerms.entrySet()) {
             frequencies.put(entry.getKey(), entry.getValue().size());
         }
         return frequencies;
@@ -216,7 +216,7 @@ public class Clause {
             initLiteralsByTerms();
         }
         HashMap<Variable, Integer> frequencies = new HashMap<>();
-        for (Map.Entry<Term, Set<Literal>> entry : this.literalsByTerms.entrySet()) {
+        for (Map.Entry<Term, ObjectOpenHashSet<Literal>> entry : this.literalsByTerms.entrySet()) {
             Term key = entry.getKey();
             if (key instanceof Variable) {
                 frequencies.put((Variable) key, entry.getValue().size());
@@ -294,7 +294,7 @@ public class Clause {
         }
 
         ObjectOpenHashSet<Variable> set = new ObjectOpenHashSet<>();
-        for (Map.Entry<Term, Set<Literal>> entry : literalsByTerms.entrySet()) {
+        for (Map.Entry<Term, ObjectOpenHashSet<Literal>> entry : literalsByTerms.entrySet()) {
             Term key = entry.getKey();
             if (key instanceof Variable && !entry.getValue().isEmpty()) {
                 set.add((Variable) key);

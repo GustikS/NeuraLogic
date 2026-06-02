@@ -25,6 +25,7 @@ import cz.cvut.fel.ida.utils.math.collections.*;
 import cz.cvut.fel.ida.utils.math.random.CustomRandomGenerator;
 import cz.cvut.fel.ida.utils.generic.tuples.Pair;
 import cz.cvut.fel.ida.utils.generic.tuples.Triple;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 import java.util.*;
 
@@ -938,7 +939,7 @@ public class SubsumptionEngineJ2 {
 //                    }
                 }
             }
-            for (Map.Entry<Integer, Set<Integer>> entry : containedInBag.entrySet()) {
+            for (Map.Entry<Integer, ObjectOpenHashSet<Integer>> entry : containedInBag.entrySet()) {
                 int term = entry.getKey();
                 containedIn[term] = IntegerSet.createIntegerSet(entry.getValue());
             }
@@ -2026,7 +2027,7 @@ public class SubsumptionEngineJ2 {
                 }
             }
 
-            for (Map.Entry<Triple<Integer, Integer, Integer>, Set<Integer>> entry : bag.entrySet()) {
+            for (Map.Entry<Triple<Integer, Integer, Integer>, ObjectOpenHashSet<Integer>> entry : bag.entrySet()) {
                 int bestLower = Sugar.findBest(entry.getValue(), new Sugar.MyComparator<Integer>() {
                     @Override
                     public boolean isABetterThanB(Integer a, Integer b) {

@@ -7,6 +7,7 @@ import cz.cvut.fel.ida.logic.constructs.template.components.GroundRule;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.Neurons;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.*;
 import cz.cvut.fel.ida.neural.networks.structure.metadata.inputMappings.LinkedMapping;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,8 +30,11 @@ public class NeuronMaps {
     public Map<Literal, AtomNeurons> atomNeurons = new HashMap<>();
     public Map<GroundHeadRule, AggregationNeuron> aggNeurons = new HashMap<>();
     public Map<GroundRule, RuleNeurons> ruleNeurons = new LinkedHashMap<>();
-    public Map<Literal, FactNeuron> factNeurons = new HashMap<>();
+    public Map<Literal, FactNeuron> factNeurons = new Object2ObjectOpenHashMap<>();
     public Set<NegationNeuron> negationNeurons = new HashSet<>();
+
+    public Map<Literal, ValuedFact> templateFacts = new HashMap<>();
+    public Map<Literal, FactNeuron> templateFactNeurons = null;
 
     /**
      * Locally valid input overloading for some neurons to facilitate dynamic structure changes
@@ -43,9 +47,14 @@ public class NeuronMaps {
      */
     public boolean containsMasking;
 
-    public NeuronMaps(LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules, Map<Literal, ValuedFact> groundFacts) {
+    public NeuronMaps(
+            LinkedHashMap<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> groundRules,
+            Map<Literal, ValuedFact> groundFacts,
+            Map<Literal, ValuedFact> templateGroundFacts
+    ) {
         this.groundRules = groundRules;
         this.groundFacts = groundFacts;
+        this.templateFacts = templateGroundFacts;
     }
 
     public void addAllFrom(NeuronMaps neuronMaps) {

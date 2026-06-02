@@ -15,7 +15,10 @@ import cz.cvut.fel.ida.logic.constructs.template.components.WeightedRule;
 import cz.cvut.fel.ida.logic.constructs.template.types.GraphTemplate;
 import cz.cvut.fel.ida.logic.subsumption.HerbrandModel;
 import cz.cvut.fel.ida.logic.subsumption.SubsumptionEngineJ2;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.FactNeuron;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -39,6 +42,9 @@ public class Template implements Model<QueryAtom>, Exportable {
     @Nullable
     public LinkedHashSet<Conjunction> constraints;  //todo how to handle these?
 
+    public Map<Literal, ValuedFact> atomMapCache;
+    public List<FactNeuron> createdFactNeuronCache = new ObjectArrayList<>(0);
+    public Map<Literal, FactNeuron> factNeuronCache = new Object2ObjectOpenHashMap<>(0);
     /**
      * Good to know for stratification checking
      */
@@ -191,8 +197,7 @@ public class Template implements Model<QueryAtom>, Exportable {
 
         herbrandModel = new HerbrandModel(facts, rules);
         if (inferAtoms) {
-            Collection<Literal> atoms = herbrandModel.inferAtoms();
-            inferredAtoms.addAll(atoms);
+            inferredAtoms = herbrandModel.toSet();
         }
     }
 

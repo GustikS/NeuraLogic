@@ -327,6 +327,8 @@ public class Settings implements Serializable {
 
     public GroundingMode groundingMode = GroundingMode.INDEPENDENT;
 
+    public boolean logGC = true;
+
     public enum GroundingMode {
         INDEPENDENT,   //Separate independent example graphs
         SEQUENTIAL, // Ground networks are grounded in a specific given sequence (i.e. sharing only with previous examples)
@@ -349,7 +351,7 @@ public class Settings implements Serializable {
     public GroundingAlgo grounding = GroundingAlgo.BUP;
 
     public enum GroundingAlgo {
-        BUP, TDOWN, GRINGO
+        BUP, TDOWN
     }
 
     /**
@@ -1119,9 +1121,6 @@ public class Settings implements Serializable {
                     break;
                 case "TDown":
                     settings.grounding = GroundingAlgo.TDOWN;
-                    break;
-                case "Gringo":
-                    settings.grounding = GroundingAlgo.GRINGO;
                     break;
             }
         }

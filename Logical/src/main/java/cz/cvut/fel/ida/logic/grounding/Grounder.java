@@ -12,7 +12,6 @@ import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
 import cz.cvut.fel.ida.logic.constructs.template.components.WeightedRule;
 import cz.cvut.fel.ida.logic.grounding.bottomUp.BottomUp;
-import cz.cvut.fel.ida.logic.grounding.topDown.Gringo;
 import cz.cvut.fel.ida.logic.grounding.topDown.TopDown;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
@@ -53,8 +52,6 @@ public abstract class Grounder implements Exportable {
                 return new BottomUp(settings);
             case TDOWN:
                 return new TopDown(settings);
-            case GRINGO:
-                return new Gringo(settings);
             default:
                 return new BottomUp(settings);
         }
@@ -86,9 +83,9 @@ public abstract class Grounder implements Exportable {
      * @param template
      * @return
      */
-    public Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> rulesAndFacts(LiftedExample example, Template template, Map<Literal, ValuedFact> atomMapCache) {
+    public Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> rulesAndFacts(LiftedExample example, Template template) {
         Map<HornClause, List<WeightedRule>> ruleMap;
-        Map<Literal, ValuedFact> atomMap = mapToLogic(atomMapCache, example.flatFacts, example.conjunctions);
+        Map<Literal, ValuedFact> atomMap = mapToLogic(example.flatFacts, example.conjunctions);
 
         if (example.rules.isEmpty()) {
             if (template.hornClauses == null){
@@ -131,19 +128,23 @@ public abstract class Grounder implements Exportable {
         return new Pair<>(ruleMap, factMap);
     }
 
-    public Map<Literal, ValuedFact> mapToLogic(Map<Literal, ValuedFact> atomMaps, Set<ValuedFact> exampleFacts, Set<Conjunction> exampleConjunctions) {
+    public Map<Literal, ValuedFact> mapToLogic(Set<ValuedFact> exampleFacts, Set<Conjunction> exampleConjunctions) {
+        int capacity = exampleFacts.size();
+        for (Conjunction c : exampleConjunctions) capacity += c.facts.size();
+
+        Map<Literal, ValuedFact> map = new Object2ObjectOpenHashMap<>((int) (capacity / 0.75f + 1));
         for (ValuedFact vf : exampleFacts) {
-            atomMaps.merge(vf.getLiteral(), vf, this::merge2facts);
+            map.merge(vf.getLiteral(), vf, this::merge2facts);
         }
 
         for (Conjunction c : exampleConjunctions) {
             final int size = c.facts.size();
             for (int i = 0; i < size; i++) {
                 ValuedFact vf = c.facts.get(i);
-                atomMaps.merge(vf.getLiteral(), vf, this::merge2facts);
+                map.merge(vf.getLiteral(), vf, this::merge2facts);
             }
         }
-        return atomMaps;
+        return map;
     }
 
     public Map<Literal, ValuedFact> mapToLogic(Set<ValuedFact> facts) {

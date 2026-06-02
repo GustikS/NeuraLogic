@@ -314,7 +314,7 @@ public class HerbrandModelTest {
             rules.add(finalRule = new HornClause(Clause.parse("lambda_A0(a), !atomKappa_A1(A), !bond(A,B,B0), !bondKappa_A1(B0), !atomKappa_A1(B), !bond(B,C,B1), !bondKappa_A1(B1), !atomKappa_A1(C)")));
 
             HerbrandModel herbrandModel = new HerbrandModel(facts, rules);
-            final Collection<Literal> inferedAtoms = herbrandModel.inferAtoms();
+            herbrandModel.inferAtoms();
 
             groundingSubstitutions = herbrandModel.groundingSubstitutions(new Clause(finalRule.getLiterals()));
             return this;
