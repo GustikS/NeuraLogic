@@ -23,6 +23,7 @@ Status words are used strictly: **measured** means it was reproduced and the num
 | Tests could not reflect into `java.io` on JDK 16+ | `pom.xml` surefire | `3c7c4e3c` |
 | `state_dict()` tested `weight.isLearnable` without calling it, so fixed weights were reported as learnable and the internal fixed `ONE` leaked at index `-1` | PyNeuraLogic `neural_module.py` | `fae064b` on `gustiks-bugfixes-ai` |
 | Torch bridge `zero_grad`, rectangular tensor sync, and rule-form importance construction | PyNeuraLogic | upstream PR #68 |
+| Output function inference replaced a transformation the template had stated, so a queried head could not say it is already the final quantity and an output that is a mean of probabilities could not be written. Templates that state nothing are unaffected | `NeuralProcessingSample`, `NeuronFactory` | `7719c9dc` |
 
 The first five landed on `release`; the rest are on `bugfixes-ai`.
 
@@ -95,13 +96,6 @@ below still reproduce, while `query_importance_rule`, both torch bridge cases, `
 `internal_one_state` and `lossy_compression_diagnostic` no longer do. Each of the survivors needs an owner's
 decision on the intended semantics before it can be called a bug.
 
-**A queried head cannot say it is already the final quantity.** A rule with `[Aggregation.AVG,
-Transformation.IDENTITY]` over a weightless head computes the exact mean of its groundings, but under
-`CrossEntropy(with_logits=False)` the queried value comes back squashed - `sigmoid(0.5)` instead of `0.5`.
-Predicate metadata on such a head is silently ignored: `IDENTITY`, `TANH` and `RELU` all leave the value
-unchanged, while on a *weighted* head the same metadata does take effect. The silent no-op is the part most
-likely to be a defect. A model whose output is a mean of probabilities cannot currently be expressed.
-
 **A hidden selector preserves the forward value but its fact gets no gradient.** Differentiation semantics
 question.
 
@@ -118,6 +112,17 @@ against this branch, it still reproduces. Cause unknown.
 **Query importance still does not reach the Torch bridge.** `Backpropagate(NeuralSample, Value)` takes a
 gradient the caller computed, so `NeuralModule._backprop` bypasses the weighting deliberately. Whether the
 bridge should apply it is a decision, not an oversight.
+
+## Ideas rather than defects
+
+**Deciding between logits and probabilities is spread over four places.** Whether a queried output ends up
+raw or squashed is settled by `inferOutputFcns`, by `squishLastLayer`, by `infer()` choosing between
+`CROSSENTROPY` and `SOFTENTROPY`, and finally by the rewrite in `NeuralProcessingSample` as each sample's
+network is finalised. The intent is good - a template should not have to know what the loss expects - but the
+decision is hard to follow and harder to predict, and the three branches of that final rewrite each respect a
+different set of transformations: regression skips `null`, `Identity` and `ReLu`, softentropy skips `null` and
+`Identity`, crossentropy skips only `Softmax` and `Sigmoid`. Pulling it into one decision in one place would
+make it explainable. Nothing is broken, so this is an improvement rather than a fix.
 
 ## Deliberately not issues
 
