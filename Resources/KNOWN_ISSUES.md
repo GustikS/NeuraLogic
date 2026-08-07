@@ -113,7 +113,25 @@ against this branch, it still reproduces. Cause unknown.
 gradient the caller computed, so `NeuralModule._backprop` bypasses the weighting deliberately. Whether the
 bridge should apply it is a decision, not an oversight.
 
+## Open - diagnostics
+
+**A target of the wrong shape is only found out during backpropagation.** A rule with a `1 x 2` head weight
+over a two-element body produces a scalar, so a vector target cannot fit - and nothing says so until the
+backward pass throws `Incompatible dimensions of algebraic operation - scalar increment by vector`, which
+names neither the query nor the target. **Measured** on a weighted head with a vector target, in both body
+orders. Comparing the shape of the target against the shape the queried neuron produces, at build time, would
+turn this into one clear message.
+
 ## Ideas rather than defects
+
+**Combining a body of mixed shapes tries the impossible direction first.** `ElementProduct`, `Sum` and
+`Average` take the accumulator's shape from the *first* body atom (`inputs.get(0).clone()`), so a body of
+scalar-then-vector attempts an in-place widening, throws, is caught, and redone out of place, while
+vector-then-scalar goes straight through. **Measured**: the outcome is the same either way - identical forward
+values and identical weights after a step, for both ELPRODUCT and SUM, weighted and plain heads - so this
+costs a thrown exception and a retry, not correctness. Picking the widest input to start from would avoid the
+detour.
+
 
 **Deciding between logits and probabilities is spread over four places.** Whether a queried output ends up
 raw or squashed is settled by `inferOutputFcns`, by `squishLastLayer`, by `infer()` choosing between
