@@ -137,9 +137,24 @@ public class MiniBatchTrainer extends Trainer {
     }
 
     /**
-     * Run batch of samples in parallel using the default {@link java.util.concurrent.ForkJoinPool} of the parallel stream (should be better than custom {@link java.util.concurrent.ExecutorService} ThreadPool)
-     * as these are just CPU intensive operations with no IO waiting. Also the number of threads is not given by the size of the batch, but should rather be optimally selected w.r.t. hardware.
-     * Finally leaving the parallelism to ParallelStream is also the most readable java8 solution, so lets just leave the magic to java
+     * Run a batch of samples, then apply the summed gradient in a single step.
+     * <p>
+     * The samples are processed sequentially, even though each of them has its own {@link SequentialTrainer}
+     * with its own state index. Per-index trainers are only enough to keep samples apart if every neuron that
+     * two samples in the batch have in common carries its own computation state per index, i.e. a
+     * {@link cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.States.ComputationStateComposite}
+     * built by {@link cz.cvut.fel.ida.neural.networks.structure.building.builders.StatesBuilder#makeParallel}.
+     * Samples do share neurons routinely - fact and atom neurons of the same ground literal are reused across
+     * examples, and one example carrying several queries shares its whole graph - while the composite states
+     * are not in place, so the threads used to race on one shared outputValue/aggregationState/gradient.
+     * <p>
+     * The race was not visible as a crash but as arithmetic: the accumulated update stopped being the sum of
+     * the individual sample updates (measured ratios from 0.98 to 2.11, growing with the batch size and with
+     * the amount of sharing), it differed between identical runs, and with heavy sharing it did eventually
+     * throw out of a torn Value. Note that
+     * {@link cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State.Neural#getComputationView(int)}
+     * defaults to returning the single shared state, so a network without the composite states races silently
+     * instead of failing.
      *
      * @param neuralModel
      * @param sampleList
@@ -155,7 +170,6 @@ public class MiniBatchTrainer extends Trainer {
         }
 
         List<Result> results = IntStream.range(0, size)
-                .parallel()
                 .mapToObj(i -> evaluateAndBackprop(trainers.get(i), sampleList.get(i)))
                 .collect(Collectors.toList());
 
@@ -166,9 +180,12 @@ public class MiniBatchTrainer extends Trainer {
             updatedWeights.addAll(weightUpdater.updatedWeightsOnly);
 
             for (int j = 0; j < weightUpdates.length; j++) {
+                if (updates[j] == null) {
+                    continue;
+                }
                 if (weightUpdates[j] == null) {
-                    weightUpdates[j] = updates[j];
-                } else if (updates[j] != null) {
+                    weightUpdates[j] = updates[j].clone();   //a copy, otherwise the batch sum is accumulated into this trainer's own gradient buffer
+                } else {
                     weightUpdates[j].incrementBy(updates[j]);
                 }
             }
