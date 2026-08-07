@@ -57,17 +57,32 @@ computing its metrics - `loadBinaryMetrics` applies a sigmoid and `loadMulticlas
 call answers differently. **Measured**: outputs `0, 1, 0.7` became `0.5, 0.73, 0.67`. Fixing it means deciding
 whether the metrics should work on copies, which changes what reporting does.
 
-**A learnable value on an example fact is not part of the model and cannot be trained.** The model is built
-from the template, and `NeuralModel.maxWeightIndex` is fixed then; example facts are parsed afterwards and
-their weights get indices from the samples' own factory. `NeuronFactory.createFactNeuron` still marks such a
-neuron `hasLearnableValue`, so it looks trainable and is not. **Measured** on `debug/leaves`, whose template
-has no weights at all: the model holds one weight, the fixed logical `one` at index `-1`, while the example
-fact `1.0 node_feature(a2)` carries a learnable weight at index 2. Reaching it threw
-`ArrayIndexOutOfBoundsException: Index 2 out of bounds for length 1` in `WeightUpdater.visit`, which now drops
-the gradient and says so once instead. Note the sizing is loose in its own right - `maxWeightIndex` is derived
-from `allWeights.size()-1`, a count standing in for a maximum index, which only works while the indices are
-dense from zero. This never surfaced before because top-down iteration skipped the neuron that held it (see
-Fixed). Deciding it means deciding whether a leading value on an example fact is data or a parameter.
+**A learnable value on an example fact cannot be trained, and never could.** `WeightFactory` draws indices
+from an `AtomicInteger` shared with the template's factory, so an example fact's weight lands *past* the last
+index of the model that `WeightUpdater` was sized from. There is no collision - the weight is simply outside
+the array. `NeuronFactory.createFactNeuron` marks the neuron `hasLearnableValue` regardless, so it looks
+trainable and is not.
+
+**Measured** two ways. On `debug/leaves`, whose template has no weights at all, the model holds one weight -
+the fixed logical `one` at index `-1` - while the example fact `1.0 node_feature(a2)` carries a learnable
+weight at index 2; reaching it threw `ArrayIndexOutOfBoundsException: Index 2 out of bounds for length 1`.
+Through the Python bindings with `learnable_facts=True`, the model holds index 0, the example fact gets index
+1, and after three epochs its value is unchanged while the model's own weight moved. So the feature either did
+nothing (fact first in the topologic order, hence never visited) or threw. `WeightUpdater.visit` now drops
+such a gradient and reports it once instead of throwing.
+
+Restoring it is small in code and not small in meaning. `Optimizer.performGradientStep` walks
+`updatedWeightsOnly`, the `Weight` objects themselves, and only indexes the gradient array by
+`weight.index` - so sizing that array from the shared counter rather than from `allWeights` would be enough
+for SGD. Adam would still fail: it reads `weight.momentum` and `weight.velocity`, which `NeuralModel.init4Adam`
+sets only for the model's own weights. And a per-example weight is not in `allWeights`, so it is absent from
+`state_dict` and from anything that saves or restores a model. The question underneath is whether a value on
+an example fact is data or a parameter.
+
+Related but not itself a defect: `maxWeightIndex` is `allWeights.size()-1`, a count standing in for a maximum
+index. It holds only while the indices are dense from zero, which is true on every path checked - repeated
+`build()` calls on one `Settings` object were **measured** to restart at 0, so the second model is not
+under-sized. It over-estimates by one whenever the fixed `one` is in the list, which costs an unused slot.
 
 **Importing `Sources` from JSON fails on JDK 16+.** Gson reads the private fields of `java.io.File`. The
 surefire flag fixes the build only; at runtime this still needs the same `--add-opens` or a Gson type adapter
