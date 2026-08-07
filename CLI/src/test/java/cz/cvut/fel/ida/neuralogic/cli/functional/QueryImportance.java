@@ -3,6 +3,9 @@ package cz.cvut.fel.ida.neuralogic.cli.functional;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
+import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.Evaluation;
+import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.IndependentNeuronProcessing;
+import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.states.neurons.Invalidator;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
 import cz.cvut.fel.ida.neural.networks.computation.training.optimizers.Optimizer;
@@ -64,6 +67,41 @@ public class QueryImportance {
         for (int i = 0; i < full.length; i++) {
             assertEquals(full[i] / 2, half[i], 1e-12, "weight " + i);
         }
+    }
+
+    @TestAnnotations.Fast
+    public void halvingImportanceHalvesTheReportedError() throws Exception {
+        Settings settings = Settings.forFastTest();
+        settings.setOptimizer(Settings.OptimizerSet.SGD);
+
+        Sources sources = Runner.getSources(getDatasetArgs("simple/family"), settings);
+        Pair<String, Pair<NeuralModel, Stream<NeuralSample>>> built =
+                new End2endTrainigBuilder(settings, sources).new End2endNNBuilder().buildPipeline().execute(sources);
+        NeuralModel model = built.s.r;
+        NeuralSample sample = built.s.s.collect(Collectors.toList()).get(0);
+
+        Evaluation evaluation = new Evaluation(settings, -1);
+        IndependentNeuronProcessing invalidation =
+                new IndependentNeuronProcessing(settings, new Invalidator(-1));
+
+        sample.query.importance = 1.0;
+        invalidation.process(sample.query.evidence, sample.query.neuron);
+        double full = scalar(evaluation.evaluate(sample).errorValue());
+
+        sample.query.importance = 0.5;
+        invalidation.process(sample.query.evidence, sample.query.neuron);
+        double half = scalar(evaluation.evaluate(sample).errorValue());
+
+        assertTrue(Math.abs(full) > 1e-9, "the sample has to have some error for this to mean anything");
+        assertEquals(full / 2, half, 1e-12);
+    }
+
+    private static double scalar(Value value) {
+        double result = 0;
+        for (Double element : value) {
+            result += element;
+        }
+        return result;
     }
 
     private static double[] delta(Settings settings, NeuralModel model, NeuralSample sample, double[] initial) {

@@ -74,22 +74,13 @@ public class Backpropagation {
     }
 
     /**
-     * Scales the error gradient by the query's importance, i.e. its weight for learning - a sample at
-     * importance 0.5 moves the weights by half of what it would at 1.0. Queries carry
-     * {@link cz.cvut.fel.ida.setup.Settings#defaultSampleImportance} unless one is given with them.
-     * <p>
-     * The reported error is left unweighted, so that losses stay comparable across differently weighted
-     * samples. The {@link #backpropagate(NeuralSample, Value)} overload is not touched either - there the
-     * caller supplies the gradient and so owns any weighting of it.
+     * The query's importance is already carried by {@link Result#errorGradient()}, together with
+     * {@link Result#errorValue()}, so that what is optimised and what is reported stay the same quantity. The
+     * {@link #backpropagate(NeuralSample, Value)} overload below takes a gradient the caller computed, and so
+     * leaves any weighting of it to them.
      */
     public WeightUpdater backpropagate(NeuralSample neuralSample, Result evaluatedResult) {
-        Value errorGradient = evaluatedResult.errorGradient();
-        double importance = neuralSample.query.importance;
-
-        if (importance != 1.0) {
-            errorGradient = errorGradient.times(new ScalarValue(importance));
-        }
-        return this.backpropagate(neuralSample, errorGradient);
+        return this.backpropagate(neuralSample, evaluatedResult.errorGradient());
     }
 
     public WeightUpdater backpropagate(NeuralSample neuralSample, Value errorGradient) {

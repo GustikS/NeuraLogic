@@ -4,6 +4,7 @@ import cz.cvut.fel.ida.algebra.functions.ErrorFcn;
 import cz.cvut.fel.ida.algebra.functions.error.Crossentropy;
 import cz.cvut.fel.ida.algebra.functions.error.SoftEntropy;
 import cz.cvut.fel.ida.algebra.functions.error.SquaredDiff;
+import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
 
@@ -27,20 +28,33 @@ public class Result implements Comparable<Result> {
     private Value output;
     private Value target;
 
-    private Result(ErrorFcn errorFcn, String sampleId, int position, Value target, Value output) {
+    /**
+     * Weight of the query this result came from. Both the error and its gradient carry it, so that what gets
+     * reported is the quantity training actually minimises - weighting only the gradient would optimise
+     * sum(importance * error) while reporting sum(error), and the reported loss is what early stopping and
+     * model selection look at.
+     */
+    private final double importance;
+
+    private Result(ErrorFcn errorFcn, String sampleId, int position, Value target, Value output, double importance) {
         this.errorFcn = errorFcn;
         this.sampleId = sampleId;
         this.position = position;
+        this.importance = importance;
         this.setTarget(target);
         this.setOutput(output);
     }
 
     public Value errorValue() {
-        return errorFcn.evaluate(getOutput(), getTarget());
+        return weighted(errorFcn.evaluate(getOutput(), getTarget()));
     }
 
     public Value errorGradient() {
-        return errorFcn.differentiate(getOutput(), getTarget());
+        return weighted(errorFcn.differentiate(getOutput(), getTarget()));
+    }
+
+    private Value weighted(Value value) {
+        return importance == 1.0 ? value : value.times(new ScalarValue(importance));
     }
 
     public Value getOutput() {
@@ -76,7 +90,11 @@ public class Result implements Comparable<Result> {
         }
 
         public Result create(String sampleId, int index, Value target, Value output) {
-            Result result = new Result(errorFcn, sampleId, index, target, output);
+            return create(sampleId, index, target, output, 1.0);
+        }
+
+        public Result create(String sampleId, int index, Value target, Value output, double importance) {
+            Result result = new Result(errorFcn, sampleId, index, target, output, importance);
             return result;
         }
 
