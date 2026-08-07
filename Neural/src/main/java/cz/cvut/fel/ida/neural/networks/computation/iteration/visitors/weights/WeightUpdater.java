@@ -24,6 +24,11 @@ public class WeightUpdater implements WeightVisitor {
      */
     public List<Weight> updatedWeightsOnly;
 
+    /**
+     * Weights outside the model's index space are reported once, not once per sample per epoch.
+     */
+    private boolean foreignWeightReported;
+
     public WeightUpdater(List<Weight> learnableWeights, int maxWeightIndex) {
 
         check4mistakes(learnableWeights, maxWeightIndex);
@@ -60,6 +65,18 @@ public class WeightUpdater implements WeightVisitor {
     public void visit(Weight weight, Value value) {
         if (weight.isLearnable()) {   //faster access version
             int index = weight.index;
+
+            if (index < 0 || index >= weightUpdates.length) {
+                //A learnable value on an example fact gets its index from the samples' own weight factory, so it is
+                //not in the model that this updater was sized from and there is nothing here to update. Dropping the
+                //gradient keeps the behaviour these weights always had; the point of saying so is that they look
+                //trainable and are not.
+                if (!foreignWeightReported) {
+                    foreignWeightReported = true;
+                    LOG.severe("Learnable weight outside the model's index space, its gradient is dropped: " + weight);
+                }
+                return;
+            }
 
             Value weightUpdate = weightUpdates[index];
             if (weightUpdate != null) {

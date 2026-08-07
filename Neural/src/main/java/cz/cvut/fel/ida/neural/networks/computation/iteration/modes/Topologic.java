@@ -42,7 +42,7 @@ public class Topologic {
             while (Topologic.this.network.allNeuronsTopologic.get(idx) != outputNeuron) {
                 idx--;
             }
-            while (idx > 0) {
+            while (idx >= 0) {  //index 0 has to be visited, too - it has no inputs to propagate into, but it still carries its own offset, which for a FactNeuron is its learnable value
                 BaseNeuron<Neurons, State.Neural> actualNeuron = Topologic.this.network.allNeuronsTopologic.get(idx);
                 int index = actualNeuron.index; //todo test performance of removing this indexation here
                 actualNeuron.index = idx;

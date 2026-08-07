@@ -24,6 +24,7 @@ Status words are used strictly: **measured** means it was reproduced and the num
 | `state_dict()` tested `weight.isLearnable` without calling it, so fixed weights were reported as learnable and the internal fixed `ONE` leaked at index `-1` | PyNeuraLogic `neural_module.py` | `fae064b` on `gustiks-bugfixes-ai` |
 | Torch bridge `zero_grad`, rectangular tensor sync, and rule-form importance construction | PyNeuraLogic | upstream PR #68 |
 | Output function inference replaced a transformation the template had stated, so a queried head could not say it is already the final quantity and an output that is a mean of probabilities could not be written. Templates that state nothing are unaffected | `NeuralProcessingSample`, `NeuronFactory` | `7719c9dc` |
+| Top-down iteration stopped at `idx > 0`, so the first neuron in the topologic order was never visited and its own offset got no update - for a `FactNeuron` that offset is its learnable value. **Measured**: a learnable fact was silently frozen when it sorted first, and trained normally when one more fact was declared ahead of it | `Topologic.TDownVisitor` | this commit |
 
 The first five landed on `release`; the rest are on `bugfixes-ai`.
 
@@ -55,6 +56,18 @@ computing its metrics - `loadBinaryMetrics` applies a sigmoid and `loadMulticlas
 `squishLastLayer` is set. `recalculate()` computes the error first, so the stored value is right, but any later
 call answers differently. **Measured**: outputs `0, 1, 0.7` became `0.5, 0.73, 0.67`. Fixing it means deciding
 whether the metrics should work on copies, which changes what reporting does.
+
+**A learnable value on an example fact is not part of the model and cannot be trained.** The model is built
+from the template, and `NeuralModel.maxWeightIndex` is fixed then; example facts are parsed afterwards and
+their weights get indices from the samples' own factory. `NeuronFactory.createFactNeuron` still marks such a
+neuron `hasLearnableValue`, so it looks trainable and is not. **Measured** on `debug/leaves`, whose template
+has no weights at all: the model holds one weight, the fixed logical `one` at index `-1`, while the example
+fact `1.0 node_feature(a2)` carries a learnable weight at index 2. Reaching it threw
+`ArrayIndexOutOfBoundsException: Index 2 out of bounds for length 1` in `WeightUpdater.visit`, which now drops
+the gradient and says so once instead. Note the sizing is loose in its own right - `maxWeightIndex` is derived
+from `allWeights.size()-1`, a count standing in for a maximum index, which only works while the indices are
+dense from zero. This never surfaced before because top-down iteration skipped the neuron that held it (see
+Fixed). Deciding it means deciding whether a leading value on an example fact is data or a parameter.
 
 **Importing `Sources` from JSON fails on JDK 16+.** Gson reads the private fields of `java.io.File`. The
 surefire flag fixes the build only; at runtime this still needs the same `--add-opens` or a Gson type adapter
