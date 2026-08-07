@@ -832,7 +832,7 @@ public class VectorValue extends Value {
     @Override
     protected void incrementBy(MatrixValue value) {
         String err = "Incompatible dimensions of algebraic operation - matrix increment by vector";
-        LOG.severe(err);
+        LOG.fine(err);
         throw new ArithmeticException(err);
 
     }
@@ -848,9 +848,16 @@ public class VectorValue extends Value {
     }
 
     @Override
+    /**
+     * The "incompatible dimensions of algebraic operation" throws below are not failures but a signal: the
+     * receiver is the smaller shape and cannot hold the result in place. Callers such as ElementProduct, Sum
+     * and Average catch it and redo the step out of place, so it happens routinely and must not be logged as
+     * severe - a single small recurrent model produced sixteen such lines per epoch. Genuine dimension
+     * mismatches, which say "mismatch" rather than "of algebraic operation", still are severe.
+     */
     protected void elementMultiplyBy(ScalarValue value) {
         String err = "Incompatible dimensions of algebraic operation - scalar elementMultiplyBy by vector";
-        LOG.severe(err);
+        LOG.fine(err);
         throw new ArithmeticException(err);
     }
 
@@ -870,7 +877,7 @@ public class VectorValue extends Value {
     @Override
     protected void elementMultiplyBy(MatrixValue value) {
         String err = "Incompatible dimensions of algebraic operation - matrix multiplyBy by vector";
-        LOG.severe(err);
+        LOG.fine(err);
         throw new ArithmeticException(err);
     }
 
