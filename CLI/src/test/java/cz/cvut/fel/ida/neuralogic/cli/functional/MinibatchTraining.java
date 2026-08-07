@@ -1,0 +1,121 @@
+package cz.cvut.fel.ida.neuralogic.cli.functional;
+
+import cz.cvut.fel.ida.algebra.values.ScalarValue;
+import cz.cvut.fel.ida.algebra.values.Value;
+import cz.cvut.fel.ida.algebra.weights.Weight;
+import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
+import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
+import cz.cvut.fel.ida.neural.networks.computation.training.optimizers.Optimizer;
+import cz.cvut.fel.ida.neural.networks.computation.training.strategies.trainers.MiniBatchTrainer;
+import cz.cvut.fel.ida.neural.networks.computation.training.strategies.trainers.SequentialTrainer;
+import cz.cvut.fel.ida.neuralogic.cli.utils.Runner;
+import cz.cvut.fel.ida.pipelines.building.End2endTrainigBuilder;
+import cz.cvut.fel.ida.setup.Settings;
+import cz.cvut.fel.ida.setup.Sources;
+import cz.cvut.fel.ida.utils.generic.Pair;
+import cz.cvut.fel.ida.utils.generic.TestAnnotations;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static cz.cvut.fel.ida.utils.generic.Utilities.getDatasetArgs;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+/**
+ * The two properties a minibatch has to keep: under plain SGD its update is the sum of what its samples would
+ * have done on their own, and evaluating it does not train anything.
+ */
+public class MinibatchTraining {
+    private static final Logger LOG = Logger.getLogger(MinibatchTraining.class.getName());
+
+    private static final Value LEARNING_RATE = new ScalarValue(0.05);
+
+    @TestAnnotations.Fast
+    public void batchUpdateIsTheSumOfTheSampleUpdates() throws Exception {
+        Settings settings = sgdSettings();
+        Pair<NeuralModel, List<NeuralSample>> built = build(settings);
+        NeuralModel model = built.r;
+        List<NeuralSample> batch = built.s;
+
+        double[] initial = weights(model);
+        double[] summed = new double[initial.length];
+
+        for (NeuralSample sample : batch) {
+            setWeights(model, initial);
+            new SequentialTrainer(settings, Optimizer.getFrom(settings, LEARNING_RATE), model)
+                    .new SequentialListTrainer().learnEpoch(model, Collections.singletonList(sample));
+            double[] alone = weights(model);
+            for (int i = 0; i < summed.length; i++) {
+                summed[i] += alone[i] - initial[i];
+            }
+        }
+
+        setWeights(model, initial);
+        new MiniBatchTrainer(settings, Optimizer.getFrom(settings, LEARNING_RATE), model, batch.size())
+                .new MinibatchListTrainer().learnEpoch(model, batch);
+        double[] batched = weights(model);
+
+        for (int i = 0; i < initial.length; i++) {
+            assertEquals(summed[i], batched[i] - initial[i], 1e-12, "weight " + i);
+        }
+    }
+
+    @TestAnnotations.Fast
+    public void evaluatingABatchDoesNotChangeWeights() throws Exception {
+        Settings settings = sgdSettings();
+        Pair<NeuralModel, List<NeuralSample>> built = build(settings);
+        NeuralModel model = built.r;
+
+        double[] before = weights(model);
+        new MiniBatchTrainer(settings, Optimizer.getFrom(settings, LEARNING_RATE), model, built.s.size())
+                .new MinibatchListTrainer().evaluate(built.s);
+
+        assertArrayEquals(before, weights(model));
+    }
+
+    private static Settings sgdSettings() {
+        Settings settings = Settings.forFastTest();
+        settings.setOptimizer(Settings.OptimizerSet.SGD);
+        return settings;
+    }
+
+    private static Pair<NeuralModel, List<NeuralSample>> build(Settings settings) throws Exception {
+        Sources sources = Runner.getSources(getDatasetArgs("simple/family"), settings);
+        Pair<String, Pair<NeuralModel, Stream<NeuralSample>>> result =
+                new End2endTrainigBuilder(settings, sources).new End2endNNBuilder().buildPipeline().execute(sources);
+
+        List<NeuralSample> samples = result.s.s.collect(Collectors.toList());
+        assertTrue(samples.size() > 1, "the dataset must give more than one sample for a batch to mean anything");
+        return new Pair<>(result.s.r, samples);
+    }
+
+    private static double[] weights(NeuralModel model) {
+        List<Double> values = new ArrayList<>();
+        for (Weight weight : model.learnableWeights) {
+            for (Double value : weight.value) {
+                values.add(value);
+            }
+        }
+        double[] flat = new double[values.size()];
+        for (int i = 0; i < flat.length; i++) {
+            flat[i] = values.get(i);
+        }
+        return flat;
+    }
+
+    private static void setWeights(NeuralModel model, double[] values) {
+        int next = 0;
+        for (Weight weight : model.learnableWeights) {
+            int i = 0;
+            for (Double ignored : weight.value) {
+                weight.value.set(i++, values[next++]);
+            }
+        }
+    }
+}
