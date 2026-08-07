@@ -2,6 +2,7 @@ package cz.cvut.fel.ida.learning.results;
 
 import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
+import cz.cvut.fel.ida.algebra.functions.aggregation.Average;
 import cz.cvut.fel.ida.algebra.utils.MathUtils;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
@@ -57,12 +58,26 @@ public class ClassificationResults extends RegressionResults {
         return true;   //todo rest of measures
     }
 
+    /**
+     * The individual errors already carry their query's importance, so a plain average over them would divide
+     * by the number of samples where it should divide by their total weight - scaling every importance by the
+     * same factor would then scale the reported mean, which a mean must not do. Summing needs no such
+     * correction, the weighted sum is what it should be.
+     */
     public Value calculateErrorValue() {
         List<Value> errors = new ArrayList<>(evaluations.size());
+        double totalImportance = 0;
+
         for (Result evaluation : evaluations) {
             errors.add(evaluation.errorValue());
+            totalImportance += evaluation.getImportance();
         }
-        return aggregationFcn.evaluate(errors);
+        Value aggregated = aggregationFcn.evaluate(errors);
+
+        if (aggregationFcn instanceof Average && totalImportance > 0 && totalImportance != evaluations.size()) {
+            aggregated = aggregated.times(new ScalarValue(evaluations.size() / totalImportance));
+        }
+        return aggregated;
     }
 
     public static MeanStdResults aggregateClassifications(List<ClassificationResults> resultsList) {

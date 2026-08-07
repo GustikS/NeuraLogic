@@ -57,6 +57,10 @@ public class Result implements Comparable<Result> {
         return importance == 1.0 ? value : value.times(new ScalarValue(importance));
     }
 
+    public double getImportance() {
+        return importance;
+    }
+
     public Value getOutput() {
         return output;
     }
