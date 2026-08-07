@@ -88,7 +88,7 @@ public class MiniBatchTrainer extends Trainer {
             MiniBatchIterator miniBatchIterator = new MiniBatchIterator(trainingSet);
             while (miniBatchIterator.hasNext()) {
                 List<NeuralSample> minibatch = miniBatchIterator.next();
-                List<Result> results = minibatchParallelEvaluate(minibatch);
+                List<Result> results = minibatchEvaluate(minibatch);
                 resultList.addAll(results);
             }
             return resultList;
@@ -195,18 +195,24 @@ public class MiniBatchTrainer extends Trainer {
         return results;
     }
 
-    private List<Result> minibatchParallelEvaluate(List<NeuralSample> minibatch) {
+    /**
+     * Evaluate a batch of samples without touching the weights. This used to call
+     * {@link Trainer#learnFromSample}, which backpropagates and performs a gradient step, so evaluating or
+     * validating with a minibatch size above 1 silently trained the model.
+     */
+    private List<Result> minibatchEvaluate(List<NeuralSample> minibatch) {
         final int size = minibatch.size();
 
         if (size > minibatchSize) {
             LOG.severe("Minibatch size mismatch");
         }
 
-        return IntStream.range(0, size).parallel().mapToObj(i -> {
+        return IntStream.range(0, size).mapToObj(i -> {
             SequentialTrainer trainer = trainers.get(i);
             NeuralSample sample = minibatch.get(i);
 
-            return trainer.learnFromSample(neuralModel, sample, trainer.dropout, trainer.invalidation, trainer.evaluation, trainer.backpropagation);
+            trainer.invalidateSample(trainer.invalidation, sample);
+            return trainer.evaluateSample(trainer.evaluation, sample);
         }).collect(Collectors.toList());
     }
 
