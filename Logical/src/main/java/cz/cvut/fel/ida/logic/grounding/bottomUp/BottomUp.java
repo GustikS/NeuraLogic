@@ -19,6 +19,7 @@ import cz.cvut.fel.ida.logic.subsumption.SpecialBinaryPredicates;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.generic.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -73,8 +74,10 @@ public class BottomUp extends Grounder {
         example.clause = herbrandModel.updateClause();  // storing the efficient ClauseE structure of the original example for potential reuse
         example.clauseE = herbrandModel.getClauseE();
 
-        if (template.atomMapCache == null) {
+        if (template.atomMapCache == null) {     //also the case for a template loaded from a stored model, where the caches are not kept
             template.atomMapCache = templateFacts(template);
+            template.factNeuronCache = new Object2ObjectOpenHashMap<>(0);
+            template.createdFactNeuronCache = new ObjectArrayList<>(0);
         }
 
         Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> rulesAndFacts = rulesAndFacts(example, template);

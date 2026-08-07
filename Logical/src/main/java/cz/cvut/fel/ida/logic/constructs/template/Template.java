@@ -42,9 +42,13 @@ public class Template implements Model<QueryAtom>, Exportable {
     @Nullable
     public LinkedHashSet<Conjunction> constraints;  //todo how to handle these?
 
-    public Map<Literal, ValuedFact> atomMapCache;
-    public List<FactNeuron> createdFactNeuronCache = new ObjectArrayList<>(0);
-    public Map<Literal, FactNeuron> factNeuronCache = new Object2ObjectOpenHashMap<>(0);
+    /**
+     * Grounding and neuralization caches, all rebuilt on demand and therefore not part of a stored model
+     * (the neuron ones are not even serializable)
+     */
+    public transient Map<Literal, ValuedFact> atomMapCache;
+    public transient List<FactNeuron> createdFactNeuronCache = new ObjectArrayList<>(0);
+    public transient Map<Literal, FactNeuron> factNeuronCache = new Object2ObjectOpenHashMap<>(0);
     /**
      * Good to know for stratification checking
      */
@@ -55,9 +59,9 @@ public class Template implements Model<QueryAtom>, Exportable {
      */
     public transient HerbrandModel herbrandModel;
 
-    public SubsumptionEngineJ2.ClauseE clauseE;
+    public transient SubsumptionEngineJ2.ClauseE clauseE;
 
-    public Clause clause;
+    public transient Clause clause;
 
     /**
      * Atoms inferred on top of the given {@link #facts} using the {@link #herbrandModel}
