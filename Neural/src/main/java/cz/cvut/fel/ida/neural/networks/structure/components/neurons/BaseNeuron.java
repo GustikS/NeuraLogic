@@ -57,6 +57,14 @@ public abstract class BaseNeuron<T extends Neurons, S extends State.Neural> impl
      */
     public boolean sharedAfterCreation;
     /**
+     * The transformation of this neuron came from the template rather than from a default. Output function
+     * inference rewrites the queried neuron's transformation to suit the error function, so that a template
+     * need not care whether the outputs are meant to be logits or probabilities - but it has to leave alone
+     * whatever the template did state, otherwise there is no way to say "this head is already the final
+     * quantity".
+     */
+    public boolean transformationFromTemplate;
+    /**
      * We want fast iteration over inputs - todo test - consider array here with grounder storing the inputMappings in a list first
      * FactNeurons have no inputs - represented by an empty list rather than null, so that we do not need to check for null everywhere (that should not add too much extra memory)
      *  - note that FactNeurons are not iterated if their Value is not learnable...

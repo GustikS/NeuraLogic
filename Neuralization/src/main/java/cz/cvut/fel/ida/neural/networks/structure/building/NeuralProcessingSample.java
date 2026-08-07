@@ -11,7 +11,9 @@ import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.VectorValue;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.BaseNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.QueryNeuron;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.AtomNeurons;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State;
 import cz.cvut.fel.ida.neural.networks.structure.components.types.DetailedNetwork;
 import cz.cvut.fel.ida.setup.Settings;
@@ -35,7 +37,11 @@ public class NeuralProcessingSample extends NeuralSample {
             }
         }
 
-        if (settings.inferOutputFcns && q.neuron != null) {
+        // Inferring the output function exists so that a template need not care whether the error function
+        // wants logits or probabilities. A template that does state what its queried head computes is left
+        // alone - otherwise there is no way to say "this head is already the final quantity", and an output
+        // that is, say, a mean of probabilities cannot be expressed at all.
+        if (settings.inferOutputFcns && q.neuron != null && !statedByTheTemplate(q.neuron)) {
             State.Neural.Computation computationState = q.neuron.getRawState().getComputationView(-1);
             ActivationFcn.State newFcnState = computationState.getFcnState();
             if (settings.trainOnlineResultsType == Settings.ResultsType.REGRESSION && !(q.neuron.getTransformation() == null ||
@@ -59,5 +65,14 @@ public class NeuralProcessingSample extends NeuralSample {
                 ClassCastException e) {
             LOG.severe("Inappropriate use of NeuralProcessingSample. Use Grounder to create a DetailedNetwork based sample.");
         }
+    }
+
+    /**
+     * Whether the queried neuron's transformation came from the template rather than from a default -
+     * {@link cz.cvut.fel.ida.neural.networks.structure.building.NeuronFactory} records that as it creates the
+     * atom neurons, since only there is it still known which of the two it was.
+     */
+    private static boolean statedByTheTemplate(AtomNeurons<?> queried) {
+        return queried instanceof BaseNeuron && ((BaseNeuron<?, ?>) queried).transformationFromTemplate;
     }
 }

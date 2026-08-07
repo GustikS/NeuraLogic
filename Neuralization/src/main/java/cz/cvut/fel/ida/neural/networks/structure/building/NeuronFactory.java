@@ -72,6 +72,7 @@ public class NeuronFactory {
             }
         }
         WeightedAtomNeuron<State.Neural.Computation> atomNeuron = new WeightedAtomNeuron<>(groundHead.toString(), offset, counter++, state);
+        atomNeuron.transformationFromTemplate = head.getTransformation() != null;
         neuronMaps.atomNeurons.put(groundHead, atomNeuron);
         LOG.finest(() -> "Created atom neuron: " + atomNeuron);
         return atomNeuron;
@@ -83,6 +84,7 @@ public class NeuronFactory {
 
         State.Neural.Computation state = State.createBaseState(settings, combination, transformation);
         AtomNeuron<State.Neural.Computation> atomNeuron = new AtomNeuron<>(groundHead.toString(), counter++, state);
+        atomNeuron.transformationFromTemplate = head.getTransformation() != null;
         neuronMaps.atomNeurons.put(groundHead, atomNeuron);
         LOG.finest(() -> "Created atom neuron: " + atomNeuron);
         return atomNeuron;
