@@ -45,8 +45,9 @@ networks and sized to the training batch size rather than to `minibatchSize` as 
 
 **`MiniBatchTrainer.evaluateAndBackprop` has no null-query-neuron guard.** `SequentialListTrainer.learnEpoch`
 skips samples whose `query.neuron` is null, and `Neuralizer` does create such samples for examples without a
-query head. The minibatch path has no such check. **Reasoned**, not run - it looks like an NPE at batch > 1
-and is cheap to check.
+query head. The minibatch path has no such check. **Measured**: given such a sample, the sequential trainer
+skips it and the minibatch one throws `NullPointerException: Cannot invoke AtomNeurons.getComputationView(int)
+because outputNeuron is null`.
 
 **`calculateErrorValue()` is not idempotent.** `ClassificationResults` rewrites the outputs in place while
 computing its metrics - `loadBinaryMetrics` applies a sigmoid and `loadMulticlassMetrics` a softmax when
@@ -87,10 +88,12 @@ on that basis (`ClauseE.copy` passes `allTerms` and `predicates` straight throug
 **`NeuralNetwork.hasSharedNeurons` is written and never read**, and is only set inside the `parallelTraining`
 branch that is now off.
 
-## Open - from the reproducer suite, seen through the Python bindings
+## Open - from the reproducer suite
 
-These were characterised against released `0.9.0` in a separate project and are **not independently
-re-verified here**. Each needs an owner's decision on the intended semantics before it can be called a bug.
+Characterised in a separate project through the Python bindings, and **re-run against this branch**: the ones
+below still reproduce, while `query_importance_rule`, both torch bridge cases, `state_dict_learnable_filter`,
+`internal_one_state` and `lossy_compression_diagnostic` no longer do. Each of the survivors needs an owner's
+decision on the intended semantics before it can be called a bug.
 
 **A queried head cannot say it is already the final quantity.** A rule with `[Aggregation.AVG,
 Transformation.IDENTITY]` over a weightless head computes the exact mean of its groundings, but under
@@ -108,9 +111,9 @@ complains about incompatible dimensions. Diagnostic noise on a supported operati
 **Pruning and compression emit an explicit lossy-compression warning** on inputs where the compression was
 measured to be exact. Unclassified.
 
-**Validation through `Trainer.fit` changed Adam state despite restoring weights.** This was very likely the
-same root cause as batched evaluation training the model, fixed in `95eb007e`, but that link is a
-**hypothesis** - it was never re-run against the fixed build.
+**Validation through `Trainer.fit` changes Adam state despite restoring weights.** It was tempting to call
+this the same root cause as batched evaluation training the model, fixed in `95eb007e`. It is not: re-run
+against this branch, it still reproduces. Cause unknown.
 
 **Query importance still does not reach the Torch bridge.** `Backpropagate(NeuralSample, Value)` takes a
 gradient the caller computed, so `NeuralModule._backprop` bypasses the weighting deliberately. Whether the
@@ -128,6 +131,14 @@ bridge should apply it is a decision, not an oversight.
   worst bucket 3 against 1, and nothing at arity 4 and below. Not worth changing a hash in the grounding core.
 - **`Weight.isLearnable` as a primitive with a `learnableSet` flag** was checked and is sound; the only direct
   write to the field is its own constructor.
+
+## A trap worth knowing about
+
+The reproducer cases call `neuralogic.initialize()` without a jar path, so they load the jar bundled inside
+whichever `neuralogic` package is first on `PYTHONPATH`. Pointing `PYTHONPATH` at a frontend checkout
+therefore silently swaps the backend too - a checkout ships the released jar. That produced a convincing but
+entirely false "the newer frontend breaks batch accumulation" reading here, until the same comparison was run
+with the jar passed explicitly and both frontends came out exact. Pass the jar explicitly when comparing.
 
 ## A note on coverage
 
