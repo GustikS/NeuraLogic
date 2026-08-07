@@ -341,7 +341,17 @@ public class Settings implements Serializable {
     public boolean possibleNeuronSharing = false;
 
     /**
-     * If there's no need for keeping the given sequence, ground in parallel in the given context
+     * If there's no need for keeping the given sequence, ground in parallel in the given context.
+     * <p>
+     * NOT SUPPORTED at the moment - {@link #infer()} forces this back off. Grounding keeps its working state on
+     * the shared Template: one HerbrandModel that every example adds its rules and facts to and then clears
+     * again, plus the lazily built clause, clauseE, atomMapCache and fact neuron caches. Stratified negation
+     * additionally goes through one static Literal used as a mutable lookup key. Running examples concurrently
+     * corrupts all of that - three runs over mutagenesis gave three different outcomes, one of them the
+     * thoroughly misleading "Query [predict] not matched anywhere in the template".
+     * <p>
+     * To bring it back, the grounder needs that state per thread or per sample rather than per template, and
+     * HerbrandModel.TupleNotIn needs its key to stop being static.
      */
     public boolean parallelGrounding = false;
 
@@ -572,7 +582,15 @@ public class Settings implements Serializable {
     public boolean asyncParallelTraining;
 
     /**
-     * Any parallel training, i.e. implying the need for parallel access to neurons' states
+     * Any parallel training, i.e. implying the need for parallel access to neurons' states.
+     * <p>
+     * NOT SUPPORTED at the moment - {@link #infer()} forces this back off. The per-index computation states it
+     * promises (StatesBuilder.makeParallel) never actually reach the trained networks - measured zero of them
+     * even with this switched on - so every trainer index resolved to the same shared state and the samples of a
+     * batch raced on each other's values and gradients. MiniBatchTrainer therefore runs its samples sequentially.
+     * <p>
+     * To bring it back, the composite states have to be built for the networks that are really trained, and
+     * sized to the training batch size rather than to minibatchSize as of neuralization time.
      */
     public boolean parallelTraining;
 
@@ -1428,6 +1446,17 @@ public class Settings implements Serializable {
             neuralState = NeuralState.PARENTS;
         } else if (dropoutRate > 0 && parentCounting) {
             neuralState = NeuralState.PAR_DROPOUT;
+        }
+
+        //both parallel modes share mutable state that was never made safe for it - see the two fields for what
+        //exactly, and what would have to change to allow them again
+        if (parallelGrounding) {
+            LOG.warning("parallelGrounding is not supported and would corrupt the grounding - turning it off.");
+            parallelGrounding = false;
+        }
+        if (parallelTraining) {
+            LOG.warning("parallelTraining is not supported and would corrupt the gradients - turning it off. Minibatches are still accumulated, just sequentially.");
+            parallelTraining = false;
         }
 
         if (groundingMode == GroundingMode.SEQUENTIAL) {
