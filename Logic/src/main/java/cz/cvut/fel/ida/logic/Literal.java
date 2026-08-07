@@ -168,7 +168,12 @@ public class Literal implements Serializable {
         }
     }
 
+    /**
+     * Unlike {@link #set(Term, int)} this replaces the whole term array at once, so it must invalidate the cached
+     * hashCode just the same - it is computed from the terms.
+     */
     public void setTerms(Term[] terms) {
+        hashCode = -1;
         this.terms = terms;
     }
 
