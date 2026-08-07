@@ -35,6 +35,11 @@ public class MultiMap<R,S> {
     private static final int DEFAULT_CAPACITY = 16;
     private static final float LOAD_FACTOR = 0.75f;
 
+    /**
+     * Handed out by {@link #get} and {@link #getAll} for keys that are not present, to avoid allocating. It is a
+     * plain mutable set, so a caller that adds to the result of a missing-key get would poison it - every later
+     * miss on this map would then answer with those elements. Use {@link #put} to add, never the returned set.
+     */
     private final Set<?> emptySet = new ObjectOpenHashSet<>();
 
     private final Map<R, ObjectOpenHashSet<S>> map;

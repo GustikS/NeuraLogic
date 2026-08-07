@@ -409,6 +409,19 @@ public class HerbrandModel {
      */
     private static class TupleNotIn implements CustomPredicate {
 
+        /**
+         * One key reused for every lookup, by every instance, for the whole life of the JVM. Two things keep
+         * that from being a bug, and both are easy to break:
+         * <ul>
+         * <li>{@link Literal#setTerms} has to invalidate the cached hashCode. It did not once, and the lookups
+         *     then probed a bucket picked by whatever this key held on its very first use - the negation stopped
+         *     pruning and the Herbrand model silently grew atoms that do not follow.</li>
+         * <li>the key must stay strictly transient - never stored, never handed out. Note that the array it gets
+         *     in {@link #isSatisfiable} is itself one of the reusable scratch arrays of SubsumptionEngineJ2.</li>
+         * </ul>
+         * Being static also makes this predicate non-reentrant and unusable from more than one thread, which is
+         * part of why grounding cannot be parallelised.
+         */
         private static final Literal lit = new Literal();
 
         private final Set<Literal> literals; //mildly optimize this by storing set of Term[] instead? Probably not

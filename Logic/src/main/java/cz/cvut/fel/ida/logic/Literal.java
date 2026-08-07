@@ -43,6 +43,12 @@ public class Literal implements Serializable {
 
     private int id;
 
+    /**
+     * Cached, with -1 standing for "not computed yet". Every mutation of what {@link #hashCode()} reads - the
+     * predicate name, the terms, the negation - has to reset this, or lookups keyed on this literal go to the
+     * wrong bucket and {@link #equals} short-circuits to false on the hashCode mismatch. A literal whose real
+     * hash happens to be -1 is simply recomputed each time, which costs nothing but time.
+     */
     private int hashCode = -1;
 
     private boolean changePermitted = true;

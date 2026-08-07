@@ -37,6 +37,12 @@ import java.util.*;
  * @author ondra
  */
 public class SubsumptionEngineJ2 {
+    /**
+     * Scratch argument arrays reused instead of allocating one per custom predicate check. They are filled in
+     * place and handed straight to {@link CustomPredicate#isSatisfiable}, so an implementation must treat them
+     * as valid for the duration of that one call only - keeping a reference means keeping a view of whatever
+     * the next check writes there. Being static, they also make the engine non-reentrant and single-threaded.
+     */
     private static final Term[] cacheTerm0 = new Term[0];
     private static final Term[] cacheTerm1 = new Term[1];
     private static final Term[] cacheTerm2 = new Term[2];

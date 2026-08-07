@@ -297,6 +297,12 @@ public class IntegerSet {
 
     /**
      * Computes union of the given sets with optimized memory usage.
+     * <p>
+     * Returns one of its arguments when the other is empty, rather than a fresh set. That is only sound because
+     * IntegerSet exposes no mutators - callers all over the grounder rely on being able to share instances
+     * freely (SubsumptionEngineJ2.ClauseE.copy hands its allTerms and predicates straight to the copy). Adding
+     * any in-place mutation to this class would turn that sharing into aliasing bugs.
+     *
      * @param a the first set
      * @param b the second set
      * @return the union of the given sets
