@@ -1,10 +1,12 @@
 package cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.weights;
 
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
+import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.neural.networks.computation.training.optimizers.Adam;
 import cz.cvut.fel.ida.utils.generic.TestAnnotations;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
@@ -33,6 +35,34 @@ public class LateWeightTest {
         assertTrue(updater.updatedWeightsOnly.contains(lateWeight), "the late weight has to be reported as updated");
         assertNotNull(updater.weightUpdates[lateWeight.index], "its gradient has to survive");
         assertEquals(0.5, updater.weightUpdates[lateWeight.index].getAsArray()[0], 1e-12);
+    }
+
+    @TestAnnotations.Fast
+    public void growingIsAmortisedAndClearingLeavesNothingBehind() {
+        Weight modelWeight = new Weight(0, "w0", new ScalarValue(1.0), false, true);
+        WeightUpdater updater = new WeightUpdater(Collections.singletonList(modelWeight), 0);
+
+        int weightCount = 4096;     //one embedding per constant is the point of learnable facts, so this is a realistic count
+        List<Weight> late = new ArrayList<>(weightCount);
+        for (int i = 1; i <= weightCount; i++) {
+            late.add(new Weight(i, "factValue" + i, new ScalarValue(1.0), false, true));
+        }
+
+        for (Weight weight : late) {
+            updater.visit(weight, new ScalarValue(0.5));
+        }
+        assertEquals(weightCount, updater.updatedWeightsOnly.size(), "every weight has to be recorded");
+        //Copies cannot be counted from outside, but overshooting the last index is what tells the two strategies
+        //apart: growing to fit exactly would end at weightCount + 1 and cost one copy per weight.
+        assertTrue(updater.weightUpdates.length > weightCount + 1,
+                "the buffer has to grow geometrically, got capacity " + updater.weightUpdates.length
+                        + " for " + weightCount + " weights");
+
+        updater.clearUpdates();
+        assertTrue(updater.updatedWeightsOnly.isEmpty());
+        for (Value update : updater.weightUpdates) {
+            assertEquals(null, update, "clearing has to leave the whole buffer empty, whatever its capacity");
+        }
     }
 
     @TestAnnotations.Fast

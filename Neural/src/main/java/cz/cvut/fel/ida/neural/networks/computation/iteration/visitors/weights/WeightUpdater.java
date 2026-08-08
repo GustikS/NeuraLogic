@@ -76,8 +76,10 @@ public class WeightUpdater implements WeightVisitor {
             if (index >= weightUpdates.length) {
                 //A learnable value on an example fact is created after the model was built, from a weight factory
                 //that continues the same index counter - so its index is past the model and there is no slot for it
-                //here yet. Growing is rare (once per such weight) and keeps those values trainable.
-                weightUpdates = Arrays.copyOf(weightUpdates, index + 1);
+                //here yet. There is one such weight per constant that wants an embedding, so there can be far more
+                //of them than the model has; growing to fit each one in turn would copy the whole array once per
+                //weight. Doubling makes the whole run cost a handful of copies instead.
+                weightUpdates = Arrays.copyOf(weightUpdates, Math.max(index + 1, weightUpdates.length * 2));
             }
 
             Value weightUpdate = weightUpdates[index];
@@ -91,7 +93,12 @@ public class WeightUpdater implements WeightVisitor {
     }
 
     public void clearUpdates() {
-        Arrays.fill(weightUpdates, null);
+        //A slot becomes non-null exactly when its weight is added to updatedWeightsOnly, so these are the only
+        //ones to clear. That matters once the array is sized for per-example embeddings rather than for the
+        //model alone - it is cleared after every sample, while a single sample touches a handful of weights.
+        for (int i = 0, size = updatedWeightsOnly.size(); i < size; i++) {
+            weightUpdates[updatedWeightsOnly.get(i).index] = null;
+        }
         updatedWeightsOnly.clear();
     }
 }
