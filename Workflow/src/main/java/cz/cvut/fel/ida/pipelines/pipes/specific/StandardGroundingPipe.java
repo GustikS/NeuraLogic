@@ -1,5 +1,6 @@
 package cz.cvut.fel.ida.pipelines.pipes.specific;
 
+import cz.cvut.fel.ida.logic.grounding.GroundTemplate;
 import cz.cvut.fel.ida.logic.grounding.Grounder;
 import cz.cvut.fel.ida.logic.grounding.GroundingSample;
 import cz.cvut.fel.ida.pipelines.Pipe;
@@ -12,15 +13,17 @@ public class StandardGroundingPipe extends Pipe<Stream<GroundingSample>, Stream<
 
     Grounder grounder;
 
+    private final SampleProgressLog progress;
+
     public StandardGroundingPipe(Grounder grounder) {
         super("StandardGroundingPipe");
         this.grounder = grounder;
+        this.progress = new SampleProgressLog(LOG, grounder.settings, "Grounding", "head literals", "facts");
     }
 
     @Override
     public Stream<GroundingSample> apply(Stream<GroundingSample> groundingSampleStream) {
         return groundingSampleStream.map(gs -> {
-            LOG.fine(() -> "Grounding of sample " + gs);
             if (gs.groundingWrap.getGroundTemplate() == null || !gs.groundingComplete) {
                 gs.groundingWrap.setGroundTemplate(grounder.groundRulesAndFacts(gs.query.evidence, gs.template));
             }
@@ -29,7 +32,11 @@ public class StandardGroundingPipe extends Pipe<Stream<GroundingSample>, Stream<
 ////                gs.groundingWrap.setNeuronMaps(gs.cache.copy());    //todo next check in some sequentially or partially shared setting
 //                return gs;
 //            }
+            GroundTemplate ground = gs.groundingWrap.getGroundTemplate();
+            progress.sample(() -> gs.toString(),
+                    ground == null || ground.groundRules == null ? 0 : ground.groundRules.size(),
+                    ground == null || ground.groundFacts == null ? 0 : ground.groundFacts.size());
             return gs;
-        });
+        }).onClose(progress::summary);
     }
 }

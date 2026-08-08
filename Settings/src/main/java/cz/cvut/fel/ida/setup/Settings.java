@@ -91,6 +91,19 @@ public class Settings implements Serializable {
     public static boolean customLogColors = true;
 
     /**
+     * How many samples get narrated one by one while grounding and neuralizing, before the log switches to a
+     * running total. 0 goes straight to totals. Listing every sample of a large dataset is what made a single
+     * run produce a 17 MB log.
+     */
+    public int loggedSampleDetails = 10;
+
+    /**
+     * How often that running total is printed once the per-sample detail stops. 0 prints it only at the end -
+     * which is a real end in the CLI only, since the stream is never closed through PyNeuraLogic.
+     */
+    public int sampleLogInterval = 1000;
+
+    /**
      * Path to output log file
      */
     public static String logFile = "./out/Logging";

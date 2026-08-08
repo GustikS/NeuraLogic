@@ -140,9 +140,13 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
      * which is why it is worth saying loudly if it ever does.
      */
     private void reportVanishedIsoValues(DetailedNetwork<State.Structure> inet, Map<Neurons, Neurons> etalonMap, Set<Neurons> etalons) {
+        if (!settings.debugAll && !settings.debugNeuralization) {
+            return;     //off by default: this runs per sample on the grounding path, and telling the two
+        }               //cases apart costs a set of the surviving neurons plus two scans over them
+
         if (etalons.size() <= inet.allNeuronsTopologic.size()) {
-            return;     //the same int comparison the old check used, so nothing it caught is missed, and this
-        }               //costs the same as before whenever no class vanished - which is the usual case
+            return;     //the same int comparison the old check used, so nothing it caught is missed
+        }
 
         Set<Neurons> surviving = new HashSet<>(inet.allNeuronsTopologic);
 

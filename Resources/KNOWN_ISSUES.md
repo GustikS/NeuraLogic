@@ -27,6 +27,7 @@ Status words are used strictly: **measured** means it was reproduced and the num
 | Top-down iteration stopped at `idx > 0`, so the first neuron in the topologic order was never visited and its own offset got no update - for a `FactNeuron` that offset is its learnable value. **Measured**: a learnable fact was silently frozen when it sorted first, and trained normally when one more fact was declared ahead of it | `Topologic.TDownVisitor` | `d7f9e167` |
 | `ONE * vector` logged `SEVERE` although it is a correct differentiable identity - the exception those sites throw is a designed fallback signal the callers handle, not a failure. Seven log-and-throw sites dropped to `FINE` | `VectorValue`, `MatrixValue` | `68eb09fd` |
 | The minibatch path had no null-query-neuron guard, while the sequential one skips such samples and `Neuralizer` does create them for examples without a query head. **Measured**: `NullPointerException: Cannot invoke AtomNeurons.getComputationView(int) because outputNeuron is null`. Skipping also has to clear that trainer's updates, which `Backpropagation.backpropagate` would otherwise have done - without it the previous batch's updates get summed in again | `MiniBatchTrainer` | this commit |
+| Grounding and neuralization narrated every sample at `INFO`, so one pilot run produced a 17 MB log. The lines are worth having, so the first `loggedSampleDetails` (10) samples are still listed in full and the rest become a running total every `sampleLogInterval` (1000) - which doubles as the progress sign a 100k-sample grounding needs. **Measured** for one `build_dataset`: 3000 samples went from 3030 `INFO` lines to 30, 20000 samples to 64 | `SampleProgressLog`, `StandardGroundingPipe`, `SupervisedNeuralizationPipe`, `LinearChainReducer` | this commit |
 | Compression warned about "lossy compression" on ordinary, output-preserving pruning. The condition compared the iso-value count against the neuron count taken on the *other* side of `supervisedNetReconstruction`, so it fired whenever anything was unreachable from the query. **Measured** on the recurrent reproducer: 10 neurons before, 10 after the merge, 9 iso-values, 8 after the reconstruction - one merge, two unreachable neurons, nothing lost. Replaced by a `FINE` line saying how many iso-value classes the reconstruction dropped | `IsoValueNetworkCompressor` | this commit |
 | Grounding and neuralization logged several lines per sample at `INFO`, so one pilot run produced a 17 MB log. **Measured**: `8n + 2` INFO lines for n samples, now `3n + 2` | `StandardGroundingPipe`, `SupervisedNeuralizationPipe`, `IsoValueNetworkCompressor` | this commit |
 | `calculateErrorValue()` was not idempotent: the metrics squashed the outputs in place, so a second call answered differently - **measured**, outputs `0, 1, 0.7` became `0.5, 0.73, 0.67` - and a caller holding those results got something other than what the model produced. The squashing is necessary, the queried head stays a logit under `squishLastLayer`; it now happens on the metrics' own copy | `ClassificationResults` | this commit |
@@ -115,11 +116,11 @@ against this branch, it still reproduces. Cause unknown.
 gradient the caller computed, so `NeuralModule._backprop` bypasses the weighting deliberately. Whether the
 bridge should apply it is a decision, not an oversight.
 
-**Two log sources still scale with the dataset.** After the per-sample lowering above, a run still emits
-`3n + 2` `INFO` lines for n samples: two per sample from `Pipeline.execute` ("Executing pipeline : X") and one
-from `Grounder.globalGroundingSample` ("Global grounding for N samples"). Neither was touched, because both
-are framework-wide rather than specific to grounding a sample, so how loud they should be is a policy call
-rather than a defect.
+**The end-of-stream hook never fires through PyNeuraLogic.** `CompressionPipe` and `PruningPipe` export
+their stats from `stream.onClose(...)` - "We export after the stream finishes!". **Measured**: that fires 52
+times over the Java test suite and **zero** times through the Python bindings, which never close the stream.
+So those compression and pruning stats are simply not reported to PyNeuraLogic users. The per-sample progress
+log works around it by also printing periodically, but the hook itself is still one-sided.
 
 ## Open - diagnostics
 

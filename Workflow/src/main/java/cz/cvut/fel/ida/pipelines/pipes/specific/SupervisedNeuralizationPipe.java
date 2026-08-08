@@ -20,8 +20,11 @@ public class SupervisedNeuralizationPipe extends Pipe<Stream<GroundingSample>, S
     private static final Logger LOG = Logger.getLogger(SupervisedNeuralizationPipe.class.getName());
     private Neuralizer neuralizer;
 
+    private final SampleProgressLog progress;
+
     public SupervisedNeuralizationPipe(Settings settings, Neuralizer neuralizer) {
         super("SupervisedNeuralizationPipe", settings);
+        this.progress = new SampleProgressLog(LOG, settings, "Neuralization", "neurons");
         this.neuralizer = neuralizer;
     }
 
@@ -30,10 +33,9 @@ public class SupervisedNeuralizationPipe extends Pipe<Stream<GroundingSample>, S
         if (settings.groundingMode == Settings.GroundingMode.GLOBAL) {
             List<GroundingSample> groundingSamples = Utilities.terminateSampleStream(groundingSampleStream);
             GroundTemplate groundTemplate = groundingSamples.get(0).groundingWrap.getGroundTemplate();
-            LOG.fine(() -> "Neuralizing GLOBAL sample " + groundTemplate);
             List<NeuralProcessingSample> neuralizedSamples = neuralizer.neuralize(groundTemplate, groundingSamples);
             DetailedNetwork detailedNetwork = neuralizedSamples.get(0).detailedNetwork;
-            LOG.fine(() -> "GLOBAL NeuralNet created: " + detailedNetwork);
+            progress.sample(() -> "GLOBAL " + detailedNetwork, detailedNetwork.getNeuronCount());
             return neuralizedSamples.stream();
         } else if (!settings.oneQueryPerExample) {
             Stream<List<GroundingSample>> groupStream = StreamSupport.stream(Spliterators.spliteratorUnknownSize(consecutiveGroupsIterator(groundingSampleStream.iterator(), a -> a.groundingWrap.getGroundTemplate()), Spliterator.ORDERED), false);
@@ -43,19 +45,19 @@ public class SupervisedNeuralizationPipe extends Pipe<Stream<GroundingSample>, S
                 }
 
                 GroundTemplate groundTemplate = list.get(0).groundingWrap.getGroundTemplate();
-                LOG.fine(() -> "Neuralizing sample with multiple queries " + groundTemplate);
                 List<NeuralProcessingSample> neuralizedSamples = neuralizer.neuralize(groundTemplate, list);
-                LOG.fine(() -> "SHARED NeuralNet created: " + neuralizedSamples.get(0).detailedNetwork);
+                DetailedNetwork shared = neuralizedSamples.get(0).detailedNetwork;
+                progress.sample(() -> "shared over " + list.size() + " queries: " + shared, shared.getNeuronCount());
 
                 return neuralizedSamples.stream();
             });
 
-            return flatStream;
+            return flatStream.onClose(progress::summary);
         } else {
             return groundingSampleStream
-                    .peek(s -> LOG.fine(() -> "Neuralizing sample " + s))
                     .flatMap(sample -> neuralizer.neuralize(sample).stream())
-                    .peek(s -> LOG.fine(() -> "NeuralNet created: " + s));
+                    .peek(s -> progress.sample(s::toString, s.detailedNetwork.getNeuronCount()))
+                    .onClose(progress::summary);
         }
     }
 }
