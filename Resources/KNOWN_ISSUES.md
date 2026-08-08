@@ -25,6 +25,7 @@ Status words are used strictly: **measured** means it was reproduced and the num
 | Torch bridge `zero_grad`, rectangular tensor sync, and rule-form importance construction | PyNeuraLogic | upstream PR #68 |
 | Output function inference replaced a transformation the template had stated, so a queried head could not say it is already the final quantity and an output that is a mean of probabilities could not be written. Templates that state nothing are unaffected | `NeuralProcessingSample`, `NeuronFactory` | `7719c9dc` |
 | Top-down iteration stopped at `idx > 0`, so the first neuron in the topologic order was never visited and its own offset got no update - for a `FactNeuron` that offset is its learnable value. **Measured**: a learnable fact was silently frozen when it sorted first, and trained normally when one more fact was declared ahead of it | `Topologic.TDownVisitor` | `d7f9e167` |
+| `ONE * vector` logged `SEVERE` although it is a correct differentiable identity - the exception those sites throw is a designed fallback signal the callers handle, not a failure. Seven log-and-throw sites dropped to `FINE` | `VectorValue`, `MatrixValue` | `68eb09fd` |
 | A learnable value on an example fact never trained. Its weight comes from a factory continuing the same shared index counter, so its index is past the model the updater was sized from - the gradient either went nowhere or threw `ArrayIndexOutOfBoundsException`, and Adam had no moments for it either. The update buffers now grow to fit and Adam fills the moments in on the way. **Measured** through the Python bindings with `learnable_facts=True`: SGD and Adam at batch 1, 2 and 4 all move the value, where before none did | `WeightUpdater`, `MiniBatchTrainer`, `Adam` | this commit |
 
 The first five landed on `release`; the rest are on `bugfixes-ai`.
@@ -106,16 +107,17 @@ branch that is now off.
 
 Characterised in a separate project through the Python bindings, and **re-run against this branch**: the ones
 below still reproduce, while `query_importance_rule`, both torch bridge cases, `state_dict_learnable_filter`,
-`internal_one_state`, `hidden_identity_gradient` and `output_atom_transformation` no longer do. Each of the
-survivors needs an owner's decision on the intended semantics before it can be called a bug.
+`internal_one_state`, `hidden_identity_gradient`, `output_atom_transformation` and `scalar_vector_identity` no
+longer do. Each of the survivors needs an owner's decision on the intended semantics before it can be called a
+bug.
 
-Correction to an earlier claim here: `lossy_compression_diagnostic` was recorded as no longer reproducing.
-That was a false negative - the worker it drives was failing on a stale weight-layout assertion of its own, so
-the case scored "worker did not complete" rather than "warning absent". With the worker repaired it reproduces
-again, as below.
-
-**`ONE * vector` logs SEVERE** although it is a correct differentiable identity - `VectorValue.elementMultiplyBy`
-complains about incompatible dimensions. Diagnostic noise on a supported operation.
+Two corrections to earlier claims here, both from cases that were not measuring what they said they were.
+`lossy_compression_diagnostic` was recorded as no longer reproducing; that was a false negative, since the
+worker it drives was failing on a stale weight-layout assertion of its own, so the case scored "worker did not
+complete" rather than "warning absent". And `scalar_vector_identity` was recorded as still reproducing, when
+in fact the `SEVERE` it complains about was silenced in `68eb09fd`: the case decided by whether the identity
+still held, which was the control and was never in question, and never looked at the log at all. Both cases
+have been repaired in the reproducer suite.
 
 **Pruning and compression emit an explicit lossy-compression warning** on inputs where the compression was
 measured to be exact. Unclassified.
