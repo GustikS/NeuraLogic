@@ -30,10 +30,10 @@ public class SupervisedNeuralizationPipe extends Pipe<Stream<GroundingSample>, S
         if (settings.groundingMode == Settings.GroundingMode.GLOBAL) {
             List<GroundingSample> groundingSamples = Utilities.terminateSampleStream(groundingSampleStream);
             GroundTemplate groundTemplate = groundingSamples.get(0).groundingWrap.getGroundTemplate();
-            LOG.info("Neuralizing GLOBAL sample " + groundTemplate.toString());
+            LOG.fine(() -> "Neuralizing GLOBAL sample " + groundTemplate);
             List<NeuralProcessingSample> neuralizedSamples = neuralizer.neuralize(groundTemplate, groundingSamples);
             DetailedNetwork detailedNetwork = neuralizedSamples.get(0).detailedNetwork;
-            LOG.info("GLOBAL NeuralNet created: " + detailedNetwork.toString());
+            LOG.fine(() -> "GLOBAL NeuralNet created: " + detailedNetwork);
             return neuralizedSamples.stream();
         } else if (!settings.oneQueryPerExample) {
             Stream<List<GroundingSample>> groupStream = StreamSupport.stream(Spliterators.spliteratorUnknownSize(consecutiveGroupsIterator(groundingSampleStream.iterator(), a -> a.groundingWrap.getGroundTemplate()), Spliterator.ORDERED), false);
@@ -43,9 +43,9 @@ public class SupervisedNeuralizationPipe extends Pipe<Stream<GroundingSample>, S
                 }
 
                 GroundTemplate groundTemplate = list.get(0).groundingWrap.getGroundTemplate();
-                LOG.info("Neuralizing sample with multiple queries " + groundTemplate.toString());
+                LOG.fine(() -> "Neuralizing sample with multiple queries " + groundTemplate);
                 List<NeuralProcessingSample> neuralizedSamples = neuralizer.neuralize(groundTemplate, list);
-                LOG.info("SHARED NeuralNet created: " + neuralizedSamples.get(0).detailedNetwork.toString());
+                LOG.fine(() -> "SHARED NeuralNet created: " + neuralizedSamples.get(0).detailedNetwork);
 
                 return neuralizedSamples.stream();
             });
@@ -53,9 +53,9 @@ public class SupervisedNeuralizationPipe extends Pipe<Stream<GroundingSample>, S
             return flatStream;
         } else {
             return groundingSampleStream
-                    .peek(s -> LOG.info("Neuralizing sample " + s.toString()))
+                    .peek(s -> LOG.fine(() -> "Neuralizing sample " + s))
                     .flatMap(sample -> neuralizer.neuralize(sample).stream())
-                    .peek(s -> LOG.info("NeuralNet created: " + s.toString()));
+                    .peek(s -> LOG.fine(() -> "NeuralNet created: " + s));
         }
     }
 }

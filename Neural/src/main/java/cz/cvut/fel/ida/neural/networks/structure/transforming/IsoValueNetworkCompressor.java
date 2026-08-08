@@ -22,6 +22,7 @@ import cz.cvut.fel.ida.utils.generic.Timing;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -100,15 +101,24 @@ public class IsoValueNetworkCompressor implements NetworkReducing, NetworkMergin
 
         this.allNeuronCount += sizeBefore;
         this.compressedNeuronCount += inet.allNeuronsTopologic.size();
-        LOG.info("IsoValue neuron compression from " + sizeBefore + " down to " + inet.allNeuronsTopologic.size() + "(etalon values: " + etalons.size() + ")");
-        if (etalons.size() > inet.allNeuronsTopologic.size()) {
-            LOG.warning("There are more iso-values than neurons after compression (some unique parts have been pruned out!) = lossy compression");
-//            for (Neurons etalon : etalons) {
-//                if (!inet.allNeuronsTopologic.contains(etalon)){
-//                    System.out.println(etalon);
-//                }
-//            }
-        } else if (!settings.structuralIsoCompression && etalons.size() < inet.allNeuronsTopologic.size() - 1) {
+        LOG.fine(() -> "IsoValue neuron compression from " + sizeBefore + " down to " + inet.allNeuronsTopologic.size() + "(etalon values: " + etalons.size() + ")");
+        //This used to warn about "lossy compression" whenever there were more iso-values than surviving
+        //neurons, but the two numbers are taken on either side of the supervisedNetReconstruction above: the
+        //merge itself removes nothing from allNeuronsTopologic, and the reconstruction then drops whatever
+        //the query cannot reach. So the condition fired on ordinary, output-preserving pruning. Measured on
+        //the recurrent reproducer: 10 neurons before, 10 after the merge, 9 iso-values, 8 after the
+        //reconstruction - one merge and two unreachable neurons, with nothing lost. Report what actually
+        //happened instead, and only when someone is listening, since counting it costs a lookup per iso-value.
+        if (LOG.isLoggable(Level.FINE)) {
+            Set<Neurons> surviving = new HashSet<>(inet.allNeuronsTopologic);
+            long unreachable = etalons.stream().filter(etalon -> !surviving.contains(etalon)).count();
+            if (unreachable > 0) {
+                LOG.fine(unreachable + " iso-value classes were dropped as unreachable from the query");
+            }
+        }
+        //Note this one compares the same two quantities the other way round, so it is open to the same
+        //objection - it is left alone because it is guarded and says something narrower.
+        if (!settings.structuralIsoCompression && etalons.size() < inet.allNeuronsTopologic.size() - 1) {
             LOG.warning("There are more neurons than iso-values (some neurons have not been pruned despite having the same value) - e.g. output neurons.");
 //            for (Neurons neuron : inet.allNeuronsTopologic) {
 //                if (!etalons.contains(neuron)){

@@ -27,6 +27,8 @@ Status words are used strictly: **measured** means it was reproduced and the num
 | Top-down iteration stopped at `idx > 0`, so the first neuron in the topologic order was never visited and its own offset got no update - for a `FactNeuron` that offset is its learnable value. **Measured**: a learnable fact was silently frozen when it sorted first, and trained normally when one more fact was declared ahead of it | `Topologic.TDownVisitor` | `d7f9e167` |
 | `ONE * vector` logged `SEVERE` although it is a correct differentiable identity - the exception those sites throw is a designed fallback signal the callers handle, not a failure. Seven log-and-throw sites dropped to `FINE` | `VectorValue`, `MatrixValue` | `68eb09fd` |
 | The minibatch path had no null-query-neuron guard, while the sequential one skips such samples and `Neuralizer` does create them for examples without a query head. **Measured**: `NullPointerException: Cannot invoke AtomNeurons.getComputationView(int) because outputNeuron is null`. Skipping also has to clear that trainer's updates, which `Backpropagation.backpropagate` would otherwise have done - without it the previous batch's updates get summed in again | `MiniBatchTrainer` | this commit |
+| Compression warned about "lossy compression" on ordinary, output-preserving pruning. The condition compared the iso-value count against the neuron count taken on the *other* side of `supervisedNetReconstruction`, so it fired whenever anything was unreachable from the query. **Measured** on the recurrent reproducer: 10 neurons before, 10 after the merge, 9 iso-values, 8 after the reconstruction - one merge, two unreachable neurons, nothing lost. Replaced by a `FINE` line saying how many iso-value classes the reconstruction dropped | `IsoValueNetworkCompressor` | this commit |
+| Grounding and neuralization logged several lines per sample at `INFO`, so one pilot run produced a 17 MB log. **Measured**: `8n + 2` INFO lines for n samples, now `3n + 2` | `StandardGroundingPipe`, `SupervisedNeuralizationPipe`, `IsoValueNetworkCompressor` | this commit |
 | `calculateErrorValue()` was not idempotent: the metrics squashed the outputs in place, so a second call answered differently - **measured**, outputs `0, 1, 0.7` became `0.5, 0.73, 0.67` - and a caller holding those results got something other than what the model produced. The squashing is necessary, the queried head stays a logit under `squishLastLayer`; it now happens on the metrics' own copy | `ClassificationResults` | this commit |
 | A learnable value on an example fact never trained. Its weight comes from a factory continuing the same shared index counter, so its index is past the model the updater was sized from - the gradient either went nowhere or threw `ArrayIndexOutOfBoundsException`, and Adam had no moments for it either. The update buffers now grow to fit and Adam fills the moments in on the way. **Measured** through the Python bindings with `learnable_facts=True`: SGD and Adam at batch 1, 2 and 4 all move the value, where before none did | `WeightUpdater`, `MiniBatchTrainer`, `Adam` | this commit |
 
@@ -105,9 +107,6 @@ in fact the `SEVERE` it complains about was silenced in `68eb09fd`: the case dec
 still held, which was the control and was never in question, and never looked at the log at all. Both cases
 have been repaired in the reproducer suite.
 
-**Pruning and compression emit an explicit lossy-compression warning** on inputs where the compression was
-measured to be exact. Unclassified.
-
 **Validation through `Trainer.fit` changes Adam state despite restoring weights.** It was tempting to call
 this the same root cause as batched evaluation training the model, fixed in `95eb007e`. It is not: re-run
 against this branch, it still reproduces. Cause unknown.
@@ -115,6 +114,12 @@ against this branch, it still reproduces. Cause unknown.
 **Query importance still does not reach the Torch bridge.** `Backpropagate(NeuralSample, Value)` takes a
 gradient the caller computed, so `NeuralModule._backprop` bypasses the weighting deliberately. Whether the
 bridge should apply it is a decision, not an oversight.
+
+**Two log sources still scale with the dataset.** After the per-sample lowering above, a run still emits
+`3n + 2` `INFO` lines for n samples: two per sample from `Pipeline.execute` ("Executing pipeline : X") and one
+from `Grounder.globalGroundingSample` ("Global grounding for N samples"). Neither was touched, because both
+are framework-wide rather than specific to grounding a sample, so how loud they should be is a policy call
+rather than a defect.
 
 ## Open - diagnostics
 
