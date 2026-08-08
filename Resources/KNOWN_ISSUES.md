@@ -106,11 +106,13 @@ branch that is now off.
 
 Characterised in a separate project through the Python bindings, and **re-run against this branch**: the ones
 below still reproduce, while `query_importance_rule`, both torch bridge cases, `state_dict_learnable_filter`,
-`internal_one_state` and `lossy_compression_diagnostic` no longer do. Each of the survivors needs an owner's
-decision on the intended semantics before it can be called a bug.
+`internal_one_state`, `hidden_identity_gradient` and `output_atom_transformation` no longer do. Each of the
+survivors needs an owner's decision on the intended semantics before it can be called a bug.
 
-**A hidden selector preserves the forward value but its fact gets no gradient.** Differentiation semantics
-question.
+Correction to an earlier claim here: `lossy_compression_diagnostic` was recorded as no longer reproducing.
+That was a false negative - the worker it drives was failing on a stale weight-layout assertion of its own, so
+the case scored "worker did not complete" rather than "warning absent". With the worker repaired it reproduces
+again, as below.
 
 **`ONE * vector` logs SEVERE** although it is a correct differentiable identity - `VectorValue.elementMultiplyBy`
 complains about incompatible dimensions. Diagnostic noise on a supported operation.
