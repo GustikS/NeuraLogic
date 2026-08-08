@@ -13,9 +13,19 @@ public class WeightUpdater implements WeightVisitor {
 
     /**
      * To be used instead of storing the gradient update in the weight object (StatefulWeight) for PARALLEL backproping.
-     * Since the number of all unique weights is typically low, each thread has its own full index of weightUpdates.
+     * Each thread has its own full index of weightUpdates.
      * <p>
      * UNSYCHRONIZED storage of weight updates.
+     * <p>
+     * Addressed by {@link Weight#index}, never enumerated as "the weights": the length is capacity, not a weight
+     * count, and after growing there are trailing nulls. Ask {@link #updatedWeightsOnly} which weights have an
+     * update. It grows because a learnable value on an example fact is created after the model this was sized
+     * from, so the old assumption that the number of unique weights is low no longer holds - there is one such
+     * weight per constant that wants an embedding.
+     * <p>
+     * Public rather than encapsulated because the Python frontend reads this field directly over jpype
+     * (<code>NeuralogicOptTensor.grad</code>), which sees public fields only. Narrowing it would need the frontend
+     * to move at the same time, and a released frontend is routinely run against a newer jar.
      */
     public Value[] weightUpdates;
 

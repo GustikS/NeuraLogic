@@ -170,7 +170,20 @@ make it explainable. Nothing is broken, so this is an improvement rather than a 
 - **`Weight.isLearnable` as a primitive with a `learnableSet` flag** was checked and is sound; the only direct
   write to the field is its own constructor.
 
-## A trap worth knowing about
+## Traps worth knowing about
+
+**A failing test shows one stack frame and it is not a JVM fast-throw.** Surefire 3.0.0-M5 defaults
+`trimStackTrace` to true, so a real exception is reported as a single frame at the test method with everything
+below it cut away - which reads exactly like an optimised-away trace and sends you looking in the wrong place.
+Run with `-DtrimStackTrace=false`. Note that `-DargLine=...` on the command line is silently ignored, because
+the root pom configures `<argLine>` explicitly; to add a JVM flag, edit the pom.
+
+**`-Dtest=A+B` selects test methods, not classes.** It reports "No tests to run" and still exits BUILD
+SUCCESS, so a run that verified nothing looks like a pass. Separate classes with a comma. Two Maven
+invocations running at once on this repository also collide in `target/` and produce spurious
+`NoClassDefFound`.
+
+
 
 The reproducer cases call `neuralogic.initialize()` without a jar path, so they load the jar bundled inside
 whichever `neuralogic` package is first on `PYTHONPATH`. Pointing `PYTHONPATH` at a frontend checkout
