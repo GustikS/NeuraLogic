@@ -79,8 +79,8 @@ public class Maximum implements Aggregation {
      * @return
      */
     public Pair<Integer, double[]> getMaxValue(double[] input) {
-        double max = Double.MIN_VALUE;
-        int max_index = -1;
+        double max = Double.NEGATIVE_INFINITY;   //Double.MIN_VALUE is the smallest positive double, so an
+        int max_index = -1;                      //all-negative input left the index at -1 and threw below
         for (int i = 0; i < input.length; i++) {
             if (input[i] > max) {
                 max = input[i];
