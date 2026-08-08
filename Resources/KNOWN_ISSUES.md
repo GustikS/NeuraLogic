@@ -27,6 +27,7 @@ Status words are used strictly: **measured** means it was reproduced and the num
 | Top-down iteration stopped at `idx > 0`, so the first neuron in the topologic order was never visited and its own offset got no update - for a `FactNeuron` that offset is its learnable value. **Measured**: a learnable fact was silently frozen when it sorted first, and trained normally when one more fact was declared ahead of it | `Topologic.TDownVisitor` | `d7f9e167` |
 | `ONE * vector` logged `SEVERE` although it is a correct differentiable identity - the exception those sites throw is a designed fallback signal the callers handle, not a failure. Seven log-and-throw sites dropped to `FINE` | `VectorValue`, `MatrixValue` | `68eb09fd` |
 | The minibatch path had no null-query-neuron guard, while the sequential one skips such samples and `Neuralizer` does create them for examples without a query head. **Measured**: `NullPointerException: Cannot invoke AtomNeurons.getComputationView(int) because outputNeuron is null`. Skipping also has to clear that trainer's updates, which `Backpropagation.backpropagate` would otherwise have done - without it the previous batch's updates get summed in again | `MiniBatchTrainer` | this commit |
+| `calculateErrorValue()` was not idempotent: the metrics squashed the outputs in place, so a second call answered differently - **measured**, outputs `0, 1, 0.7` became `0.5, 0.73, 0.67` - and a caller holding those results got something other than what the model produced. The squashing is necessary, the queried head stays a logit under `squishLastLayer`; it now happens on the metrics' own copy | `ClassificationResults` | this commit |
 | A learnable value on an example fact never trained. Its weight comes from a factory continuing the same shared index counter, so its index is past the model the updater was sized from - the gradient either went nowhere or threw `ArrayIndexOutOfBoundsException`, and Adam had no moments for it either. The update buffers now grow to fit and Adam fills the moments in on the way. **Measured** through the Python bindings with `learnable_facts=True`: SGD and Adam at batch 1, 2 and 4 all move the value, where before none did | `WeightUpdater`, `MiniBatchTrainer`, `Adam` | this commit |
 
 The first five landed on `release`; the rest are on `bugfixes-ai`.
@@ -47,12 +48,6 @@ networks that actually get trained, even with the flag on - so every index resol
 `State.Neural.getComputationView(int)` defaults to returning that single state, which is why an unprepared
 network raced silently instead of failing. Restoring it needs the composite states built for the trained
 networks and sized to the training batch size rather than to `minibatchSize` as of neuralization time.
-
-**`calculateErrorValue()` is not idempotent.** `ClassificationResults` rewrites the outputs in place while
-computing its metrics - `loadBinaryMetrics` applies a sigmoid and `loadMulticlassMetrics` a softmax when
-`squishLastLayer` is set. `recalculate()` computes the error first, so the stored value is right, but any later
-call answers differently. **Measured**: outputs `0, 1, 0.7` became `0.5, 0.73, 0.67`. Fixing it means deciding
-whether the metrics should work on copies, which changes what reporting does.
 
 **A learnable value on an example fact is not saved with the model.** Now that such a value trains (see
 Fixed), the remaining gap is that its `Weight` is not in `NeuralModel.allWeights` - it is created per example,

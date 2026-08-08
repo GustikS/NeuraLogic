@@ -73,11 +73,38 @@ public class WeightedErrorAggregationTest {
         settings.errorAggregationFcn = Settings.CombinationFcn.AVG;
         settings.errorFunction = Settings.ErrorFcn.SQUARED_DIFF;
         settings.inferOutputFcns = false;
-        // ClassificationResults squashes the outputs in place while computing its metrics, which would make
-        // calculateErrorValue answer differently the second time around - this test is about the weights only
-        settings.squishLastLayer = false;
+        settings.squishLastLayer = false;   //this test is about the weights only, see reportingLeavesTheOutputsAlone
         settings.infer();
         return settings;
+    }
+
+    /**
+     * With squishLastLayer the queried head stays a logit, so the metrics have to squash it - but on their own
+     * copy. Squashing in place made the second call to calculateErrorValue answer differently, and handed a
+     * caller something other than what the model produced.
+     */
+    @TestAnnotations.Fast
+    public void reportingLeavesTheOutputsAlone() {
+        Settings settings = averaging();
+        settings.squishLastLayer = true;
+
+        double[] outputs = {0.0, 1.0, 0.7};
+        double[] targets = {0.0, 1.0, 1.0};
+
+        Result.Factory factory = new Result.Factory(settings);
+        List<Result> results = new ArrayList<>();
+        for (int i = 0; i < outputs.length; i++) {
+            results.add(factory.create("s" + i, i, new ScalarValue(targets[i]), new ScalarValue(outputs[i]), 1.0));
+        }
+
+        ClassificationResults reported = new ClassificationResults(results, settings);   //this computes the metrics
+
+        for (int i = 0; i < outputs.length; i++) {
+            assertEquals(outputs[i], scalar(results.get(i).getOutput()), 1e-12,
+                    "output " + i + " has to stay what the model produced");
+        }
+        assertEquals(scalar(reported.error), scalar(reported.calculateErrorValue()), 1e-12,
+                "the error must not depend on how many times it is asked for");
     }
 
     private static double error(Settings settings, double[] importances, double[] outputs) {
