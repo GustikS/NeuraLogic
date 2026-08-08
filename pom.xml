@@ -135,9 +135,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M5</version>
                 <configuration>
-                    <!-- Gson reads private fields of java.io.File when importing Sources, which the module
-                         system refuses since JDK 16 -->
-                    <argLine>-Xmx8g --add-opens java.base/java.io=ALL-UNNAMED</argLine>
+                    <argLine>-Xmx8g</argLine>
                     <skip>false</skip>
                     <groups>Fast, Medium, PreciseBenchmark</groups>
                     <!--<excludedGroups>Interactive, Slow, AdHoc, SlowBenchmark</excludedGroups>-->

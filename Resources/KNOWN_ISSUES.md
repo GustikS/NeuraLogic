@@ -20,7 +20,7 @@ Status words are used strictly: **measured** means it was reproduced and the num
 | Grounding depended on what had run before in the same JVM. `Literal.setTerms` did not invalidate the cached hashCode, and stratified negation reuses one static `Literal` as a key, so after the first call it probed the wrong bucket and stopped pruning. Measured: 7 inferred atoms instead of 6 on `debug/leaves` | `Literal`, `HerbrandModel.TupleNotIn` | `05da43a9` |
 | Query importance was stored on `Query`, passed to `QueryNeuron`, exposed through `getImportance`, and read by nothing. Training was bit-identical at importance 0.5 and 1.0 | `Backpropagation`, `Result`, `Evaluation` | `5e3f4ca1`, `522c5c7f` |
 | The mean error divided by the sample count rather than the total weight, so scaling every importance scaled the reported mean | `ClassificationResults` | `ac606157` |
-| Tests could not reflect into `java.io` on JDK 16+ | `pom.xml` surefire | `3c7c4e3c` |
+| Reading or writing a `File` through JSON reflected into its private fields, which the module system refuses since JDK 16 - `Sources` could be exported but not imported. A `File` is now written and read as its path, the shape `Sources.exportToJson` already used. The surefire `--add-opens` that had papered over it in the build (`3c7c4e3c`) is gone, and the whole suite passes without it | `JsonExporter`, `Exportable`, `SourceFiles`, `pom.xml` | this commit |
 | `state_dict()` tested `weight.isLearnable` without calling it, so fixed weights were reported as learnable and the internal fixed `ONE` leaked at index `-1` | PyNeuraLogic `neural_module.py` | `fae064b` on `gustiks-bugfixes-ai` |
 | Torch bridge `zero_grad`, rectangular tensor sync, and rule-form importance construction | PyNeuraLogic | upstream PR #68 |
 | Output function inference replaced a transformation the template had stated, so a queried head could not say it is already the final quantity and an output that is a mean of probabilities could not be written. Templates that state nothing are unaffected | `NeuralProcessingSample`, `NeuronFactory` | `7719c9dc` |
@@ -59,10 +59,6 @@ Related but not itself a defect: `maxWeightIndex` is `allWeights.size()-1`, a co
 index. It holds only while the indices are dense from zero, which is true on every path checked - repeated
 `build()` calls on one `Settings` object were **measured** to restart at 0, so the second model is not
 under-sized. It over-estimates by one whenever the fixed `one` is in the list, which costs an unused slot.
-
-**Importing `Sources` from JSON fails on JDK 16+.** Gson reads the private fields of `java.io.File`. The
-surefire flag fixes the build only; at runtime this still needs the same `--add-opens` or a Gson type adapter
-for `File`.
 
 ## Open - design
 

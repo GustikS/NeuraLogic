@@ -3,6 +3,8 @@ package cz.cvut.fel.ida.utils.exporting;
 //import cz.cvut.fel.ida.settings.Settings;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -83,12 +85,24 @@ public class JsonExporter extends TextExporter {
     public <I> I importObjectFrom(Path path, Class<I> cls) {
         try {
             String json = new String(Files.readAllBytes(path));
-            I i = new Gson().fromJson(json, cls);
+            I i = fileAwareGson().fromJson(json, cls);
             return i;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    /**
+     * Left to itself, Gson reads and writes a {@link File} through its private fields, which the module system
+     * refuses since JDK 16 - an import then dies on
+     * <code>InaccessibleObjectException: java.base does not "opens java.io"</code>. A File is its path, so say
+     * that explicitly. The shape matches what {@link Exportable#exportToJson} writes.
+     */
+    public static Gson fileAwareGson() {
+        JsonDeserializer<File> deserializer =
+                (element, type, context) -> new File(element.getAsJsonObject().get("path").getAsString());
+        return new GsonBuilder().registerTypeAdapter(File.class, deserializer).create();
     }
 
     @Override
