@@ -25,9 +25,9 @@ public class WeightUpdater implements WeightVisitor {
     public List<Weight> updatedWeightsOnly;
 
     /**
-     * Weights outside the model's index space are reported once, not once per sample per epoch.
+     * Reported once, not once per sample per epoch.
      */
-    private boolean foreignWeightReported;
+    private boolean negativeIndexReported;
 
     public WeightUpdater(List<Weight> learnableWeights, int maxWeightIndex) {
 
@@ -66,16 +66,18 @@ public class WeightUpdater implements WeightVisitor {
         if (weight.isLearnable()) {   //faster access version
             int index = weight.index;
 
-            if (index < 0 || index >= weightUpdates.length) {
-                //A learnable value on an example fact gets its index from the samples' own weight factory, so it is
-                //not in the model that this updater was sized from and there is nothing here to update. Dropping the
-                //gradient keeps the behaviour these weights always had; the point of saying so is that they look
-                //trainable and are not.
-                if (!foreignWeightReported) {
-                    foreignWeightReported = true;
-                    LOG.severe("Learnable weight outside the model's index space, its gradient is dropped: " + weight);
+            if (index < 0) {
+                if (!negativeIndexReported) {
+                    negativeIndexReported = true;
+                    LOG.severe("Learnable weight with a negative index reached the updater, its gradient is dropped: " + weight);
                 }
                 return;
+            }
+            if (index >= weightUpdates.length) {
+                //A learnable value on an example fact is created after the model was built, from a weight factory
+                //that continues the same index counter - so its index is past the model and there is no slot for it
+                //here yet. Growing is rare (once per such weight) and keeps those values trainable.
+                weightUpdates = Arrays.copyOf(weightUpdates, index + 1);
             }
 
             Value weightUpdate = weightUpdates[index];

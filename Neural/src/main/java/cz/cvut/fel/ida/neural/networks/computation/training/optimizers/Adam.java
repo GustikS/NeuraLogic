@@ -35,6 +35,13 @@ public class Adam implements Optimizer {
         for (Weight weight : updatedWeights) {
             final double[] value, momentum, velocity, gradient;
 
+            if (weight.momentum == null || weight.velocity == null) {
+                //NeuralModel.init4Adam only reaches the model's own weights - a learnable value on an example fact is
+                //created after the model and arrives here without moments
+                weight.momentum = weight.value.getForm();
+                weight.velocity = weight.value.getForm();
+            }
+
             value = weight.value.getAsArray();
             momentum = weight.momentum.getAsArray();
             velocity = weight.velocity.getAsArray();

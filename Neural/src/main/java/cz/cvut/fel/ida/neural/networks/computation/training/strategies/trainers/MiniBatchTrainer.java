@@ -163,7 +163,7 @@ public class MiniBatchTrainer extends Trainer {
     private List<Result> minibatchParallelLearn(final NeuralModel neuralModel, final List<NeuralSample> sampleList) {
         final int size = sampleList.size();
         final Set<Weight> updatedWeights = new HashSet<>();
-        final Value[] weightUpdates = new Value[neuralModel.maxWeightIndex + 1];
+        Value[] weightUpdates = new Value[neuralModel.maxWeightIndex + 1];
 
         if (size > minibatchSize) {
             LOG.severe("Minibatch size mismatch");
@@ -179,7 +179,11 @@ public class MiniBatchTrainer extends Trainer {
 
             updatedWeights.addAll(weightUpdater.updatedWeightsOnly);
 
-            for (int j = 0; j < weightUpdates.length; j++) {
+            if (updates.length > weightUpdates.length) {
+                weightUpdates = Arrays.copyOf(weightUpdates, updates.length);    //a trainer grew its own buffer for a weight created after the model
+            }
+
+            for (int j = 0; j < updates.length; j++) {
                 if (updates[j] == null) {
                     continue;
                 }

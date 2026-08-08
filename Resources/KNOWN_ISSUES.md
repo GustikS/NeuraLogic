@@ -24,7 +24,8 @@ Status words are used strictly: **measured** means it was reproduced and the num
 | `state_dict()` tested `weight.isLearnable` without calling it, so fixed weights were reported as learnable and the internal fixed `ONE` leaked at index `-1` | PyNeuraLogic `neural_module.py` | `fae064b` on `gustiks-bugfixes-ai` |
 | Torch bridge `zero_grad`, rectangular tensor sync, and rule-form importance construction | PyNeuraLogic | upstream PR #68 |
 | Output function inference replaced a transformation the template had stated, so a queried head could not say it is already the final quantity and an output that is a mean of probabilities could not be written. Templates that state nothing are unaffected | `NeuralProcessingSample`, `NeuronFactory` | `7719c9dc` |
-| Top-down iteration stopped at `idx > 0`, so the first neuron in the topologic order was never visited and its own offset got no update - for a `FactNeuron` that offset is its learnable value. **Measured**: a learnable fact was silently frozen when it sorted first, and trained normally when one more fact was declared ahead of it | `Topologic.TDownVisitor` | this commit |
+| Top-down iteration stopped at `idx > 0`, so the first neuron in the topologic order was never visited and its own offset got no update - for a `FactNeuron` that offset is its learnable value. **Measured**: a learnable fact was silently frozen when it sorted first, and trained normally when one more fact was declared ahead of it | `Topologic.TDownVisitor` | `d7f9e167` |
+| A learnable value on an example fact never trained. Its weight comes from a factory continuing the same shared index counter, so its index is past the model the updater was sized from - the gradient either went nowhere or threw `ArrayIndexOutOfBoundsException`, and Adam had no moments for it either. The update buffers now grow to fit and Adam fills the moments in on the way. **Measured** through the Python bindings with `learnable_facts=True`: SGD and Adam at batch 1, 2 and 4 all move the value, where before none did | `WeightUpdater`, `MiniBatchTrainer`, `Adam` | this commit |
 
 The first five landed on `release`; the rest are on `bugfixes-ai`.
 
@@ -57,27 +58,11 @@ computing its metrics - `loadBinaryMetrics` applies a sigmoid and `loadMulticlas
 call answers differently. **Measured**: outputs `0, 1, 0.7` became `0.5, 0.73, 0.67`. Fixing it means deciding
 whether the metrics should work on copies, which changes what reporting does.
 
-**A learnable value on an example fact cannot be trained, and never could.** `WeightFactory` draws indices
-from an `AtomicInteger` shared with the template's factory, so an example fact's weight lands *past* the last
-index of the model that `WeightUpdater` was sized from. There is no collision - the weight is simply outside
-the array. `NeuronFactory.createFactNeuron` marks the neuron `hasLearnableValue` regardless, so it looks
-trainable and is not.
-
-**Measured** two ways. On `debug/leaves`, whose template has no weights at all, the model holds one weight -
-the fixed logical `one` at index `-1` - while the example fact `1.0 node_feature(a2)` carries a learnable
-weight at index 2; reaching it threw `ArrayIndexOutOfBoundsException: Index 2 out of bounds for length 1`.
-Through the Python bindings with `learnable_facts=True`, the model holds index 0, the example fact gets index
-1, and after three epochs its value is unchanged while the model's own weight moved. So the feature either did
-nothing (fact first in the topologic order, hence never visited) or threw. `WeightUpdater.visit` now drops
-such a gradient and reports it once instead of throwing.
-
-Restoring it is small in code and not small in meaning. `Optimizer.performGradientStep` walks
-`updatedWeightsOnly`, the `Weight` objects themselves, and only indexes the gradient array by
-`weight.index` - so sizing that array from the shared counter rather than from `allWeights` would be enough
-for SGD. Adam would still fail: it reads `weight.momentum` and `weight.velocity`, which `NeuralModel.init4Adam`
-sets only for the model's own weights. And a per-example weight is not in `allWeights`, so it is absent from
-`state_dict` and from anything that saves or restores a model. The question underneath is whether a value on
-an example fact is data or a parameter.
+**A learnable value on an example fact is not saved with the model.** Now that such a value trains (see
+Fixed), the remaining gap is that its `Weight` is not in `NeuralModel.allWeights` - it is created per example,
+after the model - so it is absent from `state_dict`, from `NeuralSerializer`, and from anything that saves or
+restores a model. Training with `learnable_facts` and then exporting silently loses those values. Closing it
+means deciding where per-example parameters live, which is a bigger question than the sizing was.
 
 Related but not itself a defect: `maxWeightIndex` is `allWeights.size()-1`, a count standing in for a maximum
 index. It holds only while the indices are dense from zero, which is true on every path checked - repeated
