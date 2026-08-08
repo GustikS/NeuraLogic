@@ -5,6 +5,7 @@ import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.QueryNeuron;
 import cz.cvut.fel.ida.neural.networks.computation.training.optimizers.Optimizer;
 import cz.cvut.fel.ida.neural.networks.computation.training.strategies.trainers.MiniBatchTrainer;
 import cz.cvut.fel.ida.neural.networks.computation.training.strategies.trainers.SequentialTrainer;
@@ -77,6 +78,43 @@ public class MinibatchTraining {
                 .new MinibatchListTrainer().evaluate(built.s);
 
         assertArrayEquals(before, weights(model));
+    }
+
+    /**
+     * The sequential trainer skips a sample with no query neuron, and the neuralizer does produce them. Here it
+     * used to throw. Two epochs, because the trainer that draws the skipped sample must not carry the previous
+     * epoch's updates into the batch sum either.
+     */
+    @TestAnnotations.Fast
+    public void aSampleWithoutAQueryNeuronIsSkippedRatherThanFatal() throws Exception {
+        Settings settings = sgdSettings();
+        Pair<NeuralModel, List<NeuralSample>> built = build(settings);
+        NeuralModel model = built.r;
+        List<NeuralSample> batch = built.s;
+
+        double[] initial = weights(model);
+        double[] withoutIt = trainTwice(settings, model, initial, batch);
+
+        List<NeuralSample> withHeadless = new ArrayList<>(batch);
+        withHeadless.add(headlessSample(batch.get(0)));
+        double[] withIt = trainTwice(settings, model, initial, withHeadless);
+
+        assertArrayEquals(withoutIt, withIt, "a sample with no query neuron has to contribute nothing at all");
+    }
+
+    private static NeuralSample headlessSample(NeuralSample like) {
+        QueryNeuron headless = new QueryNeuron("noQueryHead", 0, 1.0, null, like.query.evidence);
+        return new NeuralSample(new ScalarValue(1.0), headless, like.type);
+    }
+
+    private static double[] trainTwice(Settings settings, NeuralModel model, double[] initial, List<NeuralSample> batch) {
+        setWeights(model, initial);
+        MiniBatchTrainer.MinibatchListTrainer trainer =
+                new MiniBatchTrainer(settings, Optimizer.getFrom(settings, LEARNING_RATE), model, batch.size())
+                        .new MinibatchListTrainer();
+        trainer.learnEpoch(model, batch);
+        trainer.learnEpoch(model, batch);
+        return weights(model);
     }
 
     private static Settings sgdSettings() {

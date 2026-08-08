@@ -170,7 +170,8 @@ public class MiniBatchTrainer extends Trainer {
         }
 
         List<Result> results = IntStream.range(0, size)
-                .mapToObj(i -> evaluateAndBackprop(trainers.get(i), sampleList.get(i)))
+                .mapToObj(i -> evaluateAndBackpropOrSkip(trainers.get(i), sampleList.get(i)))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         for (int i = 0; i < size; i++) {
@@ -218,6 +219,24 @@ public class MiniBatchTrainer extends Trainer {
             trainer.invalidateSample(trainer.invalidation, sample);
             return trainer.evaluateSample(trainer.evaluation, sample);
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * {@link SequentialTrainer.SequentialListTrainer#learnEpoch} skips a sample with no query neuron, and
+     * {@link cz.cvut.fel.ida.neural.networks.structure.building.Neuralizer} does produce such samples for
+     * examples without a query head. Backpropagation would throw on it here.
+     * <p>
+     * The trainer's own updates have to be cleared on the way out: {@link Backpropagation#backpropagate} is
+     * what normally clears them, so skipping it would leave the previous batch's updates in place for the
+     * accumulation below to sum in a second time.
+     */
+    private Result evaluateAndBackpropOrSkip(SequentialTrainer trainer, NeuralSample neuralSample) {
+        if (neuralSample.query.neuron == null) {
+            LOG.warning("No query neuron - skipping backprop for this sample:" + neuralSample);
+            trainer.backpropagation.weightUpdater.clearUpdates();
+            return null;
+        }
+        return evaluateAndBackprop(trainer, neuralSample);
     }
 
     private Result evaluateAndBackprop(SequentialTrainer trainer, NeuralSample neuralSample) {
