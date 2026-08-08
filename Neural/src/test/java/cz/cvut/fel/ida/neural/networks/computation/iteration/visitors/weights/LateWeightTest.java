@@ -58,10 +58,23 @@ public class LateWeightTest {
                 "the buffer has to grow geometrically, got capacity " + updater.weightUpdates.length
                         + " for " + weightCount + " weights");
 
+        //Most of the buffer was touched, so this goes through Arrays.fill
         updater.clearUpdates();
         assertTrue(updater.updatedWeightsOnly.isEmpty());
-        for (Value update : updater.weightUpdates) {
-            assertEquals(null, update, "clearing has to leave the whole buffer empty, whatever its capacity");
+        assertBufferEmpty(updater, "clearing a mostly-touched buffer");
+
+        //A handful out of thousands, which is what a sample does once the buffer holds per-example embeddings
+        for (Weight weight : late.subList(0, 3)) {
+            updater.visit(weight, new ScalarValue(0.5));
+        }
+        updater.clearUpdates();
+        assertTrue(updater.updatedWeightsOnly.isEmpty());
+        assertBufferEmpty(updater, "clearing a barely-touched buffer");
+    }
+
+    private static void assertBufferEmpty(WeightUpdater updater, String what) {
+        for (int i = 0; i < updater.weightUpdates.length; i++) {
+            assertEquals(null, updater.weightUpdates[i], what + " has to leave slot " + i + " empty");
         }
     }
 
