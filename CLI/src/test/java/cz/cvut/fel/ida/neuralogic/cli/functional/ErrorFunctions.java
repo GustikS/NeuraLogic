@@ -36,7 +36,7 @@ public class ErrorFunctions {
         Pair<Pipeline, ?> results = Main.main(dataset, settings);
         DetailedClassificationResults classificationResults = (DetailedClassificationResults) results.s;
         Double error = ((ScalarValue) classificationResults.error).value;
-        assertEquals(0.5476099488373101, error, 0.000000000001);   //a converged value, so it moves whenever the default initializer does - what the two tests assert is that they agree with each other
+        assertEquals(0.5366411252412251, error, 0.000000000001);   //a converged value, so it moves whenever the default initializer does - what the two tests assert is that they agree with each other
         Duration timeTaken = results.r.timing.getTimeTaken();
         LOG.warning("time taken: " + timeTaken);
         Duration limit = Duration.ofSeconds(4);
@@ -61,7 +61,7 @@ public class ErrorFunctions {
         Pair<Pipeline, ?> results = Main.main(dataset, settings);
         DetailedClassificationResults classificationResults = (DetailedClassificationResults) results.s;
         Double error = ((ScalarValue) classificationResults.error).value;
-        assertEquals(0.5476099488373101, error, 0.000000000001);   //a converged value, so it moves whenever the default initializer does - what the two tests assert is that they agree with each other
+        assertEquals(0.5366411252412251, error, 0.000000000001);   //a converged value, so it moves whenever the default initializer does - what the two tests assert is that they agree with each other
         Duration timeTaken = results.r.timing.getTimeTaken();
         LOG.warning("time taken: " + timeTaken);
         Duration limit = Duration.ofSeconds(4);

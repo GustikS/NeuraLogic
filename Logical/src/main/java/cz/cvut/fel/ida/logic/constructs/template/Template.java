@@ -1,6 +1,8 @@
 package cz.cvut.fel.ida.logic.constructs.template;
 
+import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.values.Value;
+import cz.cvut.fel.ida.algebra.values.inits.ActivationGain;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.learning.Model;
 import cz.cvut.fel.ida.logic.Clause;
@@ -16,6 +18,7 @@ import cz.cvut.fel.ida.logic.constructs.template.types.GraphTemplate;
 import cz.cvut.fel.ida.logic.subsumption.HerbrandModel;
 import cz.cvut.fel.ida.logic.subsumption.SubsumptionEngineJ2;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.FactNeuron;
+import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -146,6 +149,34 @@ public class Template implements Model<QueryAtom>, Exportable {
         }
         List<Weight> uniqueWeights = filterUnique(weightList);
         return uniqueWeights;
+    }
+
+    /**
+     * Tell each weight which activation its own output runs into, which is what {@link ActivationGain} needs
+     * and what is gone by the time anything holds a flat list of weights.
+     * <p>
+     * Where the weight sits decides which activation that is. A body weight multiplies before the rule's own
+     * transformation, so that is the one it passes through. A head weight multiplies the rule's result
+     * <em>after</em> it, so what follows a head weight is the head atom's own transformation - stated on the
+     * predicate, or {@link Settings#atomNeuronTransformation} when the template says nothing.
+     * <p>
+     * {@link Weight#setActivationGain} keeps the first answer it is given, so calling this twice changes
+     * nothing the second time.
+     */
+    public void assignActivationGains(Settings settings) {
+        for (WeightedRule rule : rules) {
+            if (rule.getWeight() != null) {
+                Transformation afterTheHeadWeight = rule.getHead().getTransformation() != null
+                        ? rule.getHead().getTransformation()
+                        : Transformation.getFunction(settings.atomNeuronTransformation);
+                rule.getWeight().setActivationGain(ActivationGain.of(afterTheHeadWeight));
+            }
+            for (BodyAtom bodyAtom : rule.getBody()) {
+                if (bodyAtom.getConjunctWeight() != null) {
+                    bodyAtom.getConjunctWeight().setActivationGain(ActivationGain.of(rule.getTransformation()));
+                }
+            }
+        }
     }
 
     private List<Weight> filterUnique(List<Weight> weightList) {

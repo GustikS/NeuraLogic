@@ -35,7 +35,23 @@ public class TorchUniformInitializer implements ValueInitializer {
 
     Uniform distribution;
 
+    protected final Settings settings;
+
+    /** The activation correction, folded into every limit below. 1 until asked for otherwise. */
+    protected double gain = ActivationGain.LINEAR;
+
+    @Override
+    public ValueInitializer withGain(double gain) {
+        if (gain == this.gain) {
+            return this;
+        }
+        TorchUniformInitializer widened = new TorchUniformInitializer(this.settings);
+        widened.gain = gain;
+        return widened;
+    }
+
     public TorchUniformInitializer(Settings settings) {
+        this.settings = settings;
         this.distribution = new Uniform(settings.random, settings);
     }
 
@@ -67,7 +83,7 @@ public class TorchUniformInitializer implements ValueInitializer {
      * The weight multiplies from the left, so its columns are the inputs it consumes.
      */
     protected double getLimit(MatrixValue value) {
-        return 1.0 / Math.sqrt(value.cols);
+        return gain * 1.0 / Math.sqrt(value.cols);
     }
 
     /**
@@ -77,13 +93,13 @@ public class TorchUniformInitializer implements ValueInitializer {
      * {@code torch.nn.Linear(1, n)}, which torch draws from the full {@code (-1, 1)}.
      */
     protected double getLimit(VectorValue value) {
-        return value.rowOrientation ? 1.0 / Math.sqrt(value.values.length) : 1.0;
+        return gain * (value.rowOrientation ? 1.0 / Math.sqrt(value.values.length) : 1.0);
     }
 
     /**
      * One input, so the bound is one - the same {@code torch.nn.Linear(1, 1)} gets.
      */
     protected double getLimit(ScalarValue value) {
-        return 1.0;
+        return gain * 1.0;
     }
 }

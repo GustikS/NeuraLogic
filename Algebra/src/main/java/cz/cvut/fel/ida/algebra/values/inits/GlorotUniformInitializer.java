@@ -13,7 +13,23 @@ public class GlorotUniformInitializer implements ValueInitializer {
 
     Uniform distribution;
 
+    protected final Settings settings;
+
+    /** The activation correction, folded into every limit below. 1 until asked for otherwise. */
+    protected double gain = ActivationGain.LINEAR;
+
+    @Override
+    public ValueInitializer withGain(double gain) {
+        if (gain == this.gain) {
+            return this;
+        }
+        GlorotUniformInitializer widened = new GlorotUniformInitializer(this.settings);
+        widened.gain = gain;
+        return widened;
+    }
+
     public GlorotUniformInitializer(Settings settings) {
+        this.settings = settings;
         this.distribution = new Uniform(settings.random, settings);
     }
 
@@ -46,14 +62,14 @@ public class GlorotUniformInitializer implements ValueInitializer {
     }
 
     protected double getLimit(MatrixValue value) {
-        return Math.sqrt(6) / Math.sqrt(value.cols + value.rows);
+        return gain * Math.sqrt(6) / Math.sqrt(value.cols + value.rows);
     }
 
     protected double getLimit(VectorValue value) {
-        return Math.sqrt(6) / Math.sqrt(value.values.length + 1);
+        return gain * Math.sqrt(6) / Math.sqrt(value.values.length + 1);
     }
 
     protected double getLimit(ScalarValue value) {
-        return Math.sqrt(6) / Math.sqrt(1 + 1);
+        return gain * Math.sqrt(6) / Math.sqrt(1 + 1);
     }
 }

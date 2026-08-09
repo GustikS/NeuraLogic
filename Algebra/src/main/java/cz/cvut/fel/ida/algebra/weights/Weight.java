@@ -33,6 +33,29 @@ public class Weight implements Exportable {
     public boolean isShared;
 
     /**
+     * How much wider to draw this weight for the activation its own output passes through - see
+     * {@link cz.cvut.fel.ida.algebra.values.inits.ActivationGain}. It is set from the rule carrying the
+     * weight and read only by the initializers that already scale with shape.
+     * <p>
+     * The first one to be set wins, and the case where that matters is narrow. A <em>lifted</em> rule
+     * grounding many times spreads its weight across the network but takes the same activation to every one
+     * of those places, so they never disagree; only the same named weight written into two rules with
+     * different activations does, and that is rare enough that picking one beats making anyone think about
+     * it.
+     */
+    public double activationGain = 1.0;
+
+    private boolean activationGainSet = false;
+
+    public void setActivationGain(double gain) {
+        if (activationGainSet) {
+            return;
+        }
+        this.activationGain = gain;
+        this.activationGainSet = true;
+    }
+
+    /**
      * The flag needs to be set by an external routine.
      */
     public boolean dropout = false;

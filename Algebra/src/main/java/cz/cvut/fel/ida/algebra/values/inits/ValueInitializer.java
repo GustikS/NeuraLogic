@@ -14,6 +14,16 @@ public interface ValueInitializer extends Exportable {
 
     void initMatrix(MatrixValue matrix);
 
+    /**
+     * An initializer for the same rule but widened by the activation a weight's output passes through - see
+     * {@link ActivationGain}. Only the ones that already scale with the weight's shape answer this; the rest
+     * return themselves, since {@link Settings.InitSet#SIMPLE} means a distribution the user named outright
+     * and correcting it would be answering a question nobody asked.
+     */
+    default ValueInitializer withGain(double gain) {
+        return this;
+    }
+
     static ValueInitializer getInitializer(Settings settings) {
         if (settings.initializer == Settings.InitSet.TORCH) {
             return new TorchUniformInitializer(settings);
