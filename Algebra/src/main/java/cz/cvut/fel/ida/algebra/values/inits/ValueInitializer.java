@@ -15,7 +15,9 @@ public interface ValueInitializer extends Exportable {
     void initMatrix(MatrixValue matrix);
 
     static ValueInitializer getInitializer(Settings settings) {
-        if (settings.initializer == Settings.InitSet.GLOROT) {
+        if (settings.initializer == Settings.InitSet.TORCH) {
+            return new TorchUniformInitializer(settings);
+        } else if (settings.initializer == Settings.InitSet.GLOROT) {
             return new GlorotUniformInitializer(settings);
         } else if (settings.initializer == Settings.InitSet.HE) {
             return new HeUniformInitializer(settings);

@@ -668,12 +668,22 @@ public class Settings implements Serializable {
     }
 
     /**
-     * How to initialize random weight values
+     * How to initialize random weight values. {@link #initDistribution} applies to {@link InitSet#SIMPLE}
+     * only; the others carry their own spread.
+     * <p>
+     * {@link InitSet#TORCH} is the one whose spread follows the shape of the weight the way every torch
+     * layer's does, so a model written here and the same model written there start from the same place. It
+     * is <em>not</em> the default, and the reason is measured rather than assumed: making it one leaves the
+     * whole Java suite passing but stops two recursive templates in the frontend suite learning at all -
+     * `test_xor_generalization` then misses even its own training data, and more epochs do not recover it.
+     * Fan-in scaling is calibrated for a fixed-depth network, and a template that applies one weight at a
+     * recursion depth the data decides is not that. See
+     * {@link cz.cvut.fel.ida.algebra.values.inits.TorchUniformInitializer}.
      */
     public InitSet initializer = InitSet.SIMPLE;
 
     public enum InitSet {
-        SIMPLE, GLOROT, HE
+        SIMPLE, GLOROT, HE, TORCH
     }
 
     /**
@@ -1202,6 +1212,9 @@ public class Settings implements Serializable {
                     break;
                 case "he":
                     settings.initializer = InitSet.HE;
+                    break;
+                case "torch":
+                    settings.initializer = InitSet.TORCH;
                     break;
                 default:
                     LOG.severe("unrecognized initialization: " + _weightInit);
