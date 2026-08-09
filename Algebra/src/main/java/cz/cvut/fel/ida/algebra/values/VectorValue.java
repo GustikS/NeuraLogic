@@ -310,6 +310,16 @@ public class VectorValue extends Value {
 
     /**
      * Dot product vs matrix multiplication depending on orientation of the vectors
+     * <p>
+     * A vector of one is a scalar whichever way it is turned, so it scales the other side instead of having
+     * to line up with it - the same reading {@link #incrementBy(ScalarValue)} already takes. This is what a
+     * weight declared {@code (n,1)}, which becomes a column vector of n, needs in order to meet a one-element
+     * input: as vectors, column times column has no reading at all, and it used to throw.
+     * <p>
+     * It sits after the dot product, which keeps returning a {@link ScalarValue} for two vectors of one, and
+     * before the outer product, which would otherwise answer with an {@code n x 1} or {@code 1 x n} matrix -
+     * a shape nothing else here holds, since a weight of those dimensions is itself kept as a vector. That
+     * is the same collapse {@link #kroneckerTimes(VectorValue)} makes, so the result agrees with it.
      *
      * @param value
      * @return
@@ -325,6 +335,10 @@ public class VectorValue extends Value {
             }
 
             return new ScalarValue(resultValue);
+        } else if (values.length == 1) {
+            return value.times(new ScalarValue(values[0]));
+        } else if (value.values.length == 1) {
+            return this.times(new ScalarValue(value.values[0]));
         } else if (!value.rowOrientation && this.rowOrientation) {
             LOG.finest(() -> "Performing vector x vector matrix multiplication.");
             final MatrixValue result = new MatrixValue(value.values.length, values.length);

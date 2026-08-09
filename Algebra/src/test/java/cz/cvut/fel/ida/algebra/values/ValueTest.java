@@ -317,4 +317,79 @@ class ValueTest {
         assertEquals(-1,b.compareTo(c));
         assertEquals(-1,a.compareTo(c));
     }
+
+    /**
+     * A weight declared {@code (n,1)} becomes a column vector of n and a one-element input a column vector of
+     * one, so multiplying them is column times column, which has no reading as vectors and used to throw.
+     * A vector of one is a scalar whichever way it is turned, and the two readings it could have here - the
+     * dot product and the 1x1 outer product - are the same number, so nothing is being decided for the caller.
+     * {@link VectorValue#incrementBy(ScalarValue)} already treats a one-element vector this way.
+     */
+    @TestAnnotations.Fast
+    public void oneElementVectorMultipliesLikeAScalar() {
+        Value column = new VectorValue(Arrays.asList(2.0, -3.0, 0.5));
+        Value single = new VectorValue(Arrays.asList(4.0));
+
+        Value scaled = column.times(single);
+
+        assertEquals(8.0, scaled.get(0), 1e-12);
+        assertEquals(-12.0, scaled.get(1), 1e-12);
+        assertEquals(2.0, scaled.get(2), 1e-12);
+    }
+
+    @TestAnnotations.Fast
+    public void oneElementVectorMultipliesLikeAScalarFromEitherSide() {
+        Value column = new VectorValue(Arrays.asList(2.0, -3.0, 0.5));
+        Value single = new VectorValue(Arrays.asList(4.0));
+
+        Value scaled = single.times(column);
+
+        assertEquals(8.0, scaled.get(0), 1e-12);
+        assertEquals(-12.0, scaled.get(1), 1e-12);
+        assertEquals(2.0, scaled.get(2), 1e-12);
+    }
+
+    /**
+     * The backward half of the same case: the gradient of an {@code (n,1)} weight is an outer product with a
+     * one-element side, and it has to come back the shape the weight is kept in. Left as an {@code n x 1}
+     * matrix it reached the weight as one and failed with "vector incrementBy by matrix".
+     */
+    @TestAnnotations.Fast
+    public void outerProductWithAOneElementSideStaysAVector() {
+        VectorValue column = new VectorValue(Arrays.asList(2.0, -3.0, 0.5));
+        VectorValue singleRow = new VectorValue(Arrays.asList(4.0));
+        singleRow.rowOrientation = true;
+
+        Value product = column.times(singleRow);
+
+        assertTrue(product instanceof VectorValue);
+        assertEquals(3, ((VectorValue) product).values.length);
+        assertEquals(-12.0, product.get(1), 1e-12);
+    }
+
+    /**
+     * Two vectors of one still meet as a dot product, which is what they did before and is the same number.
+     */
+    @TestAnnotations.Fast
+    public void twoOneElementVectorsStillGiveAScalar() {
+        VectorValue row = new VectorValue(Arrays.asList(4.0));
+        row.rowOrientation = true;
+        VectorValue column = new VectorValue(Arrays.asList(2.0));
+
+        Value product = column.times(row);
+
+        assertTrue(product instanceof ScalarValue);
+        assertEquals(8.0, product.get(0), 1e-12);
+    }
+
+    /**
+     * The widening must not reach a pair that genuinely does not line up - that error is still worth having.
+     */
+    @TestAnnotations.Fast
+    public void mismatchedColumnsStillRefuseToMultiply() {
+        Value column = new VectorValue(Arrays.asList(2.0, -3.0, 0.5));
+        Value other = new VectorValue(Arrays.asList(1.0, 2.0));
+
+        assertThrows(ArithmeticException.class, () -> column.times(other));
+    }
 }
