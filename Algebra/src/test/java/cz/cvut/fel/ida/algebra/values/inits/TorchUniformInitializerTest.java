@@ -84,8 +84,9 @@ class TorchUniformInitializerTest {
 
     /**
      * A column vector was declared {@code (n,1)}, or as a plain {@code (n)}, and consumes one - so it keeps
-     * the full range, exactly as {@code torch.nn.Linear(1, n)} does. Narrowing this one too costs
-     * {@code test_xor_generalization}, whose weights are {@code (8,1)}, its convergence.
+     * the full range, exactly as {@code torch.nn.Linear(1, n)} does. Narrowing this one too cost
+     * {@code test_xor_generalization}, whose weights are {@code (8,1)}, its convergence - measured before
+     * {@link ActivationGain} existed.
      */
     @TestAnnotations.Fast
     public void columnVectorKeepsTheFullRange() {

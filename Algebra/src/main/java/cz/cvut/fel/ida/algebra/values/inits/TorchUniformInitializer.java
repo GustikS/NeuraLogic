@@ -25,10 +25,16 @@ import java.util.logging.Logger;
  * <p>
  * A vector keeps only one of its two declared dimensions, and its orientation says which, so a row vector
  * consumes its whole length and a column vector consumes one. Narrowing both of them instead, on the
- * argument that the narrower guess is the safer one, is measurably wrong - it also narrows the {@code (n,1)}
- * weights that torch draws from the full {@code (-1, 1)}, and that alone stopped
- * {@code test_xor_generalization} converging in 5000 epochs where it had converged before. Only the weights
- * whose fan-in is both unambiguous and large change at all, which are the ones the saturation was about.
+ * argument that the narrower guess is the safer one, also narrows the {@code (n,1)} weights that torch draws
+ * from the full {@code (-1, 1)} - and that alone stopped {@code test_xor_generalization} converging, measured
+ * before {@link ActivationGain} existed. Only the weights whose fan-in is both unambiguous and large change
+ * at all, which are the ones the saturation was about.
+ * <p>
+ * Not the default, and not because of anything it fails: {@link GlorotUniformInitializer} is, because
+ * {@code sqrt(6/(fan_in+fan_out))} is {@code sqrt(3/fan_in)} for a square weight, which is the constant that
+ * actually preserves variance, where {@code 1/sqrt(fan_in)} is {@code sqrt(3)} under it - {@code 0.125}
+ * against {@code 0.2165} on a 64x64. Torch's own source points at pytorch issue 57109 about that. This one
+ * is for when a model here has to begin from the same distribution as the same model written in torch.
  */
 public class TorchUniformInitializer implements ValueInitializer {
     private static final Logger LOG = Logger.getLogger(TorchUniformInitializer.class.getName());

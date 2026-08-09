@@ -671,14 +671,17 @@ public class Settings implements Serializable {
      * How to initialize random weight values. {@link #initDistribution} applies to {@link InitSet#SIMPLE}
      * only; the others carry their own spread.
      * <p>
-     * {@link InitSet#TORCH} is the one whose spread follows the shape of the weight the way every torch
-     * layer's does, so a model written here and the same model written there start from the same place. It
-     * is <em>not</em> the default, and the reason is measured rather than assumed: making it one leaves the
-     * whole Java suite passing but stops two recursive templates in the frontend suite learning at all -
-     * `test_xor_generalization` then misses even its own training data, and more epochs do not recover it.
-     * Fan-in scaling is calibrated for a fixed-depth network, and a template that applies one weight at a
-     * recursion depth the data decides is not that. See
-     * {@link cz.cvut.fel.ida.algebra.values.inits.TorchUniformInitializer}.
+     * {@link InitSet#GLOROT} is the default because its constant is the right one: for a square weight
+     * {@code sqrt(6/(fan_in+fan_out))} is {@code sqrt(3/fan_in)}, which is exactly what keeps a uniformly
+     * drawn layer's output variance equal to its input's, and it takes both directions into account rather
+     * than the forward one alone.
+     * <p>
+     * {@link InitSet#TORCH} is there for starting where torch starts, which is not the same thing as
+     * starting well: {@code nn.Linear}'s {@code kaiming_uniform_(a=sqrt(5))} works out at
+     * {@code 1/sqrt(fan_in)}, a factor of {@code sqrt(3)} under that - {@code 0.125} against {@code 0.2165}
+     * on a 64x64 - and torch's own source points at pytorch issue 57109 about it. Reach for it when a model
+     * here has to begin from the same distribution as the same model written in torch; the
+     * {@link cz.cvut.fel.ida.algebra.values.inits.ActivationGain} correction applies to either.
      */
     public InitSet initializer = InitSet.GLOROT;
 
