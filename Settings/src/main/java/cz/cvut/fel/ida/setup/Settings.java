@@ -680,7 +680,7 @@ public class Settings implements Serializable {
      * recursion depth the data decides is not that. See
      * {@link cz.cvut.fel.ida.algebra.values.inits.TorchUniformInitializer}.
      */
-    public InitSet initializer = InitSet.SIMPLE;
+    public InitSet initializer = InitSet.GLOROT;
 
     public enum InitSet {
         SIMPLE, GLOROT, HE, TORCH
