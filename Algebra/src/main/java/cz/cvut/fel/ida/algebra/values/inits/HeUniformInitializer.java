@@ -15,13 +15,8 @@ public class HeUniformInitializer extends GlorotUniformInitializer {  //sqrt(2. 
     }
 
     @Override
-    public ValueInitializer withGain(double gain) {
-        if (gain == this.gain) {
-            return this;
-        }
-        HeUniformInitializer widened = new HeUniformInitializer(this.settings);
-        widened.gain = gain;
-        return widened;
+    protected GlorotUniformInitializer copy() {
+        return new HeUniformInitializer(this.settings);
     }
 
     protected double getLimit(MatrixValue value) {

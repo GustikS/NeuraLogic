@@ -8,6 +8,7 @@ import cz.cvut.fel.ida.learning.Model;
 import cz.cvut.fel.ida.logic.Clause;
 import cz.cvut.fel.ida.logic.HornClause;
 import cz.cvut.fel.ida.logic.Literal;
+import cz.cvut.fel.ida.logic.Predicate;
 import cz.cvut.fel.ida.logic.constructs.Conjunction;
 import cz.cvut.fel.ida.logic.constructs.example.QueryAtom;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
@@ -152,8 +153,12 @@ public class Template implements Model<QueryAtom>, Exportable {
     }
 
     /**
-     * Tell each weight which activation its own output runs into, which is what {@link ActivationGain} needs
-     * and what is gone by the time anything holds a flat list of weights.
+     * Tell each weight the two things about its own place in the template that an initializer would
+     * otherwise have to be told - both gone by the time anything holds a flat list of weights.
+     * <p>
+     * One is the activation its output runs into, which {@link ActivationGain} turns into a width. The other
+     * is whether a recursive rule applies it, in which case it is drawn orthonormal and keeps the length of
+     * what flows through it over every application rather than on average.
      * <p>
      * Where the weight sits decides which activation that is. A body weight multiplies before the rule's own
      * transformation, so that is the one it passes through. A head weight multiplies the rule's result
@@ -163,8 +168,14 @@ public class Template implements Model<QueryAtom>, Exportable {
      * {@link Weight#setActivationGain} keeps the first answer it is given, so calling this twice changes
      * nothing the second time.
      */
-    public void assignActivationGains(Settings settings) {
+    public void assignInitialisationHints(Settings settings) {
+        Set<Predicate> recursive = recursivePredicates();
+
         for (WeightedRule rule : rules) {
+            boolean reused = recursive.contains(rule.getHead().getPredicate());
+            if (reused && rule.getWeight() != null) {
+                rule.getWeight().onRecurrentRule = true;
+            }
             if (rule.getWeight() != null) {
                 Transformation afterTheHeadWeight = rule.getHead().getTransformation() != null
                         ? rule.getHead().getTransformation()
@@ -174,9 +185,54 @@ public class Template implements Model<QueryAtom>, Exportable {
             for (BodyAtom bodyAtom : rule.getBody()) {
                 if (bodyAtom.getConjunctWeight() != null) {
                     bodyAtom.getConjunctWeight().setActivationGain(ActivationGain.of(rule.getTransformation()));
+                    if (reused) {
+                        bodyAtom.getConjunctWeight().onRecurrentRule = true;
+                    }
                 }
             }
         }
+    }
+
+    /**
+     * The predicates that can be derived from themselves, so a rule with one at its head applies its weights
+     * once per unrolling rather than once - which is what {@link Weight#onRecurrentRule} is about.
+     * <p>
+     * Reachability rather than a self-reference test, so that mutual recursion counts too: a rule for `a`
+     * over `b` and one for `b` over `a` reuses both weights just as surely as `h` over `h` does, and only
+     * looking for the head in its own body would quietly miss it.
+     */
+    private Set<Predicate> recursivePredicates() {
+        Map<Predicate, Set<Predicate>> derivedFrom = new HashMap<>();
+        for (WeightedRule rule : rules) {
+            Set<Predicate> body = derivedFrom.computeIfAbsent(rule.getHead().getPredicate(), p -> new HashSet<>());
+            for (BodyAtom bodyAtom : rule.getBody()) {
+                body.add(bodyAtom.getPredicate());
+            }
+        }
+
+        Set<Predicate> recursive = new HashSet<>();
+        for (Predicate head : derivedFrom.keySet()) {
+            if (reaches(derivedFrom, head, head)) {
+                recursive.add(head);
+            }
+        }
+        return recursive;
+    }
+
+    private static boolean reaches(Map<Predicate, Set<Predicate>> derivedFrom, Predicate from, Predicate target) {
+        Deque<Predicate> pending = new ArrayDeque<>(derivedFrom.getOrDefault(from, Collections.emptySet()));
+        Set<Predicate> seen = new HashSet<>();
+
+        while (!pending.isEmpty()) {
+            Predicate next = pending.pop();
+            if (next.equals(target)) {
+                return true;
+            }
+            if (seen.add(next)) {
+                pending.addAll(derivedFrom.getOrDefault(next, Collections.emptySet()));
+            }
+        }
+        return false;
     }
 
     private List<Weight> filterUnique(List<Weight> weightList) {

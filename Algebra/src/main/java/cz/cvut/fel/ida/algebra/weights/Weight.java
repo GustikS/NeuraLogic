@@ -47,6 +47,15 @@ public class Weight implements Exportable {
 
     private boolean activationGainSet = false;
 
+    /**
+     * Whether a recursive rule applies this weight, so that the initializer draws it orthonormal and it
+     * keeps the length of what flows through it over every application rather than on average.
+     * <p>
+     * Unlike {@link #activationGain} this is an or, not a first-wins: a weight used recurrently anywhere is
+     * reused at depth, whatever else it also does.
+     */
+    public boolean onRecurrentRule = false;
+
     public void setActivationGain(double gain) {
         if (activationGainSet) {
             return;

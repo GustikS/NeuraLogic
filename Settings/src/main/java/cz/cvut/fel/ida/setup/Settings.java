@@ -686,7 +686,7 @@ public class Settings implements Serializable {
     public InitSet initializer = InitSet.GLOROT;
 
     public enum InitSet {
-        SIMPLE, GLOROT, HE, TORCH, ORTHOGONAL
+        SIMPLE, GLOROT, HE, TORCH
     }
 
     /**
@@ -1218,9 +1218,6 @@ public class Settings implements Serializable {
                     break;
                 case "torch":
                     settings.initializer = InitSet.TORCH;
-                    break;
-                case "orthogonal":
-                    settings.initializer = InitSet.ORTHOGONAL;
                     break;
                 default:
                     LOG.severe("unrecognized initialization: " + _weightInit);

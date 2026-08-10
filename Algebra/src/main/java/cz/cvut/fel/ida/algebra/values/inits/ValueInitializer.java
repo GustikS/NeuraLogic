@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.algebra.values.inits;
 import cz.cvut.fel.ida.algebra.values.MatrixValue;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.VectorValue;
+import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 
@@ -24,10 +25,16 @@ public interface ValueInitializer extends Exportable {
         return this;
     }
 
+    /**
+     * An initializer set up for one weight's hints - the activation its output meets, and whether a
+     * recursive rule applies it. The ones that scale with shape answer this; the rest hand back themselves.
+     */
+    default ValueInitializer forWeight(Weight weight) {
+        return this;
+    }
+
     static ValueInitializer getInitializer(Settings settings) {
-        if (settings.initializer == Settings.InitSet.ORTHOGONAL) {
-            return new OrthogonalInitializer(settings);
-        } else if (settings.initializer == Settings.InitSet.TORCH) {
+        if (settings.initializer == Settings.InitSet.TORCH) {
             return new TorchUniformInitializer(settings);
         } else if (settings.initializer == Settings.InitSet.GLOROT) {
             return new GlorotUniformInitializer(settings);

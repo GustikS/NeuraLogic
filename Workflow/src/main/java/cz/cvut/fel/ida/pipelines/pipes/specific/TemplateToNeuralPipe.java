@@ -27,7 +27,7 @@ public class TemplateToNeuralPipe extends Pipe<Template, NeuralModel> {
     @Override
     public NeuralModel apply(Template template) {
         TrainingDebugger trainingDebugger = new TrainingDebugger(this.settings, template);
-        template.assignActivationGains(this.settings);   //the last point where the rules, and so the activations, are still in reach
+        template.assignInitialisationHints(this.settings);   //the last point where the rules, and so the activations and the recursion, are still in reach
         return new NeuralModel(template.getAllWeights(), trainingDebugger::debugWeights, this.settings);
     }
 }

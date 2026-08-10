@@ -3,7 +3,6 @@ package cz.cvut.fel.ida.algebra.values.inits;
 import cz.cvut.fel.ida.algebra.values.MatrixValue;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.VectorValue;
-import cz.cvut.fel.ida.algebra.values.distributions.Uniform;
 import cz.cvut.fel.ida.setup.Settings;
 
 import java.util.logging.Logger;
@@ -36,53 +35,16 @@ import java.util.logging.Logger;
  * against {@code 0.2165} on a 64x64. Torch's own source points at pytorch issue 57109 about that. This one
  * is for when a model here has to begin from the same distribution as the same model written in torch.
  */
-public class TorchUniformInitializer implements ValueInitializer {
+public class TorchUniformInitializer extends GlorotUniformInitializer {
     private static final Logger LOG = Logger.getLogger(TorchUniformInitializer.class.getName());
 
-    Uniform distribution;
-
-    protected final Settings settings;
-
-    /** The activation correction, folded into every limit below. 1 until asked for otherwise. */
-    protected double gain = ActivationGain.LINEAR;
-
-    @Override
-    public ValueInitializer withGain(double gain) {
-        if (gain == this.gain) {
-            return this;
-        }
-        TorchUniformInitializer widened = new TorchUniformInitializer(this.settings);
-        widened.gain = gain;
-        return widened;
-    }
-
     public TorchUniformInitializer(Settings settings) {
-        this.settings = settings;
-        this.distribution = new Uniform(settings.random, settings);
+        super(settings);
     }
 
     @Override
-    public void initScalar(ScalarValue scalar) {
-        double limit = getLimit(scalar);
-        scalar.value = distribution.getDoubleValue(-limit, limit);
-    }
-
-    @Override
-    public void initVector(VectorValue vector) {
-        double limit = getLimit(vector);
-        for (int i = 0; i < vector.values.length; i++) {
-            vector.values[i] = distribution.getDoubleValue(-limit, limit);
-        }
-    }
-
-    @Override
-    public void initMatrix(MatrixValue matrix) {
-        final double limit = getLimit(matrix);
-        final double[] values = matrix.values;
-
-        for (int i = 0; i < values.length; i++) {
-            values[i] = distribution.getDoubleValue(-limit, limit);
-        }
+    protected GlorotUniformInitializer copy() {
+        return new TorchUniformInitializer(this.settings);
     }
 
     /**
