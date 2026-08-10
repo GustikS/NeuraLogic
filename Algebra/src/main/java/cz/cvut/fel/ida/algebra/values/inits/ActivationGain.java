@@ -13,6 +13,16 @@ import cz.cvut.fel.ida.algebra.functions.transformation.elementwise.Tanh;
  * amount, which the gain undoes. Anything without a known correction gets 1, which is what the initializers
  * did for everything before this.
  * <p>
+ * Torch's whole table, against what this library has: {@code tanh} 5/3, {@code relu} sqrt(2),
+ * {@code leaky_relu} sqrt(2/(1+slope^2)), {@code selu} 3/4, and {@code linear}, {@code sigmoid} and the
+ * convolutions 1. So the only ones missing here are the two with no counterpart - there is no SELU, and no
+ * convolution. <b>Sigmoid is deliberately 1</b>, not overlooked: torch lists it with the linear functions.
+ * That is arguably generous to it, since a sigmoid's slope at zero is a quarter and preserving variance
+ * through one would want considerably more - but the point of these numbers is to be torch's, and departing
+ * from them for one activation would make the two engines disagree on exactly the case this exists to line
+ * up. Everything else - exp, sqrt, log, inverse, signum, softmax, sparsemax, norm, lukasiewicz - has no
+ * entry in that table either, and gets 1 for the same reason.
+ * <p>
  * Torch makes the caller pass this - {@code kaiming_uniform_(w, nonlinearity="tanh")} - and has to, because
  * when {@code nn.Linear.reset_parameters} runs it genuinely does not know what will be applied to its output
  * later, possibly by an unrelated module. A template says the weight and the activation in the same rule, so
