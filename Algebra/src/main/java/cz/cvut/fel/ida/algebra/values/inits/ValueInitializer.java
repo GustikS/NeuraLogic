@@ -25,7 +25,9 @@ public interface ValueInitializer extends Exportable {
     }
 
     static ValueInitializer getInitializer(Settings settings) {
-        if (settings.initializer == Settings.InitSet.TORCH) {
+        if (settings.initializer == Settings.InitSet.ORTHOGONAL) {
+            return new OrthogonalInitializer(settings);
+        } else if (settings.initializer == Settings.InitSet.TORCH) {
             return new TorchUniformInitializer(settings);
         } else if (settings.initializer == Settings.InitSet.GLOROT) {
             return new GlorotUniformInitializer(settings);
