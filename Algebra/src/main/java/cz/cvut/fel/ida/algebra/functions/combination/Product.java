@@ -2,6 +2,7 @@ package cz.cvut.fel.ida.algebra.functions.combination;
 
 import cz.cvut.fel.ida.algebra.functions.ActivationFcn;
 import cz.cvut.fel.ida.algebra.functions.Combination;
+import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 
 import java.util.List;
@@ -84,9 +85,24 @@ public class Product implements Combination {
                 }
             }
             if (left == null) {
+                if (accumulatedInputs.get(index) instanceof ScalarValue) {
+                    // s * v, differentiating by the scalar: that is the dot product of the top gradient with
+                    // the rest, not their outer product - the derivative has to have the shape of the input
+                    // it is for. The branch below already does this, which is why the very same rule takes a
+                    // gradient when the scalar is written last in the body and throws "scalar incrementBy by
+                    // matrix" when it is written first.
+                    return topGradient.transposedView().times(right);
+                }
                 Value transposedRight = right.transposedView();
                 return topGradient.times(transposedRight);
             } else if (right == null) {
+                if (left instanceof ScalarValue) {
+                    // scaling by a scalar transposes nothing, so the derivative keeps the top gradient's
+                    // orientation - which is what the caller's weight update needs. `transposedTimes` would
+                    // hand back a row and then `inputGradient.times(transposedInputValue)` in Down.visit is
+                    // row times row, which has no reading
+                    return topGradient.times(left);
+                }
                 return topGradient.transposedTimes(left);
             } else {
                 Value times = topGradient.transposedTimes(left);
