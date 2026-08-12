@@ -230,6 +230,12 @@ public class NeuralNetBuilder {
 
         for (Map.Entry<GroundRule, RuleNeurons> entry : neuronMaps.ruleNeurons.entrySet()) {    //todo iterate only newly created from currentNeuronSets here
             RuleNeurons ruleNeuron = entry.getValue();
+            // todo: this compares against the *lifted* body size, while the loop below adds one input per
+            //  *ground* literal - so for any rule with a hidden atom the two can never be equal and an
+            //  already connected rule neuron would be connected again. Left alone deliberately: no case
+            //  could be built where it makes a difference, since each build gets its own NeuronMaps and
+            //  every rule neuron here was newly created. Changing it on that basis would be a change to
+            //  what the library computes resting on nothing.
             if (ruleNeuron.inputCount() == entry.getKey().weightedRule.getBody().size()) {
                 continue;   //this rule neuron is already connected (was created and taken from previous sample), connect only the newly created RuleNeurons
             }
@@ -238,13 +244,19 @@ public class NeuralNetBuilder {
             for (int i = 0; i < entry.getKey().groundBody.length; i++) {
                 BodyAtom liftedBodyAtom = entry.getKey().weightedRule.getBody().get(j++);
                 Literal literal = entry.getKey().groundBody[i];
-                if (liftedBodyAtom.isNegated() && liftedBodyAtom.getPredicate() != literal.predicate()) {
-                    while (!liftedBodyAtom.getPredicate().name.equals(literal.predicate().name)) {
-                        if (j == entry.getKey().weightedRule.getBody().size()) {
-                            throw new InputMismatchException("A mismatch between predicates when connecting rule neuron inputs!");
-                        }
-                        liftedBodyAtom = entry.getKey().weightedRule.getBody().get(j++);  // if it is negated we skip it!
+                // The two bodies are walked in lockstep and the weight comes from the lifted side, so any
+                // lifted atom that produced no ground literal leaves them out of step from there on. A
+                // `hidden` atom is exactly that - it is there to shape the grounding and then to be left out
+                // of the neural computation - and so is a pruned negated one. Skipping was previously done
+                // only for negated atoms, so a rule whose body began with a hidden atom handed the *next*
+                // literal the hidden one's weight, which is none: the weight was silently dropped, and with
+                // enough body literals the shapes stopped adding up and it threw instead.
+                // Predicate.equals compares name and arity, where this used to compare name alone.
+                while (!liftedBodyAtom.getPredicate().equals(literal.predicate())) {
+                    if (j == entry.getKey().weightedRule.getBody().size()) {
+                        throw new InputMismatchException("A mismatch between predicates when connecting rule neuron inputs!");
                     }
+                    liftedBodyAtom = entry.getKey().weightedRule.getBody().get(j++);
                 }
 
                 Weight weight = liftedBodyAtom.getConjunctWeight();
