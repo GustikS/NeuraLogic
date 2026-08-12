@@ -22,14 +22,18 @@ public class SquaredDiff implements ErrorFcn {
         Value diff = output.minus(target);
 
         double accumulator = 0d;
-        int elements = 0;
 
         for (double value : diff) {
             accumulator += value * value;
-            elements += 1;
         }
 
-        return new ScalarValue(accumulator / elements);
+        // Summed, not averaged over the components. `differentiate` below returns the derivative of the sum -
+        // it does not divide by the element count - so dividing here reported a number that was not the
+        // function being descended, by exactly the output width. For a scalar output the two are the same,
+        // which is why it went unseen; for a vector target the reported error was the mean while the gradient
+        // was the sum's. Crossentropy and SoftEntropy both already sum over components, so this is also what
+        // makes the three agree with each other.
+        return new ScalarValue(accumulator);
     }
 
     @Override
