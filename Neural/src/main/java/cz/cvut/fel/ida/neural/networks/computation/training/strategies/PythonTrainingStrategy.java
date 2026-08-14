@@ -3,6 +3,7 @@ package cz.cvut.fel.ida.neural.networks.computation.training.strategies;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
 import cz.cvut.fel.ida.learning.results.Progress;
+import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.learning.results.Result;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.Evaluation;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.weights.WeightUpdater;
@@ -154,6 +155,26 @@ public class PythonTrainingStrategy extends TrainingStrategy {
         }
 
         return output;
+    }
+
+    /**
+     * The loss of a whole dataset, reduced the way the error function says - so the single number torch's
+     * criterion would hand back, and the quantity the optimizer is descending.
+     * <p>
+     * The per-sample values from {@link #validateSamples} are deliberately *not* reduced across the batch;
+     * they are each summed over their own components, which is torch's reduction="none". This is the one
+     * that applies the batch reduction, through the same {@link Result#reductionDivisor} the trainers scale
+     * the gradient by, so the reported loss and the descended one cannot drift apart.
+     */
+    public Value reducedError(List<NeuralSample> samples, int minibatchSize) {
+        List<Result> results = validateSamples(samples, minibatchSize);
+        double total = 0;
+        for (Result result : results) {
+            for (double component : result.errorValue()) {
+                total += component;
+            }
+        }
+        return new ScalarValue(total / Result.reductionDivisor(results, settings.errorReduction));
     }
 
     public Result validateSample(NeuralSample sample) {

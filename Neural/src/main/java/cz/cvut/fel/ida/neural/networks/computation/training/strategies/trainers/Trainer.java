@@ -10,6 +10,8 @@ import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
 import cz.cvut.fel.ida.neural.networks.computation.training.optimizers.Optimizer;
 import cz.cvut.fel.ida.neural.networks.computation.training.strategies.debugging.NeuralDebugging;
 import cz.cvut.fel.ida.setup.Settings;
+
+import java.util.Collections;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 
 import java.util.logging.Logger;
@@ -52,12 +54,7 @@ public class Trainer implements Exportable {
         WeightUpdater weightUpdater = backpropSample(backpropagation, result, neuralSample);
         // one sample is a batch of one, so a MEAN reduction divides by its own importance times its width -
         // torch's N x C with N = 1. At a scalar target that is 1.0 and nothing moves.
-        if (settings.errorReduction == Settings.ErrorReduction.MEAN) {
-            double divisor = result.reductionScale();
-            if (divisor > 0) {
-                weightUpdater.scaleUpdates(1.0 / divisor);
-            }
-        }
+        weightUpdater.scaleUpdates(1.0 / Result.reductionDivisor(Collections.singletonList(result), settings.errorReduction));
         updateWeights(neuralModel, weightUpdater);
         if (settings.debugSampleTraining) {
             neuralDebugger.debug(neuralSample);

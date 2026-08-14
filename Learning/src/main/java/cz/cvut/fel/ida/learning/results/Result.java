@@ -63,6 +63,22 @@ public class Result implements Comparable<Result> {
         return elements;
     }
 
+    /**
+     * The divisor a batch of results reduces by, and the single place that rule lives: the trainers scale the
+     * gradient by it and the reported loss divides by it, so the number handed back is always the quantity
+     * being descended. One under SUM, the batch's total element count under MEAN.
+     */
+    public static double reductionDivisor(Iterable<Result> results, Settings.ErrorReduction reduction) {
+        if (reduction != Settings.ErrorReduction.MEAN) {
+            return 1.0;
+        }
+        double total = 0;
+        for (Result result : results) {
+            total += result.reductionScale();
+        }
+        return total > 0 ? total : 1.0;
+    }
+
     public Value errorValue() {
         return weighted(errorFcn.evaluate(getOutput(), getTarget()));
     }

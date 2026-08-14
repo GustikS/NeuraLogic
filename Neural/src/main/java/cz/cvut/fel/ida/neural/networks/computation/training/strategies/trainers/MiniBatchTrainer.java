@@ -201,17 +201,12 @@ public class MiniBatchTrainer extends Trainer {
         // the sum of importance times target width *over the batch*, which does not decompose into a
         // per-sample factor once the widths differ. Doing it in only one of the two paths would make the same
         // model learn differently at batch 1 and batch 2.
-        if (settings.errorReduction == Settings.ErrorReduction.MEAN) {
-            double divisor = 0;
-            for (Result result : results) {
-                divisor += result.reductionScale();
-            }
-            if (divisor > 0) {
-                ScalarValue scale = new ScalarValue(1.0 / divisor);
-                for (int j = 0; j < weightUpdates.length; j++) {
-                    if (weightUpdates[j] != null) {
-                        weightUpdates[j] = weightUpdates[j].times(scale);
-                    }
+        double divisor = Result.reductionDivisor(results, settings.errorReduction);
+        if (divisor != 1.0) {
+            ScalarValue scale = new ScalarValue(1.0 / divisor);
+            for (int j = 0; j < weightUpdates.length; j++) {
+                if (weightUpdates[j] != null) {
+                    weightUpdates[j] = weightUpdates[j].times(scale);
                 }
             }
         }
