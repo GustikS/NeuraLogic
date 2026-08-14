@@ -18,6 +18,7 @@ import cz.cvut.fel.ida.utils.exporting.Exporter;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -126,6 +127,10 @@ public class PythonTrainingStrategy extends TrainingStrategy {
         Result result = trainer.evaluateSample(trainer.getEvaluation(), sample);
 
         WeightUpdater weightUpdater = trainer.backpropSample(trainer.getBackpropagation(), result, sample);
+        //this reimplements Trainer.learnFromSample rather than calling it, so anything that path gains has to
+        //be repeated here or the two descend different functions - which they did, until the reduction was
+        //added to only one of them and a single sample under MEAN stepped as if under SUM
+        trainer.reduceAndClip(weightUpdater, Collections.singletonList(result));
         trainer.updateWeights(currentModel, weightUpdater);
 
         return result;

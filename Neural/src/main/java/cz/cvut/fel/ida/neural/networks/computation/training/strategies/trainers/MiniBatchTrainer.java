@@ -2,6 +2,7 @@ package cz.cvut.fel.ida.neural.networks.computation.training.strategies.trainers
 
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
+import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.weights.GradientClipping;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.weights.WeightUpdater;
 import cz.cvut.fel.ida.utils.generic.Utilities;
 import cz.cvut.fel.ida.learning.results.Result;
@@ -210,6 +211,11 @@ public class MiniBatchTrainer extends Trainer {
                 }
             }
         }
+
+        // and then clipping, torch's order. Not through Trainer.reduceAndClip because the batch's updates are
+        // accumulated into a bare array here rather than into one sample's WeightUpdater; the scaling above is
+        // that method's first half, spelled out for the same reason.
+        GradientClipping.clip(weightUpdates, settings);
 
         this.optimizer.performGradientStep(updatedWeights, weightUpdates, this.iterationNumber);
         return results;

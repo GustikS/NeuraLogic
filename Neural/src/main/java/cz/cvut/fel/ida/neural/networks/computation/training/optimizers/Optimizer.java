@@ -12,11 +12,11 @@ public interface Optimizer {
 
     static Optimizer getFrom(Settings settings, Value learningRate) {
         if (settings.getOptimizer() == Settings.OptimizerSet.SGD) {
-            return new SGD(learningRate);
+            return new SGD(learningRate, settings.weightDecay);
         } else if (settings.getOptimizer() == Settings.OptimizerSet.ADAM) {
-            return new Adam(learningRate);
+            return new Adam(learningRate, 0.9, 0.999, 1e-8, settings.weightDecay);
         }
-        return new SGD(learningRate);  //default
+        return new SGD(learningRate, settings.weightDecay);  //default
     }
 
 

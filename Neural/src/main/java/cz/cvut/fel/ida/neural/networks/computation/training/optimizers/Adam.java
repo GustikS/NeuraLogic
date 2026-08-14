@@ -15,15 +15,28 @@ public class Adam implements Optimizer {
     public final double beta2;
     public final double epsilon;
 
+    /**
+     * Coupled L2, torch's <code>Adam(weight_decay=)</code> - the penalty joins the gradient *before* the
+     * moments, so it accumulates in them. That is what makes it different from <code>AdamW</code>, whose
+     * decay is applied to the weight directly and bypasses the adaptive scaling; **measured** to be two
+     * different updates from the same numbers.
+     */
+    public final double weightDecay;
+
     public Adam(Value learningRate) {
         this(learningRate, 0.9, 0.999, 1e-8);
     }
 
     public Adam(Value learningRate, double i_beta1, double i_beta2, double i_epsilon) {
+        this(learningRate, i_beta1, i_beta2, i_epsilon, 0.0);
+    }
+
+    public Adam(Value learningRate, double i_beta1, double i_beta2, double i_epsilon, double weightDecay) {
         this.learningRate = (ScalarValue) learningRate;
         this.beta1 = i_beta1;
         this.beta2 = i_beta2;
         this.epsilon = i_epsilon;
+        this.weightDecay = weightDecay;
     }
 
     public void performGradientStep(Collection<Weight> updatedWeights, Value[] gradients, int iteration) {
@@ -48,7 +61,9 @@ public class Adam implements Optimizer {
             gradient = gradients[weight.index].getAsArray();
 
             for (int i = 0; i < value.length; i++) {
-                final double grad = gradient[i];
+                //the array holds the descent direction, so torch's `grad = grad + weight_decay * param`
+                //subtracts here; `value[i]` is still the weight before this step, which is the one torch reads
+                final double grad = weightDecay == 0 ? gradient[i] : gradient[i] - (weightDecay * value[i]);
 
                 momentum[i] = (momentum[i] * beta1) - (grad * (1 - beta1));
                 velocity[i] = (velocity[i] * beta2) + (grad * grad * (1 - beta2));

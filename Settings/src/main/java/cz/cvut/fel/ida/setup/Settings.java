@@ -843,6 +843,36 @@ public class Settings implements Serializable {
         SUM, MEAN
     }
 
+    /**
+     * L2 penalty, as torch's optimizer-level <code>weight_decay</code>: the term is added to the gradient of
+     * every weight that receives one, and so is scaled by the learning rate along with it. This is the
+     * *coupled* variant, which is what <code>SGD(weight_decay=)</code> and <code>Adam(weight_decay=)</code> do
+     * - **measured** to differ from <code>AdamW</code>, whose decay is decoupled from the adaptive step.
+     * <p>
+     * Only reaches the optimizer built by {@link cz.cvut.fel.ida.neural.networks.computation.training.optimizers.Optimizer#getFrom},
+     * i.e. the CLI path. The Python frontend constructs the optimizer itself and passes the decay to its
+     * constructor, mirroring where torch puts it.
+     */
+    public double weightDecay = 0.0;
+
+    /**
+     * Rescale the whole gradient down to this global L2 norm before the step, torch's
+     * <code>clip_grad_norm_</code>. Zero is off, the same idiom as {@link #dropoutRate}.
+     * <p>
+     * A setting rather than a call because torch clips between <code>backward()</code> and
+     * <code>step()</code>, and there is no such hook here - the engine owns the whole iteration. It matters
+     * more here than in torch: the depth of the computation graph is decided by the data, so gradient
+     * magnitude varies between samples far more than in a fixed-shape network.
+     */
+    public double gradientClipNorm = 0.0;
+
+    /**
+     * Clamp every gradient element to +-this, torch's <code>clip_grad_value_</code>. Zero is off. Independent
+     * of {@link #gradientClipNorm}; with both set the norm is applied first, as it would be if the two torch
+     * calls were made in that order.
+     */
+    public double gradientClipValue = 0.0;
+
     public CombinationFcn errorAggregationFcn = CombinationFcn.AVG;
 
     public CombinationFcn ruleNeuronCombination = CombinationFcn.SUM;
