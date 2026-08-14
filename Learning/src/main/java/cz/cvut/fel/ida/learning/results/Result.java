@@ -45,6 +45,24 @@ public class Result implements Comparable<Result> {
         this.setOutput(output);
     }
 
+    /**
+     * This query's share of a MEAN reduction's divisor: the number of elements in its target. Summed over a
+     * batch that is torch's N x C, generalised only in that the widths may differ between queries.
+     * <p>
+     * Deliberately *not* weighted by importance, which was the first guess and is not what torch does.
+     * **Measured**: under `reduction='mean'` torch divides by the element count and not by the sum of the
+     * weights, so halving a weight halves both the loss and the gradient rather than cancelling - true of a
+     * hand-rolled weighted MSE and of the built-in `BCELoss(weight=...)` alike. Putting importance in the
+     * divisor would make it purely relative, and a single-query batch would ignore it entirely.
+     */
+    public double reductionScale() {
+        int elements = 0;
+        for (double ignored : getTarget()) {
+            elements++;
+        }
+        return elements;
+    }
+
     public Value errorValue() {
         return weighted(errorFcn.evaluate(getOutput(), getTarget()));
     }

@@ -830,6 +830,19 @@ public class Settings implements Serializable {
     public boolean passResultsCache = false;
 
 
+    /**
+     * How a batch's per-query errors are reduced into the single quantity the optimizer descends, following
+     * torch: MEAN divides by the total element count and the *gradient* follows, SUM does not divide at all.
+     * The divisor generalises torch's N x C to the two things it has no notion of - a query's importance and
+     * a target whose width differs per query - as the sum of importance times width over the batch, which is
+     * exactly N x C when the importances are one and the widths equal.
+     */
+    public ErrorReduction errorReduction = ErrorReduction.MEAN;
+
+    public enum ErrorReduction {
+        SUM, MEAN
+    }
+
     public CombinationFcn errorAggregationFcn = CombinationFcn.AVG;
 
     public CombinationFcn ruleNeuronCombination = CombinationFcn.SUM;

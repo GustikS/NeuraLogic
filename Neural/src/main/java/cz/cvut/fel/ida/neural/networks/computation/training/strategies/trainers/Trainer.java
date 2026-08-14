@@ -50,6 +50,14 @@ public class Trainer implements Exportable {
         invalidateSample(invalidation, neuralSample);   //todo check why there is a huge number at init for outputValue - is it?
         Result result = evaluateSample(evaluation, neuralSample);
         WeightUpdater weightUpdater = backpropSample(backpropagation, result, neuralSample);
+        // one sample is a batch of one, so a MEAN reduction divides by its own importance times its width -
+        // torch's N x C with N = 1. At a scalar target that is 1.0 and nothing moves.
+        if (settings.errorReduction == Settings.ErrorReduction.MEAN) {
+            double divisor = result.reductionScale();
+            if (divisor > 0) {
+                weightUpdater.scaleUpdates(1.0 / divisor);
+            }
+        }
         updateWeights(neuralModel, weightUpdater);
         if (settings.debugSampleTraining) {
             neuralDebugger.debug(neuralSample);

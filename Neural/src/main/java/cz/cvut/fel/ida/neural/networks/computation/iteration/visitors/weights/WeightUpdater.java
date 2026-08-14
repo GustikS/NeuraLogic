@@ -1,5 +1,6 @@
 package cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.weights;
 
+import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 
@@ -98,6 +99,23 @@ public class WeightUpdater implements WeightVisitor {
             } else {
                 weightUpdates[index] = value.clone(); //!! necessary not to share weights in a very weird way!!
                 updatedWeightsOnly.add(weight);
+            }
+        }
+    }
+
+    /**
+     * Scale every accumulated update, which is how a MEAN reduction reaches the gradient: torch divides the
+     * loss and lets autograd carry it, and here the same factor is applied to what the optimizer is about to
+     * step with. Scaling by one is a no-op and is skipped, so a SUM reduction costs nothing.
+     */
+    public void scaleUpdates(double factor) {
+        if (factor == 1.0) {
+            return;
+        }
+        ScalarValue scale = new ScalarValue(factor);
+        for (int i = 0; i < weightUpdates.length; i++) {
+            if (weightUpdates[i] != null) {
+                weightUpdates[i] = weightUpdates[i].times(scale);   // the idiom Result.weighted already uses
             }
         }
     }

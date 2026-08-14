@@ -9,6 +9,7 @@ import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
 import cz.cvut.fel.ida.neural.networks.computation.training.optimizers.Optimizer;
 import cz.cvut.fel.ida.neural.networks.computation.training.strategies.debugging.NeuralDebugging;
+import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.setup.Settings;
 
 import java.util.*;
@@ -192,6 +193,25 @@ public class MiniBatchTrainer extends Trainer {
                     weightUpdates[j] = updates[j].clone();   //a copy, otherwise the batch sum is accumulated into this trainer's own gradient buffer
                 } else {
                     weightUpdates[j].incrementBy(updates[j]);
+                }
+            }
+        }
+
+        // The other half of the MEAN reduction, and it has to be here rather than per sample: the divisor is
+        // the sum of importance times target width *over the batch*, which does not decompose into a
+        // per-sample factor once the widths differ. Doing it in only one of the two paths would make the same
+        // model learn differently at batch 1 and batch 2.
+        if (settings.errorReduction == Settings.ErrorReduction.MEAN) {
+            double divisor = 0;
+            for (Result result : results) {
+                divisor += result.reductionScale();
+            }
+            if (divisor > 0) {
+                ScalarValue scale = new ScalarValue(1.0 / divisor);
+                for (int j = 0; j < weightUpdates.length; j++) {
+                    if (weightUpdates[j] != null) {
+                        weightUpdates[j] = weightUpdates[j].times(scale);
+                    }
                 }
             }
         }

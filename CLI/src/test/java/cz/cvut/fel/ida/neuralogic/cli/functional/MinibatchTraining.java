@@ -29,8 +29,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * The two properties a minibatch has to keep: under plain SGD its update is the sum of what its samples would
- * have done on their own, and evaluating it does not train anything.
+ * The two properties a minibatch has to keep: under plain SGD its update is what its samples would have done
+ * on their own, reduced the way the error function says, and evaluating it does not train anything.
+ * <p>
+ * The reduction is pinned in each test rather than left to the default, because it is exactly what decides
+ * between the two: SUM adds the samples' updates, MEAN divides that by the batch's total element count, as
+ * torch does. These targets are scalars, so that count is the batch size.
  */
 public class MinibatchTraining {
     private static final Logger LOG = Logger.getLogger(MinibatchTraining.class.getName());
@@ -39,7 +43,21 @@ public class MinibatchTraining {
 
     @TestAnnotations.Fast
     public void batchUpdateIsTheSumOfTheSampleUpdates() throws Exception {
+        assertBatchAgainstItsSamples(Settings.ErrorReduction.SUM);
+    }
+
+    /**
+     * The same thing under MEAN, where torch divides by the element count - here the batch size, the targets
+     * being scalars. Both are asserted so that neither convention can drift without saying so.
+     */
+    @TestAnnotations.Fast
+    public void batchUpdateIsTheMeanOfTheSampleUpdatesUnderMeanReduction() throws Exception {
+        assertBatchAgainstItsSamples(Settings.ErrorReduction.MEAN);
+    }
+
+    private void assertBatchAgainstItsSamples(Settings.ErrorReduction reduction) throws Exception {
         Settings settings = sgdSettings();
+        settings.errorReduction = reduction;
         Pair<NeuralModel, List<NeuralSample>> built = build(settings);
         NeuralModel model = built.r;
         List<NeuralSample> batch = built.s;
@@ -62,8 +80,10 @@ public class MinibatchTraining {
                 .new MinibatchListTrainer().learnEpoch(model, batch);
         double[] batched = weights(model);
 
+        // the divisor is the batch's total element count, and these targets are scalars
+        double expectedRatio = reduction == Settings.ErrorReduction.MEAN ? 1.0 / batch.size() : 1.0;
         for (int i = 0; i < initial.length; i++) {
-            assertEquals(summed[i], batched[i] - initial[i], 1e-12, "weight " + i);
+            assertEquals(summed[i] * expectedRatio, batched[i] - initial[i], 1e-12, "weight " + i);
         }
     }
 
