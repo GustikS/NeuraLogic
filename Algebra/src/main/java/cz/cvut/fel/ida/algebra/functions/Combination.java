@@ -98,8 +98,18 @@ public interface Combination extends ActivationFcn, Exportable {
 
         @Override
         public ActivationFcn.State changeTransformationState(Transformation transformation) {
-            // no transformation = no change
-            return this;
+            //this used to return `this`, reading "there is no transformation here" as "a transformation
+            //cannot be put here". The two are not the same, and only the output-function inference calls
+            //this: a queried atom whose template says IDENTITY gets a plain Combination.State, so asking it
+            //for the sigmoid that CrossEntropy(with_logits=False) wants did nothing at all. Whether the
+            //queried value came back squashed then depended on how many rules defined the predicate - with
+            //one, StateInitializer had already turned the state into a Transformation.State, which does take
+            //one; with two or more it stayed a Combination.State and the inference was silently dropped.
+            if (transformation == null || transformation instanceof cz.cvut.fel.ida.algebra.functions.transformation.joint.Identity) {
+                return this;    //identity on top of a combination is that combination - the same rule
+                                //ActivationFcn.State.getState follows when it builds these in the first place
+            }
+            return new CompoundState(this, (Transformation.State) transformation.getState(true));
         }
 
     }
