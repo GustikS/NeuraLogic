@@ -175,6 +175,9 @@ public class NeuronFactory {
         if (fact.weight != null && fact.weight.isLearnable()) {
             neuron.hasLearnableValue = true;
             simpleValue.isLearnable = true;
+            //an example's own parameter, which no model carries - see FactNeuron.factLiteral for why the
+            //literal is kept here and only here
+            neuron.factLiteral = fact.literal.toString();
         }
 
         if (LOG.isLoggable(Level.FINEST)) LOG.finest(() -> "Created fact neuron: " + neuron);
