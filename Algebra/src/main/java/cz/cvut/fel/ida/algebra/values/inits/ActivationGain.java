@@ -44,7 +44,10 @@ public class ActivationGain {
             return 5.0 / 3;
         }
         if (transformation instanceof LeakyReLu) {
-            return Math.sqrt(2.0 / (1 + LeakyReLu.alpha * LeakyReLu.alpha));
+            //this instance's own slope, not the static default - a rule that asked for a different one would
+            //otherwise have its weights sized for a slope its neurons do not apply
+            double slope = ((LeakyReLu) transformation).slope();
+            return Math.sqrt(2.0 / (1 + slope * slope));
         }
         if (transformation instanceof ReLu) {
             return Math.sqrt(2.0);
