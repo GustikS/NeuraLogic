@@ -84,7 +84,7 @@ public class LateWeightTest {
         assertEquals(null, lateWeight.momentum, "the premise: init4Adam never reached this weight");
 
         new Adam(new ScalarValue(0.1))
-                .performGradientStep(List.of(lateWeight), new ScalarValue[]{new ScalarValue(0.5)}, 1);
+                .performGradientStep(Collections.singletonList(lateWeight), new ScalarValue[]{new ScalarValue(0.5)}, 1);
 
         assertNotNull(lateWeight.momentum, "the moments have to be filled in on the way");
         assertTrue(Math.abs(lateWeight.value.getAsArray()[0] - 1.0) > 1e-9,
