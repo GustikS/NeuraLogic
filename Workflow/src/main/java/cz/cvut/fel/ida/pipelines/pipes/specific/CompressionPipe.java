@@ -7,16 +7,14 @@ import cz.cvut.fel.ida.neural.networks.structure.components.types.DetailedNetwor
 import cz.cvut.fel.ida.neural.networks.structure.transforming.NetworkReducing;
 import cz.cvut.fel.ida.pipelines.Pipe;
 import cz.cvut.fel.ida.setup.Settings;
-import cz.cvut.fel.ida.utils.generic.Utilities;
-import cz.cvut.fel.ida.utils.math.collections.MultiList;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
+import static cz.cvut.fel.ida.pipelines.utils.WorkflowUtils.consecutiveGroupsIterator;
 import static cz.cvut.fel.ida.utils.generic.Utilities.terminateSampleStream;
 
 /**
@@ -45,28 +43,31 @@ public class CompressionPipe extends Pipe<Stream<NeuralProcessingSample>, Stream
                 return s;
             });
         } else if (!settings.oneQueryPerExample) {
-            List<NeuralProcessingSample> processingSamples = Utilities.terminateSampleStream(neuralProcessingSampleStream);
-            List<NeuralProcessingSample> allProcessingSamples = new LinkedList<>();
-            MultiList<DetailedNetwork, NeuralProcessingSample> sampleMap = new MultiList<>();
-            for (NeuralProcessingSample processingSample : processingSamples) {  // merge samples with the same example
-                sampleMap.put(processingSample.detailedNetwork, processingSample);
-            }
-            for (Map.Entry<DetailedNetwork, List<NeuralProcessingSample>> entry : sampleMap.entrySet()) {
-                DetailedNetwork detailedNetwork = entry.getKey();
-                List<NeuralProcessingSample> samples = entry.getValue();
-                List<QueryNeuron> queryNeurons = samples.stream().map(s -> s.query).collect(Collectors.toList());
+            Stream<List<NeuralProcessingSample>> groupStream = StreamSupport.stream(Spliterators.spliteratorUnknownSize(consecutiveGroupsIterator(neuralProcessingSampleStream.iterator(), a -> a.detailedNetwork), Spliterator.ORDERED), false);
+            Stream<NeuralProcessingSample> flatStream = groupStream.flatMap(list -> {
+                if (list.isEmpty()) {
+                    return Stream.empty();
+                }
+
+                DetailedNetwork detailedNetwork = list.get(0).detailedNetwork;
+                List<QueryNeuron> queryNeurons = list.stream().map(s -> s.query).collect(Collectors.toList());
                 NeuralNetwork reducedNetwork = compressor.reduce(detailedNetwork, queryNeurons);
-                for (NeuralProcessingSample sample : samples) {
+                for (NeuralProcessingSample sample : list) {
                     sample.query.evidence = reducedNetwork;
                 }
-                allProcessingSamples.addAll(samples);
+
+                return list.stream();
+            });
+
+            if (this.exporter != null) {
+                flatStream = flatStream.onClose(() -> trueExport());
             }
-            trueExport();
-            return allProcessingSamples.stream();
+
+            return flatStream;
         }
 
         if (this.exporter != null)
-            neuralProcessingSampleStream.onClose(() -> trueExport());   //We export after the stream finishes!
+            neuralProcessingSampleStream = neuralProcessingSampleStream.onClose(() -> trueExport());   //We export after the stream finishes!
 
         return neuralProcessingSampleStream.map(sample -> {
             if (!sample.detailedNetwork.compressed) {  // skip if the same network has already been compressed!

@@ -4,6 +4,7 @@ import cz.cvut.fel.ida.algebra.functions.ErrorFcn;
 import cz.cvut.fel.ida.algebra.functions.error.Crossentropy;
 import cz.cvut.fel.ida.algebra.functions.error.SoftEntropy;
 import cz.cvut.fel.ida.algebra.functions.error.SquaredDiff;
+import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.setup.Settings;
 
@@ -27,20 +28,71 @@ public class Result implements Comparable<Result> {
     private Value output;
     private Value target;
 
-    private Result(ErrorFcn errorFcn, String sampleId, int position, Value target, Value output) {
+    /**
+     * Weight of the query this result came from. Both the error and its gradient carry it, so that what gets
+     * reported is the quantity training actually minimises - weighting only the gradient would optimise
+     * sum(importance * error) while reporting sum(error), and the reported loss is what early stopping and
+     * model selection look at.
+     */
+    private final double importance;
+
+    private Result(ErrorFcn errorFcn, String sampleId, int position, Value target, Value output, double importance) {
         this.errorFcn = errorFcn;
         this.sampleId = sampleId;
         this.position = position;
+        this.importance = importance;
         this.setTarget(target);
         this.setOutput(output);
     }
 
+    /**
+     * This query's share of a MEAN reduction's divisor: the number of elements in its target. Summed over a
+     * batch that is torch's N x C, generalised only in that the widths may differ between queries.
+     * <p>
+     * Deliberately *not* weighted by importance, which was the first guess and is not what torch does.
+     * **Measured**: under `reduction='mean'` torch divides by the element count and not by the sum of the
+     * weights, so halving a weight halves both the loss and the gradient rather than cancelling - true of a
+     * hand-rolled weighted MSE and of the built-in `BCELoss(weight=...)` alike. Putting importance in the
+     * divisor would make it purely relative, and a single-query batch would ignore it entirely.
+     */
+    public double reductionScale() {
+        int elements = 0;
+        for (double ignored : getTarget()) {
+            elements++;
+        }
+        return elements;
+    }
+
+    /**
+     * The divisor a batch of results reduces by, and the single place that rule lives: the trainers scale the
+     * gradient by it and the reported loss divides by it, so the number handed back is always the quantity
+     * being descended. One under SUM, the batch's total element count under MEAN.
+     */
+    public static double reductionDivisor(Iterable<Result> results, Settings.ErrorReduction reduction) {
+        if (reduction != Settings.ErrorReduction.MEAN) {
+            return 1.0;
+        }
+        double total = 0;
+        for (Result result : results) {
+            total += result.reductionScale();
+        }
+        return total > 0 ? total : 1.0;
+    }
+
     public Value errorValue() {
-        return errorFcn.evaluate(getOutput(), getTarget());
+        return weighted(errorFcn.evaluate(getOutput(), getTarget()));
     }
 
     public Value errorGradient() {
-        return errorFcn.differentiate(getOutput(), getTarget());
+        return weighted(errorFcn.differentiate(getOutput(), getTarget()));
+    }
+
+    private Value weighted(Value value) {
+        return importance == 1.0 ? value : value.times(new ScalarValue(importance));
+    }
+
+    public double getImportance() {
+        return importance;
     }
 
     public Value getOutput() {
@@ -76,7 +128,11 @@ public class Result implements Comparable<Result> {
         }
 
         public Result create(String sampleId, int index, Value target, Value output) {
-            Result result = new Result(errorFcn, sampleId, index, target, output);
+            return create(sampleId, index, target, output, 1.0);
+        }
+
+        public Result create(String sampleId, int index, Value target, Value output, double importance) {
+            Result result = new Result(errorFcn, sampleId, index, target, output, importance);
             return result;
         }
 

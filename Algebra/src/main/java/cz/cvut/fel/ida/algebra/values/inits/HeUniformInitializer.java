@@ -14,19 +14,24 @@ public class HeUniformInitializer extends GlorotUniformInitializer {  //sqrt(2. 
         super(settings);
     }
 
+    @Override
+    protected GlorotUniformInitializer copy() {
+        return new HeUniformInitializer(this.settings);
+    }
+
     protected double getLimit(MatrixValue value) {
-        return Math.sqrt(6) / Math.sqrt(value.cols);
+        return gain * Math.sqrt(6) / Math.sqrt(value.cols);
     }
 
     protected double getLimit(VectorValue value) {
         if (value.rowOrientation) {
-            return Math.sqrt(6) / Math.sqrt(value.values.length);
+            return gain * Math.sqrt(6) / Math.sqrt(value.values.length);
         } else
-            return Math.sqrt(6) / 1; //todo check this should be the fan_in (input) dimension
+            return gain * Math.sqrt(6) / 1; //todo check this should be the fan_in (input) dimension
     }
 
     protected double getLimit(ScalarValue value) {
-        return Math.sqrt(6) / Math.sqrt(1);
+        return gain * Math.sqrt(6) / Math.sqrt(1);
     }
 
 }

@@ -15,6 +15,8 @@
 
 package cz.cvut.fel.ida.utils.math.collections;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -28,7 +30,7 @@ import java.util.Map.Entry;
  */
 public class IntegerMultiMap<R> {
     
-    private Map<R,IntegerSet> map = new HashMap<R,IntegerSet>();
+    private final Map<R,IntegerSet> map;
 
     /**
      * Creates a new instance of IntegerMulttiMap from an instance of class MultiMap<R,Integer>
@@ -36,12 +38,28 @@ public class IntegerMultiMap<R> {
      * @param multiMap MultiMap from which the IntegerMultiMap should be constructed
      * @return a new instance of IntegerMulttiMap from the given instance of class MultiMap<R,Integer>
      */
-    public static <R> IntegerMultiMap createIntegerMultiMap(MultiMap<R,Integer> multiMap){
+    public static <R> IntegerMultiMap<R> createIntegerMultiMap(MultiMap<R,Integer> multiMap){
         IntegerMultiMap<R> ib = new IntegerMultiMap<R>();
-        for (Map.Entry<R,Set<Integer>> entry : multiMap.entrySet()){
+        for (Map.Entry<R, ObjectOpenHashSet<Integer>> entry : multiMap.entrySet()){
             ib.add(entry.getKey(), IntegerSet.createIntegerSet(entry.getValue()));
         }
         return ib;
+    }
+
+    public static <R> IntegerMultiMap<R> merge(IntegerMultiMap<R> a, IntegerMultiMap<R> b) {
+        for (Entry<R, IntegerSet> entry : b.entrySet()) {
+            a.add(entry.getKey(), entry.getValue());
+        }
+
+        return a;
+    }
+
+    public IntegerMultiMap() {
+        this.map = new HashMap<>();
+    }
+
+    private IntegerMultiMap(Map<R, IntegerSet> map) {
+        this.map = (HashMap<R, IntegerSet>) ((HashMap<R, IntegerSet>) map).clone();
     }
     
     /**
@@ -76,10 +94,7 @@ public class IntegerMultiMap<R> {
      * IntegerSet.emptySet is returned.
      */
     public IntegerSet get(R key) {
-        if (map.containsKey(key))
-            return map.get(key);
-        else
-            return IntegerSet.emptySet;
+        return map.getOrDefault(key, IntegerSet.emptySet);
     }
 
     /**
@@ -88,11 +103,7 @@ public class IntegerMultiMap<R> {
      * @param value the value
      */
     public void add(R key, IntegerSet value) {
-        if (!map.containsKey(key)){
-            map.put(key, value);
-        } else {
-            map.put(key, IntegerSet.union(value, map.get(key)));
-        }
+        map.merge(key, value, IntegerSet::union);
     }
     
     /**
@@ -150,5 +161,9 @@ public class IntegerMultiMap<R> {
             return this.map.equals(((IntegerMultiMap)o).map);
         }
         return false;
+    }
+
+    public IntegerMultiMap<R> copy() {
+        return new IntegerMultiMap<>(this.map);
     }
 }

@@ -18,9 +18,12 @@
         <module name="Neuralization" />
         <module name="Utilities" />
         <module name="Algebra" />
+        <module name="NeuraLogic-Settings" />
+        <module name="neuralogic-cli" />
         <module name="Resources" />
         <module name="Logic" />
         <module name="Settings" />
+        <module name="NeuraLogic-Workflow" />
         <module name="Neural" />
       </profile>
     </annotationProcessing>

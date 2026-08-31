@@ -91,6 +91,19 @@ public class Settings implements Serializable {
     public static boolean customLogColors = true;
 
     /**
+     * How many samples get narrated one by one while grounding and neuralizing, before the log switches to a
+     * running total. 0 goes straight to totals. Listing every sample of a large dataset is what made a single
+     * run produce a 17 MB log.
+     */
+    public int loggedSampleDetails = 10;
+
+    /**
+     * How often that running total is printed once the per-sample detail stops. 0 prints it only at the end -
+     * which is a real end in the CLI only, since the stream is never closed through PyNeuraLogic.
+     */
+    public int sampleLogInterval = 1000;
+
+    /**
      * Path to output log file
      */
     public static String logFile = "./out/Logging";
@@ -327,6 +340,8 @@ public class Settings implements Serializable {
 
     public GroundingMode groundingMode = GroundingMode.INDEPENDENT;
 
+    public boolean logGC = true;
+
     public enum GroundingMode {
         INDEPENDENT,   //Separate independent example graphs
         SEQUENTIAL, // Ground networks are grounded in a specific given sequence (i.e. sharing only with previous examples)
@@ -339,7 +354,17 @@ public class Settings implements Serializable {
     public boolean possibleNeuronSharing = false;
 
     /**
-     * If there's no need for keeping the given sequence, ground in parallel in the given context
+     * If there's no need for keeping the given sequence, ground in parallel in the given context.
+     * <p>
+     * NOT SUPPORTED at the moment - {@link #infer()} forces this back off. Grounding keeps its working state on
+     * the shared Template: one HerbrandModel that every example adds its rules and facts to and then clears
+     * again, plus the lazily built clause, clauseE, atomMapCache and fact neuron caches. Stratified negation
+     * additionally goes through one static Literal used as a mutable lookup key. Running examples concurrently
+     * corrupts all of that - three runs over mutagenesis gave three different outcomes, one of them the
+     * thoroughly misleading "Query [predict] not matched anywhere in the template".
+     * <p>
+     * To bring it back, the grounder needs that state per thread or per sample rather than per template, and
+     * HerbrandModel.TupleNotIn needs its key to stop being static.
      */
     public boolean parallelGrounding = false;
 
@@ -349,7 +374,7 @@ public class Settings implements Serializable {
     public GroundingAlgo grounding = GroundingAlgo.BUP;
 
     public enum GroundingAlgo {
-        BUP, TDOWN, GRINGO
+        BUP, TDOWN
     }
 
     /**
@@ -570,7 +595,15 @@ public class Settings implements Serializable {
     public boolean asyncParallelTraining;
 
     /**
-     * Any parallel training, i.e. implying the need for parallel access to neurons' states
+     * Any parallel training, i.e. implying the need for parallel access to neurons' states.
+     * <p>
+     * NOT SUPPORTED at the moment - {@link #infer()} forces this back off. The per-index computation states it
+     * promises (StatesBuilder.makeParallel) never actually reach the trained networks - measured zero of them
+     * even with this switched on - so every trainer index resolved to the same shared state and the samples of a
+     * batch raced on each other's values and gradients. MiniBatchTrainer therefore runs its samples sequentially.
+     * <p>
+     * To bring it back, the composite states have to be built for the networks that are really trained, and
+     * sized to the training batch size rather than to minibatchSize as of neuralization time.
      */
     public boolean parallelTraining;
 
@@ -635,12 +668,25 @@ public class Settings implements Serializable {
     }
 
     /**
-     * How to initialize random weight values
+     * How to initialize random weight values. {@link #initDistribution} applies to {@link InitSet#SIMPLE}
+     * only; the others carry their own spread.
+     * <p>
+     * {@link InitSet#GLOROT} is the default because its constant is the right one: for a square weight
+     * {@code sqrt(6/(fan_in+fan_out))} is {@code sqrt(3/fan_in)}, which is exactly what keeps a uniformly
+     * drawn layer's output variance equal to its input's, and it takes both directions into account rather
+     * than the forward one alone.
+     * <p>
+     * {@link InitSet#TORCH} is there for starting where torch starts, which is not the same thing as
+     * starting well: {@code nn.Linear}'s {@code kaiming_uniform_(a=sqrt(5))} works out at
+     * {@code 1/sqrt(fan_in)}, a factor of {@code sqrt(3)} under that - {@code 0.125} against {@code 0.2165}
+     * on a 64x64 - and torch's own source points at pytorch issue 57109 about it. Reach for it when a model
+     * here has to begin from the same distribution as the same model written in torch; the
+     * {@link cz.cvut.fel.ida.algebra.values.inits.ActivationGain} correction applies to either.
      */
-    public InitSet initializer = InitSet.SIMPLE;
+    public InitSet initializer = InitSet.GLOROT;
 
     public enum InitSet {
-        SIMPLE, GLOROT, HE
+        SIMPLE, GLOROT, HE, TORCH
     }
 
     /**
@@ -783,6 +829,49 @@ public class Settings implements Serializable {
      */
     public boolean passResultsCache = false;
 
+
+    /**
+     * How a batch's per-query errors are reduced into the single quantity the optimizer descends, following
+     * torch: MEAN divides by the total element count and the *gradient* follows, SUM does not divide at all.
+     * The divisor generalises torch's N x C to the two things it has no notion of - a query's importance and
+     * a target whose width differs per query - as the sum of importance times width over the batch, which is
+     * exactly N x C when the importances are one and the widths equal.
+     */
+    public ErrorReduction errorReduction = ErrorReduction.MEAN;
+
+    public enum ErrorReduction {
+        SUM, MEAN
+    }
+
+    /**
+     * L2 penalty, as torch's optimizer-level <code>weight_decay</code>: the term is added to the gradient of
+     * every weight that receives one, and so is scaled by the learning rate along with it. This is the
+     * *coupled* variant, which is what <code>SGD(weight_decay=)</code> and <code>Adam(weight_decay=)</code> do
+     * - **measured** to differ from <code>AdamW</code>, whose decay is decoupled from the adaptive step.
+     * <p>
+     * Only reaches the optimizer built by {@link cz.cvut.fel.ida.neural.networks.computation.training.optimizers.Optimizer#getFrom},
+     * i.e. the CLI path. The Python frontend constructs the optimizer itself and passes the decay to its
+     * constructor, mirroring where torch puts it.
+     */
+    public double weightDecay = 0.0;
+
+    /**
+     * Rescale the whole gradient down to this global L2 norm before the step, torch's
+     * <code>clip_grad_norm_</code>. Zero is off, the same idiom as {@link #dropoutRate}.
+     * <p>
+     * A setting rather than a call because torch clips between <code>backward()</code> and
+     * <code>step()</code>, and there is no such hook here - the engine owns the whole iteration. It matters
+     * more here than in torch: the depth of the computation graph is decided by the data, so gradient
+     * magnitude varies between samples far more than in a fixed-shape network.
+     */
+    public double gradientClipNorm = 0.0;
+
+    /**
+     * Clamp every gradient element to +-this, torch's <code>clip_grad_value_</code>. Zero is off. Independent
+     * of {@link #gradientClipNorm}; with both set the norm is applied first, as it would be if the two torch
+     * calls were made in that order.
+     */
+    public double gradientClipValue = 0.0;
 
     public CombinationFcn errorAggregationFcn = CombinationFcn.AVG;
 
@@ -1120,9 +1209,6 @@ public class Settings implements Serializable {
                 case "TDown":
                     settings.grounding = GroundingAlgo.TDOWN;
                     break;
-                case "Gringo":
-                    settings.grounding = GroundingAlgo.GRINGO;
-                    break;
             }
         }
 
@@ -1172,6 +1258,9 @@ public class Settings implements Serializable {
                     break;
                 case "he":
                     settings.initializer = InitSet.HE;
+                    break;
+                case "torch":
+                    settings.initializer = InitSet.TORCH;
                     break;
                 default:
                     LOG.severe("unrecognized initialization: " + _weightInit);
@@ -1429,6 +1518,17 @@ public class Settings implements Serializable {
             neuralState = NeuralState.PARENTS;
         } else if (dropoutRate > 0 && parentCounting) {
             neuralState = NeuralState.PAR_DROPOUT;
+        }
+
+        //both parallel modes share mutable state that was never made safe for it - see the two fields for what
+        //exactly, and what would have to change to allow them again
+        if (parallelGrounding) {
+            LOG.warning("parallelGrounding is not supported and would corrupt the grounding - turning it off.");
+            parallelGrounding = false;
+        }
+        if (parallelTraining) {
+            LOG.warning("parallelTraining is not supported and would corrupt the gradients - turning it off. Minibatches are still accumulated, just sequentially.");
+            parallelTraining = false;
         }
 
         if (groundingMode == GroundingMode.SEQUENTIAL) {

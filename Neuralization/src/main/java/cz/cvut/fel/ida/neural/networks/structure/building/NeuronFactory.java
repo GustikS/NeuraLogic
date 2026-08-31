@@ -20,6 +20,7 @@ import cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.*;
 import cz.cvut.fel.ida.setup.Settings;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -71,6 +72,7 @@ public class NeuronFactory {
             }
         }
         WeightedAtomNeuron<State.Neural.Computation> atomNeuron = new WeightedAtomNeuron<>(groundHead.toString(), offset, counter++, state);
+        atomNeuron.transformationFromTemplate = head.getTransformation() != null;
         neuronMaps.atomNeurons.put(groundHead, atomNeuron);
         LOG.finest(() -> "Created atom neuron: " + atomNeuron);
         return atomNeuron;
@@ -82,6 +84,7 @@ public class NeuronFactory {
 
         State.Neural.Computation state = State.createBaseState(settings, combination, transformation);
         AtomNeuron<State.Neural.Computation> atomNeuron = new AtomNeuron<>(groundHead.toString(), counter++, state);
+        atomNeuron.transformationFromTemplate = head.getTransformation() != null;
         neuronMaps.atomNeurons.put(groundHead, atomNeuron);
         LOG.finest(() -> "Created atom neuron: " + atomNeuron);
         return atomNeuron;
@@ -164,20 +167,36 @@ public class NeuronFactory {
     }
 
     public FactNeuron createFactNeuron(ValuedFact fact) {
-        FactNeuron result = neuronMaps.factNeurons.get(fact.literal);
-        if (result == null) {    //fact neuron might have been created already and for them it is ok
-            States.SimpleValue simpleValue = new States.SimpleValue(fact.getValue() == null ? this.defaultFactValue : fact.getValue());     //todo this is incompatible with ParentCounter state for Fact neurons...
-            FactNeuron factNeuron = new FactNeuron(fact.originalString, fact.weight, counter++, simpleValue);
-            if (fact.weight != null && fact.weight.isLearnable()) {
-                factNeuron.hasLearnableValue = true;
-                simpleValue.isLearnable = true;
-            }
-            neuronMaps.factNeurons.put(fact.literal, factNeuron);
-            LOG.finest(() -> "Created fact neuron: " + factNeuron);
-            return factNeuron;
-        } else {
-            return result;
+        final Value value = fact.getValue();
+        States.SimpleValue simpleValue = new States.SimpleValue(value == null ? defaultFactValue : value);
+
+        FactNeuron neuron = new FactNeuron(fact.originalString, fact.weight, counter++, simpleValue);
+
+        if (fact.weight != null && fact.weight.isLearnable()) {
+            neuron.hasLearnableValue = true;
+            simpleValue.isLearnable = true;
+            //an example's own parameter, which no model carries - see FactNeuron.factLiteral for why the
+            //literal is kept here and only here
+            neuron.factLiteral = fact.literal.toString();
         }
+
+        if (LOG.isLoggable(Level.FINEST)) LOG.finest(() -> "Created fact neuron: " + neuron);
+        return neuronMaps.factNeurons.put(fact.literal, neuron);
+    }
+
+    public FactNeuron createTemplateFactNeuron(ValuedFact fact) {
+        final Value value = fact.getValue();
+        States.SimpleValue simpleValue = new States.SimpleValue(value == null ? defaultFactValue : value);
+
+        FactNeuron neuron = new FactNeuron(fact.originalString, fact.weight, counter++, simpleValue);
+
+        if (fact.weight != null && fact.weight.isLearnable()) {
+            neuron.hasLearnableValue = true;
+            simpleValue.isLearnable = true;
+        }
+
+        if (LOG.isLoggable(Level.FINEST)) LOG.finest(() -> "Created fact neuron: " + neuron);
+        return neuronMaps.templateFactNeurons.put(fact.literal, neuron);
     }
 
     public NegationNeuron createNegationNeuron(AtomFact atomFact, Transformation negation) {

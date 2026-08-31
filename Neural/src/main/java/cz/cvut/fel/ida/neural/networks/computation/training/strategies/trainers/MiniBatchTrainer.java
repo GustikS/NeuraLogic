@@ -2,6 +2,7 @@ package cz.cvut.fel.ida.neural.networks.computation.training.strategies.trainers
 
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.weights.Weight;
+import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.weights.GradientClipping;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.weights.WeightUpdater;
 import cz.cvut.fel.ida.utils.generic.Utilities;
 import cz.cvut.fel.ida.learning.results.Result;
@@ -9,6 +10,7 @@ import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
 import cz.cvut.fel.ida.neural.networks.computation.training.optimizers.Optimizer;
 import cz.cvut.fel.ida.neural.networks.computation.training.strategies.debugging.NeuralDebugging;
+import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.setup.Settings;
 
 import java.util.*;
@@ -88,7 +90,7 @@ public class MiniBatchTrainer extends Trainer {
             MiniBatchIterator miniBatchIterator = new MiniBatchIterator(trainingSet);
             while (miniBatchIterator.hasNext()) {
                 List<NeuralSample> minibatch = miniBatchIterator.next();
-                List<Result> results = minibatchParallelEvaluate(minibatch);
+                List<Result> results = minibatchEvaluate(minibatch);
                 resultList.addAll(results);
             }
             return resultList;
@@ -137,9 +139,24 @@ public class MiniBatchTrainer extends Trainer {
     }
 
     /**
-     * Run batch of samples in parallel using the default {@link java.util.concurrent.ForkJoinPool} of the parallel stream (should be better than custom {@link java.util.concurrent.ExecutorService} ThreadPool)
-     * as these are just CPU intensive operations with no IO waiting. Also the number of threads is not given by the size of the batch, but should rather be optimally selected w.r.t. hardware.
-     * Finally leaving the parallelism to ParallelStream is also the most readable java8 solution, so lets just leave the magic to java
+     * Run a batch of samples, then apply the summed gradient in a single step.
+     * <p>
+     * The samples are processed sequentially, even though each of them has its own {@link SequentialTrainer}
+     * with its own state index. Per-index trainers are only enough to keep samples apart if every neuron that
+     * two samples in the batch have in common carries its own computation state per index, i.e. a
+     * {@link cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.States.ComputationStateComposite}
+     * built by {@link cz.cvut.fel.ida.neural.networks.structure.building.builders.StatesBuilder#makeParallel}.
+     * Samples do share neurons routinely - fact and atom neurons of the same ground literal are reused across
+     * examples, and one example carrying several queries shares its whole graph - while the composite states
+     * are not in place, so the threads used to race on one shared outputValue/aggregationState/gradient.
+     * <p>
+     * The race was not visible as a crash but as arithmetic: the accumulated update stopped being the sum of
+     * the individual sample updates (measured ratios from 0.98 to 2.11, growing with the batch size and with
+     * the amount of sharing), it differed between identical runs, and with heavy sharing it did eventually
+     * throw out of a torn Value. Note that
+     * {@link cz.cvut.fel.ida.neural.networks.structure.components.neurons.states.State.Neural#getComputationView(int)}
+     * defaults to returning the single shared state, so a network without the composite states races silently
+     * instead of failing.
      *
      * @param neuralModel
      * @param sampleList
@@ -148,15 +165,15 @@ public class MiniBatchTrainer extends Trainer {
     private List<Result> minibatchParallelLearn(final NeuralModel neuralModel, final List<NeuralSample> sampleList) {
         final int size = sampleList.size();
         final Set<Weight> updatedWeights = new HashSet<>();
-        final Value[] weightUpdates = new Value[neuralModel.maxWeightIndex + 1];
+        Value[] weightUpdates = new Value[neuralModel.maxWeightIndex + 1];
 
         if (size > minibatchSize) {
             LOG.severe("Minibatch size mismatch");
         }
 
         List<Result> results = IntStream.range(0, size)
-                .parallel()
-                .mapToObj(i -> evaluateAndBackprop(trainers.get(i), sampleList.get(i)))
+                .mapToObj(i -> evaluateAndBackpropOrSkip(trainers.get(i), sampleList.get(i)))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         for (int i = 0; i < size; i++) {
@@ -165,32 +182,82 @@ public class MiniBatchTrainer extends Trainer {
 
             updatedWeights.addAll(weightUpdater.updatedWeightsOnly);
 
-            for (int j = 0; j < weightUpdates.length; j++) {
+            if (updates.length > weightUpdates.length) {
+                weightUpdates = Arrays.copyOf(weightUpdates, updates.length);    //a trainer grew its own buffer for a weight created after the model
+            }
+
+            for (int j = 0; j < updates.length; j++) {
+                if (updates[j] == null) {
+                    continue;
+                }
                 if (weightUpdates[j] == null) {
-                    weightUpdates[j] = updates[j];
-                } else if (updates[j] != null) {
+                    weightUpdates[j] = updates[j].clone();   //a copy, otherwise the batch sum is accumulated into this trainer's own gradient buffer
+                } else {
                     weightUpdates[j].incrementBy(updates[j]);
                 }
             }
         }
 
+        // The other half of the MEAN reduction, and it has to be here rather than per sample: the divisor is
+        // the sum of importance times target width *over the batch*, which does not decompose into a
+        // per-sample factor once the widths differ. Doing it in only one of the two paths would make the same
+        // model learn differently at batch 1 and batch 2.
+        double divisor = Result.reductionDivisor(results, settings.errorReduction);
+        if (divisor != 1.0) {
+            ScalarValue scale = new ScalarValue(1.0 / divisor);
+            for (int j = 0; j < weightUpdates.length; j++) {
+                if (weightUpdates[j] != null) {
+                    weightUpdates[j] = weightUpdates[j].times(scale);
+                }
+            }
+        }
+
+        // and then clipping, torch's order. Not through Trainer.reduceAndClip because the batch's updates are
+        // accumulated into a bare array here rather than into one sample's WeightUpdater; the scaling above is
+        // that method's first half, spelled out for the same reason.
+        GradientClipping.clip(weightUpdates, settings);
+
         this.optimizer.performGradientStep(updatedWeights, weightUpdates, this.iterationNumber);
         return results;
     }
 
-    private List<Result> minibatchParallelEvaluate(List<NeuralSample> minibatch) {
+    /**
+     * Evaluate a batch of samples without touching the weights. This used to call
+     * {@link Trainer#learnFromSample}, which backpropagates and performs a gradient step, so evaluating or
+     * validating with a minibatch size above 1 silently trained the model.
+     */
+    private List<Result> minibatchEvaluate(List<NeuralSample> minibatch) {
         final int size = minibatch.size();
 
         if (size > minibatchSize) {
             LOG.severe("Minibatch size mismatch");
         }
 
-        return IntStream.range(0, size).parallel().mapToObj(i -> {
+        return IntStream.range(0, size).mapToObj(i -> {
             SequentialTrainer trainer = trainers.get(i);
             NeuralSample sample = minibatch.get(i);
 
-            return trainer.learnFromSample(neuralModel, sample, trainer.dropout, trainer.invalidation, trainer.evaluation, trainer.backpropagation);
+            trainer.invalidateSample(trainer.invalidation, sample);
+            return trainer.evaluateSample(trainer.evaluation, sample);
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * {@link SequentialTrainer.SequentialListTrainer#learnEpoch} skips a sample with no query neuron, and
+     * {@link cz.cvut.fel.ida.neural.networks.structure.building.Neuralizer} does produce such samples for
+     * examples without a query head. Backpropagation would throw on it here.
+     * <p>
+     * The trainer's own updates have to be cleared on the way out: {@link Backpropagation#backpropagate} is
+     * what normally clears them, so skipping it would leave the previous batch's updates in place for the
+     * accumulation below to sum in a second time.
+     */
+    private Result evaluateAndBackpropOrSkip(SequentialTrainer trainer, NeuralSample neuralSample) {
+        if (neuralSample.query.neuron == null) {
+            LOG.warning("No query neuron - skipping backprop for this sample:" + neuralSample);
+            trainer.backpropagation.weightUpdater.clearUpdates();
+            return null;
+        }
+        return evaluateAndBackprop(trainer, neuralSample);
     }
 
     private Result evaluateAndBackprop(SequentialTrainer trainer, NeuralSample neuralSample) {

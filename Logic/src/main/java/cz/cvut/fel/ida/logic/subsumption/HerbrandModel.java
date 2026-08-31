@@ -5,6 +5,8 @@ import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.utils.math.Sugar;
 import cz.cvut.fel.ida.utils.math.VectorUtils;
 import cz.cvut.fel.ida.utils.math.collections.MultiMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -19,12 +21,18 @@ public class HerbrandModel {
     /**
      * Map predicates to SETs of ground atoms
      */
-    private MultiMap<Predicate, Literal> herbrand;
+    private final MultiMap<Predicate, Literal> herbrand;
+
+    private final MultiMap<Predicate, Literal> additionsToHerbrand;
+
+    private final MultiMap<Predicate, Literal> templateCache;
+
+    private final Object2ObjectOpenHashMap<Literal, Literal> identityMapCache = new Object2ObjectOpenHashMap<>();
 
     /**
      * Use the subsumption engine wrapper
      */
-    private Matching matching;
+    private final Matching matching;
 
     /**
      * The current Herbrand model processed as an indexed structure
@@ -41,6 +49,9 @@ public class HerbrandModel {
      */
     public LinkedHashMap<HornClause, PreparedRule> preparedRules;
 
+
+    public Map<Literal, Literal> identityMap;
+
     /**
      * For outside (python) debugging of the inference
      */
@@ -48,8 +59,11 @@ public class HerbrandModel {
 
     public HerbrandModel(Collection<Literal> facts, Collection<HornClause> rules) {
         herbrand = new MultiMap<>();
+        additionsToHerbrand = new MultiMap<>();
+        templateCache = new MultiMap<>();
         preparedRules = new LinkedHashMap<>();
         matching = new Matching();
+        identityMap = this.identityMapCache;
         addFacts(facts);
         addRules(rules);
     }
@@ -64,7 +78,7 @@ public class HerbrandModel {
      *
      * @return
      */
-    public Collection<Literal> inferAtoms() {
+    public void inferAtoms() {
         boolean changed;
         int round = 0;
 
@@ -72,7 +86,11 @@ public class HerbrandModel {
         LOG.finer("herbrand size before round " + round + " = " + herbrandSize0);
         do {
             if (clauseE == null || round > 0) {    // it is initialized outside, but needs to be rebuilt incrementally
-                setupClause();
+                setupClause(herbrand, additionsToHerbrand);
+
+                for (Map.Entry<Predicate, ObjectOpenHashSet<Literal>> predicateSetEntry : additionsToHerbrand.entrySet()) {
+                    predicateSetEntry.getValue().clear();
+                }
             }
             LinkedList<Map.Entry<HornClause, PreparedRule>> entries = new LinkedList<>(preparedRules.entrySet()); // a copy for removing
             for (Iterator<Map.Entry<HornClause, PreparedRule>> iterator = entries.iterator(); iterator.hasNext(); ) {
@@ -89,12 +107,14 @@ public class HerbrandModel {
                 if (preparedRule.isGroundHead) {
                     // add the head to herbrand iff the rule body is true
                     if (matching.subsumption(preparedRule.clauseC, clauseE)) {
+                        additionsToHerbrand.put(rule.head().predicate(), rule.head());
                         herbrand.put(rule.head().predicate(), rule.head());
+
+                        identityMap.put(rule.head(), rule.head());
                         iterator.remove(); // if so, do not ever try this ground rule again
                     }
                 } else {  //if it is not ground, find (and in the background through the solutionConsumer add to herbrand) all NEW substitutions for the head literal
-                    final cz.cvut.fel.ida.utils.generic.tuples.Pair<Term[], List<Term[]>> listPair = matching.allSubstitutions(preparedRule.clauseC, clauseE, Integer.MAX_VALUE);
-                    int num = listPair.s.size();
+                    matching.allSubstitutions(preparedRule.clauseC, clauseE, Integer.MAX_VALUE);
                 }
                 //remove the consumer as the found substitutions should be applied only to the head of the currently solved rule
                 matching.getEngine().removeSolutionConsumer(preparedRule.solutionConsumer);
@@ -110,7 +130,6 @@ public class HerbrandModel {
             }
 
         } while (changed);
-        return Sugar.flatten(herbrand.values());
     }
 
     /**
@@ -166,6 +185,16 @@ public class HerbrandModel {
     public void addFacts(Collection<Literal> facts) {
         for (Literal groundLiteral : facts) {
             herbrand.put(groundLiteral.predicate(), groundLiteral);
+            additionsToHerbrand.put(groundLiteral.predicate(), groundLiteral);
+            identityMap.put(groundLiteral, groundLiteral);
+        }
+    }
+
+    public void addFactsWithoutAdditions(Collection<Literal> facts) {
+        for (Literal groundLiteral : facts) {
+            herbrand.put(groundLiteral.predicate(), groundLiteral);
+            templateCache.put(groundLiteral.predicate(), groundLiteral);
+            identityMap.put(groundLiteral, groundLiteral);
         }
     }
 
@@ -175,8 +204,26 @@ public class HerbrandModel {
      * @return
      */
     public Clause setupClause() {
-        derivedClause = new Clause(Sugar.flatten(herbrand.values()));
-        clauseE = matching.createClauseE(derivedClause);
+        return setupClause(herbrand, null);
+    }
+
+    public Clause updateClause() {
+       return setupClause(herbrand, additionsToHerbrand);
+    }
+
+    public Clause setupClause(MultiMap<Predicate, Literal> herbrand, MultiMap<Predicate, Literal> newAdditions) {
+        if (derivedClause == null || newAdditions == null) {
+            derivedClause = new Clause(Sugar.flatten(herbrand.values()));
+        } else if (!newAdditions.isEmpty()){
+            derivedClause.addLiterals(Sugar.flatten(newAdditions.values()));
+        }
+
+        if (clauseE == null || newAdditions == null) {
+            clauseE = matching.createClauseE(derivedClause);
+        } else if (!newAdditions.isEmpty()){
+            clauseE.expand(Sugar.flattenToSet(newAdditions.values()));
+        }
+
         return derivedClause;
     }
 
@@ -195,13 +242,14 @@ public class HerbrandModel {
         for (HornClause rule : rules) {
             final Predicate headPredicate = rule.head().predicate();
             if (!herbrand.containsKey(headPredicate)) {   //a rule head predicate might have been in the facts already!
-                herbrand.set(headPredicate, Collections.synchronizedSet(new HashSet<>()));
+                herbrand.set(headPredicate, new HashSet<>());
+                additionsToHerbrand.set(headPredicate, new HashSet<>());
             }
             final boolean isGroundHead = LogicUtils.isGround(rule.head());
             final Clause clause = prepareClauseForGrounder(rule, isGroundHead);
             SubsumptionEngineJ2.ClauseC clauseC = matching.createClauseC(clause);
             // solution consumer = automatically add all found valid substitutions of the head literal into the herbrand map
-            PredicateSolutionConsumer solutionConsumer = new PredicateSolutionConsumer(rule.head(), herbrand.get(headPredicate));
+            PredicateSolutionConsumer solutionConsumer = new PredicateSolutionConsumer(rule.head(), herbrand.get(headPredicate), additionsToHerbrand.get(headPredicate), identityMap);
 
             preparedRules.put(rule, new PreparedRule(rule, clauseC, isGroundHead, solutionConsumer));
         }
@@ -290,13 +338,20 @@ public class HerbrandModel {
         }
 
         public boolean isGroundSatisfiable(Clause derivedClause) {
-            for (Literal l : groundLiterals) {
+            if (groundLiterals.isEmpty()) {
+                return true;
+            }
+
+            final Set<String> predicates = derivedClause.predicates();
+            final int size = groundLiterals.size();
+            for (int i = 0; i < size; i++) {
+                Literal l = groundLiterals.get(i);
                 if (l.isNegated()) {
-                    if (derivedClause.predicates().contains(l.predicateName())) {
+                    if (predicates.contains(l.predicateName())) {
                         return false;
                     }
                 }
-                else if (!l.predicate().special && !derivedClause.predicates().contains(l.predicateName())) {
+                else if ((l.predicate().flags & 0x01) == 0 && !predicates.contains(l.predicateName())) {
                     return false;
                 }
             }
@@ -311,10 +366,14 @@ public class HerbrandModel {
 
         Literal ruleHead;
         private Set<Literal> headGroundings;
+        private final Set<Literal> headGroundings2;
+        private Map<Literal, Literal> identityMap;
 
-        private PredicateSolutionConsumer(Literal head, Set<Literal> groundHeads) {
+        private PredicateSolutionConsumer(Literal head, Set<Literal> groundHeads, Set<Literal> groundHeads2, Map<Literal, Literal> identityMap) {
             this.ruleHead = head;
             this.headGroundings = groundHeads;
+            this.headGroundings2 = groundHeads2;
+            this.identityMap = identityMap;
         }
 
         @Override
@@ -322,7 +381,11 @@ public class HerbrandModel {
             for (int i = 0; i < template.length; i++) {
                 template[i].setIndexWithinSubstitution(i);
             }
-            headGroundings.add(ruleHead.subsCopy(solution));
+            Literal l = ruleHead.subsCopy(solution);
+
+            headGroundings.add(l);
+            headGroundings2.add(l);
+            identityMap.put(l, l);
         }
 
         public void clear() {
@@ -346,11 +409,26 @@ public class HerbrandModel {
      */
     private static class TupleNotIn implements CustomPredicate {
 
-        private Set<Literal> literals; //mildly optimize this by storing set of Term[] instead? Probably not
+        /**
+         * One key reused for every lookup, by every instance, for the whole life of the JVM. Two things keep
+         * that from being a bug, and both are easy to break:
+         * <ul>
+         * <li>{@link Literal#setTerms} has to invalidate the cached hashCode. It did not once, and the lookups
+         *     then probed a bucket picked by whatever this key held on its very first use - the negation stopped
+         *     pruning and the Herbrand model silently grew atoms that do not follow.</li>
+         * <li>the key must stay strictly transient - never stored, never handed out. Note that the array it gets
+         *     in {@link #isSatisfiable} is itself one of the reusable scratch arrays of SubsumptionEngineJ2.</li>
+         * </ul>
+         * Being static also makes this predicate non-reentrant and unusable from more than one thread, which is
+         * part of why grounding cannot be parallelised.
+         */
+        private static final Literal lit = new Literal();
 
-        private String name;
+        private final Set<Literal> literals; //mildly optimize this by storing set of Term[] instead? Probably not
 
-        private String predicate;
+        private final String name;
+
+        private final String predicate;
 
         TupleNotIn(Predicate predicate, Set<Literal> literals) {
             this.predicate = predicate.name;
@@ -365,12 +443,17 @@ public class HerbrandModel {
 
         @Override
         public boolean isSatisfiable(Term... arguments) {
-            for (Term arg : arguments) {
-                if (arg == null) {
-                    return true;
-                }
+            if (literals.isEmpty()) {
+                return true;
             }
-            return !literals.contains(new Literal(predicate, arguments));
+
+            final Predicate pred = lit.predicate();
+
+            pred.name = predicate;
+            pred.arity = arguments.length;
+            lit.setTerms(arguments);
+
+            return !literals.contains(lit);
         }
     }
 
@@ -378,8 +461,61 @@ public class HerbrandModel {
      * Removes everything from the herbrand map as well as all the (linked) solution consumers
      */
     public void removeAllAtoms() {
-        for (Map.Entry<Predicate, Set<Literal>> predicateSetEntry : herbrand.entrySet()) {
+        for (Map.Entry<Predicate, ObjectOpenHashSet<Literal>> predicateSetEntry : herbrand.entrySet()) {
             predicateSetEntry.getValue().clear();
         }
+    }
+
+    public void setClauseE(SubsumptionEngineJ2.ClauseE clauseE) {
+        this.clauseE = clauseE;
+    }
+
+    public void setClause(Clause clause) {
+        this.derivedClause = clause;
+    }
+
+    public void syncWithCache() {
+        this.herbrand.copyFrom(this.templateCache);
+        this.identityMap = this.identityMapCache.clone();
+
+        for (PreparedRule rule : preparedRules.values()) {
+            rule.solutionConsumer.headGroundings = herbrand.get(rule.solutionConsumer.ruleHead.predicate());
+            rule.solutionConsumer.identityMap = identityMap;
+        }
+    }
+
+    public Map<Literal, Literal> toIdentityMap() {
+        return this.identityMap;
+    }
+
+    public Set<Literal> toSet() {
+        Collection<ObjectOpenHashSet<Literal>> sets = herbrand.values();
+
+        if (sets.isEmpty()) {
+            return new ObjectOpenHashSet<>(0);
+        }
+
+        ObjectOpenHashSet<Literal> largest = null;
+        int totalPotentialSize = 0;
+
+        for (ObjectOpenHashSet<Literal> set : sets) {
+            totalPotentialSize += set.size();
+            if (largest == null || set.size() > largest.size()) {
+                largest = set;
+            }
+        }
+
+        ObjectOpenHashSet<Literal> result = largest.clone();
+        if (totalPotentialSize > largest.size()) {
+            result.ensureCapacity(totalPotentialSize);
+        }
+
+        for (ObjectOpenHashSet<Literal> set : sets) {
+            if (set != largest) {
+                set.forEach(result::add);
+            }
+        }
+
+        return Sugar.flattenToSet(sets);
     }
 }

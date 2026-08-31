@@ -65,7 +65,7 @@ public class NeuralNetsBuilder extends AbstractPipelineBuilder<Stream<GroundingS
             public Stream<NeuralSample> apply(Stream<NeuralProcessingSample> neuralProcessingSampleStream) {
                 return neuralProcessingSampleStream.map(s -> {
                     s.query.evidence = neuralizer.neuralNetBuilder.neuralBuilder.networkFactory.extractOptimizedNetwork(s.detailedNetwork);
-                    if (settings.groundingMode != Settings.GroundingMode.GLOBAL)
+                    if (settings.groundingMode != Settings.GroundingMode.GLOBAL && settings.logGC)
                         Utilities.logMemory();
                     return new NeuralSample(s.target, s.query, s.type);
                 });

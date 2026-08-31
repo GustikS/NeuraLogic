@@ -985,7 +985,7 @@ public class VectorUtils {
      * @return the array of type int[] containing the values from the given list
      */
     public static int[] toIntegerArray(Collection<Integer> values){
-        int ret[] = new int[values.size()];
+        int[] ret = new int[values.size()];
         int i = 0;
         for (int integer : values) {
             ret[i] = integer;

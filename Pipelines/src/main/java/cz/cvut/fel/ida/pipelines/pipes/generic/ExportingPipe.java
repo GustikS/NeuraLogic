@@ -25,7 +25,7 @@ public class ExportingPipe<S> extends Pipe<Stream<S>, Stream<S>> {
     @Override
     public Stream<S> apply(Stream<S> stream) {
         if (this.exporter != null) {
-            stream.onClose(() -> trueExport());
+            stream = stream.onClose(() -> trueExport());
         }
 
         return stream;

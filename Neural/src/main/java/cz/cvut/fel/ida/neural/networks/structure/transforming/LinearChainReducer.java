@@ -62,7 +62,8 @@ public class LinearChainReducer implements NetworkReducing {
 
         allNeurons += sizeBefore;
         prunedNeurons += sizeAfter;
-        LOG.info("LinearChainPruning reduced neurons from " + sizeBefore + " down to " + sizeAfter + " with prunings: " + prunings);
+        final int prunedCount = prunings;
+        LOG.fine(() -> "LinearChainPruning reduced neurons from " + sizeBefore + " down to " + sizeAfter + " with prunings: " + prunedCount);
 
         timing.toc();
         return inet;

@@ -2,6 +2,7 @@ package cz.cvut.fel.ida.learning.results;
 
 import cz.cvut.fel.ida.algebra.functions.ElementWise;
 import cz.cvut.fel.ida.algebra.functions.Transformation;
+import cz.cvut.fel.ida.algebra.functions.aggregation.Average;
 import cz.cvut.fel.ida.algebra.utils.MathUtils;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
@@ -57,12 +58,26 @@ public class ClassificationResults extends RegressionResults {
         return true;   //todo rest of measures
     }
 
+    /**
+     * The individual errors already carry their query's importance, so a plain average over them would divide
+     * by the number of samples where it should divide by their total weight - scaling every importance by the
+     * same factor would then scale the reported mean, which a mean must not do. Summing needs no such
+     * correction, the weighted sum is what it should be.
+     */
     public Value calculateErrorValue() {
         List<Value> errors = new ArrayList<>(evaluations.size());
+        double totalImportance = 0;
+
         for (Result evaluation : evaluations) {
             errors.add(evaluation.errorValue());
+            totalImportance += evaluation.getImportance();
         }
-        return aggregationFcn.evaluate(errors);
+        Value aggregated = aggregationFcn.evaluate(errors);
+
+        if (aggregationFcn instanceof Average && totalImportance > 0 && totalImportance != evaluations.size()) {
+            aggregated = aggregated.times(new ScalarValue(evaluations.size() / totalImportance));
+        }
+        return aggregated;
     }
 
     public static MeanStdResults aggregateClassifications(List<ClassificationResults> resultsList) {
@@ -122,28 +137,26 @@ public class ClassificationResults extends RegressionResults {
             return;
         }
 
-        if (settings.squishLastLayer){  //this means that the outputs are not normalized!
-            for (Result evaluation : evaluations) {
-                evaluation.setOutput(ElementWise.Singletons.sigmoid.evaluate(evaluation.getOutput()));
-            }
-        }
+        List<Value> outputs = metricOutputs(evaluations, ElementWise.Singletons.sigmoid);
 
         goodCount = 0;
 
         Value zeroSum = new ScalarValue(0);
         Value oneSum = new ScalarValue(0);
 
-        for (Result evaluation : evaluations) {
+        for (int i = 0; i < evaluations.size(); i++) {
+            Result evaluation = evaluations.get(i);
+            Value output = outputs.get(i);
             if (evaluation.getTarget().greaterThan(oneHalf)) {
 //                oneCount++;
-                oneSum.incrementBy(evaluation.getOutput());
-                if (evaluation.getOutput().greaterThan(oneHalf)) {
+                oneSum.incrementBy(output);
+                if (output.greaterThan(oneHalf)) {
                     goodCount++;
                 }
             } else {
 //                zeroCount++;
-                zeroSum.incrementBy(evaluation.getOutput());
-                if (oneHalf.greaterThan(evaluation.getOutput())) {
+                zeroSum.incrementBy(output);
+                if (oneHalf.greaterThan(output)) {
                     goodCount++;
                 }
             }
@@ -153,19 +166,36 @@ public class ClassificationResults extends RegressionResults {
         accuracy = (double) goodCount / evaluations.size();
     }
 
+    /**
+     * The metrics need probabilities - thresholding at one half and accumulating per class only mean anything
+     * on a normalized output. With {@link Settings#squishLastLayer} the queried head is left as a logit, and
+     * the error function takes care of that on its own, so the squashing has to happen here.
+     * <p>
+     * It used to be written back with {@link Result#setOutput}, which made this an in-place rewrite of shared
+     * objects: {@link #calculateErrorValue()} answered differently the second time it was called (measured:
+     * outputs `0, 1, 0.7` became `0.5, 0.73, 0.67`), and a caller holding those results - the Python bindings
+     * hand them straight back from `train()` - got something other than what the model produced. A Result's
+     * output is the model's output; reporting works on its own copy.
+     */
+    private List<Value> metricOutputs(List<Result> evaluations, Transformation squash) {
+        List<Value> outputs = new ArrayList<>(evaluations.size());
+        for (Result evaluation : evaluations) {
+            outputs.add(settings.squishLastLayer ? squash.evaluate(evaluation.getOutput()) : evaluation.getOutput());
+        }
+        return outputs;
+    }
+
     private void loadMulticlassMetrics(List<Result> evaluations) {
         goodCount = 0;
 
         HashMap<VectorValue, VectorValue> classAcums = new HashMap<>();
         HashMap<VectorValue, Integer> classCounts = new HashMap<>();
 
-        if (settings.squishLastLayer){  //this means that the outputs are not normalized between 0-1!
-            for (Result evaluation : evaluations) {
-                evaluation.setOutput(Transformation.Singletons.softmax.evaluate(evaluation.getOutput()));
-            }
-        }
+        List<Value> outputs = metricOutputs(evaluations, Transformation.Singletons.softmax);
 
-        for (Result evaluation : evaluations) {
+        for (int i = 0; i < evaluations.size(); i++) {
+            Result evaluation = evaluations.get(i);
+            Value output = outputs.get(i);
             VectorValue value = null;
             try {
                 value = (VectorValue) evaluation.getTarget();
@@ -176,15 +206,15 @@ public class ClassificationResults extends RegressionResults {
 
             Value classAcum = classAcums.get(value);
             if (classAcum == null) {
-                classAcums.put((VectorValue) evaluation.getTarget(), (VectorValue) evaluation.getOutput().clone());
+                classAcums.put((VectorValue) evaluation.getTarget(), (VectorValue) output.clone());
                 classCounts.put((VectorValue) evaluation.getTarget(), 1);
             } else {
-                classAcum.incrementBy(evaluation.getOutput());
+                classAcum.incrementBy(output);
                 classCounts.put((VectorValue) evaluation.getTarget(), classCounts.get(evaluation.getTarget()) + 1);
             }
-            int maxInd = evaluation.getOutput().getMaxInd();
+            int maxInd = output.getMaxInd();
             if (evaluation.getTarget().getMaxInd() == maxInd) {
-                if (((VectorValue) evaluation.getOutput()).values[maxInd] != 0.0) { //this (default) output doesn't count as a prediction
+                if (((VectorValue) output).values[maxInd] != 0.0) { //this (default) output doesn't count as a prediction
                     goodCount++;
                 } else {
 //                    System.out.println();

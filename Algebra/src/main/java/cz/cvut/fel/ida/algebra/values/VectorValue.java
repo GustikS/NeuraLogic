@@ -310,6 +310,16 @@ public class VectorValue extends Value {
 
     /**
      * Dot product vs matrix multiplication depending on orientation of the vectors
+     * <p>
+     * A vector of one is a scalar whichever way it is turned, so it scales the other side instead of having
+     * to line up with it - the same reading {@link #incrementBy(ScalarValue)} already takes. This is what a
+     * weight declared {@code (n,1)}, which becomes a column vector of n, needs in order to meet a one-element
+     * input: as vectors, column times column has no reading at all, and it used to throw.
+     * <p>
+     * It sits after the dot product, which keeps returning a {@link ScalarValue} for two vectors of one, and
+     * before the outer product, which would otherwise answer with an {@code n x 1} or {@code 1 x n} matrix -
+     * a shape nothing else here holds, since a weight of those dimensions is itself kept as a vector. That
+     * is the same collapse {@link #kroneckerTimes(VectorValue)} makes, so the result agrees with it.
      *
      * @param value
      * @return
@@ -325,19 +335,29 @@ public class VectorValue extends Value {
             }
 
             return new ScalarValue(resultValue);
+        } else if (values.length == 1) {
+            return value.times(new ScalarValue(values[0]));
+        } else if (value.values.length == 1) {
+            return this.times(new ScalarValue(value.values[0]));
         } else if (!value.rowOrientation && this.rowOrientation) {
             LOG.finest(() -> "Performing vector x vector matrix multiplication.");
             final MatrixValue result = new MatrixValue(value.values.length, values.length);
             final double[] resultValues = result.values;
             final double[] tempValues = value.values;
+            final double[] thisValues = this.values;
+
+            final int tempLen = tempValues.length;
+            final int thisLen = thisValues.length;
 
             int index = 0;
 
-            for (final double tmpValue : tempValues) {
-                for (final double v : values) {
-                    resultValues[index++] = tmpValue * v;
+            for (int i = 0; i < tempLen; i++) {
+                final double tmpValue = tempValues[i];
+                for (int j = 0; j < thisLen; j++) {
+                    resultValues[index++] = tmpValue * thisValues[j];
                 }
             }
+
             return result;
         } else {
             String err = "Incompatible dimensions for vector multiplication: " + Arrays.toString(value.size()) + " vs " + Arrays.toString(this.size()) + " (try transposition)";
@@ -826,7 +846,7 @@ public class VectorValue extends Value {
     @Override
     protected void incrementBy(MatrixValue value) {
         String err = "Incompatible dimensions of algebraic operation - matrix increment by vector";
-        LOG.severe(err);
+        LOG.fine(err);
         throw new ArithmeticException(err);
 
     }
@@ -842,9 +862,16 @@ public class VectorValue extends Value {
     }
 
     @Override
+    /**
+     * The "incompatible dimensions of algebraic operation" throws below are not failures but a signal: the
+     * receiver is the smaller shape and cannot hold the result in place. Callers such as ElementProduct, Sum
+     * and Average catch it and redo the step out of place, so it happens routinely and must not be logged as
+     * severe - a single small recurrent model produced sixteen such lines per epoch. Genuine dimension
+     * mismatches, which say "mismatch" rather than "of algebraic operation", still are severe.
+     */
     protected void elementMultiplyBy(ScalarValue value) {
         String err = "Incompatible dimensions of algebraic operation - scalar elementMultiplyBy by vector";
-        LOG.severe(err);
+        LOG.fine(err);
         throw new ArithmeticException(err);
     }
 
@@ -864,7 +891,7 @@ public class VectorValue extends Value {
     @Override
     protected void elementMultiplyBy(MatrixValue value) {
         String err = "Incompatible dimensions of algebraic operation - matrix multiplyBy by vector";
-        LOG.severe(err);
+        LOG.fine(err);
         throw new ArithmeticException(err);
     }
 

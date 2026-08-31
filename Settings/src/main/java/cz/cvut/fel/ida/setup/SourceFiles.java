@@ -2,6 +2,7 @@ package cz.cvut.fel.ida.setup;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
 import com.google.gson.InstanceCreator;
 import org.apache.commons.cli.CommandLine;
 
@@ -441,7 +442,14 @@ public class SourceFiles extends Sources {
                 return SourceFiles.this;
             }
         };
-        Gson gson = new GsonBuilder().registerTypeAdapter(SourceFiles.class, creator).create();
+        //Gson would otherwise read a File through its private fields, which the module system refuses since
+        //JDK 16. A File is its path, and that is the shape it was written in.
+        JsonDeserializer<File> fileDeserializer =
+                (element, type, context) -> new File(element.getAsJsonObject().get("path").getAsString());
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(SourceFiles.class, creator)
+                .registerTypeAdapter(File.class, fileDeserializer)
+                .create();
         try {
             String json = new String(Files.readAllBytes(Paths.get(inPath)));
             SourceFiles sources = gson.fromJson(json, SourceFiles.class);

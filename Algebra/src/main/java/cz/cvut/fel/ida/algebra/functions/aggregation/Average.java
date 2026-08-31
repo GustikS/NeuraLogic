@@ -55,7 +55,7 @@ public class Average implements Aggregation {
         for (int i : combinedInputs.size()) {
             len *= i;
         }
-        return new ScalarValue(1/len);
+        return new ScalarValue(1.0 / len);  //both operands were int, so this was 0 for every vector longer than one
     }
 
     @Override

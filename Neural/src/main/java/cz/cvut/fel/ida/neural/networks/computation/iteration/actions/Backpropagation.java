@@ -1,5 +1,6 @@
 package cz.cvut.fel.ida.neural.networks.computation.iteration.actions;
 
+import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.learning.results.Result;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.TopDown;
@@ -72,6 +73,12 @@ public class Backpropagation {
         }
     }
 
+    /**
+     * The query's importance is already carried by {@link Result#errorGradient()}, together with
+     * {@link Result#errorValue()}, so that what is optimised and what is reported stay the same quantity. The
+     * {@link #backpropagate(NeuralSample, Value)} overload below takes a gradient the caller computed, and so
+     * leaves any weighting of it to them.
+     */
     public WeightUpdater backpropagate(NeuralSample neuralSample, Result evaluatedResult) {
         return this.backpropagate(neuralSample, evaluatedResult.errorGradient());
     }

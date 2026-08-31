@@ -69,9 +69,15 @@ public class NeuralModel implements Model<QueryNeuron> {
         return clone;
     }
 
+    /**
+     * Each weight is drawn through an initializer set up for that weight - widened by the activation its
+     * output passes through, and orthonormal where a recursive rule applies it. Only the shape-aware
+     * initializers answer {@code forWeight}; the rest hand back themselves, so a distribution the user named
+     * outright is left alone.
+     */
     public void resetWeights(ValueInitializer valueInitializer) {
         for (Weight weight : allWeights) {
-            weight.init(valueInitializer);
+            weight.init(valueInitializer.forWeight(weight));
         }
     }
 

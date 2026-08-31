@@ -1,10 +1,14 @@
 package cz.cvut.fel.ida.logic.constructs.template;
 
+import cz.cvut.fel.ida.algebra.functions.Transformation;
 import cz.cvut.fel.ida.algebra.values.Value;
+import cz.cvut.fel.ida.algebra.values.inits.ActivationGain;
 import cz.cvut.fel.ida.algebra.weights.Weight;
 import cz.cvut.fel.ida.learning.Model;
+import cz.cvut.fel.ida.logic.Clause;
 import cz.cvut.fel.ida.logic.HornClause;
 import cz.cvut.fel.ida.logic.Literal;
+import cz.cvut.fel.ida.logic.Predicate;
 import cz.cvut.fel.ida.logic.constructs.Conjunction;
 import cz.cvut.fel.ida.logic.constructs.example.QueryAtom;
 import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
@@ -13,7 +17,12 @@ import cz.cvut.fel.ida.logic.constructs.template.components.HeadAtom;
 import cz.cvut.fel.ida.logic.constructs.template.components.WeightedRule;
 import cz.cvut.fel.ida.logic.constructs.template.types.GraphTemplate;
 import cz.cvut.fel.ida.logic.subsumption.HerbrandModel;
+import cz.cvut.fel.ida.logic.subsumption.SubsumptionEngineJ2;
+import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.FactNeuron;
+import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -38,6 +47,13 @@ public class Template implements Model<QueryAtom>, Exportable {
     public LinkedHashSet<Conjunction> constraints;  //todo how to handle these?
 
     /**
+     * Grounding and neuralization caches, all rebuilt on demand and therefore not part of a stored model
+     * (the neuron ones are not even serializable)
+     */
+    public transient Map<Literal, ValuedFact> atomMapCache;
+    public transient List<FactNeuron> createdFactNeuronCache = new ObjectArrayList<>(0);
+    public transient Map<Literal, FactNeuron> factNeuronCache = new Object2ObjectOpenHashMap<>(0);
+    /**
      * Good to know for stratification checking
      */
     public boolean containsNegation = false;
@@ -46,6 +62,10 @@ public class Template implements Model<QueryAtom>, Exportable {
      * Template's own inference engine, storing preprocessed structures
      */
     public transient HerbrandModel herbrandModel;
+
+    public transient SubsumptionEngineJ2.ClauseE clauseE;
+
+    public transient Clause clause;
 
     /**
      * Atoms inferred on top of the given {@link #facts} using the {@link #herbrandModel}
@@ -132,6 +152,89 @@ public class Template implements Model<QueryAtom>, Exportable {
         return uniqueWeights;
     }
 
+    /**
+     * Tell each weight the two things about its own place in the template that an initializer would
+     * otherwise have to be told - both gone by the time anything holds a flat list of weights.
+     * <p>
+     * One is the activation its output runs into, which {@link ActivationGain} turns into a width. The other
+     * is whether a recursive rule applies it, in which case it is drawn orthonormal and keeps the length of
+     * what flows through it over every application rather than on average.
+     * <p>
+     * Where the weight sits decides which activation that is. A body weight multiplies before the rule's own
+     * transformation, so that is the one it passes through. A head weight multiplies the rule's result
+     * <em>after</em> it, so what follows a head weight is the head atom's own transformation - stated on the
+     * predicate, or {@link Settings#atomNeuronTransformation} when the template says nothing.
+     * <p>
+     * {@link Weight#setActivationGain} keeps the first answer it is given, so calling this twice changes
+     * nothing the second time.
+     */
+    public void assignInitialisationHints(Settings settings) {
+        Set<Predicate> recursive = recursivePredicates();
+
+        for (WeightedRule rule : rules) {
+            boolean reused = recursive.contains(rule.getHead().getPredicate());
+            if (reused && rule.getWeight() != null) {
+                rule.getWeight().onRecurrentRule = true;
+            }
+            if (rule.getWeight() != null) {
+                Transformation afterTheHeadWeight = rule.getHead().getTransformation() != null
+                        ? rule.getHead().getTransformation()
+                        : Transformation.getFunction(settings.atomNeuronTransformation);
+                rule.getWeight().setActivationGain(ActivationGain.of(afterTheHeadWeight));
+            }
+            for (BodyAtom bodyAtom : rule.getBody()) {
+                if (bodyAtom.getConjunctWeight() != null) {
+                    bodyAtom.getConjunctWeight().setActivationGain(ActivationGain.of(rule.getTransformation()));
+                    if (reused) {
+                        bodyAtom.getConjunctWeight().onRecurrentRule = true;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * The predicates that can be derived from themselves, so a rule with one at its head applies its weights
+     * once per unrolling rather than once - which is what {@link Weight#onRecurrentRule} is about.
+     * <p>
+     * Reachability rather than a self-reference test, so that mutual recursion counts too: a rule for `a`
+     * over `b` and one for `b` over `a` reuses both weights just as surely as `h` over `h` does, and only
+     * looking for the head in its own body would quietly miss it.
+     */
+    private Set<Predicate> recursivePredicates() {
+        Map<Predicate, Set<Predicate>> derivedFrom = new HashMap<>();
+        for (WeightedRule rule : rules) {
+            Set<Predicate> body = derivedFrom.computeIfAbsent(rule.getHead().getPredicate(), p -> new HashSet<>());
+            for (BodyAtom bodyAtom : rule.getBody()) {
+                body.add(bodyAtom.getPredicate());
+            }
+        }
+
+        Set<Predicate> recursive = new HashSet<>();
+        for (Predicate head : derivedFrom.keySet()) {
+            if (reaches(derivedFrom, head, head)) {
+                recursive.add(head);
+            }
+        }
+        return recursive;
+    }
+
+    private static boolean reaches(Map<Predicate, Set<Predicate>> derivedFrom, Predicate from, Predicate target) {
+        Deque<Predicate> pending = new ArrayDeque<>(derivedFrom.getOrDefault(from, Collections.emptySet()));
+        Set<Predicate> seen = new HashSet<>();
+
+        while (!pending.isEmpty()) {
+            Predicate next = pending.pop();
+            if (next.equals(target)) {
+                return true;
+            }
+            if (seen.add(next)) {
+                pending.addAll(derivedFrom.getOrDefault(next, Collections.emptySet()));
+            }
+        }
+        return false;
+    }
+
     private List<Weight> filterUnique(List<Weight> weightList) {
         return weightList.stream().distinct().collect(Collectors.toList());
     }
@@ -185,8 +288,7 @@ public class Template implements Model<QueryAtom>, Exportable {
 
         herbrandModel = new HerbrandModel(facts, rules);
         if (inferAtoms) {
-            Collection<Literal> atoms = herbrandModel.inferAtoms();
-            inferredAtoms.addAll(atoms);
+            inferredAtoms = herbrandModel.toSet();
         }
     }
 

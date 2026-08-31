@@ -1,10 +1,11 @@
 package cz.cvut.fel.ida.neural.networks.computation.training.strategies;
 
+import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.algebra.values.inits.ValueInitializer;
 import cz.cvut.fel.ida.learning.results.Progress;
+import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.learning.results.Result;
-import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.PythonEvaluation;
-import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.PythonHookHandler;
+import cz.cvut.fel.ida.neural.networks.computation.iteration.actions.Evaluation;
 import cz.cvut.fel.ida.neural.networks.computation.iteration.visitors.weights.WeightUpdater;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralModel;
 import cz.cvut.fel.ida.neural.networks.computation.training.NeuralSample;
@@ -16,11 +17,9 @@ import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exporter;
 import cz.cvut.fel.ida.utils.generic.Pair;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 
 public class PythonTrainingStrategy extends TrainingStrategy {
@@ -37,7 +36,7 @@ public class PythonTrainingStrategy extends TrainingStrategy {
 
     ValueInitializer valueInitializer;
 
-    PythonEvaluation evaluation;
+    Evaluation evaluation;
 
     LearnRateDecayStrategy learnRateDecay;
 
@@ -49,9 +48,7 @@ public class PythonTrainingStrategy extends TrainingStrategy {
         this.trainer = new SequentialTrainer(settings, optimizer, currentModel);
         this.listTrainer = this.trainer.new SequentialListTrainer();
         this.valueInitializer = ValueInitializer.getInitializer(settings);
-
-        evaluation = new PythonEvaluation(settings, -1);
-        this.trainer.setEvaluation(evaluation);
+        this.evaluation = this.trainer.getEvaluation();
 
         this.miniBatchTrainer = new MiniBatchTrainer(settings, optimizer, currentModel, 0);
         this.minibatchListTrainer = this.miniBatchTrainer.new MinibatchListTrainer();
@@ -65,11 +62,6 @@ public class PythonTrainingStrategy extends TrainingStrategy {
 
     public NeuralModel getCurrentModel() {
         return this.currentModel;
-    }
-
-    public void setHooks(Set<String> hooks, PythonHookHandler callback) {
-        evaluation.hooks = hooks;
-        evaluation.hookHandler = callback;
     }
 
     public void setSamples(List<NeuralSample> samples) {
@@ -95,15 +87,15 @@ public class PythonTrainingStrategy extends TrainingStrategy {
     public void setupDebugger(NeuralDebugging neuralDebugger) {
     }
 
-    public String learnSamples(int epochs, int minibatchSize) {
+    public List<Result> learnSamples(int epochs, int minibatchSize) {
         return learnSamples(samplesSet, epochs, minibatchSize);
     }
 
-    public String learnSamples(List<NeuralSample> samples, int epochs, int minibatchSize) {
+    public List<Result> learnSamples(List<NeuralSample> samples, int epochs, int minibatchSize) {
         List<Result> results = null;
 
         if (epochs <= 0) {
-            return "[]";
+            return new ArrayList<>();
         }
 
         ListTrainer trainer = listTrainer;
@@ -127,60 +119,93 @@ public class PythonTrainingStrategy extends TrainingStrategy {
 //            }
         }
 
-        List<String> output = new ArrayList<>(samples.size());
-        NumberFormat format = Settings.superDetailedNumberFormat;
-
-        for (Result result : results) {
-            output.add(Arrays.toString(new String[]{
-                    result.getTarget().toString(format),
-                    result.getOutput().toString(format),
-                    result.errorValue().toString(format),
-            }));
-        }
-
-        return output.toString();
+        return results;
     }
 
-    public String learnSample(NeuralSample sample) {
+    public Result learnSample(NeuralSample sample) {
         trainer.invalidateSample(trainer.getInvalidation(), sample);
         Result result = trainer.evaluateSample(trainer.getEvaluation(), sample);
 
         WeightUpdater weightUpdater = trainer.backpropSample(trainer.getBackpropagation(), result, sample);
+        //this reimplements Trainer.learnFromSample rather than calling it, so anything that path gains has to
+        //be repeated here or the two descend different functions - which they did, until the reduction was
+        //added to only one of them and a single sample under MEAN stepped as if under SUM
+        trainer.reduceAndClip(weightUpdater, Collections.singletonList(result));
         trainer.updateWeights(currentModel, weightUpdater);
-        NumberFormat format = Settings.superDetailedNumberFormat;
 
-        return Arrays.toString(new String[]{
-                result.getTarget().toString(format),
-                result.getOutput().toString(format),
-                result.errorValue().toString(format),
-        });
+        return result;
     }
 
-    public String evaluateSample(NeuralSample sample) {
+    public Value evaluateSample(NeuralSample sample) {
         trainer.invalidateSample(trainer.getInvalidation(), sample);
-        return evaluation.evaluate(sample.query).toString(Settings.superDetailedNumberFormat);
+        return evaluation.evaluate(sample.query);
     }
 
-    public String evaluateSamples(List<NeuralSample> samples, int minibatchSize) {
-        List<String> output = new ArrayList<>(samples.size());
-        NumberFormat format = Settings.superDetailedNumberFormat;
+    public List<Value> evaluateSamples(List<NeuralSample> samples, int minibatchSize) {
+        List<Value> output = new ArrayList<>(samples.size());
 
         if (minibatchSize > 1) {
             miniBatchTrainer.setMinibatchSize(minibatchSize);
 
             for (Result result : minibatchListTrainer.evaluate(samples)) {
-                output.add(result.getOutput().toString(format));
+                output.add(result.getOutput());
             }
 
-            return output.toString();
+            return output;
         }
 
         for (NeuralSample sample : samples) {
             trainer.invalidateSample(trainer.getInvalidation(), sample);
-            output.add(evaluation.evaluate(sample.query).toString(format));
+            output.add(evaluation.evaluate(sample.query));
         }
 
-        return output.toString();
+        return output;
+    }
+
+    /**
+     * The loss of a whole dataset, reduced the way the error function says - so the single number torch's
+     * criterion would hand back, and the quantity the optimizer is descending.
+     * <p>
+     * The per-sample values from {@link #validateSamples} are deliberately *not* reduced across the batch;
+     * they are each summed over their own components, which is torch's reduction="none". This is the one
+     * that applies the batch reduction, through the same {@link Result#reductionDivisor} the trainers scale
+     * the gradient by, so the reported loss and the descended one cannot drift apart.
+     */
+    public Value reducedError(List<NeuralSample> samples, int minibatchSize) {
+        List<Result> results = validateSamples(samples, minibatchSize);
+        double total = 0;
+        for (Result result : results) {
+            for (double component : result.errorValue()) {
+                total += component;
+            }
+        }
+        return new ScalarValue(total / Result.reductionDivisor(results, settings.errorReduction));
+    }
+
+    public Result validateSample(NeuralSample sample) {
+        trainer.invalidateSample(trainer.getInvalidation(), sample);
+        return trainer.evaluateSample(evaluation, sample);
+    }
+
+    public List<Result> validateSamples(List<NeuralSample> samples, int minibatchSize) {
+        List<Result> output = new ArrayList<>(samples.size());
+
+        if (minibatchSize > 1) {
+            miniBatchTrainer.setMinibatchSize(minibatchSize);
+
+            for (Result result : minibatchListTrainer.evaluate(samples)) {
+                output.add(result);
+            }
+
+            return output;
+        }
+
+        for (NeuralSample sample : samples) {
+            trainer.invalidateSample(trainer.getInvalidation(), sample);
+            output.add(trainer.evaluateSample(evaluation, sample));
+        }
+
+        return output;
     }
 
     @Override

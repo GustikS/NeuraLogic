@@ -15,29 +15,43 @@
 
 package cz.cvut.fel.ida.utils.math.collections;
 
-import cz.cvut.fel.ida.utils.math.Sugar;
-
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
+
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+
+
 /**
  *
  * Class for datastructure which roughly coprresponds to java.util.Map<R,java.util.Set<S>>.
- * 
+ *
  * @param <R> type of key-elements
  * @param <S> type of value-elements
  * @author Ondra
  */
 public class MultiMap<R,S> {
-    
-    private final HashSet<S> emptySet = new HashSet<S>();
-    
-    private ConcurrentHashMap<R,Set<S>> map = new ConcurrentHashMap<R,Set<S>>();
+
+    private static final int DEFAULT_CAPACITY = 16;
+    private static final float LOAD_FACTOR = 0.75f;
 
     /**
-     * 
-     * @return number of key-elements iterable the MultiMap
+     * Handed out by {@link #get} and {@link #getAll} for keys that are not present, to avoid allocating. It is a
+     * plain mutable set, so a caller that adds to the result of a missing-key get would poison it - every later
+     * miss on this map would then answer with those elements. Use {@link #put} to add, never the returned set.
      */
+    private final Set<?> emptySet = new ObjectOpenHashSet<>();
+
+    private final Map<R, ObjectOpenHashSet<S>> map;
+
+    public MultiMap() {
+        this(DEFAULT_CAPACITY);
+    }
+
+    public MultiMap(int initialCapacity) {
+        this.map = new Object2ObjectOpenHashMap<>(initialCapacity, LOAD_FACTOR);
+    }
+
     public int size() {
         return map.size();
     }
@@ -55,7 +69,7 @@ public class MultiMap<R,S> {
      * @param key the key
      * @return true if the MultiMap contains the given key
      */
-    public boolean containsKey(Object key) {
+    public boolean containsKey(R key) {
         return map.containsKey(key);
     }
 
@@ -63,29 +77,35 @@ public class MultiMap<R,S> {
      * Returns a set of elements associated to <em>key</em>. If there is no set associated to <em>key</em> then
      * an empty set is returned.
      * @param key the key
-     * @return list of elements associated to <em>key</em>. 
+     * @return list of elements associated to <em>key</em>.
      */
-    public Set<S> get(Object key) {
-        if (map.containsKey(key))
-            return map.get(key);
-        else
-            return emptySet;
+    public Set<S> get(R key) {
+        Set<S> result = map.get(key);
+        return result != null ? result : (Set<S>) emptySet;
     }
 
     /**
      * Returns a set of elements associated to keys from the given set <em>keys</em>. If there is no set associated to any of the keys then
      * an empty set is returned.
      * @param keys the keys
-     * @return list of elements associated to <em>key</em>. 
+     * @return list of elements associated to <em>key</em>.
      */
-    public Set<S> getAll(Set keys){
-        Set<S> retVal = new HashSet<S>();
-        for (Object key : keys){
-            retVal.addAll(this.get(key));
+    public Set<S> getAll(Set<R> keys) {
+        if (keys == null || keys.isEmpty()) {
+            return (Set<S>) emptySet;
         }
-        return retVal;
+
+        // Pre-size based on expected result size
+        Set<S> result = new HashSet<>();
+        for (R key : keys) {
+            Set<S> values = map.get(key);
+            if (values != null) {
+                result.addAll(values);
+            }
+        }
+        return result;
     }
-    
+
     /**
      * Adds the key-value pair to the MultiMap. It does not matter whether the MultiMap already contains
      * this key-value pair, the value will be simply added to the list associated with the given key.
@@ -93,10 +113,7 @@ public class MultiMap<R,S> {
      * @param value the value
      */
     public void put(R key, S value) {
-        if (!map.containsKey(key)){
-            map.put(key, Collections.synchronizedSet(new LinkedHashSet<S>()));
-        }
-        map.get(key).add(value);
+        map.computeIfAbsent(key, k -> new ObjectOpenHashSet<>()).add(value);
     }
 
     /**
@@ -105,19 +122,24 @@ public class MultiMap<R,S> {
      * @param key the key
      * @param values the collection of values
      */
-    public void putAll(R key, Collection<S> values){
-        for (S s : values){
-            put(key, s);
+    public void putAll(R key, Collection<S> values) {
+        if (values == null || values.isEmpty()) {
+            return;
         }
+        map.computeIfAbsent(key, k -> new ObjectOpenHashSet<>()).addAll(values);
     }
-    
+
     /**
      * Adds all key-value pairs contained iterable the given MultiMap to this MultiMap.
      * @param multiMap the MultiMap whose key-value pairs should be added
      */
-    public void putAll(MultiMap<R,S> multiMap){
-        for (Map.Entry<R,Set<S>> entry : multiMap.entrySet()){
-            this.putAll(entry.getKey(), entry.getValue());
+    public void putAll(MultiMap<R, S> multiMap) {
+        if (multiMap == null || multiMap.isEmpty()) {
+            return;
+        }
+        for (Entry<R, ObjectOpenHashSet<S>> entry : multiMap.map.entrySet()) {
+            Set<S> targetSet = map.computeIfAbsent(entry.getKey(), k -> new ObjectOpenHashSet<>());
+            targetSet.addAll(entry.getValue());
         }
     }
 
@@ -126,8 +148,7 @@ public class MultiMap<R,S> {
      * @param key the key
      * @param value the new values
      */
-    public void set(R key, Set<S> value){
-        map.remove(key);    // todo safe to skip?
+    public void set(R key, ObjectOpenHashSet<S> value) {
         map.put(key, value);
     }
 
@@ -136,9 +157,10 @@ public class MultiMap<R,S> {
      * @param key the key
      * @param value the new values
      */
-    public void set(R key, Collection<S> value){
-        map.remove(key);
-        map.put(key, Collections.synchronizedSet(Sugar.setFromCollections(value)));
+    public void set(R key, Collection<S> value) {
+        Set<S> targetSet = map.computeIfAbsent(key, k -> new ObjectOpenHashSet<>(value.size()));
+        targetSet.clear();
+        targetSet.addAll(value);
     }
 
     /**
@@ -146,40 +168,33 @@ public class MultiMap<R,S> {
      * @param key the key
      * @param value the value to be removed
      */
-    public void remove(Object key, Object value) {
-        Set<S> s;
-        if ((s = map.get(key)) != null){
-            s.remove(value);
-            if (s.isEmpty()){
-                map.remove(key);
-            }
+    public void remove(R key, S value) {
+        Set<S> set = map.get(key);
+        if (set != null && set.remove(value) && set.isEmpty()) {
+            map.remove(key);
         }
     }
-    
+
     /**
      * Removes all values associated with the given key.
      * @param key the key
      */
-    public Set<S> remove(Object key){
-        Set<S> retVal = map.remove(key);
-        if (retVal == null){
-            return emptySet;
-        } else {
-            return retVal;
-        }
+    public Set<S> remove(R key) {
+        Set<S> removed = map.remove(key);
+        return removed != null ? removed : (Set<S>) emptySet;
     }
-    
+
     /**
      * Removes all values associated to keys from the given collection.
      * @param keys the keys for which the associated values should be removed
      * from the MultiMap
      */
-    public void removeAll(Collection keys){
-        for (Object o : keys){
-            this.remove(o);
+    public void removeAll(Collection<R> keys) {
+        if (keys != null) {
+            keys.forEach(map::remove);
         }
     }
-    
+
     /**
      * Removes everything from the MultiList.
      */
@@ -188,7 +203,7 @@ public class MultiMap<R,S> {
     }
 
     /**
-     * 
+     *
      * @return the set of all key-elements
      */
     public Set<R> keySet() {
@@ -196,50 +211,50 @@ public class MultiMap<R,S> {
     }
 
     /**
-     * 
+     *
      * @return a collection containing all the values
      */
-    public Collection<Set<S>> values() {
+    public Collection<ObjectOpenHashSet<S>> values() {
         return map.values();
     }
 
     /**
-     * 
-     * @return the backing entry-set 
+     *
+     * @return the backing entry-set
      */
-    public Set<Entry<R, Set<S>>> entrySet() {
+    public Set<Entry<R, ObjectOpenHashSet<S>>> entrySet() {
         return map.entrySet();
     }
-    
+
     @Override
-    public String toString(){
+    public String toString() {
         return this.map.toString();
     }
 
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return this.map.hashCode();
     }
 
     @Override
-    public boolean equals(Object o){
+    public boolean equals(Object o) {
         if (o instanceof MultiMap) {
-            return this.map.equals(((MultiMap)o).map);
+            return this.map.equals(((MultiMap) o).map);
         }
         return false;
     }
 
     /**
-     * 
+     *
      * @return string with the numbers of elements associated to particular keys
      */
-    public String sizesToString(){
+    public String sizesToString() {
         StringBuilder sb = new StringBuilder();
         sb.append("MultiMap[");
         int index = 0;
-        for (Map.Entry<R,Set<S>> entry : this.map.entrySet()){
+        for (Entry<R, ObjectOpenHashSet<S>> entry : this.map.entrySet()) {
             sb.append(entry.getKey()).append(" ~ ").append(entry.getValue().size());
-            if (index++ < this.map.size()-1){
+            if (index++ < this.map.size() - 1) {
                 sb.append(", ");
             }
         }
@@ -247,33 +262,32 @@ public class MultiMap<R,S> {
         return sb.toString();
     }
 
-    /**
-     * 
-     * @return int[] array with numbers of elements associated to particular keys
-     */
-    public int[] sizes(){
-        int[] sizes = new int[this.map.size()];
-        int i = 0;
-        for (Map.Entry<R,Set<S>> entry : map.entrySet()){
-            sizes[i] = entry.getValue().size();
-            i++;
+    public void copyFrom(MultiMap<R, S> map) {
+        for (Entry<R, ObjectOpenHashSet<S>> entry : map.entrySet()) {
+            this.map.put(entry.getKey(), ((ObjectOpenHashSet) entry.getValue()).clone());
         }
-        return sizes;
+    }
+
+    public MultiMap<R, S> copy() {
+        MultiMap<R, S> res = new MultiMap<>((int) (this.map.size() / LOAD_FACTOR + 1));
+
+        for (Entry<R, ObjectOpenHashSet<S>> entry : this.map.entrySet()) {
+            res.map.put(entry.getKey(), ((ObjectOpenHashSet) entry.getValue()).clone());
+        }
+
+        return res;
     }
 
     /**
-     * Creates a copy of the MultiList
-     * @return a copy of the MultiList
+     *
+     * @return int[] array with numbers of elements associated to particular keys
      */
-    public MultiMap<R,S> copy(){
-        MultiMap<R,S> retVal = new MultiMap<R,S>();
-        retVal.putAll_forCopy(this);
-        return retVal;
-    }
-    
-    private void putAll_forCopy(MultiMap<R,S> bag){
-        for (Map.Entry<R,Set<S>> entry : bag.entrySet()){
-            this.putAll(entry.getKey(), Sugar.setFromCollections(entry.getValue()));
+    public int[] sizes() {
+        int[] sizes = new int[this.map.size()];
+        int i = 0;
+        for (Set<S> set : map.values()) {
+            sizes[i++] = set.size();
         }
+        return sizes;
     }
 }

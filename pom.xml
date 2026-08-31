@@ -40,6 +40,11 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Stamped into the jar manifest so a built artifact can say which source it is.
+             Whoever builds passes -Dbackend.commit=$(git rev-parse HEAD); a hand build that does
+             not is reported as unknown, which is itself the useful answer. -->
+        <backend.commit>unknown</backend.commit>
+        <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
     </properties>
 
     <distributionManagement>
@@ -93,6 +98,12 @@
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+            </plugin>
+
+            <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <!--<appendAssemblyId>false</appendAssemblyId>-->
@@ -100,6 +111,11 @@
                         <manifest>
                             <mainClass>cz.cvut.fel.ida.neuralogic.cli.Main</mainClass>
                         </manifest>
+                        <manifestEntries>
+                            <Backend-Commit>${backend.commit}</Backend-Commit>
+                            <Backend-Version>${project.version}</Backend-Version>
+                            <Backend-Built>${maven.build.timestamp}</Backend-Built>
+                        </manifestEntries>
                     </archive>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>

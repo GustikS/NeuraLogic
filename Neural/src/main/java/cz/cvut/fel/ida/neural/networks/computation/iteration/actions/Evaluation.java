@@ -63,7 +63,7 @@ public class Evaluation {
 
     public Result evaluate(NeuralSample sample) {
         Value output = evaluate(sample.query);
-        Result result = resultFactory.create(sample.getId(), sample.position, sample.target, output);
+        Result result = resultFactory.create(sample.getId(), sample.position, sample.target, output, sample.query.importance);
         return result;
     }
 

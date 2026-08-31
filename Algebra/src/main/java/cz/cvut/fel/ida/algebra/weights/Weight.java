@@ -25,20 +25,49 @@ public class Weight implements Exportable {
     public final String name;
 
     public Value value;
-    public boolean isFixed = false;
-    public Boolean isLearnable;
+    public final boolean isFixed;
+    public boolean isLearnable = true;
+    public boolean learnableSet = false;
     public boolean manualInitialization = false;   //todo add the init weight value to weight metadata
 
     public boolean isShared;
 
     /**
+     * How much wider to draw this weight for the activation its own output passes through - see
+     * {@link cz.cvut.fel.ida.algebra.values.inits.ActivationGain}. It is set from the rule carrying the
+     * weight and read only by the initializers that already scale with shape.
+     * <p>
+     * The first one to be set wins, and the case where that matters is narrow. A <em>lifted</em> rule
+     * grounding many times spreads its weight across the network but takes the same activation to every one
+     * of those places, so they never disagree; only the same named weight written into two rules with
+     * different activations does, and that is rare enough that picking one beats making anyone think about
+     * it.
+     */
+    public double activationGain = 1.0;
+
+    private boolean activationGainSet = false;
+
+    /**
+     * Whether a recursive rule applies this weight, so that the initializer draws it orthonormal and it
+     * keeps the length of what flows through it over every application rather than on average.
+     * <p>
+     * Unlike {@link #activationGain} this is an or, not a first-wins: a weight used recurrently anywhere is
+     * reused at depth, whatever else it also does.
+     */
+    public boolean onRecurrentRule = false;
+
+    public void setActivationGain(double gain) {
+        if (activationGainSet) {
+            return;
+        }
+        this.activationGain = gain;
+        this.activationGainSet = true;
+    }
+
+    /**
      * The flag needs to be set by an external routine.
      */
     public boolean dropout = false;
-
-    @Nullable
-    double learningRate;
-    //public String originalString;
 
     public boolean isOffset;
     public Value momentum;  //todo move these to some map within Adam?
@@ -59,7 +88,7 @@ public class Weight implements Exportable {
             this.metadata = new WeightMetadata(value);
         }
         if (isFixed || index < 0) {
-            isLearnable = false;
+            this.isLearnable = false;
         }
     }
 
@@ -122,18 +151,20 @@ public class Weight implements Exportable {
     }
 
     public boolean isLearnable() {
-        if (isLearnable != null) {
+        if (learnableSet) {
             return isLearnable;
         }
-        if (isFixed) {
-            isLearnable = false;
-        } else if (index < 0) {
-            isLearnable = false;
-        } else if (value == Value.ONE || value == Value.ZERO) {
-            isLearnable = false;
-        } else {
-            isLearnable = true;
+
+        if (!isLearnable) {
+            learnableSet = true;
+            return false;
         }
+
+        if (value == Value.ONE || value == Value.ZERO) {
+            isLearnable = false;
+        }
+
+        learnableSet = true;
         return isLearnable;
     }
 }

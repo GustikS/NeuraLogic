@@ -5,19 +5,17 @@ import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.neural.networks.structure.building.NeuralProcessingSample;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.AtomNeuron;
 import cz.cvut.fel.ida.neural.networks.structure.components.neurons.types.AtomNeurons;
-import cz.cvut.fel.ida.neural.networks.structure.components.types.DetailedNetwork;
 import cz.cvut.fel.ida.pipelines.Pipe;
 import cz.cvut.fel.ida.setup.Settings;
-import cz.cvut.fel.ida.utils.generic.Utilities;
 import cz.cvut.fel.ida.utils.math.collections.MultiList;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import static cz.cvut.fel.ida.pipelines.utils.WorkflowUtils.consecutiveGroupsIterator;
 
 public class SameQueryAggregationPipe extends Pipe<Stream<NeuralProcessingSample>, Stream<NeuralProcessingSample>> {
     private static final Logger LOG = Logger.getLogger(SameQueryAggregationPipe.class.getName());
@@ -35,16 +33,15 @@ public class SameQueryAggregationPipe extends Pipe<Stream<NeuralProcessingSample
             return neuralProcessingSampleStream;
         }
 
-        List<NeuralProcessingSample> processingSamples = Utilities.terminateSampleStream(neuralProcessingSampleStream);
-        List<NeuralProcessingSample> outputProcessingSamples = new LinkedList<>();
-        MultiList<DetailedNetwork, NeuralProcessingSample> sampleMap = new MultiList<>();
-        for (NeuralProcessingSample processingSample : processingSamples) {  // merge samples with the same example
-            sampleMap.put(processingSample.detailedNetwork, processingSample);
-        }
-        for (Map.Entry<DetailedNetwork, List<NeuralProcessingSample>> entry : sampleMap.entrySet()) {
-            List<NeuralProcessingSample> samples = entry.getValue();
+        Stream<List<NeuralProcessingSample>> groupStream = StreamSupport.stream(Spliterators.spliteratorUnknownSize(consecutiveGroupsIterator(neuralProcessingSampleStream.iterator(), a -> a.detailedNetwork), Spliterator.ORDERED), false);
+        Stream<NeuralProcessingSample> flatStream = groupStream.flatMap(list -> {
+            if (list.isEmpty()) {
+                return Stream.empty();
+            }
+
+            List<NeuralProcessingSample> outputProcessingSamples = new LinkedList<>();
             MultiList<AtomNeurons, NeuralProcessingSample> singleExampleMap = new MultiList<>();
-            for (NeuralProcessingSample sample : samples) {
+            for (NeuralProcessingSample sample : list) {
                 AtomNeurons neuron = sample.query.neuron;
                 if (neuron == null) {
                     LOG.info("Samples without query neurons encountered during SameQueryAggregation");
@@ -52,11 +49,26 @@ public class SameQueryAggregationPipe extends Pipe<Stream<NeuralProcessingSample
                 }
                 singleExampleMap.put(neuron, sample);
             }
-            for (Map.Entry<AtomNeurons, List<NeuralProcessingSample>> atomNeuronsListEntry : singleExampleMap.entrySet()) {
-                outputProcessingSamples.add(mergeSamples(atomNeuronsListEntry.getValue()));
+
+            for (NeuralProcessingSample sample : list) {
+                AtomNeurons neuron = sample.query.neuron;
+                if (neuron == null) {
+                    neuron = new AtomNeuron(sample.query.ID, sample.query.position, null);
+                }
+
+                List<NeuralProcessingSample> samples =  singleExampleMap.get(neuron);
+                if (samples.isEmpty()) {
+                    continue;
+                }
+
+                outputProcessingSamples.add(mergeSamples(samples));
+                singleExampleMap.remove(neuron);
             }
-        }
-        return outputProcessingSamples.stream();
+
+            return outputProcessingSamples.stream();
+        });
+
+        return flatStream;
     }
 
     private NeuralProcessingSample mergeSamples(List<NeuralProcessingSample> sameQuerySamples) {

@@ -57,7 +57,8 @@ public class GroundRule extends GroundHeadRule {
     public void internLiterals(Map<Literal, Literal> herbrand) {
         super.internLiterals(herbrand);
         for (int i = 0; i < groundBody.length; i++) {
-            groundBody[i] = herbrand.get(groundBody[i]);
+            if ((groundBody[i].predicate().flags & 0x04) == 0)
+                groundBody[i] = herbrand.get(groundBody[i]);
         }
     }
 }

@@ -4,6 +4,7 @@ import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.values.Value;
 import cz.cvut.fel.ida.logic.HornClause;
 import cz.cvut.fel.ida.logic.Literal;
+import cz.cvut.fel.ida.logic.constructs.Conjunction;
 import cz.cvut.fel.ida.logic.constructs.building.factories.WeightFactory;
 import cz.cvut.fel.ida.logic.constructs.example.GroundExample;
 import cz.cvut.fel.ida.logic.constructs.example.LiftedExample;
@@ -11,18 +12,16 @@ import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
 import cz.cvut.fel.ida.logic.constructs.template.Template;
 import cz.cvut.fel.ida.logic.constructs.template.components.WeightedRule;
 import cz.cvut.fel.ida.logic.grounding.bottomUp.BottomUp;
-import cz.cvut.fel.ida.logic.grounding.topDown.Gringo;
 import cz.cvut.fel.ida.logic.grounding.topDown.TopDown;
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 import cz.cvut.fel.ida.utils.generic.Pair;
 import cz.cvut.fel.ida.utils.generic.Timing;
-import org.jetbrains.annotations.NotNull;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Class responsible for logical inference/grounding, creating GroundTemplate (set of ground rules and facts) from lifted Template and Example
@@ -53,8 +52,6 @@ public abstract class Grounder implements Exportable {
                 return new BottomUp(settings);
             case TDOWN:
                 return new TopDown(settings);
-            case GRINGO:
-                return new Gringo(settings);
             default:
                 return new BottomUp(settings);
         }
@@ -88,17 +85,7 @@ public abstract class Grounder implements Exportable {
      */
     public Pair<Map<HornClause, List<WeightedRule>>, Map<Literal, ValuedFact>> rulesAndFacts(LiftedExample example, Template template) {
         Map<HornClause, List<WeightedRule>> ruleMap;
-        Map<Literal, ValuedFact> atomMap;
-
-        LinkedHashSet<ValuedFact> flatFacts;
-        if (!template.facts.isEmpty() || !example.conjunctions.isEmpty()) {
-            flatFacts = new LinkedHashSet<>(example.flatFacts);
-            flatFacts.addAll(example.conjunctions.stream().flatMap(conj -> conj.facts.stream()).collect(Collectors.toList()));
-            flatFacts.addAll(template.facts);
-        } else {
-            flatFacts = example.flatFacts;
-        }
-        atomMap = mapToLogic(flatFacts);
+        Map<Literal, ValuedFact> atomMap = mapToLogic(example.flatFacts, example.conjunctions);
 
         if (example.rules.isEmpty()) {
             if (template.hornClauses == null){
@@ -107,11 +94,24 @@ public abstract class Grounder implements Exportable {
             ruleMap = template.hornClauses;
             //rules.addAll(template.constraints) todo what to do with constraints?
         } else {
-            LinkedHashSet<WeightedRule> rules = new LinkedHashSet<>(template.rules);
+            final int totalSize = template.rules.size() + example.rules.size();
+            LinkedHashSet<WeightedRule> rules = new LinkedHashSet<>((int)(totalSize / 0.75f + 1), 0.75f);
+            rules.addAll(template.rules);
             rules.addAll(example.rules);
             ruleMap = rulesToHornClauses(rules);
         }
         return new Pair<>(ruleMap, atomMap);
+    }
+
+    public Map<Literal, ValuedFact> templateFacts(Template template) {
+        int capacity = (int)(template.facts.size() / 0.75f + 1);
+        Map<Literal, ValuedFact> map = new Object2ObjectOpenHashMap<>(capacity, 0.75f);
+
+        for (ValuedFact vf : template.facts) {
+            map.merge(vf.getLiteral(), vf, this::merge2facts);
+        }
+
+        return map;
     }
 
     private LinkedHashMap<HornClause, List<WeightedRule>> rulesToHornClauses(Set<WeightedRule> rules) {
@@ -128,12 +128,34 @@ public abstract class Grounder implements Exportable {
         return new Pair<>(ruleMap, factMap);
     }
 
-    /**
-     * @param facts
-     * @return
-     */
+    public Map<Literal, ValuedFact> mapToLogic(Set<ValuedFact> exampleFacts, Set<Conjunction> exampleConjunctions) {
+        int capacity = exampleFacts.size();
+        for (Conjunction c : exampleConjunctions) capacity += c.facts.size();
+
+        Map<Literal, ValuedFact> map = new Object2ObjectOpenHashMap<>((int) (capacity / 0.75f + 1));
+        for (ValuedFact vf : exampleFacts) {
+            map.merge(vf.getLiteral(), vf, this::merge2facts);
+        }
+
+        for (Conjunction c : exampleConjunctions) {
+            final int size = c.facts.size();
+            for (int i = 0; i < size; i++) {
+                ValuedFact vf = c.facts.get(i);
+                map.merge(vf.getLiteral(), vf, this::merge2facts);
+            }
+        }
+        return map;
+    }
+
     public Map<Literal, ValuedFact> mapToLogic(Set<ValuedFact> facts) {
-        return facts.stream().collect(Collectors.toMap(ValuedFact::getLiteral, vf -> vf, this::merge2facts));
+        int size = facts.size();
+        int capacity = (int)(size / 0.75f + 1);
+        Map<Literal, ValuedFact> map = new LinkedHashMap<>(capacity, 0.75f);
+
+        for (ValuedFact vf : facts) {
+            map.merge(vf.getLiteral(), vf, this::merge2facts);  // Single operation!
+        }
+        return map;
     }
 
     public Set<Literal> getAllFacts(GroundExample example) {

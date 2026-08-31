@@ -3,15 +3,11 @@ package cz.cvut.fel.ida.neural.networks.structure.building;
 import cz.cvut.fel.ida.algebra.functions.Aggregation;
 import cz.cvut.fel.ida.algebra.values.ScalarValue;
 import cz.cvut.fel.ida.algebra.values.Value;
-import cz.cvut.fel.ida.learning.LearningSample;
 import cz.cvut.fel.ida.logic.Clause;
-import cz.cvut.fel.ida.logic.Constant;
 import cz.cvut.fel.ida.logic.Literal;
-import cz.cvut.fel.ida.logic.Term;
 import cz.cvut.fel.ida.logic.constructs.building.factories.WeightFactory;
 import cz.cvut.fel.ida.logic.constructs.example.LogicSample;
 import cz.cvut.fel.ida.logic.constructs.example.QueryAtom;
-import cz.cvut.fel.ida.logic.constructs.example.ValuedFact;
 import cz.cvut.fel.ida.logic.constructs.template.components.GroundHeadRule;
 import cz.cvut.fel.ida.logic.constructs.template.components.GroundRule;
 import cz.cvut.fel.ida.logic.grounding.GroundTemplate;
@@ -25,6 +21,9 @@ import cz.cvut.fel.ida.neural.networks.structure.components.types.DetailedNetwor
 import cz.cvut.fel.ida.setup.Settings;
 import cz.cvut.fel.ida.utils.exporting.Exportable;
 import cz.cvut.fel.ida.utils.generic.Timing;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -76,14 +75,19 @@ public class Neuralizer implements Exportable {
         networksCreated++;
 
         GroundingSample groundingSample = samples.get(0);
+        GroundTemplate sampleGroundTemplate = groundingSample.groundingWrap.getGroundTemplate();
         NeuronMaps neuronMaps = (NeuronMaps) groundingSample.groundingWrap.getNeuronMaps();  //neuronmaps should be same for all samples
         if (neuronMaps == null) {
-            neuronMaps = new NeuronMaps(groundingSample.groundingWrap.getGroundTemplate().groundRules, groundingSample.groundingWrap.getGroundTemplate().groundFacts);
+            neuronMaps = new NeuronMaps(sampleGroundTemplate.groundRules, sampleGroundTemplate.groundFacts, sampleGroundTemplate.templateFacts);
+            neuronMaps.templateFactNeurons = sampleGroundTemplate.templateFactNeurons;
+
             final NeuronMaps finalNeuronMaps = neuronMaps;
             samples.forEach(s -> s.groundingWrap.setNeuronMaps(finalNeuronMaps));
         }
+
         neuralNetBuilder.setNeuronMaps(neuronMaps); //loading stored context from previous neural nets building
         NeuralSets createdNeurons = new NeuralSets();    //a set of neurons used exclusively for this network being created only!
+        createdNeurons.factNeurons = sampleGroundTemplate.createdFactNeuronCache; // use one stored in template, fill and clone it later
 
 //        List<QueryNeuron> queryNeurons = supervisedNeuralization(groundingSample, currentNeuronSets);
 
@@ -113,7 +117,7 @@ public class Neuralizer implements Exportable {
         }
         if (noMatch) {
             if (groundingSample.query.headAtom == null) {
-                DetailedNetwork neuralNetwork = blindNeuralization(groundingSample.groundingWrap.getGroundTemplate(), neuronMaps, createdNeurons);
+                DetailedNetwork neuralNetwork = blindNeuralization(sampleGroundTemplate, neuronMaps, createdNeurons);
                 NeuralProcessingSample neuralProcessingSample = new NeuralProcessingSample(new ScalarValue(0), new QueryNeuron(groundingSample.getId(), 0, 0, null, neuralNetwork), groundingSample.type, settings);
                 return Collections.singletonList(neuralProcessingSample);
             } else {
@@ -179,15 +183,20 @@ public class Neuralizer implements Exportable {
         networksCreated++;
 
         NeuronMaps neuronMaps = (NeuronMaps) groundingSample.groundingWrap.getNeuronMaps();
+        GroundTemplate groundTemplate = groundingSample.groundingWrap.getGroundTemplate();
+
         if (neuronMaps == null) {
-            neuronMaps = new NeuronMaps(groundingSample.groundingWrap.getGroundTemplate().groundRules, groundingSample.groundingWrap.getGroundTemplate().groundFacts);
+            neuronMaps = new NeuronMaps(groundTemplate.groundRules, groundTemplate.groundFacts, groundTemplate.templateFacts);
+            neuronMaps.templateFactNeurons = groundTemplate.templateFactNeurons;
+
             groundingSample.groundingWrap.setNeuronMaps(neuronMaps);
         }
         neuralNetBuilder.setNeuronMaps(neuronMaps); //loading stored context from previous neural nets building
         NeuralSets createdNeurons = new NeuralSets();    //a set of neurons used exclusively for this network being created only!
+        createdNeurons.factNeurons = groundTemplate.createdFactNeuronCache;
 
         if (groundingSample.query.headAtom == null) {
-            DetailedNetwork neuralNetwork = blindNeuralization(groundingSample.groundingWrap.getGroundTemplate(), neuronMaps, createdNeurons);
+            DetailedNetwork neuralNetwork = blindNeuralization(groundTemplate, neuronMaps, createdNeurons);
             NeuralProcessingSample neuralProcessingSample = new NeuralProcessingSample(new ScalarValue(0), new QueryNeuron(groundingSample.getId(), 0, 0, null, neuralNetwork), groundingSample.type, settings);
             return Collections.singletonList(neuralProcessingSample);
         }
@@ -252,14 +261,23 @@ public class Neuralizer implements Exportable {
         for (Map.Entry<Literal, LinkedHashMap<GroundHeadRule, Collection<GroundRule>>> entry : neuronMaps.groundRules.entrySet()) {
             neuralNetBuilder.loadNeuronsFromRules(entry.getKey(), entry.getValue(), currentNeuralSets);
         }
-        neuronMaps.groundRules.clear();   //remove rules that will have their neurons already created
+        neuronMaps.groundRules = Collections.EMPTY_MAP;   //remove rules that will have their neurons already created
 
         return getDetailedNetwork(neuronMaps, currentNeuralSets, groundTemplate, null);
     }
 
     private DetailedNetwork getDetailedNetwork(NeuronMaps neuronMaps, NeuralSets createdNeurons, GroundTemplate groundTemplate, List<Literal> queryMatchingLiterals) throws RuntimeException {
-        if (neuralNetBuilder.neuralBuilder.neuronFactory.neuronMaps.factNeurons.isEmpty() || settings.groundingMode == Settings.GroundingMode.SEQUENTIAL)
+        if (neuralNetBuilder.neuralBuilder.neuronFactory.neuronMaps.templateFactNeurons.isEmpty() && !neuronMaps.templateFacts.isEmpty()) {
+            // Fill fact neruons once - will be stored in Template via reference. Then clone it so that it is not modified.
+            neuralNetBuilder.loadNeuronsFromTemplateFacts(neuronMaps.templateFacts, createdNeurons);
+        }
+
+        createdNeurons.factNeurons = ((ObjectArrayList) createdNeurons.factNeurons).clone();
+
+        if (neuralNetBuilder.neuralBuilder.neuronFactory.neuronMaps.factNeurons.isEmpty() || settings.groundingMode == Settings.GroundingMode.SEQUENTIAL) {
             neuralNetBuilder.loadNeuronsFromFacts(neuronMaps.groundFacts, createdNeurons);   //global sharing mode transfers facts   - todo check after changes
+            neuronMaps.groundFacts = Collections.EMPTY_MAP; //remove facts that will already have corresponding neurons with them
+        }
 
         LOG.fine("Neurons created: " + neuralNetBuilder.getNeuronMaps());
         neuralNetBuilder.connectAllNeurons(createdNeurons);
@@ -272,17 +290,25 @@ public class Neuralizer implements Exportable {
     /**
      * Recursively build the network top-down, taking only ground rules in support of the given literal into account
      *
-     * @param literal
      * @param closedSet
      */
-    private void recursiveNeuronsCreation(@NotNull Literal literal, Set<Literal> closedSet, NeuronMaps neuronMaps, NeuralSets currentNeuralSets, boolean splittable) {
-        if (closedSet.contains(literal)) {
-            return;
-        }
-        closedSet.add(literal);
+    private void recursiveNeuronsCreation(@NotNull Literal initialLiteral, Set<Literal> closedSet, NeuronMaps neuronMaps, NeuralSets currentNeuralSets) {
+        Deque<StackNode> stack = new ArrayDeque<>();
+        stack.push(new StackNode(initialLiteral, false));
 
-        LinkedHashMap<GroundHeadRule, Collection<GroundRule>> ruleMap = neuronMaps.groundRules.remove(literal);
-        if (ruleMap != null) {
+        while (!stack.isEmpty()) {
+            StackNode node = stack.pop();
+            Literal literal = node.literal;
+            boolean splittable = node.splittable;
+
+            if (!closedSet.add(literal)) {
+                continue;
+            }
+
+            // Use get() + remove() only if memory reclaiming is strictly necessary immediately
+            LinkedHashMap<GroundHeadRule, Collection<GroundRule>> ruleMap = neuronMaps.groundRules.remove(literal);
+            if (ruleMap == null) continue;
+
             if (splittable) {
                 neuralNetBuilder.loadSplittableNeuronsFromRules(literal, ruleMap, currentNeuralSets);
             } else {
@@ -291,25 +317,34 @@ public class Neuralizer implements Exportable {
 
             groundRulesProcessed++;
 
-            for (Map.Entry<GroundHeadRule, Collection<GroundRule>> entry : ruleMap.entrySet()) {
-                Aggregation aggregation = entry.getKey().weightedRule.getAggregationFcn();
+            // Fast internal iteration
+            ruleMap.forEach((headRule, groundings) -> {
+                Aggregation aggregation = headRule.weightedRule.getAggregationFcn();
 
-                if (!splittable && aggregation != null && aggregation.isSplittable()) { // Process masked literal
-                    Literal maskedLiteral = entry.getKey().groundHead.maskTerms(aggregation.aggregableTerms());
-                    recursiveNeuronsCreation(maskedLiteral, closedSet, neuronMaps, currentNeuralSets, true);
-                    continue;
-                }
-
-                for (GroundRule grounding : entry.getValue()) {
-                    for (Literal bodyAtom : grounding.groundBody) {
-                        if (bodyAtom == null) {
-                            throw new RuntimeException("Encoutered a null ground body atom in " + grounding);
+                // Check for masking/splitting
+                if (!splittable && aggregation != null && aggregation.isSplittable()) {
+                    Literal maskedLiteral = headRule.groundHead.maskTerms(aggregation.aggregableTerms());
+                    stack.push(new StackNode(maskedLiteral, true));
+                } else {
+                    // Process body atoms
+                    for (GroundRule grounding : groundings) {
+                        for (Literal bodyAtom : grounding.groundBody) {
+                            // Avoid null check inside recursion if possible, or keep as guard
+                            if (bodyAtom != null) {
+                                stack.push(new StackNode(bodyAtom, false));
+                            }
                         }
-                        recursiveNeuronsCreation(bodyAtom, closedSet, neuronMaps, currentNeuralSets, false);
                     }
                 }
-            }
+            });
         }
+    }
+
+    // Simple state holder for the stack
+    private static class StackNode {
+        final Literal literal;
+        final boolean splittable;
+        StackNode(Literal l, boolean s) { this.literal = l; this.splittable = s; }
     }
 
     @NotNull
@@ -325,7 +360,7 @@ public class Neuralizer implements Exportable {
             ArrayList<Literal> queries = new ArrayList<>();
             if (groundTemplate.groundRules.containsKey(queryLiteral)) {
                 queries.add(queryLiteral);
-            } else if (groundTemplate.groundFacts.containsKey(queryLiteral)) {
+            } else if (groundTemplate.groundFacts.containsKey(queryLiteral) || groundTemplate.templateFacts.containsKey(queryLiteral)) {
                 LOG.severe("Quering directly facts with " + queryLiteral);
                 queries.add(queryLiteral);
             }
@@ -354,7 +389,7 @@ public class Neuralizer implements Exportable {
         Set<Literal> closedSet = new HashSet<>();
 
         for (Literal queryLiteral : queryLiterals) {
-            recursiveNeuronsCreation(queryLiteral, closedSet, neuronMaps, currentNeuralSets, false);
+            recursiveNeuronsCreation(queryLiteral, closedSet, neuronMaps, currentNeuralSets);
             closedSet.add(queryLiteral);
         }
 

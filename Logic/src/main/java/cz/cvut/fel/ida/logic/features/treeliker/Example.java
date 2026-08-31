@@ -14,6 +14,7 @@ import cz.cvut.fel.ida.utils.math.collections.IntegerMultiMap;
 import cz.cvut.fel.ida.utils.math.collections.IntegerSet;
 import cz.cvut.fel.ida.utils.math.collections.MultiMap;
 import cz.cvut.fel.ida.utils.math.collections.ValueToIndex;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 import java.util.*;
 
@@ -86,7 +87,7 @@ public class Example {
             }
             this.originalLiterals.put(l.id(), l);
         }
-        for (Map.Entry<Triple<Integer,Integer,Integer>,Set<Integer>> entry : hb.entrySet()){
+        for (Map.Entry<Triple<Integer,Integer,Integer>, ObjectOpenHashSet<Integer>> entry : hb.entrySet()){
             this.literalMultiMap.add(entry.getKey(), IntegerSet.createIntegerSet(entry.getValue()));
         }
     }
@@ -98,7 +99,7 @@ public class Example {
             for (Literal l : e.getLiteralsByPredicate(predicate)){
                 lits.put(l.arity(), l.id());
             }
-            for (Map.Entry<Integer,Set<Integer>> entry : lits.entrySet()){
+            for (Map.Entry<Integer, ObjectOpenHashSet<Integer>> entry : lits.entrySet()){
                 this.predicateMultiMap.add(PredicateDefinition.predicateToInteger(predicate, entry.getKey()), IntegerSet.createIntegerSet(entry.getValue()));
             }
         }
@@ -117,7 +118,7 @@ public class Example {
     private void buildTermsInLiterals(Clause e){
         MultiMap<Pair<Integer,Integer>,Integer> hb = new MultiMap<Pair<Integer,Integer>,Integer>();
         for (Literal l : e.literals()){
-            int args[] = new int[l.arity()];
+            int[] args = new int[l.arity()];
             for (int i = 0; i < l.arity(); i++){
                 hb.put(new Pair<Integer,Integer>(PredicateDefinition.predicateToInteger(l.predicate().name, l.arity()), i), Example.termsToIntegers.valueToIndex(l.get(i).toString()));
                 args[i] = Example.termsToIntegers.valueToIndex(l.get(i).toString());

@@ -779,7 +779,7 @@ public class Block implements HavingLiteralDomain, HavingTermDomain {
      */
     public static Block parse(String clauseAsString){
         Clause clause = Clause.parse(clauseAsString);
-        LinkedHashSet<Literal> literals = clause.literals();
+        Set<Literal> literals = clause.literals();
         Map<Term,Pair<Block,Integer>> outputVariables = new HashMap<Term,Pair<Block,Integer>>();
         Map<Term,Block> constants = new HashMap<Term,Block>();
         Block root = null;
