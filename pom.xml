@@ -92,8 +92,10 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <!-- release, not source/target: this checks the calls against Java 8's own API, so
+                         the JDK doing the building stops mattering. source/target only set the bytecode
+                         level, and let a Java 9 method through on any newer JDK. -->
+                    <release>8</release>
                 </configuration>
             </plugin>
 
