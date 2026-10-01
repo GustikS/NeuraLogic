@@ -5,6 +5,7 @@ import cz.cvut.fel.ida.setup.Settings;
 
 import javax.swing.*;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.logging.Level;
@@ -111,6 +112,48 @@ public abstract class Drawer<S> {   //todo next replace hashcodes (which collide
         loadGraph(obj);
 
         return this.graphviz.getDotSource();
+    }
+
+    /**
+     * Returns the graph of the given object as GraphML, an XML format that can be
+     * loaded directly into networkx, e.g.:
+     * <pre>import networkx as nx; nx.read_graphml(...)</pre>
+     *
+     * @return GraphML string, or null if the graphviz-based conversion failed.
+     */
+    public String getGraphMLSource(S obj) {
+        if (this.graphviz == null) {
+            this.graphviz = new GraphViz(this.settings);
+        }
+
+        this.graphviz.clearGraph();
+        loadGraph(obj);
+
+        return this.graphviz.toGraphML();
+    }
+
+    /**
+     * Stores the graph of the given object as a GraphML file consumable by networkx.
+     *
+     * @param obj  the object whose graph should be exported
+     * @param path destination file path (parent directories are created if needed)
+     */
+    public void saveGraphML(S obj, String path) {
+        String graphML = getGraphMLSource(obj);
+        if (graphML == null) {
+            LOG.warning("Could not create GraphML source for " + obj);
+            return;
+        }
+
+        File file = new File(path);
+        if (file.getParentFile() != null) {
+            file.getParentFile().mkdirs();
+        }
+        try (FileWriter writer = new FileWriter(file)) {
+            writer.write(graphML);
+        } catch (IOException e) {
+            LOG.severe(e.getMessage());
+        }
     }
 
     public abstract void loadGraph(S obj);  //todo add indentation into the dot file

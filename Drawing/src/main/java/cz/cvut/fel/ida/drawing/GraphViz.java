@@ -6,6 +6,9 @@ import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -62,6 +65,14 @@ public class GraphViz {
      * The source of the graph written in dot language.
      */
     private StringBuilder graph = new StringBuilder();
+
+    /**
+     * Attributes parsed from the DOT source so that GraphML export can keep
+     * metadata (edge labels, weights, gradients, colors, styles, ...) that the
+     * graphviz plain format does not preserve.
+     */
+    private final Map<String, Map<String, String>> dotNodeAttributes = new LinkedHashMap<>();
+    private final Map<String, Map<String, String>> dotEdgeAttributes = new LinkedHashMap<>();
 
     public static String sanitize(String name) {
         return "\"" + name + "\"";
@@ -143,10 +154,368 @@ public class GraphViz {
     }
 
     /**
+     * Returns the graph as GraphML, an XML format directly readable by networkx:
+     * <pre>nx.read_graphml(...)</pre>
+     *
+     * The current DOT source is converted with the Graphviz 'plain' output,
+     * so the graphviz executable must be available (the same one used for drawing).
+     *
+     * @return GraphML representation of the current graph, or null if conversion failed.
+     */
+    public String toGraphML() {
+        try {
+            String plain = getPlainSource();
+            return convertPlainToGraphML(plain);
+        } catch (IOException | InterruptedException e) {
+            LOG.severe("Could not convert graph to GraphML: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Runs graphviz with -Tplain to obtain an easily parseable representation of the graph.
+     */
+    private String getPlainSource() throws IOException, InterruptedException {
+        ProcessBuilder builder = new ProcessBuilder(executable, "-Tplain", "-K" + algorithm);
+        builder.redirectErrorStream(true); // This is important part
+        Process process = builder.start();
+
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+        bw.write(graph.toString());
+        bw.flush();
+        bw.close();
+
+        return readInputTextStream(process.getInputStream());
+    }
+
+    private String readInputTextStream(InputStream inputStream) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append('\n');
+            }
+        }
+        return sb.toString();
+    }
+
+    private String convertPlainToGraphML(String plain) {
+        String graphDeclaration = graph.toString().trim();
+        boolean directed = graphDeclaration.contains("digraph");
+
+        ArrayList<String[]> nodes = new ArrayList<>();
+        ArrayList<String> edges = new ArrayList<>();
+        HashSet<String> seenNodes = new HashSet<>();
+        HashSet<String> seenEdges = new HashSet<>();
+
+        for (String line : plain.split("\n")) {
+            ArrayList<String> tokens = tokenize(line);
+            if (tokens.isEmpty()) {
+                continue;
+            }
+            switch (tokens.get(0)) {
+                case "node":
+                    if (tokens.size() > 1 && seenNodes.add(tokens.get(1))) {
+                        String label = tokens.size() > 6 ? tokens.get(6) : tokens.get(1);
+                        nodes.add(new String[]{tokens.get(1), label});
+                    }
+                    break;
+                case "edge":
+                    if (tokens.size() > 2) {
+                        String edge = tokens.get(1) + "\u0000" + tokens.get(2);
+                        if (seenEdges.add(edge)) {
+                            edges.add(edge);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        sb.append("<graphml xmlns=\"http://graphml.graphdrawing.org/xmlns\">\n");
+        sb.append("  <key id=\"label\" for=\"node\" attr.name=\"label\" attr.type=\"string\"/>\n");
+
+        LinkedHashSet<String> edgeKeys = new LinkedHashSet<>();
+        for (Map<String, String> attrs : dotEdgeAttributes.values()) {
+            edgeKeys.addAll(attrs.keySet());
+        }
+        for (String edgeKey : edgeKeys) {
+            sb.append("  <key id=\"edge_").append(escapeXml(edgeKey))
+                    .append("\" for=\"edge\" attr.name=\"").append(escapeXml(edgeKey))
+                    .append("\" attr.type=\"string\"/>\n");
+        }
+
+        sb.append("  <graph edgedefault=\"").append(directed ? "directed" : "undirected").append("\">\n");
+        for (String[] node : nodes) {
+            sb.append("    <node id=\"").append(escapeXml(node[0])).append("\">\n");
+            sb.append("      <data key=\"label\">").append(escapeXml(node[1])).append("</data>\n");
+            sb.append("    </node>\n");
+        }
+        for (String edge : edges) {
+            String[] parts = edge.split("\u0000");
+            Map<String, String> attrs = dotEdgeAttributes.get(edge);
+            if (attrs == null || attrs.isEmpty()) {
+                sb.append("    <edge source=\"").append(escapeXml(parts[0]))
+                        .append("\" target=\"").append(escapeXml(parts[1])).append("\"/>\n");
+            } else {
+                sb.append("    <edge source=\"").append(escapeXml(parts[0]))
+                        .append("\" target=\"").append(escapeXml(parts[1])).append("\">\n");
+                for (Map.Entry<String, String> attr : attrs.entrySet()) {
+                    sb.append("      <data key=\"edge_").append(escapeXml(attr.getKey())).append("\">")
+                            .append(escapeXml(attr.getValue())).append("</data>\n");
+                }
+                sb.append("    </edge>\n");
+            }
+        }
+        sb.append("  </graph>\n");
+        sb.append("</graphml>\n");
+        return sb.toString();
+    }
+
+    /**
+     * Splits a graphviz plain-format line into whitespace-separated tokens,
+     * treating double-quoted sections (which may contain spaces) as single tokens.
+     */
+    private ArrayList<String> tokenize(String line) {
+        ArrayList<String> tokens = new ArrayList<>();
+        int i = 0;
+        while (i < line.length()) {
+            while (i < line.length() && Character.isWhitespace(line.charAt(i))) {
+                i++;
+            }
+            if (i >= line.length()) {
+                break;
+            }
+            if (line.charAt(i) == '"') {
+                StringBuilder quoted = new StringBuilder();
+                i++;
+                while (i < line.length()) {
+                    char c = line.charAt(i);
+                    if (c == '\\' && i + 1 < line.length()) {
+                        char next = line.charAt(i + 1);
+                        if (next == '"') {
+                            quoted.append(next);
+                        } else {
+                            quoted.append(c).append(next);
+                        }
+                        i += 2;
+                    } else if (c == '"') {
+                        i++;
+                        break;
+                    } else {
+                        quoted.append(c);
+                        i++;
+                    }
+                }
+                tokens.add(quoted.toString());
+            } else {
+                int start = i;
+                while (i < line.length() && !Character.isWhitespace(line.charAt(i))) {
+                    i++;
+                }
+                tokens.add(line.substring(start, i));
+            }
+        }
+        return tokens;
+    }
+
+    private String escapeXml(String s) {
+        return s.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&apos;");
+    }
+
+    /**
+     * Records node/edge attributes from one DOT statement so that GraphML
+     * export can attach them as edge/node data. The generated DOT is simple
+     * enough to parse statement by statement; statements that open/close the
+     * graph or subgraphs carry no attributes and are skipped.
+     */
+    private void parseDotStatement(String statement) {
+        String line = statement.trim();
+        if (line.isEmpty() || line.startsWith("{") || line.startsWith("}") || line.startsWith("subgraph")
+                || line.startsWith("strict") || line.startsWith("digraph") || line.startsWith("graph")
+                || line.startsWith("//") || line.startsWith("compound") || line.startsWith("node")
+                || line.startsWith("edge")) {
+            return;
+        }
+
+        int bracketStart = findUnquoted(line, '[');
+        String left;
+        String attributes = null;
+        if (bracketStart >= 0) {
+            left = line.substring(0, bracketStart).trim();
+            int bracketEnd = findMatchingBracket(line, bracketStart);
+            if (bracketEnd > bracketStart) {
+                attributes = line.substring(bracketStart + 1, bracketEnd);
+            }
+        } else {
+            left = line;
+            int semicolon = findUnquoted(left, ';');
+            if (semicolon >= 0) {
+                left = left.substring(0, semicolon);
+            }
+            left = left.trim();
+        }
+
+        int arrow = findArrow(left);
+        if (arrow >= 0) {
+            String source = unquote(left.substring(0, arrow).trim());
+            String target = unquote(left.substring(arrow + 2).trim());
+            if (source.isEmpty() || target.isEmpty()) {
+                return;
+            }
+            Map<String, String> attrs = dotEdgeAttributes.computeIfAbsent(
+                    source + "\u0000" + target, k -> new LinkedHashMap<>());
+            if (attributes != null) {
+                parseDotAttributes(attributes, attrs);
+            }
+        } else if (!left.isEmpty()) {
+            String node = unquote(left);
+            if (node.isEmpty()) {
+                return;
+            }
+            Map<String, String> attrs = dotNodeAttributes.computeIfAbsent(
+                    node, k -> new LinkedHashMap<>());
+            if (attributes != null) {
+                parseDotAttributes(attributes, attrs);
+            }
+        }
+    }
+
+    private void parseDotAttributes(String content, Map<String, String> target) {
+        for (String part : splitTopLevel(content, ',')) {
+            String attribute = part.trim();
+            if (attribute.isEmpty()) {
+                continue;
+            }
+            int equals = findUnquoted(attribute, '=');
+            if (equals <= 0) {
+                continue;
+            }
+            String key = attribute.substring(0, equals).trim();
+            String value = unquote(attribute.substring(equals + 1).trim());
+            target.put(key, value);
+        }
+    }
+
+    private ArrayList<String> splitTopLevel(String s, char delimiter) {
+        ArrayList<String> parts = new ArrayList<>();
+        int start = 0;
+        int bracketDepth = 0;
+        boolean inQuotes = false;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (inQuotes) {
+                if (c == '\\' && i + 1 < s.length()) {
+                    i++;
+                } else if (c == '"') {
+                    inQuotes = false;
+                }
+            } else {
+                if (c == '"') {
+                    inQuotes = true;
+                } else if (c == '[') {
+                    bracketDepth++;
+                } else if (c == ']') {
+                    bracketDepth--;
+                } else if (c == delimiter && bracketDepth == 0) {
+                    parts.add(s.substring(start, i));
+                    start = i + 1;
+                }
+            }
+        }
+        parts.add(s.substring(start));
+        return parts;
+    }
+
+    private int findUnquoted(String s, char target) {
+        boolean inQuotes = false;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (inQuotes) {
+                if (c == '\\' && i + 1 < s.length()) {
+                    i++;
+                } else if (c == '"') {
+                    inQuotes = false;
+                }
+            } else {
+                if (c == '"') {
+                    inQuotes = true;
+                } else if (c == target) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    private int findMatchingBracket(String s, int openBracket) {
+        int depth = 0;
+        boolean inQuotes = false;
+        for (int i = openBracket; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (inQuotes) {
+                if (c == '\\' && i + 1 < s.length()) {
+                    i++;
+                } else if (c == '"') {
+                    inQuotes = false;
+                }
+            } else {
+                if (c == '"') {
+                    inQuotes = true;
+                } else if (c == '[') {
+                    depth++;
+                } else if (c == ']') {
+                    depth--;
+                    if (depth == 0) {
+                        return i;
+                    }
+                }
+            }
+        }
+        return -1;
+    }
+
+    private int findArrow(String s) {
+        boolean inQuotes = false;
+        for (int i = 0; i + 1 < s.length(); i++) {
+            char c = s.charAt(i);
+            if (inQuotes) {
+                if (c == '\\') {
+                    i++;
+                } else if (c == '"') {
+                    inQuotes = false;
+                }
+            } else {
+                if (c == '"') {
+                    inQuotes = true;
+                } else if (c == '-' && s.charAt(i + 1) == '>') {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    private String unquote(String s) {
+        if (s.length() >= 2 && s.charAt(0) == '"' && s.charAt(s.length() - 1) == '"') {
+            return s.substring(1, s.length() - 1).replace("\\\"", "\"");
+        }
+        return s;
+    }
+
+    /**
      * Adds a string to the graph's source (without newline).
      */
     public void add(String line) {
         this.graph.append(line);
+        parseDotStatement(line);
     }
 
     /**
@@ -154,6 +523,7 @@ public class GraphViz {
      */
     public void addln(String line) {
         this.graph.append(line + "\n");
+        parseDotStatement(line);
     }
 
     /**
@@ -171,10 +541,17 @@ public class GraphViz {
         }
         String collect = strings.stream().collect(Collectors.joining("\n"));
         graph = new StringBuilder(collect);
+        dotNodeAttributes.clear();
+        dotEdgeAttributes.clear();
+        for (String s : split) {
+            parseDotStatement(s);
+        }
     }
 
     public void clearGraph() {
         this.graph = new StringBuilder();
+        dotNodeAttributes.clear();
+        dotEdgeAttributes.clear();
     }
 
     private String getImageName(String name) {
@@ -452,6 +829,11 @@ public class GraphViz {
         }
 
         this.graph = sb;
+        dotNodeAttributes.clear();
+        dotEdgeAttributes.clear();
+        for (String line : sb.toString().split("\n")) {
+            parseDotStatement(line);
+        }
     }
 
 }
